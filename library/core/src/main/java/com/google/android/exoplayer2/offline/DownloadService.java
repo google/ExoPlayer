@@ -764,27 +764,6 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * @deprecated Some state change events may not be delivered to this method. Instead, use {@link
-   *     DownloadManager#addListener(DownloadManager.Listener)} to register a listener directly to
-   *     the {@link DownloadManager} that you return through {@link #getDownloadManager()}.
-   */
-  @Deprecated
-  protected void onDownloadChanged(Download download) {
-    // Do nothing.
-  }
-
-  /**
-   * @deprecated Some download removal events may not be delivered to this method. Instead, use
-   *     {@link DownloadManager#addListener(DownloadManager.Listener)} to register a listener
-   *     directly to the {@link DownloadManager} that you return through {@link
-   *     #getDownloadManager()}.
-   */
-  @Deprecated
-  protected void onDownloadRemoved(Download download) {
-    // Do nothing.
-  }
-
-  /**
    * Called after the service is created, once the downloads are known.
    *
    * @param downloads The current downloads.
@@ -805,9 +784,7 @@ public abstract class DownloadService extends Service {
    *
    * @param download The state of the download.
    */
-  @SuppressWarnings("deprecation")
   private void notifyDownloadChanged(Download download) {
-    onDownloadChanged(download);
     if (foregroundNotificationUpdater != null) {
       if (needsStartedService(download.state)) {
         foregroundNotificationUpdater.startPeriodicUpdates();
@@ -817,14 +794,8 @@ public abstract class DownloadService extends Service {
     }
   }
 
-  /**
-   * Called when a download is removed.
-   *
-   * @param download The last state of the download before it was removed.
-   */
-  @SuppressWarnings("deprecation")
-  private void notifyDownloadRemoved(Download download) {
-    onDownloadRemoved(download);
+  /** Called when a download is removed. */
+  private void notifyDownloadRemoved() {
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.invalidate();
     }
@@ -996,7 +967,7 @@ public abstract class DownloadService extends Service {
     @Override
     public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
       if (downloadService != null) {
-        downloadService.notifyDownloadRemoved(download);
+        downloadService.notifyDownloadRemoved();
       }
     }
 

@@ -85,6 +85,11 @@
         `HttpDataSource.Factory.setDefaultRequestProperties` instead.
     *   Remove `GvrAudioProcessor` and the GVR extension, which has been
         deprecated since 2.11.0.
+    *   Remove `DownloadService.onDownloadChanged` and
+        `DownloadService.onDownloadRemoved`. Instead, use
+        `DownloadManager.addListener` to register a listener directly to
+        the `DownloadManager` returned through
+        `DownloadService.getDownloadManager`.
 *   Cast extension:
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed
