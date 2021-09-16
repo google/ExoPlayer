@@ -178,6 +178,7 @@ public abstract class DownloadService extends Service {
   @StringRes private final int channelNameResourceId;
   @StringRes private final int channelDescriptionResourceId;
 
+  private @MonotonicNonNull Scheduler scheduler;
   private @MonotonicNonNull DownloadManager downloadManager;
   private int lastStartId;
   private boolean startedInForeground;
@@ -582,6 +583,9 @@ public abstract class DownloadService extends Service {
     if (downloadManagerHelper == null) {
       boolean foregroundAllowed = foregroundNotificationUpdater != null;
       @Nullable Scheduler scheduler = foregroundAllowed ? getScheduler() : null;
+      if (scheduler != null) {
+        this.scheduler = scheduler;
+      }
       downloadManager = getDownloadManager();
       downloadManager.resumeDownloads();
       downloadManagerHelper =
@@ -589,6 +593,9 @@ public abstract class DownloadService extends Service {
               getApplicationContext(), downloadManager, foregroundAllowed, scheduler, clazz);
       downloadManagerHelpers.put(clazz, downloadManagerHelper);
     } else {
+      if (downloadManagerHelper.scheduler != null) {
+        scheduler = downloadManagerHelper.scheduler;
+      }
       downloadManager = downloadManagerHelper.downloadManager;
     }
     downloadManagerHelper.attachService(this);
@@ -658,7 +665,6 @@ public abstract class DownloadService extends Service {
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
-          @Nullable Scheduler scheduler = getScheduler();
           if (scheduler != null) {
             Requirements supportedRequirements = scheduler.getSupportedRequirements(requirements);
             if (!supportedRequirements.equals(requirements)) {
