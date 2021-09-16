@@ -40,6 +40,11 @@
 *   DRM:
     *   Fix `DefaultDrmSessionManager` to correctly eagerly release preacquired
         DRM sessions when there's a shortage of DRM resources on the device.
+*   Downloads and caching:
+    *   Workaround platform issue that can cause a `SecurityException` to be
+        thrown from `Requirements.isInternetConnectivityValidated` on devices
+        running Android 11
+        ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
 *   UI
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
@@ -338,11 +343,6 @@
         ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
     *   Allow the timeout to be customised via
         `RtspMediaSource.Factory.setTimeoutMs`.
-*   Downloads and caching:
-    *   Workaround platform issue that can cause a `SecurityException` to be
-        thrown from `Requirements.isInternetConnectivityValidated` on devices
-        running Android 11
-        ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
 
 ### 2.14.1 (2021-06-11)
 
