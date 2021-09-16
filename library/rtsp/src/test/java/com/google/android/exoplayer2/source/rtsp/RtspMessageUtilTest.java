@@ -452,10 +452,10 @@ public final class RtspMessageUtilTest {
   @Test
   public void parseWWWAuthenticateHeader_withBasicAuthentication_succeeds() throws Exception {
     RtspAuthenticationInfo authenticationInfo =
-        RtspMessageUtil.parseWwwAuthenticateHeader("Basic realm=\"WallyWorld\"");
+        RtspMessageUtil.parseWwwAuthenticateHeader("Basic realm=\"Wally - World\"");
     assertThat(authenticationInfo.authenticationMechanism).isEqualTo(RtspAuthenticationInfo.BASIC);
     assertThat(authenticationInfo.nonce).isEmpty();
-    assertThat(authenticationInfo.realm).isEqualTo("WallyWorld");
+    assertThat(authenticationInfo.realm).isEqualTo("Wally - World");
   }
 
   @Test
@@ -463,13 +463,13 @@ public final class RtspMessageUtilTest {
       throws Exception {
     RtspAuthenticationInfo authenticationInfo =
         RtspMessageUtil.parseWwwAuthenticateHeader(
-            "Digest realm=\"testrealm@host.com\", domain=\"host.com\","
+            "Digest realm=\"test-realm@host.com\", domain=\"host.com\","
                 + " nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\", "
                 + " opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"");
 
     assertThat(authenticationInfo.authenticationMechanism).isEqualTo(RtspAuthenticationInfo.DIGEST);
     assertThat(authenticationInfo.nonce).isEqualTo("dcd98b7102dd2f0e8b11d0f600bfb0c093");
-    assertThat(authenticationInfo.realm).isEqualTo("testrealm@host.com");
+    assertThat(authenticationInfo.realm).isEqualTo("test-realm@host.com");
     assertThat(authenticationInfo.opaque).isEmpty();
   }
 
