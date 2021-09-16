@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener.Event
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.NetworkTypeObserver;
-import com.google.android.exoplayer2.util.SlidingPercentile;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;

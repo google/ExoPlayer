@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.util;
+package com.google.android.exoplayer2.upstream.cache;
 
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,7 +25,7 @@ import java.io.OutputStream;
  * This is a subclass of {@link BufferedOutputStream} with a {@link #reset(OutputStream)} method
  * that allows an instance to be re-used with another underlying output stream.
  */
-public final class ReusableBufferedOutputStream extends BufferedOutputStream {
+/* package */ final class ReusableBufferedOutputStream extends BufferedOutputStream {
 
   private boolean closed;
 
