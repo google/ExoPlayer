@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
-import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -35,6 +34,8 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
 
   private static final String TAG = "LibflacAudioRenderer";
   private static final int NUM_BUFFERS = 16;
+  private static final int STREAM_MARKER_SIZE = 4;
+  private static final int METADATA_BLOCK_HEADER_SIZE = 4;
 
   public LibflacAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -92,8 +93,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
       outputFormat =
           Util.getPcmFormat(C.ENCODING_PCM_16BIT, format.channelCount, format.sampleRate);
     } else {
-      int streamMetadataOffset =
-          FlacConstants.STREAM_MARKER_SIZE + FlacConstants.METADATA_BLOCK_HEADER_SIZE;
+      int streamMetadataOffset = STREAM_MARKER_SIZE + METADATA_BLOCK_HEADER_SIZE;
       FlacStreamMetadata streamMetadata =
           new FlacStreamMetadata(format.initializationData.get(0), streamMetadataOffset);
       outputFormat = getOutputFormat(streamMetadata);
