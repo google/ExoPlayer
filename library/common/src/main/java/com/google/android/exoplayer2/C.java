@@ -460,6 +460,26 @@ public final class C {
       AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
 
   /**
+   * Playback offload mode. One of {@link #PLAYBACK_OFFLOAD_NOT_SUPPORTED},{@link
+   * PLAYBACK_OFFLOAD_SUPPORTED} or {@link PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED}.
+   */
+  @IntDef({
+    PLAYBACK_OFFLOAD_NOT_SUPPORTED,
+    PLAYBACK_OFFLOAD_SUPPORTED,
+    PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED
+  })
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface AudioManagerOffloadMode {}
+  /** See AudioManager#PLAYBACK_OFFLOAD_NOT_SUPPORTED */
+  public static final int PLAYBACK_OFFLOAD_NOT_SUPPORTED =
+      AudioManager.PLAYBACK_OFFLOAD_NOT_SUPPORTED;
+  /** See AudioManager#PLAYBACK_OFFLOAD_SUPPORTED */
+  public static final int PLAYBACK_OFFLOAD_SUPPORTED = AudioManager.PLAYBACK_OFFLOAD_SUPPORTED;
+  /** See AudioManager#PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED */
+  public static final int PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED =
+      AudioManager.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
+
+  /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
    * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_LAST_SAMPLE},
    * {@link #BUFFER_FLAG_ENCRYPTED} and {@link #BUFFER_FLAG_DECODE_ONLY}.

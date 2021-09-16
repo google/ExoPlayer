@@ -1619,31 +1619,39 @@ public final class DefaultAudioSink implements AudioSink {
       return false;
     }
     AudioFormat audioFormat = getAudioFormat(format.sampleRate, channelConfig, encoding);
-    if (!AudioManager.isOffloadedPlaybackSupported(
-        audioFormat, audioAttributes.getAudioAttributesV21())) {
-      return false;
+
+    switch (getOffloadedPlaybackSupport(audioFormat, audioAttributes.getAudioAttributesV21())) {
+      case C.PLAYBACK_OFFLOAD_NOT_SUPPORTED:
+        return false;
+      case C.PLAYBACK_OFFLOAD_SUPPORTED:
+        boolean isGapless = format.encoderDelay != 0 || format.encoderPadding != 0;
+        boolean gaplessSupportRequired = offloadMode == OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED;
+        return !isGapless || !gaplessSupportRequired;
+      case C.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED:
+        return true;
+      default:
+        throw new IllegalStateException();
     }
-    boolean isGapless = format.encoderDelay != 0 || format.encoderPadding != 0;
-    boolean offloadRequiresGaplessSupport = offloadMode == OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED;
-    if (isGapless && offloadRequiresGaplessSupport && !isOffloadedGaplessPlaybackSupported()) {
-      return false;
+  }
+
+  @C.AudioManagerOffloadMode
+  private int getOffloadedPlaybackSupport(
+      AudioFormat audioFormat, android.media.AudioAttributes audioAttributes) {
+    if (Util.SDK_INT >= 31) {
+      return AudioManager.getPlaybackOffloadSupport(audioFormat, audioAttributes);
     }
-    return true;
+    if (!AudioManager.isOffloadedPlaybackSupported(audioFormat, audioAttributes)) {
+      return C.PLAYBACK_OFFLOAD_NOT_SUPPORTED;
+    }
+    // Manual testing has shown that Pixels on Android 11 support gapless offload.
+    if (Util.SDK_INT == 30 && Util.MODEL.startsWith("Pixel")) {
+      return C.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
+    }
+    return C.PLAYBACK_OFFLOAD_SUPPORTED;
   }
 
   private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
     return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
-  }
-
-  /**
-   * Returns whether the device supports gapless in offload playback.
-   *
-   * <p>Gapless offload is not supported by all devices and there is no API to query its support. As
-   * a result this detection is currently based on manual testing.
-   */
-  // TODO(internal b/158191844): Add an SDK API to query offload gapless support.
-  private static boolean isOffloadedGaplessPlaybackSupported() {
-    return Util.SDK_INT >= 30 && Util.MODEL.startsWith("Pixel");
   }
 
   private static int getMaximumEncodedRateBytesPerSecond(@C.Encoding int encoding) {
