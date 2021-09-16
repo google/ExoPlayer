@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -604,6 +605,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Override
     public ParametersBuilder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
       super.setForceHighestSupportedBitrate(forceHighestSupportedBitrate);
+      return this;
+    }
+
+    @Override
+    public ParametersBuilder setDisabledTrackTypes(Set<@C.TrackType Integer> trackTypes) {
+      super.setDisabledTrackTypes(trackTypes);
       return this;
     }
 
@@ -1484,7 +1491,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Apply track disabling and overriding.
     for (int i = 0; i < rendererCount; i++) {
-      if (params.getRendererDisabled(i)) {
+      @C.TrackType int rendererType = mappedTrackInfo.getRendererType(i);
+      if (params.getRendererDisabled(i) || params.disabledTrackTypes.contains(rendererType)) {
         definitions[i] = null;
         continue;
       }
@@ -1509,7 +1517,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @NullableType
     RendererConfiguration[] rendererConfigurations = new RendererConfiguration[rendererCount];
     for (int i = 0; i < rendererCount; i++) {
-      boolean forceRendererDisabled = params.getRendererDisabled(i);
+      @C.TrackType int rendererType = mappedTrackInfo.getRendererType(i);
+      boolean forceRendererDisabled =
+          params.getRendererDisabled(i) || params.disabledTrackTypes.contains(rendererType);
       boolean rendererEnabled =
           !forceRendererDisabled
               && (mappedTrackInfo.getRendererType(i) == C.TRACK_TYPE_NONE

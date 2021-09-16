@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationLi
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -101,12 +102,14 @@ public final class DefaultTrackSelectorTest {
   private static final TrackGroup AUDIO_TRACK_GROUP = new TrackGroup(AUDIO_FORMAT);
   private static final TrackGroupArray TRACK_GROUPS =
       new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
+  private static final TrackSelection VIDEO_TRACK_SELECTION =
+      new FixedTrackSelection(VIDEO_TRACK_GROUP, 0);
+  private static final TrackSelection AUDIO_TRACK_SELECTION =
+      new FixedTrackSelection(AUDIO_TRACK_GROUP, 0);
   private static final TrackSelection[] TRACK_SELECTIONS =
-      new TrackSelection[] {
-        new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), new FixedTrackSelection(AUDIO_TRACK_GROUP, 0)
-      };
+      new TrackSelection[] {VIDEO_TRACK_SELECTION, AUDIO_TRACK_SELECTION};
   private static final TrackSelection[] TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER =
-      new TrackSelection[] {new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), null};
+      new TrackSelection[] {VIDEO_TRACK_SELECTION, null};
 
   private static final Timeline TIMELINE = new FakeTimeline();
 
@@ -206,6 +209,58 @@ public final class DefaultTrackSelectorTest {
     assertSelections(result, TRACK_SELECTIONS);
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  /** Tests disabling a track type. */
+  @Test
+  public void selectVideoAudioTracks_withDisabledAudioType_onlyVideoIsSelected()
+      throws ExoPlaybackException {
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO)));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactly(VIDEO_TRACK_SELECTION, null).inOrder();
+    assertThat(result.rendererConfigurations).asList().containsExactly(DEFAULT, null);
+  }
+
+  /** Tests that a disabled track type can be enabled again. */
+  @Test
+  public void selectTracks_withClearedDisabledTrackType_selectsAll() throws ExoPlaybackException {
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
+            .setDisabledTrackTypes(ImmutableSet.of()));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
+
+    assertThat(result.selections).asList().containsExactlyElementsIn(TRACK_SELECTIONS).inOrder();
+    assertThat(result.rendererConfigurations).asList().containsExactly(DEFAULT, DEFAULT).inOrder();
+  }
+
+  /** Tests disabling NONE track type rendering. */
+  @Test
+  public void selectTracks_withDisabledNoneTracksAndNoSampleRenderer_disablesNoSampleRenderer()
+      throws ExoPlaybackException {
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_NONE)));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, NO_SAMPLE_CAPABILITIES},
+            TRACK_GROUPS,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactly(VIDEO_TRACK_SELECTION, null).inOrder();
+    assertThat(result.rendererConfigurations).asList().containsExactly(DEFAULT, null).inOrder();
   }
 
   /** Tests disabling a renderer. */
@@ -1760,6 +1815,7 @@ public final class DefaultTrackSelectorTest {
         .setRendererDisabled(1, true)
         .setRendererDisabled(3, true)
         .setRendererDisabled(5, false)
+        .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
         .build();
   }
 

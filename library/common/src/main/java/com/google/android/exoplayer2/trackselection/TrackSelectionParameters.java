@@ -31,10 +31,13 @@ import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Locale;
+import java.util.Set;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
@@ -90,6 +93,7 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
+    private ImmutableSet<@C.TrackType Integer> disabledTrackTypes;
 
     /**
      * @deprecated {@link Context} constraints will not be set using this constructor. Use {@link
@@ -119,6 +123,7 @@ public class TrackSelectionParameters implements Bundleable {
       // General
       forceLowestBitrate = false;
       forceHighestSupportedBitrate = false;
+      disabledTrackTypes = ImmutableSet.of();
     }
 
     /**
@@ -219,6 +224,12 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
               DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
+
+      disabledTrackTypes =
+          ImmutableSet.copyOf(
+              Ints.asList(
+                  firstNonNull(
+                      bundle.getIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE)), new int[0])));
     }
 
     /** Overrides the value of the builder with the value of {@link TrackSelectionParameters}. */
@@ -226,7 +237,8 @@ public class TrackSelectionParameters implements Bundleable {
       "preferredVideoMimeTypes",
       "preferredAudioLanguages",
       "preferredAudioMimeTypes",
-      "preferredTextLanguages"
+      "preferredTextLanguages",
+      "disabledTrackTypes",
     })
     private void init(@UnknownInitialization Builder this, TrackSelectionParameters parameters) {
       // Video
@@ -255,6 +267,7 @@ public class TrackSelectionParameters implements Bundleable {
       // General
       forceLowestBitrate = parameters.forceLowestBitrate;
       forceHighestSupportedBitrate = parameters.forceHighestSupportedBitrate;
+      disabledTrackTypes = parameters.disabledTrackTypes;
     }
 
     /** Overrides the value of the builder with the value of {@link TrackSelectionParameters}. */
@@ -602,6 +615,18 @@ public class TrackSelectionParameters implements Bundleable {
       return this;
     }
 
+    /**
+     * Sets the disabled track types, preventing all tracks of those types from being selected for
+     * playback.
+     *
+     * @param disabledTrackTypes The track types to disable.
+     * @return This builder.
+     */
+    public Builder setDisabledTrackTypes(Set<@C.TrackType Integer> disabledTrackTypes) {
+      this.disabledTrackTypes = ImmutableSet.copyOf(disabledTrackTypes);
+      return this;
+    }
+
     /** Builds a {@link TrackSelectionParameters} instance with the selected values. */
     public TrackSelectionParameters build() {
       return new TrackSelectionParameters(this);
@@ -785,6 +810,12 @@ public class TrackSelectionParameters implements Bundleable {
    * other constraints. The default value is {@code false}.
    */
   public final boolean forceHighestSupportedBitrate;
+  /**
+   * The track types that are disabled. No track of a disabled type will be selected, thus no track
+   * type contained in the set will be played. The default value is that no track type is disabled
+   * (empty set).
+   */
+  public final ImmutableSet<@C.TrackType Integer> disabledTrackTypes;
 
   protected TrackSelectionParameters(Builder builder) {
     // Video
@@ -813,6 +844,7 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     this.forceLowestBitrate = builder.forceLowestBitrate;
     this.forceHighestSupportedBitrate = builder.forceHighestSupportedBitrate;
+    this.disabledTrackTypes = builder.disabledTrackTypes;
   }
 
   /** Creates a new {@link Builder}, copying the initial values from this instance. */
@@ -854,7 +886,8 @@ public class TrackSelectionParameters implements Bundleable {
         && selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
         // General
         && forceLowestBitrate == other.forceLowestBitrate
-        && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate;
+        && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
+        && disabledTrackTypes.equals(other.disabledTrackTypes);
   }
 
   @Override
@@ -886,6 +919,7 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     result = 31 * result + (forceLowestBitrate ? 1 : 0);
     result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
+    result = 31 * result + disabledTrackTypes.hashCode();
     return result;
   }
 
@@ -916,6 +950,7 @@ public class TrackSelectionParameters implements Bundleable {
     FIELD_PREFERRED_AUDIO_MIME_TYPES,
     FIELD_FORCE_LOWEST_BITRATE,
     FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE,
+    FIELD_DISABLED_TRACK_TYPE,
   })
   private @interface FieldNumber {}
 
@@ -941,6 +976,7 @@ public class TrackSelectionParameters implements Bundleable {
   private static final int FIELD_PREFERRED_AUDIO_MIME_TYPES = 20;
   private static final int FIELD_FORCE_LOWEST_BITRATE = 21;
   private static final int FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE = 22;
+  private static final int FIELD_DISABLED_TRACK_TYPE = 23;
 
   @Override
   @CallSuper
@@ -983,6 +1019,7 @@ public class TrackSelectionParameters implements Bundleable {
     bundle.putBoolean(keyForField(FIELD_FORCE_LOWEST_BITRATE), forceLowestBitrate);
     bundle.putBoolean(
         keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE), forceHighestSupportedBitrate);
+    bundle.putIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE), Ints.toArray(disabledTrackTypes));
 
     return bundle;
   }
