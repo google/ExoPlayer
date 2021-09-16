@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import android.content.Context;
 import android.os.Looper;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -45,7 +46,8 @@ import com.google.android.exoplayer2.util.ListenerSet;
   private int adGroupIndex;
   private int adIndexInAdGroup;
 
-  public FakePlayer() {
+  public FakePlayer(Context context) {
+    super(context);
     listeners =
         new ListenerSet<>(
             Looper.getMainLooper(),

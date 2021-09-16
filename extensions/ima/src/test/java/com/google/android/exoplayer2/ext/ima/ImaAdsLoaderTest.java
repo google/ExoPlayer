@@ -145,7 +145,7 @@ public final class ImaAdsLoaderTest {
   @Before
   public void setUp() {
     setupMocks();
-    fakePlayer = new FakePlayer();
+    fakePlayer = new FakePlayer(getApplicationContext());
     adViewGroup = new FrameLayout(getApplicationContext());
     View adOverlayView = new View(getApplicationContext());
     adViewProvider =

@@ -24,6 +24,8 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
 import com.google.android.exoplayer2.util.FlagSet;
@@ -46,7 +48,7 @@ public class ForwardingPlayerTest {
 
   @Test
   public void addListener_addsForwardingListener() {
-    FakePlayer player = new FakePlayer();
+    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
     Player.Listener listener1 = mock(Player.Listener.class);
     Player.Listener listener2 = mock(Player.Listener.class);
 
@@ -62,7 +64,7 @@ public class ForwardingPlayerTest {
   @Test
   @SuppressWarnings("deprecation") // Testing backwards compatibility with deprecated method.
   public void addEventListener_addsForwardingListener() {
-    FakePlayer player = new FakePlayer();
+    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
     Player.EventListener listener1 = mock(Player.EventListener.class);
     Player.EventListener listener2 = mock(Player.EventListener.class);
 
@@ -77,7 +79,7 @@ public class ForwardingPlayerTest {
 
   @Test
   public void removeListener_removesForwardingListener() {
-    FakePlayer player = new FakePlayer();
+    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
     Player.Listener listener1 = mock(Player.Listener.class);
     Player.Listener listener2 = mock(Player.Listener.class);
     ForwardingPlayer forwardingPlayer = new ForwardingPlayer(player);
@@ -96,7 +98,7 @@ public class ForwardingPlayerTest {
   @Test
   @SuppressWarnings("deprecation") // Testing backwards compatibility with deprecated method.
   public void removeEventListener_removesForwardingListener() {
-    FakePlayer player = new FakePlayer();
+    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
     Player.EventListener listener1 = mock(Player.EventListener.class);
     Player.EventListener listener2 = mock(Player.EventListener.class);
     ForwardingPlayer forwardingPlayer = new ForwardingPlayer(player);
@@ -114,7 +116,7 @@ public class ForwardingPlayerTest {
 
   @Test
   public void onEvents_passesForwardingPlayerAsArgument() {
-    FakePlayer player = new FakePlayer();
+    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
     Player.Listener listener = mock(Player.Listener.class);
     ForwardingPlayer forwardingPlayer = new ForwardingPlayer(player);
     forwardingPlayer.addListener(listener);
@@ -219,6 +221,10 @@ public class ForwardingPlayerTest {
     private final Set<EventListener> eventListeners = new HashSet<>();
 
     private final Set<Listener> listeners = new HashSet<>();
+
+    public FakePlayer(Context context) {
+      super(context);
+    }
 
     @Override
     @SuppressWarnings("deprecation") // Implementing deprecated method.

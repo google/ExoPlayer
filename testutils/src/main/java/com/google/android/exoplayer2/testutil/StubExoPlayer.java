@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.content.Context;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -52,6 +53,10 @@ import java.util.List;
  * from every method.
  */
 public class StubExoPlayer extends BasePlayer implements ExoPlayer {
+
+  public StubExoPlayer(Context context) {
+    super();
+  }
 
   @Override
   @Deprecated
