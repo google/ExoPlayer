@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.offline;
 import static com.google.android.exoplayer2.offline.Download.STOP_REASON_NONE;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -889,8 +890,16 @@ public abstract class DownloadService extends Service {
       List<Download> downloads = Assertions.checkNotNull(downloadManager).getCurrentDownloads();
       @Requirements.RequirementFlags
       int notMetRequirements = downloadManager.getNotMetRequirements();
-      startForeground(notificationId, getForegroundNotification(downloads, notMetRequirements));
-      notificationDisplayed = true;
+      Notification notification = getForegroundNotification(downloads, notMetRequirements);
+      if (!notificationDisplayed) {
+        startForeground(notificationId, notification);
+        notificationDisplayed = true;
+      } else {
+        // Update the notification via NotificationManager rather than by repeatedly calling
+        // startForeground, since the latter can cause ActivityManager log spam.
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
+            .notify(notificationId, notification);
+      }
       if (periodicUpdatesStarted) {
         handler.removeCallbacksAndMessages(null);
         handler.postDelayed(this::update, updateInterval);
