@@ -555,6 +555,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
+  /**
+   * Called if an error is encountered while loading a playlist.
+   *
+   * @param playlistUrl The {@link Uri} of the playlist whose load encountered an error.
+   * @param loadErrorInfo The load error info.
+   * @param forceRetry Whether retry should be forced without considering exclusion.
+   * @return True if excluding did not encounter errors. False otherwise.
+   */
   public boolean onPlaylistError(Uri playlistUrl, LoadErrorInfo loadErrorInfo, boolean forceRetry) {
     if (!chunkSource.obtainsChunksForPlaylist(playlistUrl)) {
       // Return early if the chunk source doesn't deliver chunks for the failing playlist.
@@ -571,7 +579,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         exclusionDurationMs = fallbackSelection.exclusionDurationMs;
       }
     }
-    return chunkSource.onPlaylistError(playlistUrl, exclusionDurationMs);
+    // We must call ChunkSource.onPlaylistError in any case to give the chunk source the chance to
+    // mark the playlist as failing.
+    return chunkSource.onPlaylistError(playlistUrl, exclusionDurationMs)
+        && exclusionDurationMs != C.TIME_UNSET;
   }
 
   // SampleStream implementation.

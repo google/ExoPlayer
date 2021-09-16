@@ -56,6 +56,10 @@
         ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
     *   Fix base URL selection and load error handling when base URLs are shared
         across adaptation sets.
+*   HLS
+    *   Fix bug where the player would get stuck if all download attempts fail
+        and would not raise an error to the application.
+        ([#9390](https://github.com/google/ExoPlayer/issues/9390)).
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.
