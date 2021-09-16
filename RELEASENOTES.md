@@ -103,6 +103,8 @@
         ([#9346](https://github.com/google/ExoPlayer/issues/9346)).
     *   Fix RTSP Session header handling
         ([#9416](https://github.com/google/ExoPlayer/issues/9416)).
+    *   Fix RTSP WWW-Authenticate header parsing
+        ([#9428](https://github.com/google/ExoPlayer/issues/9428)).
 *   Extractors:
     *   ID3: Fix issue decoding ID3 tags containing UTF-16 encoded strings
         ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
