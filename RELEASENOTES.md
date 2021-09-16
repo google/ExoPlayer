@@ -38,6 +38,9 @@
         ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
     *   Fix base URL selection and load error handling when base URLs are shared
         across adaptation sets.
+*   HLS
+    *   Fix bug where the player would get stuck if all download attempts fail
+        and would not raise an error to the application.
 *   RTSP:
     *   Handle when additional spaces are in SDP's RTPMAP atrribute
         ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
