@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2;
 
 import android.os.Build;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.TraceUtil;
 import java.util.HashSet;
 
 /** Information about the ExoPlayer library. */
@@ -51,16 +53,10 @@ public final class ExoPlayerLibraryInfo {
   public static final String DEFAULT_USER_AGENT =
       VERSION_SLASHY + " (Linux; Android " + Build.VERSION.RELEASE + ") " + VERSION_SLASHY;
 
-  /**
-   * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}
-   * checks enabled.
-   */
+  /** Whether the library was compiled with {@link Assertions} checks enabled. */
   public static final boolean ASSERTIONS_ENABLED = true;
 
-  /**
-   * Whether the library was compiled with {@link com.google.android.exoplayer2.util.TraceUtil}
-   * trace enabled.
-   */
+  /** Whether the library was compiled with {@link TraceUtil} trace enabled. */
   public static final boolean TRACE_ENABLED = true;
 
   private static final HashSet<String> registeredModules = new HashSet<>();
