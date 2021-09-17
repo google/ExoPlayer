@@ -229,7 +229,6 @@ public final class DownloadRequest implements Parcelable {
         .setCustomCacheKey(customCacheKey)
         .setMimeType(mimeType)
         .setStreamKeys(streamKeys)
-        .setDrmKeySetId(keySetId)
         .build();
   }
 
