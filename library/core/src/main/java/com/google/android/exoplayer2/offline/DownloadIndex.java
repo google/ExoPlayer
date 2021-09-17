@@ -20,6 +20,7 @@ import androidx.annotation.WorkerThread;
 import java.io.IOException;
 
 /** An index of {@link Download Downloads}. */
+
 @WorkerThread
 public interface DownloadIndex {
 

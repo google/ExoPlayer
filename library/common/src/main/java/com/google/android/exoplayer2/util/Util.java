@@ -96,7 +96,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
-/** Miscellaneous utility methods. */
+/**
+ * Miscellaneous utility methods.
+ *
+ * https://docs.microsoft.com/en-us/azure/media-services/latest/live-events-outputs-concept
+ *
+ * For the RTMP ingest protocol, the content can be sent in the clear (rtmp://) or securely encrypted on the wire(rtmps://).
+ * For the Smooth Streaming ingest protocol, the supported URL schemes are http:// or https://.
+ *
+ *
+ * When using live encoding with Media Services, you configure your on-premises live encoder to send a single bitrate video as the contribution feed to the live event (using RTMP or Fragmented-Mp4 protocol).
+ * You then set up a live event so that it encodes that incoming single bitrate stream to a multiple bitrate video stream,
+ * and makes the output available for delivery to play back devices via protocols like MPEG-DASH, HLS, and Smooth Streaming.
+ */
 public final class Util {
 
   /**
@@ -769,6 +781,8 @@ public final class Util {
 
   /**
    * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
+   *
+   * 向上取整
    *
    * @param numerator The numerator to divide.
    * @param denominator The denominator to divide by.

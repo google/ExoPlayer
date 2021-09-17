@@ -1,0 +1,49 @@
+1.AOMedia Video 1（简称AV1）是一个开放、免专利的视频编码格式，专为通过网络进行流传输而设计.
+AV1可以与Opus音频格式一起封装在WebM容器格式中，并可用于HTML5网络视频和网页即时通信
+
+2.BandwidthMeter
+Component that estimates the network bandwidth
+
+3.DataSource
+Component for requesting data (e.g. over HTTP, from a local file, etc).
+
+4.Extractor
+Component that parses a media container format, outputting track information and
+individual access units belonging to each track suitable for consumption by a decoder.
+
+5.LoadControl
+Component that decides when to start and stop loading, and when to start playback.
+
+6.MediaSource
+Provides high-level information about the structure of media (as a Timeline) and
+creates MediaPeriod instances (corresponding to periods of the Timeline) for playback.
+
+7.MediaPeriod
+Loads a single piece of media (e.g. audio file, ad, content interleaved between two ads, etc.),
+and allows the loaded media to be read (typically by Renderers).
+The decisions about which tracks within the media are loaded and when loading starts and
+stops are made by the TrackSelector and the LoadControl respectively.
+
+8.Renderer
+Component that reads, decodes and renders media samples.
+Surface and AudioTrack are the standard Android platform components to which video and audio data are rendered.
+
+9.Timeline
+Represents the structure of media, from simple cases like a single media file through
+to complex compositions of media such as playlists and streams with inserted ads.
+
+10.TrackGroup
+Group containing one or more representations of the same video, audio or text content,
+normally at different bitrates for adaptive streaming.
+
+11.TrackSelection
+A selection consisting of a static subset of tracks from a TrackGroup,
+and a possibly varying selected track from the subset.
+For adaptive streaming, the TrackSelection is responsible for selecting the appropriate track
+whenever a new media chunk starts being loaded.
+
+12.TrackSelector
+Selects tracks for playback. Given track information for the MediaPeriod to be played,
+along with the capabilities of the player’s Renderers,
+a TrackSelector will generate a TrackSelection for each Renderer.
+

@@ -36,6 +36,7 @@ import java.io.IOException;
  *
  * <p>Methods are invoked on the playback thread.
  */
+
 public interface LoadErrorHandlingPolicy {
 
   /** Holds information about a load task error. */

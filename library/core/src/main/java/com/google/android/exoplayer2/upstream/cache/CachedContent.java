@@ -153,10 +153,12 @@ import java.util.TreeSet;
    */
   public SimpleCacheSpan getSpan(long position, long length) {
     SimpleCacheSpan lookupSpan = SimpleCacheSpan.createLookup(key, position);
+    // Returns the greatest element in this set less than or equal to the given element
     SimpleCacheSpan floorSpan = cachedSpans.floor(lookupSpan);
     if (floorSpan != null && floorSpan.position + floorSpan.length > position) {
       return floorSpan;
     }
+    //Returns the least element in this set greater than or equal to the given element
     SimpleCacheSpan ceilSpan = cachedSpans.ceiling(lookupSpan);
     if (ceilSpan != null) {
       long holeLength = ceilSpan.position - position;

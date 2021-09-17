@@ -1363,8 +1363,10 @@ public class SimpleExoPlayer extends BasePlayer
     boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, Player.STATE_BUFFERING);
+    // 更新当前是否是准备完成后自动开始播放
     updatePlayWhenReady(
         playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
+    // player是ExoPlayerImpl对象
     player.prepare();
   }
 
@@ -1491,6 +1493,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
     verifyApplicationThread();
+    /* 与音频焦点相关 */
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
     updatePlayWhenReady(

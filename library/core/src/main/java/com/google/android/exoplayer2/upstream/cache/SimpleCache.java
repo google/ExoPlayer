@@ -46,6 +46,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * directory and its contents directly. This is necessary to ensure that associated index data is
  * also removed.
  */
+
 public final class SimpleCache implements Cache {
 
   private static final String TAG = "SimpleCache";

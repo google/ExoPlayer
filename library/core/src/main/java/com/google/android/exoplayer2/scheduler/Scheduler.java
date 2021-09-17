@@ -20,6 +20,7 @@ import android.app.Service;
 import android.content.Intent;
 
 /** Schedules a service to be started in the foreground when some {@link Requirements} are met. */
+
 public interface Scheduler {
 
   /**

@@ -505,7 +505,9 @@ public final class DefaultAudioSink implements AudioSink {
     if (!isAudioTrackInitialized() || startMediaTimeUsNeedsInit) {
       return CURRENT_POSITION_NOT_SET;
     }
+    /* 从AudioTrack获取pts */
     long positionUs = audioTrackPositionTracker.getCurrentPositionUs(sourceEnded);
+    /* 返回标准为audiotrack和本地记录获取的二者的最小值 */
     positionUs = min(positionUs, configuration.framesToDurationUs(getWrittenFrames()));
     return applySkipping(applyMediaPositionParameters(positionUs));
   }
@@ -720,7 +722,7 @@ public final class DefaultAudioSink implements AudioSink {
       // Re-apply playback parameters.
       applyAudioProcessorPlaybackParametersAndSkipSilence(presentationTimeUs);
     }
-
+    /* 初始化AudioTrack */
     if (!isAudioTrackInitialized()) {
       try {
         initializeAudioTrack();
@@ -733,7 +735,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
     initializationExceptionPendingExceptionHolder.clear();
-
+    /* 设置audioTrack参数：倍速设置，倍频等 */
     if (startMediaTimeUsNeedsInit) {
       startMediaTimeUs = max(0, presentationTimeUs);
       startMediaTimeUsNeedsSync = false;
@@ -743,7 +745,7 @@ public final class DefaultAudioSink implements AudioSink {
         setAudioTrackPlaybackParametersV23(audioTrackPlaybackParameters);
       }
       applyAudioProcessorPlaybackParametersAndSkipSilence(presentationTimeUs);
-
+      /* 是否播放数据 */
       if (playing) {
         play();
       }
@@ -752,7 +754,7 @@ public final class DefaultAudioSink implements AudioSink {
     if (!audioTrackPositionTracker.mayHandleBuffer(getWrittenFrames())) {
       return false;
     }
-
+    /* 注意这个inputbuffer是DefaultAudioSink类维护的，如果不为null表示decoder给过来的buffer还没有被消耗完 */
     if (inputBuffer == null) {
       // We are seeing this buffer for the first time.
       Assertions.checkArgument(buffer.order() == ByteOrder.LITTLE_ENDIAN);
@@ -812,17 +814,19 @@ public final class DefaultAudioSink implements AudioSink {
       }
 
       if (configuration.outputMode == OUTPUT_MODE_PCM) {
+        /* 统计decoder往audioTrack写的buffer总字节数 */
         submittedPcmBytes += buffer.remaining();
       } else {
         submittedEncodedFrames += framesPerEncodedSample * encodedAccessUnitCount;
       }
-
+      //这里的buffer就是我们前面通过MediaCode.releaseOutputBuffer()拿到的buffer
+      /* 将decoder的输出buffer赋值给DefaultAudioSink类维护的输入buffer */
       inputBuffer = buffer;
       inputBufferAccessUnitCount = encodedAccessUnitCount;
     }
-
+    /* 往audiotrack中写入buffer数据 */
     processBuffers(presentationTimeUs);
-
+    /* 如果buffer中的数据全部被消耗完，则返回true */
     if (!inputBuffer.hasRemaining()) {
       inputBuffer = null;
       inputBufferAccessUnitCount = 0;
@@ -862,12 +866,15 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
+    /* activeAudioProcessors.length值为0 */
     int count = activeAudioProcessors.length;
     int index = count;
     while (index >= 0) {
+      /* 这里代表的意思：input = inputBuffer */
       ByteBuffer input = index > 0 ? outputBuffers[index - 1]
           : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
       if (index == count) {
+        /* 往audiotrack中写数据 */
         writeBuffer(input, avSyncPresentationTimeUs);
       } else {
         AudioProcessor audioProcessor = activeAudioProcessors[index];
@@ -893,11 +900,16 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
+  //中间那段就是消费者-生产者的判断缘由，因为Android5.1之前audiotrack没有非阻塞式的判断，所以需要手动的去判断，
+  //如果buffer中的数据能全部写入到audiotrack中，那么就认为此时的需大于供，可以继续往里面写，
+  //如果buffer中的数据不能全部写入到audiotrack中，还有剩余，说明供大于需，暂时不用往里面写，需要消耗。这就是外面drainOutputBuffer作为while判断条件的原因
   @SuppressWarnings("ReferenceEquality")
   private void writeBuffer(ByteBuffer buffer, long avSyncPresentationTimeUs) throws WriteException {
+    /* 确认buffer中是否有数据 */
     if (!buffer.hasRemaining()) {
       return;
     }
+    /* 这个if-else总的意思就是确保：outputBuffer = buffer */
     if (outputBuffer != null) {
       Assertions.checkArgument(outputBuffer == buffer);
     } else {
@@ -913,13 +925,17 @@ public final class DefaultAudioSink implements AudioSink {
         preV21OutputBufferOffset = 0;
       }
     }
+    /* buffer中可copy数据总量 */
     int bytesRemaining = buffer.remaining();
+    /* 实际写入audiotrack中的数量 */
     int bytesWrittenOrError = 0; // Error if negative
     if (Util.SDK_INT < 21) { // outputMode == OUTPUT_MODE_PCM.
       // Work out how many bytes we can write without the risk of blocking.
       int bytesToWrite = audioTrackPositionTracker.getAvailableBufferSize(writtenPcmBytes);
       if (bytesToWrite > 0) {
+        /* 可以往audiotrack写入的buffer数据总量 */
         bytesToWrite = min(bytesRemaining, bytesToWrite);
+        /* 实际上往audiotrack写入的数据量 */
         bytesWrittenOrError =
             audioTrack.write(preV21OutputBuffer, preV21OutputBufferOffset, bytesToWrite);
         if (bytesWrittenOrError > 0) { // No error
@@ -983,6 +999,7 @@ public final class DefaultAudioSink implements AudioSink {
     if (configuration.outputMode == OUTPUT_MODE_PCM) {
       writtenPcmBytes += bytesWritten;
     }
+    /* 二者相等表示buffer中的数据全部写入到audiotrack */
     if (bytesWritten == bytesRemaining) {
       if (configuration.outputMode != OUTPUT_MODE_PCM) {
         // When playing non-PCM, the inputBuffer is never processed, thus the last inputBuffer
@@ -2121,13 +2138,16 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     private int getPcmDefaultBufferSize(float maxAudioTrackPlaybackSpeed) {
+      //从audioTrack拿到minBufferSize
       int minBufferSize =
           AudioTrack.getMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding);
       Assertions.checkState(minBufferSize != AudioTrack.ERROR_BAD_VALUE);
+      //乘上一个系数,取值4
       int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
       int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * outputPcmFrameSize;
       int maxAppBufferSize =
           max(minBufferSize, (int) durationUsToFrames(MAX_BUFFER_DURATION_US) * outputPcmFrameSize);
+      //bufferSizeUs取值在[250ms,750ms]之间
       int bufferSize =
           Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
       if (maxAudioTrackPlaybackSpeed != 1f) {

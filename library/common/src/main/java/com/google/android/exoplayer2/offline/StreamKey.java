@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
  * within the group. The interpretation of these indices depends on the type of media for which the
  * stream key is used.
  */
+
 public final class StreamKey implements Comparable<StreamKey>, Parcelable {
 
   /** The period index. */

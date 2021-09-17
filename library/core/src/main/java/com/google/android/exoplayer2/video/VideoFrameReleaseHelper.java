@@ -259,15 +259,26 @@ public final class VideoFrameReleaseHelper {
    * @return The adjusted frame release timestamp, in nanoseconds and in the same time base as
    *     {@link System#nanoTime()}.
    */
+  /* framePresentationTimeUs:buffer队列中当前视频帧的时间戳,
+     unadjustedReleaseTimeNs:待校准的送显预计时间（纳秒） */
+  // 校准送显时间的原理分三步：
+  //1.校准理论送显时间；
+  //2.根据刷新率计算出距离理论送显时间最近的垂直同步信号时间点，作为最终的送显时间；
+  //3.提前0.8个垂直同步信号来送显；
   public long adjustReleaseTime(long releaseTimeNs) {
     // Until we know better, the adjustment will be a no-op.
+    /* 校准后的下次视频送显时间 */
     long adjustedReleaseTimeNs = releaseTimeNs;
 
+    /* 代码一开始进来不会走这里 */
     if (lastAdjustedFrameIndex != C.INDEX_UNSET && frameRateEstimator.isSynced()) {
       long frameDurationNs = frameRateEstimator.getFrameDurationNs();
+      /* 3.当前帧送显时间 = 上一帧送显的时间（已确定） + 平均每帧的持续时间 */
+      // 然后根据平均帧间隔,加前一帧的pts,计算出一个ns级别的视频帧pts时间,否则从码流中读出来的pts往往只有ms精度.
       long candidateAdjustedReleaseTimeNs =
           lastAdjustedReleaseTimeNs
-              + (long) ((frameDurationNs * (frameIndex - lastAdjustedFrameIndex)) / playbackSpeed);
+              + (long) ((frameDurationNs * (frameIndex - lastAdjustedFrameIndex)) / playbackSpeed); //首先计算平均帧间隔
+      //推理出了一个当前帧的送显时间之后，还需要去做一次偏差波动的检测，看送检校准是否有意义
       if (adjustmentAllowed(releaseTimeNs, candidateAdjustedReleaseTimeNs)) {
         adjustedReleaseTimeNs = candidateAdjustedReleaseTimeNs;
       } else {
@@ -275,18 +286,32 @@ public final class VideoFrameReleaseHelper {
       }
     }
     pendingLastAdjustedFrameIndex = frameIndex;
+    /* 更新本次送显的视频帧时间戳（已校准） */
     pendingLastAdjustedReleaseTimeNs = adjustedReleaseTimeNs;
 
+    //计算出来的送显时间终究是一个理想值，我们需要找一个最近的物理设备刷新时间点去渲染视频
     if (vsyncSampler == null || vsyncDurationNs == C.TIME_UNSET) {
+      //vsyncSampler会返回每个vsync信号的时间,正常情况下不会走到这个if逻辑里面
       return adjustedReleaseTimeNs;
     }
+    // 寻找距离当前送显时间点最近(可能是在送显时间点之前,也可能是在送显时间点之后)的vsync时间点,我们的目标是在这个vsync时间点让视频帧显示出去,
     long sampledVsyncTimeNs = vsyncSampler.sampledVsyncTimeNs;
     if (sampledVsyncTimeNs == C.TIME_UNSET) {
       return adjustedReleaseTimeNs;
     }
+
     // Find the timestamp of the closest vsync. This is the vsync that we're targeting.
+    /* 根据视频刷新率寻找最近的送显时间点 */
+    //送显点物理设备在显示的时候，并不是等你有数据送过去了才会给你显示，它是自动刷新的
+    //也就是我们经常听到的刷新率，比如显示器60Hz，144Hz
+    // vsyncDuration_60Hz = 1000 / 60 = 16.7ms
+    // vsyncDuration_144Hz = 1000 / 144 = 6.94ms
+
+    // 上面计算出的是我们的目标vsync显示时间,但是要提前送,给后面的流程以时间,所以再减去vsyncOffsetNs时间,这个时间是写死的,
+    // 定义为0.8*vsyncDuration,减完之后的这个值就是真正给mediacodec.releaseOutputBuffer方法的时间戳
     long snappedTimeNs = closestVsync(adjustedReleaseTimeNs, sampledVsyncTimeNs, vsyncDurationNs);
     // Apply an offset so that we release before the target vsync, but after the previous one.
+    /* 提前送显：MediaCodec给的建议是最好提前两个vsync，但实际上exoplayer仅仅提前了0.8个vsync，原因不明 */
     return snappedTimeNs - vsyncOffsetNs;
   }
 
@@ -296,8 +321,14 @@ public final class VideoFrameReleaseHelper {
     pendingLastAdjustedFrameIndex = C.INDEX_UNSET;
   }
 
+  //判断视频帧的pts距离他的送显时间是否有过大的偏移量
   private static boolean adjustmentAllowed(
       long unadjustedReleaseTimeNs, long adjustedReleaseTimeNs) {
+    // 关于何为sync状态: 如果视频帧的pts和他的送显时间之间差了20ms以上,就认为偏移过大,也就认为失去sync了.
+    // 在理想的情况下,一个视频帧的pts应该和它的送显时间一一对应,pts本身是个常量,送显时间的计算过程中存在着一个不确定变量,
+    // 就是 elapsedSinceStartOfLoopUs, 这玩意的理想值永远是0,但实际上并不是,所以会在pts和对应的送显时间之间引入一些偏差,
+    // 如果这个偏差大于20ms,就认为失去sync了,否则认为还没有失去sync.从一些简单的实验测试结果看,很少会有失去sync的情况出现
+    // 以6帧作为间隔来计算平均帧间隔的问题是收敛会比较慢,可能算了半天都还有误差.当然好处是能够尽早开始计算,比较适合于码流本身帧间隔就不均匀的情况
     return Math.abs(unadjustedReleaseTimeNs - adjustedReleaseTimeNs) <= MAX_ALLOWED_ADJUSTMENT_NS;
   }
 
@@ -405,7 +436,13 @@ public final class VideoFrameReleaseHelper {
     Display defaultDisplay = checkNotNull(windowManager).getDefaultDisplay();
     if (defaultDisplay != null) {
       double defaultDisplayRefreshRate = defaultDisplay.getRefreshRate();
+      /* 垂直同步时间间隔 = 1秒钟 / 刷新率（60.0）纳秒*/
       vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
+      /* 提前送显的时间:VSYNC_OFFSET_PERCENTAGE = 80 */
+      //要提前送显，这是因为为了保证送显的准时和高质量，
+      //Google建议提前送显，送显的函数是MediaCodec.releaseOutputBuffer()
+      //Google的建议是提前两个刷新点(即两个垂直同步信号)就调用这个接口去送显。
+      //显然exoplayer并没有这么做，而是自己设定了一个固定值，0.8个vsync
       vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
     } else {
       Log.w(TAG, "Unable to query display refresh rate");
@@ -414,20 +451,36 @@ public final class VideoFrameReleaseHelper {
     }
   }
 
+  /**
+   * 根据视频刷新率寻找最近的送显时间点
+   *
+   * 寻找距离当前送显时间最近的vsync时间点
+   *
+   * @param releaseTime       最终计算出来的理论送显时间点（校准过后的理论送显时间）
+   * @param sampledVsyncTime  记录物理设备渲染本帧的开始时间
+   * @param vsyncDuration     垂直同步信号的时间间隔
+   */
   private static long closestVsync(long releaseTime, long sampledVsyncTime, long vsyncDuration) {
+    /* 1.计算需要刷新几次 */
     long vsyncCount = (releaseTime - sampledVsyncTime) / vsyncDuration;
+    /* 2.计算出一个真实刷新时间 */
     long snappedTimeNs = sampledVsyncTime + (vsyncDuration * vsyncCount);
     long snappedBeforeNs;
     long snappedAfterNs;
+    /* 3.计算出两种情况下距离送显时间最近的前后两个刷新点 */
     if (releaseTime <= snappedTimeNs) {
+      // snappedTimeNs-vsyncDuration   ----    releaseTime ----- snappedTimeNs
       snappedBeforeNs = snappedTimeNs - vsyncDuration;
       snappedAfterNs = snappedTimeNs;
     } else {
+      // snappedTimeNs   ----    releaseTime ----- snappedTimeNs+vsyncDuration
       snappedBeforeNs = snappedTimeNs;
       snappedAfterNs = snappedTimeNs + vsyncDuration;
     }
+    /* 4.计算送显时间与前后两个刷新点的时间之差 */
     long snappedAfterDiff = snappedAfterNs - releaseTime;
     long snappedBeforeDiff = releaseTime - snappedBeforeNs;
+    /* 5.哪个刷新点近就选哪个作为最终的送显时间 */
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
   }
 
@@ -515,8 +568,12 @@ public final class VideoFrameReleaseHelper {
       handler.sendEmptyMessage(MSG_REMOVE_OBSERVER);
     }
 
+    //再去追doFrame，exoplayer的代码中是找不到的，因为这是个复写的方法，其来自接口FrameCallback
+    // 就是在view开始绘制新的一帧视频时会记录该时间，然后回调给程序，那么，对应代码中的入参，
+    // 我们也就清楚了，sampledVsyncTimeNs就是记录的物理设备在绘制上一帧时的开始时间
     @Override
     public void doFrame(long vsyncTimeNs) {
+      /* 记录物理设备渲染本帧的开始时间 */
       sampledVsyncTimeNs = vsyncTimeNs;
       checkNotNull(choreographer).postFrameCallbackDelayed(this, VSYNC_SAMPLE_UPDATE_PERIOD_MS);
     }

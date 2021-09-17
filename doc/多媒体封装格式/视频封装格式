@@ -1,0 +1,62 @@
+一个完整的视频文件，包括音频、视频和基础元信息，我们常见的视频文件如mp4、mov、flv、avi、rmvb等视频文件，
+就是一个容器的封装，里面包含了音频和视频两部分，并且都是通过一些特定的编码算法，进行编码压缩过后的
+
+1.音频编码格式
+音频编码格式有如下:
+AAC
+AMR
+PCM
+ogg(ogg vorbis音频)
+AC3(DVD 专用音频编码)
+DTS(DVD 专用音频编码)
+APE(monkey’s 音频)
+AU(sun 格式)
+WMA
+
+音频编码方案之间音质比较（AAC，MP3，WMA等）结果：
+AAC+ > MP3PRO > AAC> RealAudio > WMA > MP3 目前最常见的音频格式有 Mp3、AC-3、ACC，
+MP3最广泛的支持最多，AC-3是杜比公司的技术，ACC是MPEG-4中的音频标准，ACC是目前比较先进和具有优势的技术。
+
+2.视频编码格式
+视频编码标准有两大系统：
+
+“国际电联（ITU-T）”，它制定的标准有H.261、H.263、H.263+、H.264等，
+“国际标准化组织（ISO）”它制定的标准有MPEG-1、MPEG-2、MPEG-4等。
+
+常见编码格式有：
+Xvid(MPEG4)
+
+H265
+
+H264
+
+H263
+
+MPEG1，MPEG2
+
+AC-1
+
+RM，RMVB
+
+目前最常见的视频编码方式的大致性能排序基本是：
+
+MPEG-1/-2 < WMV/7/8 < RM/RMVB < Xvid/Divx < AVC/H.264（由低到高，可能不完全准确）
+
+3.存储封装格式
+目前市面常见的存储封装格式有如下：
+
+AVI (.avi)
+ASF（.asf)
+WMV (.wmv)
+QuickTime ( .mov)
+MPEG (.mpg / .mpeg)
+MP4 (.mp4)
+m2ts （.m2ts / .mts )
+Matroska （.mkv / .mks / .mka )
+RM ( .rm / .rmvb)
+TS/PS
+FLV
+
+对于相同的音视频内容，使用三种不同的封装格式，则文件体积从大到小依次为： TS -> MP4 -> FLV
+
+FLV和MP4封装格式的文件大小基本相等。

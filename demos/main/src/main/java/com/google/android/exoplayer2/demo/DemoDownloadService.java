@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 /** A service for downloading media. */
+
 public class DemoDownloadService extends DownloadService {
 
   private static final int JOB_ID = 1;

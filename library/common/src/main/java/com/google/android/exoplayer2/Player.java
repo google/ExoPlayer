@@ -786,17 +786,23 @@ public interface Player {
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
   @interface RepeatMode {}
   /**
+   * （顺序播放）
+   *
    * Normal playback without repetition. "Previous" and "Next" actions move to the previous and next
    * windows respectively, and do nothing when there is no previous or next window to move to.
    */
   int REPEAT_MODE_OFF = 0;
   /**
+   * 仅播放一次
+   *
    * Repeats the currently playing window infinitely during ongoing playback. "Previous" and "Next"
    * actions behave as they do in {@link #REPEAT_MODE_OFF}, moving to the previous and next windows
    * respectively, and doing nothing when there is no previous or next window to move to.
    */
   int REPEAT_MODE_ONE = 1;
   /**
+   * 重复播放
+   *
    * Repeats the entire timeline infinitely. "Previous" and "Next" actions behave as they do in
    * {@link #REPEAT_MODE_OFF}, but with looping at the ends so that "Previous" when playing the
    * first window will move to the last window, and "Next" when playing the last window will move to

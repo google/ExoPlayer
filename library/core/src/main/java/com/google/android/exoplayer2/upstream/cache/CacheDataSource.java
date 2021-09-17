@@ -184,7 +184,7 @@ public final class CacheDataSource implements DataSource {
     }
 
     /**
-     * Returns the {@link PriorityTaskManager} that will bs used when requesting data from upstream,
+     * Returns the {@link PriorityTaskManager} that will be used when requesting data from upstream,
      * or {@code null} if there is none.
      */
     @Nullable

@@ -64,6 +64,17 @@ import org.chromium.net.UrlResponseInfo;
  * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
  * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
  * construct the instance.
+ *
+ * 创建网络请求
+ * 1.创建并配置CronetEngine的实例
+ * 2.提供请求回调的实现
+ * 3.创建一个Executor对象来管理网络请求
+ * 4.创建并配置UrlRequest对象
+ * 5.request.start()
+ *
+ *
+ * Cronet请求生命周期
+ * 客户端可以根据UrlRequest对象的状态对其调用特定的方法。 （UrlRequest.Callback）-> 可以接收有关请求进度的动态更新。
  */
 public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 

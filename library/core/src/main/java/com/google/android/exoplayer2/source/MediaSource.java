@@ -43,6 +43,16 @@ import java.io.IOException;
  * com.google.android.exoplayer2.ExoPlayer} Javadoc. They should not be called directly from
  * application code. Instances can be re-used, but only for one {@link
  * com.google.android.exoplayer2.ExoPlayer} instance simultaneously.
+ *
+ * 定义多媒体数据源，这个类的功能就是从Uri中读取多媒体文件的二进制数据。
+ * MediaSource在播放开始时通过ExoPlayer.prepare()注入，它有一个主要的方法就是createPeriod()，
+ * 用来创建Period对象，这个对象里面会真正的做资源处理
+ *
+ *
+ * MediaSource要有两个重要的职责:
+ *
+ * 将一个定义媒体结构的Timeline对象提供给player，并且在媒体变化的时候去提供一个新的Timeline对象
+ * 对Timeline中的媒体片段提供MediaPeriod对象，player通过MediaPeriod中提供的方式来读取媒体数据
  */
 public interface MediaSource {
 

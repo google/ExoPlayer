@@ -19,6 +19,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /** A {@link DatabaseProvider} that provides instances obtained from a {@link SQLiteOpenHelper}. */
+
 public final class DefaultDatabaseProvider implements DatabaseProvider {
 
   private final SQLiteOpenHelper sqliteOpenHelper;

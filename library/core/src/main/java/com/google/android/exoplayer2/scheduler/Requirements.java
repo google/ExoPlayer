@@ -35,6 +35,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Defines a set of device state requirements. */
+
 public final class Requirements implements Parcelable {
 
   /**

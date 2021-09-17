@@ -187,6 +187,7 @@ public final class Mp3Extractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
+    // extractorOutput就是ProgressiveMediaPeriod
     realTrackOutput = extractorOutput.track(0, C.TRACK_TYPE_AUDIO);
     currentTrackOutput = realTrackOutput;
     extractorOutput.endTracks();
@@ -269,6 +270,7 @@ public final class Mp3Extractor implements Extractor {
     return readSample(input);
   }
 
+  //开始采样数据
   @RequiresNonNull({"realTrackOutput", "seeker"})
   private int readSample(ExtractorInput extractorInput) throws IOException {
     if (sampleBytesRemaining == 0) {
@@ -307,6 +309,8 @@ public final class Mp3Extractor implements Extractor {
         }
       }
     }
+    // extractorInput最后会交由trackOutput真正开始采样
+    // trackOutput也就是SampleQueue对象, 由SampleQueue读取extractorInput数据,SampleQueue也只是一个外层的wrapper容器，真正保存数据的是SampleDataQueue
     int bytesAppended = currentTrackOutput.sampleData(extractorInput, sampleBytesRemaining, true);
     if (bytesAppended == C.RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;

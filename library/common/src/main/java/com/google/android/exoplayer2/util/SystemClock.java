@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
  * The standard implementation of {@link Clock}, an instance of which is available via {@link
  * SystemClock#DEFAULT}.
  */
+
 public class SystemClock implements Clock {
 
   protected SystemClock() {}

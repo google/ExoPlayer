@@ -29,6 +29,7 @@ import java.lang.annotation.RetentionPolicy;
  * Utility methods for accessing versions of ExoPlayer database components. This allows them to be
  * versioned independently to the version of the containing database.
  */
+
 public final class VersionTable {
 
   /** Returned by {@link #getVersion(SQLiteDatabase, int, String)} if the version is unset. */

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Defines content to be downloaded. */
+
 public final class DownloadRequest implements Parcelable {
 
   /** Thrown when the encoded request data belongs to an unsupported request type. */

@@ -187,6 +187,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             new RendererConfiguration[renderers.length],
             new ExoTrackSelection[renderers.length],
             /* info= */ null);
+    // 媒体资源的片段，TimeLine和Period都是媒体资源片段状态相关的
     period = new Timeline.Period();
     permanentAvailableCommands =
         new Commands.Builder()
@@ -214,12 +215,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
     playbackInfoUpdateListener =
         playbackInfoUpdate ->
             playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
+    // 创建一个空的播放对象信息，直到开播的时候再赋值
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
     if (analyticsCollector != null) {
       analyticsCollector.setPlayer(playerForListeners, applicationLooper);
       addListener(analyticsCollector);
       bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
     }
+    // 创建ExoPlayerImplInternal对象internalPlayer
     internalPlayer =
         new ExoPlayerImplInternal(
             renderers,
@@ -384,7 +387,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
     // player after this prepare. The internal player can't change the playback info immediately
     // because it uses a callback.
     pendingOperationAcks++;
+    // 调用了ExoPlayerImplInternal的prepare方法
     internalPlayer.prepare();
+    /* 更新播放信息 */
     updatePlaybackInfo(
         playbackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_SOURCE_UPDATE,

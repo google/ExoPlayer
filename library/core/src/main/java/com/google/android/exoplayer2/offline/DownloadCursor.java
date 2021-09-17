@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.offline;
 import java.io.Closeable;
 
 /** Provides random read-write access to the result set returned by a database query. */
+
 public interface DownloadCursor extends Closeable {
 
   /** Returns the download at the current position. */

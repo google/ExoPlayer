@@ -57,6 +57,11 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
     // Features handle their own upgrades.
   }
 
+  /**
+   * 执行数据库的降级操作
+   * 1、只有新版本比旧版本低的时候才会执行
+   * 2、如果不执行降级操作，会抛出异常
+   */
   @Override
   public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     wipeDatabase(db);

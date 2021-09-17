@@ -49,7 +49,7 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
 
   /**
    * Creates a new instance with a listener for playback parameters changes and a {@link Clock} to
-   * use for the standalone clock implementation.
+   * use for the standalone clock implementation.getPositionUs
    *
    * @param listener A {@link PlaybackParametersListener} to listen for playback parameters changes.
    * @param clock A {@link Clock}.
@@ -125,6 +125,9 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
    *
    * @param isReadingAhead Whether the renderers are reading ahead.
    */
+  // isReadingAhead，它的值是由表达式playingPeriodHolder != queue.getReadingPeriod()来得到的，
+  // 也就是说，如果码流里面解析出来有带pts，那么将会使用码流中的pts来进行后续的同步处理
+  // 如果没有，就使用exoplayer自己维护的系统时间来进行同步
   public long syncAndGetPositionUs(boolean isReadingAhead) {
     syncClocks(isReadingAhead);
     return getPositionUs();
@@ -132,11 +135,12 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
 
   // MediaClock implementation.
 
+  //rendererClock实现类是MediaCodecAudioRenderer
   @Override
   public long getPositionUs() {
     return isUsingStandaloneClock
-        ? standaloneClock.getPositionUs()
-        : Assertions.checkNotNull(rendererClock).getPositionUs();
+        ? standaloneClock.getPositionUs()    //使用系统时间作为render position
+        : Assertions.checkNotNull(rendererClock).getPositionUs(); //使用audio playback position作为render position
   }
 
   @Override

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor;
 import androidx.annotation.Nullable;
 
 /** Defines a seek point in a media stream. */
+
 public final class SeekPoint {
 
   /** A {@link SeekPoint} whose time and byte offset are both set to 0. */

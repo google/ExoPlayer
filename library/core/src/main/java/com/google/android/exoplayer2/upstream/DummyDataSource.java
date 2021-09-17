@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 
 /** A DataSource which provides no data. {@link #open(DataSpec)} throws {@link IOException}. */
+
 public final class DummyDataSource implements DataSource {
 
   public static final DummyDataSource INSTANCE = new DummyDataSource();

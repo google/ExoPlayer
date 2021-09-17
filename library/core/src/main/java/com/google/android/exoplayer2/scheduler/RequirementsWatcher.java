@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Watches whether the {@link Requirements} are met and notifies the {@link Listener} on changes.
  */
+
 public final class RequirementsWatcher {
 
   /**

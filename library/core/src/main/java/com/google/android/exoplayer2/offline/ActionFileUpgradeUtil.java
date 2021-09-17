@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 /** Utility class for upgrading legacy action files into {@link DefaultDownloadIndex}. */
+
 public final class ActionFileUpgradeUtil {
 
   /** Provides download IDs during action file upgrade. */

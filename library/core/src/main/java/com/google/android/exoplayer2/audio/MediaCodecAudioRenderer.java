@@ -600,6 +600,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     audioSink.handleDiscontinuity();
   }
 
+  //整个函数实际上只完成一件事，就是调用audiosink来处理buffer中的数据，并用了fullyConsumed这个bool变量来记录处理结果，代表是否完全消耗完数据，
+  // 如果返回为true的话，则调用MediaCode.releaseOutputBuffer()方法来释放这个buffer
   @Override
   protected boolean processOutputBuffer(
       long positionUs,
@@ -634,6 +636,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
     boolean fullyConsumed;
     try {
+      /* 1.通过audiotrack消耗输出buffer，标志位fullyConsumed代表是否完全消耗 */
+      // buffer交由audioSink(DefaultAudioSink)处理， audioSink内部会将buffer的media data写到AudioTrack
       fullyConsumed = audioSink.handleBuffer(buffer, bufferPresentationTimeUs, sampleCount);
     } catch (InitializationException e) {
       throw createRendererException(e, e.format, e.isRecoverable);
@@ -643,6 +647,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
     if (fullyConsumed) {
       if (codec != null) {
+        /* 2.如果完全消耗，则release对应的buffer */
         codec.releaseOutputBuffer(bufferIndex, false);
       }
       decoderCounters.renderedOutputBufferCount += sampleCount;
@@ -779,6 +784,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     return mediaFormat;
   }
 
+  //通过audio playback时间计算render时间
   private void updateCurrentPosition() {
     long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
     if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {

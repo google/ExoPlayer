@@ -37,6 +37,7 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link Service} for downloading media. */
+
 public abstract class DownloadService extends Service {
 
   /**

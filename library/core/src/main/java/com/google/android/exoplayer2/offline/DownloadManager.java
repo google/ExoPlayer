@@ -68,6 +68,7 @@ import java.util.concurrent.Executor;
  * the `Looper` of the thread from which the manager must be accessed can be queried using {@link
  * #getApplicationLooper()}.
  */
+
 public final class DownloadManager {
 
   /** Listener for {@link DownloadManager} events. */

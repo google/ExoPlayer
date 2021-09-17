@@ -244,14 +244,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
     playbackInfoUpdate = new PlaybackInfoUpdate(playbackInfo);
     rendererCapabilities = new RendererCapabilities[renderers.length];
+    /* 获取每个渲染器的属性 */
     for (int i = 0; i < renderers.length; i++) {
       renderers[i].setIndex(i);
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
+    /* 音视频同步会使用该类 */
     mediaClock = new DefaultMediaClock(this, clock);
     pendingMessages = new ArrayList<>();
     window = new Timeline.Window();
     period = new Timeline.Period();
+    // 初始化trackSelector
     trackSelector.init(/* listener= */ this, bandwidthMeter);
 
     deliverPendingMessageAtStartPositionRequired = true;
@@ -263,7 +266,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
     internalPlaybackThread = new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
+    // 启动一个线程，准备接受任务
     internalPlaybackThread.start();
+    // 这个地方比较关键clock.createHandler的意思是使用特定的looper和特定callback来处理消息
+    // 而这里传的callback是this，所以通过该handler发送的消息都会传递到ExoPlayerImplInternal类的handleMessage方法
+    // clock是一个可以获取系统时间的类,又通过clock创建了一个ExoPlayerImplInternal使用的handler
     playbackLooper = internalPlaybackThread.getLooper();
     handler = clock.createHandler(playbackLooper, this);
   }
@@ -641,14 +648,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void prepareInternal() {
     playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
+    // 这个方法是做一些资源的释放初始化等操作，移除MSG_DO_SOME_WORK消息，然后重置Render，把之前的MediaSource释放等
     resetInternal(
         /* resetRenderers= */ false,
         /* resetPosition= */ false,
         /* releaseMediaSourceList= */ false,
         /* resetError= */ true);
     loadControl.onPrepared();
+    // 更新当前的状态到buffering
     setState(playbackInfo.timeline.isEmpty() ? Player.STATE_ENDED : Player.STATE_BUFFERING);
+    // 开始资源准备，并且添加对应的监听, 具体MediaSource里面怎么去实现的prepareSource
     mediaSourceList.prepare(bandwidthMeter.getTransferListener());
+    // 又发送了MSG_DO_SOME_WORK
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
@@ -735,13 +746,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
     isRebuffering = false;
     notifyTrackSelectionPlayWhenReadyChanged(playWhenReady);
+    /* 正常情况下，初始化不会进入这个分支 */
     if (!shouldPlayWhenReady()) {
       stopRenderers();
       updatePlaybackPositions();
     } else {
+      /* 如果播放器状态为ready，则开始渲染并发送MSG_DO_SOME_WORK消息 */
       if (playbackInfo.playbackState == Player.STATE_READY) {
         startRenderers();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+        /* 如果播放器状态为buffring，发送MSG_DO_SOME_WORK消息 */
       } else if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
@@ -813,6 +827,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
+  //startRenderers()方法对音频而言是开始往audiotrack中写数据进行播放，对视频而言是记录当前的系统时间为后面的渲染做准备。
   private void startRenderers() throws ExoPlaybackException {
     isRebuffering = false;
     mediaClock.start();
@@ -836,6 +851,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     seekToCurrentPosition(/* sendDiscontinuity= */ true);
   }
 
+  //去更新并校准当前的音频时间戳
+  //会去更新并处理pts
   private void updatePlaybackPositions() throws ExoPlaybackException {
     MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     if (playingPeriodHolder == null) {
@@ -862,6 +879,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 Player.DISCONTINUITY_REASON_INTERNAL);
       }
     } else {
+      /* 在这里面处理pts */
       rendererPositionUs =
           mediaClock.syncAndGetPositionUs(
               /* isReadingAhead= */ playingPeriodHolder != queue.getReadingPeriod());
@@ -906,8 +924,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
+  /**
+   * doSomeWork()方法会不断的去绘制，然后每次绘制完一部分就会继续循环调用该方法去绘制下一个媒体片段。看到核心功能在updatePeriods()方法，通过循环来不断的去加载下一个媒体片段，来达到播放的功能
+   *
+   * doSomeWork每次循环都会去调用具体的render类进行处理，在第一次调用的时候，会根据对应的mime type去初始化codec，在最下层的适配器中会去调用Android原生的MediaCodec接口，之后就会去不停地去生产和消耗解码后的数据了。
+   */
   private void doSomeWork() throws ExoPlaybackException, IOException {
+    // 获取系统时间
     long operationStartTimeMs = clock.uptimeMillis();
+    // 通过MediaPeriodQueue更新媒体文件的片段，里面会去prepare下一个片段
     updatePeriods();
 
     if (playbackInfo.playbackState == Player.STATE_IDLE
@@ -916,7 +941,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       handler.removeMessages(MSG_DO_SOME_WORK);
       return;
     }
-
+    // 获取当前播放器的媒体片段
     @Nullable MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     if (playingPeriodHolder == null) {
       // We're still waiting until the playing period is available.
@@ -925,15 +950,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     TraceUtil.beginSection("doSomeWork");
-
+    // 更新播放位置 /* 1.更新音频时间戳 */
+    //所有的同步处理前提都是基于准确的音频的时间戳来执行的
     updatePlaybackPositions();
 
     boolean renderersEnded = true;
     boolean renderersAllowPlayback = true;
     if (playingPeriodHolder.prepared) {
+      /* 2.获取系统当前时间 */
       long rendererPositionElapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
       playingPeriodHolder.mediaPeriod.discardBuffer(
           playbackInfo.positionUs - backBufferDurationUs, retainBackBufferFromKeyframe);
+      // renderers会比较多，有音频、视频、文本，Renderer接口有好几个实现类
+      /* 3.调用各个类型的render进行数据处理 */
       for (int i = 0; i < renderers.length; i++) {
         Renderer renderer = renderers[i];
         if (!isRendererEnabled(renderer)) {
@@ -942,6 +971,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // TODO: Each renderer should return the maximum delay before which it wishes to be called
         // again. The minimum of these values should then be used as the delay before the next
         // invocation of this method.
+        // 开始让Renderer进入准备状态
         renderer.render(rendererPositionUs, rendererPositionElapsedRealtimeUs);
         renderersEnded = renderersEnded && renderer.isEnded();
         // Determine whether the renderer allows playback to continue. Playback can continue if the
@@ -979,10 +1009,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (finishedRendering && playingPeriodHolder.info.isFinal) {
       setState(Player.STATE_ENDED);
       stopRenderers();
+      /* 更新播放器状态为STATE_READY */
     } else if (playbackInfo.playbackState == Player.STATE_BUFFERING
         && shouldTransitionToReadyState(renderersAllowPlayback)) {
       setState(Player.STATE_READY);
       pendingRecoverableRendererError = null; // Any pending error was successfully recovered from.
+      // prepare的时候会走到这里，如果prepared完成需要自动播放并且所有Renderer目前都已经是准备好的状态那就会开始渲染的功能
       if (shouldPlayWhenReady()) {
         startRenderers();
       }
@@ -1020,6 +1052,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     boolean sleepingForOffload = false;
     if ((shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY)
         || playbackInfo.playbackState == Player.STATE_BUFFERING) {
+      /* 开启渲染之后将进入这个分支:ACTIVE_INTERVAL_MS为10ms */
       sleepingForOffload = !maybeScheduleWakeup(operationStartTimeMs, ACTIVE_INTERVAL_MS);
     } else if (enabledRendererCount != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
@@ -1914,12 +1947,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
     maybeUpdatePlayingPeriod();
   }
 
+  /**
+   * 尝试加载下一个媒体片段
+   * 用来检测是否加载下一个媒体片段的
+   */
   private void maybeUpdateLoadingPeriod() throws ExoPlaybackException {
+    // 现在有一个正在loading的片段，会重新去评估
     queue.reevaluateBuffer(rendererPositionUs);
+    // 检查是否需要加载下一个媒体片段
     if (queue.shouldLoadNextMediaPeriod()) {
+      // 获取下一个媒体片段信息
       @Nullable
       MediaPeriodInfo info = queue.getNextMediaPeriodInfo(rendererPositionUs, playbackInfo);
       if (info != null) {
+        // 1. 调用了MediaPeriodQueue.enqueueNextMediaPeriod()方法
         MediaPeriodHolder mediaPeriodHolder =
             queue.enqueueNextMediaPeriodHolder(
                 rendererCapabilities,
@@ -1928,10 +1969,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 mediaSourceList,
                 info,
                 emptyTrackSelectorResult);
+        // 2. 调用下一个媒体片段的prepare方法。MediaPeriod接口有很多实现类，例如DASH、HLS等
+        // 所以每个不同类型的资源，它的prepare方法都是不一样的
         mediaPeriodHolder.mediaPeriod.prepare(this, info.startPositionUs);
         if (queue.getPlayingPeriod() == mediaPeriodHolder) {
           resetRendererPosition(mediaPeriodHolder.getStartPositionRendererTime());
         }
+        // 更新状态
         handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
       }
     }
@@ -2182,6 +2226,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
     queue.reevaluateBuffer(rendererPositionUs);
+    // 尝试去加载下一个MediaPeriod
     maybeContinueLoading();
   }
 

@@ -139,6 +139,8 @@ import java.util.List;
  *   <li>Injected player components may use additional background threads. For example a MediaSource
  *       may use background threads to load data. These are implementation specific.
  * </ul>
+ *
+ * Listener则负责向外界回调ExoPlayer状态变化和错误信息
  */
 public interface ExoPlayer extends Player {
 

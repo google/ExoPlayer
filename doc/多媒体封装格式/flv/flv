@@ -1,0 +1,4 @@
+FLV封装格式是由一个文件头（FLV header）和很多tag组成（FLV body）组成的二进制文件。
+Tag中包含了音频数据以及视频数据。
+tag又可以分成三类:audio,video,script，分别代表音频流，视频流，脚本流，而每个tag又由tag header和tag data组成。
+

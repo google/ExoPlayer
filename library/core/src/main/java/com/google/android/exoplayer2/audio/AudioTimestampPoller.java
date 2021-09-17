@@ -118,10 +118,12 @@ import java.lang.annotation.RetentionPolicy;
    */
   @TargetApi(19) // audioTimestamp will be null if Util.SDK_INT < 19.
   public boolean maybePollTimestamp(long systemTimeUs) {
+    /* if循环确保每10s调用一次 */
     if (audioTimestamp == null || (systemTimeUs - lastTimestampSampleTimeUs) < sampleIntervalUs) {
       return false;
     }
     lastTimestampSampleTimeUs = systemTimeUs;
+    /* 从AudioTrack.getTimestamp获取最近的timestamp */
     boolean updatedTimestamp = audioTimestamp.maybeUpdateTimestamp();
     switch (state) {
       case STATE_INITIALIZING:
@@ -129,6 +131,7 @@ import java.lang.annotation.RetentionPolicy;
           if (audioTimestamp.getTimestampSystemTimeUs() >= initializeSystemTimeUs) {
             // We have an initial timestamp, but don't know if it's advancing yet.
             initialTimestampPositionFrames = audioTimestamp.getTimestampPositionFrames();
+            /* 第一次更新状态 */
             updateState(STATE_TIMESTAMP);
           } else {
             // Drop the timestamp, as it was sampled before the last reset.
@@ -236,6 +239,9 @@ import java.lang.annotation.RetentionPolicy;
     return audioTimestamp != null ? audioTimestamp.getTimestampPositionFrames() : C.POSITION_UNSET;
   }
 
+  /**
+   * STATE_INITIALIZING(10ms)—>STATE_TIMESTAMP(10ms)—>STATE_TIMESTAMP_ADVANCING(10s)
+   */
   private void updateState(@State int state) {
     this.state = state;
     switch (state) {
@@ -244,17 +250,17 @@ import java.lang.annotation.RetentionPolicy;
         lastTimestampSampleTimeUs = 0;
         initialTimestampPositionFrames = C.POSITION_UNSET;
         initializeSystemTimeUs = System.nanoTime() / 1000;
-        sampleIntervalUs = FAST_POLL_INTERVAL_US;
+        sampleIntervalUs = FAST_POLL_INTERVAL_US;      /* 10ms */
         break;
       case STATE_TIMESTAMP:
-        sampleIntervalUs = FAST_POLL_INTERVAL_US;
+        sampleIntervalUs = FAST_POLL_INTERVAL_US;      /* 10ms */
         break;
       case STATE_TIMESTAMP_ADVANCING:
       case STATE_NO_TIMESTAMP:
-        sampleIntervalUs = SLOW_POLL_INTERVAL_US;
+        sampleIntervalUs = SLOW_POLL_INTERVAL_US;     /* 10s */
         break;
       case STATE_ERROR:
-        sampleIntervalUs = ERROR_POLL_INTERVAL_US;
+        sampleIntervalUs = ERROR_POLL_INTERVAL_US;    /* 500ms */
         break;
       default:
         throw new IllegalStateException();
@@ -276,6 +282,8 @@ import java.lang.annotation.RetentionPolicy;
      *
      * @param audioTrack The audio track that will provide timestamps.
      */
+    // 走了getTimeStamp通路,可以看到关键的两个方法getTimestampNanoTime和getTimestampFramePosition
+    // 返回的分别是AudioTimestamp类的两个变量，而AudioTimestamp就是通过audioTrack.getTimestamp方法获得的
     public AudioTimestampV19(AudioTrack audioTrack) {
       this.audioTrack = audioTrack;
       audioTimestamp = new AudioTimestamp();
@@ -286,16 +294,21 @@ import java.lang.annotation.RetentionPolicy;
      * updated, in which case the updated timestamp system time and position can be accessed with
      * {@link #getTimestampSystemTimeUs()} and {@link #getTimestampPositionFrames()}. Returns {@code
      * false} if no timestamp is available, in which case those methods should not be called.
+     *
+     * 查询底层api，返回为true，说明下层有最新值可用，然后应用读取出这个最新值更新下就行了
      */
     public boolean maybeUpdateTimestamp() {
+      /* 调用Android api进行访问 */
       boolean updated = audioTrack.getTimestamp(audioTimestamp);
       if (updated) {
+        // 从HAL层拿到的值，代表刚播放完的，或者已经在pipeline中马上就要播放的帧的位置
         long rawPositionFrames = audioTimestamp.framePosition;
         if (lastTimestampRawPositionFrames > rawPositionFrames) {
           // The value must have wrapped around.
           rawTimestampFramePositionWrapCount++;
         }
         lastTimestampRawPositionFrames = rawPositionFrames;
+        /* 更新timestamp */
         lastTimestampPositionFrames =
             rawPositionFrames + (rawTimestampFramePositionWrapCount << 32);
       }
@@ -303,6 +316,7 @@ import java.lang.annotation.RetentionPolicy;
     }
 
     public long getTimestampSystemTimeUs() {
+      //上面framePosition对应帧的播放时间或者将要被播出的时间，以系统时间表示
       return audioTimestamp.nanoTime / 1000;
     }
 

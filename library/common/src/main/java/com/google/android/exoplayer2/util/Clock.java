@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
  * An interface through which system clocks can be read and {@link HandlerWrapper}s created. The
  * {@link #DEFAULT} implementation must be used for all non-test cases.
  */
+
 public interface Clock {
 
   /**

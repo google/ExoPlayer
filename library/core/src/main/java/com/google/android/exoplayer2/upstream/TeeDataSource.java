@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/** Tees data into a {@link DataSink} as the data is read. */
+/**
+ * Tees data into a {@link DataSink} as the data is read.
+ */
+
 public final class TeeDataSource implements DataSource {
 
   private final DataSource upstream;

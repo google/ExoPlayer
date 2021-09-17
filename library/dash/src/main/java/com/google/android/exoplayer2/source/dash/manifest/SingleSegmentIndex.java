@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 /**
  * A {@link DashSegmentIndex} that defines a single segment.
  */
+
 /* package */ final class SingleSegmentIndex implements DashSegmentIndex {
 
   private final RangedUri uri;

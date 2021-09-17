@@ -390,10 +390,12 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     totalElapsedTimeMs += sampleElapsedTimeMs;
     totalBytesTransferred += sampleBytesTransferred;
     if (sampleElapsedTimeMs > 0) {
+      // 单位用的是字节和毫秒所以要 *8000
       float bitsPerSecond = (sampleBytesTransferred * 8000f) / sampleElapsedTimeMs;
       slidingPercentile.addSample((int) Math.sqrt(sampleBytesTransferred), bitsPerSecond);
       if (totalElapsedTimeMs >= ELAPSED_MILLIS_FOR_ESTIMATE
           || totalBytesTransferred >= BYTES_TRANSFERRED_FOR_ESTIMATE) {
+        // 使用 slidingPercentile.getPercentile 计算出带宽估值
         bitrateEstimate = (long) slidingPercentile.getPercentile(0.5f);
       }
       maybeNotifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);

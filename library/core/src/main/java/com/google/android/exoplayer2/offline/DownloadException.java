@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.offline;
 import java.io.IOException;
 
 /** Thrown on an error during downloading. */
+
 public final class DownloadException extends IOException {
 
   /** @param message The message for the exception. */

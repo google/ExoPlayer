@@ -484,6 +484,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return C.RESULT_NOTHING_READ;
     }
     maybeNotifyDownstreamFormat(sampleQueueIndex);
+    // 这里就是从SampleQueue中读sample data
     int result =
         sampleQueues[sampleQueueIndex].read(formatHolder, buffer, readFlags, loadingFinished);
     if (result == C.RESULT_NOTHING_READ) {
@@ -800,6 +801,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void startLoading() {
+    // 注意这个loadable，里面有uri和DataSource
+    // ExtractingLoadable是ProgressiveMediaPeriod的内部类
     ExtractingLoadable loadable =
         new ExtractingLoadable(
             uri, dataSource, progressiveMediaExtractor, /* extractorOutput= */ this, loadCondition);
@@ -819,6 +822,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
+    // loader是构造函数里面创建的一个加载线程
+    // 将loadable交由loader对象的后台线程执行
     long elapsedRealtimeMs =
         loader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
@@ -1012,7 +1017,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
         try {
           long position = positionHolder.position;
+          // DataSpec是表示数据区域的对象，buildDataSpec会通过Uri和position来确定具体的数据区间
           dataSpec = buildDataSpec(position);
+          // 获取数据的长度
           length = dataSource.open(dataSpec);
           if (length != C.LENGTH_UNSET) {
             length += position;
@@ -1024,6 +1031,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             icyTrackOutput = icyTrack();
             icyTrackOutput.format(ICY_FORMAT);
           }
+          // Extractor是从视频容器中获取数据的，selectExtractor方法内部会去选择对应的Extractor
+          // 如果是MP4的话，这里就会返回Mp4Extractor对象
+          // 初始化extractor，这里的output就是ExtractingLoadable引用的外层的ProgressiveMediaPeriod对象，
+          // extractor会通过output得到一个trackOutput也就是SampleQueue对象，所以extractor和ProgressiveMediaPeriod都持有同一个SampleQueue对象
           progressiveMediaExtractor.init(
               extractorDataSource,
               uri,
@@ -1046,11 +1057,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             } catch (InterruptedException e) {
               throw new InterruptedIOException();
             }
+            // extractor不断从input流中取读取数据，如果是mp4extractor的话
+            // 里面会先执行readAtomHeader，然后atomheader解析完毕后去执行processMoovAtom
+            // 等moovatom执行完后就会通过message回调onPrepared方法
             result = progressiveMediaExtractor.read(positionHolder);
             long currentInputPosition = progressiveMediaExtractor.getCurrentInputPosition();
             if (currentInputPosition > position + continueLoadingCheckIntervalBytes) {
               position = currentInputPosition;
               loadCondition.close();
+              // 执行完成后会执行到onContinueLoadingRequestedRunnable中
               handler.post(onContinueLoadingRequestedRunnable);
             }
           }

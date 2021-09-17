@@ -810,8 +810,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // Do nothing. Overridden to remove throws clause.
   }
 
+  //整个render函数其实就干了三件事：调用子类MediaCodecVideoRenderer和
+  //MediaCodecAudioRenderer去配置codec、消耗MediaCodec中解码处理的数据和往MediaCodec中填充源数据。
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    /* 是否处理EOS */
     if (pendingOutputEndOfStream) {
       pendingOutputEndOfStream = false;
       processEndOfStream();
@@ -832,6 +835,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return;
       }
       // We have a format.
+      /* 配置codec */
       maybeInitCodecOrBypass();
       if (bypassEnabled) {
         TraceUtil.beginSection("bypassRender");
@@ -840,8 +844,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       } else if (codec != null) {
         long renderStartTimeMs = SystemClock.elapsedRealtime();
         TraceUtil.beginSection("drainAndFeed");
+
+        //总结：读取媒体流数据到codec，codec再将解码出来的pcm数据送到audiotrack
+
+        //1.drainOutputBuffer目的是按生产者-消费者模式将解码出来的数据写入到audiotrack中；
+        //2.第一次调用drainOutputBuffer时将会去创建audiotrack并开始尝试往里面写数据；
+        /* 消耗解码数据 */
+        //drainOutputBuffer返回结果为true代表audiotrack中可写入空间足够（消费者大于生产者），返回结果为false代表audiotrack中的数据空间不足以写入所有的buffer数据（生产者大于消费者）
+        //对于MediaCodecRenderer而言，如果调用drainOutputBuffer返回的结果为true，则代表此时的audiotrack对数据的需求量很大，可以持续的往里面送数据，
+        //若结果为false，则表示audiotrack里面太多数据没有被消耗，暂时不需要往里面送数据
         while (drainOutputBuffer(positionUs, elapsedRealtimeUs)
             && shouldContinueRendering(renderStartTimeMs)) {}
+        /* 填充源数据 */
+        //feedInputBuffer函数的目的是从媒体流中将数据读取出来写入到codec的buffer中供codec解码使用
         while (feedInputBuffer() && shouldContinueRendering(renderStartTimeMs)) {}
         TraceUtil.endSection();
       } else {
@@ -1113,6 +1128,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void initCodec(MediaCodecInfo codecInfo, MediaCrypto crypto) throws Exception {
     long codecInitializingTimestamp;
     long codecInitializedTimestamp;
+    /* 创建了codec适配器来管理codec */
     @Nullable MediaCodecAdapter codecAdapter = null;
     String codecName = codecInfo.name;
     float codecOperatingRate =
@@ -1200,11 +1216,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @return Whether it may be possible to feed more input data.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
+  // 它从采样流程中用来保存sample data的SampleQueue中读数据到自己的buffer中
   private boolean feedInputBuffer() throws ExoPlaybackException {
     if (codec == null || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM || inputStreamEnded) {
       return false;
     }
-
+    /* 找到一个可用的inputbuff */
     if (inputIndex < 0) {
       inputIndex = codec.dequeueInputBufferIndex();
       if (inputIndex < 0) {
@@ -1252,6 +1269,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     @SampleStream.ReadDataResult int result;
     try {
+      /* 从媒体文件中将数据写入到buffer */
       result = readSource(formatHolder, buffer, /* readFlags= */ 0);
     } catch (InsufficientCapacityException e) {
       onCodecError(e);
@@ -1373,23 +1391,25 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (buffer.hasSupplementalData()) {
       handleInputBufferSupplementalData(buffer);
     }
-
+    /* 校准第一次获得的输入buffer的时间戳 */
     onQueueInputBuffer(buffer);
     try {
       if (bufferEncrypted) {
         codec.queueSecureInputBuffer(
             inputIndex, /* offset= */ 0, buffer.cryptoInfo, presentationTimeUs, /* flags= */ 0);
       } else {
+        /* 输入buffer入列 */
         codec.queueInputBuffer(
             inputIndex, /* offset= */ 0, buffer.data.limit(), presentationTimeUs, /* flags= */ 0);
       }
     } catch (CryptoException e) {
       throw createRendererException(e, inputFormat);
     }
-
+    /* 重置输入buffer */
     resetInputBuffer();
     codecReceivedBuffers = true;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+    /* 统计读取到decoder中的inBuffer总次数 */
     decoderCounters.inputBufferCount++;
     return true;
   }
@@ -1822,9 +1842,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * @return Whether it may be possible to drain more output data.
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
+   *
+   * 主要事情就两件
+   * 1.先确认是否有可用的输出buffer，如果没有，则通过调用MediaCodec的api拿到可用buffer的index，然后通过index找到对应的buffer，
+   * 2.在拿到可用的buffer之后，调用processOutputBuffer去处理输出buffer
+   *
    */
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
+    /* 判断是否有可用的输出buffer */
     if (!hasOutputBuffer()) {
       int outputIndex;
       if (codecNeedsEosOutputExceptionWorkaround && codecReceivedEos) {
@@ -1839,9 +1865,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           return false;
         }
       } else {
+        /* 从decoder出列一个可用的buffer index */
         outputIndex = codec.dequeueOutputBufferIndex(outputBufferInfo);
       }
 
+      //outputIndex是通过调用MediaCodec.dequeueOutputBufferIndex()接口获得的，如果该值大于等于0，表明现在decoder里面已经解码出来了待播放的数据
       if (outputIndex < 0) {
         if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
           processOutputMediaFormatChanged();
@@ -1891,7 +1919,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     boolean processedOutputBuffer;
     if (codecNeedsEosOutputExceptionWorkaround && codecReceivedEos) {
       try {
+        //exoplayer使用了一个bool变量processedOutputBuffer来记录最终的处理结果，如果该值为true，代表该buffer中的所有数据全部写入到了audiotrack当中，
+        //那么就会对输出buffer做一个reset操作（将MediaCodecRender维护的outputBuffer置为null，同时将outputIndex置为-1），
+        //这样做的目的是下一次进入该函数时会重新发起MediaCodec.dequeueOutputBufferIndex()的操作去找一个新的可用buffer来继续往audioTrack里面送
+        //processedOutputBuffer的处理结果是false,看下最开头的if就知道，下一次进来将不会去查询新的可用buffer，而是直接将本次buffer中的剩余数据继续送到audiotrack
         processedOutputBuffer =
+            /* 处理解码完成后的输出buffer */
             processOutputBuffer(
                 positionUs,
                 elapsedRealtimeUs,
@@ -1928,6 +1961,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
               outputFormat);
     }
 
+    //如果该值为true，代表该buffer中的所有数据全部写入到了audiotrack当中
     if (processedOutputBuffer) {
       onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
       boolean isEndOfStream = (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;

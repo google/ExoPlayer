@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Reads data from URI-identified resources. */
+
 public interface DataSource extends DataReader {
 
   /**

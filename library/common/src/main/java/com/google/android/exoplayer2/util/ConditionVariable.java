@@ -29,6 +29,7 @@ package com.google.android.exoplayer2.util;
  *   <li>{@link #open()} and {@link #close()} return whether they changed the variable's state.
  * </ul>
  */
+
 public class ConditionVariable {
 
   private final Clock clock;

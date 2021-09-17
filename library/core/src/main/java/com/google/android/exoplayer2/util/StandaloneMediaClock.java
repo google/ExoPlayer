@@ -66,6 +66,10 @@ public final class StandaloneMediaClock implements MediaClock {
    *
    * @param positionUs The position to set in microseconds.
    */
+  // resetPosition可以看做专用于更新baseUs和baseElapsedMs的方法, 他会在两种情况下被调用:
+  // 第一种情况下他只会被调用一次, 也就是在播放刚开始的时候, 前提是所使用的render没有实现getPositionUs方法(这种情况在exoplayer里面实际上并不会出现).
+  // 第二种情况是在使用audio playback position作为render时间的前提下, 每次都会在 updatePlaybackPositions 中调用 resetPosition方法,
+  // 传入参数则为audio playback position, 也就是保持和audio playback position对齐
   public void resetPosition(long positionUs) {
     baseUs = positionUs;
     if (started) {
@@ -73,10 +77,12 @@ public final class StandaloneMediaClock implements MediaClock {
     }
   }
 
+  //用系统时间计算renderPosition
   @Override
   public long getPositionUs() {
     long positionUs = baseUs;
     if (started) {
+      // 可以看到positionUs = baseUs + elapsedSinceBaseMs
       long elapsedSinceBaseMs = clock.elapsedRealtime() - baseElapsedMs;
       if (playbackParameters.speed == 1f) {
         positionUs += C.msToUs(elapsedSinceBaseMs);

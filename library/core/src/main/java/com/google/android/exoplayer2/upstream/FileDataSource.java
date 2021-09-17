@@ -27,7 +27,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-/** A {@link DataSource} for reading local files. */
+/**
+ * A {@link DataSource} for reading local files.
+ */
 public final class FileDataSource extends BaseDataSource {
 
   /** Thrown when a {@link FileDataSource} encounters an error reading a file. */

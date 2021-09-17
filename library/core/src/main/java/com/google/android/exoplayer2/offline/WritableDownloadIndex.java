@@ -19,6 +19,7 @@ import androidx.annotation.WorkerThread;
 import java.io.IOException;
 
 /** A writable index of {@link Download Downloads}. */
+
 @WorkerThread
 public interface WritableDownloadIndex extends DownloadIndex {
 

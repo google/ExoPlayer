@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 import java.io.IOException;
 
 /** Reads bytes from a data stream. */
+
 public interface DataReader {
   /**
    * Reads up to {@code length} bytes of data from the input.

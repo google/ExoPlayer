@@ -172,6 +172,10 @@ import java.util.Arrays;
 
   public int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException {
     length = preAppend(length);
+    // 读取sample media data, 真正采样media data的地方
+    // input是在ExtractingLoadable.load中创建的DefaultExtractorInput对象，它持有dataSource的引用。
+    // 是需要网络上的数据，所以最终的dataSource是由DefaultHttpDataSourceFactory创建的DefaultHttpDataSource对象。
+    // 通过input读取数据的时候实际就是由DefaultHttpDataSource建立网络链接读取网络数据
     int bytesAppended =
         input.read(
             writeAllocationNode.allocation.data,

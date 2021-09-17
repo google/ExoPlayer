@@ -28,7 +28,10 @@ public class Period {
    */
   @Nullable public final String id;
 
-  /** The start time of the period in milliseconds, relative to the start of the manifest. */
+  /**
+   *  The start time of the period in milliseconds, relative to the start of the manifest.
+   *  Period的开始时间
+   */
   public final long startMs;
 
   /**

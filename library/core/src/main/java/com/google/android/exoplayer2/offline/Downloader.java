@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.concurrent.CancellationException;
 
 /** Downloads and removes a piece of content. */
+
 public interface Downloader {
 
   /** Receives progress updates during download operations. */

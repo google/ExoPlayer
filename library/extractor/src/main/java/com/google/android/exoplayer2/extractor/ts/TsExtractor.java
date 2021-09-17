@@ -517,6 +517,7 @@ public final class TsExtractor implements Extractor {
         if (programNumber == 0) {
           patScratch.skipBits(13); // network_PID (13)
         } else {
+          // 如果存在 program，创建一个 PmtReader
           int pid = patScratch.readBits(13);
           if (tsPayloadReaders.get(pid) == null) {
             tsPayloadReaders.put(pid, new SectionReader(new PmtReader(pid)));

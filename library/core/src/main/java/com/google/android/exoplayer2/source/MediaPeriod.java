@@ -39,6 +39,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 public interface MediaPeriod extends SequenceableLoader {
 
   /** A callback to be notified of {@link MediaPeriod} events. */
+  // 用来处理事件通知的回调（比如MediaPeriod准备就绪）
   interface Callback extends SequenceableLoader.Callback<MediaPeriod> {
 
     /**
@@ -47,6 +48,8 @@ public interface MediaPeriod extends SequenceableLoader {
      * <p>Called on the playback thread. After invoking this method, the {@link MediaPeriod} can
      * expect for {@link #selectTracks(ExoTrackSelection[], boolean[], SampleStream[], boolean[],
      * long)} to be called with the initial track selection.
+     *
+     * 该方法在播放线程中调用，调用后可调用selectTracks方法来初始化轨道选择信息
      *
      * @param mediaPeriod The prepared {@link MediaPeriod}.
      */
@@ -59,9 +62,14 @@ public interface MediaPeriod extends SequenceableLoader {
    * <p>{@code callback.onPrepared} is called when preparation completes. If preparation fails,
    * {@link #maybeThrowPrepareError()} will throw an {@link IOException}.
    *
+   * 当准备完成时，上面回调接口的onPrepared方法将被调用，准备失败时，maybeThrowPrepareError将被调用，抛出错误。
+   *
    * <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
    * becoming known), {@link MediaSourceCaller#onSourceInfoRefreshed(MediaSource, Timeline)} will be
    * called before {@code callback.onPrepared}.
+   *
+   * 如果准备完成后导致Timeline发生改变，会先调用MediaSource.SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline, Object)，
+   * 再调用回调接口的onPrepared方法。
    *
    * @param callback Callback to receive updates from this period, including being notified when
    *     preparation completes.
@@ -84,6 +92,8 @@ public interface MediaPeriod extends SequenceableLoader {
    *
    * <p>This method is only called after the period has been prepared.
    *
+   * 获取当前MediaPeriod包含的TrackGroupArray, 在prepare完成后调用
+   *
    * @return The {@link TrackGroup}s.
    */
   TrackGroupArray getTrackGroups();
@@ -91,6 +101,8 @@ public interface MediaPeriod extends SequenceableLoader {
   /**
    * Returns a list of {@link StreamKey StreamKeys} which allow to filter the media in this period
    * to load only the parts needed to play the provided {@link ExoTrackSelection TrackSelections}.
+   *
+   * 获取用来进行媒体资源过滤的StreamKey列表以实现按需加载
    *
    * <p>This method is only called after the period has been prepared.
    *
@@ -150,6 +162,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * @param toKeyframe If true then for each track discards samples up to the keyframe before or at
    *     the specified position, rather than any sample before or at that position.
    */
+  //丢弃指定位置前的缓冲
   void discardBuffer(long positionUs, boolean toKeyframe);
 
   /**
@@ -164,6 +177,8 @@ public interface MediaPeriod extends SequenceableLoader {
    * @return If a discontinuity was read then the playback position in microseconds after the
    *     discontinuity. Else {@link C#TIME_UNSET}.
    */
+  //不连续读取
+  //返回的值不为C#TIME_UNSET时，所有的SampleStream都将从关键帧开始
   long readDiscontinuity();
 
   /**
@@ -190,6 +205,7 @@ public interface MediaPeriod extends SequenceableLoader {
    *     apply seek parameters on a best effort basis.
    * @return The actual position to which a seek will be performed, in microseconds.
    */
+  //获取修正后的拖动位置
   long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters);
 
   // SequenceableLoader interface. Overridden to provide more specific documentation.

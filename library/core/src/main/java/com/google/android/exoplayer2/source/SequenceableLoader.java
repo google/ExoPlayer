@@ -40,6 +40,7 @@ public interface SequenceableLoader {
    * @return An estimate of the absolute position in microseconds up to which data is buffered, or
    *     {@link C#TIME_END_OF_SOURCE} if the data is fully buffered.
    */
+  //返回当前已经缓冲的位置
   long getBufferedPositionUs();
 
   /**
@@ -56,6 +57,7 @@ public interface SequenceableLoader {
    * @return True if progress was made, meaning that {@link #getNextLoadPositionUs()} will return
    *     a different value than prior to the call. False otherwise.
    */
+  //是否需要继续加载，如果getNextLoadPositionUs返回的值与上次不一样，就返回true
   boolean continueLoading(long positionUs);
 
   /** Returns whether the loader is currently loading. */
@@ -71,5 +73,6 @@ public interface SequenceableLoader {
    *     not yet started, the value will be the starting position in this period minus the duration
    *     of any media in previous periods still to be played.
    */
+  //从当前位置重新缓存，可以用来在播放过程中切换媒体源的清晰度
   void reevaluateBuffer(long positionUs);
 }

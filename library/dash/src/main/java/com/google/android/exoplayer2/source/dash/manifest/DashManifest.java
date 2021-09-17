@@ -34,6 +34,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
   /**
    * The {@code availabilityStartTime} value in milliseconds since epoch, or {@link C#TIME_UNSET} if
    * not present.
+   *
+   * 如果是直播流的话，则必须提供。代表mpd中所有seg从该时间开始可以Request
    */
   public final long availabilityStartTimeMs;
 
@@ -44,6 +46,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
 
   /**
    * The {@code minBufferTime} value in milliseconds, or {@link C#TIME_UNSET} if not present.
+   *
+   * 至少需要缓存时间
    */
   public final long minBufferTimeMs;
 
@@ -55,6 +59,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
   /**
    * The {@code minimumUpdatePeriod} value in milliseconds, or {@link C#TIME_UNSET} if not
    * applicable.
+   *
+   * 至少每隔这么长时间，mpd就有可能更新题词，只用于直播流
    */
   public final long minUpdatePeriodMs;
 

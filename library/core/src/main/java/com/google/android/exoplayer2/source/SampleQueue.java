@@ -421,6 +421,7 @@ public class SampleQueue implements TrackOutput {
         if (peek) {
           sampleDataQueue.peekToBuffer(buffer, extrasHolder);
         } else {
+          /* 从Queue中读取数据 */
           sampleDataQueue.readToBuffer(buffer, extrasHolder);
         }
       }

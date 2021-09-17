@@ -158,13 +158,11 @@ import java.util.List;
     // Serialized version 0 HLS/SS actions did not contain a period index.
     if ((DOWNLOAD_TYPE_HLS.equals(type) || DOWNLOAD_TYPE_SS.equals(type)) && version == 0) {
       periodIndex = 0;
-      groupIndex = input.readInt();
-      trackIndex = input.readInt();
     } else {
       periodIndex = input.readInt();
-      groupIndex = input.readInt();
-      trackIndex = input.readInt();
     }
+    groupIndex = input.readInt();
+    trackIndex = input.readInt();
     return new StreamKey(periodIndex, groupIndex, trackIndex);
   }
 

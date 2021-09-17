@@ -42,6 +42,11 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p style="align:center"><img src="doc-files/renderer-states.svg" alt="Renderer state
  * transitions">
+ *
+ * 对多媒体中的各个轨道(音轨、视频轨、字母轨等)数据进行渲染，
+ * 渲染就是"播放"，把二进制文件渲染成声音、画面，创建播放器时传入。
+ * RenderersFactory的作用就是创建Renderers，每个资源可能有音频、视频等多个轨道，
+ * 每个Render对应一个轨道，Renderer对应的有VideoRender、AudioRender、TextRenderer、MetadataRenderers等等
  */
 public interface Renderer extends PlayerMessage.Target {
 

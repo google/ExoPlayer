@@ -455,11 +455,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onStarted() {
     super.onStarted();
+    /* 丢帧数清0 */
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
+    /* 将上一帧渲染时间设定为系统启动后至今的时间，即当前时间 */
     lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     totalVideoFrameProcessingOffsetUs = 0;
     videoFrameProcessingOffsetCount = 0;
+    /* 更新帧率 */
     frameReleaseHelper.onStarted();
   }
 
@@ -813,6 +816,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
+  // Exoplayer的同步机制如下：首先根据音视频的时间戳得出一个初步的时间间隔，然后对这个时间间隔进行两次校准，
+  // 第一次校准在代码的运行时间上做一个校准，第二次校准是基于确定的送显时间上进行，
+  // 经过两次校准后将得到最终的音视频时间间隔，由这个值再决定是丢帧（视频帧太晚），还是下次送显（视频帧太早）
+  // 校准音视频时间间隔I----校准送显时间----校准音视频时间间隔II----送显/丢帧；
+  // 计算 “当前帧的pts(bufferPresentationTimeUs)” 与“Audio当前播放时间(positionUs)”之间的时间间隔,最后还减去了一个elapsedRealtimeNowUs的值，代表的是程序运行到此处的耗时
   @Override
   protected boolean processOutputBuffer(
       long positionUs,
@@ -837,8 +845,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
       this.lastBufferPresentationTimeUs = bufferPresentationTimeUs;
     }
-
+    /* 1.当成基准时间戳，通常是0 */
     long outputStreamOffsetUs = getOutputStreamOffsetUs();
+    /* 2.对视频buffer队列中的当前帧时间戳进行一个校准 */
+    //bufferPresentationTimeUs是codec中解码出来的当前视频帧的时间戳,二者相减就是一个校准，
+    //实际上就是解码出来的当前帧时间戳
     long presentationTimeUs = bufferPresentationTimeUs - outputStreamOffsetUs;
 
     if (isDecodeOnlyBuffer && !isLastBuffer) {
@@ -854,6 +865,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Calculate how early we are. In other words, the realtime duration that needs to elapse whilst
     // the renderer is started before the frame should be rendered. A negative value means that
     // we're already late.
+    /* 3.音视频时间戳间隔 */
+    // positionUs就是校准过后的音频时间戳,这二者相减，我们得到了一个最初的音视频时间间隔，
+    // 该值正负都有可能，如果为正，表示视频帧先来，视频超前音频，如果为负，表示视频帧来迟了，音频超前
+    // 实际上，这里就可以去做最简单的同步了，如果视频帧来早了超过一个阈值，就等下个循环再去比对时间送显视频帧，
+    // 如果视频帧来迟了且超过一定阈值，则直接丢弃本帧进行下一帧的送显判断，同步的原理并不复杂
+
+    // 计算当前帧的pts与当前播放时间之间的时间间隔，需要注意的是，最后还减去了一个elapsedSinceStartOfLoopUs的值，
+    // 这个值代表的是从当前播放时间更新到程序运行到此处　的耗时，减去这个值可以看做一种使计算值更精准的做法
     long earlyUs = (long) ((bufferPresentationTimeUs - positionUs) / playbackSpeed);
     if (isStarted) {
       // Account for the elapsed time since the start of this iteration of the rendering loop.
@@ -869,7 +888,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       return false;
     }
-
+    /* 4.距离上次渲染的时间差 = 系统当前时间 - 上一帧的渲染时间 */
     long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderRealtimeUs;
     boolean shouldRenderFirstFrame =
         !renderedFirstFrameAfterEnable
@@ -899,20 +918,38 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     // Compute the buffer's desired release time in nanoseconds.
     long systemTimeNs = System.nanoTime();
+    /* 7.计算出未经校准的下次送显预计时间（纳秒） */
+    // 送显时间，所谓送显时间，永远是一个预估值,因为你的代码永远无法计算出在哪一个标准时间,视频帧就正好渲染出来了，
+    // 毕竟，不同的设备，机器运行的时间都是不一样的
+    // 当前的系统时间（微秒）+ 音视频时间间隔
+    // 用当前系统时间加上前面计算出来的时间间隔，即为“预计送显时间”
     long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
 
     // Apply a timestamp adjustment, if there is one.
+    /* 8.计算出校准后的下次送显实际时间（纳秒） */
+    //　对预计送显时间进行调整, 得到实际送显时间
     long adjustedReleaseTimeNs = frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
+    /* 9.再次校准音视频时间戳间隔: 校准后的实际送显时间 - 系统当前时间 */
+    // 计算实际送显时间与当前系统时间之间的时间差, 如果时间差为正值,
+    // 代表视频帧应该在当前系统时间之后被显示,换言之,代表视频帧来早了, 反之, 如果时间差为负值,
+    // 代表视频帧应该在当前系统时间之前被显示, 换言之, 代表视频帧来晚了
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
     boolean treatDroppedBuffersAsSkipped = joiningDeadlineMs != C.TIME_UNSET;
+    /* 10.根据音视频时间戳间隔与门限值进行对比确认是否是视频晚来500ms以上，是则放弃送显 */
+    // 如果视频帧来得太迟了，时间超过500ms，那么就有可能清空当前buffer中的所有缓存，
+    // 并重新初始化解码器，决定权是由maybeDropBuffersToKeyframe来做的
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs, isLastBuffer)
         && maybeDropBuffersToKeyframe(positionUs, treatDroppedBuffersAsSkipped)) {
       return false;
+      /* 11.视频帧是否比音频晚来30ms以上，则丢帧 */
+      // 将上面计算出来的时间差与预设的门限值进行对比, 如果超过门限值, 即该视频帧来的太晚了, 则将这一帧丢掉, 不予显示
     } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastBuffer)) {
       if (treatDroppedBuffersAsSkipped) {
+        //跳帧
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
       } else {
+        //丢帧
         dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
       updateVideoFrameProcessingOffsetCounters(earlyUs);
@@ -921,7 +958,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
+      /* 12.视频帧来早50ms以内，则可送显，否则进行下次循环 */
       if (earlyUs < 50000) {
+        // 视频帧来的太晚会被丢掉, 来的太早同样有问题, 按照预设的门限值,
+        // 视频帧比预定时间来的早了50ms以上, 则进入下一个间隔为10ms的循环,再继续判断, 否则, 将视频帧送显
         notifyFrameMetadataListener(presentationTimeUs, adjustedReleaseTimeNs, format);
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
         updateVideoFrameProcessingOffsetCounters(earlyUs);
@@ -929,6 +969,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     } else {
       // We need to time the release ourselves.
+      /* 13.视频帧早来的时间小于30ms则会送显，如果小于11ms，则直接送显，大于11ms，则让线程睡眠10ms再去送显 */
       if (earlyUs < 30000) {
         if (earlyUs > 11000) {
           // We're a little too early to render the frame. Sleep until the frame can be rendered.
@@ -1055,6 +1096,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   protected void dropOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
     TraceUtil.beginSection("dropVideoBuffer");
+    /* 入参二为false则为丢帧 */
+    //注意这里是false就代表不予显示，也就是丢掉这一帧
     codec.releaseOutputBuffer(index, false);
     TraceUtil.endSection();
     updateDroppedBufferCounters(1);
@@ -1153,6 +1196,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       MediaCodecAdapter codec, int index, long presentationTimeUs, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
+    /* 送显：在releaseTimeNs这个时间点去送显 */
+    // 就是说我们希望在那个时间点surface上将显示那一帧图像
     codec.releaseOutputBuffer(index, releaseTimeNs);
     TraceUtil.endSection();
     lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
@@ -1251,6 +1296,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static boolean isBufferLate(long earlyUs) {
     // Class a buffer as late if it should have been presented more than 30 ms ago.
+    /* For fps > 30fps, drop the frame if we're more than 30 ms late rendering the frame.
+     * For fps <= 30fps, drop the frame if we're more than (1/fps*1000) ms late rendering the frame.
+     */
     return earlyUs < -30000;
   }
 

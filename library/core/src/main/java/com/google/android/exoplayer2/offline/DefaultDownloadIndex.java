@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link DownloadIndex} that uses SQLite to persist {@link Download Downloads}. */
+
 public final class DefaultDownloadIndex implements WritableDownloadIndex {
 
   private static final String TABLE_PREFIX = DatabaseProvider.TABLE_PREFIX + "Downloads";

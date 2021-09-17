@@ -194,6 +194,7 @@ public abstract class BaseMediaSource implements MediaSource {
     if (this.looper == null) {
       this.looper = looper;
       enabledMediaSourceCallers.add(caller);
+      // 开始的时候会调用该方法
       prepareSourceInternal(mediaTransferListener);
     } else if (timeline != null) {
       enable(caller);

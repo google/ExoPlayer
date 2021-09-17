@@ -23,6 +23,7 @@ import java.util.List;
  *
  * @param <T> The manifest type.
  */
+
 public interface FilterableManifest<T> {
 
   /**

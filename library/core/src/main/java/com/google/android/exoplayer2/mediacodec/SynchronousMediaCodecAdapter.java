@@ -47,6 +47,7 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
       try {
         codec = createCodec(configuration);
         TraceUtil.beginSection("configureCodec");
+        /* 配置codec */
         codec.configure(
             configuration.mediaFormat,
             configuration.surface,
@@ -54,6 +55,7 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
             configuration.flags);
         TraceUtil.endSection();
         TraceUtil.beginSection("startCodec");
+        /* 开启解码 */
         codec.start();
         TraceUtil.endSection();
         return new SynchronousMediaCodecAdapter(codec);

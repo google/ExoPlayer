@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Defines a region of data in a resource. */
+
 public final class DataSpec {
 
   /**

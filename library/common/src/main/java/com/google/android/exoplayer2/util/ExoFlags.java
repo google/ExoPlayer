@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
  *
  * <p>Instances are immutable.
  */
+
 public final class ExoFlags {
 
   /** A builder for {@link ExoFlags} instances. */

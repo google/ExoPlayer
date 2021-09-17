@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /** A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances. */
+
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private static final int MAX_MANUAL_REDIRECTS = 5;

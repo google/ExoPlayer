@@ -2817,7 +2817,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           .compare(
               this.preferredLanguageIndex,
               other.preferredLanguageIndex,
-              Ordering.natural().reverse())
+              Ordering.natural().reverse()) //使用Comparable类型的自然顺序， 例如：整数从小到大，字符串是按字典顺序;
           .compare(this.preferredLanguageScore, other.preferredLanguageScore)
           .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
           .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)

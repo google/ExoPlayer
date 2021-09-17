@@ -1,0 +1,24 @@
+1.概述
+MP4文件中的所有数据都装在box（QuickTime中为atom）中，也就是说MP4文件由若干个box组成，每个box有类型和长度，可以将box理解为一个数据对象块。
+box中可以包含另一个box，这种box称为container box。一个MP4文件首先会有且只有一个“ftyp”类型的box，
+作为MP4格式的标志并包含关于文件的一些信息；之后会有且只有一个“moov”类型的box（Movie Box），它是一种container box，
+子box包含了媒体的metadata信息；MP4文件的媒体数据包含在“mdat”类型的box（Midia Data Box）中，
+该类型的box也是container box，可以有多个，也可以没有（当媒体数据全部引用其他文件时），媒体数据的结构由metadata进行描述。
+
+MP4文件由若干称为Atom（或称为box）的数据对象组成，每个Atom的起首为四个字节的数据长度（Big Endian）和四个字节的类型标识，
+数据长度和类型标志都可以扩展，Atom的基本结构是:
+[4bytes atom size] [4bytes atom type] [8bytes largesize, if size ==1] [contents of the atom, if any]
+
+这四部分分别是:
+4bytes atom size:表示整个Atom所占用的大小，包含Header部分，如果Atom很大，超过了unit32的最大值(例如存放具体视频数据的mdata)，size就会被设置为1，并用接下来的LARGESIZE来存放数据大小
+4bytes atom type:表示这个Atom的类型，主要有ftyp、moov、mdat等
+8bytes largesize, if size ==1: 使用8bytes unit64来存储该Atom的大小
+contents of the atom, if any: 实际的数据
+
+Mp4文件需要有ftyp、moov、mdat，它们都是顶级的Atom文件，不能被其他Atom包含。
+
+ftyp：指示该MP4文件应用的相关信息，必须在第一个，而且只有一个，并且只能被包含在文件层，而不能被其他box包含。
+moov：该box包含了文件媒体的metadata信息，“moov”是一个container box，具体内容信息由子box诠释。
+mdat：实际媒体数据，我们最终解码播放的音视频数据都在这里面。 moov和mdat这两个Atom顺序不固定，一般来说都是moov在前。
+
+

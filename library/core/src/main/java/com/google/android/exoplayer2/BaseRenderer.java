@@ -391,6 +391,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @ReadDataResult
   protected final int readSource(
       FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
+    /* 根据流类型去调用对应的readData */
+    // 通过stream对象读取sample data到buffer
+    // stream是SampleStream接口，实际是ProgressiveMediaPeriod内部类SampleStreamImpl对象,
+    // 它是在enable renderer的时候传入的MediaPeriodHolder持有的SampleStream对象,
+    // 而MediaPeriodHolder.sampleStreams保存的是由ProgressiveMediaPeriod创建的内部类SampleStreamImpl对象。
+    // 所以通过enable renderer就将SampleStreamImpl对象传给了renderer，renderer就可以通过stream来读sample data
     @ReadDataResult
     int result = Assertions.checkNotNull(stream).readData(formatHolder, buffer, readFlags);
     if (result == C.RESULT_BUFFER_READ) {

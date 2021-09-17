@@ -82,6 +82,11 @@ import com.google.android.exoplayer2.util.Assertions;
  * All calls made by the player into the track selector are on the player's internal playback
  * thread. The track selector may call {@link InvalidationListener#onTrackSelectionsInvalidated()}
  * from any thread.
+ *
+ * TrackSelector:轨道提取器
+ * 从MediaSource中提取各个轨道的二进制数据，交给Renderer渲染，它有个selectTracks()方法，
+ * 会返回TrackSelection数组，TrackSelection就是对轨道进行解析的，
+ * 因为一个文件有多个轨道:音频轨、视频轨、文字轨等，所以也需要多个TrackSelection
  */
 public abstract class TrackSelector {
 

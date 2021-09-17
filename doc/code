@@ -1,0 +1,56 @@
+1. ExoPlayer源码分析之prepare方法
+
+   SimpleExoPlayer->ExoPlayerImpl: player.prepare(mediaSource)
+   ExoPlayerImpl->ExoPlayerImplInternal: internalPlayer.prepare(mediaSource)
+   ExoPlayerImplInternal->ExoPlayerImplInternal: MSG_PREPARE
+   ExoPlayerImplInternal->ExoPlayerImplInternal: prepareInternal
+   ExoPlayerImplInternal->MediaSource: mediaSource.prepareSource()
+   ExoPlayerImplInternal->ExoPlayerImplInternal: DO_SOME_WORK
+   ExoPlayerImplInternal->MediaPeriodQueue: doSomeWork()
+   ExoPlayerImplInternal->Renderer: renderer.render()
+   MediaPeriodQueue->MediaPeriodHolder: queue.getPlayingPeriod()
+   MediaPeriodHolder->MediaPeriod: createMediaPeriod()
+   ExoPlayerImplInternal->MediaPeriod: doSomeWork(updatePeriods())
+   MediaPeriod->ExtractingLoadable: prepare()
+   ExtractingLoadable->DataSource: load()
+   ExtractingLoadable->Extracotr(Mp4Extractor): load()
+   Extracotr(Mp4Extractor)->Extracotr(Mp4Extractor): readAtomHeader() processAtomEnded()processMoovAtom
+   Extracotr(Mp4Extractor)->ProgressiveMediaPeriod: endTracks()
+   ProgressiveMediaPeriod->ExoPlayerImplInternal: onPrepared(MediaPeriod source)
+   ExoPlayerImplInternal->ExoPlayerImplInternal: handlePeriodPrepared
+   ExoPlayerImplInternal->Renderer: enableRenderer
+   Renderer->Renderer: if (isPlaying) {renderer.start()}
+
+2. For simple use cases, getting started with ExoPlayer consists of implementing
+   the following steps: (https://exoplayer.dev/hello-world.html)
+
+   a.Add ExoPlayer as a dependency to your project.
+   b.Create a SimpleExoPlayer instance.
+   c.Attach the player to a view (for video output and user input).
+   d.Prepare the player with a MediaItem to play.
+   e.Release the player when done. (ExoPlayer.release)
+
+Attaching the player to a view
+   The ExoPlayer library provides a range of pre-built UI components for media playback.
+   These include StyledPlayerView, which encapsulates a StyledPlayerControlView,
+   a SubtitleView, and a Surface onto which video is rendered.
+
+Populating the playlist and preparing the player
+   In ExoPlayer every piece of media is represented by a MediaItem.
+   Prior to ExoPlayer 2.12, the player needed to be given a MediaSource rather than media items.
+
+Controlling the player
+   play and pause start and pause playback.
+   seekTo allows seeking within the media.
+   hasPrevious, hasNext, previous and next allow navigating through the playlist.
+   setRepeatMode controls if and how media is looped.
+   setShuffleModeEnabled controls playlist shuffling.
+   setPlaybackParameters adjusts playback speed and audio pitch.
+If the player is bound to a PlayerView or PlayerControlView,
+then user interaction with these components will cause corresponding methods on the player to be invoked.
+
+
+
+
+
+

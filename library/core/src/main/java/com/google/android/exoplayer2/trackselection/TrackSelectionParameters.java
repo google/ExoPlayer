@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 /** Constraint parameters for track selection. */
+
 public class TrackSelectionParameters implements Parcelable {
 
   /**

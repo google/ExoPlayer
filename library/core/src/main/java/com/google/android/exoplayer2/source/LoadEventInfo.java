@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /** {@link MediaSource} load event information. */
+
 public final class LoadEventInfo {
 
   /** Used for the generation of unique ids. */

@@ -1,0 +1,75 @@
+1. ExoPlayer库的核心是ExoPlayer接口，ExoPlayer公开了传统的高级媒体播放器功能，例如缓冲、播放、暂停、seek等。
+在具体实现方面，该开源库对播放器的媒体类型、存储方式、位置、渲染方式等进行了最少的实现，旨在让开发者自定义各种
+特性。ExoPlayer的实现不是直接实现加载和呈现媒体，而是将这项工作委托给各种组件:
+
+a. TrackSelector:轨道提取器,从MediaSource中提取各个轨道的二进制数据，交给Renderer渲染，创建播放器时传入.
+
+b. Renderer:对多媒体中的各个轨道(音轨、视频轨、字母轨等)数据进行渲染，渲染就是"播放"，把二进制文件渲染成声音、
+   画面，创建播放器时传入。
+
+c. MediaSource:定义多媒体数据源，这个类的功能就是从Uri中读取多媒体文件的二进制数据。MediaSource在播放开始时通过
+   ExoPlayer.prepare()注入。
+
+d. LoadControl:对MediaSource进行控制，比如什么时候开始缓冲、缓冲多少等。
+
+它们之间的关系是:
+   渲染器(Render) ---刷数据--->提取器(Extraor) ----读取数据--->
+   加载控制器(LoadControl) ----控制数据加载方式---> 媒体源(MediaSource)
+
+
+2. 基本实现
+
+   a.创建播放器
+     ExoPlayerFactory -> 通过该工厂类来创建一个ExoPlayer实例
+
+   b.把播放器实例附着到一个View上
+     PlayerView(A high level view for Player media playbacks. It displays video,
+                subtitles and album art during playback,
+                and displays playback controls using a PlayerControlView.)类
+     他封装了PlayerControlView和渲染视频的一个默认的SurfaceView以及字幕等功能.可以通过xml中surface_type来
+     指定视频播放的Surface类型，除了值spherical_view（这是球形视频播放一个特殊的值）时，允许值是surface_view，
+     texture_view和none。如果视图仅用于音频播放，则应使用none以避免必须创建Surface，因为这样做可能耗费资源。
+
+   对于视频播放，相比TextureView，SurfaceView有许多好处:
+    (1) 显着降低了许多设备的功耗
+    (2) 更准确的帧定时，使视频播放更流畅。
+    (3) 播放受DRM保护的内容时支持安全输出.
+
+   选择方案
+    (1) TextureView只有在SurfaceView不符合您需求的情况下才能使用.
+    (2) 在Android N之前需要平滑动画或滚动视频表面，如下所述。对于这种情况，
+    最好 TextureView 只在SDK_INT小于24（Android N）时使用， 否则，使用SurfaceView.
+    SurfaceView在Android N之前，渲染未与视图动画正确同步。
+    为了在Android N之前实现流畅的动画或视频滚动，因此必须使用TextureView而不是SurfaceView。
+
+   通过PlayerView.setPlayer方法来将ExoPlayer绑定到View上
+
+  c.开始播放
+    ExoPlayer中将每一种媒体资源都封装成MediaSource,想要播放一种媒体资源，首先需要为他创建对应的MediaSource对象，
+    然后把这个对象传递给ExoPlayer.prepared方法。
+
+  d.资源释放
+    release()
+
+
+View.inflate(context, R.layout.video_view, this)
+mPlayer = ExoPlayerFactory.newSimpleInstance(context)
+mPlayerView.player = mPlayer
+
+val uri = Uri.parse(url)
+val mediaSource = buildMediaSource(uri) //  ProgressiveMediaSource
+mPlayer.prepare(mediaSource)
+
+从上面的代码看出来其实主要就是三步:
+
+1.通过ExoPlayerFactory创建ExoPlayer实例对象，当然这里创建的是SimpleExoPlayer()
+2.将视频url封装成MediaSource类
+3.调用ExoPlayer.prepare()方法，并将MediaSource类对象作为参数传入。
+
+
+
+
+
+
+
+

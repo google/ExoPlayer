@@ -19,6 +19,7 @@ import android.database.SQLException;
 import java.io.IOException;
 
 /** An {@link IOException} whose cause is an {@link SQLException}. */
+
 public final class DatabaseIOException extends IOException {
 
   public DatabaseIOException(SQLException cause) {

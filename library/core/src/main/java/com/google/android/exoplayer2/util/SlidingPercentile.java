@@ -113,6 +113,7 @@ public class SlidingPercentile {
    * @return The requested percentile value or {@link Float#NaN} if no samples have been added.
    */
   public float getPercentile(float percentile) {
+    // Sample 按 value 从小到大排列
     ensureSortedByValue();
     float desiredWeight = percentile * totalWeight;
     int accumulatedWeight = 0;

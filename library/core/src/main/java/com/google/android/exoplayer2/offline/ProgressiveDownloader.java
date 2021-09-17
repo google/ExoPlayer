@@ -33,6 +33,7 @@ import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A downloader for progressive media streams. */
+
 public final class ProgressiveDownloader implements Downloader {
 
   private final Executor executor;

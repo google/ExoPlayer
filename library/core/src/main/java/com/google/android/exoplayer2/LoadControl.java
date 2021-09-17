@@ -20,7 +20,10 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 
-/** Controls buffering of media. */
+/** Controls buffering of media.
+ *
+ * 对MediaSource进行控制，比如什么时候开始缓冲、缓冲多少等 主要是记录一些位置
+ */
 public interface LoadControl {
 
   /** Called by the player when prepared with a new source. */

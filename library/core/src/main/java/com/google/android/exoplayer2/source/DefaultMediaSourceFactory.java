@@ -79,6 +79,7 @@ import java.util.List;
  * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
  * configure the factory with the required providers.
  */
+
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
