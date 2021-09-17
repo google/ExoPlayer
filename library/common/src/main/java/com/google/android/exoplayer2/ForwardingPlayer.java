@@ -43,26 +43,14 @@ public class ForwardingPlayer implements Player {
     this.player = player;
   }
 
-  @Override
+  @Deprecated
   public Looper getApplicationLooper() {
     return player.getApplicationLooper();
   }
 
   @Deprecated
-  @Override
-  public void addListener(EventListener listener) {
-    player.addListener(new ForwardingEventListener(this, listener));
-  }
-
-  @Override
   public void addListener(Listener listener) {
     player.addListener(new ForwardingListener(this, listener));
-  }
-
-  @Deprecated
-  @Override
-  public void removeListener(EventListener listener) {
-    player.removeListener(new ForwardingEventListener(this, listener));
   }
 
   @Override

@@ -289,24 +289,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void addListener(Listener listener) {
-    EventListener eventListener = listener;
-    addListener(eventListener);
-  }
-
-  @Override
-  public void addListener(Player.EventListener listener) {
-    listeners.add(listener);
+    addEventListener(listener);
   }
 
   @Override
   public void removeListener(Listener listener) {
-    EventListener eventListener = listener;
-    removeListener(eventListener);
+    removeEventListener(listener);
   }
 
-  @Override
-  public void removeListener(Player.EventListener listener) {
-    listeners.remove(listener);
+  @SuppressWarnings("deprecation") // Register deprecated EventListener.
+  public void addEventListener(Player.EventListener eventListener) {
+    listeners.add(eventListener);
+  }
+
+  @SuppressWarnings("deprecation") // Deregister deprecated EventListener.
+  public void removeEventListener(Player.EventListener eventListener) {
+    listeners.remove(eventListener);
   }
 
   public void addAudioOffloadListener(AudioOffloadListener listener) {

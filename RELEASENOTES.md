@@ -24,6 +24,8 @@
         the start or after the end of the media are now handled as seeks to the
         start and end respectively
         ([#8906](https://github.com/google/ExoPlayer/issues/8906)).
+    *   Move `Player.addListener(EventListener)` and
+        `Player.removeListener(EventListener)` out of `Player` into subclasses.
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
@@ -92,9 +94,8 @@
         deprecated since 2.11.0.
     *   Remove `DownloadService.onDownloadChanged` and
         `DownloadService.onDownloadRemoved`. Instead, use
-        `DownloadManager.addListener` to register a listener directly to
-        the `DownloadManager` returned through
-        `DownloadService.getDownloadManager`.
+        `DownloadManager.addListener` to register a listener directly to the
+        `DownloadManager` returned through `DownloadService.getDownloadManager`.
 *   Cast extension:
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed

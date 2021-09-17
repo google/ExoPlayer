@@ -62,22 +62,6 @@ public class ForwardingPlayerTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation") // Testing backwards compatibility with deprecated method.
-  public void addEventListener_addsForwardingListener() {
-    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
-    Player.EventListener listener1 = mock(Player.EventListener.class);
-    Player.EventListener listener2 = mock(Player.EventListener.class);
-
-    ForwardingPlayer forwardingPlayer = new ForwardingPlayer(player);
-    forwardingPlayer.addListener(listener1);
-    // Add listener1 again.
-    forwardingPlayer.addListener(listener1);
-    forwardingPlayer.addListener(listener2);
-
-    assertThat(player.eventListeners).hasSize(2);
-  }
-
-  @Test
   public void removeListener_removesForwardingListener() {
     FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
     Player.Listener listener1 = mock(Player.Listener.class);
@@ -93,25 +77,6 @@ public class ForwardingPlayerTest {
     assertThat(player.listeners).hasSize(1);
     forwardingPlayer.removeListener(listener2);
     assertThat(player.listeners).isEmpty();
-  }
-
-  @Test
-  @SuppressWarnings("deprecation") // Testing backwards compatibility with deprecated method.
-  public void removeEventListener_removesForwardingListener() {
-    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
-    Player.EventListener listener1 = mock(Player.EventListener.class);
-    Player.EventListener listener2 = mock(Player.EventListener.class);
-    ForwardingPlayer forwardingPlayer = new ForwardingPlayer(player);
-    forwardingPlayer.addListener(listener1);
-    forwardingPlayer.addListener(listener2);
-
-    forwardingPlayer.removeListener(listener1);
-    assertThat(player.eventListeners).hasSize(1);
-    // Remove same listener again.
-    forwardingPlayer.removeListener(listener1);
-    assertThat(player.eventListeners).hasSize(1);
-    forwardingPlayer.removeListener(listener2);
-    assertThat(player.eventListeners).isEmpty();
   }
 
   @Test
@@ -217,9 +182,6 @@ public class ForwardingPlayerTest {
 
   private static class FakePlayer extends StubExoPlayer {
 
-    @SuppressWarnings("deprecation") // Use of deprecated type for backwards compatibility.
-    private final Set<EventListener> eventListeners = new HashSet<>();
-
     private final Set<Listener> listeners = new HashSet<>();
 
     public FakePlayer(Context context) {
@@ -227,20 +189,8 @@ public class ForwardingPlayerTest {
     }
 
     @Override
-    @SuppressWarnings("deprecation") // Implementing deprecated method.
-    public void addListener(EventListener listener) {
-      eventListeners.add(listener);
-    }
-
-    @Override
     public void addListener(Listener listener) {
       listeners.add(listener);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation") // Implementing deprecated method.
-    public void removeListener(EventListener listener) {
-      eventListeners.remove(listener);
     }
 
     @Override

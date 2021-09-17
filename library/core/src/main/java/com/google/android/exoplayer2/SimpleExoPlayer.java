@@ -558,7 +558,7 @@ public class SimpleExoPlayer extends BasePlayer
               builder.looper,
               /* wrappingPlayer= */ this,
               additionalPermanentAvailableCommands);
-      player.addListener(componentListener);
+      player.addEventListener(componentListener);
       player.addAudioOffloadListener(componentListener);
       if (builder.foregroundModeTimeoutMs > 0) {
         player.experimentalSetForegroundModeTimeoutMs(builder.foregroundModeTimeoutMs);
@@ -1082,7 +1082,7 @@ public class SimpleExoPlayer extends BasePlayer
   public void addListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     Assertions.checkNotNull(listener);
-    player.addListener(listener);
+    player.addEventListener(listener);
   }
 
   @Override
@@ -1097,7 +1097,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void removeListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    player.removeListener(listener);
+    player.removeEventListener(listener);
   }
 
   @Override

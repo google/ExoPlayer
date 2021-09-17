@@ -1435,38 +1435,14 @@ public interface Player {
   Looper getApplicationLooper();
 
   /**
-   * Registers a listener to receive events from the player.
-   *
-   * <p>The listener's methods will be called on the thread that was used to construct the player.
-   * However, if the thread used to construct the player does not have a {@link Looper}, then the
-   * listener will be called on the main thread.
-   *
-   * @param listener The listener to register.
-   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
-   */
-  @Deprecated
-  void addListener(EventListener listener);
-
-  /**
    * Registers a listener to receive all events from the player.
    *
-   * <p>The listener's methods will be called on the thread that was used to construct the player.
-   * However, if the thread used to construct the player does not have a {@link Looper}, then the
-   * listener will be called on the main thread.
+   * <p>The listener's methods will be called on the thread associated with {@link
+   * #getApplicationLooper()}.
    *
    * @param listener The listener to register.
    */
   void addListener(Listener listener);
-
-  /**
-   * Unregister a listener registered through {@link #addListener(EventListener)}. The listener will
-   * no longer receive events from the player.
-   *
-   * @param listener The listener to unregister.
-   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
-   */
-  @Deprecated
-  void removeListener(EventListener listener);
 
   /**
    * Unregister a listener registered through {@link #addListener(Listener)}. The listener will no
