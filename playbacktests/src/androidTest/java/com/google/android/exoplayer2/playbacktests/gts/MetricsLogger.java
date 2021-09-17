@@ -57,8 +57,6 @@ import android.app.Instrumentation;
    */
   void logMetric(String key, boolean value);
 
-  /**
-   * Closes the logger.
-   */
+  /** Closes the logger. */
   void close();
 }

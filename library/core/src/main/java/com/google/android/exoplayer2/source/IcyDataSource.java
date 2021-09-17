@@ -79,7 +79,7 @@ import java.util.Map;
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
+  public int read(byte[] buffer, int offset, int length) throws IOException {
     if (bytesUntilMetadata == 0) {
       if (readMetadata()) {
         bytesUntilMetadata = metadataIntervalBytes;
@@ -87,7 +87,7 @@ import java.util.Map;
         return C.RESULT_END_OF_INPUT;
       }
     }
-    int bytesRead = upstream.read(buffer, offset, min(bytesUntilMetadata, readLength));
+    int bytesRead = upstream.read(buffer, offset, min(bytesUntilMetadata, length));
     if (bytesRead != C.RESULT_END_OF_INPUT) {
       bytesUntilMetadata -= bytesRead;
     }

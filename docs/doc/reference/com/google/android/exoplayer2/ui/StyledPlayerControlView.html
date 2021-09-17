@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":42,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":42,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -156,7 +156,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
  methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
  layout file.
 
- <h3>Attributes</h3>
+ <h2>Attributes</h2>
 
  The following attributes can be set on a StyledPlayerControlView when used in a layout XML file:
 
@@ -187,17 +187,6 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        <ul>
          <li>Corresponding method: <a href="#setShowNextButton(boolean)"><code>setShowNextButton(boolean)</code></a>
          <li>Default: true
-       </ul>
-   <li><b><code>rewind_increment</code></b> - The duration of the rewind applied when the user taps the
-       rewind button, in milliseconds. Use zero to disable the rewind button.
-       <ul>
-         <li>Corresponding method: <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a>
-         <li>Default: <a href="../DefaultControlDispatcher.html#DEFAULT_REWIND_MS"><code>DefaultControlDispatcher.DEFAULT_REWIND_MS</code></a>
-       </ul>
-   <li><b><code>fastforward_increment</code></b> - Like <code>rewind_increment</code>, but for fast forward.
-       <ul>
-         <li>Corresponding method: <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a>
-         <li>Default: <a href="../DefaultControlDispatcher.html#DEFAULT_FAST_FORWARD_MS"><code>DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS</code></a>
        </ul>
    <li><b><code>repeat_toggle_modes</code></b> - A flagged enumeration value specifying which repeat
        mode toggle options are enabled. Valid values are: <code>none</code>, <code>one</code>, <code>all</code>,
@@ -239,7 +228,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        unless the layout is overridden to specify a custom <code>exo_progress</code> (see below).
  </ul>
 
- <h3>Overriding drawables</h3>
+ <h2>Overriding drawables</h2>
 
  The drawables used by StyledPlayerControlView (with its default layout file) can be overridden by
  drawables with the same names defined in your application. The drawables that can be overridden
@@ -261,7 +250,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
    <li><b><code>exo_styled_controls_vr</code></b> - The VR icon.
  </ul>
 
- <h3>Overriding the layout file</h3>
+ <h2>Overriding the layout file</h2>
 
  To customize the layout of StyledPlayerControlView throughout your app, or just for certain
  configurations, you can define <code>exo_styled_player_control_view.xml</code> layout files in your
@@ -365,7 +354,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
  <p>All child views are optional and so can be omitted if not required, however where defined they
  must be of the expected type.
 
- <h3 id="CustomLayout">Specifying a custom layout file</h3>
+ <h2 id="CustomLayout">Specifying a custom layout file</h2>
 
  Defining your own <code>exo_styled_player_control_view.xml</code> is useful to customize the layout of
  StyledPlayerControlView throughout your application. It's also possible to customize the layout
@@ -689,7 +678,9 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">setControlDispatcher</a></span>&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> and pass it to <a href="#setPlayer(com.google.android.exoplayer2.Player)"><code>setPlayer(Player)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
@@ -710,112 +701,103 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">setPlaybackPreparer</a></span>&#8203;(<a href="../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i23" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to control.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProgressUpdateListener(com.google.android.exoplayer2.ui.StyledPlayerControlView.ProgressUpdateListener)">setProgressUpdateListener</a></span>&#8203;(<a href="StyledPlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerControlView.ProgressUpdateListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="StyledPlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView.ProgressUpdateListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(int)">setRepeatToggleModes</a></span>&#8203;(int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowFastForwardButton(boolean)">setShowFastForwardButton</a></span>&#8203;(boolean&nbsp;showFastForwardButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the fast forward button is shown.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowMultiWindowTimeBar(boolean)">setShowMultiWindowTimeBar</a></span>&#8203;(boolean&nbsp;showMultiWindowTimeBar)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowNextButton(boolean)">setShowNextButton</a></span>&#8203;(boolean&nbsp;showNextButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the next button is shown.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowPreviousButton(boolean)">setShowPreviousButton</a></span>&#8203;(boolean&nbsp;showPreviousButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the previous button is shown.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowRewindButton(boolean)">setShowRewindButton</a></span>&#8203;(boolean&nbsp;showRewindButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the rewind button is shown.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowShuffleButton(boolean)">setShowShuffleButton</a></span>&#8203;(boolean&nbsp;showShuffleButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowSubtitleButton(boolean)">setShowSubtitleButton</a></span>&#8203;(boolean&nbsp;showSubtitleButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the subtitle button is shown.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowTimeoutMs(int)">setShowTimeoutMs</a></span>&#8203;(int&nbsp;showTimeoutMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the playback controls timeout.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowVrButton(boolean)">setShowVrButton</a></span>&#8203;(boolean&nbsp;showVrButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the VR button is shown.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTimeBarMinUpdateInterval(int)">setTimeBarMinUpdateInterval</a></span>&#8203;(int&nbsp;minUpdateIntervalMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the minimum interval between time bar position updates.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVrButtonListener(android.view.View.OnClickListener)">setVrButtonListener</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/View.OnClickListener.html" title="class or interface in android.view" class="externalLink" target="_top">View.OnClickListener</a>&nbsp;onClickListener)</code></th>
 <td class="colLast">
 <div class="block">Sets listener for the VR button.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#show()">show</a></span>()</code></th>
 <td class="colLast">
@@ -1107,34 +1089,19 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 </dl>
 </li>
 </ul>
-<a id="setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPlaybackPreparer</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
-                                <a href="../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead. The view calls <a href="../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="../PlaybackPreparer.html#preparePlayback()"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="../DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the view
-     uses by default, calls <a href="../Player.html#prepare()"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
-     you can provide a custom implementation of <a href="../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
-</div>
-</li>
-</ul>
 <a id="setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setControlDispatcher</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setControlDispatcher&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
-<div class="block">Sets the <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>controlDispatcher</code> - The <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setControlDispatcher&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> and pass it to <a href="#setPlayer(com.google.android.exoplayer2.Player)"><code>setPlayer(Player)</code></a> instead.
+     You can also customize some operations when configuring the player (for example by using
+     <a href="../SimpleExoPlayer.Builder.html#setSeekBackIncrementMs(long)"><code>SimpleExoPlayer.Builder.setSeekBackIncrementMs(long)</code></a>).</div>
+</div>
 </li>
 </ul>
 <a id="setShowRewindButton(boolean)">

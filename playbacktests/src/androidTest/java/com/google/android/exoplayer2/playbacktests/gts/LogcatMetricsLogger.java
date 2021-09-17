@@ -48,5 +48,4 @@ import com.google.android.exoplayer2.util.Log;
   public void close() {
     // Do nothing.
   }
-
 }

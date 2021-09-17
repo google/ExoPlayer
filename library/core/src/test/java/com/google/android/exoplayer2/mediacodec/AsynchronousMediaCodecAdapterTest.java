@@ -30,9 +30,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link AsynchronousMediaCodecAdapter}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class AsynchronousMediaCodecAdapterTest {
   private AsynchronousMediaCodecAdapter adapter;
   private HandlerThread callbackThread;
@@ -60,8 +62,8 @@ public class AsynchronousMediaCodecAdapterTest {
                 /* synchronizeCodecInteractionsWithQueueing= */ false)
             .createAdapter(configuration);
     bufferInfo = new MediaCodec.BufferInfo();
-    // After start(), the ShadowMediaCodec offers input buffer 0. We advance the looper to make sure
-    // and messages have been propagated to the adapter.
+    // After starting the MediaCodec, the ShadowMediaCodec offers input buffer 0. We advance the
+    // looper to make sure any messages have been propagated to the adapter.
     shadowOf(callbackThread.getLooper()).idle();
   }
 
@@ -74,7 +76,6 @@ public class AsynchronousMediaCodecAdapterTest {
   public void dequeueInputBufferIndex_withInputBuffer_returnsInputBuffer() {
     assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(0);
   }
-
 
   @Test
   public void dequeueInputBufferIndex_withMediaCodecError_throwsException() throws Exception {

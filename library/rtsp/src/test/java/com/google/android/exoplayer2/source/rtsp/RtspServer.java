@@ -17,13 +17,15 @@ package com.google.android.exoplayer2.source.rtsp;
 
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_DESCRIBE;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_OPTIONS;
+import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_PLAY;
+import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_SETUP;
+import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_TEARDOWN;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableMap;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -31,31 +33,43 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
-import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The RTSP server. */
 public final class RtspServer implements Closeable {
 
-  private static final String PUBLIC_SUPPORTED_METHODS = "OPTIONS, DESCRIBE";
+  /** Provides RTSP response. */
+  public interface ResponseProvider {
 
-  /** RTSP error Method Not Allowed (RFC2326 Section 7.1.1). */
-  private static final int STATUS_OK = 200;
+    /** Returns an RTSP OPTIONS {@link RtspResponse response}. */
+    RtspResponse getOptionsResponse();
 
-  private static final int STATUS_METHOD_NOT_ALLOWED = 405;
+    /** Returns an RTSP DESCRIBE {@link RtspResponse response}. */
+    default RtspResponse getDescribeResponse(Uri requestedUri) {
+      return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
+    }
 
-  private static final String SESSION_DESCRIPTION =
-      "v=0\r\n"
-          + "o=- 1606776316530225 1 IN IP4 127.0.0.1\r\n"
-          + "s=Exoplayer test\r\n"
-          + "t=0 0\r\n"
-          + "a=range:npt=0-50.46\r\n";
+    /** Returns an RTSP SETUP {@link RtspResponse response}. */
+    default RtspResponse getSetupResponse(Uri requestedUri, RtspHeaders headers) {
+      return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
+    }
+
+    /** Returns an RTSP PLAY {@link RtspResponse response}. */
+    default RtspResponse getPlayResponse() {
+      return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
+    }
+
+    /** Returns an RTSP TEARDOWN {@link RtspResponse response}. */
+    default RtspResponse getTearDownResponse() {
+      return new RtspResponse(/* status= */ 200, RtspHeaders.EMPTY);
+    }
+  }
 
   private final Thread listenerThread;
   /** Runs on the thread on which the constructor was called. */
   private final Handler mainHandler;
 
-  private final RtpPacketStreamDump rtpPacketStreamDump;
+  private final ResponseProvider responseProvider;
 
   private @MonotonicNonNull ServerSocket serverSocket;
   private @MonotonicNonNull RtspMessageChannel connectedClient;
@@ -66,12 +80,14 @@ public final class RtspServer implements Closeable {
    * Creates a new instance.
    *
    * <p>The constructor must be called on a {@link Looper} thread.
+   *
+   * @param responseProvider A {@link ResponseProvider}.
    */
-  public RtspServer(RtpPacketStreamDump rtpPacketStreamDump) {
-    this.rtpPacketStreamDump = rtpPacketStreamDump;
+  public RtspServer(ResponseProvider responseProvider) {
     listenerThread =
         new Thread(this::listenToIncomingRtspConnection, "ExoPlayerTest:RtspConnectionMonitor");
     mainHandler = Util.createHandlerForCurrentLooper();
+    this.responseProvider = responseProvider;
   }
 
   /**
@@ -123,54 +139,37 @@ public final class RtspServer implements Closeable {
       String cSeq = checkNotNull(request.headers.get(RtspHeaders.CSEQ));
       switch (request.method) {
         case METHOD_OPTIONS:
-          onOptionsRequestReceived(cSeq);
+          sendResponse(responseProvider.getOptionsResponse(), cSeq);
           break;
 
         case METHOD_DESCRIBE:
-          onDescribeRequestReceived(request.uri, cSeq);
+          sendResponse(responseProvider.getDescribeResponse(request.uri), cSeq);
+          break;
+
+        case METHOD_SETUP:
+          sendResponse(responseProvider.getSetupResponse(request.uri, request.headers), cSeq);
+          break;
+
+        case METHOD_PLAY:
+          sendResponse(responseProvider.getPlayResponse(), cSeq);
+          break;
+
+        case METHOD_TEARDOWN:
+          sendResponse(responseProvider.getTearDownResponse(), cSeq);
           break;
 
         default:
-          sendErrorResponse(STATUS_METHOD_NOT_ALLOWED, cSeq);
+          sendResponse(RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED, cSeq);
       }
     }
 
-    private void onOptionsRequestReceived(String cSeq) {
-      sendResponseWithCommonHeaders(
-          /* status= */ STATUS_OK,
-          /* cSeq= */ cSeq,
-          /* additionalHeaders= */ ImmutableMap.of(RtspHeaders.PUBLIC, PUBLIC_SUPPORTED_METHODS),
-          /* messageBody= */ "");
-    }
-
-    private void onDescribeRequestReceived(Uri requestedUri, String cSeq) {
-      String sdpMessage = SESSION_DESCRIPTION + rtpPacketStreamDump.mediaDescription + "\r\n";
-      sendResponseWithCommonHeaders(
-          /* status= */ STATUS_OK,
-          /* cSeq= */ cSeq,
-          /* additionalHeaders= */ ImmutableMap.of(
-              RtspHeaders.CONTENT_BASE, requestedUri.toString(),
-              RtspHeaders.CONTENT_TYPE, "application/sdp",
-              RtspHeaders.CONTENT_LENGTH, String.valueOf(sdpMessage.length())),
-          /* messageBody= */ sdpMessage);
-    }
-
-    private void sendErrorResponse(int status, String cSeq) {
-      sendResponseWithCommonHeaders(
-          status, cSeq, /* additionalHeaders= */ ImmutableMap.of(), /* messageBody= */ "");
-    }
-
-    private void sendResponseWithCommonHeaders(
-        int status, String cSeq, Map<String, String> additionalHeaders, String messageBody) {
-      RtspHeaders.Builder headerBuilder = new RtspHeaders.Builder();
-      headerBuilder.add(RtspHeaders.CSEQ, cSeq);
-      headerBuilder.addAll(additionalHeaders);
+    private void sendResponse(RtspResponse response, String cSeq) {
       connectedClient.send(
           RtspMessageUtil.serializeResponse(
               new RtspResponse(
-                  /* status= */ status,
-                  /* headers= */ headerBuilder.build(),
-                  /* messageBody= */ messageBody)));
+                  response.status,
+                  response.headers.buildUpon().add(RtspHeaders.CSEQ, cSeq).build(),
+                  response.messageBody)));
     }
   }
 

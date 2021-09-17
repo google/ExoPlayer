@@ -87,14 +87,10 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   /** The protection scheme type, or null if not applicable or unknown. */
   @Nullable public final String schemeType;
 
-  /**
-   * Number of {@link SchemeData}s.
-   */
+  /** Number of {@link SchemeData}s. */
   public final int schemeDataCount;
 
-  /**
-   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
-   */
+  /** @param schemeDatas Scheme initialization data for possibly multiple DRM schemes. */
   public DrmInitData(List<SchemeData> schemeDatas) {
     this(null, false, schemeDatas.toArray(new SchemeData[0]));
   }
@@ -107,9 +103,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     this(schemeType, false, schemeDatas.toArray(new SchemeData[0]));
   }
 
-  /**
-   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
-   */
+  /** @param schemeDatas Scheme initialization data for possibly multiple DRM schemes. */
   public DrmInitData(SchemeData... schemeDatas) {
     this(null, schemeDatas);
   }
@@ -122,8 +116,8 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     this(schemeType, true, schemeDatas);
   }
 
-  private DrmInitData(@Nullable String schemeType, boolean cloneSchemeDatas,
-      SchemeData... schemeDatas) {
+  private DrmInitData(
+      @Nullable String schemeType, boolean cloneSchemeDatas, SchemeData... schemeDatas) {
     this.schemeType = schemeType;
     if (cloneSchemeDatas) {
       schemeDatas = schemeDatas.clone();
@@ -208,7 +202,8 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
 
   @Override
   public int compare(SchemeData first, SchemeData second) {
-    return C.UUID_NIL.equals(first.uuid) ? (C.UUID_NIL.equals(second.uuid) ? 0 : 1)
+    return C.UUID_NIL.equals(first.uuid)
+        ? (C.UUID_NIL.equals(second.uuid) ? 0 : 1)
         : first.uuid.compareTo(second.uuid);
   }
 
@@ -228,17 +223,16 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   public static final Parcelable.Creator<DrmInitData> CREATOR =
       new Parcelable.Creator<DrmInitData>() {
 
-    @Override
-    public DrmInitData createFromParcel(Parcel in) {
-      return new DrmInitData(in);
-    }
+        @Override
+        public DrmInitData createFromParcel(Parcel in) {
+          return new DrmInitData(in);
+        }
 
-    @Override
-    public DrmInitData[] newArray(int size) {
-      return new DrmInitData[size];
-    }
-
-  };
+        @Override
+        public DrmInitData[] newArray(int size) {
+          return new DrmInitData[size];
+        }
+      };
 
   // Internal methods.
 
@@ -252,9 +246,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     return false;
   }
 
-  /**
-   * Scheme initialization data.
-   */
+  /** Scheme initialization data. */
   public static final class SchemeData implements Parcelable {
 
     // Lazily initialized hashcode.
@@ -324,9 +316,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
       return hasData() && !other.hasData() && matches(other.uuid);
     }
 
-    /**
-     * Returns whether {@link #data} is non-null.
-     */
+    /** Returns whether {@link #data} is non-null. */
     public boolean hasData() {
       return data != null;
     }
@@ -387,18 +377,15 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     public static final Parcelable.Creator<SchemeData> CREATOR =
         new Parcelable.Creator<SchemeData>() {
 
-      @Override
-      public SchemeData createFromParcel(Parcel in) {
-        return new SchemeData(in);
-      }
+          @Override
+          public SchemeData createFromParcel(Parcel in) {
+            return new SchemeData(in);
+          }
 
-      @Override
-      public SchemeData[] newArray(int size) {
-        return new SchemeData[size];
-      }
-
-    };
-
+          @Override
+          public SchemeData[] newArray(int size) {
+            return new SchemeData[size];
+          }
+        };
   }
-
 }

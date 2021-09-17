@@ -41,9 +41,7 @@ public final class DummySurface extends Surface {
 
   private static final String TAG = "DummySurface";
 
-  /**
-   * Whether the surface is secure.
-   */
+  /** Whether the surface is secure. */
   public final boolean secure;
 
   private static @SecureMode int secureMode;
@@ -214,7 +212,5 @@ public final class DummySurface extends Surface {
       Assertions.checkNotNull(eglSurfaceTexture);
       eglSurfaceTexture.release();
     }
-
   }
-
 }

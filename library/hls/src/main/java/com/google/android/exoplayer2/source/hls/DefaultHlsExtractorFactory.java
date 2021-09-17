@@ -94,7 +94,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       @Nullable List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
-      ExtractorInput extractorInput)
+      ExtractorInput sniffingExtractorInput)
       throws IOException {
     @FileTypes.Type
     int formatInferredFileType = FileTypes.inferFileTypeFromMimeType(format.sampleMimeType);
@@ -115,13 +115,13 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
     // Extractor to be used if the type is not recognized.
     @Nullable Extractor fallBackExtractor = null;
-    extractorInput.resetPeekPosition();
+    sniffingExtractorInput.resetPeekPosition();
     for (int i = 0; i < fileTypeOrder.size(); i++) {
       int fileType = fileTypeOrder.get(i);
       Extractor extractor =
           checkNotNull(
               createExtractorByFileType(fileType, format, muxedCaptionFormats, timestampAdjuster));
-      if (sniffQuietly(extractor, extractorInput)) {
+      if (sniffQuietly(extractor, sniffingExtractorInput)) {
         return new BundledHlsMediaChunkExtractor(extractor, format, timestampAdjuster);
       }
       if (fallBackExtractor == null

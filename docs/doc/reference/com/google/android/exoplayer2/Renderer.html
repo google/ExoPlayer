@@ -394,8 +394,7 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReadingPositionUs()">getReadingPositionUs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the renderer time up to which the renderer has read samples from the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the
- current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
+<div class="block">Returns the renderer time up to which the renderer has read samples, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -982,9 +981,8 @@ int&nbsp;getState()</pre>
     throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Starts the renderer, meaning that calls to <a href="#render(long,long)"><code>render(long, long)</code></a> will cause media to be
  rendered.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs.</dd>
@@ -1036,9 +1034,8 @@ int&nbsp;getState()</pre>
 <h4>hasReadStreamToEnd</h4>
 <pre class="methodSignature">boolean&nbsp;hasReadStreamToEnd()</pre>
 <div class="block">Returns whether the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
 </li>
 </ul>
 <a id="getReadingPositionUs()">
@@ -1048,8 +1045,7 @@ int&nbsp;getState()</pre>
 <li class="blockList">
 <h4>getReadingPositionUs</h4>
 <pre class="methodSignature">long&nbsp;getReadingPositionUs()</pre>
-<div class="block">Returns the renderer time up to which the renderer has read samples from the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the
- current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
+<div class="block">Returns the renderer time up to which the renderer has read samples, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
 
  <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
 </li>
@@ -1063,9 +1059,8 @@ int&nbsp;getState()</pre>
 <pre class="methodSignature">void&nbsp;setCurrentStreamFinal()</pre>
 <div class="block">Signals to the renderer that the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied
  before it is next disabled or reset.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
 </li>
 </ul>
 <a id="isCurrentStreamFinal()">
@@ -1089,9 +1084,8 @@ int&nbsp;getState()</pre>
                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Throws an error that's preventing the renderer from reading from its <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>. Does
  nothing if no such error exists.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - An error that's preventing the renderer from making progress or buffering
@@ -1108,12 +1102,11 @@ int&nbsp;getState()</pre>
 <pre class="methodSignature">void&nbsp;resetPosition&#8203;(long&nbsp;positionUs)
             throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Signals to the renderer that a position discontinuity has occurred.
- <p>
- After a position discontinuity, the renderer's <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> is guaranteed to provide
+
+ <p>After a position discontinuity, the renderer's <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> is guaranteed to provide
  samples starting from a key frame.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionUs</code> - The new playback position in microseconds.</dd>
@@ -1190,16 +1183,15 @@ int&nbsp;getState()</pre>
 <h4>isReady</h4>
 <pre class="methodSignature">boolean&nbsp;isReady()</pre>
 <div class="block">Whether the renderer is able to immediately render media from the current position.
- <p>
- If the renderer is in the <a href="#STATE_STARTED"><code>STATE_STARTED</code></a> state then returning true indicates that the
- renderer has everything that it needs to continue playback. Returning false indicates that
+
+ <p>If the renderer is in the <a href="#STATE_STARTED"><code>STATE_STARTED</code></a> state then returning true indicates that
+ the renderer has everything that it needs to continue playback. Returning false indicates that
  the player should pause until the renderer is ready.
- <p>
- If the renderer is in the <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a> state then returning true indicates that the
- renderer is ready for playback to be started. Returning false indicates that it is not.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
+
+ <p>If the renderer is in the <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a> state then returning true indicates that
+ the renderer is ready for playback to be started. Returning false indicates that it is not.
+
+ <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>, <a href="#STATE_STARTED"><code>STATE_STARTED</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the renderer is ready to render media.</dd>
@@ -1243,9 +1235,8 @@ int&nbsp;getState()</pre>
 <h4>disable</h4>
 <pre class="methodSignature">void&nbsp;disable()</pre>
 <div class="block">Disable the renderer, transitioning it to the <a href="#STATE_DISABLED"><code>STATE_DISABLED</code></a> state.
- <p>
- This method may be called when the renderer is in the following states:
- <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>.</div>
+
+ <p>This method may be called when the renderer is in the following states: <a href="#STATE_ENABLED"><code>STATE_ENABLED</code></a>.</div>
 </li>
 </ul>
 <a id="reset()">

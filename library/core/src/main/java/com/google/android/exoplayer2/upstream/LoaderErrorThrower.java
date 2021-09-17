@@ -32,8 +32,8 @@ public interface LoaderErrorThrower {
 
   /**
    * Throws a fatal error, or a non-fatal error if loading is currently backed off and the current
-   * {@link Loadable} has incurred a number of errors greater than the specified minimum number
-   * of retries. Else does nothing.
+   * {@link Loadable} has incurred a number of errors greater than the specified minimum number of
+   * retries. Else does nothing.
    *
    * @param minRetryCount A minimum retry count that must be exceeded for a non-fatal error to be
    *     thrown. Should be non-negative.
@@ -41,9 +41,7 @@ public interface LoaderErrorThrower {
    */
   void maybeThrowError(int minRetryCount) throws IOException;
 
-  /**
-   * A {@link LoaderErrorThrower} that never throws.
-   */
+  /** A {@link LoaderErrorThrower} that never throws. */
   final class Dummy implements LoaderErrorThrower {
 
     @Override
@@ -56,5 +54,4 @@ public interface LoaderErrorThrower {
       // Do nothing.
     }
   }
-
 }

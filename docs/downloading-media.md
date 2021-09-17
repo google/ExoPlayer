@@ -72,7 +72,7 @@ downloadCache = new SimpleCache(
     databaseProvider);
 
 // Create a factory for reading the data from the network.
-dataSourceFactory = new DefaultHttpDataSourceFactory();
+dataSourceFactory = new DefaultHttpDataSource.Factory();
 
 // Choose an executor for downloading data. Using Runnable::run will cause each download task to
 // download data on its own thread. Passing an executor that uses multiple threads will speed up

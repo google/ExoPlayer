@@ -330,7 +330,8 @@ extends <a href="Rating.html" title="class in com.google.android.exoplayer2">Rat
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PercentageRating</h4>
-<pre>public&nbsp;PercentageRating&#8203;(float&nbsp;percent)</pre>
+<pre>public&nbsp;PercentageRating&#8203;(@FloatRange(from=0.0,to=100.0)
+                        float&nbsp;percent)</pre>
 <div class="block">Creates a rated instance with the given percentage.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

@@ -90,8 +90,11 @@ public final class ContentDataSourceTest {
       DataSpec dataSpec = new DataSpec(contentUri, offset, length);
       byte[] completeData =
           TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), DATA_PATH);
-      byte[] expectedData = Arrays.copyOfRange(completeData, offset,
-          length == C.LENGTH_UNSET ? completeData.length : offset + length);
+      byte[] expectedData =
+          Arrays.copyOfRange(
+              completeData,
+              offset,
+              length == C.LENGTH_UNSET ? completeData.length : offset + length);
       TestUtil.assertDataSourceContent(dataSource, dataSpec, expectedData, !pipeMode);
     } finally {
       dataSource.close();

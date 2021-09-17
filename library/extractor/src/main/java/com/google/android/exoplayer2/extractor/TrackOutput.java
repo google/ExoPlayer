@@ -31,19 +31,13 @@ import java.util.Arrays;
 /** Receives track level data extracted by an {@link Extractor}. */
 public interface TrackOutput {
 
-  /**
-   * Holds data required to decrypt a sample.
-   */
+  /** Holds data required to decrypt a sample. */
   final class CryptoData {
 
-    /**
-     * The encryption mode used for the sample.
-     */
+    /** The encryption mode used for the sample. */
     @C.CryptoMode public final int cryptoMode;
 
-    /**
-     * The encryption key associated with the sample. Its contents must not be modified.
-     */
+    /** The encryption key associated with the sample. Its contents must not be modified. */
     public final byte[] encryptionKey;
 
     /**
@@ -53,8 +47,7 @@ public interface TrackOutput {
     public final int encryptedBlocks;
 
     /**
-     * The number of clear blocks in the encryption pattern, 0 if pattern encryption does not
-     * apply.
+     * The number of clear blocks in the encryption pattern, 0 if pattern encryption does not apply.
      */
     public final int clearBlocks;
 
@@ -64,8 +57,8 @@ public interface TrackOutput {
      * @param encryptedBlocks See {@link #encryptedBlocks}.
      * @param clearBlocks See {@link #clearBlocks}.
      */
-    public CryptoData(@C.CryptoMode int cryptoMode, byte[] encryptionKey, int encryptedBlocks,
-        int clearBlocks) {
+    public CryptoData(
+        @C.CryptoMode int cryptoMode, byte[] encryptionKey, int encryptedBlocks, int clearBlocks) {
       this.cryptoMode = cryptoMode;
       this.encryptionKey = encryptionKey;
       this.encryptedBlocks = encryptedBlocks;
@@ -81,8 +74,10 @@ public interface TrackOutput {
         return false;
       }
       CryptoData other = (CryptoData) obj;
-      return cryptoMode == other.cryptoMode && encryptedBlocks == other.encryptedBlocks
-          && clearBlocks == other.clearBlocks && Arrays.equals(encryptionKey, other.encryptionKey);
+      return cryptoMode == other.cryptoMode
+          && encryptedBlocks == other.encryptedBlocks
+          && clearBlocks == other.clearBlocks
+          && Arrays.equals(encryptionKey, other.encryptionKey);
     }
 
     @Override
@@ -93,7 +88,6 @@ public interface TrackOutput {
       result = 31 * result + clearBlocks;
       return result;
     }
-
   }
 
   /** Defines the part of the sample data to which a call to {@link #sampleData} corresponds. */
@@ -204,12 +198,8 @@ public interface TrackOutput {
    * @param offset The number of bytes that have been passed to {@link #sampleData(DataReader, int,
    *     boolean)} or {@link #sampleData(ParsableByteArray, int)} since the last byte belonging to
    *     the sample whose metadata is being passed.
-   * @param encryptionData The encryption data required to decrypt the sample. May be null.
+   * @param cryptoData The encryption data required to decrypt the sample. May be null.
    */
   void sampleMetadata(
-      long timeUs,
-      @C.BufferFlags int flags,
-      int size,
-      int offset,
-      @Nullable CryptoData encryptionData);
+      long timeUs, @C.BufferFlags int flags, int size, int offset, @Nullable CryptoData cryptoData);
 }

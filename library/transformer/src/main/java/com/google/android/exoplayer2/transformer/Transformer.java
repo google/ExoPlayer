@@ -37,8 +37,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -639,7 +639,7 @@ public final class Transformer {
     }
 
     @Override
-    public void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
+    public void onPlayerError(EventTime eventTime, PlaybackException error) {
       handleTransformationEnded(error);
     }
 

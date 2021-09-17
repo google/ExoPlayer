@@ -38,8 +38,13 @@ public final class Id3DecoderTest {
 
   @Test
   public void decodeTxxxFrame() {
-    byte[] rawId3 = buildSingleFrameTag("TXXX", new byte[] {3, 0, 109, 100, 105, 97, 108, 111, 103,
-        95, 86, 73, 78, 68, 73, 67, 79, 49, 53, 50, 55, 54, 54, 52, 95, 115, 116, 97, 114, 116, 0});
+    byte[] rawId3 =
+        buildSingleFrameTag(
+            "TXXX",
+            new byte[] {
+              3, 0, 109, 100, 105, 97, 108, 111, 103, 95, 86, 73, 78, 68, 73, 67, 79, 49, 53, 50,
+              55, 54, 54, 52, 95, 115, 116, 97, 114, 116, 0
+            });
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertThat(metadata.length()).isEqualTo(1);
@@ -65,8 +70,9 @@ public final class Id3DecoderTest {
 
   @Test
   public void decodeTextInformationFrame() {
-    byte[] rawId3 = buildSingleFrameTag("TIT2", new byte[] {3, 72, 101, 108, 108, 111, 32, 87, 111,
-        114, 108, 100, 0});
+    byte[] rawId3 =
+        buildSingleFrameTag(
+            "TIT2", new byte[] {3, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 0});
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertThat(metadata.length()).isEqualTo(1);
@@ -92,9 +98,41 @@ public final class Id3DecoderTest {
 
   @Test
   public void decodeWxxxFrame() {
-    byte[] rawId3 = buildSingleFrameTag("WXXX", new byte[] {ID3_TEXT_ENCODING_UTF_8, 116, 101, 115,
-        116, 0, 104, 116, 116, 112, 115, 58, 47, 47, 116, 101, 115, 116, 46, 99, 111, 109, 47, 97,
-        98, 99, 63, 100, 101, 102});
+    byte[] rawId3 =
+        buildSingleFrameTag(
+            "WXXX",
+            new byte[] {
+              ID3_TEXT_ENCODING_UTF_8,
+              116,
+              101,
+              115,
+              116,
+              0,
+              104,
+              116,
+              116,
+              112,
+              115,
+              58,
+              47,
+              47,
+              116,
+              101,
+              115,
+              116,
+              46,
+              99,
+              111,
+              109,
+              47,
+              97,
+              98,
+              99,
+              63,
+              100,
+              101,
+              102
+            });
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertThat(metadata.length()).isEqualTo(1);
@@ -120,8 +158,13 @@ public final class Id3DecoderTest {
 
   @Test
   public void decodeUrlLinkFrame() {
-    byte[] rawId3 = buildSingleFrameTag("WCOM", new byte[] {104, 116, 116, 112, 115, 58, 47, 47,
-        116, 101, 115, 116, 46, 99, 111, 109, 47, 97, 98, 99, 63, 100, 101, 102});
+    byte[] rawId3 =
+        buildSingleFrameTag(
+            "WCOM",
+            new byte[] {
+              104, 116, 116, 112, 115, 58, 47, 47, 116, 101, 115, 116, 46, 99, 111, 109, 47, 97, 98,
+              99, 63, 100, 101, 102
+            });
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertThat(metadata.length()).isEqualTo(1);
@@ -148,7 +191,7 @@ public final class Id3DecoderTest {
     assertThat(metadata.length()).isEqualTo(1);
     PrivFrame privFrame = (PrivFrame) metadata.get(0);
     assertThat(privFrame.owner).isEqualTo("test");
-    assertThat(privFrame.privateData).isEqualTo(new byte[]{1, 2, 3, 4});
+    assertThat(privFrame.privateData).isEqualTo(new byte[] {1, 2, 3, 4});
 
     // Test empty.
     rawId3 = buildSingleFrameTag("PRIV", new byte[0]);
@@ -161,9 +204,13 @@ public final class Id3DecoderTest {
 
   @Test
   public void decodeApicFrame() {
-    byte[] rawId3 = buildSingleFrameTag("APIC", new byte[] {3, 105, 109, 97, 103, 101, 47, 106, 112,
-        101, 103, 0, 16, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 0, 1, 2, 3, 4, 5, 6, 7,
-        8, 9, 0});
+    byte[] rawId3 =
+        buildSingleFrameTag(
+            "APIC",
+            new byte[] {
+              3, 105, 109, 97, 103, 101, 47, 106, 112, 101, 103, 0, 16, 72, 101, 108, 108, 111, 32,
+              87, 111, 114, 108, 100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+            });
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertThat(metadata.length()).isEqualTo(1);
@@ -172,13 +219,37 @@ public final class Id3DecoderTest {
     assertThat(apicFrame.pictureType).isEqualTo(16);
     assertThat(apicFrame.description).isEqualTo("Hello World");
     assertThat(apicFrame.pictureData).hasLength(10);
-    assertThat(apicFrame.pictureData).isEqualTo(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    assertThat(apicFrame.pictureData).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
   }
 
   @Test
   public void decodeCommentFrame() {
-    byte[] rawId3 = buildSingleFrameTag("COMM", new byte[] {ID3_TEXT_ENCODING_UTF_8, 101, 110, 103,
-        100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 0, 116, 101, 120, 116, 0});
+    byte[] rawId3 =
+        buildSingleFrameTag(
+            "COMM",
+            new byte[] {
+              ID3_TEXT_ENCODING_UTF_8,
+              101,
+              110,
+              103,
+              100,
+              101,
+              115,
+              99,
+              114,
+              105,
+              112,
+              116,
+              105,
+              111,
+              110,
+              0,
+              116,
+              101,
+              120,
+              116,
+              0
+            });
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertThat(metadata.length()).isEqualTo(1);

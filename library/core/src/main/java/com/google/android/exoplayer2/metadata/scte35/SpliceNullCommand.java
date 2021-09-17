@@ -30,16 +30,14 @@ public final class SpliceNullCommand extends SpliceCommand {
   public static final Creator<SpliceNullCommand> CREATOR =
       new Creator<SpliceNullCommand>() {
 
-    @Override
-    public SpliceNullCommand createFromParcel(Parcel in) {
-      return new SpliceNullCommand();
-    }
+        @Override
+        public SpliceNullCommand createFromParcel(Parcel in) {
+          return new SpliceNullCommand();
+        }
 
-    @Override
-    public SpliceNullCommand[] newArray(int size) {
-      return new SpliceNullCommand[size];
-    }
-
-  };
-
+        @Override
+        public SpliceNullCommand[] newArray(int size) {
+          return new SpliceNullCommand[size];
+        }
+      };
 }

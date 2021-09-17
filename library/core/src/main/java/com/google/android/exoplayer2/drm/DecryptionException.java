@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.drm;
 /** Thrown when a non-platform component fails to decrypt data. */
 public class DecryptionException extends Exception {
 
-  /**
-   * A component specific error code.
-   */
+  /** A component specific error code. */
   public final int errorCode;
 
   /**
@@ -31,5 +29,4 @@ public class DecryptionException extends Exception {
     super(message);
     this.errorCode = errorCode;
   }
-
 }

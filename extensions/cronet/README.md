@@ -1,9 +1,18 @@
 # ExoPlayer Cronet extension #
 
-The Cronet extension is an [HttpDataSource][] implementation using [Cronet][].
+The Cronet extension is an [HttpDataSource][] implementation that uses
+[Cronet][].
+
+Cronet is the Chromium network stack made available to Android apps as a
+library. It takes advantage of multiple technologies that reduce the latency and
+increase the throughput of the network requests that your app needs to work,
+including those made by ExoPlayer. It natively supports the HTTP, HTTP/2, and
+HTTP/3 over QUIC protocols. Cronet is used by some of the world's biggest
+streaming applications, including YouTube, and is our recommended network stack
+for most use cases.
 
 [HttpDataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
-[Cronet]: https://chromium.googlesource.com/chromium/src/+/master/components/cronet?autodive=0%2F%2F
+[Cronet]: https://developer.android.com/guide/topics/connectivity/cronet
 
 ## Getting the extension ##
 
@@ -20,76 +29,97 @@ Alternatively, you can clone the ExoPlayer repository and depend on the module
 locally. Instructions for doing this can be found in ExoPlayer's
 [top level README][].
 
-Note that by default, the extension will use the Cronet implementation in
-Google Play Services. If you prefer, it's also possible to embed the Cronet
-implementation directly into your application. See below for more details.
-
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 
 ## Using the extension ##
 
 ExoPlayer requests data through `DataSource` instances. These instances are
-either instantiated and injected from application code, or obtained from
-instances of `DataSource.Factory` that are instantiated and injected from
-application code.
+obtained from instances of `DataSource.Factory`, which are instantiated and
+injected from application code.
 
 If your application only needs to play http(s) content, using the Cronet
-extension is as simple as updating any `DataSource`s and `DataSource.Factory`
-instantiations in your application code to use `CronetDataSource` and
-`CronetDataSourceFactory` respectively. If your application also needs to play
-non-http(s) content such as local files, use
-```
-new DefaultDataSource(
-    ...
-    new CronetDataSource(...) /* baseDataSource argument */);
-```
-and
+extension is as simple as updating `DataSource.Factory` instantiations in your
+application code to use `CronetDataSource.Factory`. If your application also
+needs to play non-http(s) content such as local files, use:
 ```
 new DefaultDataSourceFactory(
     ...
-    new CronetDataSourceFactory(...) /* baseDataSourceFactory argument */);
-```
-respectively.
-
-## Choosing between Google Play Services Cronet and Cronet Embedded ##
-
-The underlying Cronet implementation is available both via a [Google Play
-Services](https://developers.google.com/android/guides/overview) API, and as a
-library that can be embedded directly into your application. When you depend on
-`com.google.android.exoplayer:extension-cronet:2.X.X`, the library will _not_ be
-embedded into your application by default. The extension will attempt to use the
-Cronet implementation in Google Play Services. The benefits of this approach
-are:
-
-* A negligible increase in the size of your application.
-* The Cronet implementation is updated automatically by Google Play Services.
-
-If Google Play Services is not available on a device, `CronetDataSourceFactory`
-will fall back to creating `DefaultHttpDataSource` instances, or
-`HttpDataSource` instances created by a `fallbackFactory` that you can specify.
-
-It's also possible to embed the Cronet implementation directly into your
-application. To do this, add an additional gradle dependency to the Cronet
-Embedded library:
-
-```gradle
-implementation 'com.google.android.exoplayer:extension-cronet:2.X.X'
-implementation 'org.chromium.net:cronet-embedded:XX.XXXX.XXX'
+    /* baseDataSourceFactory= */ new CronetDataSource.Factory(...) );
 ```
 
-where `XX.XXXX.XXX` is the version of the library that you wish to use. The
-extension will automatically detect and use the library. Embedding will add
-approximately 8MB to your application, however it may be suitable if:
+## Cronet implementations ##
 
-* Your application is likely to be used in markets where Google Play Services is
+To instantiate a `CronetDataSource.Factory` you'll need a `CronetEngine`. A
+`CronetEngine` can be obtained from one of a number of Cronet implementations.
+It's recommended that an application should only have a single `CronetEngine`
+instance.
+
+### Available implementations ###
+
+#### Google Play Services ####
+
+By default, ExoPlayer's Cronet extension depends on
+`com.google.android.gms:play-services-cronet`, which loads an implementation of
+Cronet from Google Play Services. When Google Play Services is available,
+this approach is beneficial because:
+
+* The increase in application size is negligible.
+* The implementation is updated automatically by Google Play Services.
+
+The disadvantage of this approach is that the implementation is not usable on
+devices that do not have Google Play Services. Unless your application also
+includes one of the alternative Cronet implementations described below, you will
+not be able to instantiate a `CronetEngine` in this case. Your application code
+should handle this by falling back to use `DefaultHttpDataSource` instead.
+
+#### Cronet Embedded ####
+
+Cronet Embedded bundles a full Cronet implementation directly into your
+application. To use it, add an additional dependency on
+`org.chromium.net:cronet-embedded`. Cronet Embedded adds approximately 8MB to
+your application, and so we do not recommend it for most use cases. That said,
+use of Cronet Embedded may be appropriate if:
+
+* A large percentage of your users are in markets where Google Play Services is
   not widely available.
 * You want to control the exact version of the Cronet implementation being used.
 
-If you do embed the library, you can specify which implementation should
-be preferred if the Google Play Services implementation is also available. This
-is controlled by a `preferGMSCoreCronet` parameter, which can be passed to the
-`CronetEngineWrapper` constructor (GMS Core is another name for Google Play
-Services).
+#### Cronet Fallback ####
+
+There's also a fallback implementation of Cronet, which uses Android's default
+network stack under the hood. It can be used by adding a dependency on
+`org.chromium.net:cronet-fallback`. This implementation should _not_ be used
+with ExoPlayer, since it's more efficient to use `DefaultHttpDataSource`
+directly in this case.
+
+When using Cronet Fallback for other networking in your application, use the
+more advanced approach to instantiating a `CronetEngine` described below so that
+you know when your application's `CronetEngine` has been obtained from the
+fallback implementation. In this case, avoid using it with ExoPlayer and use
+`DefaultHttpDataSource` instead.
+
+### CronetEngine instantiation ###
+
+Cronet's [Send a simple request][] page documents the simplest way of building a
+`CronetEngine`, which is suitable if your application is only using the
+Google Play Services implementation of Cronet.
+
+For cases where your application also includes one of the other Cronet
+implementations, you can use `CronetProvider.getAllProviders` to list the
+available implementations. Providers can be identified by name:
+
+* `CronetProviderInstaller.PROVIDER_NAME`: Google Play Services implementation.
+* `CronetProvider.PROVIDER_NAME_APP_PACKAGED`: Embedded implementation.
+* `CronetProvider.PROVIDER_NAME_FALLBACK`: Fallback implementation.
+
+This makes it possible to iterate through the providers in your own order of
+preference, trying to build a `CronetEngine` from each in turn using
+`CronetProvider.createBuilder()` until one has been successfully created. This
+approach also allows you to determine when the `CronetEngine` has been obtained
+from Cronet Fallback, in which case you can avoid using it for ExoPlayer whilst
+still using it for other networking performed by your application.
+
+[Send a simple request]: https://developer.android.com/guide/topics/connectivity/cronet/start
 
 ## Links ##
 

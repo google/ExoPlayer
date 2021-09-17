@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -202,17 +202,46 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addAllCommands()">addAllCommands</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Adds all existing <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addIf(int,boolean)">addIf</a></span>&#8203;(int&nbsp;command,
      boolean&nbsp;condition)</code></th>
 <td class="colLast">
 <div class="block">Adds a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> if the provided condition is true.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="Player.Commands.html" title="class in com.google.android.exoplayer2">Player.Commands</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Builds a <a href="Player.Commands.html" title="class in com.google.android.exoplayer2"><code>Player.Commands</code></a> instance.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(int)">remove</a></span>&#8203;(int&nbsp;command)</code></th>
+<td class="colLast">
+<div class="block">Removes a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAll(int...)">removeAll</a></span>&#8203;(int...&nbsp;commands)</code></th>
+<td class="colLast">
+<div class="block">Removes <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeIf(int,boolean)">removeIf</a></span>&#8203;(int&nbsp;command,
+        boolean&nbsp;condition)</code></th>
+<td class="colLast">
+<div class="block">Removes a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> if the provided condition is true.</div>
 </td>
 </tr>
 </table>
@@ -329,6 +358,81 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>commands</code> - The set of <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a> to add.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="addAllCommands()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAllCommands</h4>
+<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;addAllCommands()</pre>
+<div class="block">Adds all existing <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="remove(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>remove</h4>
+<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;remove&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+                                      int&nbsp;command)</pre>
+<div class="block">Removes a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>command</code> - A <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="removeIf(int,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeIf</h4>
+<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;removeIf&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+                                        int&nbsp;command,
+                                        boolean&nbsp;condition)</pre>
+<div class="block">Removes a <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a> if the provided condition is true. Does nothing otherwise.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>command</code> - A <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</dd>
+<dd><code>condition</code> - A condition.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="removeAll(int...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeAll</h4>
+<pre class="methodSignature">public&nbsp;<a href="Player.Commands.Builder.html" title="class in com.google.android.exoplayer2">Player.Commands.Builder</a>&nbsp;removeAll&#8203;(<a href="Player.Command.html" title="annotation in com.google.android.exoplayer2">@Command</a>
+                                         int...&nbsp;commands)</pre>
+<div class="block">Removes <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>commands</code> - The <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>commands</code></a> to remove.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

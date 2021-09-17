@@ -7,6 +7,8 @@
       <style id="cont" tts:ruby="container" />
       <style id="base" tts:ruby="base" />
       <style id="text" tts:ruby="text" />
+      <style id="cont-with-pos-before" tts:ruby="container" tts:rubyPosition="before" />
+      <style id="text-with-pos-after" tts:ruby="text" tts:rubyPosition="after" />
     </styling>
   </head>
   <body>
@@ -74,6 +76,28 @@
         <span tts:ruby="text">rubies</span>
         <span tts:ruby="base">annotated</span>
         text.
+      </p>
+    </div>
+    <div>
+      <!-- ruby info in style block and ruby position in contpos -->
+      <p begin="70s" end="78s">
+        Cue with
+        <span style="cont-with-pos-before">
+          <span style="base">annotated</span>
+          <span style="text">rubies</span>
+          text.
+        </span>
+      </p>
+    </div>
+    <div>
+      <!-- ruby info and position in style block for base and text -->
+      <p begin="80s" end="88s">
+        Cue with
+        <span style="cont-with-pos-before">
+          <span style="base">annotated</span>
+          <span style="text-with-pos-after">rubies</span>
+          text.
+        </span>
       </p>
     </div>
   </body>

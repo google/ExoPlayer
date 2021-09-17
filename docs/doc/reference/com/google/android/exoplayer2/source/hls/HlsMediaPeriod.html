@@ -293,8 +293,9 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaylistError(android.net.Uri,long)">onPlaylistError</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
-               long&nbsp;exclusionDurationMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaylistError(android.net.Uri,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,boolean)">onPlaylistError</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
+               <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
+               boolean&nbsp;forceRetry)</code></th>
 <td class="colLast">
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 </td>
@@ -856,22 +857,24 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 </dl>
 </li>
 </ul>
-<a id="onPlaylistError(android.net.Uri,long)">
+<a id="onPlaylistError(android.net.Uri,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onPlaylistError</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onPlaylistError&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
-                               long&nbsp;exclusionDurationMs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError(android.net.Uri,long)">HlsPlaylistTracker.PlaylistEventListener</a></code></span></div>
+                               <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
+                               boolean&nbsp;forceRetry)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError(android.net.Uri,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,boolean)">HlsPlaylistTracker.PlaylistEventListener</a></code></span></div>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError(android.net.Uri,long)">onPlaylistError</a></code>&nbsp;in interface&nbsp;<code><a href="playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></code></dd>
+<dd><code><a href="playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError(android.net.Uri,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,boolean)">onPlaylistError</a></code>&nbsp;in interface&nbsp;<code><a href="playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - The loaded url that caused the error.</dd>
-<dd><code>exclusionDurationMs</code> - The duration for which the playlist should be excluded. Or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the playlist should not be excluded.</dd>
+<dd><code>loadErrorInfo</code> - The load error info.</dd>
+<dd><code>forceRetry</code> - Whether retry should be forced without considering exclusion.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if excluding did not encounter errors. False otherwise.</dd>
 </dl>

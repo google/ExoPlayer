@@ -822,7 +822,7 @@ public final class DownloadHelper {
     "mediaPreparer.timeline",
     "mediaPreparer.mediaPeriods"
   })
-  @SuppressWarnings("nullness:contracts.postcondition.not.satisfied")
+  @SuppressWarnings("nullness:contracts.postcondition")
   private void assertPreparedWithMedia() {
     Assertions.checkState(isPreparedWithMedia);
   }
@@ -931,7 +931,7 @@ public final class DownloadHelper {
       this.downloadHelper = downloadHelper;
       allocator = new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
       pendingMediaPeriods = new ArrayList<>();
-      @SuppressWarnings("methodref.receiver.bound.invalid")
+      @SuppressWarnings("nullness:methodref.receiver.bound")
       Handler downloadThreadHandler =
           Util.createHandlerForCurrentOrMainLooper(this::handleDownloadHelperCallbackMessage);
       this.downloadHelperHandler = downloadThreadHandler;

@@ -90,5 +90,4 @@ public final class AtomicFileTest {
     assertThat(input.read()).isEqualTo(-1);
     input.close();
   }
-
 }

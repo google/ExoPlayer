@@ -58,7 +58,7 @@ import java.util.List;
  *
  * <p>The following examples illustrate timelines for various use cases.
  *
- * <h3 id="single-file">Single media file or on-demand stream</h3>
+ * <h2 id="single-file">Single media file or on-demand stream</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-single-file.svg" alt="Example timeline for a
  * single file">
@@ -68,7 +68,7 @@ import java.util.List;
  * playback. The window's default position is typically at the start of the period (indicated by the
  * black dot in the figure above).
  *
- * <h3>Playlist of media files or on-demand streams</h3>
+ * <h2>Playlist of media files or on-demand streams</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-playlist.svg" alt="Example timeline for a
  * playlist of files">
@@ -79,7 +79,7 @@ import java.util.List;
  * (e.g. their durations and whether the window is seekable) will often only become known when the
  * player starts buffering the corresponding file or stream.
  *
- * <h3 id="live-limited">Live stream with limited availability</h3>
+ * <h2 id="live-limited">Live stream with limited availability</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-limited.svg" alt="Example timeline for
  * a live stream with limited availability">
@@ -92,7 +92,7 @@ import java.util.List;
  * changes to the live window. Its default position is typically near to the live edge (indicated by
  * the black dot in the figure above).
  *
- * <h3>Live stream with indefinite availability</h3>
+ * <h2>Live stream with indefinite availability</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-indefinite.svg" alt="Example timeline
  * for a live stream with indefinite availability">
@@ -102,7 +102,7 @@ import java.util.List;
  * starts at the beginning of the period to indicate that all of the previously broadcast content
  * can still be played.
  *
- * <h3 id="live-multi-period">Live stream with multiple periods</h3>
+ * <h2 id="live-multi-period">Live stream with multiple periods</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-multi-period.svg" alt="Example timeline
  * for a live stream with multiple periods">
@@ -112,7 +112,7 @@ import java.util.List;
  * limited availability</a> case, except that the window may span more than one period. Multiple
  * periods are also possible in the indefinite availability case.
  *
- * <h3>On-demand stream followed by live stream</h3>
+ * <h2>On-demand stream followed by live stream</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-advanced.svg" alt="Example timeline for an
  * on-demand stream followed by a live stream">
@@ -122,7 +122,7 @@ import java.util.List;
  * of the on-demand stream ends, playback of the live stream will start from its default position
  * near the live edge.
  *
- * <h3 id="single-file-midrolls">On-demand stream with mid-roll ads</h3>
+ * <h2 id="single-file-midrolls">On-demand stream with mid-roll ads</h2>
  *
  * <p style="align:center"><img src="doc-files/timeline-single-file-midrolls.svg" alt="Example
  * timeline for an on-demand stream with mid-roll ad groups">
@@ -229,9 +229,7 @@ public abstract class Timeline implements Bundleable {
      */
     public long defaultPositionUs;
 
-    /**
-     * The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long durationUs;
 
     /** The index of the first period that belongs to this window. */
@@ -312,16 +310,12 @@ public abstract class Timeline implements Bundleable {
       return defaultPositionUs;
     }
 
-    /**
-     * Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
       return C.usToMs(durationUs);
     }
 
-    /**
-     * Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationUs() {
       return durationUs;
     }
@@ -446,18 +440,11 @@ public abstract class Timeline implements Bundleable {
     private static final int FIELD_LAST_PERIOD_INDEX = 12;
     private static final int FIELD_POSITION_IN_FIRST_PERIOD_US = 13;
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>It omits the {@link #uid} and {@link #manifest} fields. The {@link #uid} of an instance
-     * restored by {@link #CREATOR} will be a fake {@link Object} and the {@link #manifest} of the
-     * instance will be {@code null}.
-     */
-    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
-    @Override
-    public Bundle toBundle() {
+    private final Bundle toBundle(boolean excludeMediaItem) {
       Bundle bundle = new Bundle();
-      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      bundle.putBundle(
+          keyForField(FIELD_MEDIA_ITEM),
+          excludeMediaItem ? MediaItem.EMPTY.toBundle() : mediaItem.toBundle());
       bundle.putLong(keyForField(FIELD_PRESENTATION_START_TIME_MS), presentationStartTimeMs);
       bundle.putLong(keyForField(FIELD_WINDOW_START_TIME_MS), windowStartTimeMs);
       bundle.putLong(
@@ -475,6 +462,19 @@ public abstract class Timeline implements Bundleable {
       bundle.putInt(keyForField(FIELD_LAST_PERIOD_INDEX), lastPeriodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), positionInFirstPeriodUs);
       return bundle;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #uid} and {@link #manifest} fields. The {@link #uid} of an instance
+     * restored by {@link #CREATOR} will be a fake {@link Object} and the {@link #manifest} of the
+     * instance will be {@code null}.
+     */
+    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
+    @Override
+    public Bundle toBundle() {
+      return toBundle(/* excludeMediaItem= */ false);
     }
 
     /**
@@ -572,14 +572,10 @@ public abstract class Timeline implements Bundleable {
      */
     @Nullable public Object uid;
 
-    /**
-     * The index of the window to which this period belongs.
-     */
+    /** The index of the window to which this period belongs. */
     public int windowIndex;
 
-    /**
-     * The duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** The duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long durationUs;
 
     /**
@@ -670,16 +666,12 @@ public abstract class Timeline implements Bundleable {
       return this;
     }
 
-    /**
-     * Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
       return C.usToMs(durationUs);
     }
 
-    /**
-     * Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
+    /** Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationUs() {
       return durationUs;
     }
@@ -714,6 +706,14 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
+     * Returns the number of removed ad groups in the period. Ad groups with indices between {@code
+     * 0} (inclusive) and {@code removedAdGroupCount} (exclusive) will be empty.
+     */
+    public int getRemovedAdGroupCount() {
+      return adPlaybackState.removedAdGroupCount;
+    }
+
+    /**
      * Returns the time of the ad group at index {@code adGroupIndex} in the period, in
      * microseconds.
      *
@@ -722,7 +722,7 @@ public abstract class Timeline implements Bundleable {
      *     Period}, in microseconds, or {@link C#TIME_END_OF_SOURCE} for a post-roll ad group.
      */
     public long getAdGroupTimeUs(int adGroupIndex) {
-      return adPlaybackState.adGroupTimesUs[adGroupIndex];
+      return adPlaybackState.getAdGroup(adGroupIndex).timeUs;
     }
 
     /**
@@ -734,7 +734,7 @@ public abstract class Timeline implements Bundleable {
      *     if no ads should be played.
      */
     public int getFirstAdIndexToPlay(int adGroupIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].getFirstAdIndexToPlay();
+      return adPlaybackState.getAdGroup(adGroupIndex).getFirstAdIndexToPlay();
     }
 
     /**
@@ -748,17 +748,19 @@ public abstract class Timeline implements Bundleable {
      *     if the ad group does not have any ads remaining to play.
      */
     public int getNextAdIndexToPlay(int adGroupIndex, int lastPlayedAdIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].getNextAdIndexToPlay(lastPlayedAdIndex);
+      return adPlaybackState.getAdGroup(adGroupIndex).getNextAdIndexToPlay(lastPlayedAdIndex);
     }
 
     /**
-     * Returns whether the ad group at index {@code adGroupIndex} has been played.
+     * Returns whether all ads in the ad group at index {@code adGroupIndex} have been played,
+     * skipped or failed.
      *
      * @param adGroupIndex The ad group index.
-     * @return Whether the ad group at index {@code adGroupIndex} has been played.
+     * @return Whether all ads in the ad group at index {@code adGroupIndex} have been played,
+     *     skipped or failed.
      */
     public boolean hasPlayedAdGroup(int adGroupIndex) {
-      return !adPlaybackState.adGroups[adGroupIndex].hasUnplayedAds();
+      return !adPlaybackState.getAdGroup(adGroupIndex).hasUnplayedAds();
     }
 
     /**
@@ -787,26 +789,26 @@ public abstract class Timeline implements Bundleable {
     }
 
     /**
-     * Returns the number of ads in the ad group at index {@code adGroupIndex}, or
-     * {@link C#LENGTH_UNSET} if not yet known.
+     * Returns the number of ads in the ad group at index {@code adGroupIndex}, or {@link
+     * C#LENGTH_UNSET} if not yet known.
      *
      * @param adGroupIndex The ad group index.
      * @return The number of ads in the ad group, or {@link C#LENGTH_UNSET} if not yet known.
      */
     public int getAdCountInAdGroup(int adGroupIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].count;
+      return adPlaybackState.getAdGroup(adGroupIndex).count;
     }
 
     /**
-     * Returns the duration of the ad at index {@code adIndexInAdGroup} in the ad group at
-     * {@code adGroupIndex}, in microseconds, or {@link C#TIME_UNSET} if not yet known.
+     * Returns the duration of the ad at index {@code adIndexInAdGroup} in the ad group at {@code
+     * adGroupIndex}, in microseconds, or {@link C#TIME_UNSET} if not yet known.
      *
      * @param adGroupIndex The ad group index.
      * @param adIndexInAdGroup The ad index in the ad group.
      * @return The duration of the ad, or {@link C#TIME_UNSET} if not yet known.
      */
     public long getAdDurationUs(int adGroupIndex, int adIndexInAdGroup) {
-      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
       return adGroup.count != C.LENGTH_UNSET ? adGroup.durationsUs[adIndexInAdGroup] : C.TIME_UNSET;
     }
 
@@ -816,6 +818,28 @@ public abstract class Timeline implements Bundleable {
      */
     public long getAdResumePositionUs() {
       return adPlaybackState.adResumePositionUs;
+    }
+
+    /**
+     * Returns whether the ad group at index {@code adGroupIndex} is server-side inserted and part
+     * of the content stream.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return Whether this ad group is server-side inserted and part of the content stream.
+     */
+    public boolean isServerSideInsertedAdGroup(int adGroupIndex) {
+      return adPlaybackState.getAdGroup(adGroupIndex).isServerSideInserted;
+    }
+
+    /**
+     * Returns the offset in microseconds which should be added to the content stream when resuming
+     * playback after the specified ad group.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return The offset that should be added to the content stream, in microseconds.
+     */
+    public long getContentResumeOffsetUs(int adGroupIndex) {
+      return adPlaybackState.getAdGroup(adGroupIndex).contentResumeOffsetUs;
     }
 
     @Override
@@ -959,16 +983,12 @@ public abstract class Timeline implements Bundleable {
         }
       };
 
-  /**
-   * Returns whether the timeline is empty.
-   */
+  /** Returns whether the timeline is empty. */
   public final boolean isEmpty() {
     return getWindowCount() == 0;
   }
 
-  /**
-   * Returns the number of windows in the timeline.
-   */
+  /** Returns the number of windows in the timeline. */
   public abstract int getWindowCount();
 
   /**
@@ -984,13 +1004,15 @@ public abstract class Timeline implements Bundleable {
       int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
       case Player.REPEAT_MODE_OFF:
-        return windowIndex == getLastWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
+        return windowIndex == getLastWindowIndex(shuffleModeEnabled)
+            ? C.INDEX_UNSET
             : windowIndex + 1;
       case Player.REPEAT_MODE_ONE:
         return windowIndex;
       case Player.REPEAT_MODE_ALL:
         return windowIndex == getLastWindowIndex(shuffleModeEnabled)
-            ? getFirstWindowIndex(shuffleModeEnabled) : windowIndex + 1;
+            ? getFirstWindowIndex(shuffleModeEnabled)
+            : windowIndex + 1;
       default:
         throw new IllegalStateException();
     }
@@ -1009,13 +1031,15 @@ public abstract class Timeline implements Bundleable {
       int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
       case Player.REPEAT_MODE_OFF:
-        return windowIndex == getFirstWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
+        return windowIndex == getFirstWindowIndex(shuffleModeEnabled)
+            ? C.INDEX_UNSET
             : windowIndex - 1;
       case Player.REPEAT_MODE_ONE:
         return windowIndex;
       case Player.REPEAT_MODE_ALL:
         return windowIndex == getFirstWindowIndex(shuffleModeEnabled)
-            ? getLastWindowIndex(shuffleModeEnabled) : windowIndex - 1;
+            ? getLastWindowIndex(shuffleModeEnabled)
+            : windowIndex - 1;
       default:
         throw new IllegalStateException();
     }
@@ -1056,12 +1080,6 @@ public abstract class Timeline implements Bundleable {
     return getWindow(windowIndex, window, /* defaultPositionProjectionUs= */ 0);
   }
 
-  /** @deprecated Use {@link #getWindow(int, Window)} instead. Tags will always be set. */
-  @Deprecated
-  public final Window getWindow(int windowIndex, Window window, boolean setTag) {
-    return getWindow(windowIndex, window, /* defaultPositionProjectionUs= */ 0);
-  }
-
   /**
    * Populates a {@link Window} with data for the window at the specified index.
    *
@@ -1074,9 +1092,7 @@ public abstract class Timeline implements Bundleable {
   public abstract Window getWindow(
       int windowIndex, Window window, long defaultPositionProjectionUs);
 
-  /**
-   * Returns the number of periods in the timeline.
-   */
+  /** Returns the number of periods in the timeline. */
   public abstract int getPeriodCount();
 
   /**
@@ -1299,14 +1315,17 @@ public abstract class Timeline implements Bundleable {
    * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
    * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
    * Window#toBundle()} and {@link Period#toBundle()}.
+   *
+   * @param excludeMediaItems Whether to exclude all {@link Window#mediaItem media items} of windows
+   *     in the timeline.
    */
-  @Override
-  public final Bundle toBundle() {
+  public final Bundle toBundle(boolean excludeMediaItems) {
     List<Bundle> windowBundles = new ArrayList<>();
     int windowCount = getWindowCount();
     Window window = new Window();
     for (int i = 0; i < windowCount; i++) {
-      windowBundles.add(getWindow(i, window, /* defaultPositionProjectionUs= */ 0).toBundle());
+      windowBundles.add(
+          getWindow(i, window, /* defaultPositionProjectionUs= */ 0).toBundle(excludeMediaItems));
     }
 
     List<Bundle> periodBundles = new ArrayList<>();
@@ -1333,6 +1352,18 @@ public abstract class Timeline implements Bundleable {
         bundle, keyForField(FIELD_PERIODS), new BundleListRetriever(periodBundles));
     bundle.putIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES), shuffledWindowIndices);
     return bundle;
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
+   * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
+   * Window#toBundle()} and {@link Period#toBundle()}.
+   */
+  @Override
+  public final Bundle toBundle() {
+    return toBundle(/* excludeMediaItems= */ false);
   }
 
   /**
@@ -1390,7 +1421,7 @@ public abstract class Timeline implements Bundleable {
    * A concrete class of {@link Timeline} to restore a {@link Timeline} instance from a {@link
    * Bundle} sent by another process via {@link IBinder}.
    */
-  private static final class RemotableTimeline extends Timeline {
+  public static final class RemotableTimeline extends Timeline {
 
     private final ImmutableList<Window> windows;
     private final ImmutableList<Period> periods;
@@ -1415,8 +1446,7 @@ public abstract class Timeline implements Bundleable {
     }
 
     @Override
-    public Window getWindow(
-        int windowIndex, Window window, long ignoredDefaultPositionProjectionUs) {
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       Window w = windows.get(windowIndex);
       window.set(
           w.uid,
@@ -1493,7 +1523,7 @@ public abstract class Timeline implements Bundleable {
     }
 
     @Override
-    public Period getPeriod(int periodIndex, Period period, boolean ignoredSetIds) {
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       Period p = periods.get(periodIndex);
       period.set(
           p.id,

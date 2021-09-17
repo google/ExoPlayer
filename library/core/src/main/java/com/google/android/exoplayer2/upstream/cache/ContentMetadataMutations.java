@@ -122,7 +122,7 @@ public class ContentMetadataMutations {
     return Collections.unmodifiableList(new ArrayList<>(removedValues));
   }
 
-  /** Returns a map of metadata name, value pairs to be set. Values are copied.  */
+  /** Returns a map of metadata name, value pairs to be set. Values are copied. */
   public Map<String, Object> getEditedValues() {
     HashMap<String, Object> hashMap = new HashMap<>(editedValues);
     for (Entry<String, Object> entry : hashMap.entrySet()) {

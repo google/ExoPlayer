@@ -27,9 +27,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link FlacStreamMetadata}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class FlacStreamMetadataTest {
 
   @Test

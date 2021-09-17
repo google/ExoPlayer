@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
@@ -345,7 +346,8 @@ import java.nio.ByteBuffer;
         outputAudioFormat = sonicAudioProcessor.configure(outputAudioFormat);
         flushSonicAndSetSpeed(currentSpeed);
       } catch (AudioProcessor.UnhandledAudioFormatException e) {
-        throw createRendererException(e);
+        // TODO(internal b/192864511): Assign an adequate error code.
+        throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
       }
     }
     try {
@@ -358,7 +360,8 @@ import java.nio.ByteBuffer;
                   .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
                   .build());
     } catch (IOException e) {
-      throw createRendererException(e);
+      // TODO(internal b/192864511): Assign an adequate error code.
+      throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
     encoderInputAudioFormat = outputAudioFormat;
     return true;
@@ -382,7 +385,8 @@ import java.nio.ByteBuffer;
     try {
       decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
     } catch (IOException e) {
-      throw createRendererException(e);
+      // TODO (internal b/184262323): Assign an adequate error code.
+      throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
     speedProvider = new SegmentSpeedProvider(inputFormat);
     currentSpeed = speedProvider.getSpeed(0);
@@ -405,9 +409,15 @@ import java.nio.ByteBuffer;
     sonicAudioProcessor.flush();
   }
 
-  private ExoPlaybackException createRendererException(Throwable cause) {
+  private ExoPlaybackException createRendererException(Throwable cause, int errorCode) {
     return ExoPlaybackException.createForRenderer(
-        cause, TAG, getIndex(), inputFormat, /* rendererFormatSupport= */ C.FORMAT_HANDLED);
+        cause,
+        TAG,
+        getIndex(),
+        inputFormat,
+        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
+        /* isRecoverable= */ false,
+        errorCode);
   }
 
   private static long getBufferDurationUs(long bytesWritten, int bytesPerFrame, int sampleRate) {

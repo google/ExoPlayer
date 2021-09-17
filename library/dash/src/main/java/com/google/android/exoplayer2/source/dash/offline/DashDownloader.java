@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer2.source.dash.offline;
 
-import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
-import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.DashWrappingSegmentIndex;
@@ -72,14 +70,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  */
 public final class DashDownloader extends SegmentDownloader<DashManifest> {
 
-  /** @deprecated Use {@link #DashDownloader(MediaItem, CacheDataSource.Factory)} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public DashDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
-    this(manifestUri, streamKeys, cacheDataSourceFactory, Runnable::run);
-  }
-
   /**
    * Creates a new instance.
    *
@@ -89,21 +79,6 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
    */
   public DashDownloader(MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory) {
     this(mediaItem, cacheDataSourceFactory, Runnable::run);
-  }
-
-  /**
-   * @deprecated Use {@link #DashDownloader(MediaItem, CacheDataSource.Factory, Executor)} instead.
-   */
-  @Deprecated
-  public DashDownloader(
-      Uri manifestUri,
-      List<StreamKey> streamKeys,
-      CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
-    this(
-        new MediaItem.Builder().setUri(manifestUri).setStreamKeys(streamKeys).build(),
-        cacheDataSourceFactory,
-        executor);
   }
 
   /**
@@ -188,7 +163,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
         throw new DownloadException("Unbounded segment index");
       }
 
-      String baseUrl = representation.baseUrl;
+      String baseUrl = representation.baseUrls.get(0).url;
       RangedUri initializationUri = representation.getInitializationUri();
       if (initializationUri != null) {
         addSegment(periodStartUs, baseUrl, initializationUri, out);

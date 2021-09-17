@@ -84,7 +84,7 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
 
   @Override
   public final void onPlayWhenReadyChanged(
-      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int playbackState) {
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
     updateAndPost();
   }
 
@@ -190,16 +190,23 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
       return "";
     }
     counters.ensureUpdated();
-    return " sib:" + counters.skippedInputBufferCount
-        + " sb:" + counters.skippedOutputBufferCount
-        + " rb:" + counters.renderedOutputBufferCount
-        + " db:" + counters.droppedBufferCount
-        + " mcdb:" + counters.maxConsecutiveDroppedBufferCount
-        + " dk:" + counters.droppedToKeyframeCount;
+    return " sib:"
+        + counters.skippedInputBufferCount
+        + " sb:"
+        + counters.skippedOutputBufferCount
+        + " rb:"
+        + counters.renderedOutputBufferCount
+        + " db:"
+        + counters.droppedBufferCount
+        + " mcdb:"
+        + counters.maxConsecutiveDroppedBufferCount
+        + " dk:"
+        + counters.droppedToKeyframeCount;
   }
 
   private static String getPixelAspectRatioString(float pixelAspectRatio) {
-    return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f ? ""
+    return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f
+        ? ""
         : (" par:" + String.format(Locale.US, "%.02f", pixelAspectRatio));
   }
 

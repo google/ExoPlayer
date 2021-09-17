@@ -101,9 +101,9 @@ public class BaseDataSourceTest {
     }
 
     @Override
-    public int read(byte[] buffer, int offset, int readLength) throws IOException {
-      bytesTransferred(readLength);
-      return readLength;
+    public int read(byte[] buffer, int offset, int length) throws IOException {
+      bytesTransferred(length);
+      return length;
     }
 
     @Override

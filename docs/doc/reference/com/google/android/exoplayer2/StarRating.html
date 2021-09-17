@@ -328,7 +328,8 @@ extends <a href="Rating.html" title="class in com.google.android.exoplayer2">Rat
 <ul class="blockList">
 <li class="blockList">
 <h4>StarRating</h4>
-<pre>public&nbsp;StarRating&#8203;(int&nbsp;maxStars)</pre>
+<pre>public&nbsp;StarRating&#8203;(@IntRange(from=1L)
+                  int&nbsp;maxStars)</pre>
 <div class="block">Creates a unrated instance with <code>maxStars</code>. If <code>maxStars</code> is not a positive
  integer, it will throw an <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a>.</div>
 <dl>
@@ -343,7 +344,9 @@ extends <a href="Rating.html" title="class in com.google.android.exoplayer2">Rat
 <ul class="blockListLast">
 <li class="blockList">
 <h4>StarRating</h4>
-<pre>public&nbsp;StarRating&#8203;(int&nbsp;maxStars,
+<pre>public&nbsp;StarRating&#8203;(@IntRange(from=1L)
+                  int&nbsp;maxStars,
+                  @FloatRange(from=0.0)
                   float&nbsp;starRating)</pre>
 <div class="block">Creates a rated instance with <code>maxStars</code> and the given fractional number of stars.
  Non-integer values may be used to represent an average rating value. If <code>maxStars</code> is not
@@ -387,7 +390,8 @@ extends <a href="Rating.html" title="class in com.google.android.exoplayer2">Rat
 <ul class="blockList">
 <li class="blockList">
 <h4>getMaxStars</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getMaxStars()</pre>
+<pre class="methodSignature">@IntRange(from=1L)
+public&nbsp;int&nbsp;getMaxStars()</pre>
 <div class="block">Returns the maximum number of stars. Must be a positive number.</div>
 </li>
 </ul>

@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -44,8 +45,8 @@ public class FakeChunkSource implements ChunkSource {
     protected final FakeAdaptiveDataSet.Factory dataSetFactory;
     protected final FakeDataSource.Factory dataSourceFactory;
 
-    public Factory(FakeAdaptiveDataSet.Factory dataSetFactory,
-        FakeDataSource.Factory dataSourceFactory) {
+    public Factory(
+        FakeAdaptiveDataSet.Factory dataSetFactory, FakeDataSource.Factory dataSourceFactory) {
       this.dataSetFactory = dataSetFactory;
       this.dataSourceFactory = dataSourceFactory;
     }
@@ -134,9 +135,18 @@ public class FakeChunkSource implements ChunkSource {
       DataSpec dataSpec =
           new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length);
       int trackType = MimeTypes.getTrackType(selectedFormat.sampleMimeType);
-      out.chunk = new SingleSampleMediaChunk(dataSource, dataSpec, selectedFormat,
-          trackSelection.getSelectionReason(), trackSelection.getSelectionData(), startTimeUs,
-          endTimeUs, chunkIndex, trackType, selectedFormat);
+      out.chunk =
+          new SingleSampleMediaChunk(
+              dataSource,
+              dataSpec,
+              selectedFormat,
+              trackSelection.getSelectionReason(),
+              trackSelection.getSelectionData(),
+              startTimeUs,
+              endTimeUs,
+              chunkIndex,
+              trackType,
+              selectedFormat);
     }
   }
 
@@ -147,7 +157,10 @@ public class FakeChunkSource implements ChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
+      Chunk chunk,
+      boolean cancelable,
+      LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     return false;
   }
 

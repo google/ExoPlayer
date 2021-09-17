@@ -18,16 +18,16 @@ package com.google.android.exoplayer2.ext.cronet;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.testutil.HttpDataSourceTestEnv;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.common.collect.ImmutableList;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.chromium.net.CronetEngine;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
@@ -46,16 +46,14 @@ public class CronetDataSourceContractTest extends DataSourceContractTest {
 
   @Override
   protected DataSource createDataSource() {
-    CronetEngineWrapper cronetEngineWrapper =
-        new CronetEngineWrapper(
+    @Nullable
+    CronetEngine cronetEngine =
+        CronetUtil.buildCronetEngine(
             ApplicationProvider.getApplicationContext(),
             /* userAgent= */ "test-agent",
             /* preferGMSCoreCronet= */ false);
-    assertThat(cronetEngineWrapper.getCronetEngineSource())
-        .isEqualTo(CronetEngineWrapper.SOURCE_NATIVE);
-    return new CronetDataSource.Factory(cronetEngineWrapper, executorService)
-        .setFallbackFactory(new InvalidDataSourceFactory())
-        .createDataSource();
+    assertThat(cronetEngine).isNotNull();
+    return new CronetDataSource.Factory(cronetEngine, executorService).createDataSource();
   }
 
   @Override
@@ -66,27 +64,5 @@ public class CronetDataSourceContractTest extends DataSourceContractTest {
   @Override
   protected Uri getNotFoundUri() {
     return Uri.parse(httpDataSourceTestEnv.getNonexistentUrl());
-  }
-
-  /**
-   * An {@link HttpDataSource.Factory} that throws {@link UnsupportedOperationException} on every
-   * interaction.
-   */
-  private static class InvalidDataSourceFactory implements HttpDataSource.Factory {
-    @Override
-    public HttpDataSource createDataSource() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HttpDataSource.RequestProperties getDefaultRequestProperties() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HttpDataSource.Factory setDefaultRequestProperties(
-        Map<String, String> defaultRequestProperties) {
-      throw new UnsupportedOperationException();
-    }
   }
 }

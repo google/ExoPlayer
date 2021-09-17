@@ -97,7 +97,8 @@ public final class Id3Reader implements ElementaryStreamReader {
       if (sampleBytesRead + headerBytesAvailable == ID3_HEADER_LENGTH) {
         // We've finished reading the ID3 header. Extract the sample size.
         id3Header.setPosition(0);
-        if ('I' != id3Header.readUnsignedByte() || 'D' != id3Header.readUnsignedByte()
+        if ('I' != id3Header.readUnsignedByte()
+            || 'D' != id3Header.readUnsignedByte()
             || '3' != id3Header.readUnsignedByte()) {
           Log.w(TAG, "Discarding invalid ID3 tag");
           writingSample = false;
@@ -122,5 +123,4 @@ public final class Id3Reader implements ElementaryStreamReader {
     output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
     writingSample = false;
   }
-
 }

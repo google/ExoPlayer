@@ -58,9 +58,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     REPLACEMENT_STATE_WAIT_END_OF_STREAM
   })
   private @interface ReplacementState {}
-  /**
-   * The decoder does not need to be replaced.
-   */
+  /** The decoder does not need to be replaced. */
   private static final int REPLACEMENT_STATE_NONE = 0;
   /**
    * The decoder needs to be replaced, but we haven't yet signaled an end of stream to the existing

@@ -34,9 +34,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ConstantBitrateSeeker}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class ConstantBitrateSeekerTest {
   private static final String CONSTANT_FRAME_SIZE_TEST_FILE =
       "media/mp3/bear-cbr-constant-frame-size-no-seek-table.mp3";

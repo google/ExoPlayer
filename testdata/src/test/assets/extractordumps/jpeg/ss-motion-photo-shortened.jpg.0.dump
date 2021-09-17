@@ -8,5 +8,6 @@ track 1024:
   total output bytes = 0
   sample count = 0
   format 0:
+    containerMimeType = image/jpeg
     metadata = entries=[Motion photo metadata: photoStartPosition=0, photoSize=20345, photoPresentationTimestampUs=-9223372036854775807, videoStartPosition=20345, videoSize=2582]
 tracksEnded = true

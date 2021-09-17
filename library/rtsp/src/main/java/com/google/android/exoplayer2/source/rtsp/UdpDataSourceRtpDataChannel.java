@@ -21,10 +21,12 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.io.IOException;
 
 /** An {@link RtpDataChannel} for UDP transport. */
@@ -37,9 +39,14 @@ import java.io.IOException;
   /** The associated RTCP channel; {@code null} if the current channel is an RTCP channel. */
   @Nullable private UdpDataSourceRtpDataChannel rtcpChannel;
 
-  /** Creates a new instance. */
-  public UdpDataSourceRtpDataChannel() {
-    dataSource = new UdpDataSource();
+  /**
+   * Creates a new instance.
+   *
+   * @param socketTimeoutMs The timeout for {@link #read} in milliseconds.
+   */
+  public UdpDataSourceRtpDataChannel(long socketTimeoutMs) {
+    dataSource =
+        new UdpDataSource(UdpDataSource.DEFAULT_MAX_PACKET_SIZE, Ints.checkedCast(socketTimeoutMs));
   }
 
   @Override
@@ -87,8 +94,16 @@ import java.io.IOException;
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) throws IOException {
-    return dataSource.read(target, offset, length);
+  public int read(byte[] buffer, int offset, int length) throws IOException {
+    try {
+      return dataSource.read(buffer, offset, length);
+    } catch (UdpDataSource.UdpDataSourceException e) {
+      if (e.reason == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT) {
+        return C.RESULT_END_OF_INPUT;
+      } else {
+        throw e;
+      }
+    }
   }
 
   public void setRtcpChannel(UdpDataSourceRtpDataChannel rtcpChannel) {

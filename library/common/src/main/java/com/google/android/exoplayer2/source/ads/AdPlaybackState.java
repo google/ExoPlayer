@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.ads;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -49,6 +50,11 @@ public final class AdPlaybackState implements Bundleable {
    */
   public static final class AdGroup implements Bundleable {
 
+    /**
+     * The time of the ad group in the {@link com.google.android.exoplayer2.Timeline.Period}, in
+     * microseconds, or {@link C#TIME_END_OF_SOURCE} to indicate a postroll ad.
+     */
+    public final long timeUs;
     /** The number of ads in the ad group, or {@link C#LENGTH_UNSET} if unknown. */
     public final int count;
     /** The URI of each ad in the ad group. */
@@ -57,23 +63,48 @@ public final class AdPlaybackState implements Bundleable {
     @AdState public final int[] states;
     /** The durations of each ad in the ad group, in microseconds. */
     public final long[] durationsUs;
+    /**
+     * The offset in microseconds which should be added to the content stream when resuming playback
+     * after the ad group.
+     */
+    public final long contentResumeOffsetUs;
+    /** Whether this ad group is server-side inserted and part of the content stream. */
+    public final boolean isServerSideInserted;
 
-    /** Creates a new ad group with an unspecified number of ads. */
-    public AdGroup() {
+    /**
+     * Creates a new ad group with an unspecified number of ads.
+     *
+     * @param timeUs The time of the ad group in the {@link
+     *     com.google.android.exoplayer2.Timeline.Period}, in microseconds, or {@link
+     *     C#TIME_END_OF_SOURCE} to indicate a postroll ad.
+     */
+    public AdGroup(long timeUs) {
       this(
+          timeUs,
           /* count= */ C.LENGTH_UNSET,
           /* states= */ new int[0],
           /* uris= */ new Uri[0],
-          /* durationsUs= */ new long[0]);
+          /* durationsUs= */ new long[0],
+          /* contentResumeOffsetUs= */ 0,
+          /* isServerSideInserted= */ false);
     }
 
     private AdGroup(
-        int count, @AdState int[] states, @NullableType Uri[] uris, long[] durationsUs) {
+        long timeUs,
+        int count,
+        @AdState int[] states,
+        @NullableType Uri[] uris,
+        long[] durationsUs,
+        long contentResumeOffsetUs,
+        boolean isServerSideInserted) {
       checkArgument(states.length == uris.length);
+      this.timeUs = timeUs;
       this.count = count;
       this.states = states;
       this.uris = uris;
       this.durationsUs = durationsUs;
+      this.contentResumeOffsetUs = contentResumeOffsetUs;
+      this.isServerSideInserted = isServerSideInserted;
     }
 
     /**
@@ -91,7 +122,8 @@ public final class AdPlaybackState implements Bundleable {
     public int getNextAdIndexToPlay(int lastPlayedAdIndex) {
       int nextAdIndexToPlay = lastPlayedAdIndex + 1;
       while (nextAdIndexToPlay < states.length) {
-        if (states[nextAdIndexToPlay] == AD_STATE_UNAVAILABLE
+        if (isServerSideInserted
+            || states[nextAdIndexToPlay] == AD_STATE_UNAVAILABLE
             || states[nextAdIndexToPlay] == AD_STATE_AVAILABLE) {
           break;
         }
@@ -100,9 +132,24 @@ public final class AdPlaybackState implements Bundleable {
       return nextAdIndexToPlay;
     }
 
-    /** Returns whether the ad group has at least one ad that still needs to be played. */
-    public boolean hasUnplayedAds() {
+    /** Returns whether the ad group has at least one ad that should be played. */
+    public boolean shouldPlayAdGroup() {
       return count == C.LENGTH_UNSET || getFirstAdIndexToPlay() < count;
+    }
+
+    /**
+     * Returns whether the ad group has at least one ad that is neither played, skipped, nor failed.
+     */
+    public boolean hasUnplayedAds() {
+      if (count == C.LENGTH_UNSET) {
+        return true;
+      }
+      for (int i = 0; i < count; i++) {
+        if (states[i] == AD_STATE_UNAVAILABLE || states[i] == AD_STATE_AVAILABLE) {
+          return true;
+        }
+      }
+      return false;
     }
 
     @Override
@@ -114,19 +161,32 @@ public final class AdPlaybackState implements Bundleable {
         return false;
       }
       AdGroup adGroup = (AdGroup) o;
-      return count == adGroup.count
+      return timeUs == adGroup.timeUs
+          && count == adGroup.count
           && Arrays.equals(uris, adGroup.uris)
           && Arrays.equals(states, adGroup.states)
-          && Arrays.equals(durationsUs, adGroup.durationsUs);
+          && Arrays.equals(durationsUs, adGroup.durationsUs)
+          && contentResumeOffsetUs == adGroup.contentResumeOffsetUs
+          && isServerSideInserted == adGroup.isServerSideInserted;
     }
 
     @Override
     public int hashCode() {
       int result = count;
+      result = 31 * result + (int) (timeUs ^ (timeUs >>> 32));
       result = 31 * result + Arrays.hashCode(uris);
       result = 31 * result + Arrays.hashCode(states);
       result = 31 * result + Arrays.hashCode(durationsUs);
+      result = 31 * result + (int) (contentResumeOffsetUs ^ (contentResumeOffsetUs >>> 32));
+      result = 31 * result + (isServerSideInserted ? 1 : 0);
       return result;
+    }
+
+    /** Returns a new instance with the {@link #timeUs} set to the specified value. */
+    @CheckResult
+    public AdGroup withTimeUs(long timeUs) {
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
     /** Returns a new instance with the ad count set to {@code count}. */
@@ -135,7 +195,8 @@ public final class AdPlaybackState implements Bundleable {
       @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, count);
       long[] durationsUs = copyDurationsUsWithSpaceForAdCount(this.durationsUs, count);
       @NullableType Uri[] uris = Arrays.copyOf(this.uris, count);
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
     /**
@@ -152,7 +213,8 @@ public final class AdPlaybackState implements Bundleable {
       @NullableType Uri[] uris = Arrays.copyOf(this.uris, states.length);
       uris[index] = uri;
       states[index] = AD_STATE_AVAILABLE;
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
     /**
@@ -179,7 +241,8 @@ public final class AdPlaybackState implements Bundleable {
       Uri[] uris =
           this.uris.length == states.length ? this.uris : Arrays.copyOf(this.uris, states.length);
       states[index] = state;
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
     /** Returns a new instance with the specified ad durations, in microseconds. */
@@ -190,7 +253,22 @@ public final class AdPlaybackState implements Bundleable {
       } else if (count != C.LENGTH_UNSET && durationsUs.length > uris.length) {
         durationsUs = Arrays.copyOf(durationsUs, uris.length);
       }
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
+    }
+
+    /** Returns an instance with the specified {@link #contentResumeOffsetUs}. */
+    @CheckResult
+    public AdGroup withContentResumeOffsetUs(long contentResumeOffsetUs) {
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
+    }
+
+    /** Returns an instance with the specified value for {@link #isServerSideInserted}. */
+    @CheckResult
+    public AdGroup withIsServerSideInserted(boolean isServerSideInserted) {
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
     /**
@@ -201,10 +279,13 @@ public final class AdPlaybackState implements Bundleable {
     public AdGroup withAllAdsSkipped() {
       if (count == C.LENGTH_UNSET) {
         return new AdGroup(
+            timeUs,
             /* count= */ 0,
             /* states= */ new int[0],
             /* uris= */ new Uri[0],
-            /* durationsUs= */ new long[0]);
+            /* durationsUs= */ new long[0],
+            contentResumeOffsetUs,
+            isServerSideInserted);
       }
       int count = this.states.length;
       @AdState int[] states = Arrays.copyOf(this.states, count);
@@ -213,7 +294,8 @@ public final class AdPlaybackState implements Bundleable {
           states[i] = AD_STATE_SKIPPED;
         }
       }
-      return new AdGroup(count, states, uris, durationsUs);
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
     @CheckResult
@@ -238,24 +320,38 @@ public final class AdPlaybackState implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FIELD_COUNT, FIELD_URIS, FIELD_STATES, FIELD_DURATIONS_US})
+    @IntDef({
+      FIELD_TIME_US,
+      FIELD_COUNT,
+      FIELD_URIS,
+      FIELD_STATES,
+      FIELD_DURATIONS_US,
+      FIELD_CONTENT_RESUME_OFFSET_US,
+      FIELD_IS_SERVER_SIDE_INSERTED,
+    })
     private @interface FieldNumber {}
 
-    private static final int FIELD_COUNT = 0;
-    private static final int FIELD_URIS = 1;
-    private static final int FIELD_STATES = 2;
-    private static final int FIELD_DURATIONS_US = 3;
+    private static final int FIELD_TIME_US = 0;
+    private static final int FIELD_COUNT = 1;
+    private static final int FIELD_URIS = 2;
+    private static final int FIELD_STATES = 3;
+    private static final int FIELD_DURATIONS_US = 4;
+    private static final int FIELD_CONTENT_RESUME_OFFSET_US = 5;
+    private static final int FIELD_IS_SERVER_SIDE_INSERTED = 6;
 
     // putParcelableArrayList actually supports null elements.
-    @SuppressWarnings("nullness:argument.type.incompatible")
+    @SuppressWarnings("nullness:argument")
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
+      bundle.putLong(keyForField(FIELD_TIME_US), timeUs);
       bundle.putInt(keyForField(FIELD_COUNT), count);
       bundle.putParcelableArrayList(
           keyForField(FIELD_URIS), new ArrayList<@NullableType Uri>(Arrays.asList(uris)));
       bundle.putIntArray(keyForField(FIELD_STATES), states);
       bundle.putLongArray(keyForField(FIELD_DURATIONS_US), durationsUs);
+      bundle.putLong(keyForField(FIELD_CONTENT_RESUME_OFFSET_US), contentResumeOffsetUs);
+      bundle.putBoolean(keyForField(FIELD_IS_SERVER_SIDE_INSERTED), isServerSideInserted);
       return bundle;
     }
 
@@ -263,8 +359,9 @@ public final class AdPlaybackState implements Bundleable {
     public static final Creator<AdGroup> CREATOR = AdGroup::fromBundle;
 
     // getParcelableArrayList may have null elements.
-    @SuppressWarnings("nullness:type.argument.type.incompatible")
+    @SuppressWarnings("nullness:type.argument")
     private static AdGroup fromBundle(Bundle bundle) {
+      long timeUs = bundle.getLong(keyForField(FIELD_TIME_US));
       int count = bundle.getInt(keyForField(FIELD_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
       @Nullable
       ArrayList<@NullableType Uri> uriList = bundle.getParcelableArrayList(keyForField(FIELD_URIS));
@@ -272,11 +369,16 @@ public final class AdPlaybackState implements Bundleable {
       @AdState
       int[] states = bundle.getIntArray(keyForField(FIELD_STATES));
       @Nullable long[] durationsUs = bundle.getLongArray(keyForField(FIELD_DURATIONS_US));
+      long contentResumeOffsetUs = bundle.getLong(keyForField(FIELD_CONTENT_RESUME_OFFSET_US));
+      boolean isServerSideInserted = bundle.getBoolean(keyForField(FIELD_IS_SERVER_SIDE_INSERTED));
       return new AdGroup(
+          timeUs,
           count,
           states == null ? new int[0] : states,
           uriList == null ? new Uri[0] : uriList.toArray(new Uri[0]),
-          durationsUs == null ? new long[0] : durationsUs);
+          durationsUs == null ? new long[0] : durationsUs,
+          contentResumeOffsetUs,
+          isServerSideInserted);
     }
 
     private static String keyForField(@AdGroup.FieldNumber int field) {
@@ -314,10 +416,12 @@ public final class AdPlaybackState implements Bundleable {
   public static final AdPlaybackState NONE =
       new AdPlaybackState(
           /* adsId= */ null,
-          /* adGroupTimesUs= */ new long[0],
-          /* adGroups= */ null,
+          /* adGroups= */ new AdGroup[0],
           /* adResumePositionUs= */ 0L,
-          /* contentDurationUs= */ C.TIME_UNSET);
+          /* contentDurationUs= */ C.TIME_UNSET,
+          /* removedAdGroupCount= */ 0);
+
+  private static final AdGroup REMOVED_AD_GROUP = new AdGroup(/* timeUs= */ 0).withAdCount(0);
 
   /**
    * The opaque identifier for ads with which this instance is associated, or {@code null} if unset.
@@ -326,20 +430,20 @@ public final class AdPlaybackState implements Bundleable {
 
   /** The number of ad groups. */
   public final int adGroupCount;
-  /**
-   * The times of ad groups, in microseconds, relative to the start of the {@link
-   * com.google.android.exoplayer2.Timeline.Period} they belong to. A final element with the value
-   * {@link C#TIME_END_OF_SOURCE} indicates a postroll ad.
-   */
-  public final long[] adGroupTimesUs;
-  /** The ad groups. */
-  public final AdGroup[] adGroups;
   /** The position offset in the first unplayed ad at which to begin playback, in microseconds. */
   public final long adResumePositionUs;
   /**
    * The duration of the content period in microseconds, if known. {@link C#TIME_UNSET} otherwise.
    */
   public final long contentDurationUs;
+  /**
+   * The number of ad groups the have been removed. Ad groups with indices between {@code 0}
+   * (inclusive) and {@code removedAdGroupCount} (exclusive) will be empty and must not be modified
+   * by any of the {@code with*} methods.
+   */
+  public final int removedAdGroupCount;
+
+  private final AdGroup[] adGroups;
 
   /**
    * Creates a new ad playback state with the specified ad group times.
@@ -352,31 +456,31 @@ public final class AdPlaybackState implements Bundleable {
   public AdPlaybackState(Object adsId, long... adGroupTimesUs) {
     this(
         adsId,
-        adGroupTimesUs,
-        /* adGroups= */ null,
+        createEmptyAdGroups(adGroupTimesUs),
         /* adResumePositionUs= */ 0,
-        /* contentDurationUs= */ C.TIME_UNSET);
+        /* contentDurationUs= */ C.TIME_UNSET,
+        /* removedAdGroupCount= */ 0);
   }
 
   private AdPlaybackState(
       @Nullable Object adsId,
-      long[] adGroupTimesUs,
-      @Nullable AdGroup[] adGroups,
+      AdGroup[] adGroups,
       long adResumePositionUs,
-      long contentDurationUs) {
-    checkArgument(adGroups == null || adGroups.length == adGroupTimesUs.length);
+      long contentDurationUs,
+      int removedAdGroupCount) {
     this.adsId = adsId;
-    this.adGroupTimesUs = adGroupTimesUs;
     this.adResumePositionUs = adResumePositionUs;
     this.contentDurationUs = contentDurationUs;
-    adGroupCount = adGroupTimesUs.length;
-    if (adGroups == null) {
-      adGroups = new AdGroup[adGroupCount];
-      for (int i = 0; i < adGroupCount; i++) {
-        adGroups[i] = new AdGroup();
-      }
-    }
+    adGroupCount = adGroups.length + removedAdGroupCount;
     this.adGroups = adGroups;
+    this.removedAdGroupCount = removedAdGroupCount;
+  }
+
+  /** Returns the specified {@link AdGroup}. */
+  public AdGroup getAdGroup(int adGroupIndex) {
+    return adGroupIndex < removedAdGroupCount
+        ? REMOVED_AD_GROUP
+        : adGroups[adGroupIndex - removedAdGroupCount];
   }
 
   /**
@@ -394,11 +498,11 @@ public final class AdPlaybackState implements Bundleable {
   public int getAdGroupIndexForPositionUs(long positionUs, long periodDurationUs) {
     // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
     // In practice we expect there to be few ad groups so the search shouldn't be expensive.
-    int index = adGroupTimesUs.length - 1;
+    int index = adGroupCount - 1;
     while (index >= 0 && isPositionBeforeAdGroup(positionUs, periodDurationUs, index)) {
       index--;
     }
-    return index >= 0 && adGroups[index].hasUnplayedAds() ? index : C.INDEX_UNSET;
+    return index >= 0 && getAdGroup(index).hasUnplayedAds() ? index : C.INDEX_UNSET;
   }
 
   /**
@@ -419,25 +523,67 @@ public final class AdPlaybackState implements Bundleable {
     }
     // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
     // In practice we expect there to be few ad groups so the search shouldn't be expensive.
-    int index = 0;
-    while (index < adGroupTimesUs.length
-        && ((adGroupTimesUs[index] != C.TIME_END_OF_SOURCE && adGroupTimesUs[index] <= positionUs)
-            || !adGroups[index].hasUnplayedAds())) {
+    int index = removedAdGroupCount;
+    while (index < adGroupCount
+        && ((getAdGroup(index).timeUs != C.TIME_END_OF_SOURCE
+                && getAdGroup(index).timeUs <= positionUs)
+            || !getAdGroup(index).shouldPlayAdGroup())) {
       index++;
     }
-    return index < adGroupTimesUs.length ? index : C.INDEX_UNSET;
+    return index < adGroupCount ? index : C.INDEX_UNSET;
   }
 
   /** Returns whether the specified ad has been marked as in {@link #AD_STATE_ERROR}. */
   public boolean isAdInErrorState(int adGroupIndex, int adIndexInAdGroup) {
-    if (adGroupIndex >= adGroups.length) {
+    if (adGroupIndex >= adGroupCount) {
       return false;
     }
-    AdGroup adGroup = adGroups[adGroupIndex];
+    AdGroup adGroup = getAdGroup(adGroupIndex);
     if (adGroup.count == C.LENGTH_UNSET || adIndexInAdGroup >= adGroup.count) {
       return false;
     }
     return adGroup.states[adIndexInAdGroup] == AdPlaybackState.AD_STATE_ERROR;
+  }
+
+  /**
+   * Returns an instance with the specified ad group time.
+   *
+   * @param adGroupIndex The index of the ad group.
+   * @param adGroupTimeUs The new ad group time, in microseconds, or {@link C#TIME_END_OF_SOURCE} to
+   *     indicate a postroll ad.
+   * @return The updated ad playback state.
+   */
+  @CheckResult
+  public AdPlaybackState withAdGroupTimeUs(int adGroupIndex, long adGroupTimeUs) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adjustedIndex] = this.adGroups[adjustedIndex].withTimeUs(adGroupTimeUs);
+    return new AdPlaybackState(
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
+  }
+
+  /**
+   * Returns an instance with a new ad group.
+   *
+   * @param adGroupIndex The insertion index of the new group.
+   * @param adGroupTimeUs The ad group time, in microseconds, or {@link C#TIME_END_OF_SOURCE} to
+   *     indicate a postroll ad.
+   * @return The updated ad playback state.
+   */
+  @CheckResult
+  public AdPlaybackState withNewAdGroup(int adGroupIndex, long adGroupTimeUs) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    AdGroup newAdGroup = new AdGroup(adGroupTimeUs);
+    AdGroup[] adGroups = Util.nullSafeArrayAppend(this.adGroups, newAdGroup);
+    System.arraycopy(
+        /* src= */ adGroups,
+        /* srcPos= */ adjustedIndex,
+        /* dest= */ adGroups,
+        /* destPos= */ adjustedIndex + 1,
+        /* length= */ this.adGroups.length - adjustedIndex);
+    adGroups[adjustedIndex] = newAdGroup;
+    return new AdPlaybackState(
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   /**
@@ -447,49 +593,56 @@ public final class AdPlaybackState implements Bundleable {
   @CheckResult
   public AdPlaybackState withAdCount(int adGroupIndex, int adCount) {
     checkArgument(adCount > 0);
-    if (adGroups[adGroupIndex].count == adCount) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    if (adGroups[adjustedIndex].count == adCount) {
       return this;
     }
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
-    adGroups[adGroupIndex] = this.adGroups[adGroupIndex].withAdCount(adCount);
+    adGroups[adjustedIndex] = this.adGroups[adjustedIndex].withAdCount(adCount);
     return new AdPlaybackState(
-        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   /** Returns an instance with the specified ad URI. */
   @CheckResult
   public AdPlaybackState withAdUri(int adGroupIndex, int adIndexInAdGroup, Uri uri) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
-    adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdUri(uri, adIndexInAdGroup);
+    adGroups[adjustedIndex] = adGroups[adjustedIndex].withAdUri(uri, adIndexInAdGroup);
     return new AdPlaybackState(
-        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   /** Returns an instance with the specified ad marked as played. */
   @CheckResult
   public AdPlaybackState withPlayedAd(int adGroupIndex, int adIndexInAdGroup) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
-    adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_PLAYED, adIndexInAdGroup);
+    adGroups[adjustedIndex] =
+        adGroups[adjustedIndex].withAdState(AD_STATE_PLAYED, adIndexInAdGroup);
     return new AdPlaybackState(
-        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   /** Returns an instance with the specified ad marked as skipped. */
   @CheckResult
   public AdPlaybackState withSkippedAd(int adGroupIndex, int adIndexInAdGroup) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
-    adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_SKIPPED, adIndexInAdGroup);
+    adGroups[adjustedIndex] =
+        adGroups[adjustedIndex].withAdState(AD_STATE_SKIPPED, adIndexInAdGroup);
     return new AdPlaybackState(
-        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   /** Returns an instance with the specified ad marked as having a load error. */
   @CheckResult
   public AdPlaybackState withAdLoadError(int adGroupIndex, int adIndexInAdGroup) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
-    adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_ERROR, adIndexInAdGroup);
+    adGroups[adjustedIndex] = adGroups[adjustedIndex].withAdState(AD_STATE_ERROR, adIndexInAdGroup);
     return new AdPlaybackState(
-        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   /**
@@ -498,21 +651,40 @@ public final class AdPlaybackState implements Bundleable {
    */
   @CheckResult
   public AdPlaybackState withSkippedAdGroup(int adGroupIndex) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
-    adGroups[adGroupIndex] = adGroups[adGroupIndex].withAllAdsSkipped();
+    adGroups[adjustedIndex] = adGroups[adjustedIndex].withAllAdsSkipped();
     return new AdPlaybackState(
-        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
-  /** Returns an instance with the specified ad durations, in microseconds. */
+  /**
+   * Returns an instance with the specified ad durations, in microseconds.
+   *
+   * <p>Must only be used if {@link #removedAdGroupCount} is 0.
+   */
   @CheckResult
   public AdPlaybackState withAdDurationsUs(long[][] adDurationUs) {
+    checkState(removedAdGroupCount == 0);
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     for (int adGroupIndex = 0; adGroupIndex < adGroupCount; adGroupIndex++) {
       adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdDurationsUs(adDurationUs[adGroupIndex]);
     }
     return new AdPlaybackState(
-        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
+  }
+
+  /**
+   * Returns an instance with the specified ad durations, in microseconds, in the specified ad
+   * group.
+   */
+  @CheckResult
+  public AdPlaybackState withAdDurationsUs(int adGroupIndex, long... adDurationsUs) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adjustedIndex] = adGroups[adjustedIndex].withAdDurationsUs(adDurationsUs);
+    return new AdPlaybackState(
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   /**
@@ -525,7 +697,7 @@ public final class AdPlaybackState implements Bundleable {
       return this;
     } else {
       return new AdPlaybackState(
-          adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+          adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
     }
   }
 
@@ -536,8 +708,67 @@ public final class AdPlaybackState implements Bundleable {
       return this;
     } else {
       return new AdPlaybackState(
-          adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+          adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
     }
+  }
+
+  /**
+   * Returns an instance with the specified number of {@link #removedAdGroupCount removed ad
+   * groups}.
+   *
+   * <p>Ad groups with indices between {@code 0} (inclusive) and {@code removedAdGroupCount}
+   * (exclusive) will be empty and must not be modified by any of the {@code with*} methods.
+   */
+  @CheckResult
+  public AdPlaybackState withRemovedAdGroupCount(int removedAdGroupCount) {
+    if (this.removedAdGroupCount == removedAdGroupCount) {
+      return this;
+    } else {
+      checkArgument(removedAdGroupCount > this.removedAdGroupCount);
+      AdGroup[] adGroups = new AdGroup[adGroupCount - removedAdGroupCount];
+      System.arraycopy(
+          /* src= */ this.adGroups,
+          /* srcPos= */ removedAdGroupCount - this.removedAdGroupCount,
+          /* dest= */ adGroups,
+          /* destPos= */ 0,
+          /* length= */ adGroups.length);
+      return new AdPlaybackState(
+          adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
+    }
+  }
+
+  /**
+   * Returns an instance with the specified {@link AdGroup#contentResumeOffsetUs}, in microseconds,
+   * for the specified ad group.
+   */
+  @CheckResult
+  public AdPlaybackState withContentResumeOffsetUs(int adGroupIndex, long contentResumeOffsetUs) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    if (adGroups[adjustedIndex].contentResumeOffsetUs == contentResumeOffsetUs) {
+      return this;
+    }
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adjustedIndex] =
+        adGroups[adjustedIndex].withContentResumeOffsetUs(contentResumeOffsetUs);
+    return new AdPlaybackState(
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
+  }
+
+  /**
+   * Returns an instance with the specified value for {@link AdGroup#isServerSideInserted} in the
+   * specified ad group.
+   */
+  @CheckResult
+  public AdPlaybackState withIsServerSideInserted(int adGroupIndex, boolean isServerSideInserted) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    if (adGroups[adjustedIndex].isServerSideInserted == isServerSideInserted) {
+      return this;
+    }
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adjustedIndex] =
+        adGroups[adjustedIndex].withIsServerSideInserted(isServerSideInserted);
+    return new AdPlaybackState(
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   @Override
@@ -553,7 +784,7 @@ public final class AdPlaybackState implements Bundleable {
         && adGroupCount == that.adGroupCount
         && adResumePositionUs == that.adResumePositionUs
         && contentDurationUs == that.contentDurationUs
-        && Arrays.equals(adGroupTimesUs, that.adGroupTimesUs)
+        && removedAdGroupCount == that.removedAdGroupCount
         && Arrays.equals(adGroups, that.adGroups);
   }
 
@@ -563,7 +794,7 @@ public final class AdPlaybackState implements Bundleable {
     result = 31 * result + (adsId == null ? 0 : adsId.hashCode());
     result = 31 * result + (int) adResumePositionUs;
     result = 31 * result + (int) contentDurationUs;
-    result = 31 * result + Arrays.hashCode(adGroupTimesUs);
+    result = 31 * result + removedAdGroupCount;
     result = 31 * result + Arrays.hashCode(adGroups);
     return result;
   }
@@ -578,7 +809,7 @@ public final class AdPlaybackState implements Bundleable {
     sb.append(", adGroups=[");
     for (int i = 0; i < adGroups.length; i++) {
       sb.append("adGroup(timeUs=");
-      sb.append(adGroupTimesUs[i]);
+      sb.append(adGroups[i].timeUs);
       sb.append(", ads=[");
       for (int j = 0; j < adGroups[i].states.length; j++) {
         sb.append("ad(state=");
@@ -624,7 +855,7 @@ public final class AdPlaybackState implements Bundleable {
       // The end of the content is at (but not before) any postroll ad, and after any other ads.
       return false;
     }
-    long adGroupPositionUs = adGroupTimesUs[adGroupIndex];
+    long adGroupPositionUs = getAdGroup(adGroupIndex).timeUs;
     if (adGroupPositionUs == C.TIME_END_OF_SOURCE) {
       return periodDurationUs == C.TIME_UNSET || positionUs < periodDurationUs;
     } else {
@@ -637,17 +868,17 @@ public final class AdPlaybackState implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    FIELD_AD_GROUP_TIMES_US,
     FIELD_AD_GROUPS,
     FIELD_AD_RESUME_POSITION_US,
-    FIELD_CONTENT_DURATION_US
+    FIELD_CONTENT_DURATION_US,
+    FIELD_REMOVED_AD_GROUP_COUNT
   })
   private @interface FieldNumber {}
 
-  private static final int FIELD_AD_GROUP_TIMES_US = 1;
-  private static final int FIELD_AD_GROUPS = 2;
-  private static final int FIELD_AD_RESUME_POSITION_US = 3;
-  private static final int FIELD_CONTENT_DURATION_US = 4;
+  private static final int FIELD_AD_GROUPS = 1;
+  private static final int FIELD_AD_RESUME_POSITION_US = 2;
+  private static final int FIELD_CONTENT_DURATION_US = 3;
+  private static final int FIELD_REMOVED_AD_GROUP_COUNT = 4;
 
   /**
    * {@inheritDoc}
@@ -659,7 +890,6 @@ public final class AdPlaybackState implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putLongArray(keyForField(FIELD_AD_GROUP_TIMES_US), adGroupTimesUs);
     ArrayList<Bundle> adGroupBundleList = new ArrayList<>();
     for (AdGroup adGroup : adGroups) {
       adGroupBundleList.add(adGroup.toBundle());
@@ -667,6 +897,7 @@ public final class AdPlaybackState implements Bundleable {
     bundle.putParcelableArrayList(keyForField(FIELD_AD_GROUPS), adGroupBundleList);
     bundle.putLong(keyForField(FIELD_AD_RESUME_POSITION_US), adResumePositionUs);
     bundle.putLong(keyForField(FIELD_CONTENT_DURATION_US), contentDurationUs);
+    bundle.putInt(keyForField(FIELD_REMOVED_AD_GROUP_COUNT), removedAdGroupCount);
     return bundle;
   }
 
@@ -678,13 +909,12 @@ public final class AdPlaybackState implements Bundleable {
   public static final Bundleable.Creator<AdPlaybackState> CREATOR = AdPlaybackState::fromBundle;
 
   private static AdPlaybackState fromBundle(Bundle bundle) {
-    @Nullable long[] adGroupTimesUs = bundle.getLongArray(keyForField(FIELD_AD_GROUP_TIMES_US));
     @Nullable
     ArrayList<Bundle> adGroupBundleList =
         bundle.getParcelableArrayList(keyForField(FIELD_AD_GROUPS));
     @Nullable AdGroup[] adGroups;
     if (adGroupBundleList == null) {
-      adGroups = null;
+      adGroups = new AdGroup[0];
     } else {
       adGroups = new AdGroup[adGroupBundleList.size()];
       for (int i = 0; i < adGroupBundleList.size(); i++) {
@@ -695,15 +925,20 @@ public final class AdPlaybackState implements Bundleable {
         bundle.getLong(keyForField(FIELD_AD_RESUME_POSITION_US), /* defaultValue= */ 0);
     long contentDurationUs =
         bundle.getLong(keyForField(FIELD_CONTENT_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
+    int removedAdGroupCount = bundle.getInt(keyForField(FIELD_REMOVED_AD_GROUP_COUNT));
     return new AdPlaybackState(
-        /* adsId= */ null,
-        adGroupTimesUs == null ? new long[0] : adGroupTimesUs,
-        adGroups,
-        adResumePositionUs,
-        contentDurationUs);
+        /* adsId= */ null, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  private static AdGroup[] createEmptyAdGroups(long[] adGroupTimesUs) {
+    AdGroup[] adGroups = new AdGroup[adGroupTimesUs.length];
+    for (int i = 0; i < adGroups.length; i++) {
+      adGroups[i] = new AdGroup(adGroupTimesUs[i]);
+    }
+    return adGroups;
   }
 }

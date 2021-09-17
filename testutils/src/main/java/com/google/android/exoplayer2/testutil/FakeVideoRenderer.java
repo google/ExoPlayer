@@ -95,14 +95,14 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     switch (messageType) {
       case MSG_SET_VIDEO_OUTPUT:
-        output = payload;
+        output = message;
         renderedFirstFrameAfterReset = false;
         break;
       default:
-        super.handleMessage(messageType, payload);
+        super.handleMessage(messageType, message);
     }
   }
 

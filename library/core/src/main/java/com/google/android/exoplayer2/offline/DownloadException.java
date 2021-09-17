@@ -30,5 +30,4 @@ public final class DownloadException extends IOException {
   public DownloadException(Throwable cause) {
     super(cause);
   }
-
 }

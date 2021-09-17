@@ -50,9 +50,7 @@ public final class FfmpegLibrary {
     LOADER.setLibraries(libraries);
   }
 
-  /**
-   * Returns whether the underlying library is available, loading it if necessary.
-   */
+  /** Returns whether the underlying library is available, loading it if necessary. */
   public static boolean isAvailable() {
     return LOADER.isAvailable();
   }

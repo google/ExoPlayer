@@ -1,0 +1,90 @@
+seekMap:
+  isSeekable = true
+  duration = 298333
+  getPosition(0) = [[timeUs=0, position=36]]
+  getPosition(1) = [[timeUs=0, position=36]]
+  getPosition(149166) = [[timeUs=0, position=36]]
+  getPosition(298333) = [[timeUs=0, position=36]]
+numberOfTracks = 2
+track 0:
+  total output bytes = 122447
+  sample count = 9
+  format 0:
+    id = 1
+    sampleMimeType = video/dolby-vision
+    codecs = hev1.08.04
+    maxInputSize = 40550
+    width = 1920
+    height = 1080
+    frameRate = 30.167633
+    rotationDegrees = 90
+    colorInfo:
+      colorSpace = 6
+      colorRange = 2
+      colorTransfer = 7
+      hdrStaticInfo = length 0, hash 0
+    initializationData:
+      data = length 526, hash 7B3FC433
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 40520, hash 6B3C7ED3
+  sample 1:
+    time = 133333
+    flags = 0
+    data = length 11652, hash 24B95831
+  sample 2:
+    time = 66666
+    flags = 0
+    data = length 9546, hash A8965647
+  sample 3:
+    time = 33333
+    flags = 0
+    data = length 7587, hash 624A0ECE
+  sample 4:
+    time = 100000
+    flags = 0
+    data = length 8584, hash 8F104D88
+  sample 5:
+    time = 266666
+    flags = 0
+    data = length 18275, hash E7639088
+  sample 6:
+    time = 200000
+    flags = 0
+    data = length 12112, hash 7CCEBA45
+  sample 7:
+    time = 166666
+    flags = 0
+    data = length 7180, hash 4E965EBB
+  sample 8:
+    time = 233333
+    flags = 536870912
+    data = length 6991, hash 84F4EA41
+track 1:
+  total output bytes = 1074
+  sample count = 3
+  format 0:
+    id = 2
+    sampleMimeType = audio/mp4a-latm
+    codecs = mp4a.40.2
+    maxInputSize = 568
+    channelCount = 2
+    sampleRate = 44100
+    encoderPadding = 2204
+    language = und
+    initializationData:
+      data = length 2, hash 5FF
+  sample 0:
+    time = 278639
+    flags = 1
+    data = length 436, hash 2E976590
+  sample 1:
+    time = 301859
+    flags = 1
+    data = length 451, hash 45B8B663
+  sample 2:
+    time = 325079
+    flags = 536870913
+    data = length 187, hash 833755BD
+tracksEnded = true

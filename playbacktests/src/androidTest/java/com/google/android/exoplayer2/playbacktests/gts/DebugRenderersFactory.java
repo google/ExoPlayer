@@ -253,9 +253,15 @@ import java.util.ArrayList;
       bufferCount++;
       long expectedTimestampUs = dequeueTimestamp();
       if (expectedTimestampUs != presentationTimeUs) {
-        throw new IllegalStateException("Expected to dequeue video buffer with presentation "
-            + "timestamp: " + expectedTimestampUs + ". Instead got: " + presentationTimeUs
-            + " (Processed buffers since last flush: " + bufferCount + ").");
+        throw new IllegalStateException(
+            "Expected to dequeue video buffer with presentation "
+                + "timestamp: "
+                + expectedTimestampUs
+                + ". Instead got: "
+                + presentationTimeUs
+                + " (Processed buffers since last flush: "
+                + bufferCount
+                + ").");
       }
 
       if (outputMediaFormatChanged) {
@@ -315,7 +321,5 @@ import java.util.ArrayList;
       minimumInsertIndex = max(minimumInsertIndex, startIndex);
       return timestampsList[startIndex - 1];
     }
-
   }
-
 }

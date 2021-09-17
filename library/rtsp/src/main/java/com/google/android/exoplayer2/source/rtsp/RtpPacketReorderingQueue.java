@@ -36,8 +36,10 @@ import java.util.TreeSet;
 
   private static final int MAX_SEQUENCE_NUMBER = RtpPacket.MAX_SEQUENCE_NUMBER;
 
+  /** Queue size threshold for resetting the queue. 5000 packets equate about 7MB in buffer size. */
+  private static final int QUEUE_SIZE_THRESHOLD_FOR_RESET = 5000;
+
   // Use set to eliminate duplicating packets.
-  // TODO(b/172331505) Set a upper limit on packetQueue to mitigate out of memory error.
   @GuardedBy("this")
   private final TreeSet<RtpPacketContainer> packetQueue;
 
@@ -86,6 +88,11 @@ import java.util.TreeSet;
    *     returns {@code true}).
    */
   public synchronized boolean offer(RtpPacket packet, long receivedTimestampMs) {
+    if (packetQueue.size() >= QUEUE_SIZE_THRESHOLD_FOR_RESET) {
+      throw new IllegalStateException(
+          "Queue size limit of " + QUEUE_SIZE_THRESHOLD_FOR_RESET + " reached.");
+    }
+
     int packetSequenceNumber = packet.sequenceNumber;
     if (!started) {
       reset();

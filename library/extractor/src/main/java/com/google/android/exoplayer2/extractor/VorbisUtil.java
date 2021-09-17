@@ -124,8 +124,8 @@ public final class VorbisUtil {
   /**
    * Returns ilog(x), which is the index of the highest set bit in {@code x}.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">
-   *     Vorbis spec</a>
+   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">Vorbis
+   *     spec</a>
    * @param x the value of which the ilog should be calculated.
    * @return ilog(x)
    */
@@ -241,7 +241,8 @@ public final class VorbisUtil {
       length += comments[i].length();
     }
     if (hasFramingBit && (headerData.readUnsignedByte() & 0x01) == 0) {
-      throw new ParserException("framing bit expected to be set");
+      throw ParserException.createForMalformedContainer(
+          "framing bit expected to be set", /* cause= */ null);
     }
     length += 1;
     return new CommentHeader(vendor, comments, length);
@@ -263,7 +264,8 @@ public final class VorbisUtil {
       if (quiet) {
         return false;
       } else {
-        throw new ParserException("too short header: " + header.bytesLeft());
+        throw ParserException.createForMalformedContainer(
+            "too short header: " + header.bytesLeft(), /* cause= */ null);
       }
     }
 
@@ -271,7 +273,8 @@ public final class VorbisUtil {
       if (quiet) {
         return false;
       } else {
-        throw new ParserException("expected header type " + Integer.toHexString(headerType));
+        throw ParserException.createForMalformedContainer(
+            "expected header type " + Integer.toHexString(headerType), /* cause= */ null);
       }
     }
 
@@ -284,7 +287,8 @@ public final class VorbisUtil {
       if (quiet) {
         return false;
       } else {
-        throw new ParserException("expected characters 'vorbis'");
+        throw ParserException.createForMalformedContainer(
+            "expected characters 'vorbis'", /* cause= */ null);
       }
     }
     return true;
@@ -319,7 +323,8 @@ public final class VorbisUtil {
     int timeCount = bitArray.readBits(6) + 1;
     for (int i = 0; i < timeCount; i++) {
       if (bitArray.readBits(16) != 0x00) {
-        throw new ParserException("placeholder of time domain transforms not zeroed out");
+        throw ParserException.createForMalformedContainer(
+            "placeholder of time domain transforms not zeroed out", /* cause= */ null);
       }
     }
     readFloors(bitArray);
@@ -328,7 +333,8 @@ public final class VorbisUtil {
 
     Mode[] modes = readModes(bitArray);
     if (!bitArray.readBit()) {
-      throw new ParserException("framing bit after modes not set as expected");
+      throw ParserException.createForMalformedContainer(
+          "framing bit after modes not set as expected", /* cause= */ null);
     }
     return modes;
   }
@@ -346,8 +352,7 @@ public final class VorbisUtil {
     return modes;
   }
 
-  private static void readMappings(int channels, VorbisBitArray bitArray)
-      throws ParserException {
+  private static void readMappings(int channels, VorbisBitArray bitArray) throws ParserException {
     int mappingsCount = bitArray.readBits(6) + 1;
     for (int i = 0; i < mappingsCount; i++) {
       int mappingType = bitArray.readBits(16);
@@ -372,7 +377,8 @@ public final class VorbisUtil {
           couplingSteps = 0;
         }*/
       if (bitArray.readBits(2) != 0x00) {
-        throw new ParserException("to reserved bits must be zero after mapping coupling steps");
+        throw ParserException.createForMalformedContainer(
+            "to reserved bits must be zero after mapping coupling steps", /* cause= */ null);
       }
       if (submaps > 1) {
         for (int j = 0; j < channels; j++) {
@@ -392,7 +398,8 @@ public final class VorbisUtil {
     for (int i = 0; i < residueCount; i++) {
       int residueType = bitArray.readBits(16);
       if (residueType > 2) {
-        throw new ParserException("residueType greater than 2 is not decodable");
+        throw ParserException.createForMalformedContainer(
+            "residueType greater than 2 is not decodable", /* cause= */ null);
       } else {
         bitArray.skipBits(24); // begin
         bitArray.skipBits(24); // end
@@ -425,7 +432,7 @@ public final class VorbisUtil {
       int floorType = bitArray.readBits(16);
       switch (floorType) {
         case 0:
-          bitArray.skipBits(8); //order
+          bitArray.skipBits(8); // order
           bitArray.skipBits(16); // rate
           bitArray.skipBits(16); // barkMapSize
           bitArray.skipBits(6); // amplitudeBits
@@ -468,15 +475,17 @@ public final class VorbisUtil {
           }
           break;
         default:
-          throw new ParserException("floor type greater than 1 not decodable: " + floorType);
+          throw ParserException.createForMalformedContainer(
+              "floor type greater than 1 not decodable: " + floorType, /* cause= */ null);
       }
     }
   }
 
   private static CodeBook readBook(VorbisBitArray bitArray) throws ParserException {
     if (bitArray.readBits(24) != 0x564342) {
-      throw new ParserException("expected code book to start with [0x56, 0x43, 0x42] at "
-          + bitArray.getPosition());
+      throw ParserException.createForMalformedContainer(
+          "expected code book to start with [0x56, 0x43, 0x42] at " + bitArray.getPosition(),
+          /* cause= */ null);
     }
     int dimensions = bitArray.readBits(16);
     int entries = bitArray.readBits(24);
@@ -498,7 +507,7 @@ public final class VorbisUtil {
       }
     } else {
       int length = bitArray.readBits(5) + 1;
-      for (int i = 0; i < lengthMap.length;) {
+      for (int i = 0; i < lengthMap.length; ) {
         int num = bitArray.readBits(iLog(entries - i));
         for (int j = 0; j < num && i < lengthMap.length; i++, j++) {
           lengthMap[i] = length;
@@ -509,7 +518,8 @@ public final class VorbisUtil {
 
     int lookupType = bitArray.readBits(4);
     if (lookupType > 2) {
-      throw new ParserException("lookup type greater than 2 not decodable: " + lookupType);
+      throw ParserException.createForMalformedContainer(
+          "lookup type greater than 2 not decodable: " + lookupType, /* cause= */ null);
     } else if (lookupType == 1 || lookupType == 2) {
       bitArray.skipBits(32); // minimumValue
       bitArray.skipBits(32); // deltaValue
@@ -550,14 +560,13 @@ public final class VorbisUtil {
     public final int lookupType;
     public final boolean isOrdered;
 
-    public CodeBook(int dimensions, int entries, long[] lengthMap, int lookupType,
-        boolean isOrdered) {
+    public CodeBook(
+        int dimensions, int entries, long[] lengthMap, int lookupType, boolean isOrdered) {
       this.dimensions = dimensions;
       this.entries = entries;
       this.lengthMap = lengthMap;
       this.lookupType = lookupType;
       this.isOrdered = isOrdered;
     }
-
   }
 }

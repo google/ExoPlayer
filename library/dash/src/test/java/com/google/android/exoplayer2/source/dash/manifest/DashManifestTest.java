@@ -23,15 +23,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link DashManifest}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class DashManifestTest {
 
   private static final UtcTimingElement UTC_TIMING = new UtcTimingElement("", "");
@@ -229,7 +232,11 @@ public class DashManifestTest {
   }
 
   private static Representation newRepresentation() {
-    return Representation.newInstance(/* revisionId= */ 0, FORMAT, /* baseUrl= */ "", SEGMENT_BASE);
+    return Representation.newInstance(
+        /* revisionId= */ 0,
+        FORMAT,
+        /* baseUrls= */ ImmutableList.of(new BaseUrl("")),
+        SEGMENT_BASE);
   }
 
   private static DashManifest newDashManifest(

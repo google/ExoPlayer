@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":42,"i14":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":42,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -263,26 +263,19 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">setControlDispatcher</a></span>&#8203;(<a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> and pass it to the constructor instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">setErrorMessageProvider</a></span>&#8203;(<a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">setErrorMessageProvider</a></span>&#8203;(<a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">setPlaybackPreparer</a></span>&#8203;(<a href="../../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProgressUpdatingEnabled(boolean)">setProgressUpdatingEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -348,37 +341,20 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPlaybackPreparer</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
-                                <a href="../../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead. The adapter calls
-     <a href="../../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="../../PlaybackPreparer.html#preparePlayback()"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="../../DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the adapter
-     uses by default, calls <a href="../../Player.html#prepare()"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
-     you can provide a custom implementation of <a href="../../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
-</div>
-</li>
-</ul>
 <a id="setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setControlDispatcher</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setControlDispatcher&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setControlDispatcher&#8203;(@Nullable
                                  <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
-<div class="block">Sets the <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>controlDispatcher</code> - The <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>, or null to use
-     <a href="../../DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a>.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> and pass it to the constructor instead. You can also
+     customize some operations when configuring the player (for example by using <code>
+     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)</code>).</div>
+</div>
 </li>
 </ul>
 <a id="setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">
@@ -388,7 +364,7 @@ public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
 <li class="blockList">
 <h4>setErrorMessageProvider</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setErrorMessageProvider&#8203;(@Nullable
-                                    <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
+                                    <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
 <div class="block">Sets the optional <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

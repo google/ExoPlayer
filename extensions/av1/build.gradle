@@ -20,6 +20,7 @@ android {
                 // Debug CMake build type causes video frames to drop,
                 // so native library should always use Release build type.
                 arguments "-DCMAKE_BUILD_TYPE=Release"
+                arguments "-DBUILD_TESTING=OFF"
                 targets "gav1JNI"
             }
         }

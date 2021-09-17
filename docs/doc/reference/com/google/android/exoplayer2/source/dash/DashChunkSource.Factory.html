@@ -153,8 +153,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">createDashChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">createDashChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                      <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                     <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
                      int&nbsp;periodIndex,
                      int[]&nbsp;adaptationSetIndices,
                      <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
@@ -183,7 +184,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">
+<a id="createDashChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,int,long,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.upstream.TransferListener)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -191,6 +192,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>createDashChunkSource</h4>
 <pre class="methodSignature"><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a>&nbsp;createDashChunkSource&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                                       <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                                      <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
                                       int&nbsp;periodIndex,
                                       int[]&nbsp;adaptationSetIndices,
                                       <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
@@ -206,6 +208,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
 <dd><code>manifest</code> - The initial manifest.</dd>
+<dd><code>baseUrlExclusionList</code> - The base URL exclusion list.</dd>
 <dd><code>periodIndex</code> - The index of the corresponding period in the manifest.</dd>
 <dd><code>adaptationSetIndices</code> - The indices of the corresponding adaptation sets in the period.</dd>
 <dd><code>trackSelection</code> - The track selection.</dd>

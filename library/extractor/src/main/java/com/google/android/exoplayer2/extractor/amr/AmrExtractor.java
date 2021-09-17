@@ -165,10 +165,10 @@ public final class AmrExtractor implements Extractor {
   }
 
   @Override
-  public void init(ExtractorOutput extractorOutput) {
-    this.extractorOutput = extractorOutput;
-    trackOutput = extractorOutput.track(/* id= */ 0, C.TRACK_TYPE_AUDIO);
-    extractorOutput.endTracks();
+  public void init(ExtractorOutput output) {
+    this.extractorOutput = output;
+    trackOutput = output.track(/* id= */ 0, C.TRACK_TYPE_AUDIO);
+    output.endTracks();
   }
 
   @Override
@@ -176,7 +176,8 @@ public final class AmrExtractor implements Extractor {
     assertInitialized();
     if (input.getPosition() == 0) {
       if (!readAmrHeader(input)) {
-        throw new ParserException("Could not find AMR header.");
+        throw ParserException.createForMalformedContainer(
+            "Could not find AMR header.", /* cause= */ null);
       }
     }
     maybeOutputFormat();
@@ -311,7 +312,8 @@ public final class AmrExtractor implements Extractor {
     if ((frameHeader & 0x83) > 0) {
       // The padding bits are at bit-1 positions in the following pattern: 1000 0011
       // Padding bits must be 0.
-      throw new ParserException("Invalid padding bits for frame header " + frameHeader);
+      throw ParserException.createForMalformedContainer(
+          "Invalid padding bits for frame header " + frameHeader, /* cause= */ null);
     }
 
     int frameType = (frameHeader >> 3) & 0x0f;
@@ -320,8 +322,9 @@ public final class AmrExtractor implements Extractor {
 
   private int getFrameSizeInBytes(int frameType) throws ParserException {
     if (!isValidFrameType(frameType)) {
-      throw new ParserException(
-          "Illegal AMR " + (isWideBand ? "WB" : "NB") + " frame type " + frameType);
+      throw ParserException.createForMalformedContainer(
+          "Illegal AMR " + (isWideBand ? "WB" : "NB") + " frame type " + frameType,
+          /* cause= */ null);
     }
 
     return isWideBand ? frameSizeBytesByTypeWb[frameType] : frameSizeBytesByTypeNb[frameType];

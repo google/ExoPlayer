@@ -352,7 +352,7 @@ import java.util.concurrent.TimeoutException;
     // TODO(internal b/160846312): Remove warning suppression and mark item @Nullable once we depend
     // on media2 1.2.0.
     @Override
-    @SuppressWarnings("nullness:override.param.invalid")
+    @SuppressWarnings("nullness:override.param")
     public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
       currentMediaItemBuffered = isBufferedState(player.getBufferingState());
       updateAllowedCommands();

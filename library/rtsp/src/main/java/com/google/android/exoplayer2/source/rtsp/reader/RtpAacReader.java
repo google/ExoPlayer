@@ -86,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void consume(
-      ParsableByteArray data, long timestamp, int sequenceNumber, boolean isFrameBoundary) {
+      ParsableByteArray data, long timestamp, int sequenceNumber, boolean rtpMarker) {
     /*
     AAC as RTP payload (RFC3640):
       +---------+-----------+-----------+---------------+
@@ -120,7 +120,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       // Outputs all the received data, whether fragmented or not.
       trackOutput.sampleData(data, data.bytesLeft());
-      if (isFrameBoundary) {
+      if (rtpMarker) {
         outputSampleMetadata(trackOutput, sampleTimeUs, auSize);
       }
     } else {

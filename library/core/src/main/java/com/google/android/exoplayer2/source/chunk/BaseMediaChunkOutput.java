@@ -52,9 +52,7 @@ public final class BaseMediaChunkOutput implements TrackOutputProvider {
     return new DummyTrackOutput();
   }
 
-  /**
-   * Returns the current absolute write indices of the individual sample queues.
-   */
+  /** Returns the current absolute write indices of the individual sample queues. */
   public int[] getWriteIndices() {
     int[] writeIndices = new int[sampleQueues.length];
     for (int i = 0; i < sampleQueues.length; i++) {
@@ -72,5 +70,4 @@ public final class BaseMediaChunkOutput implements TrackOutputProvider {
       sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     }
   }
-
 }

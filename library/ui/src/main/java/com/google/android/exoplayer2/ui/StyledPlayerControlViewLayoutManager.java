@@ -83,10 +83,7 @@ import java.util.List;
   private boolean needToShowBars;
   private boolean animationEnabled;
 
-  @SuppressWarnings({
-    "nullness:method.invocation.invalid",
-    "nullness:methodref.receiver.bound.invalid"
-  })
+  @SuppressWarnings({"nullness:method.invocation", "nullness:methodref.receiver.bound"})
   public StyledPlayerControlViewLayoutManager(StyledPlayerControlView styledPlayerControlView) {
     this.styledPlayerControlView = styledPlayerControlView;
     showAllBarsRunnable = this::showAllBars;

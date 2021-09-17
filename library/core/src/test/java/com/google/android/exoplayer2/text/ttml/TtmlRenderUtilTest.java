@@ -122,5 +122,4 @@ public final class TtmlRenderUtilTest {
 
     return globalStyles;
   }
-
 }

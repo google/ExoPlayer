@@ -48,13 +48,11 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
-import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.net.BindException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -103,6 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param rtpDataChannelFactory A {@link RtpDataChannel.Factory} for {@link RtpDataChannel}.
    * @param uri The RTSP playback {@link Uri}.
    * @param listener A {@link Listener} to receive session information updates.
+   * @param userAgent The user agent.
    */
   public RtspMediaPeriod(
       Allocator allocator,
@@ -420,19 +419,40 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void endTracks() {
-      // TODO(b/172331505) Implement this method.
+      handler.post(RtspMediaPeriod.this::maybeFinishPrepare);
     }
 
     @Override
     public void seekMap(SeekMap seekMap) {
-      // TODO(b/172331505) Implement this method.
+      // RTSP does not support seek map.
     }
 
     // Loadable.Callback implementation.
 
     @Override
     public void onLoadCompleted(
-        RtpDataLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {}
+        RtpDataLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
+      // TODO(b/172331505) Allow for retry when loading is not ending.
+      if (getBufferedPositionUs() == 0) {
+        if (!isUsingRtpTcp) {
+          // Retry playback with TCP if no sample has been received so far, and we are not already
+          // using TCP. Retrying will setup new loadables, so will not retry with the current
+          // loadables.
+          retryWithRtpTcp();
+          isUsingRtpTcp = true;
+        }
+        return;
+      }
+
+      // Cancel the loader wrapper associated with the completed loadable.
+      for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
+        RtspLoaderWrapper loaderWrapper = rtspLoaderWrappers.get(i);
+        if (loaderWrapper.loadInfo.loadable == loadable) {
+          loaderWrapper.cancelLoad();
+          break;
+        }
+      }
+    }
 
     @Override
     public void onLoadCanceled(
@@ -445,22 +465,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         long loadDurationMs,
         IOException error,
         int errorCount) {
-      /* TODO(b/172331505) Sort out the retry policy.
-      Three cases for IOException:
-        - Socket open failure for RTP or RTCP.
-          - RETRY for the RTCP open failure.
-        - ExtractorInput read IOException (socket timeout, etc)
-          - Keep retrying unless playback is stopped.
-        - RtpPayloadReader consume ParserException (mal-formatted RTP packet)
-          - Don't retry? (if a packet is distorted on the fly, the packet is likely discarded by the
-           system, i.e. the server's sent a mal-formatted packet).
-      */
       if (!prepared) {
         preparationError = error;
       } else {
-        if (error.getCause() instanceof SocketTimeoutException) {
-          return handleSocketTimeout(loadable);
-        } else if (error.getCause() instanceof BindException) {
+        if (error.getCause() instanceof BindException) {
           // Allow for retry on RTP port open failure by catching BindException. Two ports are
           // opened for each RTP stream, the first port number is auto assigned by the system, while
           // the second is manually selected. It is thus possible that the second port fails to
@@ -496,13 +504,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void onPlaybackStarted(
         long startPositionUs, ImmutableList<RtspTrackTiming> trackTimingList) {
       // Validate that the trackTimingList contains timings for the selected tracks.
-      ArrayList<Uri> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
+      ArrayList<String> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
       for (int i = 0; i < trackTimingList.size(); i++) {
-        trackUrisWithTiming.add(trackTimingList.get(i).uri);
+        trackUrisWithTiming.add(checkNotNull(trackTimingList.get(i).uri.getPath()));
       }
       for (int i = 0; i < selectedLoadInfos.size(); i++) {
         RtpLoadInfo loadInfo = selectedLoadInfos.get(i);
-        if (!trackUrisWithTiming.contains(loadInfo.getTrackUri())) {
+        if (!trackUrisWithTiming.contains(loadInfo.getTrackUri().getPath())) {
           playbackException =
               new RtspPlaybackException(
                   "Server did not provide timing for track " + loadInfo.getTrackUri());
@@ -535,30 +543,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       playbackException = error;
     }
 
-    /** Handles the {@link Loadable} whose {@link RtpDataChannel} timed out. */
-    private LoadErrorAction handleSocketTimeout(RtpDataLoadable loadable) {
-      // TODO(b/172331505) Allow for retry when loading is not ending.
-      if (getBufferedPositionUs() == 0) {
-        if (!isUsingRtpTcp) {
-          // Retry playback with TCP if no sample has been received so far, and we are not already
-          // using TCP. Retrying will setup new loadables, so will not retry with the current
-          // loadables.
-          retryWithRtpTcp();
-          isUsingRtpTcp = true;
-        }
-        return Loader.DONT_RETRY;
-      }
-
-      for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
-        RtspLoaderWrapper loaderWrapper = rtspLoaderWrappers.get(i);
-        if (loaderWrapper.loadInfo.loadable == loadable) {
-          loaderWrapper.cancelLoad();
-          break;
-        }
-      }
-      return Loader.DONT_RETRY;
-    }
-
     @Override
     public void onSessionTimelineUpdated(
         RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {
@@ -566,8 +550,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         RtspMediaTrack rtspMediaTrack = tracks.get(i);
         RtspLoaderWrapper loaderWrapper =
             new RtspLoaderWrapper(rtspMediaTrack, /* trackId= */ i, rtpDataChannelFactory);
-        loaderWrapper.startLoading();
         rtspLoaderWrappers.add(loaderWrapper);
+        loaderWrapper.startLoading();
       }
 
       listener.onSourceInfoRefreshed(timing);
@@ -582,7 +566,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void retryWithRtpTcp() {
     rtspClient.retryWithRtpTcp();
 
-    RtpDataChannel.Factory rtpDataChannelFactory = new TransferRtpDataChannelFactory();
+    @Nullable
+    RtpDataChannel.Factory fallbackRtpDataChannelFactory =
+        rtpDataChannelFactory.createFallbackDataChannelFactory();
+    if (fallbackRtpDataChannelFactory == null) {
+      playbackException =
+          new RtspPlaybackException("No fallback data channel factory for TCP retry");
+      return;
+    }
+
     ArrayList<RtspLoaderWrapper> newLoaderWrappers = new ArrayList<>(rtspLoaderWrappers.size());
     ArrayList<RtpLoadInfo> newSelectedLoadInfos = new ArrayList<>(selectedLoadInfos.size());
 
@@ -593,7 +585,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!loaderWrapper.canceled) {
         RtspLoaderWrapper newLoaderWrapper =
             new RtspLoaderWrapper(
-                loaderWrapper.loadInfo.mediaTrack, /* trackId= */ i, rtpDataChannelFactory);
+                loaderWrapper.loadInfo.mediaTrack, /* trackId= */ i, fallbackRtpDataChannelFactory);
         newLoaderWrappers.add(newLoaderWrapper);
         newLoaderWrapper.startLoading();
         if (selectedLoadInfos.contains(loaderWrapper.loadInfo)) {

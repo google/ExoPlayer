@@ -106,11 +106,8 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     }
     dumper.add("numberOfTracks", numberOfTracks);
     for (int i = 0; i < numberOfTracks; i++) {
-      dumper.startBlock("track " + trackOutputs.keyAt(i))
-          .add(trackOutputs.valueAt(i))
-          .endBlock();
+      dumper.startBlock("track " + trackOutputs.keyAt(i)).add(trackOutputs.valueAt(i)).endBlock();
     }
     dumper.add("tracksEnded", tracksEnded);
   }
-
 }

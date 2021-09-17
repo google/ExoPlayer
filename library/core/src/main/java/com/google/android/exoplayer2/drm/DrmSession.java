@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.media.MediaDrm;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.PlaybackException;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -53,10 +54,13 @@ public interface DrmSession {
   /** Wraps the throwable which is the cause of the error state. */
   class DrmSessionException extends IOException {
 
-    public DrmSessionException(Throwable cause) {
-      super(cause);
-    }
+    /** The {@link PlaybackException.ErrorCode} that corresponds to the failure. */
+    @PlaybackException.ErrorCode public final int errorCode;
 
+    public DrmSessionException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
+      super(cause);
+      this.errorCode = errorCode;
+    }
   }
 
   /**
@@ -74,9 +78,7 @@ public interface DrmSession {
    * This is a terminal state.
    */
   int STATE_ERROR = 1;
-  /**
-   * The session is being opened.
-   */
+  /** The session is being opened. */
   int STATE_OPENING = 2;
   /** The session is open, but does not have keys required for decryption. */
   int STATE_OPENED = 3;
@@ -84,11 +86,12 @@ public interface DrmSession {
   int STATE_OPENED_WITH_KEYS = 4;
 
   /**
-   * Returns the current state of the session, which is one of {@link #STATE_ERROR},
-   * {@link #STATE_RELEASED}, {@link #STATE_OPENING}, {@link #STATE_OPENED} and
-   * {@link #STATE_OPENED_WITH_KEYS}.
+   * Returns the current state of the session, which is one of {@link #STATE_ERROR}, {@link
+   * #STATE_RELEASED}, {@link #STATE_OPENING}, {@link #STATE_OPENED} and {@link
+   * #STATE_OPENED_WITH_KEYS}.
    */
-  @State int getState();
+  @State
+  int getState();
 
   /** Returns whether this session allows playback of clear samples prior to keys being loaded. */
   default boolean playClearSamplesWithoutKeys() {

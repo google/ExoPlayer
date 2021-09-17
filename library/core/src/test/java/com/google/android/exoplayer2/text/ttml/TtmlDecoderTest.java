@@ -710,6 +710,18 @@ public final class TtmlDecoderTest {
     Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
     assertThat(sixthCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(sixthCue).hasNoRubySpanBetween(0, sixthCue.length());
+
+    Spanned seventhCue = getOnlyCueTextAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(seventhCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", TextAnnotation.POSITION_BEFORE);
+
+    Spanned eighthCue = getOnlyCueTextAtTimeUs(subtitle, 80_000_000);
+    assertThat(eighthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(eighthCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", TextAnnotation.POSITION_AFTER);
   }
 
   @Test

@@ -223,7 +223,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#write(byte%5B%5D,int,int)">write</a></span>&#8203;(byte[]&nbsp;data,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#write(byte%5B%5D,int,int)">write</a></span>&#8203;(byte[]&nbsp;buffer,
      int&nbsp;offset,
      int&nbsp;length)</code></th>
 <td class="colLast">
@@ -335,7 +335,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <ul class="blockList">
 <li class="blockList">
 <h4>write</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;write&#8203;(byte[]&nbsp;data,
+<pre class="methodSignature">public&nbsp;void&nbsp;write&#8203;(byte[]&nbsp;buffer,
                   int&nbsp;offset,
                   int&nbsp;length)
            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
@@ -345,7 +345,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../DataSink.html#write(byte%5B%5D,int,int)">write</a></code>&nbsp;in interface&nbsp;<code><a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>data</code> - The buffer from which data should be consumed.</dd>
+<dd><code>buffer</code> - The buffer from which data should be consumed.</dd>
 <dd><code>offset</code> - The offset of the data to consume in <code>buffer</code>.</dd>
 <dd><code>length</code> - The length of the data to consume, in bytes.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

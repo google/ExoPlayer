@@ -42,7 +42,7 @@ directly to the player instead of a `MediaItem`.
 
 ~~~
 // Create a data source factory.
-DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory();
+DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
 // Create a HLS media source pointing to a playlist uri.
 HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory)

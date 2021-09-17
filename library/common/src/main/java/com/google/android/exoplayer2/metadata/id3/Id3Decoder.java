@@ -35,9 +35,7 @@ import java.util.Locale;
 /** Decodes ID3 tags. */
 public final class Id3Decoder extends SimpleMetadataDecoder {
 
-  /**
-   * A predicate for determining whether individual frames should be decoded.
-   */
+  /** A predicate for determining whether individual frames should be decoded. */
   public interface FramePredicate {
 
     /**
@@ -51,7 +49,6 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
      * @return Whether the frame should be decoded.
      */
     boolean evaluate(int majorVersion, int id0, int id1, int id2, int id3);
-
   }
 
   /** A predicate that indicates no frames should be decoded. */
@@ -62,9 +59,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
 
   /** The first three bytes of a well formed ID3 tag header. */
   public static final int ID3_TAG = 0x00494433;
-  /**
-   * Length of an ID3 tag header.
-   */
+  /** Length of an ID3 tag header. */
   public static final int ID3_HEADER_LENGTH = 10;
 
   private static final int FRAME_FLAG_V3_IS_COMPRESSED = 0x0080;
@@ -210,8 +205,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     return new Id3Header(majorVersion, isUnsynchronized, framesSize);
   }
 
-  private static boolean validateFrames(ParsableByteArray id3Data, int majorVersion,
-      int frameHeaderSize, boolean unsignedIntFrameSizeHack) {
+  private static boolean validateFrames(
+      ParsableByteArray id3Data,
+      int majorVersion,
+      int frameHeaderSize,
+      boolean unsignedIntFrameSizeHack) {
     int startPosition = id3Data.getPosition();
     try {
       while (id3Data.bytesLeft() >= frameHeaderSize) {
@@ -238,8 +236,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
             if ((frameSize & 0x808080L) != 0) {
               return false;
             }
-            frameSize = (frameSize & 0xFF) | (((frameSize >> 8) & 0xFF) << 7)
-                | (((frameSize >> 16) & 0xFF) << 14) | (((frameSize >> 24) & 0xFF) << 21);
+            frameSize =
+                (frameSize & 0xFF)
+                    | (((frameSize >> 8) & 0xFF) << 7)
+                    | (((frameSize >> 16) & 0xFF) << 14)
+                    | (((frameSize >> 24) & 0xFF) << 21);
           }
           boolean hasGroupIdentifier = false;
           boolean hasDataLength = false;
@@ -289,8 +290,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     if (majorVersion == 4) {
       frameSize = id3Data.readUnsignedIntToInt();
       if (!unsignedIntFrameSizeHack) {
-        frameSize = (frameSize & 0xFF) | (((frameSize >> 8) & 0xFF) << 7)
-            | (((frameSize >> 16) & 0xFF) << 14) | (((frameSize >> 24) & 0xFF) << 21);
+        frameSize =
+            (frameSize & 0xFF)
+                | (((frameSize >> 8) & 0xFF) << 7)
+                | (((frameSize >> 16) & 0xFF) << 14)
+                | (((frameSize >> 24) & 0xFF) << 21);
       }
     } else if (majorVersion == 3) {
       frameSize = id3Data.readUnsignedIntToInt();
@@ -299,7 +303,11 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     }
 
     int flags = majorVersion >= 3 ? id3Data.readUnsignedShort() : 0;
-    if (frameId0 == 0 && frameId1 == 0 && frameId2 == 0 && frameId3 == 0 && frameSize == 0
+    if (frameId0 == 0
+        && frameId1 == 0
+        && frameId2 == 0
+        && frameId3 == 0
+        && frameSize == 0
         && flags == 0) {
       // We must be reading zero padding at the end of the tag.
       id3Data.setPosition(id3Data.limit());
@@ -360,13 +368,17 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
 
     try {
       Id3Frame frame;
-      if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X'
+      if (frameId0 == 'T'
+          && frameId1 == 'X'
+          && frameId2 == 'X'
           && (majorVersion == 2 || frameId3 == 'X')) {
         frame = decodeTxxxFrame(id3Data, frameSize);
       } else if (frameId0 == 'T') {
         String id = getFrameId(majorVersion, frameId0, frameId1, frameId2, frameId3);
         frame = decodeTextInformationFrame(id3Data, frameSize, id);
-      } else if (frameId0 == 'W' && frameId1 == 'X' && frameId2 == 'X'
+      } else if (frameId0 == 'W'
+          && frameId1 == 'X'
+          && frameId2 == 'X'
           && (majorVersion == 2 || frameId3 == 'X')) {
         frame = decodeWxxxFrame(id3Data, frameSize);
       } else if (frameId0 == 'W') {
@@ -374,21 +386,38 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
         frame = decodeUrlLinkFrame(id3Data, frameSize, id);
       } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
         frame = decodePrivFrame(id3Data, frameSize);
-      } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O'
+      } else if (frameId0 == 'G'
+          && frameId1 == 'E'
+          && frameId2 == 'O'
           && (frameId3 == 'B' || majorVersion == 2)) {
         frame = decodeGeobFrame(id3Data, frameSize);
-      } else if (majorVersion == 2 ? (frameId0 == 'P' && frameId1 == 'I' && frameId2 == 'C')
+      } else if (majorVersion == 2
+          ? (frameId0 == 'P' && frameId1 == 'I' && frameId2 == 'C')
           : (frameId0 == 'A' && frameId1 == 'P' && frameId2 == 'I' && frameId3 == 'C')) {
         frame = decodeApicFrame(id3Data, frameSize, majorVersion);
-      } else if (frameId0 == 'C' && frameId1 == 'O' && frameId2 == 'M'
+      } else if (frameId0 == 'C'
+          && frameId1 == 'O'
+          && frameId2 == 'M'
           && (frameId3 == 'M' || majorVersion == 2)) {
         frame = decodeCommentFrame(id3Data, frameSize);
       } else if (frameId0 == 'C' && frameId1 == 'H' && frameId2 == 'A' && frameId3 == 'P') {
-        frame = decodeChapterFrame(id3Data, frameSize, majorVersion, unsignedIntFrameSizeHack,
-            frameHeaderSize, framePredicate);
+        frame =
+            decodeChapterFrame(
+                id3Data,
+                frameSize,
+                majorVersion,
+                unsignedIntFrameSizeHack,
+                frameHeaderSize,
+                framePredicate);
       } else if (frameId0 == 'C' && frameId1 == 'T' && frameId2 == 'O' && frameId3 == 'C') {
-        frame = decodeChapterTOCFrame(id3Data, frameSize, majorVersion, unsignedIntFrameSizeHack,
-            frameHeaderSize, framePredicate);
+        frame =
+            decodeChapterTOCFrame(
+                id3Data,
+                frameSize,
+                majorVersion,
+                unsignedIntFrameSizeHack,
+                frameHeaderSize,
+                framePredicate);
       } else if (frameId0 == 'M' && frameId1 == 'L' && frameId2 == 'L' && frameId3 == 'T') {
         frame = decodeMlltFrame(id3Data, frameSize);
       } else {
@@ -396,9 +425,12 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
         frame = decodeBinaryFrame(id3Data, frameSize, id);
       }
       if (frame == null) {
-        Log.w(TAG, "Failed to decode frame: id="
-            + getFrameId(majorVersion, frameId0, frameId1, frameId2, frameId3) + ", frameSize="
-            + frameSize);
+        Log.w(
+            TAG,
+            "Failed to decode frame: id="
+                + getFrameId(majorVersion, frameId0, frameId1, frameId2, frameId3)
+                + ", frameSize="
+                + frameSize);
       }
       return frame;
     } catch (UnsupportedEncodingException e) {
@@ -477,8 +509,8 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     return new UrlLinkFrame("WXXX", description, url);
   }
 
-  private static UrlLinkFrame decodeUrlLinkFrame(ParsableByteArray id3Data, int frameSize,
-      String id) throws UnsupportedEncodingException {
+  private static UrlLinkFrame decodeUrlLinkFrame(
+      ParsableByteArray id3Data, int frameSize, String id) throws UnsupportedEncodingException {
     byte[] data = new byte[frameSize];
     id3Data.readBytes(data, 0, frameSize);
 
@@ -528,8 +560,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     return new GeobFrame(mimeType, filename, description, objectData);
   }
 
-  private static ApicFrame decodeApicFrame(ParsableByteArray id3Data, int frameSize,
-      int majorVersion) throws UnsupportedEncodingException {
+  private static ApicFrame decodeApicFrame(
+      ParsableByteArray id3Data, int frameSize, int majorVersion)
+      throws UnsupportedEncodingException {
     int encoding = id3Data.readUnsignedByte();
     String charset = getCharsetName(encoding);
 
@@ -556,8 +589,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
 
     int descriptionStartIndex = mimeTypeEndIndex + 2;
     int descriptionEndIndex = indexOfEos(data, descriptionStartIndex, encoding);
-    String description = new String(data, descriptionStartIndex,
-        descriptionEndIndex - descriptionStartIndex, charset);
+    String description =
+        new String(
+            data, descriptionStartIndex, descriptionEndIndex - descriptionStartIndex, charset);
 
     int pictureDataStartIndex = descriptionEndIndex + delimiterLength(encoding);
     byte[] pictureData = copyOfRangeIfValid(data, pictureDataStartIndex, data.length);
@@ -622,8 +656,9 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     ArrayList<Id3Frame> subFrames = new ArrayList<>();
     int limit = framePosition + frameSize;
     while (id3Data.getPosition() < limit) {
-      Id3Frame frame = decodeFrame(majorVersion, id3Data, unsignedIntFrameSizeHack,
-          frameHeaderSize, framePredicate);
+      Id3Frame frame =
+          decodeFrame(
+              majorVersion, id3Data, unsignedIntFrameSizeHack, frameHeaderSize, framePredicate);
       if (frame != null) {
         subFrames.add(frame);
       }
@@ -707,8 +742,8 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
         millisecondsDeviations);
   }
 
-  private static BinaryFrame decodeBinaryFrame(ParsableByteArray id3Data, int frameSize,
-      String id) {
+  private static BinaryFrame decodeBinaryFrame(
+      ParsableByteArray id3Data, int frameSize, String id) {
     byte[] frame = new byte[frameSize];
     id3Data.readBytes(frame, 0, frameSize);
 
@@ -716,8 +751,8 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
   }
 
   /**
-   * Performs in-place removal of unsynchronization for {@code length} bytes starting from
-   * {@link ParsableByteArray#getPosition()}
+   * Performs in-place removal of unsynchronization for {@code length} bytes starting from {@link
+   * ParsableByteArray#getPosition()}
    *
    * @param data Contains the data to be processed.
    * @param length The length of the data to be processed.
@@ -756,9 +791,10 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     }
   }
 
-  private static String getFrameId(int majorVersion, int frameId0, int frameId1, int frameId2,
-      int frameId3) {
-    return majorVersion == 2 ? String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2)
+  private static String getFrameId(
+      int majorVersion, int frameId0, int frameId1, int frameId2, int frameId3) {
+    return majorVersion == 2
+        ? String.format(Locale.US, "%c%c%c", frameId0, frameId1, frameId2)
         : String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
   }
 
@@ -792,7 +828,8 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
 
   private static int delimiterLength(int encodingByte) {
     return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8)
-        ? 1 : 2;
+        ? 1
+        : 2;
   }
 
   /**
@@ -841,7 +878,5 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       this.isUnsynchronized = isUnsynchronized;
       this.framesSize = framesSize;
     }
-
   }
-
 }

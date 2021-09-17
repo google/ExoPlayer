@@ -351,12 +351,14 @@ import com.google.common.collect.ImmutableList;
       if (!areDurationsCompatible(oldPeriodInfo.durationUs, newPeriodInfo.durationUs)) {
         // The period duration changed. Remove all subsequent periods and check whether we read
         // beyond the new duration.
+        periodHolder.updateClipping();
         long newDurationInRendererTime =
             newPeriodInfo.durationUs == C.TIME_UNSET
                 ? Long.MAX_VALUE
                 : periodHolder.toRendererTime(newPeriodInfo.durationUs);
         boolean isReadingAndReadBeyondNewDuration =
             periodHolder == reading
+                && !periodHolder.info.isFollowedByTransitionToSameStream
                 && (maxRendererReadPositionUs == C.TIME_END_OF_SOURCE
                     || maxRendererReadPositionUs >= newDurationInRendererTime);
         boolean readingPeriodRemoved = removeAfter(periodHolder);
@@ -384,18 +386,28 @@ import com.google.common.collect.ImmutableList;
     boolean isLastInWindow = isLastInWindow(timeline, id);
     boolean isLastInTimeline = isLastInTimeline(timeline, id, isLastInPeriod);
     timeline.getPeriodByUid(info.id.periodUid, period);
+    long endPositionUs =
+        id.isAd() || id.nextAdGroupIndex == C.INDEX_UNSET
+            ? C.TIME_UNSET
+            : period.getAdGroupTimeUs(id.nextAdGroupIndex);
     long durationUs =
         id.isAd()
             ? period.getAdDurationUs(id.adGroupIndex, id.adIndexInAdGroup)
-            : (info.endPositionUs == C.TIME_UNSET || info.endPositionUs == C.TIME_END_OF_SOURCE
+            : (endPositionUs == C.TIME_UNSET || endPositionUs == C.TIME_END_OF_SOURCE
                 ? period.getDurationUs()
-                : info.endPositionUs);
+                : endPositionUs);
+    boolean isFollowedByTransitionToSameStream =
+        id.isAd()
+            ? period.isServerSideInsertedAdGroup(id.adGroupIndex)
+            : (id.nextAdGroupIndex != C.INDEX_UNSET
+                && period.isServerSideInsertedAdGroup(id.nextAdGroupIndex));
     return new MediaPeriodInfo(
         id,
         info.startPositionUs,
         info.requestedContentPositionUs,
-        info.endPositionUs,
+        endPositionUs,
         durationUs,
+        isFollowedByTransitionToSameStream,
         isLastInPeriod,
         isLastInWindow,
         isLastInTimeline);
@@ -698,10 +710,13 @@ import com.google.common.collect.ImmutableList;
           }
           startPositionUs = defaultPosition.second;
         }
+        long minStartPositionUs =
+            getMinStartPositionAfterAdGroupUs(
+                timeline, currentPeriodId.periodUid, currentPeriodId.adGroupIndex);
         return getMediaPeriodInfoForContent(
             timeline,
             currentPeriodId.periodUid,
-            startPositionUs,
+            max(minStartPositionUs, startPositionUs),
             mediaPeriodInfo.requestedContentPositionUs,
             currentPeriodId.windowSequenceNumber);
       }
@@ -710,10 +725,13 @@ import com.google.common.collect.ImmutableList;
       int adIndexInAdGroup = period.getFirstAdIndexToPlay(currentPeriodId.nextAdGroupIndex);
       if (adIndexInAdGroup == period.getAdCountInAdGroup(currentPeriodId.nextAdGroupIndex)) {
         // The next ad group has no ads left to play. Play content from the end position instead.
+        long startPositionUs =
+            getMinStartPositionAfterAdGroupUs(
+                timeline, currentPeriodId.periodUid, currentPeriodId.nextAdGroupIndex);
         return getMediaPeriodInfoForContent(
             timeline,
             currentPeriodId.periodUid,
-            /* startPositionUs= */ mediaPeriodInfo.durationUs,
+            startPositionUs,
             /* requestedContentPositionUs= */ mediaPeriodInfo.durationUs,
             currentPeriodId.windowSequenceNumber);
       }
@@ -766,6 +784,8 @@ import com.google.common.collect.ImmutableList;
         adIndexInAdGroup == period.getFirstAdIndexToPlay(adGroupIndex)
             ? period.getAdResumePositionUs()
             : 0;
+    boolean isFollowedByTransitionToSameStream =
+        period.isServerSideInsertedAdGroup(id.adGroupIndex);
     if (durationUs != C.TIME_UNSET && startPositionUs >= durationUs) {
       // Ensure start position doesn't exceed duration.
       startPositionUs = max(0, durationUs - 1);
@@ -776,6 +796,7 @@ import com.google.common.collect.ImmutableList;
         contentPositionUs,
         /* endPositionUs= */ C.TIME_UNSET,
         durationUs,
+        isFollowedByTransitionToSameStream,
         /* isLastInTimelinePeriod= */ false,
         /* isLastInTimelineWindow= */ false,
         /* isFinal= */ false);
@@ -793,6 +814,8 @@ import com.google.common.collect.ImmutableList;
     boolean isLastInPeriod = isLastInPeriod(id);
     boolean isLastInWindow = isLastInWindow(timeline, id);
     boolean isLastInTimeline = isLastInTimeline(timeline, id, isLastInPeriod);
+    boolean isFollowedByTransitionToSameStream =
+        nextAdGroupIndex != C.INDEX_UNSET && period.isServerSideInsertedAdGroup(nextAdGroupIndex);
     long endPositionUs =
         nextAdGroupIndex != C.INDEX_UNSET
             ? period.getAdGroupTimeUs(nextAdGroupIndex)
@@ -811,6 +834,7 @@ import com.google.common.collect.ImmutableList;
         requestedContentPositionUs,
         endPositionUs,
         durationUs,
+        isFollowedByTransitionToSameStream,
         isLastInPeriod,
         isLastInWindow,
         isLastInTimeline);
@@ -836,5 +860,15 @@ import com.google.common.collect.ImmutableList;
     return !timeline.getWindow(windowIndex, window).isDynamic
         && timeline.isLastPeriod(periodIndex, period, window, repeatMode, shuffleModeEnabled)
         && isLastMediaPeriodInPeriod;
+  }
+
+  private long getMinStartPositionAfterAdGroupUs(
+      Timeline timeline, Object periodUid, int adGroupIndex) {
+    timeline.getPeriodByUid(periodUid, period);
+    long startPositionUs = period.getAdGroupTimeUs(adGroupIndex);
+    if (startPositionUs == C.TIME_END_OF_SOURCE) {
+      return period.durationUs;
+    }
+    return startPositionUs + period.getContentResumeOffsetUs(adGroupIndex);
   }
 }

@@ -57,8 +57,8 @@ import com.google.android.exoplayer2.util.Util;
       // If the frame count is missing/invalid, the header can't be used to determine the duration.
       return null;
     }
-    long durationUs = Util.scaleLargeTimestamp(frameCount, samplesPerFrame * C.MICROS_PER_SECOND,
-        sampleRate);
+    long durationUs =
+        Util.scaleLargeTimestamp(frameCount, samplesPerFrame * C.MICROS_PER_SECOND, sampleRate);
     if ((flags & 0x06) != 0x06) {
       // If the size in bytes or table of contents is missing, the stream is not seekable.
       return new XingSeeker(position, mpegAudioHeader.frameSize, durationUs);
@@ -141,8 +141,8 @@ import com.google.android.exoplayer2.util.Util;
       double nextScaledPosition = prevTableIndex == 99 ? 256 : tableOfContents[prevTableIndex + 1];
       // Linearly interpolate between the two scaled positions.
       double interpolateFraction = percent - prevTableIndex;
-      scaledPosition = prevScaledPosition
-          + (interpolateFraction * (nextScaledPosition - prevScaledPosition));
+      scaledPosition =
+          prevScaledPosition + (interpolateFraction * (nextScaledPosition - prevScaledPosition));
     }
     long positionOffset = Math.round((scaledPosition / 256) * dataSize);
     // Ensure returned positions skip the frame containing the XING header.
@@ -164,8 +164,10 @@ import com.google.android.exoplayer2.util.Util;
     long nextTimeUs = getTimeUsForTableIndex(prevTableIndex + 1);
     long nextScaledPosition = prevTableIndex == 99 ? 256 : tableOfContents[prevTableIndex + 1];
     // Linearly interpolate between the two table entries.
-    double interpolateFraction = prevScaledPosition == nextScaledPosition ? 0
-        : ((scaledPosition - prevScaledPosition) / (nextScaledPosition - prevScaledPosition));
+    double interpolateFraction =
+        prevScaledPosition == nextScaledPosition
+            ? 0
+            : ((scaledPosition - prevScaledPosition) / (nextScaledPosition - prevScaledPosition));
     return prevTimeUs + Math.round(interpolateFraction * (nextTimeUs - prevTimeUs));
   }
 
@@ -188,5 +190,4 @@ import com.google.android.exoplayer2.util.Util;
   private long getTimeUsForTableIndex(int tableIndex) {
     return (durationUs * tableIndex) / 100;
   }
-
 }

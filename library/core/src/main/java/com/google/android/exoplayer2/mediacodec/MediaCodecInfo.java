@@ -214,7 +214,8 @@ public final class MediaCodecInfo {
    * @return The profile levels supported by the decoder.
    */
   public CodecProfileLevel[] getProfileLevels() {
-    return capabilities == null || capabilities.profileLevels == null ? new CodecProfileLevel[0]
+    return capabilities == null || capabilities.profileLevels == null
+        ? new CodecProfileLevel[0]
         : capabilities.profileLevels;
   }
 
@@ -571,8 +572,8 @@ public final class MediaCodecInfo {
       logNoSupport("channelCount.aCaps");
       return false;
     }
-    int maxInputChannelCount = adjustMaxInputChannelCount(name, mimeType,
-        audioCapabilities.getMaxInputChannelCount());
+    int maxInputChannelCount =
+        adjustMaxInputChannelCount(name, mimeType, audioCapabilities.getMaxInputChannelCount());
     if (maxInputChannelCount < channelCount) {
       logNoSupport("channelCount.support, " + channelCount);
       return false;
@@ -581,13 +582,31 @@ public final class MediaCodecInfo {
   }
 
   private void logNoSupport(String message) {
-    Log.d(TAG, "NoSupport [" + message + "] [" + name + ", " + mimeType + "] ["
-        + Util.DEVICE_DEBUG_INFO + "]");
+    Log.d(
+        TAG,
+        "NoSupport ["
+            + message
+            + "] ["
+            + name
+            + ", "
+            + mimeType
+            + "] ["
+            + Util.DEVICE_DEBUG_INFO
+            + "]");
   }
 
   private void logAssumedSupport(String message) {
-    Log.d(TAG, "AssumedSupport [" + message + "] [" + name + ", " + mimeType + "] ["
-        + Util.DEVICE_DEBUG_INFO + "]");
+    Log.d(
+        TAG,
+        "AssumedSupport ["
+            + message
+            + "] ["
+            + name
+            + ", "
+            + mimeType
+            + "] ["
+            + Util.DEVICE_DEBUG_INFO
+            + "]");
   }
 
   private static int adjustMaxInputChannelCount(String name, String mimeType, int maxChannelCount) {
@@ -619,8 +638,15 @@ public final class MediaCodecInfo {
       // Default to the platform limit, which is 30.
       assumedMaxChannelCount = 30;
     }
-    Log.w(TAG, "AssumedMaxChannelAdjustment: " + name + ", [" + maxChannelCount + " to "
-        + assumedMaxChannelCount + "]");
+    Log.w(
+        TAG,
+        "AssumedMaxChannelAdjustment: "
+            + name
+            + ", ["
+            + maxChannelCount
+            + " to "
+            + assumedMaxChannelCount
+            + "]");
     return assumedMaxChannelCount;
   }
 

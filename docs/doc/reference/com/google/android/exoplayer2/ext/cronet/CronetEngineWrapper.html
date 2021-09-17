@@ -25,12 +25,6 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
-var altColor = "altColor";
-var rowColor = "rowColor";
-var tableTab = "tableTab";
-var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../../../";
 var useModuleDirectories = false;
 loadScripts(document, 'script');</script>
@@ -86,16 +80,16 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a id="skip.navbar.top">
@@ -129,8 +123,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">CronetEngineWrapper</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CronetEngineWrapper</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <code>CronetEngine</code> directly. See the <a href="https://developer.android.com/guide/topics/connectivity/cronet/start">Android developer
+     guide</a> to learn how to instantiate a <code>CronetEngine</code> for use by your application. You
+     can also use <a href="CronetUtil.html#buildCronetEngine(android.content.Context,java.lang.String,boolean)"><code>CronetUtil.buildCronetEngine(android.content.Context, java.lang.String, boolean)</code></a> to build a <code>CronetEngine</code> suitable
+     for use by ExoPlayer.</div>
+</div>
 <div class="block">A wrapper class for a <code>CronetEngine</code>.</div>
 </li>
 </ul>
@@ -138,84 +139,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="nested.class.summary">
-<!--   -->
-</a>
-<h3>Nested Class Summary</h3>
-<table class="memberSummary">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Class</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CronetEngineWrapper.CronetEngineSource.html" title="annotation in com.google.android.exoplayer2.ext.cronet">CronetEngineWrapper.CronetEngineSource</a></span></code></th>
-<td class="colLast">
-<div class="block">Source of <code>CronetEngine</code>.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
-<!-- =========== FIELD SUMMARY =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="memberSummary">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Field</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SOURCE_GMS">SOURCE_GMS</a></span></code></th>
-<td class="colLast">
-<div class="block">Cronet implementation from GMSCore.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SOURCE_NATIVE">SOURCE_NATIVE</a></span></code></th>
-<td class="colLast">
-<div class="block">Natively bundled Cronet implementation.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SOURCE_UNAVAILABLE">SOURCE_UNAVAILABLE</a></span></code></th>
-<td class="colLast">
-<div class="block">No Cronet implementation available.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SOURCE_UNKNOWN">SOURCE_UNKNOWN</a></span></code></th>
-<td class="colLast">
-<div class="block">Other (unknown) Cronet implementation.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SOURCE_USER_PROVIDED">SOURCE_USER_PROVIDED</a></span></code></th>
-<td class="colLast">
-<div class="block">User-provided Cronet engine.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -232,20 +155,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">CronetEngineWrapper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a wrapper for a <code>CronetEngine</code> built using the most suitable <code>CronetProvider</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String,boolean)">CronetEngineWrapper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
-                   boolean&nbsp;preferGMSCoreCronet)</code></th>
+                   boolean&nbsp;preferGooglePlayServices)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a wrapper for a <code>CronetEngine</code> built using the most suitable <code>CronetProvider</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine)">CronetEngineWrapper</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a wrapper for an existing <code>CronetEngine</code>.</div>
 </td>
 </tr>
@@ -260,21 +186,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Method</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCronetEngineSource()">getCronetEngineSource</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns the source of the wrapped <code>CronetEngine</code>.</div>
-</td>
-</tr>
-</table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -291,86 +202,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a id="SOURCE_NATIVE">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SOURCE_NATIVE</h4>
-<pre>public static final&nbsp;int SOURCE_NATIVE</pre>
-<div class="block">Natively bundled Cronet implementation.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper.SOURCE_NATIVE">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="SOURCE_GMS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SOURCE_GMS</h4>
-<pre>public static final&nbsp;int SOURCE_GMS</pre>
-<div class="block">Cronet implementation from GMSCore.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper.SOURCE_GMS">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="SOURCE_UNKNOWN">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SOURCE_UNKNOWN</h4>
-<pre>public static final&nbsp;int SOURCE_UNKNOWN</pre>
-<div class="block">Other (unknown) Cronet implementation.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper.SOURCE_UNKNOWN">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="SOURCE_USER_PROVIDED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SOURCE_USER_PROVIDED</h4>
-<pre>public static final&nbsp;int SOURCE_USER_PROVIDED</pre>
-<div class="block">User-provided Cronet engine.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper.SOURCE_USER_PROVIDED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="SOURCE_UNAVAILABLE">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>SOURCE_UNAVAILABLE</h4>
-<pre>public static final&nbsp;int SOURCE_UNAVAILABLE</pre>
-<div class="block">No Cronet implementation available. Fallback Http provider is used if possible.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper.SOURCE_UNAVAILABLE">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -385,6 +216,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>CronetEngineWrapper</h4>
 <pre>public&nbsp;CronetEngineWrapper&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a wrapper for a <code>CronetEngine</code> built using the most suitable <code>CronetProvider</code>. When natively bundled Cronet and GMSCore Cronet are both available, the
  natively bundled provider is preferred.</div>
 <dl>
@@ -402,7 +234,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;CronetEngineWrapper&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                            @Nullable
                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
-                           boolean&nbsp;preferGMSCoreCronet)</pre>
+                           boolean&nbsp;preferGooglePlayServices)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a wrapper for a <code>CronetEngine</code> built using the most suitable <code>CronetProvider</code>. When natively bundled Cronet and GMSCore Cronet are both available, <code>
  preferGMSCoreCronet</code> determines which is preferred.</div>
 <dl>
@@ -410,8 +243,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>context</code> - A context.</dd>
 <dd><code>userAgent</code> - A default user agent, or <code>null</code> to use a default user agent of the
      <code>CronetEngine</code>.</dd>
-<dd><code>preferGMSCoreCronet</code> - Whether Cronet from GMSCore should be preferred over natively
-     bundled Cronet if both are available.</dd>
+<dd><code>preferGooglePlayServices</code> - Whether Cronet from Google Play Services should be preferred
+     over Cronet Embedded, if both are available.</dd>
 </dl>
 </li>
 </ul>
@@ -422,35 +255,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>CronetEngineWrapper</h4>
 <pre>public&nbsp;CronetEngineWrapper&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a wrapper for an existing <code>CronetEngine</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cronetEngine</code> - The CronetEngine to wrap.</dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
-</section>
-<!-- ============ METHOD DETAIL ========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="method.detail">
-<!--   -->
-</a>
-<h3>Method Detail</h3>
-<a id="getCronetEngineSource()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getCronetEngineSource</h4>
-<pre class="methodSignature"><a href="CronetEngineWrapper.CronetEngineSource.html" title="annotation in com.google.android.exoplayer2.ext.cronet">@CronetEngineSource</a>
-public&nbsp;int&nbsp;getCronetEngineSource()</pre>
-<div class="block">Returns the source of the wrapped <code>CronetEngine</code>.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="CronetEngineWrapper.CronetEngineSource.html" title="annotation in com.google.android.exoplayer2.ext.cronet"><code>CronetEngineWrapper.CronetEngineSource</code></a> value.</dd>
 </dl>
 </li>
 </ul>
@@ -505,16 +314,16 @@ public&nbsp;int&nbsp;getCronetEngineSource()</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a id="skip.navbar.bottom">

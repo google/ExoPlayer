@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -46,9 +47,8 @@ import org.robolectric.shadows.ShadowLooper;
 @RunWith(AndroidJUnit4.class)
 public class SimpleExoPlayerTest {
 
-  // TODO(b/143232359): Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
   @Test
-  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  @Config(sdk = Config.ALL_SDKS)
   public void builder_inBackgroundThread_doesNotThrow() throws Exception {
     Thread builderThread =
         new Thread(
@@ -60,6 +60,22 @@ public class SimpleExoPlayerTest {
     builderThread.join();
 
     assertThat(builderThrow.get()).isNull();
+  }
+
+  @Test
+  public void onPlaylistMetadataChanged_calledWhenPlaylistMetadataSet() {
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+    Player.Listener playerListener = mock(Player.Listener.class);
+    player.addListener(playerListener);
+    AnalyticsListener analyticsListener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(analyticsListener);
+
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("test").build();
+    player.setPlaylistMetadata(mediaMetadata);
+
+    verify(playerListener).onPlaylistMetadataChanged(mediaMetadata);
+    verify(analyticsListener).onPlaylistMetadataChanged(any(), eq(mediaMetadata));
   }
 
   @Test

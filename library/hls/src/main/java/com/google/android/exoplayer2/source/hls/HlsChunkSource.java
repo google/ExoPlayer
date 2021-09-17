@@ -59,9 +59,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Source of Hls (possibly adaptive) chunks. */
 /* package */ class HlsChunkSource {
 
-  /**
-   * Chunk holder that allows the scheduling of retries.
-   */
+  /** Chunk holder that allows the scheduling of retries. */
   public static final class HlsChunkHolder {
 
     public HlsChunkHolder() {
@@ -71,17 +69,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     /** The chunk to be loaded next. */
     @Nullable public Chunk chunk;
 
-    /**
-     * Indicates that the end of the stream has been reached.
-     */
+    /** Indicates that the end of the stream has been reached. */
     public boolean endOfStream;
 
     /** Indicates that the chunk source is waiting for the referred playlist to be refreshed. */
     @Nullable public Uri playlistUrl;
 
-    /**
-     * Clears the holder.
-     */
+    /** Clears the holder. */
     public void clear() {
       chunk = null;
       endOfStream = false;
@@ -209,9 +203,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  /**
-   * Returns the track group exposed by the source.
-   */
+  /** Returns the track group exposed by the source. */
   public TrackGroup getTrackGroup() {
     return trackGroup;
   }
@@ -230,9 +222,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return trackSelection;
   }
 
-  /**
-   * Resets the source.
-   */
+  /** Resets the source. */
   public void reset() {
     fatalError = null;
   }
@@ -554,7 +544,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     seenExpectedPlaylistError |= playlistUrl.equals(expectedPlaylistUrl);
     return exclusionDurationMs == C.TIME_UNSET
-        || trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs);
+        || (trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs)
+            && playlistTracker.excludeMediaPlaylist(playlistUrl, exclusionDurationMs));
   }
 
   /**
@@ -677,6 +668,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     return Collections.unmodifiableList(segmentBases);
+  }
+
+  /** Returns whether this chunk source obtains chunks for the playlist with the given url. */
+  public boolean obtainsChunksForPlaylist(Uri playlistUrl) {
+    return Util.contains(playlistUrls, playlistUrl);
   }
 
   // Private methods.
@@ -869,7 +865,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public Object getSelectionData() {
       return null;
     }
-
   }
 
   private static final class EncryptionKeyChunk extends DataChunk {
@@ -883,8 +878,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int trackSelectionReason,
         @Nullable Object trackSelectionData,
         byte[] scratchSpace) {
-      super(dataSource, dataSpec, C.DATA_TYPE_DRM, trackFormat, trackSelectionReason,
-          trackSelectionData, scratchSpace);
+      super(
+          dataSource,
+          dataSpec,
+          C.DATA_TYPE_DRM,
+          trackFormat,
+          trackSelectionReason,
+          trackSelectionData,
+          scratchSpace);
     }
 
     @Override
@@ -897,7 +898,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public byte[] getResult() {
       return result;
     }
-
   }
 
   @VisibleForTesting

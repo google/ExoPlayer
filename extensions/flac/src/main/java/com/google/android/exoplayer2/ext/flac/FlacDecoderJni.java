@@ -28,9 +28,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-/**
- * JNI wrapper for the libflac Flac decoder.
- */
+/** JNI wrapper for the libflac Flac decoder. */
 /* package */ final class FlacDecoderJni {
 
   /** Exception to be thrown if {@link #decodeSample(ByteBuffer)} fails to decode a frame. */
@@ -150,7 +148,8 @@ import java.nio.ByteBuffer;
   public FlacStreamMetadata decodeStreamMetadata() throws IOException {
     FlacStreamMetadata streamMetadata = flacDecodeMetadata(nativeDecoderContext);
     if (streamMetadata == null) {
-      throw new ParserException("Failed to decode stream metadata");
+      throw ParserException.createForMalformedContainer(
+          "Failed to decode stream metadata", /* cause= */ null);
     }
     return streamMetadata;
   }
@@ -196,9 +195,7 @@ import java.nio.ByteBuffer;
     }
   }
 
-  /**
-   * Returns the position of the next data to be decoded, or -1 in case of error.
-   */
+  /** Returns the position of the next data to be decoded, or -1 in case of error. */
   public long getDecodePosition() {
     return flacGetDecodePosition(nativeDecoderContext);
   }
@@ -303,5 +300,4 @@ import java.nio.ByteBuffer;
   private native void flacReset(long context, long newPosition);
 
   private native void flacRelease(long context);
-
 }

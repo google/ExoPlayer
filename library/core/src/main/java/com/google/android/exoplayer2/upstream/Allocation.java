@@ -30,9 +30,7 @@ public final class Allocation {
    */
   public final byte[] data;
 
-  /**
-   * The offset of the allocated space in {@link #data}.
-   */
+  /** The offset of the allocated space in {@link #data}. */
   public final int offset;
 
   /**
@@ -43,5 +41,4 @@ public final class Allocation {
     this.data = data;
     this.offset = offset;
   }
-
 }

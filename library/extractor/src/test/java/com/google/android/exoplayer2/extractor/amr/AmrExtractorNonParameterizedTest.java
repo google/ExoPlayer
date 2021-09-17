@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
  * Tests for {@link AmrExtractor} that test specific behaviours and don't need to be parameterized.
@@ -43,6 +44,7 @@ import org.junit.runner.RunWith;
  * AmrExtractorParameterizedTest}.
  */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class AmrExtractorNonParameterizedTest {
 
   private static final Random RANDOM = new Random(1234);

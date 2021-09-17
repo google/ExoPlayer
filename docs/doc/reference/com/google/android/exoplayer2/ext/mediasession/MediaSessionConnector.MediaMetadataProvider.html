@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":6,"i1":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -145,7 +145,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -156,6 +156,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMetadata(com.google.android.exoplayer2.Player)">getMetadata</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Gets the <code>MediaMetadataCompat</code> to be published to the session.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>default boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sameAs(android.support.v4.media.MediaMetadataCompat,android.support.v4.media.MediaMetadataCompat)">sameAs</a></span>&#8203;(android.support.v4.media.MediaMetadataCompat&nbsp;oldMetadata,
+      android.support.v4.media.MediaMetadataCompat&nbsp;newMetadata)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the old and the new metadata are considered the same.</div>
 </td>
 </tr>
 </table>
@@ -178,7 +186,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="getMetadata(com.google.android.exoplayer2.Player)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getMetadata</h4>
 <pre class="methodSignature">android.support.v4.media.MediaMetadataCompat&nbsp;getMetadata&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
@@ -195,6 +203,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <code>MediaMetadataCompat</code> to be published to the session.</dd>
 </dl>
+</li>
+</ul>
+<a id="sameAs(android.support.v4.media.MediaMetadataCompat,android.support.v4.media.MediaMetadataCompat)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>sameAs</h4>
+<pre class="methodSignature">default&nbsp;boolean&nbsp;sameAs&#8203;(android.support.v4.media.MediaMetadataCompat&nbsp;oldMetadata,
+                       android.support.v4.media.MediaMetadataCompat&nbsp;newMetadata)</pre>
+<div class="block">Returns whether the old and the new metadata are considered the same.</div>
 </li>
 </ul>
 </li>

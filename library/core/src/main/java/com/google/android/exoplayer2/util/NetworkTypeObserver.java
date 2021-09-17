@@ -58,6 +58,24 @@ public final class NetworkTypeObserver {
     void onNetworkTypeChanged(@C.NetworkType int networkType);
   }
 
+  /*
+   * Static configuration that may need to be set at app startup time is located in a separate
+   * static Config class. This allows apps to set their desired config without incurring unnecessary
+   * class loading costs during startup.
+   */
+  /** Configuration for {@link NetworkTypeObserver}. */
+  public static final class Config {
+
+    private static volatile boolean disable5GNsaDisambiguation;
+
+    /** Disables logic to disambiguate 5G-NSA networks from 4G networks. */
+    public static void disable5GNsaDisambiguation() {
+      disable5GNsaDisambiguation = true;
+    }
+
+    private Config() {}
+  }
+
   @Nullable private static NetworkTypeObserver staticInstance;
 
   private final Handler mainHandler;
@@ -217,7 +235,9 @@ public final class NetworkTypeObserver {
     @Override
     public void onReceive(Context context, Intent intent) {
       @C.NetworkType int networkType = getNetworkTypeFromConnectivityManager(context);
-      if (networkType == C.NETWORK_TYPE_4G && Util.SDK_INT >= 29) {
+      if (Util.SDK_INT >= 29
+          && !Config.disable5GNsaDisambiguation
+          && networkType == C.NETWORK_TYPE_4G) {
         // Delay update of the network type to check whether this is actually 5G-NSA.
         try {
           // We can't access TelephonyManager getters like getServiceState() directly as they

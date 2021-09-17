@@ -59,5 +59,4 @@ public class SimpleOutputBuffer extends OutputBuffer {
   public void release() {
     owner.releaseOutputBuffer(this);
   }
-
 }

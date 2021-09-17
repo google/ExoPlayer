@@ -48,9 +48,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * An HLS {@link MediaChunk}.
- */
+/** An HLS {@link MediaChunk}. */
 /* package */ final class HlsMediaChunk extends MediaChunk {
 
   /**
@@ -139,12 +137,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     ParsableByteArray scratchId3Data;
 
     if (previousChunk != null) {
+      boolean isSameInitData =
+          initDataSpec == previousChunk.initDataSpec
+              || (initDataSpec != null
+                  && previousChunk.initDataSpec != null
+                  && initDataSpec.uri.equals(previousChunk.initDataSpec.uri)
+                  && initDataSpec.position == previousChunk.initDataSpec.position);
       boolean isFollowingChunk =
           playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted;
       id3Decoder = previousChunk.id3Decoder;
       scratchId3Data = previousChunk.scratchId3Data;
       previousExtractor =
-          isFollowingChunk
+          isSameInitData
+                  && isFollowingChunk
                   && !previousChunk.extractorInvalidated
                   && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
               ? previousChunk.extractor
@@ -222,14 +227,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final AtomicInteger uidSource = new AtomicInteger();
 
-  /**
-   * A unique identifier for the chunk.
-   */
+  /** A unique identifier for the chunk. */
   public final int uid;
 
-  /**
-   * The discontinuity sequence number of the chunk.
-   */
+  /** The discontinuity sequence number of the chunk. */
   public final int discontinuitySequenceNumber;
 
   /** The url of the playlist from which this chunk was obtained. */

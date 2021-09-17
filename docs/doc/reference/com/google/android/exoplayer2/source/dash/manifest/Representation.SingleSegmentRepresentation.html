@@ -198,7 +198,7 @@ extends <a href="Representation.html" title="class in com.google.android.exoplay
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></h3>
-<code><a href="Representation.html#baseUrl">baseUrl</a>, <a href="Representation.html#format">format</a>, <a href="Representation.html#inbandEventStreams">inbandEventStreams</a>, <a href="Representation.html#presentationTimeOffsetUs">presentationTimeOffsetUs</a>, <a href="Representation.html#REVISION_ID_DEFAULT">REVISION_ID_DEFAULT</a>, <a href="Representation.html#revisionId">revisionId</a></code></li>
+<code><a href="Representation.html#baseUrls">baseUrls</a>, <a href="Representation.html#format">format</a>, <a href="Representation.html#inbandEventStreams">inbandEventStreams</a>, <a href="Representation.html#presentationTimeOffsetUs">presentationTimeOffsetUs</a>, <a href="Representation.html#REVISION_ID_DEFAULT">REVISION_ID_DEFAULT</a>, <a href="Representation.html#revisionId">revisionId</a></code></li>
 </ul>
 </li>
 </ul>
@@ -217,9 +217,9 @@ extends <a href="Representation.html" title="class in com.google.android.exoplay
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,com.google.android.exoplayer2.Format,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase,java.util.List,java.lang.String,long)">SingleSegmentRepresentation</a></span>&#8203;(long&nbsp;revisionId,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase,java.util.List,java.lang.String,long)">SingleSegmentRepresentation</a></span>&#8203;(long&nbsp;revisionId,
                            <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls,
                            <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;segmentBase,
                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams,
                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey,
@@ -286,7 +286,7 @@ extends <a href="Representation.html" title="class in com.google.android.exoplay
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.dash.manifest.<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></h3>
-<code><a href="Representation.html#getInitializationUri()">getInitializationUri</a>, <a href="Representation.html#newInstance(long,com.google.android.exoplayer2.Format,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.SegmentBase)">newInstance</a>, <a href="Representation.html#newInstance(long,com.google.android.exoplayer2.Format,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List)">newInstance</a>, <a href="Representation.html#newInstance(long,com.google.android.exoplayer2.Format,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List,java.lang.String)">newInstance</a></code></li>
+<code><a href="Representation.html#getInitializationUri()">getInitializationUri</a>, <a href="Representation.html#newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase)">newInstance</a>, <a href="Representation.html#newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List)">newInstance</a>, <a href="Representation.html#newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List,java.lang.String)">newInstance</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -341,7 +341,7 @@ extends <a href="Representation.html" title="class in com.google.android.exoplay
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(long,com.google.android.exoplayer2.Format,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase,java.util.List,java.lang.String,long)">
+<a id="&lt;init&gt;(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase,java.util.List,java.lang.String,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -349,7 +349,7 @@ extends <a href="Representation.html" title="class in com.google.android.exoplay
 <h4>SingleSegmentRepresentation</h4>
 <pre>public&nbsp;SingleSegmentRepresentation&#8203;(long&nbsp;revisionId,
                                    <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
+                                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls,
                                    <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;segmentBase,
                                    @Nullable
                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams,
@@ -360,7 +360,7 @@ extends <a href="Representation.html" title="class in com.google.android.exoplay
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>revisionId</code> - Identifies the revision of the content.</dd>
 <dd><code>format</code> - The format of the representation.</dd>
-<dd><code>baseUrl</code> - The base URL of the representation.</dd>
+<dd><code>baseUrls</code> - The base urls of the representation.</dd>
 <dd><code>segmentBase</code> - The segment base underlying the representation.</dd>
 <dd><code>inbandEventStreams</code> - The in-band event streams in the representation. May be null.</dd>
 <dd><code>cacheKey</code> - An optional key to be returned from <a href="#getCacheKey()"><code>getCacheKey()</code></a>, or null.</dd>

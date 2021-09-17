@@ -79,10 +79,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
-    super(
-        eventHandler,
-        eventListener,
-        audioSink);
+    super(eventHandler, eventListener, audioSink);
   }
 
   @Override

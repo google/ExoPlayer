@@ -201,5 +201,4 @@ import java.nio.ByteBuffer;
     }
     return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
   }
-
 }

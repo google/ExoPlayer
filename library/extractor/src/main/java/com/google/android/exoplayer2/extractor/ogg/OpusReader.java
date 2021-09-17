@@ -25,9 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
-/**
- * {@link StreamReader} to extract Opus data out of Ogg byte stream.
- */
+/** {@link StreamReader} to extract Opus data out of Ogg byte stream. */
 /* package */ final class OpusReader extends StreamReader {
 
   private static final int OPUS_CODE = 0x4f707573;

@@ -31,9 +31,7 @@ public final class UnsupportedDrmException extends Exception {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REASON_UNSUPPORTED_SCHEME, REASON_INSTANTIATION_ERROR})
   public @interface Reason {}
-  /**
-   * The requested DRM scheme is unsupported by the device.
-   */
+  /** The requested DRM scheme is unsupported by the device. */
   public static final int REASON_UNSUPPORTED_SCHEME = 1;
   /**
    * There device advertises support for the requested DRM scheme, but there was an error
@@ -41,14 +39,10 @@ public final class UnsupportedDrmException extends Exception {
    */
   public static final int REASON_INSTANTIATION_ERROR = 2;
 
-  /**
-   * Either {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
-   */
+  /** Either {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}. */
   @Reason public final int reason;
 
-  /**
-   * @param reason {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}.
-   */
+  /** @param reason {@link #REASON_UNSUPPORTED_SCHEME} or {@link #REASON_INSTANTIATION_ERROR}. */
   public UnsupportedDrmException(@Reason int reason) {
     this.reason = reason;
   }
@@ -61,5 +55,4 @@ public final class UnsupportedDrmException extends Exception {
     super(cause);
     this.reason = reason;
   }
-
 }

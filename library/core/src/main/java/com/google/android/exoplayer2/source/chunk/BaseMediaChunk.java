@@ -65,8 +65,15 @@ public abstract class BaseMediaChunk extends MediaChunk {
       long clippedStartTimeUs,
       long clippedEndTimeUs,
       long chunkIndex) {
-    super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
-        endTimeUs, chunkIndex);
+    super(
+        dataSource,
+        dataSpec,
+        trackFormat,
+        trackSelectionReason,
+        trackSelectionData,
+        startTimeUs,
+        endTimeUs,
+        chunkIndex);
     this.clippedStartTimeUs = clippedStartTimeUs;
     this.clippedEndTimeUs = clippedEndTimeUs;
   }
@@ -90,11 +97,8 @@ public abstract class BaseMediaChunk extends MediaChunk {
     return Assertions.checkStateNotNull(firstSampleIndices)[trackIndex];
   }
 
-  /**
-   * Returns the output most recently passed to {@link #init(BaseMediaChunkOutput)}.
-   */
+  /** Returns the output most recently passed to {@link #init(BaseMediaChunkOutput)}. */
   protected final BaseMediaChunkOutput getOutput() {
     return Assertions.checkStateNotNull(output);
   }
-
 }

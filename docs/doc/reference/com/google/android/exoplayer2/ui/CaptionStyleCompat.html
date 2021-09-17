@@ -476,12 +476,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre><a href="CaptionStyleCompat.EdgeType.html" title="annotation in com.google.android.exoplayer2.ui">@EdgeType</a>
 public final&nbsp;int edgeType</pre>
 <div class="block">The preferred edge type. One of:
+
  <ul>
- <li><a href="#EDGE_TYPE_NONE"><code>EDGE_TYPE_NONE</code></a>
- <li><a href="#EDGE_TYPE_OUTLINE"><code>EDGE_TYPE_OUTLINE</code></a>
- <li><a href="#EDGE_TYPE_DROP_SHADOW"><code>EDGE_TYPE_DROP_SHADOW</code></a>
- <li><a href="#EDGE_TYPE_RAISED"><code>EDGE_TYPE_RAISED</code></a>
- <li><a href="#EDGE_TYPE_DEPRESSED"><code>EDGE_TYPE_DEPRESSED</code></a>
+   <li><a href="#EDGE_TYPE_NONE"><code>EDGE_TYPE_NONE</code></a>
+   <li><a href="#EDGE_TYPE_OUTLINE"><code>EDGE_TYPE_OUTLINE</code></a>
+   <li><a href="#EDGE_TYPE_DROP_SHADOW"><code>EDGE_TYPE_DROP_SHADOW</code></a>
+   <li><a href="#EDGE_TYPE_RAISED"><code>EDGE_TYPE_RAISED</code></a>
+   <li><a href="#EDGE_TYPE_DEPRESSED"><code>EDGE_TYPE_DEPRESSED</code></a>
  </ul></div>
 </li>
 </ul>
@@ -557,7 +558,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/graph
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createFromCaptionStyle</h4>
-<pre class="methodSignature">public static&nbsp;<a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a>&nbsp;createFromCaptionStyle&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">CaptioningManager.CaptionStyle</a>&nbsp;captionStyle)</pre>
+<pre class="methodSignature">@RequiresApi(19)
+public static&nbsp;<a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a>&nbsp;createFromCaptionStyle&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">CaptioningManager.CaptionStyle</a>&nbsp;captionStyle)</pre>
 <div class="block">Creates a <a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui"><code>CaptionStyleCompat</code></a> equivalent to a provided <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager.CaptionStyle</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

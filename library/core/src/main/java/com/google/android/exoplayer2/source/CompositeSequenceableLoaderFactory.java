@@ -25,5 +25,4 @@ public interface CompositeSequenceableLoaderFactory {
    * @return A composite {@link SequenceableLoader} that comprises the given loaders.
    */
   SequenceableLoader createCompositeSequenceableLoader(SequenceableLoader... loaders);
-
 }

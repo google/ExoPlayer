@@ -52,9 +52,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     }
   }
 
-  /**
-   * Represents a StreamIndex element.
-   */
+  /** Represents a StreamIndex element. */
   public static class StreamElement {
 
     private static final String URL_PLACEHOLDER_START_TIME_1 = "{start time}";
@@ -156,9 +154,22 @@ public class SsManifest implements FilterableManifest<SsManifest> {
      * @throws IndexOutOfBoundsException If a key has an invalid index.
      */
     public StreamElement copy(Format[] formats) {
-      return new StreamElement(baseUri, chunkTemplate, type, subType, timescale, name, maxWidth,
-          maxHeight, displayWidth, displayHeight, language, formats, chunkStartTimes,
-          chunkStartTimesUs, lastChunkDurationUs);
+      return new StreamElement(
+          baseUri,
+          chunkTemplate,
+          type,
+          subType,
+          timescale,
+          name,
+          maxWidth,
+          maxHeight,
+          displayWidth,
+          displayHeight,
+          language,
+          formats,
+          chunkStartTimes,
+          chunkStartTimesUs,
+          lastChunkDurationUs);
     }
 
     /**
@@ -188,7 +199,8 @@ public class SsManifest implements FilterableManifest<SsManifest> {
      * @return The duration of the chunk, in microseconds.
      */
     public long getChunkDurationUs(int chunkIndex) {
-      return (chunkIndex == chunkCount - 1) ? lastChunkDurationUs
+      return (chunkIndex == chunkCount - 1)
+          ? lastChunkDurationUs
           : chunkStartTimesUs[chunkIndex + 1] - chunkStartTimesUs[chunkIndex];
     }
 
@@ -205,11 +217,12 @@ public class SsManifest implements FilterableManifest<SsManifest> {
       Assertions.checkState(chunkIndex < chunkStartTimes.size());
       String bitrateString = Integer.toString(formats[track].bitrate);
       String startTimeString = chunkStartTimes.get(chunkIndex).toString();
-      String chunkUrl = chunkTemplate
-          .replace(URL_PLACEHOLDER_BITRATE_1, bitrateString)
-          .replace(URL_PLACEHOLDER_BITRATE_2, bitrateString)
-          .replace(URL_PLACEHOLDER_START_TIME_1, startTimeString)
-          .replace(URL_PLACEHOLDER_START_TIME_2, startTimeString);
+      String chunkUrl =
+          chunkTemplate
+              .replace(URL_PLACEHOLDER_BITRATE_1, bitrateString)
+              .replace(URL_PLACEHOLDER_BITRATE_2, bitrateString)
+              .replace(URL_PLACEHOLDER_START_TIME_1, startTimeString)
+              .replace(URL_PLACEHOLDER_START_TIME_2, startTimeString);
       return UriUtil.resolveToUri(baseUri, chunkUrl);
     }
   }

@@ -61,18 +61,14 @@ public interface RendererCapabilities {
 
   /** A mask to apply to {@link Capabilities} to obtain the {@link AdaptiveSupport} only. */
   int ADAPTIVE_SUPPORT_MASK = 0b11000;
-  /**
-   * The {@link Renderer} can seamlessly adapt between formats.
-   */
+  /** The {@link Renderer} can seamlessly adapt between formats. */
   int ADAPTIVE_SEAMLESS = 0b10000;
   /**
    * The {@link Renderer} can adapt between formats, but may suffer a brief discontinuity
    * (~50-100ms) when adaptation occurs.
    */
   int ADAPTIVE_NOT_SEAMLESS = 0b01000;
-  /**
-   * The {@link Renderer} does not support adaptation between formats.
-   */
+  /** The {@link Renderer} does not support adaptation between formats. */
   int ADAPTIVE_NOT_SUPPORTED = 0b00000;
 
   /**
@@ -86,13 +82,9 @@ public interface RendererCapabilities {
 
   /** A mask to apply to {@link Capabilities} to obtain the {@link TunnelingSupport} only. */
   int TUNNELING_SUPPORT_MASK = 0b100000;
-  /**
-   * The {@link Renderer} supports tunneled output.
-   */
+  /** The {@link Renderer} supports tunneled output. */
   int TUNNELING_SUPPORTED = 0b100000;
-  /**
-   * The {@link Renderer} does not support tunneled output.
-   */
+  /** The {@link Renderer} does not support tunneled output. */
   int TUNNELING_NOT_SUPPORTED = 0b000000;
 
   /**

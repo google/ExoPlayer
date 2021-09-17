@@ -62,16 +62,12 @@ public final class Metadata implements Parcelable {
 
   private final Entry[] entries;
 
-  /**
-   * @param entries The metadata entries.
-   */
+  /** @param entries The metadata entries. */
   public Metadata(Entry... entries) {
     this.entries = entries;
   }
 
-  /**
-   * @param entries The metadata entries.
-   */
+  /** @param entries The metadata entries. */
   public Metadata(List<? extends Entry> entries) {
     this.entries = entries.toArray(new Entry[0]);
   }
@@ -83,9 +79,7 @@ public final class Metadata implements Parcelable {
     }
   }
 
-  /**
-   * Returns the number of metadata entries.
-   */
+  /** Returns the number of metadata entries. */
   public int length() {
     return entries.length;
   }

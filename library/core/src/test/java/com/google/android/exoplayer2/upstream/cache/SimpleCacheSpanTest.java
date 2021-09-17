@@ -68,7 +68,9 @@ public class SimpleCacheSpanTest {
             + "A standalone carriage-return character \r"
             + "A next-line character \u0085"
             + "A line-separator character \u2028"
-            + "A paragraph-separator character \u2029", 1, 2);
+            + "A paragraph-separator character \u2029",
+        1,
+        2);
   }
 
   @Test
@@ -142,5 +144,4 @@ public class SimpleCacheSpanTest {
     CacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     assertWithMessage(cacheFile.toString()).that(cacheSpan).isNull();
   }
-
 }

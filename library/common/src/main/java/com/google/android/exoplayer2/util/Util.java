@@ -36,6 +36,7 @@ import android.content.res.Resources;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
+import android.hardware.display.DisplayManager;
 import android.media.AudioFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -138,23 +139,23 @@ public final class Util {
    */
   public static final String MODEL = Build.MODEL;
 
-  /**
-   * A concise description of the device that it can be useful to log for debugging purposes.
-   */
-  public static final String DEVICE_DEBUG_INFO = DEVICE + ", " + MODEL + ", " + MANUFACTURER + ", "
-      + SDK_INT;
+  /** A concise description of the device that it can be useful to log for debugging purposes. */
+  public static final String DEVICE_DEBUG_INFO =
+      DEVICE + ", " + MODEL + ", " + MANUFACTURER + ", " + SDK_INT;
 
   /** An empty byte array. */
   public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
   private static final String TAG = "Util";
-  private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
-      "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
-      + "(\\d\\d):(\\d\\d):(\\d\\d)([\\.,](\\d+))?"
-      + "([Zz]|((\\+|\\-)(\\d?\\d):?(\\d\\d)))?");
+  private static final Pattern XS_DATE_TIME_PATTERN =
+      Pattern.compile(
+          "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
+              + "(\\d\\d):(\\d\\d):(\\d\\d)([\\.,](\\d+))?"
+              + "([Zz]|((\\+|\\-)(\\d?\\d):?(\\d\\d)))?");
   private static final Pattern XS_DURATION_PATTERN =
-      Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
-          + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
+      Pattern.compile(
+          "^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
+              + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
   // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
@@ -347,14 +348,14 @@ public final class Util {
    *
    * <p>Use {@link Assertions#checkNotNull(Object)} to throw if the value is null.
    */
-  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull("#1")
   public static <T> T castNonNull(@Nullable T value) {
     return value;
   }
 
   /** Casts a nullable type array to a non-null type array without runtime null check. */
-  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @SuppressWarnings({"nullness:contracts.postcondition", "nullness:return"})
   @EnsuresNonNull("#1")
   public static <T> T[] castNonNullTypeArray(@NullableType T[] value) {
     return value;
@@ -368,7 +369,7 @@ public final class Util {
    * @param length The output array length. Must be less or equal to the length of the input array.
    * @return The copied array.
    */
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static <T> T[] nullSafeArrayCopy(T[] input, int length) {
     Assertions.checkArgument(length <= input.length);
     return Arrays.copyOf(input, length);
@@ -382,7 +383,7 @@ public final class Util {
    * @param to The end of the range to be copied, exclusive.
    * @return The copied array.
    */
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static <T> T[] nullSafeArrayCopyOfRange(T[] input, int from, int to) {
     Assertions.checkArgument(0 <= from);
     Assertions.checkArgument(to <= input.length);
@@ -409,7 +410,7 @@ public final class Util {
    * @param second The second array.
    * @return The concatenated result.
    */
-  @SuppressWarnings({"nullness:assignment.type.incompatible"})
+  @SuppressWarnings("nullness:assignment")
   public static <T> T[] nullSafeArrayConcatenation(T[] first, T[] second) {
     T[] concatenation = Arrays.copyOf(first, first.length + second.length);
     System.arraycopy(
@@ -503,7 +504,7 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  @SuppressWarnings({"nullness:argument", "nullness:return"})
   public static Handler createHandler(
       Looper looper, @Nullable Handler.@UnknownInitialization Callback callback) {
     return new Handler(looper, callback);
@@ -944,8 +945,8 @@ public final class Util {
   /**
    * Returns the index of the largest element in {@code array} that is less than (or optionally
    * equal to) a specified {@code value}.
-   * <p>
-   * The search is performed using a binary search algorithm, so the array must be sorted. If the
+   *
+   * <p>The search is performed using a binary search algorithm, so the array must be sorted. If the
    * array contains multiple elements equal to {@code value} and {@code inclusive} is true, the
    * index of the first one will be returned.
    *
@@ -959,8 +960,8 @@ public final class Util {
    * @return The index of the largest element in {@code array} that is less than (or optionally
    *     equal to) {@code value}.
    */
-  public static int binarySearchFloor(long[] array, long value, boolean inclusive,
-      boolean stayInBounds) {
+  public static int binarySearchFloor(
+      long[] array, long value, boolean inclusive, boolean stayInBounds) {
     int index = Arrays.binarySearch(array, value);
     if (index < 0) {
       index = -(index + 2);
@@ -1226,11 +1227,12 @@ public final class Util {
    */
   // incompatible types in argument.
   // dereference of possibly-null reference matcher.group(9)
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:dereference.of.nullable"})
+  @SuppressWarnings({"nullness:argument", "nullness:dereference.of.nullable"})
   public static long parseXsDateTime(String value) throws ParserException {
     Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
     if (!matcher.matches()) {
-      throw new ParserException("Invalid date/time format: " + value);
+      throw ParserException.createForMalformedContainer(
+          "Invalid date/time format: " + value, /* cause= */ null);
     }
 
     int timezoneShift;
@@ -1240,8 +1242,8 @@ public final class Util {
     } else if (matcher.group(9).equalsIgnoreCase("Z")) {
       timezoneShift = 0;
     } else {
-      timezoneShift = ((Integer.parseInt(matcher.group(12)) * 60
-          + Integer.parseInt(matcher.group(13))));
+      timezoneShift =
+          ((Integer.parseInt(matcher.group(12)) * 60 + Integer.parseInt(matcher.group(13))));
       if ("-".equals(matcher.group(11))) {
         timezoneShift *= -1;
       }
@@ -1251,12 +1253,13 @@ public final class Util {
 
     dateTime.clear();
     // Note: The month value is 0-based, hence the -1 on group(2)
-    dateTime.set(Integer.parseInt(matcher.group(1)),
-                 Integer.parseInt(matcher.group(2)) - 1,
-                 Integer.parseInt(matcher.group(3)),
-                 Integer.parseInt(matcher.group(4)),
-                 Integer.parseInt(matcher.group(5)),
-                 Integer.parseInt(matcher.group(6)));
+    dateTime.set(
+        Integer.parseInt(matcher.group(1)),
+        Integer.parseInt(matcher.group(2)) - 1,
+        Integer.parseInt(matcher.group(3)),
+        Integer.parseInt(matcher.group(4)),
+        Integer.parseInt(matcher.group(5)),
+        Integer.parseInt(matcher.group(6)));
     if (!TextUtils.isEmpty(matcher.group(8))) {
       final BigDecimal bd = new BigDecimal("0." + matcher.group(8));
       // we care only for milliseconds, so movePointRight(3)
@@ -1273,9 +1276,9 @@ public final class Util {
 
   /**
    * Scales a large timestamp.
-   * <p>
-   * Logically, scaling consists of a multiplication followed by a division. The actual operations
-   * performed are designed to minimize the probability of overflow.
+   *
+   * <p>Logically, scaling consists of a multiplication followed by a division. The actual
+   * operations performed are designed to minimize the probability of overflow.
    *
    * @param timestamp The timestamp to scale.
    * @param multiplier The multiplier.
@@ -1445,8 +1448,10 @@ public final class Util {
     byte[] data = new byte[hexString.length() / 2];
     for (int i = 0; i < data.length; i++) {
       int stringOffset = i * 2;
-      data[i] = (byte) ((Character.digit(hexString.charAt(stringOffset), 16) << 4)
-          + Character.digit(hexString.charAt(stringOffset + 1), 16));
+      data[i] =
+          (byte)
+              ((Character.digit(hexString.charAt(stringOffset), 16) << 4)
+                  + Character.digit(hexString.charAt(stringOffset + 1), 16));
     }
     return data;
   }
@@ -1500,8 +1505,13 @@ public final class Util {
     } catch (NameNotFoundException e) {
       versionName = "?";
     }
-    return applicationName + "/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE
-        + ") " + ExoPlayerLibraryInfo.VERSION_SLASHY;
+    return applicationName
+        + "/"
+        + versionName
+        + " (Linux;Android "
+        + Build.VERSION.RELEASE
+        + ") "
+        + ExoPlayerLibraryInfo.VERSION_SLASHY;
   }
 
   /** Returns the number of codec strings in {@code codecs} whose type matches {@code trackType}. */
@@ -1690,9 +1700,7 @@ public final class Util {
     }
   }
 
-  /**
-   * Returns the {@link C.AudioUsage} corresponding to the specified {@link C.StreamType}.
-   */
+  /** Returns the {@link C.AudioUsage} corresponding to the specified {@link C.StreamType}. */
   @C.AudioUsage
   public static int getAudioUsageForStreamType(@C.StreamType int streamType) {
     switch (streamType) {
@@ -1714,9 +1722,7 @@ public final class Util {
     }
   }
 
-  /**
-   * Returns the {@link C.AudioContentType} corresponding to the specified {@link C.StreamType}.
-   */
+  /** Returns the {@link C.AudioContentType} corresponding to the specified {@link C.StreamType}. */
   @C.AudioContentType
   public static int getAudioContentTypeForStreamType(@C.StreamType int streamType) {
     switch (streamType) {
@@ -1734,9 +1740,7 @@ public final class Util {
     }
   }
 
-  /**
-   * Returns the {@link C.StreamType} corresponding to the specified {@link C.AudioUsage}.
-   */
+  /** Returns the {@link C.StreamType} corresponding to the specified {@link C.AudioUsage}. */
   @C.StreamType
   public static int getStreamTypeForAudioUsage(@C.AudioUsage int usage) {
     switch (usage) {
@@ -1946,10 +1950,10 @@ public final class Util {
    * Escapes a string so that it's safe for use as a file or directory name on at least FAT32
    * filesystems. FAT32 is the most restrictive of all filesystems still commonly used today.
    *
-   * <p>For simplicity, this only handles common characters known to be illegal on FAT32:
-   * &lt;, &gt;, :, ", /, \, |, ?, and *. % is also escaped since it is used as the escape
-   * character. Escaping is performed in a consistent way so that no collisions occur and
-   * {@link #unescapeFileName(String)} can be used to retrieve the original file name.
+   * <p>For simplicity, this only handles common characters known to be illegal on FAT32: &lt;,
+   * &gt;, :, ", /, \, |, ?, and *. % is also escaped since it is used as the escape character.
+   * Escaping is performed in a consistent way so that no collisions occur and {@link
+   * #unescapeFileName(String)} can be used to retrieve the original file name.
    *
    * @param fileName File name to be escaped.
    * @return An escaped file name which will be safe for use on at least FAT32 filesystems.
@@ -2048,8 +2052,8 @@ public final class Util {
   }
 
   /**
-   * A hacky method that always throws {@code t} even if {@code t} is a checked exception,
-   * and is not declared to be thrown.
+   * A hacky method that always throws {@code t} even if {@code t} is a checked exception, and is
+   * not declared to be thrown.
    */
   public static void sneakyThrow(Throwable t) {
     sneakyThrowInternal(t);
@@ -2096,8 +2100,9 @@ public final class Util {
    */
   public static int crc32(byte[] bytes, int start, int end, int initialValue) {
     for (int i = start; i < end; i++) {
-      initialValue = (initialValue << 8)
-          ^ CRC32_BYTES_MSBF[((initialValue >>> 24) ^ (bytes[i] & 0xFF)) & 0xFF];
+      initialValue =
+          (initialValue << 8)
+              ^ CRC32_BYTES_MSBF[((initialValue >>> 24) ^ (bytes[i] & 0xFF)) & 0xFF];
     }
     return initialValue;
   }
@@ -2125,7 +2130,9 @@ public final class Util {
     try (GZIPOutputStream os = new GZIPOutputStream(output)) {
       os.write(input);
     } catch (IOException e) {
-      throw new AssertionError(e);
+      // A ByteArrayOutputStream wrapped in a GZipOutputStream should never throw IOException since
+      // no I/O is happening.
+      throw new IllegalStateException(e);
     }
     return output.toByteArray();
   }
@@ -2254,9 +2261,23 @@ public final class Util {
    * @return The size of the current mode, in pixels.
    */
   public static Point getCurrentDisplayModeSize(Context context) {
-    WindowManager windowManager =
-        checkNotNull((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
-    return getCurrentDisplayModeSize(context, windowManager.getDefaultDisplay());
+    @Nullable Display defaultDisplay = null;
+    if (Util.SDK_INT >= 17) {
+      @Nullable
+      DisplayManager displayManager =
+          (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+      // We don't expect displayManager to ever be null, so this check is just precautionary.
+      // Consider removing it when the library minSdkVersion is increased to 17 or higher.
+      if (displayManager != null) {
+        defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+      }
+    }
+    if (defaultDisplay == null) {
+      WindowManager windowManager =
+          checkNotNull((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
+      defaultDisplay = windowManager.getDefaultDisplay();
+    }
+    return getCurrentDisplayModeSize(context, defaultDisplay);
   }
 
   /**
@@ -2288,6 +2309,7 @@ public final class Util {
 
       // Otherwise check the system property for display size. From API 28 treble may prevent the
       // system from writing sys.display-size so we check vendor.display-size instead.
+      @Nullable
       String displaySize =
           Util.SDK_INT < 28
               ? getSystemProperty("sys.display-size")
@@ -2385,6 +2407,34 @@ public final class Util {
         DatabaseUtils.queryNumEntries(
             database, "sqlite_master", "tbl_name = ?", new String[] {tableName});
     return count > 0;
+  }
+
+  /**
+   * Attempts to parse an error code from a diagnostic string found in framework media exceptions.
+   *
+   * <p>For example: android.media.MediaCodec.error_1 or android.media.MediaDrm.error_neg_2.
+   *
+   * @param diagnosticsInfo A string from which to parse the error code.
+   * @return The parser error code, or 0 if an error code could not be parsed.
+   */
+  public static int getErrorCodeFromPlatformDiagnosticsInfo(@Nullable String diagnosticsInfo) {
+    // TODO (internal b/192337376): Change 0 for ERROR_UNKNOWN once available.
+    if (diagnosticsInfo == null) {
+      return 0;
+    }
+    String[] strings = split(diagnosticsInfo, "_");
+    int length = strings.length;
+    if (length < 2) {
+      return 0;
+    }
+    String digitsSection = strings[length - 1];
+    boolean isNegative = length >= 3 && "neg".equals(strings[length - 2]);
+    try {
+      int errorCode = Integer.parseInt(Assertions.checkNotNull(digitsSection));
+      return isNegative ? -errorCode : errorCode;
+    } catch (NumberFormatException e) {
+      return 0;
+    }
   }
 
   @Nullable

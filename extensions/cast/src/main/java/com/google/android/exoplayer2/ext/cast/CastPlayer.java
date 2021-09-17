@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -27,10 +28,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -92,11 +93,12 @@ public final class CastPlayer extends BasePlayer {
               COMMAND_PLAY_PAUSE,
               COMMAND_PREPARE_STOP,
               COMMAND_SEEK_TO_DEFAULT_POSITION,
-              COMMAND_SEEK_TO_MEDIA_ITEM,
+              COMMAND_SEEK_TO_WINDOW,
               COMMAND_SET_REPEAT_MODE,
               COMMAND_GET_CURRENT_MEDIA_ITEM,
-              COMMAND_GET_MEDIA_ITEMS,
+              COMMAND_GET_TIMELINE,
               COMMAND_GET_MEDIA_ITEMS_METADATA,
+              COMMAND_SET_MEDIA_ITEMS_METADATA,
               COMMAND_CHANGE_MEDIA_ITEMS)
           .build();
 
@@ -113,6 +115,8 @@ public final class CastPlayer extends BasePlayer {
 
   private final CastContext castContext;
   private final MediaItemConverter mediaItemConverter;
+  private final long seekBackIncrementMs;
+  private final long seekForwardIncrementMs;
   // TODO: Allow custom implementations of CastTimelineTracker.
   private final CastTimelineTracker timelineTracker;
   private final Timeline.Period period;
@@ -142,7 +146,13 @@ public final class CastPlayer extends BasePlayer {
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
 
   /**
-   * Creates a new cast player that uses a {@link DefaultMediaItemConverter}.
+   * Creates a new cast player.
+   *
+   * <p>The returned player uses a {@link DefaultMediaItemConverter} and
+   *
+   * <p>{@code mediaItemConverter} is set to a {@link DefaultMediaItemConverter}, {@code
+   * seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS} and {@code
+   * seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}.
    *
    * @param castContext The context from which the cast session is obtained.
    */
@@ -153,12 +163,40 @@ public final class CastPlayer extends BasePlayer {
   /**
    * Creates a new cast player.
    *
+   * <p>{@code seekBackIncrementMs} is set to {@link C#DEFAULT_SEEK_BACK_INCREMENT_MS} and {@code
+   * seekForwardIncrementMs} is set to {@link C#DEFAULT_SEEK_FORWARD_INCREMENT_MS}.
+   *
    * @param castContext The context from which the cast session is obtained.
    * @param mediaItemConverter The {@link MediaItemConverter} to use.
    */
   public CastPlayer(CastContext castContext, MediaItemConverter mediaItemConverter) {
+    this(
+        castContext,
+        mediaItemConverter,
+        C.DEFAULT_SEEK_BACK_INCREMENT_MS,
+        C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
+  }
+
+  /**
+   * Creates a new cast player.
+   *
+   * @param castContext The context from which the cast session is obtained.
+   * @param mediaItemConverter The {@link MediaItemConverter} to use.
+   * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
+   * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
+   * @throws IllegalArgumentException If {@code seekBackIncrementMs} or {@code
+   *     seekForwardIncrementMs} is non-positive.
+   */
+  public CastPlayer(
+      CastContext castContext,
+      MediaItemConverter mediaItemConverter,
+      long seekBackIncrementMs,
+      long seekForwardIncrementMs) {
+    checkArgument(seekBackIncrementMs > 0 && seekForwardIncrementMs > 0);
     this.castContext = castContext;
     this.mediaItemConverter = mediaItemConverter;
+    this.seekBackIncrementMs = seekBackIncrementMs;
+    this.seekForwardIncrementMs = seekForwardIncrementMs;
     timelineTracker = new CastTimelineTracker();
     period = new Timeline.Period();
     statusListener = new StatusListener();
@@ -183,67 +221,6 @@ public final class CastPlayer extends BasePlayer {
     CastSession session = sessionManager.getCurrentCastSession();
     setRemoteMediaClient(session != null ? session.getRemoteMediaClient() : null);
     updateInternalStateAndNotifyIfChanged();
-  }
-
-  // Media Queue manipulation methods.
-
-  /** @deprecated Use {@link #setMediaItems(List, int, long)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> loadItem(MediaQueueItem item, long positionMs) {
-    return setMediaItemsInternal(
-        new MediaQueueItem[] {item}, /* startWindowIndex= */ 0, positionMs, repeatMode.value);
-  }
-
-  /**
-   * @deprecated Use {@link #setMediaItems(List, int, long)} and {@link #setRepeatMode(int)}
-   *     instead.
-   */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> loadItems(
-      MediaQueueItem[] items, int startIndex, long positionMs, @RepeatMode int repeatMode) {
-    return setMediaItemsInternal(items, startIndex, positionMs, repeatMode);
-  }
-
-  /** @deprecated Use {@link #addMediaItems(List)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> addItems(MediaQueueItem... items) {
-    return addMediaItemsInternal(items, MediaQueueItem.INVALID_ITEM_ID);
-  }
-
-  /** @deprecated Use {@link #addMediaItems(int, List)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> addItems(int periodId, MediaQueueItem... items) {
-    if (periodId == MediaQueueItem.INVALID_ITEM_ID
-        || currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
-      return addMediaItemsInternal(items, periodId);
-    }
-    return null;
-  }
-
-  /** @deprecated Use {@link #removeMediaItem(int)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> removeItem(int periodId) {
-    if (currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
-      return removeMediaItemsInternal(new int[] {periodId});
-    }
-    return null;
-  }
-
-  /** @deprecated Use {@link #moveMediaItem(int, int)} instead. */
-  @Deprecated
-  @Nullable
-  public PendingResult<MediaChannelResult> moveItem(int periodId, int newIndex) {
-    Assertions.checkArgument(newIndex >= 0 && newIndex < currentTimeline.getWindowCount());
-    int fromIndex = currentTimeline.getIndexOfPeriod(periodId);
-    if (fromIndex != C.INDEX_UNSET && fromIndex != newIndex) {
-      return moveMediaItemsInternal(new int[] {periodId}, fromIndex, newIndex);
-    }
-    return null;
   }
 
   /**
@@ -391,7 +368,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   @Nullable
-  public ExoPlaybackException getPlayerError() {
+  public PlaybackException getPlayerError() {
     return null;
   }
 
@@ -472,6 +449,21 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  public long getSeekBackIncrement() {
+    return seekBackIncrementMs;
+  }
+
+  @Override
+  public long getSeekForwardIncrement() {
+    return seekForwardIncrementMs;
+  }
+
+  @Override
+  public int getMaxSeekToPreviousPosition() {
+    return C.DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS;
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     // Unsupported by the RemoteMediaClient API. Do nothing.
   }
@@ -549,6 +541,7 @@ public final class CastPlayer extends BasePlayer {
     return currentTrackGroups;
   }
 
+  @Deprecated
   @Override
   public ImmutableList<Metadata> getCurrentStaticMetadata() {
     // CastPlayer does not currently support metadata.
@@ -559,6 +552,18 @@ public final class CastPlayer extends BasePlayer {
   public MediaMetadata getMediaMetadata() {
     // CastPlayer does not currently support metadata.
     return MediaMetadata.EMPTY;
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMetadata() {
+    // CastPlayer does not currently support metadata.
+    return MediaMetadata.EMPTY;
+  }
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
+    // CastPlayer does not currently support metadata.
   }
 
   @Override
@@ -864,11 +869,8 @@ public final class CastPlayer extends BasePlayer {
       // Call onTimelineChanged.
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener -> {
-            listener.onTimelineChanged(
-                timeline, /* manifest= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-            listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-          });
+          listener ->
+              listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
 
       // Call onPositionDiscontinuity if required.
       Timeline currentTimeline = getCurrentTimeline();

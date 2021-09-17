@@ -41,9 +41,11 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Seeking tests for {@link PsExtractor}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class PsExtractorSeekTest {
 
   private static final String PS_FILE_PATH = "media/ts/elephants_dream.mpg";

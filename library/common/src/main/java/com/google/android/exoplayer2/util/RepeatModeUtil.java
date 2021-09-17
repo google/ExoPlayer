@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 /** Util class for repeat mode handling. */
 public final class RepeatModeUtil {
 
-  // LINT.IfChange
   /**
    * Set of repeat toggle modes. Can be combined using bit-wise operations. Possible flag values are
    * {@link #REPEAT_TOGGLE_MODE_NONE}, {@link #REPEAT_TOGGLE_MODE_ONE} and {@link
@@ -36,17 +35,12 @@ public final class RepeatModeUtil {
       flag = true,
       value = {REPEAT_TOGGLE_MODE_NONE, REPEAT_TOGGLE_MODE_ONE, REPEAT_TOGGLE_MODE_ALL})
   public @interface RepeatToggleModes {}
-  /**
-   * All repeat mode buttons disabled.
-   */
+  /** All repeat mode buttons disabled. */
   public static final int REPEAT_TOGGLE_MODE_NONE = 0;
-  /**
-   * "Repeat One" button enabled.
-   */
+  /** "Repeat One" button enabled. */
   public static final int REPEAT_TOGGLE_MODE_ONE = 1;
   /** "Repeat All" button enabled. */
   public static final int REPEAT_TOGGLE_MODE_ALL = 1 << 1; // 2
-  // LINT.ThenChange(../../../../../../../../../ui/src/main/res/values/attrs.xml)
 
   private RepeatModeUtil() {
     // Prevent instantiation.
@@ -59,8 +53,8 @@ public final class RepeatModeUtil {
    * @param enabledModes Bitmask of enabled modes.
    * @return The next repeat mode.
    */
-  public static @Player.RepeatMode int getNextRepeatMode(@Player.RepeatMode int currentMode,
-      int enabledModes) {
+  public static @Player.RepeatMode int getNextRepeatMode(
+      @Player.RepeatMode int currentMode, int enabledModes) {
     for (int offset = 1; offset <= 2; offset++) {
       @Player.RepeatMode int proposedMode = (currentMode + offset) % 3;
       if (isRepeatModeEnabled(proposedMode, enabledModes)) {

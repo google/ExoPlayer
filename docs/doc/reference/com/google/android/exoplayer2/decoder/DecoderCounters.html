@@ -356,8 +356,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>skippedInputBufferCount</h4>
 <pre>public&nbsp;int skippedInputBufferCount</pre>
 <div class="block">The number of skipped input buffers.
- <p>
- A skipped input buffer is an input buffer that was deliberately not sent to the decoder.</div>
+
+ <p>A skipped input buffer is an input buffer that was deliberately not sent to the decoder.</div>
 </li>
 </ul>
 <a id="renderedOutputBufferCount">
@@ -378,8 +378,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>skippedOutputBufferCount</h4>
 <pre>public&nbsp;int skippedOutputBufferCount</pre>
 <div class="block">The number of skipped output buffers.
- <p>
- A skipped output buffer is an output buffer that was deliberately not rendered.</div>
+
+ <p>A skipped output buffer is an output buffer that was deliberately not rendered.</div>
 </li>
 </ul>
 <a id="droppedBufferCount">
@@ -390,8 +390,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>droppedBufferCount</h4>
 <pre>public&nbsp;int droppedBufferCount</pre>
 <div class="block">The number of dropped buffers.
- <p>
- A dropped buffer is an buffer that was supposed to be decoded/rendered, but was instead
+
+ <p>A dropped buffer is an buffer that was supposed to be decoded/rendered, but was instead
  dropped because it could not be rendered in time.</div>
 </li>
 </ul>
@@ -403,8 +403,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>maxConsecutiveDroppedBufferCount</h4>
 <pre>public&nbsp;int maxConsecutiveDroppedBufferCount</pre>
 <div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.
- <p>
- Skipped output buffers are ignored for the purposes of calculating this value.</div>
+
+ <p>Skipped output buffers are ignored for the purposes of calculating this value.</div>
 </li>
 </ul>
 <a id="droppedToKeyframeCount">
@@ -415,10 +415,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>droppedToKeyframeCount</h4>
 <pre>public&nbsp;int droppedToKeyframeCount</pre>
 <div class="block">The number of times all buffers to a keyframe were dropped.
- <p>
- Each time buffers to a keyframe are dropped, this counter is increased by one, and the dropped
- buffer counters are increased by one (for the current output buffer) plus the number of buffers
- dropped from the source to advance to the keyframe.</div>
+
+ <p>Each time buffers to a keyframe are dropped, this counter is increased by one, and the
+ dropped buffer counters are increased by one (for the current output buffer) plus the number of
+ buffers dropped from the source to advance to the keyframe.</div>
 </li>
 </ul>
 <a id="totalVideoFrameProcessingOffsetUs">

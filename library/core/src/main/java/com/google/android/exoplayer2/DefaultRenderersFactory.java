@@ -61,15 +61,13 @@ public class DefaultRenderersFactory implements RenderersFactory {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({EXTENSION_RENDERER_MODE_OFF, EXTENSION_RENDERER_MODE_ON, EXTENSION_RENDERER_MODE_PREFER})
   public @interface ExtensionRendererMode {}
-  /**
-   * Do not allow use of extension renderers.
-   */
+  /** Do not allow use of extension renderers. */
   public static final int EXTENSION_RENDERER_MODE_OFF = 0;
   /**
    * Allow use of extension renderers. Extension renderers are indexed after core renderers of the
    * same type. A {@link TrackSelector} that prefers the first suitable renderer will therefore
-   * prefer to use a core renderer to an extension renderer in the case that both are able to play
-   * a given track.
+   * prefer to use a core renderer to an extension renderer in the case that both are able to play a
+   * given track.
    */
   public static final int EXTENSION_RENDERER_MODE_ON = 1;
   /**
@@ -331,10 +329,18 @@ public class DefaultRenderersFactory implements RenderersFactory {
           audioRendererEventListener,
           renderersList);
     }
-    buildTextRenderers(context, textRendererOutput, eventHandler.getLooper(),
-        extensionRendererMode, renderersList);
-    buildMetadataRenderers(context, metadataRendererOutput, eventHandler.getLooper(),
-        extensionRendererMode, renderersList);
+    buildTextRenderers(
+        context,
+        textRendererOutput,
+        eventHandler.getLooper(),
+        extensionRendererMode,
+        renderersList);
+    buildMetadataRenderers(
+        context,
+        metadataRendererOutput,
+        eventHandler.getLooper(),
+        extensionRendererMode,
+        renderersList);
     buildCameraMotionRenderers(context, extensionRendererMode, renderersList);
     buildMiscellaneousRenderers(context, eventHandler, extensionRendererMode, renderersList);
     return renderersList.toArray(new Renderer[0]);
@@ -390,7 +396,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
@@ -398,7 +403,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
               android.os.Handler.class,
               com.google.android.exoplayer2.video.VideoRendererEventListener.class,
               int.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer)
               constructor.newInstance(
@@ -417,7 +421,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.av1.Libgav1VideoRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
@@ -425,7 +428,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
               android.os.Handler.class,
               com.google.android.exoplayer2.video.VideoRendererEventListener.class,
               int.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer)
               constructor.newInstance(
@@ -491,14 +493,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
               com.google.android.exoplayer2.audio.AudioSink.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
@@ -512,14 +512,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.flac.LibflacAudioRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
               com.google.android.exoplayer2.audio.AudioSink.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
@@ -533,7 +531,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      // LINT.IfChange
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegAudioRenderer");
       Constructor<?> constructor =
@@ -541,7 +538,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
               com.google.android.exoplayer2.audio.AudioSink.class);
-      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
           (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
@@ -610,8 +606,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param extensionRendererMode The extension renderer mode.
    * @param out An array to which the built renderers should be appended.
    */
-  protected void buildMiscellaneousRenderers(Context context, Handler eventHandler,
-      @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
+  protected void buildMiscellaneousRenderers(
+      Context context,
+      Handler eventHandler,
+      @ExtensionRendererMode int extensionRendererMode,
+      ArrayList<Renderer> out) {
     // Do nothing.
   }
 

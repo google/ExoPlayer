@@ -71,9 +71,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   // Used when reading the samples.
   private long timeUs;
 
-  /**
-   * Constructs a new reader for (E-)AC-3 elementary streams.
-   */
+  /** Constructs a new reader for (E-)AC-3 elementary streams. */
   public Ac3Reader() {
     this(null);
   }
@@ -98,10 +96,10 @@ public final class Ac3Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator generator) {
-    generator.generateNewId();
-    formatId = generator.getFormatId();
-    output = extractorOutput.track(generator.getTrackId(), C.TRACK_TYPE_AUDIO);
+  public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
+    idGenerator.generateNewId();
+    formatId = idGenerator.getFormatId();
+    output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_AUDIO);
   }
 
   @Override
@@ -215,5 +213,4 @@ public final class Ac3Reader implements ElementaryStreamReader {
     // specifies the number of PCM audio samples per second.
     sampleDurationUs = C.MICROS_PER_SECOND * frameInfo.sampleCount / format.sampleRate;
   }
-
 }

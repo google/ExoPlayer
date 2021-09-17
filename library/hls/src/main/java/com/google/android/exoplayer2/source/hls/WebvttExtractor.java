@@ -115,8 +115,10 @@ public final class WebvttExtractor implements Extractor {
 
     // Increase the size of sampleData if necessary.
     if (sampleSize == sampleData.length) {
-      sampleData = Arrays.copyOf(sampleData,
-          (currentFileSize != C.LENGTH_UNSET ? currentFileSize : sampleData.length) * 3 / 2);
+      sampleData =
+          Arrays.copyOf(
+              sampleData,
+              (currentFileSize != C.LENGTH_UNSET ? currentFileSize : sampleData.length) * 3 / 2);
     }
 
     // Consume to the input.
@@ -151,11 +153,13 @@ public final class WebvttExtractor implements Extractor {
       if (line.startsWith("X-TIMESTAMP-MAP")) {
         Matcher localTimestampMatcher = LOCAL_TIMESTAMP.matcher(line);
         if (!localTimestampMatcher.find()) {
-          throw new ParserException("X-TIMESTAMP-MAP doesn't contain local timestamp: " + line);
+          throw ParserException.createForMalformedContainer(
+              "X-TIMESTAMP-MAP doesn't contain local timestamp: " + line, /* cause= */ null);
         }
         Matcher mediaTimestampMatcher = MEDIA_TIMESTAMP.matcher(line);
         if (!mediaTimestampMatcher.find()) {
-          throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
+          throw ParserException.createForMalformedContainer(
+              "X-TIMESTAMP-MAP doesn't contain media timestamp: " + line, /* cause= */ null);
         }
         vttTimestampUs =
             WebvttParserUtil.parseTimestampUs(
@@ -200,5 +204,4 @@ public final class WebvttExtractor implements Extractor {
     output.endTracks();
     return trackOutput;
   }
-
 }

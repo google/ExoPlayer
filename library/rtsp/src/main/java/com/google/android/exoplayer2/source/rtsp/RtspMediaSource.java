@@ -16,10 +16,13 @@
 
 package com.google.android.exoplayer2.source.rtsp;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
@@ -45,6 +48,9 @@ public final class RtspMediaSource extends BaseMediaSource {
     ExoPlayerLibraryInfo.registerModule("goog.exo.rtsp");
   }
 
+  /** The default value for {@link Factory#setTimeoutMs}. */
+  public static final long DEFAULT_TIMEOUT_MS = 8000;
+
   /**
    * Factory for {@link RtspMediaSource}
    *
@@ -60,10 +66,12 @@ public final class RtspMediaSource extends BaseMediaSource {
    */
   public static final class Factory implements MediaSourceFactory {
 
+    private long timeoutMs;
     private String userAgent;
     private boolean forceUseRtpTcp;
 
     public Factory() {
+      timeoutMs = DEFAULT_TIMEOUT_MS;
       userAgent = ExoPlayerLibraryInfo.VERSION_SLASHY;
     }
 
@@ -91,6 +99,21 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     public Factory setUserAgent(String userAgent) {
       this.userAgent = userAgent;
+      return this;
+    }
+
+    /**
+     * Sets the timeout in milliseconds, the default value is {@link #DEFAULT_TIMEOUT_MS}.
+     *
+     * <p>A positive number of milliseconds to wait before lack of received RTP packets is treated
+     * as the end of input.
+     *
+     * @param timeoutMs The timeout measured in milliseconds.
+     * @return This Factory, for convenience.
+     */
+    public Factory setTimeoutMs(@IntRange(from = 1) long timeoutMs) {
+      checkArgument(timeoutMs > 0);
+      this.timeoutMs = timeoutMs;
       return this;
     }
 
@@ -161,8 +184,8 @@ public final class RtspMediaSource extends BaseMediaSource {
       return new RtspMediaSource(
           mediaItem,
           forceUseRtpTcp
-              ? new TransferRtpDataChannelFactory()
-              : new UdpDataSourceRtpDataChannelFactory(),
+              ? new TransferRtpDataChannelFactory(timeoutMs)
+              : new UdpDataSourceRtpDataChannelFactory(timeoutMs),
           userAgent);
     }
   }
@@ -192,7 +215,8 @@ public final class RtspMediaSource extends BaseMediaSource {
   private boolean timelineIsLive;
   private boolean timelineIsPlaceholder;
 
-  private RtspMediaSource(
+  @VisibleForTesting
+  /* package */ RtspMediaSource(
       MediaItem mediaItem, RtpDataChannel.Factory rtpDataChannelFactory, String userAgent) {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
@@ -228,7 +252,7 @@ public final class RtspMediaSource extends BaseMediaSource {
         allocator,
         rtpDataChannelFactory,
         uri,
-        (timing) -> {
+        /* listener= */ timing -> {
           timelineDurationUs = C.msToUs(timing.getDurationMs());
           timelineIsSeekable = !timing.isLive();
           timelineIsLive = timing.isLive();

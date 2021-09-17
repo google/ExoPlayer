@@ -19,11 +19,11 @@ import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
-import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -40,7 +40,7 @@ import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
 /** Manages players and an internal media queue for the demo app. */
-/* package */ class PlayerManager implements EventListener, SessionAvailabilityListener {
+/* package */ class PlayerManager implements Player.Listener, SessionAvailabilityListener {
 
   /** Listener for events. */
   interface Listener {
@@ -221,7 +221,7 @@ import java.util.ArrayList;
     exoPlayer.release();
   }
 
-  // Player.EventListener implementation.
+  // Player.Listener implementation.
 
   @Override
   public void onPlaybackStateChanged(@Player.State int playbackState) {
@@ -229,7 +229,10 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @DiscontinuityReason int reason) {
     updateCurrentItemIndex();
   }
 
@@ -242,6 +245,7 @@ import java.util.ArrayList;
   public void onTracksChanged(
       @NonNull TrackGroupArray trackGroups, @NonNull TrackSelectionArray trackSelections) {
     if (currentPlayer == exoPlayer && trackGroups != lastSeenTrackGroupArray) {
+      @Nullable
       MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
           trackSelector.getCurrentMappedTrackInfo();
       if (mappedTrackInfo != null) {

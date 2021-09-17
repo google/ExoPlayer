@@ -36,9 +36,7 @@ import java.util.Map;
 
 public final class ParsingLoadable<T> implements Loadable {
 
-  /**
-   * Parses an object from loaded data.
-   */
+  /** Parses an object from loaded data. */
   public interface Parser<T> {
 
     /**
@@ -51,7 +49,6 @@ public final class ParsingLoadable<T> implements Loadable {
      * @throws IOException If an error occurs reading data from the stream.
      */
     T parse(Uri uri, InputStream inputStream) throws IOException;
-
   }
 
   /**
@@ -124,8 +121,8 @@ public final class ParsingLoadable<T> implements Loadable {
    * @param type See {@link #type}.
    * @param parser Parses the object from the response.
    */
-  public ParsingLoadable(DataSource dataSource, DataSpec dataSpec, int type,
-      Parser<? extends T> parser) {
+  public ParsingLoadable(
+      DataSource dataSource, DataSpec dataSpec, int type, Parser<? extends T> parser) {
     this.dataSource = new StatsDataSource(dataSource);
     this.dataSpec = dataSpec;
     this.type = type;

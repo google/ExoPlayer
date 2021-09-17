@@ -136,9 +136,7 @@ public final class CacheDataSourceTest2 {
     assertThat(openedDataSpecs[0].length).isEqualTo(end - start);
   }
 
-  /**
-   * Asserts that the upstream source was not opened.
-   */
+  /** Asserts that the upstream source was not opened. */
   private void assertNoOpen(FakeDataSource upstreamSource) {
     DataSpec[] openedDataSpecs = upstreamSource.getAndClearOpenedDataSpecs();
     assertThat(openedDataSpecs).hasLength(0);
@@ -150,8 +148,8 @@ public final class CacheDataSourceTest2 {
     return fakeDataSource;
   }
 
-  private static CacheDataSource buildCacheDataSource(Context context, DataSource upstreamSource,
-      boolean useAesEncryption) throws CacheException {
+  private static CacheDataSource buildCacheDataSource(
+      Context context, DataSource upstreamSource, boolean useAesEncryption) throws CacheException {
     File cacheDir = context.getExternalCacheDir();
     Cache cache =
         new SimpleCache(
@@ -163,16 +161,19 @@ public final class CacheDataSourceTest2 {
     // Source and cipher
     final String secretKey = "testKey:12345678";
     DataSource file = new FileDataSource();
-    DataSource cacheReadDataSource = useAesEncryption
-        ? new AesCipherDataSource(Util.getUtf8Bytes(secretKey), file) : file;
+    DataSource cacheReadDataSource =
+        useAesEncryption ? new AesCipherDataSource(Util.getUtf8Bytes(secretKey), file) : file;
 
     // Sink and cipher
     CacheDataSink cacheSink = new CacheDataSink(cache, EXO_CACHE_MAX_FILESIZE);
     byte[] scratch = new byte[3897];
-    DataSink cacheWriteDataSink = useAesEncryption
-        ? new AesCipherDataSink(Util.getUtf8Bytes(secretKey), cacheSink, scratch) : cacheSink;
+    DataSink cacheWriteDataSink =
+        useAesEncryption
+            ? new AesCipherDataSink(Util.getUtf8Bytes(secretKey), cacheSink, scratch)
+            : cacheSink;
 
-    return new CacheDataSource(cache,
+    return new CacheDataSource(
+        cache,
         upstreamSource,
         cacheReadDataSource,
         cacheWriteDataSink,
@@ -189,5 +190,4 @@ public final class CacheDataSourceTest2 {
     // Check that the cache really is empty now.
     assertThat(cache.getKeys().isEmpty()).isTrue();
   }
-
 }

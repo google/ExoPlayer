@@ -58,8 +58,6 @@
 
   <!-- PlayerControlView and StyledPlayerControlView attributes -->
   <attr name="show_timeout" format="integer"/>
-  <attr name="rewind_increment" format="integer"/>
-  <attr name="fastforward_increment" format="integer"/>
   <attr name="show_rewind_button" format="boolean"/>
   <attr name="show_fastforward_button" format="boolean"/>
   <attr name="show_previous_button" format="boolean"/>
@@ -109,8 +107,6 @@
     <attr name="resize_mode"/>
     <!-- PlayerControlView attributes -->
     <attr name="show_timeout"/>
-    <attr name="rewind_increment"/>
-    <attr name="fastforward_increment"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_shuffle_button"/>
     <attr name="time_bar_min_update_interval"/>
@@ -147,8 +143,6 @@
     <attr name="resize_mode"/>
     <!-- PlayerControlView attributes -->
     <attr name="show_timeout"/>
-    <attr name="rewind_increment"/>
-    <attr name="fastforward_increment"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_shuffle_button"/>
     <attr name="show_subtitle_button"/>
@@ -179,8 +173,6 @@
 
   <declare-styleable name="PlayerControlView">
     <attr name="show_timeout"/>
-    <attr name="rewind_increment"/>
-    <attr name="fastforward_increment"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_rewind_button"/>
     <attr name="show_fastforward_button"/>
@@ -208,8 +200,6 @@
 
   <declare-styleable name="StyledPlayerControlView">
     <attr name="show_timeout"/>
-    <attr name="rewind_increment"/>
-    <attr name="fastforward_increment"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_rewind_button"/>
     <attr name="show_fastforward_button"/>

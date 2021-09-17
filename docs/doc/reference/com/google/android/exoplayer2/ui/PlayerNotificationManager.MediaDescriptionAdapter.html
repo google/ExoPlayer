@@ -121,6 +121,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="DefaultMediaDescriptionAdapter.html" title="class in com.google.android.exoplayer2.ui">DefaultMediaDescriptionAdapter</a></code></dd>
+</dl>
+<dl>
 <dt>Enclosing class:</dt>
 <dd><a href="PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager</a></dd>
 </dl>
@@ -213,6 +217,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which a notification is being built.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The content title for the current media item.</dd>
 </dl>
 </li>
 </ul>
@@ -230,6 +236,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which a notification is being built.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The content intent for the current media item, or null if no intent should be fired.</dd>
 </dl>
 </li>
 </ul>
@@ -247,6 +255,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which a notification is being built.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The content text for the current media item, or null if no context text should be
+     displayed.</dd>
 </dl>
 </li>
 </ul>
@@ -264,6 +275,9 @@ default&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequ
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which a notification is being built.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The content subtext for the current media item, or null if no subtext should be
+     displayed.</dd>
 </dl>
 </li>
 </ul>
@@ -288,6 +302,9 @@ default&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequ
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which a notification is being built.</dd>
 <dd><code>callback</code> - A <a href="PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.BitmapCallback</code></a> to provide a <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Bitmap</code></a> asynchronously.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The large icon for the current media item, or null if the icon will be returned
+     through the <a href="PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.BitmapCallback</code></a> or if no icon should be displayed.</dd>
 </dl>
 </li>
 </ul>

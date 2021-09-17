@@ -26,7 +26,7 @@ directly to the player instead of a `MediaItem`.
 
 ~~~
 // Create a data source factory.
-DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory();
+DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
 // Create a progressive media source pointing to a stream uri.
 MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
     .createMediaSource(MediaItem.fromUri(progressiveUri));

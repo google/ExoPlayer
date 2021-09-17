@@ -44,6 +44,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.media2.test.R;
@@ -168,10 +169,7 @@ public class SessionPlayerConnectorTest {
     SimpleExoPlayer simpleExoPlayer = null;
     SessionPlayerConnector playerConnector = null;
     try {
-      simpleExoPlayer =
-          new SimpleExoPlayer.Builder(context)
-              .setLooper(Looper.myLooper())
-              .build();
+      simpleExoPlayer = new SimpleExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
       playerConnector =
           new SessionPlayerConnector(simpleExoPlayer, new DefaultMediaItemConverter());
       playerConnector.setControlDispatcher(controlDispatcher);
@@ -182,6 +180,45 @@ public class SessionPlayerConnectorTest {
       }
       if (simpleExoPlayer != null) {
         simpleExoPlayer.release();
+      }
+    }
+  }
+
+  @Test
+  @LargeTest
+  public void play_withForwardingPlayer_isSkipped() throws Exception {
+    if (Looper.myLooper() == null) {
+      Looper.prepare();
+    }
+
+    Player forwardingPlayer = null;
+    SessionPlayerConnector playerConnector = null;
+    try {
+      Player simpleExoPlayer =
+          new SimpleExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
+      forwardingPlayer =
+          new ForwardingPlayer(simpleExoPlayer) {
+            @Override
+            public boolean isCommandAvailable(int command) {
+              if (command == COMMAND_PLAY_PAUSE) {
+                return false;
+              }
+              return super.isCommandAvailable(command);
+            }
+
+            @Override
+            public Commands getAvailableCommands() {
+              return super.getAvailableCommands().buildUpon().remove(COMMAND_PLAY_PAUSE).build();
+            }
+          };
+      playerConnector = new SessionPlayerConnector(forwardingPlayer);
+      assertPlayerResult(playerConnector.play(), RESULT_INFO_SKIPPED);
+    } finally {
+      if (playerConnector != null) {
+        playerConnector.close();
+      }
+      if (forwardingPlayer != null) {
+        forwardingPlayer.release();
       }
     }
   }
@@ -1098,7 +1135,7 @@ public class SessionPlayerConnectorTest {
         .runOnMainSync(
             () ->
                 simpleExoPlayer.addListener(
-                    new Player.EventListener() {
+                    new Player.Listener() {
                       @Override
                       public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
                         if (playWhenReady) {

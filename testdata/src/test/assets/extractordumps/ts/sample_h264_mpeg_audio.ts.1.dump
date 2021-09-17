@@ -19,11 +19,11 @@ track 256:
       data = length 29, hash 4C2CAE9C
       data = length 9, hash D971CD89
   sample 0:
-    time = 88977
+    time = 66733
     flags = 1
     data = length 12394, hash A39F5311
   sample 1:
-    time = 122344
+    time = 100100
     flags = 0
     data = length 813, hash 99F7B4FA
 track 257:
@@ -37,19 +37,19 @@ track 257:
     sampleRate = 44100
     language = und
   sample 0:
-    time = 88977
+    time = 66733
     flags = 1
     data = length 1253, hash 727FD1C6
   sample 1:
-    time = 115099
+    time = 92855
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 2:
-    time = 141221
+    time = 118977
     flags = 1
     data = length 1254, hash 73FB07B8
   sample 3:
-    time = 167343
+    time = 145099
     flags = 1
     data = length 1254, hash 73FB07B8
 tracksEnded = true

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Function;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -48,6 +49,15 @@ public final class DumpableFormat implements Dumper.Dumpable {
     addIfNonDefault(dumper, "frameRate", format -> format.frameRate);
     addIfNonDefault(dumper, "rotationDegrees", format -> format.rotationDegrees);
     addIfNonDefault(dumper, "pixelWidthHeightRatio", format -> format.pixelWidthHeightRatio);
+    @Nullable ColorInfo colorInfo = format.colorInfo;
+    if (colorInfo != null) {
+      dumper.startBlock("colorInfo");
+      dumper.add("colorSpace", colorInfo.colorSpace);
+      dumper.add("colorRange", colorInfo.colorRange);
+      dumper.add("colorTransfer", colorInfo.colorTransfer);
+      dumper.add("hdrStaticInfo", colorInfo.hdrStaticInfo);
+      dumper.endBlock();
+    }
     addIfNonDefault(dumper, "channelCount", format -> format.channelCount);
     addIfNonDefault(dumper, "sampleRate", format -> format.sampleRate);
     addIfNonDefault(dumper, "pcmEncoding", format -> format.pcmEncoding);

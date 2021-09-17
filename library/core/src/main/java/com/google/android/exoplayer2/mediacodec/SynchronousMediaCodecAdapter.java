@@ -91,6 +91,11 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   }
 
   @Override
+  public boolean needsReconfiguration() {
+    return false;
+  }
+
+  @Override
   public int dequeueInputBufferIndex() {
     return codec.dequeueInputBuffer(0);
   }

@@ -47,8 +47,15 @@ public abstract class MediaChunk extends Chunk {
       long startTimeUs,
       long endTimeUs,
       long chunkIndex) {
-    super(dataSource, dataSpec, C.DATA_TYPE_MEDIA, trackFormat, trackSelectionReason,
-        trackSelectionData, startTimeUs, endTimeUs);
+    super(
+        dataSource,
+        dataSpec,
+        C.DATA_TYPE_MEDIA,
+        trackFormat,
+        trackSelectionReason,
+        trackSelectionData,
+        startTimeUs,
+        endTimeUs);
     Assertions.checkNotNull(trackFormat);
     this.chunkIndex = chunkIndex;
   }
@@ -58,9 +65,6 @@ public abstract class MediaChunk extends Chunk {
     return chunkIndex != C.INDEX_UNSET ? chunkIndex + 1 : C.INDEX_UNSET;
   }
 
-  /**
-   * Returns whether the chunk has been fully loaded.
-   */
+  /** Returns whether the chunk has been fully loaded. */
   public abstract boolean isLoadCompleted();
-
 }

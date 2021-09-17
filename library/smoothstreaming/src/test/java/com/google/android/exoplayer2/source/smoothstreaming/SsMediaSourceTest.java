@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -65,34 +64,6 @@ public class SsMediaSourceTest {
     assertThat(ssMediaItem.playbackProperties.uri)
         .isEqualTo(castNonNull(mediaItem.playbackProperties).uri);
     assertThat(ssMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    SsMediaSource.Factory factory =
-        new SsMediaSource.Factory(new FileDataSource.Factory()).setTag(tag);
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factoryCreateMediaSource_setsDeprecatedMediaSourceTag() {
-    Object tag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(tag).build();
-    SsMediaSource.Factory factory = new SsMediaSource.Factory(new FileDataSource.Factory());
-
-    @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
-
-    assertThat(mediaSourceTag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility

@@ -23,11 +23,10 @@ public interface SubtitleDecoder
 
   /**
    * Informs the decoder of the current playback position.
-   * <p>
-   * Must be called prior to each attempt to dequeue output buffers from the decoder.
+   *
+   * <p>Must be called prior to each attempt to dequeue output buffers from the decoder.
    *
    * @param positionUs The current playback position in microseconds.
    */
   void setPositionUs(long positionUs);
-
 }

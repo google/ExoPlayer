@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -153,14 +153,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAbsolute(java.lang.String)">isAbsolute</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</code></th>
+<td class="colLast">
+<div class="block">Returns true if the URI is starting with a scheme component, false otherwise.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeQueryParameter(android.net.Uri,java.lang.String)">removeQueryParameter</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;queryParameterName)</code></th>
 <td class="colLast">
-<div class="block">Removes query parameter from an Uri, if present.</div>
+<div class="block">Removes query parameter from a URI, if present.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolve(java.lang.String,java.lang.String)">resolve</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUri,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;referenceUri)</code></th>
@@ -168,7 +175,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Performs relative resolution of a <code>referenceUri</code> with respect to a <code>baseUri</code>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolveToUri(java.lang.String,java.lang.String)">resolveToUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUri,
             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;referenceUri)</code></th>
@@ -238,6 +245,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a id="isAbsolute(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAbsolute</h4>
+<pre class="methodSignature">public static&nbsp;boolean&nbsp;isAbsolute&#8203;(@Nullable
+                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
+<div class="block">Returns true if the URI is starting with a scheme component, false otherwise.</div>
+</li>
+</ul>
 <a id="removeQueryParameter(android.net.Uri,java.lang.String)">
 <!--   -->
 </a>
@@ -246,13 +264,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>removeQueryParameter</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink">Uri</a>&nbsp;removeQueryParameter&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;queryParameterName)</pre>
-<div class="block">Removes query parameter from an Uri, if present.</div>
+<div class="block">Removes query parameter from a URI, if present.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uri</code> - The uri.</dd>
+<dd><code>uri</code> - The URI.</dd>
 <dd><code>queryParameterName</code> - The name of the query parameter.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The uri without the query parameter.</dd>
+<dd>The URI without the query parameter.</dd>
 </dl>
 </li>
 </ul>

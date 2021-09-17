@@ -54,7 +54,8 @@ public final class CommentFrame extends Id3Frame {
       return false;
     }
     CommentFrame other = (CommentFrame) obj;
-    return Util.areEqual(description, other.description) && Util.areEqual(language, other.language)
+    return Util.areEqual(description, other.description)
+        && Util.areEqual(language, other.language)
         && Util.areEqual(text, other.text);
   }
 
@@ -93,7 +94,5 @@ public final class CommentFrame extends Id3Frame {
         public CommentFrame[] newArray(int size) {
           return new CommentFrame[size];
         }
-
       };
-
 }

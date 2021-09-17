@@ -115,8 +115,8 @@ public class FakeDataSet {
         this.action = action;
         this.data = data;
         this.length = length;
-        this.byteOffset = previousSegment == null ? 0
-            : previousSegment.byteOffset + previousSegment.length;
+        this.byteOffset =
+            previousSegment == null ? 0 : previousSegment.byteOffset + previousSegment.length;
       }
 
       public boolean isErrorSegment() {
@@ -126,7 +126,6 @@ public class FakeDataSet {
       public boolean isActionSegment() {
         return action != null;
       }
-
     }
 
     private final FakeDataSet dataSet;
@@ -158,9 +157,7 @@ public class FakeDataSet {
       return this;
     }
 
-    /**
-     * Appends to the underlying data.
-     */
+    /** Appends to the underlying data. */
     public FakeData appendReadData(byte[] data) {
       Assertions.checkState(data.length > 0);
       segments.add(new Segment(data, getLastSegment()));
@@ -168,8 +165,8 @@ public class FakeDataSet {
     }
 
     /**
-     * Appends a data segment of the specified length. No actual data is available and the
-     * {@link FakeDataSource} will perform no copy operations when this data is read.
+     * Appends a data segment of the specified length. No actual data is available and the {@link
+     * FakeDataSource} will perform no copy operations when this data is read.
      */
     public FakeData appendReadData(int length) {
       Assertions.checkState(length > 0);
@@ -177,17 +174,13 @@ public class FakeDataSet {
       return this;
     }
 
-    /**
-     * Appends an error in the underlying data.
-     */
+    /** Appends an error in the underlying data. */
     public FakeData appendReadError(IOException exception) {
       segments.add(new Segment(exception, getLastSegment()));
       return this;
     }
 
-    /**
-     * Appends an action.
-     */
+    /** Appends an action. */
     public FakeData appendReadAction(Runnable action) {
       segments.add(new Segment(action, getLastSegment()));
       return this;
@@ -223,7 +216,6 @@ public class FakeDataSet {
       int count = segments.size();
       return count > 0 ? segments.get(count - 1) : null;
     }
-
   }
 
   private final HashMap<Uri, FakeData> dataMap;
@@ -292,5 +284,4 @@ public class FakeDataSet {
     }
     return fakeDatas;
   }
-
 }

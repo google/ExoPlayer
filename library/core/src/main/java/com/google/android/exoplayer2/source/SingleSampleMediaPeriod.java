@@ -351,6 +351,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public int readData(
         FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       maybeNotifyDownstreamFormat();
+      if (loadingFinished && sampleData == null) {
+        streamState = STREAM_STATE_END_OF_STREAM;
+      }
+
       if (streamState == STREAM_STATE_END_OF_STREAM) {
         buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
@@ -365,12 +369,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!loadingFinished) {
         return C.RESULT_NOTHING_READ;
       }
-
-      if (sampleData == null) {
-        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
-        streamState = STREAM_STATE_END_OF_STREAM;
-        return C.RESULT_BUFFER_READ;
-      }
+      Assertions.checkNotNull(sampleData);
 
       buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       buffer.timeUs = 0;

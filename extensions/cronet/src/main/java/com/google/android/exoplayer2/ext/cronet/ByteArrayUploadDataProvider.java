@@ -22,9 +22,7 @@ import java.nio.ByteBuffer;
 import org.chromium.net.UploadDataProvider;
 import org.chromium.net.UploadDataSink;
 
-/**
- * A {@link UploadDataProvider} implementation that provides data from a {@code byte[]}.
- */
+/** A {@link UploadDataProvider} implementation that provides data from a {@code byte[]}. */
 /* package */ final class ByteArrayUploadDataProvider extends UploadDataProvider {
 
   private final byte[] data;
@@ -53,5 +51,4 @@ import org.chromium.net.UploadDataSink;
     position = 0;
     uploadDataSink.onRewindSucceeded();
   }
-
 }

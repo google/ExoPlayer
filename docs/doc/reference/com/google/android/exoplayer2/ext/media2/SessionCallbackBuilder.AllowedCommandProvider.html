@@ -163,7 +163,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>androidx.media2.session.SessionCommandGroup</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAllowedCommands(androidx.media2.session.MediaSession,androidx.media2.session.MediaSession.ControllerInfo,androidx.media2.session.SessionCommandGroup)">getAllowedCommands</a></span>&#8203;(androidx.media2.session.MediaSession&nbsp;session,
                   androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo,
-                  androidx.media2.session.SessionCommandGroup&nbsp;baseAllowedSessionCommand)</code></th>
+                  androidx.media2.session.SessionCommandGroup&nbsp;baseAllowedSessionCommands)</code></th>
 <td class="colLast">
 <div class="block">Called to query allowed commands in following cases:
 
@@ -232,7 +232,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getAllowedCommands</h4>
 <pre class="methodSignature">androidx.media2.session.SessionCommandGroup&nbsp;getAllowedCommands&#8203;(androidx.media2.session.MediaSession&nbsp;session,
                                                                androidx.media2.session.MediaSession.ControllerInfo&nbsp;controllerInfo,
-                                                               androidx.media2.session.SessionCommandGroup&nbsp;baseAllowedSessionCommand)</pre>
+                                                               androidx.media2.session.SessionCommandGroup&nbsp;baseAllowedSessionCommands)</pre>
 <div class="block">Called to query allowed commands in following cases:
 
  <ul>
@@ -250,7 +250,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>session</code> - The media session.</dd>
 <dd><code>controllerInfo</code> - The <code>MediaSession.ControllerInfo</code> for the controller for which allowed
      commands are being queried.</dd>
-<dd><code>baseAllowedSessionCommand</code> - Base allowed session commands for customization.</dd>
+<dd><code>baseAllowedSessionCommands</code> - Base allowed session commands for customization.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The allowed commands for the controller.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>

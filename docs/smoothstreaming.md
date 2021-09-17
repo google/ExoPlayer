@@ -41,7 +41,7 @@ directly to the player instead of a `MediaItem`.
 
 ~~~
 // Create a data source factory.
-DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory();
+DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
 // Create a SmoothStreaming media source pointing to a manifest uri.
 MediaSource mediaSource =
     new SsMediaSource.Factory(dataSourceFactory)

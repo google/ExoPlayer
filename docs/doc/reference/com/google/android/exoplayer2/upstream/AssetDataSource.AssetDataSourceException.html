@@ -81,7 +81,7 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -124,7 +124,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">java.io.IOException</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.DataSourceException</a></li>
+<li>
+<ul class="inheritance">
 <li>com.google.android.exoplayer2.upstream.AssetDataSource.AssetDataSourceException</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -147,7 +152,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">AssetDataSource.AssetDataSourceException</span>
-extends <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+extends <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></pre>
 <div class="block">Thrown when an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a> is encountered reading a local asset.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -159,6 +164,23 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.upstream.DataSourceException">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></h3>
+<code><a href="DataSourceException.html#POSITION_OUT_OF_RANGE">POSITION_OUT_OF_RANGE</a>, <a href="DataSourceException.html#reason">reason</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -174,7 +196,18 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.io.IOException)">AssetDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.Throwable,int)"><code>AssetDataSourceException(Throwable, int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Throwable,int)">AssetDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                        int&nbsp;errorCode)</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -187,6 +220,13 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <!--   -->
 </a>
 <h3>Method Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.upstream.DataSourceException">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></h3>
+<code><a href="DataSourceException.html#isCausedByPositionOutOfRange(java.io.IOException)">isCausedByPositionOutOfRange</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Throwable">
 <!--   -->
@@ -220,10 +260,32 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <a id="&lt;init&gt;(java.io.IOException)">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>AssetDataSourceException</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;AssetDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.Throwable,int)"><code>AssetDataSourceException(Throwable, int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.Throwable,int)">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AssetDataSourceException</h4>
-<pre>public&nbsp;AssetDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause)</pre>
+<pre>public&nbsp;AssetDataSourceException&#8203;(@Nullable
+                                <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                                <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                                int&nbsp;errorCode)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The error cause.</dd>
+<dd><code>errorCode</code> - See <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -278,7 +340,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

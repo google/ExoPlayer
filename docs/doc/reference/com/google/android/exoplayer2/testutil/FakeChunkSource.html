@@ -249,10 +249,10 @@ implements <a href="../source/chunk/ChunkSource.html" title="interface in com.go
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">onChunkLoadError</a></span>&#8203;(<a href="../source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">onChunkLoadError</a></span>&#8203;(<a href="../source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                 boolean&nbsp;cancelable,
-                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;e,
-                long&nbsp;exclusionDurationMs)</code></th>
+                <a href="../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
+                <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
 <div class="block">Called when the <a href="../source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
@@ -457,7 +457,7 @@ implements <a href="../source/chunk/ChunkSource.html" title="interface in com.go
 </dl>
 </li>
 </ul>
-<a id="onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">
+<a id="onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -465,20 +465,20 @@ implements <a href="../source/chunk/ChunkSource.html" title="interface in com.go
 <h4>onChunkLoadError</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onChunkLoadError&#8203;(<a href="../source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                                 boolean&nbsp;cancelable,
-                                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;e,
-                                long&nbsp;exclusionDurationMs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">ChunkSource</a></code></span></div>
+                                <a href="../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
+                                <a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../source/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,java.lang.Exception,long)">onChunkLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dd><code><a href="../source/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">onChunkLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunk</code> - The chunk whose load encountered the error.</dd>
 <dd><code>cancelable</code> - Whether the load can be canceled.</dd>
-<dd><code>e</code> - The error.</dd>
-<dd><code>exclusionDurationMs</code> - The duration for which the associated track may be excluded, or
-     <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the track may not be excluded.</dd>
+<dd><code>loadErrorInfo</code> - The load error info.</dd>
+<dd><code>loadErrorHandlingPolicy</code> - The load error handling policy to customize the behaviour of
+     handling the load error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the load should be canceled so that a replacement chunk can be loaded instead.
      Must be <code>false</code> if <code>cancelable</code> is <code>false</code>. If <code>true</code>, <a href="../source/chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)"><code>ChunkSource.getNextChunk(long, long, List, ChunkHolder)</code></a> will be called to obtain the replacement

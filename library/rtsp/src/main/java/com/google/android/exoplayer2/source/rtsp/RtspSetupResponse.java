@@ -16,8 +16,6 @@
 package com.google.android.exoplayer2.source.rtsp;
 
 /** Represents an RTSP SETUP response. */
-// TODO(b/180434754) Move all classes under message to the parent rtsp package, and change the
-// visibility.
 /* package */ final class RtspSetupResponse {
 
   /** The response's status code. */

@@ -327,7 +327,8 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.nextString(); // Ignore.
             break;
           default:
-            throw new ParserException("Unsupported name: " + name);
+            throw ParserException.createForMalformedManifest(
+                "Unsupported name: " + name, /* cause= */ null);
         }
       }
       reader.endObject();
@@ -415,7 +416,8 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.endArray();
             break;
           default:
-            throw new ParserException("Unsupported attribute name: " + name);
+            throw ParserException.createForMalformedManifest(
+                "Unsupported attribute name: " + name, /* cause= */ null);
         }
       }
       reader.endObject();

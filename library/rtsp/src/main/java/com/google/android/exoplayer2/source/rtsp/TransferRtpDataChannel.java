@@ -26,8 +26,6 @@ import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedB
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -37,16 +35,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 
   private static final String DEFAULT_TCP_TRANSPORT_FORMAT =
       "RTP/AVP/TCP;unicast;interleaved=%d-%d";
-  private static final long TIMEOUT_MS = 8_000;
 
   private final LinkedBlockingQueue<byte[]> packetQueue;
+  private final long pollTimeoutMs;
 
   private byte[] unreadData;
   private int channelNumber;
 
-  /** Creates a new instance. */
-  public TransferRtpDataChannel() {
+  /**
+   * Creates a new instance.
+   *
+   * @param pollTimeoutMs The number of milliseconds which {@link #read} waits for a packet to be
+   *     available. After the time has expired, {@link C#RESULT_END_OF_INPUT} is returned.
+   */
+  public TransferRtpDataChannel(long pollTimeoutMs) {
     super(/* isNetwork= */ true);
+    this.pollTimeoutMs = pollTimeoutMs;
     packetQueue = new LinkedBlockingQueue<>();
     unreadData = new byte[0];
     channelNumber = C.INDEX_UNSET;
@@ -84,14 +88,14 @@ import java.util.concurrent.LinkedBlockingQueue;
   }
 
   @Override
-  public int read(byte[] target, int offset, int length) throws IOException {
+  public int read(byte[] buffer, int offset, int length) {
     if (length == 0) {
       return 0;
     }
 
     int bytesRead = 0;
     int bytesToRead = min(length, unreadData.length);
-    System.arraycopy(unreadData, /* srcPos= */ 0, target, offset, bytesToRead);
+    System.arraycopy(unreadData, /* srcPos= */ 0, buffer, offset, bytesToRead);
     bytesRead += bytesToRead;
     unreadData = Arrays.copyOfRange(unreadData, bytesToRead, unreadData.length);
 
@@ -101,11 +105,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
     @Nullable byte[] data;
     try {
-      // TODO(internal b/172331505) Consider move the receiving timeout logic to an upper level
-      // (maybe RtspClient). There is no actual socket receiving here.
-      data = packetQueue.poll(TIMEOUT_MS, MILLISECONDS);
+      data = packetQueue.poll(pollTimeoutMs, MILLISECONDS);
       if (data == null) {
-        throw new IOException(new SocketTimeoutException());
+        return C.RESULT_END_OF_INPUT;
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -113,7 +115,7 @@ import java.util.concurrent.LinkedBlockingQueue;
     }
 
     bytesToRead = min(length - bytesRead, data.length);
-    System.arraycopy(data, /* srcPos= */ 0, target, offset + bytesRead, bytesToRead);
+    System.arraycopy(data, /* srcPos= */ 0, buffer, offset + bytesRead, bytesToRead);
     if (bytesToRead < data.length) {
       unreadData = Arrays.copyOfRange(data, bytesToRead, data.length);
     }

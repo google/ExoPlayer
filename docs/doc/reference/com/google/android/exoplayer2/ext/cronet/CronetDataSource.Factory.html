@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var data = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":42,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -164,6 +164,15 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper,java.util.concurrent.Executor)">Factory</a></span>&#8203;(<a href="CronetEngineWrapper.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetEngineWrapper</a>&nbsp;cronetEngineWrapper,
        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor)"><code>Factory(CronetEngine, Executor)</code></a> with an instantiated <code>CronetEngine</code>, or <a href="../../upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a> for cases where <a href="CronetEngineWrapper.html#getCronetEngine()"><code>CronetEngineWrapper.getCronetEngine()</code></a> would have returned <code>null</code>.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor)">Factory</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+       <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</code></th>
+<td class="colLast">
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -226,7 +235,10 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <td class="colFirst"><code><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFallbackFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setFallbackFactory</a></span>&#8203;(<a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;fallbackFactory)</code></th>
 <td class="colLast">
-<div class="block">Sets the fallback <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> that is used as a fallback if the <a href="CronetEngineWrapper.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetEngineWrapper</code></a> fails to provide a <code>CronetEngine</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Do not use <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> or its factory in cases where a suitable
+     <code>CronetEngine</code> is not available.</div>
+</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -239,26 +251,42 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeepPostFor302Redirects(boolean)">setKeepPostFor302Redirects</a></span>&#8203;(boolean&nbsp;keepPostFor302Redirects)</code></th>
+<td class="colLast">
+<div class="block">Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
+ POST request.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReadTimeoutMs(int)">setReadTimeoutMs</a></span>&#8203;(int&nbsp;readTimeoutMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the read timeout, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRequestPriority(int)">setRequestPriority</a></span>&#8203;(int&nbsp;requestPriority)</code></th>
+<td class="colLast">
+<div class="block">Sets the priority of requests made by <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> instances created by this
+ factory.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResetTimeoutOnRedirects(boolean)">setResetTimeoutOnRedirects</a></span>&#8203;(boolean&nbsp;resetTimeoutOnRedirects)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the connect timeout is reset when a redirect occurs.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">setTransferListener</a></span>&#8203;(<a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that will be used.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUserAgent(java.lang.String)">setUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
@@ -289,14 +317,40 @@ implements <a href="../../upstream/HttpDataSource.Factory.html" title="interface
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Factory</h4>
+<pre>public&nbsp;Factory&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+               <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cronetEngine</code> - A <code>CronetEngine</code> to make the requests. This should <em>not</em> be
+     a fallback instance obtained from <code>JavaCronetProvider</code>. It's more efficient to use
+     <a href="../../upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a> instead in this case.</dd>
+<dd><code>executor</code> - The <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top"><code>Executor</code></a> that will handle responses. This
+     may be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a
+     thread hop from Cronet's internal network thread to the response handling thread.
+     However, to avoid slowing down overall network performance, care must be taken to make
+     sure response handling is a fast operation when using a direct executor.</dd>
+</dl>
+</li>
+</ul>
 <a id="&lt;init&gt;(com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper,java.util.concurrent.Executor)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Factory</h4>
-<pre>public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetEngineWrapper</a>&nbsp;cronetEngineWrapper,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;Factory&#8203;(<a href="CronetEngineWrapper.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetEngineWrapper</a>&nbsp;cronetEngineWrapper,
                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor)"><code>Factory(CronetEngine, Executor)</code></a> with an instantiated <code>CronetEngine</code>, or <a href="../../upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a> for cases where <a href="CronetEngineWrapper.html#getCronetEngine()"><code>CronetEngineWrapper.getCronetEngine()</code></a> would have returned <code>null</code>.</div>
+</div>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -375,6 +429,26 @@ public final&nbsp;<a href="../../upstream/HttpDataSource.RequestProperties.html"
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>userAgent</code> - The user agent that will be used, or <code>null</code> to use the default user
      agent of the underlying <code>CronetEngine</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory.</dd>
+</dl>
+</li>
+</ul>
+<a id="setRequestPriority(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRequestPriority</h4>
+<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setRequestPriority&#8203;(int&nbsp;requestPriority)</pre>
+<div class="block">Sets the priority of requests made by <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> instances created by this
+ factory.
+
+ <p>The default is <code>UrlRequest.Builder.REQUEST_PRIORITY_MEDIUM</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>requestPriority</code> - The request priority, which should be one of Cronet's <code>
+     UrlRequest.Builder#REQUEST_PRIORITY_*</code> constants.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory.</dd>
 </dl>
@@ -475,6 +549,17 @@ public final&nbsp;<a href="../../upstream/HttpDataSource.RequestProperties.html"
 </dl>
 </li>
 </ul>
+<a id="setKeepPostFor302Redirects(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setKeepPostFor302Redirects</h4>
+<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setKeepPostFor302Redirects&#8203;(boolean&nbsp;keepPostFor302Redirects)</pre>
+<div class="block">Sets whether we should keep the POST method and body when we have HTTP 302 redirects for a
+ POST request.</div>
+</li>
+</ul>
 <a id="setTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">
 <!--   -->
 </a>
@@ -502,8 +587,13 @@ public final&nbsp;<a href="../../upstream/HttpDataSource.RequestProperties.html"
 <ul class="blockList">
 <li class="blockList">
 <h4>setFallbackFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setFallbackFactory&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a>&nbsp;setFallbackFactory&#8203;(@Nullable
                                                    <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;fallbackFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Do not use <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> or its factory in cases where a suitable
+     <code>CronetEngine</code> is not available. Use the fallback factory directly in such cases.</div>
+</div>
 <div class="block">Sets the fallback <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> that is used as a fallback if the <a href="CronetEngineWrapper.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetEngineWrapper</code></a> fails to provide a <code>CronetEngine</code>.
 
  <p>By default a <a href="../../upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a> is used as fallback factory.</div>

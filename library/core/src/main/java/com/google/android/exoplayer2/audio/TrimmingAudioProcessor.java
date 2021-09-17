@@ -178,5 +178,4 @@ import java.nio.ByteBuffer;
   protected void onReset() {
     endBuffer = Util.EMPTY_BYTE_ARRAY;
   }
-
 }

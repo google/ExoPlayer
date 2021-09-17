@@ -174,17 +174,6 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     adsLoader.setSupportedContentTypes(adMediaSourceFactory.getSupportedTypes());
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    return contentMediaSource.getTag();
-  }
-
   @Override
   public MediaItem getMediaItem() {
     return contentMediaSource.getMediaItem();
@@ -316,11 +305,11 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
         @Nullable
         AdMediaSourceHolder adMediaSourceHolder =
             this.adMediaSourceHolders[adGroupIndex][adIndexInAdGroup];
+        AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
         if (adMediaSourceHolder != null
             && !adMediaSourceHolder.hasMediaSource()
-            && adPlaybackState.adGroups[adGroupIndex] != null
-            && adIndexInAdGroup < adPlaybackState.adGroups[adGroupIndex].uris.length) {
-          @Nullable Uri adUri = adPlaybackState.adGroups[adGroupIndex].uris[adIndexInAdGroup];
+            && adIndexInAdGroup < adGroup.uris.length) {
+          @Nullable Uri adUri = adGroup.uris[adIndexInAdGroup];
           if (adUri != null) {
             MediaItem.Builder adMediaItem = new MediaItem.Builder().setUri(adUri);
             // Propagate the content's DRM config into the ad media source.

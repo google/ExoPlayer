@@ -144,7 +144,8 @@ public final class RawCcExtractor implements Extractor {
       }
       timestampUs = dataScratch.readLong();
     } else {
-      throw new ParserException("Unsupported version number: " + version);
+      throw ParserException.createForMalformedContainer(
+          "Unsupported version number: " + version, /* cause= */ null);
     }
 
     remainingSampleCount = dataScratch.readUnsignedByte();

@@ -42,6 +42,7 @@ public final class UriUtilTest {
     assertThat(resolve(base, "g/")).isEqualTo("http://a/b/c/g/");
     assertThat(resolve(base, "/g")).isEqualTo("http://a/g");
     assertThat(resolve(base, "//g")).isEqualTo("http://g");
+    assertThat(resolve(base, "//g:80")).isEqualTo("http://g:80");
     assertThat(resolve(base, "?y")).isEqualTo("http://a/b/c/d;p?y");
     assertThat(resolve(base, "g?y")).isEqualTo("http://a/b/c/g?y");
     assertThat(resolve(base, "#s")).isEqualTo("http://a/b/c/d;p?q#s");
@@ -133,5 +134,25 @@ public final class UriUtilTest {
     assertThat(removeQueryParameter(uri, "foo").toString()).isEqualTo("http://uri");
     uri = Uri.parse("http://uri?query=value");
     assertThat(removeQueryParameter(uri, "foo").toString()).isEqualTo("http://uri?query=value");
+  }
+
+  @Test
+  public void isAbsolute_absoluteUri_returnsTrue() {
+    assertThat(UriUtil.isAbsolute("fo://bar")).isTrue();
+  }
+
+  @Test
+  public void isAbsolute_emptyString_returnsFalse() {
+    assertThat(UriUtil.isAbsolute("")).isFalse();
+    assertThat(UriUtil.isAbsolute("      ")).isFalse();
+    assertThat(UriUtil.isAbsolute(null)).isFalse();
+  }
+
+  @Test
+  public void isAbsolute_relativeUri_returnsFalse() {
+    assertThat(UriUtil.isAbsolute("//www.google.com")).isFalse();
+    assertThat(UriUtil.isAbsolute("//www.google.com:80")).isFalse();
+    assertThat(UriUtil.isAbsolute("/path/to/file")).isFalse();
+    assertThat(UriUtil.isAbsolute("path/to/file")).isFalse();
   }
 }

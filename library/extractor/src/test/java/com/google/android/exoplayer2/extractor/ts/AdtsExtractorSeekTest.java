@@ -32,9 +32,11 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link AdtsExtractor}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class AdtsExtractorSeekTest {
 
   private static final Random random = new Random(1234L);

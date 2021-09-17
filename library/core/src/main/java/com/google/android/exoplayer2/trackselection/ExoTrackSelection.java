@@ -134,9 +134,9 @@ public interface ExoTrackSelection extends TrackSelection {
    * Called to notify the selection of the current playback speed. The playback speed may affect
    * adaptive track selection.
    *
-   * @param speed The factor by which playback is sped up.
+   * @param playbackSpeed The factor by which playback is sped up.
    */
-  void onPlaybackSpeed(float speed);
+  void onPlaybackSpeed(float playbackSpeed);
 
   /**
    * Called to notify the selection of a position discontinuity.

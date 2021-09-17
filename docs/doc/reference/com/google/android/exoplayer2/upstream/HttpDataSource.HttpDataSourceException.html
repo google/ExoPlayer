@@ -25,6 +25,12 @@
     catch(err) {
     }
 //-->
+var data = {"i0":9};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../../";
 var useModuleDirectories = false;
 loadScripts(document, 'script');</script>
@@ -89,7 +95,7 @@ loadScripts(document, 'script');</script>
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.top">
@@ -124,7 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">java.io.IOException</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.DataSourceException</a></li>
+<li>
+<ul class="inheritance">
 <li>com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -151,7 +162,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public static class <span class="typeNameLabel">HttpDataSource.HttpDataSourceException</span>
-extends <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+extends <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></pre>
 <div class="block">Thrown when an error is encountered when trying to read from a <a href="HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -180,7 +191,9 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException.Type</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">The type of operation that produced the error.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -215,19 +228,32 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_CLOSE">TYPE_CLOSE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">The error occurred in closing a <code>HttpDataSource</code>.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_OPEN">TYPE_OPEN</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">The error occurred reading data from a <code>HttpDataSource</code>.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_READ">TYPE_READ</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">The error occurred in opening a <code>HttpDataSource</code>.</div>
+</td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.upstream.DataSourceException">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></h3>
+<code><a href="DataSourceException.html#POSITION_OUT_OF_RANGE">POSITION_OUT_OF_RANGE</a>, <a href="DataSourceException.html#reason">reason</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -247,26 +273,81 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSpec,int)">HttpDataSourceException</a></span>&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                        int&nbsp;type)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)</code></a>.</div>
+</div>
+</td>
 </tr>
 <tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSpec,int,int)">HttpDataSourceException</a></span>&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                       int&nbsp;errorCode,
+                       int&nbsp;type)</code></th>
+<td class="colLast">
+<div class="block">Constructs an HttpDataSourceException.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int)">HttpDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
                        <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                        int&nbsp;type)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(IOException, DataSpec,
+     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)">HttpDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+                       <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                       int&nbsp;errorCode,
+                       int&nbsp;type)</code></th>
+<td class="colLast">
+<div class="block">Constructs an HttpDataSourceException.</div>
+</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.DataSpec,int)">HttpDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                        <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                        int&nbsp;type)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(String, DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+     int)</code></a>.</div>
+</div>
+</td>
 </tr>
 <tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.DataSpec,int,int)">HttpDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                       <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                       int&nbsp;errorCode,
+                       int&nbsp;type)</code></th>
+<td class="colLast">
+<div class="block">Constructs an HttpDataSourceException.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int)">HttpDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                        <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
                        <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                        int&nbsp;type)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.String,java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(String, IOException, DataSpec,
+     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)">HttpDataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                       <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+                       <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                       int&nbsp;errorCode,
+                       int&nbsp;type)</code></th>
+<td class="colLast">
+<div class="block">Constructs an HttpDataSourceException.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -279,6 +360,31 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <!--   -->
 </a>
 <h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>static <a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForIOException(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int)">createForIOException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+                    <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                    int&nbsp;type)</code></th>
+<td class="colLast">
+<div class="block">Returns a <code>HttpDataSourceException</code> whose error code is assigned according to the cause
+ and type.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.upstream.DataSourceException">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.upstream.<a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream">DataSourceException</a></h3>
+<code><a href="DataSourceException.html#isCausedByPositionOutOfRange(java.io.IOException)">isCausedByPositionOutOfRange</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Throwable">
 <!--   -->
@@ -316,6 +422,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <li class="blockList">
 <h4>TYPE_OPEN</h4>
 <pre>public static final&nbsp;int TYPE_OPEN</pre>
+<div class="block">The error occurred reading data from a <code>HttpDataSource</code>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException.TYPE_OPEN">Constant Field Values</a></dd>
@@ -329,6 +436,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <li class="blockList">
 <h4>TYPE_READ</h4>
 <pre>public static final&nbsp;int TYPE_READ</pre>
+<div class="block">The error occurred in opening a <code>HttpDataSource</code>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException.TYPE_READ">Constant Field Values</a></dd>
@@ -342,30 +450,31 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <li class="blockList">
 <h4>TYPE_CLOSE</h4>
 <pre>public static final&nbsp;int TYPE_CLOSE</pre>
+<div class="block">The error occurred in closing a <code>HttpDataSource</code>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException.TYPE_CLOSE">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a id="type">
+<a id="dataSpec">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>type</h4>
-<pre><a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
-public final&nbsp;int type</pre>
+<h4>dataSpec</h4>
+<pre>public final&nbsp;<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a> dataSpec</pre>
+<div class="block">The <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> associated with the current connection.</div>
 </li>
 </ul>
-<a id="dataSpec">
+<a id="type">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>dataSpec</h4>
-<pre>public final&nbsp;<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a> dataSpec</pre>
-<div class="block">The <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> associated with the current connection.</div>
+<h4>type</h4>
+<pre><a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
+public final&nbsp;int type</pre>
 </li>
 </ul>
 </li>
@@ -384,9 +493,33 @@ public final&nbsp;int type</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>HttpDataSourceException</h4>
-<pre>public&nbsp;HttpDataSourceException&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;HttpDataSourceException&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
                                int&nbsp;type)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSpec,int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HttpDataSourceException</h4>
+<pre>public&nbsp;HttpDataSourceException&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                               <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                               int&nbsp;errorCode,
+                               <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
+                               int&nbsp;type)</pre>
+<div class="block">Constructs an HttpDataSourceException.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataSpec</code> - The <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
+<dd><code>errorCode</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+<dd><code>type</code> - See <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream"><code>HttpDataSource.HttpDataSourceException.Type</code></a>.</dd>
+</dl>
 </li>
 </ul>
 <a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.upstream.DataSpec,int)">
@@ -395,10 +528,37 @@ public final&nbsp;int type</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>HttpDataSourceException</h4>
-<pre>public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                                <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
                                int&nbsp;type)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(String, DataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+     int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.upstream.DataSpec,int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HttpDataSourceException</h4>
+<pre>public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                               <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                               <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                               int&nbsp;errorCode,
+                               <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
+                               int&nbsp;type)</pre>
+<div class="block">Constructs an HttpDataSourceException.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>message</code> - The error message.</dd>
+<dd><code>dataSpec</code> - The <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
+<dd><code>errorCode</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+<dd><code>type</code> - See <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream"><code>HttpDataSource.HttpDataSourceException.Type</code></a>.</dd>
+</dl>
 </li>
 </ul>
 <a id="&lt;init&gt;(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int)">
@@ -407,23 +567,104 @@ public final&nbsp;int type</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>HttpDataSourceException</h4>
-<pre>public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
                                <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
                                int&nbsp;type)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(IOException, DataSpec,
+     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HttpDataSourceException</h4>
+<pre>public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+                               <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                               <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                               int&nbsp;errorCode,
+                               <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
+                               int&nbsp;type)</pre>
+<div class="block">Constructs an HttpDataSourceException.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The error cause.</dd>
+<dd><code>dataSpec</code> - The <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
+<dd><code>errorCode</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+<dd><code>type</code> - See <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream"><code>HttpDataSource.HttpDataSourceException.Type</code></a>.</dd>
+</dl>
 </li>
 </ul>
 <a id="&lt;init&gt;(java.lang.String,java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HttpDataSourceException</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                               <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+                               <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                               <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
+                               int&nbsp;type)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.String,java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)"><code>HttpDataSourceException(String, IOException, DataSpec,
+     PlaybackException.ERROR_CODE_IO_UNSPECIFIED, int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.String,java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int,int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>HttpDataSourceException</h4>
 <pre>public&nbsp;HttpDataSourceException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                               @Nullable
                                <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
                                <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                               <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
+                               int&nbsp;errorCode,
                                <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
                                int&nbsp;type)</pre>
+<div class="block">Constructs an HttpDataSourceException.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>message</code> - The error message.</dd>
+<dd><code>cause</code> - The error cause.</dd>
+<dd><code>dataSpec</code> - The <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
+<dd><code>errorCode</code> - Reason of the error, should be one of the <code>ERROR_CODE_IO_*</code> in <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</dd>
+<dd><code>type</code> - See <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream"><code>HttpDataSource.HttpDataSourceException.Type</code></a>.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="createForIOException(java.io.IOException,com.google.android.exoplayer2.upstream.DataSpec,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>createForIOException</h4>
+<pre class="methodSignature">public static&nbsp;<a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a>&nbsp;createForIOException&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
+                                                                          <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                                                                          <a href="HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">@Type</a>
+                                                                          int&nbsp;type)</pre>
+<div class="block">Returns a <code>HttpDataSourceException</code> whose error code is assigned according to the cause
+ and type.</div>
 </li>
 </ul>
 </li>
@@ -486,7 +727,7 @@ public final&nbsp;int type</pre>
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a id="skip.navbar.bottom">

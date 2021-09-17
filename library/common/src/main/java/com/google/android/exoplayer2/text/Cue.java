@@ -17,23 +17,28 @@ package com.google.android.exoplayer2.text;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.text.Layout;
 import android.text.Layout.Alignment;
 import android.text.Spanned;
 import android.text.SpannedString;
+import android.text.TextUtils;
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import org.checkerframework.dataflow.qual.Pure;
 
 /** Contains information about a specific cue, including textual content and formatting data. */
 // This class shouldn't be sub-classed. If a subtitle format needs additional fields, either they
 // should be generic enough to be added here, or the format-specific decoder should pass the
 // information around in a sidecar object.
-public final class Cue {
+public final class Cue implements Bundleable {
 
   /** The empty cue. */
   public static final Cue EMPTY = new Cue.Builder().setText("").build();
@@ -60,9 +65,7 @@ public final class Cue {
    */
   public static final int ANCHOR_TYPE_START = 0;
 
-  /**
-   * Anchors the middle of the cue box.
-   */
+  /** Anchors the middle of the cue box. */
   public static final int ANCHOR_TYPE_MIDDLE = 1;
 
   /**
@@ -80,14 +83,10 @@ public final class Cue {
   @IntDef({TYPE_UNSET, LINE_TYPE_FRACTION, LINE_TYPE_NUMBER})
   public @interface LineType {}
 
-  /**
-   * Value for {@link #lineType} when {@link #line} is a fractional position.
-   */
+  /** Value for {@link #lineType} when {@link #line} is a fractional position. */
   public static final int LINE_TYPE_FRACTION = 0;
 
-  /**
-   * Value for {@link #lineType} when {@link #line} is a line number.
-   */
+  /** Value for {@link #lineType} when {@link #line} is a line number. */
   public static final int LINE_TYPE_NUMBER = 1;
 
   /**
@@ -249,14 +248,10 @@ public final class Cue {
    */
   public final float bitmapHeight;
 
-  /**
-   * Specifies whether or not the {@link #windowColor} property is set.
-   */
+  /** Specifies whether or not the {@link #windowColor} property is set. */
   public final boolean windowColorSet;
 
-  /**
-   * The fill color of the window.
-   */
+  /** The fill color of the window. */
   public final int windowColor;
 
   /**
@@ -490,6 +485,58 @@ public final class Cue {
     return new Cue.Builder(this);
   }
 
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    Cue that = (Cue) obj;
+    return TextUtils.equals(text, that.text)
+        && textAlignment == that.textAlignment
+        && multiRowAlignment == that.multiRowAlignment
+        && (bitmap == null
+            ? that.bitmap == null
+            : (that.bitmap != null && bitmap.sameAs(that.bitmap)))
+        && line == that.line
+        && lineType == that.lineType
+        && lineAnchor == that.lineAnchor
+        && position == that.position
+        && positionAnchor == that.positionAnchor
+        && size == that.size
+        && bitmapHeight == that.bitmapHeight
+        && windowColorSet == that.windowColorSet
+        && windowColor == that.windowColor
+        && textSizeType == that.textSizeType
+        && textSize == that.textSize
+        && verticalType == that.verticalType
+        && shearDegrees == that.shearDegrees;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(
+        text,
+        textAlignment,
+        multiRowAlignment,
+        bitmap,
+        line,
+        lineType,
+        lineAnchor,
+        position,
+        positionAnchor,
+        size,
+        bitmapHeight,
+        windowColorSet,
+        windowColor,
+        textSizeType,
+        textSize,
+        verticalType,
+        shearDegrees);
+  }
+
   /** A builder for {@link Cue} objects. */
   public static final class Builder {
     @Nullable private CharSequence text;
@@ -566,6 +613,7 @@ public final class Cue {
      *
      * @see Cue#text
      */
+    @Pure
     @Nullable
     public CharSequence getText() {
       return text;
@@ -586,6 +634,7 @@ public final class Cue {
      *
      * @see Cue#bitmap
      */
+    @Pure
     @Nullable
     public Bitmap getBitmap() {
       return bitmap;
@@ -608,6 +657,7 @@ public final class Cue {
      *
      * @see Cue#textAlignment
      */
+    @Pure
     @Nullable
     public Alignment getTextAlignment() {
       return textAlignment;
@@ -644,6 +694,7 @@ public final class Cue {
      *
      * @see Cue#line
      */
+    @Pure
     public float getLine() {
       return line;
     }
@@ -653,6 +704,7 @@ public final class Cue {
      *
      * @see Cue#lineType
      */
+    @Pure
     @LineType
     public int getLineType() {
       return lineType;
@@ -673,6 +725,7 @@ public final class Cue {
      *
      * @see Cue#lineAnchor
      */
+    @Pure
     @AnchorType
     public int getLineAnchor() {
       return lineAnchor;
@@ -695,6 +748,7 @@ public final class Cue {
      *
      * @see Cue#position
      */
+    @Pure
     public float getPosition() {
       return position;
     }
@@ -714,6 +768,7 @@ public final class Cue {
      *
      * @see Cue#positionAnchor
      */
+    @Pure
     @AnchorType
     public int getPositionAnchor() {
       return positionAnchor;
@@ -736,6 +791,7 @@ public final class Cue {
      *
      * @see Cue#textSizeType
      */
+    @Pure
     @TextSizeType
     public int getTextSizeType() {
       return textSizeType;
@@ -746,6 +802,7 @@ public final class Cue {
      *
      * @see Cue#textSize
      */
+    @Pure
     public float getTextSize() {
       return textSize;
     }
@@ -767,6 +824,7 @@ public final class Cue {
      *
      * @see Cue#size
      */
+    @Pure
     public float getSize() {
       return size;
     }
@@ -786,6 +844,7 @@ public final class Cue {
      *
      * @see Cue#bitmapHeight
      */
+    @Pure
     public float getBitmapHeight() {
       return bitmapHeight;
     }
@@ -824,6 +883,7 @@ public final class Cue {
      *
      * @see Cue#windowColor
      */
+    @Pure
     @ColorInt
     public int getWindowColor() {
       return windowColor;
@@ -850,6 +910,7 @@ public final class Cue {
      *
      * @see Cue#verticalType
      */
+    @Pure
     @VerticalType
     public int getVerticalType() {
       return verticalType;
@@ -876,5 +937,139 @@ public final class Cue {
           verticalType,
           shearDegrees);
     }
+  }
+
+  // Bundleable implementation.
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_TEXT,
+    FIELD_TEXT_ALIGNMENT,
+    FIELD_MULTI_ROW_ALIGNMENT,
+    FIELD_BITMAP,
+    FIELD_LINE,
+    FIELD_LINE_TYPE,
+    FIELD_LINE_ANCHOR,
+    FIELD_POSITION,
+    FIELD_POSITION_ANCHOR,
+    FIELD_TEXT_SIZE_TYPE,
+    FIELD_TEXT_SIZE,
+    FIELD_SIZE,
+    FIELD_BITMAP_HEIGHT,
+    FIELD_WINDOW_COLOR,
+    FIELD_WINDOW_COLOR_SET,
+    FIELD_VERTICAL_TYPE,
+    FIELD_SHEAR_DEGREES
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_TEXT = 0;
+  private static final int FIELD_TEXT_ALIGNMENT = 1;
+  private static final int FIELD_MULTI_ROW_ALIGNMENT = 2;
+  private static final int FIELD_BITMAP = 3;
+  private static final int FIELD_LINE = 4;
+  private static final int FIELD_LINE_TYPE = 5;
+  private static final int FIELD_LINE_ANCHOR = 6;
+  private static final int FIELD_POSITION = 7;
+  private static final int FIELD_POSITION_ANCHOR = 8;
+  private static final int FIELD_TEXT_SIZE_TYPE = 9;
+  private static final int FIELD_TEXT_SIZE = 10;
+  private static final int FIELD_SIZE = 11;
+  private static final int FIELD_BITMAP_HEIGHT = 12;
+  private static final int FIELD_WINDOW_COLOR = 13;
+  private static final int FIELD_WINDOW_COLOR_SET = 14;
+  private static final int FIELD_VERTICAL_TYPE = 15;
+  private static final int FIELD_SHEAR_DEGREES = 16;
+
+  @Override
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putCharSequence(keyForField(FIELD_TEXT), text);
+    bundle.putSerializable(keyForField(FIELD_TEXT_ALIGNMENT), textAlignment);
+    bundle.putSerializable(keyForField(FIELD_MULTI_ROW_ALIGNMENT), multiRowAlignment);
+    bundle.putParcelable(keyForField(FIELD_BITMAP), bitmap);
+    bundle.putFloat(keyForField(FIELD_LINE), line);
+    bundle.putInt(keyForField(FIELD_LINE_TYPE), lineType);
+    bundle.putInt(keyForField(FIELD_LINE_ANCHOR), lineAnchor);
+    bundle.putFloat(keyForField(FIELD_POSITION), position);
+    bundle.putInt(keyForField(FIELD_POSITION_ANCHOR), positionAnchor);
+    bundle.putInt(keyForField(FIELD_TEXT_SIZE_TYPE), textSizeType);
+    bundle.putFloat(keyForField(FIELD_TEXT_SIZE), textSize);
+    bundle.putFloat(keyForField(FIELD_SIZE), size);
+    bundle.putFloat(keyForField(FIELD_BITMAP_HEIGHT), bitmapHeight);
+    bundle.putBoolean(keyForField(FIELD_WINDOW_COLOR_SET), windowColorSet);
+    bundle.putInt(keyForField(FIELD_WINDOW_COLOR), windowColor);
+    bundle.putInt(keyForField(FIELD_VERTICAL_TYPE), verticalType);
+    bundle.putFloat(keyForField(FIELD_SHEAR_DEGREES), shearDegrees);
+    return bundle;
+  }
+
+  public static final Creator<Cue> CREATOR = Cue::fromBundle;
+
+  private static final Cue fromBundle(Bundle bundle) {
+    Builder builder = new Builder();
+    @Nullable CharSequence text = bundle.getCharSequence(keyForField(FIELD_TEXT));
+    if (text != null) {
+      builder.setText(text);
+    }
+    @Nullable
+    Alignment textAlignment = (Alignment) bundle.getSerializable(keyForField(FIELD_TEXT_ALIGNMENT));
+    if (textAlignment != null) {
+      builder.setTextAlignment(textAlignment);
+    }
+    @Nullable
+    Alignment multiRowAlignment =
+        (Alignment) bundle.getSerializable(keyForField(FIELD_MULTI_ROW_ALIGNMENT));
+    if (multiRowAlignment != null) {
+      builder.setMultiRowAlignment(multiRowAlignment);
+    }
+    @Nullable Bitmap bitmap = bundle.getParcelable(keyForField(FIELD_BITMAP));
+    if (bitmap != null) {
+      builder.setBitmap(bitmap);
+    }
+    if (bundle.containsKey(keyForField(FIELD_LINE))
+        && bundle.containsKey(keyForField(FIELD_LINE_TYPE))) {
+      builder.setLine(
+          bundle.getFloat(keyForField(FIELD_LINE)), bundle.getInt(keyForField(FIELD_LINE_TYPE)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_LINE_ANCHOR))) {
+      builder.setLineAnchor(bundle.getInt(keyForField(FIELD_LINE_ANCHOR)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_POSITION))) {
+      builder.setPosition(bundle.getFloat(keyForField(FIELD_POSITION)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_POSITION_ANCHOR))) {
+      builder.setPositionAnchor(bundle.getInt(keyForField(FIELD_POSITION_ANCHOR)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_TEXT_SIZE))
+        && bundle.containsKey(keyForField(FIELD_TEXT_SIZE_TYPE))) {
+      builder.setTextSize(
+          bundle.getFloat(keyForField(FIELD_TEXT_SIZE)),
+          bundle.getInt(keyForField(FIELD_TEXT_SIZE_TYPE)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_SIZE))) {
+      builder.setSize(bundle.getFloat(keyForField(FIELD_SIZE)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_BITMAP_HEIGHT))) {
+      builder.setBitmapHeight(bundle.getFloat(keyForField(FIELD_BITMAP_HEIGHT)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_WINDOW_COLOR))) {
+      builder.setWindowColor(bundle.getInt(keyForField(FIELD_WINDOW_COLOR)));
+    }
+    if (!bundle.getBoolean(keyForField(FIELD_WINDOW_COLOR_SET), /* defaultValue= */ false)) {
+      builder.clearWindowColor();
+    }
+    if (bundle.containsKey(keyForField(FIELD_VERTICAL_TYPE))) {
+      builder.setVerticalType(bundle.getInt(keyForField(FIELD_VERTICAL_TYPE)));
+    }
+    if (bundle.containsKey(keyForField(FIELD_SHEAR_DEGREES))) {
+      builder.setShearDegrees(bundle.getFloat(keyForField(FIELD_SHEAR_DEGREES)));
+    }
+    return builder.build();
+  }
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

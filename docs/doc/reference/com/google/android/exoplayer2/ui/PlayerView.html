@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":42,"i35":10,"i36":42,"i37":10,"i38":10,"i39":10,"i40":42,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":9};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":42,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,7 +158,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
  overriding drawables, overriding the view's layout file, or by specifying a custom view layout
  file.
 
- <h3>Attributes</h3>
+ <h2>Attributes</h2>
 
  The following attributes can be set on a PlayerView when used in a layout XML file:
 
@@ -249,13 +249,13 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
        exo_controller</code> (see below).
  </ul>
 
- <h3>Overriding drawables</h3>
+ <h2>Overriding drawables</h2>
 
  The drawables used by <a href="PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a> (with its default layout file) can be overridden
  by drawables with the same names defined in your application. See the <a href="PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>
  documentation for a list of drawables that can be overridden.
 
- <h3>Overriding the layout file</h3>
+ <h2>Overriding the layout file</h2>
 
  To customize the layout of PlayerView throughout your app, or just for certain configurations,
  you can define <code>exo_player_view.xml</code> layout files in your application <code>res/layout*</code>
@@ -321,7 +321,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
  <p>All child views are optional and so can be omitted if not required, however where defined they
  must be of the expected type.
 
- <h3>Specifying a custom layout file</h3>
+ <h2>Specifying a custom layout file</h2>
 
  Defining your own <code>exo_player_view.xml</code> is useful to customize the layout of PlayerView
  throughout your application. It's also possible to customize the layout for a single instance in
@@ -652,7 +652,9 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">setControlDispatcher</a></span>&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> and pass it to <a href="#setPlayer(com.google.android.exoplayer2.Player)"><code>setPlayer(Player)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
@@ -708,7 +710,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">setErrorMessageProvider</a></span>&#8203;(<a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">setErrorMessageProvider</a></span>&#8203;(<a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional <a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 </td>
@@ -724,143 +726,116 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 </tr>
 <tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFastForwardIncrementMs(int)">setFastForwardIncrementMs</a></span>&#8203;(int&nbsp;fastForwardMs)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i35" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeepContentOnPlayerReset(boolean)">setKeepContentOnPlayerReset</a></span>&#8203;(boolean&nbsp;keepContentOnPlayerReset)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the currently displayed video frame or media artwork is kept visible when the
  player is reset.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">setPlaybackPreparer</a></span>&#8203;(<a href="../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i37" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Set the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(int)">setRepeatToggleModes</a></span>&#8203;(int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResizeMode(int)">setResizeMode</a></span>&#8203;(int&nbsp;resizeMode)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRewindIncrementMs(int)">setRewindIncrementMs</a></span>&#8203;(int&nbsp;rewindMs)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i41" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowBuffering(int)">setShowBuffering</a></span>&#8203;(int&nbsp;showBuffering)</code></th>
 <td class="colLast">
 <div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowFastForwardButton(boolean)">setShowFastForwardButton</a></span>&#8203;(boolean&nbsp;showFastForwardButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the fast forward button is shown.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowMultiWindowTimeBar(boolean)">setShowMultiWindowTimeBar</a></span>&#8203;(boolean&nbsp;showMultiWindowTimeBar)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowNextButton(boolean)">setShowNextButton</a></span>&#8203;(boolean&nbsp;showNextButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the next button is shown.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowPreviousButton(boolean)">setShowPreviousButton</a></span>&#8203;(boolean&nbsp;showPreviousButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the previous button is shown.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowRewindButton(boolean)">setShowRewindButton</a></span>&#8203;(boolean&nbsp;showRewindButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the rewind button is shown.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowShuffleButton(boolean)">setShowShuffleButton</a></span>&#8203;(boolean&nbsp;showShuffleButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShutterBackgroundColor(int)">setShutterBackgroundColor</a></span>&#8203;(int&nbsp;color)</code></th>
 <td class="colLast">
 <div class="block">Sets the background color of the <code>exo_shutter</code> view.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseArtwork(boolean)">setUseArtwork</a></span>&#8203;(boolean&nbsp;useArtwork)</code></th>
 <td class="colLast">
 <div class="block">Sets whether artwork is displayed if present in the media.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseController(boolean)">setUseController</a></span>&#8203;(boolean&nbsp;useController)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the playback controls can be shown.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVisibility(int)">setVisibility</a></span>&#8203;(int&nbsp;visibility)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#showController()">showController</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Shows the playback controls.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#switchTargetView(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ui.PlayerView,com.google.android.exoplayer2.ui.PlayerView)">switchTargetView</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                 <a href="PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;oldPlayerView,
@@ -1251,7 +1226,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setErrorMessageProvider</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setErrorMessageProvider&#8203;(@Nullable
-                                    <a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
+                                    <a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
 <div class="block">Sets the optional <a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1452,34 +1427,19 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 </dl>
 </li>
 </ul>
-<a id="setPlaybackPreparer(com.google.android.exoplayer2.PlaybackPreparer)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPlaybackPreparer</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
-                                <a href="../PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> instead. The view calls <a href="../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="../PlaybackPreparer.html#preparePlayback()"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="../DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the view
-     uses by default, calls <a href="../Player.html#prepare()"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
-     you can provide a custom implementation of <a href="../ControlDispatcher.html#dispatchPrepare(com.google.android.exoplayer2.Player)"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
-</div>
-</li>
-</ul>
 <a id="setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setControlDispatcher</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setControlDispatcher&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
-<div class="block">Sets the <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>controlDispatcher</code> - The <a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setControlDispatcher&#8203;(<a href="../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> and pass it to <a href="#setPlayer(com.google.android.exoplayer2.Player)"><code>setPlayer(Player)</code></a> instead.
+     You can also customize some operations when configuring the player (for example by using
+     <a href="../SimpleExoPlayer.Builder.html#setSeekBackIncrementMs(long)"><code>SimpleExoPlayer.Builder.setSeekBackIncrementMs(long)</code></a>).</div>
+</div>
 </li>
 </ul>
 <a id="setShowRewindButton(boolean)">
@@ -1536,32 +1496,6 @@ public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>showNextButton</code> - Whether the next button is shown.</dd>
 </dl>
-</li>
-</ul>
-<a id="setRewindIncrementMs(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setRewindIncrementMs</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setRewindIncrementMs&#8203;(int&nbsp;rewindMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="setFastForwardIncrementMs(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setFastForwardIncrementMs</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setFastForwardIncrementMs&#8203;(int&nbsp;fastForwardMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#setControlDispatcher(com.google.android.exoplayer2.ControlDispatcher)"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../DefaultControlDispatcher.html#%3Cinit%3E(long,long)"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
-</div>
 </li>
 </ul>
 <a id="setRepeatToggleModes(int)">
@@ -1659,15 +1593,16 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/View.h
    <li><a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceView</code></a> by default, or if the <code>surface_type</code> attribute is set to <code>
        surface_view</code>.
    <li><a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView</code></a> if <code>surface_type</code> is <code>texture_view</code>.
-   <li><a href="../video/spherical/SphericalGLSurfaceView.html" title="class in com.google.android.exoplayer2.video.spherical"><code>SphericalGLSurfaceView</code></a> if <code>surface_type</code> is <code>
+   <li><code>SphericalGLSurfaceView</code> if <code>surface_type</code> is <code>
        spherical_gl_surface_view</code>.
-   <li><a href="../video/VideoDecoderGLSurfaceView.html" title="class in com.google.android.exoplayer2.video"><code>VideoDecoderGLSurfaceView</code></a> if <code>surface_type</code> is <code>
+   <li><code>VideoDecoderGLSurfaceView</code> if <code>surface_type</code> is <code>
        video_decoder_gl_surface_view</code>.
    <li><code>null</code> if <code>surface_type</code> is <code>none</code>.
  </ul></div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink"><code>SurfaceView</code></a>, <a href="https://developer.android.com/reference/android/view/TextureView.html?is-external=true" title="class or interface in android.view" class="externalLink"><code>TextureView</code></a>, <a href="../video/spherical/SphericalGLSurfaceView.html" title="class in com.google.android.exoplayer2.video.spherical"><code>SphericalGLSurfaceView</code></a>, <a href="../video/VideoDecoderGLSurfaceView.html" title="class in com.google.android.exoplayer2.video" target="_top"><code>VideoDecoderGLSurfaceView</code></a> or <code>null</code>.</dd>
+<dd>The <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink"><code>SurfaceView</code></a>, <a href="https://developer.android.com/reference/android/view/TextureView.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView</code></a>, <code>SphericalGLSurfaceView</code>, <code>
+     VideoDecoderGLSurfaceView</code> or <code>null</code>.</dd>
 </dl>
 </li>
 </ul>

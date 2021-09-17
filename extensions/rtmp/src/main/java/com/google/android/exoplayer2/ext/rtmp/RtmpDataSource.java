@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import net.butterflytv.rtmp_client.RtmpClient;
 import net.butterflytv.rtmp_client.RtmpClient.RtmpIOException;
@@ -33,6 +34,36 @@ public final class RtmpDataSource extends BaseDataSource {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.rtmp");
+  }
+
+  /** {@link DataSource.Factory} for {@link RtmpDataSource} instances. */
+  public static final class Factory implements DataSource.Factory {
+
+    @Nullable private TransferListener transferListener;
+
+    /**
+     * Sets the {@link TransferListener} that will be used.
+     *
+     * <p>The default is {@code null}.
+     *
+     * <p>See {@link DataSource#addTransferListener(TransferListener)}.
+     *
+     * @param transferListener The listener that will be used.
+     * @return This factory.
+     */
+    public Factory setTransferListener(@Nullable TransferListener transferListener) {
+      this.transferListener = transferListener;
+      return this;
+    }
+
+    @Override
+    public RtmpDataSource createDataSource() {
+      RtmpDataSource dataSource = new RtmpDataSource();
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
+      return dataSource;
+    }
   }
 
   @Nullable private RtmpClient rtmpClient;
@@ -54,8 +85,8 @@ public final class RtmpDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
-    int bytesRead = castNonNull(rtmpClient).read(buffer, offset, readLength);
+  public int read(byte[] buffer, int offset, int length) throws IOException {
+    int bytesRead = castNonNull(rtmpClient).read(buffer, offset, length);
     if (bytesRead == -1) {
       return C.RESULT_END_OF_INPUT;
     }
@@ -80,5 +111,4 @@ public final class RtmpDataSource extends BaseDataSource {
   public Uri getUri() {
     return uri;
   }
-
 }

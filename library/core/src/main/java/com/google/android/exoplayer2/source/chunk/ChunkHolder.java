@@ -23,17 +23,12 @@ public final class ChunkHolder {
   /** The chunk. */
   @Nullable public Chunk chunk;
 
-  /**
-   * Indicates that the end of the stream has been reached.
-   */
+  /** Indicates that the end of the stream has been reached. */
   public boolean endOfStream;
 
-  /**
-   * Clears the holder.
-   */
+  /** Clears the holder. */
   public void clear() {
     chunk = null;
     endOfStream = false;
   }
-
 }

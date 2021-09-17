@@ -89,16 +89,12 @@ public final class ParsableBitArray {
     byteLimit = limit;
   }
 
-  /**
-   * Returns the number of bits yet to be read.
-   */
+  /** Returns the number of bits yet to be read. */
   public int bitsLeft() {
     return (byteLimit - byteOffset) * 8 - bitOffset;
   }
 
-  /**
-   * Returns the current bit offset.
-   */
+  /** Returns the current bit offset. */
   public int getPosition() {
     return byteOffset * 8 + bitOffset;
   }
@@ -124,9 +120,7 @@ public final class ParsableBitArray {
     assertValidOffset();
   }
 
-  /**
-   * Skips a single bit.
-   */
+  /** Skips a single bit. */
   public void skipBit() {
     if (++bitOffset == 8) {
       bitOffset = 0;
@@ -344,8 +338,7 @@ public final class ParsableBitArray {
 
   private void assertValidOffset() {
     // It is fine for position to be at the end of the array, but no further.
-    Assertions.checkState(byteOffset >= 0
-        && (byteOffset < byteLimit || (byteOffset == byteLimit && bitOffset == 0)));
+    Assertions.checkState(
+        byteOffset >= 0 && (byteOffset < byteLimit || (byteOffset == byteLimit && bitOffset == 0)));
   }
-
 }

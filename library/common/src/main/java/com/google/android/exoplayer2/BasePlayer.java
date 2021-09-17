@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
@@ -25,7 +28,7 @@ public abstract class BasePlayer implements Player {
 
   protected final Timeline.Window window;
 
-  public BasePlayer() {
+  protected BasePlayer() {
     window = new Timeline.Window();
   }
 
@@ -86,14 +89,6 @@ public abstract class BasePlayer implements Player {
     return getAvailableCommands().contains(command);
   }
 
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Override
-  @Nullable
-  public final ExoPlaybackException getPlaybackError() {
-    return getPlayerError();
-  }
-
   @Override
   public final void play() {
     setPlayWhenReady(true);
@@ -127,12 +122,34 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public final boolean hasPrevious() {
-    return getPreviousWindowIndex() != C.INDEX_UNSET;
+  public final void seekBack() {
+    seekToOffset(-getSeekBackIncrement());
   }
 
   @Override
+  public final void seekForward() {
+    seekToOffset(getSeekForwardIncrement());
+  }
+
+  @Deprecated
+  @Override
+  public final boolean hasPrevious() {
+    return hasPreviousWindow();
+  }
+
+  @Override
+  public final boolean hasPreviousWindow() {
+    return getPreviousWindowIndex() != C.INDEX_UNSET;
+  }
+
+  @Deprecated
+  @Override
   public final void previous() {
+    seekToPreviousWindow();
+  }
+
+  @Override
+  public final void seekToPreviousWindow() {
     int previousWindowIndex = getPreviousWindowIndex();
     if (previousWindowIndex != C.INDEX_UNSET) {
       seekToDefaultPosition(previousWindowIndex);
@@ -140,15 +157,58 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void seekToPrevious() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty() || isPlayingAd()) {
+      return;
+    }
+    boolean hasPreviousWindow = hasPreviousWindow();
+    if (isCurrentWindowLive() && !isCurrentWindowSeekable()) {
+      if (hasPreviousWindow) {
+        seekToPreviousWindow();
+      }
+    } else if (hasPreviousWindow && getCurrentPosition() <= getMaxSeekToPreviousPosition()) {
+      seekToPreviousWindow();
+    } else {
+      seekTo(/* positionMs= */ 0);
+    }
+  }
+
+  @Deprecated
+  @Override
   public final boolean hasNext() {
-    return getNextWindowIndex() != C.INDEX_UNSET;
+    return hasNextWindow();
   }
 
   @Override
+  public final boolean hasNextWindow() {
+    return getNextWindowIndex() != C.INDEX_UNSET;
+  }
+
+  @Deprecated
+  @Override
   public final void next() {
+    seekToNextWindow();
+  }
+
+  @Override
+  public final void seekToNextWindow() {
     int nextWindowIndex = getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       seekToDefaultPosition(nextWindowIndex);
+    }
+  }
+
+  @Override
+  public final void seekToNext() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty() || isPlayingAd()) {
+      return;
+    }
+    if (hasNextWindow()) {
+      seekToNextWindow();
+    } else if (isCurrentWindowLive() && isCurrentWindowDynamic()) {
+      seekToDefaultPosition();
     }
   }
 
@@ -178,24 +238,6 @@ public abstract class BasePlayer implements Player {
         ? C.INDEX_UNSET
         : timeline.getPreviousWindowIndex(
             getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
-  }
-
-  /**
-   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
-   *     instead.
-   */
-  @Deprecated
-  @Override
-  @Nullable
-  public final Object getCurrentTag() {
-    Timeline timeline = getCurrentTimeline();
-    if (timeline.isEmpty()) {
-      return null;
-    }
-    @Nullable
-    MediaItem.PlaybackProperties playbackProperties =
-        timeline.getWindow(getCurrentWindowIndex(), window).mediaItem.playbackProperties;
-    return playbackProperties != null ? playbackProperties.tag : null;
   }
 
   @Override
@@ -272,20 +314,48 @@ public abstract class BasePlayer implements Player {
         : timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
   }
 
+  /**
+   * Returns the {@link Commands} available in the player.
+   *
+   * @param permanentAvailableCommands The commands permanently available in the player.
+   * @return The available {@link Commands}.
+   */
+  protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
+    return new Commands.Builder()
+        .addAll(permanentAvailableCommands)
+        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
+        .addIf(COMMAND_SEEK_IN_CURRENT_WINDOW, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_WINDOW, hasPreviousWindow() && !isPlayingAd())
+        .addIf(
+            COMMAND_SEEK_TO_PREVIOUS,
+            !getCurrentTimeline().isEmpty()
+                && (hasPreviousWindow() || !isCurrentWindowLive() || isCurrentWindowSeekable())
+                && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_NEXT_WINDOW, hasNextWindow() && !isPlayingAd())
+        .addIf(
+            COMMAND_SEEK_TO_NEXT,
+            !getCurrentTimeline().isEmpty()
+                && (hasNextWindow() || (isCurrentWindowLive() && isCurrentWindowDynamic()))
+                && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_WINDOW, !isPlayingAd())
+        .addIf(COMMAND_SEEK_BACK, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
+        .build();
+  }
+
   @RepeatMode
   private int getRepeatModeForNavigation() {
     @RepeatMode int repeatMode = getRepeatMode();
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }
 
-  protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
-    return new Commands.Builder()
-        .addAll(permanentAvailableCommands)
-        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
-        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentWindowSeekable() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
-        .build();
+  private void seekToOffset(long offsetMs) {
+    long positionMs = getCurrentPosition() + offsetMs;
+    long durationMs = getDuration();
+    if (durationMs != C.TIME_UNSET) {
+      positionMs = min(positionMs, durationMs);
+    }
+    positionMs = max(positionMs, 0);
+    seekTo(positionMs);
   }
 }

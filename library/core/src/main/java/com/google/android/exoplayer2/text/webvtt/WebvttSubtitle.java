@@ -25,9 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A representation of a WebVTT subtitle.
- */
+/** A representation of a WebVTT subtitle. */
 /* package */ final class WebvttSubtitle implements Subtitle {
 
   private final List<WebvttCueInfo> cueInfos;

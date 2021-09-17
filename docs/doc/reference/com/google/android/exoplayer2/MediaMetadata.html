@@ -171,6 +171,13 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">The folder type of the media item.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2">MediaMetadata.PictureType</a></span></code></th>
+<td class="colLast">
+<div class="block">The picture type of the artwork.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
@@ -225,10 +232,38 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artworkDataType">artworkDataType</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional <a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.PictureType</code></a> of the artwork data.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artworkUri">artworkUri</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional artwork <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#compilation">compilation</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional compilation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#composer">composer</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional composer.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#conductor">conductor</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional conductor.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -246,52 +281,66 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discNumber">discNumber</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional disc number.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#displayTitle">displayTitle</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional display title.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
 <div class="block">Empty <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extras">extras</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional extras <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_ALBUMS">FOLDER_TYPE_ALBUMS</a></span></code></th>
 <td class="colLast">
 <div class="block">Type for a folder containing media categorized by album.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_ARTISTS">FOLDER_TYPE_ARTISTS</a></span></code></th>
 <td class="colLast">
 <div class="block">Type for a folder containing media categorized by artist.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_GENRES">FOLDER_TYPE_GENRES</a></span></code></th>
 <td class="colLast">
 <div class="block">Type for a folder containing media categorized by genre.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_MIXED">FOLDER_TYPE_MIXED</a></span></code></th>
 <td class="colLast">
 <div class="block">Type for a folder containing media of mixed types.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_NONE">FOLDER_TYPE_NONE</a></span></code></th>
+<td class="colLast">
+<div class="block">Type for an item that is not a folder.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -323,24 +372,178 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#genre">genre</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional genre.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Boolean.html" title="class or interface in java.lang" class="externalLink" target="_top">Boolean</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPlayable">isPlayable</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional boolean for media playability.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaUri">mediaUri</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional media <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#overallRating">overallRating</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional overall <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_A_BRIGHT_COLORED_FISH">PICTURE_TYPE_A_BRIGHT_COLORED_FISH</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_ARTIST_PERFORMER">PICTURE_TYPE_ARTIST_PERFORMER</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_BACK_COVER">PICTURE_TYPE_BACK_COVER</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_BAND_ARTIST_LOGO">PICTURE_TYPE_BAND_ARTIST_LOGO</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_BAND_ORCHESTRA">PICTURE_TYPE_BAND_ORCHESTRA</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_COMPOSER">PICTURE_TYPE_COMPOSER</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_CONDUCTOR">PICTURE_TYPE_CONDUCTOR</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_DURING_PERFORMANCE">PICTURE_TYPE_DURING_PERFORMANCE</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_DURING_RECORDING">PICTURE_TYPE_DURING_RECORDING</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_FILE_ICON">PICTURE_TYPE_FILE_ICON</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_FILE_ICON_OTHER">PICTURE_TYPE_FILE_ICON_OTHER</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_FRONT_COVER">PICTURE_TYPE_FRONT_COVER</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_ILLUSTRATION">PICTURE_TYPE_ILLUSTRATION</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_LEAD_ARTIST_PERFORMER">PICTURE_TYPE_LEAD_ARTIST_PERFORMER</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_LEAFLET_PAGE">PICTURE_TYPE_LEAFLET_PAGE</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_LYRICIST">PICTURE_TYPE_LYRICIST</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_MEDIA">PICTURE_TYPE_MEDIA</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE">PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_OTHER">PICTURE_TYPE_OTHER</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_PUBLISHER_STUDIO_LOGO">PICTURE_TYPE_PUBLISHER_STUDIO_LOGO</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_RECORDING_LOCATION">PICTURE_TYPE_RECORDING_LOCATION</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordingDay">recordingDay</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional day of the recording date.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordingMonth">recordingMonth</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional month of the recording date.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordingYear">recordingYear</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional year of the recording date.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseDay">releaseDay</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional day of the release date.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseMonth">releaseMonth</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional month of the release date.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseYear">releaseYear</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional year of the release date.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -359,30 +562,46 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalDiscCount">totalDiscCount</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional total number of discs.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalTrackCount">totalTrackCount</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional total number of tracks.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackNumber">trackNumber</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional track number.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#userRating">userRating</a></span></code></th>
 <td class="colLast">
 <div class="block">Optional user <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writer">writer</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional writer.</div>
+</td>
+</tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#year">year</a></span></code></th>
 <td class="colLast">
-<div class="block">Optional year.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#recordingYear"><code>recordingYear</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -451,6 +670,20 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a id="FOLDER_TYPE_NONE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FOLDER_TYPE_NONE</h4>
+<pre>public static final&nbsp;int FOLDER_TYPE_NONE</pre>
+<div class="block">Type for an item that is not a folder.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_NONE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="FOLDER_TYPE_MIXED">
 <!--   -->
 </a>
@@ -546,6 +779,279 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.FOLDER_TYPE_YEARS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_OTHER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_OTHER</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_OTHER</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_OTHER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_FILE_ICON">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_FILE_ICON</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_FILE_ICON</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_FILE_ICON">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_FILE_ICON_OTHER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_FILE_ICON_OTHER</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_FILE_ICON_OTHER</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_FILE_ICON_OTHER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_FRONT_COVER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_FRONT_COVER</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_FRONT_COVER</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_FRONT_COVER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_BACK_COVER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_BACK_COVER</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_BACK_COVER</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_BACK_COVER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_LEAFLET_PAGE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_LEAFLET_PAGE</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_LEAFLET_PAGE</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_LEAFLET_PAGE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_MEDIA">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_MEDIA</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_MEDIA</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_MEDIA">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_LEAD_ARTIST_PERFORMER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_LEAD_ARTIST_PERFORMER</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_LEAD_ARTIST_PERFORMER</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_LEAD_ARTIST_PERFORMER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_ARTIST_PERFORMER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_ARTIST_PERFORMER</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_ARTIST_PERFORMER</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_ARTIST_PERFORMER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_CONDUCTOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_CONDUCTOR</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_CONDUCTOR</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_CONDUCTOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_BAND_ORCHESTRA">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_BAND_ORCHESTRA</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_BAND_ORCHESTRA</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_BAND_ORCHESTRA">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_COMPOSER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_COMPOSER</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_COMPOSER</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_COMPOSER">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_LYRICIST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_LYRICIST</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_LYRICIST</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_LYRICIST">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_RECORDING_LOCATION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_RECORDING_LOCATION</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_RECORDING_LOCATION</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_RECORDING_LOCATION">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_DURING_RECORDING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_DURING_RECORDING</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_DURING_RECORDING</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_DURING_RECORDING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_DURING_PERFORMANCE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_DURING_PERFORMANCE</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_DURING_PERFORMANCE</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_DURING_PERFORMANCE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_A_BRIGHT_COLORED_FISH">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_A_BRIGHT_COLORED_FISH</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_A_BRIGHT_COLORED_FISH</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_A_BRIGHT_COLORED_FISH">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_ILLUSTRATION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_ILLUSTRATION</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_ILLUSTRATION</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_ILLUSTRATION">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_BAND_ARTIST_LOGO">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_BAND_ARTIST_LOGO</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_BAND_ARTIST_LOGO</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_BAND_ARTIST_LOGO">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="PICTURE_TYPE_PUBLISHER_STUDIO_LOGO">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PICTURE_TYPE_PUBLISHER_STUDIO_LOGO</h4>
+<pre>public static final&nbsp;int PICTURE_TYPE_PUBLISHER_STUDIO_LOGO</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_PUBLISHER_STUDIO_LOGO">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -682,6 +1188,18 @@ public final&nbsp;byte[] artworkData</pre>
 <div class="block">Optional artwork data as a compressed byte array.</div>
 </li>
 </ul>
+<a id="artworkDataType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>artworkDataType</h4>
+<pre>@Nullable
+<a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2">@PictureType</a>
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> artworkDataType</pre>
+<div class="block">Optional <a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.PictureType</code></a> of the artwork data.</div>
+</li>
+</ul>
 <a id="artworkUri">
 <!--   -->
 </a>
@@ -744,9 +1262,163 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Boo
 <ul class="blockList">
 <li class="blockList">
 <h4>year</h4>
-<pre>@Nullable
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> year</pre>
-<div class="block">Optional year.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#recordingYear"><code>recordingYear</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="recordingYear">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordingYear</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> recordingYear</pre>
+<div class="block">Optional year of the recording date.</div>
+</li>
+</ul>
+<a id="recordingMonth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordingMonth</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> recordingMonth</pre>
+<div class="block">Optional month of the recording date.
+
+ <p>Note that there is no guarantee that the month and day are a valid combination.</div>
+</li>
+</ul>
+<a id="recordingDay">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordingDay</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> recordingDay</pre>
+<div class="block">Optional day of the recording date.
+
+ <p>Note that there is no guarantee that the month and day are a valid combination.</div>
+</li>
+</ul>
+<a id="releaseYear">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseYear</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> releaseYear</pre>
+<div class="block">Optional year of the release date.</div>
+</li>
+</ul>
+<a id="releaseMonth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseMonth</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> releaseMonth</pre>
+<div class="block">Optional month of the release date.
+
+ <p>Note that there is no guarantee that the month and day are a valid combination.</div>
+</li>
+</ul>
+<a id="releaseDay">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseDay</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> releaseDay</pre>
+<div class="block">Optional day of the release date.
+
+ <p>Note that there is no guarantee that the month and day are a valid combination.</div>
+</li>
+</ul>
+<a id="writer">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writer</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> writer</pre>
+<div class="block">Optional writer.</div>
+</li>
+</ul>
+<a id="composer">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>composer</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> composer</pre>
+<div class="block">Optional composer.</div>
+</li>
+</ul>
+<a id="conductor">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>conductor</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> conductor</pre>
+<div class="block">Optional conductor.</div>
+</li>
+</ul>
+<a id="discNumber">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>discNumber</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> discNumber</pre>
+<div class="block">Optional disc number.</div>
+</li>
+</ul>
+<a id="totalDiscCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>totalDiscCount</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> totalDiscCount</pre>
+<div class="block">Optional total number of discs.</div>
+</li>
+</ul>
+<a id="genre">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>genre</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> genre</pre>
+<div class="block">Optional genre.</div>
+</li>
+</ul>
+<a id="compilation">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>compilation</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> compilation</pre>
+<div class="block">Optional compilation.</div>
 </li>
 </ul>
 <a id="extras">

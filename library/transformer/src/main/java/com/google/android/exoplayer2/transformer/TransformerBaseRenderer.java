@@ -16,7 +16,6 @@
 
 package com.google.android.exoplayer2.transformer;
 
-
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.BaseRenderer;

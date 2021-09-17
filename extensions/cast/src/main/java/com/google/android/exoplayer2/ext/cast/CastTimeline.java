@@ -24,16 +24,18 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import java.util.Arrays;
 
-/**
- * A {@link Timeline} for Cast media queues.
- */
+/** A {@link Timeline} for Cast media queues. */
 /* package */ final class CastTimeline extends Timeline {
 
   /** Holds {@link Timeline} related data for a Cast media item. */
   public static final class ItemData {
 
     /** Holds no media information. */
-    public static final ItemData EMPTY = new ItemData();
+    public static final ItemData EMPTY =
+        new ItemData(
+            /* durationUs= */ C.TIME_UNSET,
+            /* defaultPositionUs= */ C.TIME_UNSET,
+            /* isLive= */ false);
 
     /** The duration of the item in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public final long durationUs;
@@ -43,13 +45,6 @@ import java.util.Arrays;
     public final long defaultPositionUs;
     /** Whether the item is live content, or {@code false} if unknown. */
     public final boolean isLive;
-
-    private ItemData() {
-      this(
-          /* durationUs= */ C.TIME_UNSET,
-          /* defaultPositionUs= */ C.TIME_UNSET,
-          /* isLive= */ false);
-    }
 
     /**
      * Creates an instance.
@@ -190,5 +185,4 @@ import java.util.Arrays;
     result = 31 * result + Arrays.hashCode(isLive);
     return result;
   }
-
 }

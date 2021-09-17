@@ -42,38 +42,171 @@ import org.junit.runner.RunWith;
 public class CachedContentIndexTest {
 
   private final byte[] testIndexV1File = {
-      0, 0, 0, 1, // version
-      0, 0, 0, 0, // flags
-      0, 0, 0, 2, // number_of_CachedContent
-      0, 0, 0, 5, // cache_id 5
-      0, 5, 65, 66, 67, 68, 69, // cache_key "ABCDE"
-      0, 0, 0, 0, 0, 0, 0, 10, // original_content_length
-      0, 0, 0, 2, // cache_id 2
-      0, 5, 75, 76, 77, 78, 79, // cache_key "KLMNO"
-      0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
-      (byte) 0xF6, (byte) 0xFB, 0x50, 0x41 // hashcode_of_CachedContent_array
+    0,
+    0,
+    0,
+    1, // version
+    0,
+    0,
+    0,
+    0, // flags
+    0,
+    0,
+    0,
+    2, // number_of_CachedContent
+    0,
+    0,
+    0,
+    5, // cache_id 5
+    0,
+    5,
+    65,
+    66,
+    67,
+    68,
+    69, // cache_key "ABCDE"
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10, // original_content_length
+    0,
+    0,
+    0,
+    2, // cache_id 2
+    0,
+    5,
+    75,
+    76,
+    77,
+    78,
+    79, // cache_key "KLMNO"
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10,
+    0, // original_content_length
+    (byte) 0xF6,
+    (byte) 0xFB,
+    0x50,
+    0x41 // hashcode_of_CachedContent_array
   };
 
   private final byte[] testIndexV2File = {
-      0, 0, 0, 2, // version
-      0, 0, 0, 0, // flags
-      0, 0, 0, 2, // number_of_CachedContent
-      0, 0, 0, 5, // cache_id 5
-      0, 5, 65, 66, 67, 68, 69, // cache_key "ABCDE"
-      0, 0, 0, 2, // metadata count
-      0, 9, 101, 120, 111, 95, 114, 101, 100, 105, 114, // "exo_redir"
-      0, 0, 0, 5, // value length
-      97, 98, 99, 100, 101, // Redirected Uri "abcde"
-      0, 7, 101, 120, 111, 95, 108, 101, 110, // "exo_len"
-      0, 0, 0, 8, // value length
-      0, 0, 0, 0, 0, 0, 0, 10, // original_content_length
-      0, 0, 0, 2, // cache_id 2
-      0, 5, 75, 76, 77, 78, 79, // cache_key "KLMNO"
-      0, 0, 0, 1, // metadata count
-      0, 7, 101, 120, 111, 95, 108, 101, 110, // "exo_len"
-      0, 0, 0, 8, // value length
-      0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
-      0x12, 0x15, 0x66, (byte) 0x8A // hashcode_of_CachedContent_array
+    0,
+    0,
+    0,
+    2, // version
+    0,
+    0,
+    0,
+    0, // flags
+    0,
+    0,
+    0,
+    2, // number_of_CachedContent
+    0,
+    0,
+    0,
+    5, // cache_id 5
+    0,
+    5,
+    65,
+    66,
+    67,
+    68,
+    69, // cache_key "ABCDE"
+    0,
+    0,
+    0,
+    2, // metadata count
+    0,
+    9,
+    101,
+    120,
+    111,
+    95,
+    114,
+    101,
+    100,
+    105,
+    114, // "exo_redir"
+    0,
+    0,
+    0,
+    5, // value length
+    97,
+    98,
+    99,
+    100,
+    101, // Redirected Uri "abcde"
+    0,
+    7,
+    101,
+    120,
+    111,
+    95,
+    108,
+    101,
+    110, // "exo_len"
+    0,
+    0,
+    0,
+    8, // value length
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10, // original_content_length
+    0,
+    0,
+    0,
+    2, // cache_id 2
+    0,
+    5,
+    75,
+    76,
+    77,
+    78,
+    79, // cache_key "KLMNO"
+    0,
+    0,
+    0,
+    1, // metadata count
+    0,
+    7,
+    101,
+    120,
+    111,
+    95,
+    108,
+    101,
+    110, // "exo_len"
+    0,
+    0,
+    0,
+    8, // value length
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10,
+    0, // original_content_length
+    0x12,
+    0x15,
+    0x66,
+    (byte) 0x8A // hashcode_of_CachedContent_array
   };
   private File cacheDir;
 

@@ -300,6 +300,21 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public long getSeekBackIncrement() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getSeekForwardIncrement() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getMaxSeekToPreviousPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }
@@ -360,6 +375,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
     throw new UnsupportedOperationException();
   }
 
+  @Deprecated
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
     throw new UnsupportedOperationException();
@@ -367,6 +383,16 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public MediaMetadata getMediaMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
     throw new UnsupportedOperationException();
   }
 

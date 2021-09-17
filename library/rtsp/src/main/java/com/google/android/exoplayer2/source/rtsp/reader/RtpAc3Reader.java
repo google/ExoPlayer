@@ -73,7 +73,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void consume(
-      ParsableByteArray data, long timestamp, int sequenceNumber, boolean isFrameBoundary) {
+      ParsableByteArray data, long timestamp, int sequenceNumber, boolean rtpMarker) {
     /*
     AC-3 payload as an RTP payload (RFC4184).
       +-+-+-+-+-+-+-+-+-+-+-+-+-+- .. +-+-+-+-+-+-+-+
@@ -115,7 +115,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         // Falls through.
       case AC3_FRAME_TYPE_NON_INITIAL_FRAGMENT:
         // The content of an AC3 frame is split into multiple RTP packets.
-        processFragmentedPacket(data, isFrameBoundary, frameType, sampleTimeUs);
+        processFragmentedPacket(data, rtpMarker, frameType, sampleTimeUs);
         break;
 
       default:

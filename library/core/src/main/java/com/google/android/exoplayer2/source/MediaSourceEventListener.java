@@ -21,6 +21,7 @@ import android.os.Handler;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.DataType;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -212,7 +213,7 @@ public interface MediaSourceEventListener {
     }
 
     /** Dispatches {@link #onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)}. */
-    public void loadStarted(LoadEventInfo loadEventInfo, int dataType) {
+    public void loadStarted(LoadEventInfo loadEventInfo, @DataType int dataType) {
       loadStarted(
           loadEventInfo,
           dataType,
@@ -227,7 +228,7 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)}. */
     public void loadStarted(
         LoadEventInfo loadEventInfo,
-        int dataType,
+        @DataType int dataType,
         int trackType,
         @Nullable Format trackFormat,
         int trackSelectionReason,
@@ -257,7 +258,7 @@ public interface MediaSourceEventListener {
     }
 
     /** Dispatches {@link #onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)}. */
-    public void loadCompleted(LoadEventInfo loadEventInfo, int dataType) {
+    public void loadCompleted(LoadEventInfo loadEventInfo, @DataType int dataType) {
       loadCompleted(
           loadEventInfo,
           dataType,
@@ -272,7 +273,7 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)}. */
     public void loadCompleted(
         LoadEventInfo loadEventInfo,
-        int dataType,
+        @DataType int dataType,
         int trackType,
         @Nullable Format trackFormat,
         int trackSelectionReason,
@@ -303,7 +304,7 @@ public interface MediaSourceEventListener {
     }
 
     /** Dispatches {@link #onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)}. */
-    public void loadCanceled(LoadEventInfo loadEventInfo, int dataType) {
+    public void loadCanceled(LoadEventInfo loadEventInfo, @DataType int dataType) {
       loadCanceled(
           loadEventInfo,
           dataType,
@@ -318,7 +319,7 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)}. */
     public void loadCanceled(
         LoadEventInfo loadEventInfo,
-        int dataType,
+        @DataType int dataType,
         int trackType,
         @Nullable Format trackFormat,
         int trackSelectionReason,
@@ -353,7 +354,10 @@ public interface MediaSourceEventListener {
      * boolean)}.
      */
     public void loadError(
-        LoadEventInfo loadEventInfo, int dataType, IOException error, boolean wasCanceled) {
+        LoadEventInfo loadEventInfo,
+        @DataType int dataType,
+        IOException error,
+        boolean wasCanceled) {
       loadError(
           loadEventInfo,
           dataType,
@@ -373,7 +377,7 @@ public interface MediaSourceEventListener {
      */
     public void loadError(
         LoadEventInfo loadEventInfo,
-        int dataType,
+        @DataType int dataType,
         int trackType,
         @Nullable Format trackFormat,
         int trackSelectionReason,

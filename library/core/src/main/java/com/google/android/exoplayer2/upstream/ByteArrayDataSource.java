@@ -20,6 +20,7 @@ import static java.lang.Math.min;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
@@ -33,9 +34,7 @@ public final class ByteArrayDataSource extends BaseDataSource {
   private int bytesRemaining;
   private boolean opened;
 
-  /**
-   * @param data The data to be read.
-   */
+  /** @param data The data to be read. */
   public ByteArrayDataSource(byte[] data) {
     super(/* isNetwork= */ false);
     Assertions.checkNotNull(data);
@@ -48,7 +47,7 @@ public final class ByteArrayDataSource extends BaseDataSource {
     uri = dataSpec.uri;
     transferInitializing(dataSpec);
     if (dataSpec.position > data.length) {
-      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
     readPosition = (int) dataSpec.position;
     bytesRemaining = data.length - (int) dataSpec.position;
@@ -61,19 +60,19 @@ public final class ByteArrayDataSource extends BaseDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) {
-    if (readLength == 0) {
+  public int read(byte[] buffer, int offset, int length) {
+    if (length == 0) {
       return 0;
     } else if (bytesRemaining == 0) {
       return C.RESULT_END_OF_INPUT;
     }
 
-    readLength = min(readLength, bytesRemaining);
-    System.arraycopy(data, readPosition, buffer, offset, readLength);
-    readPosition += readLength;
-    bytesRemaining -= readLength;
-    bytesTransferred(readLength);
-    return readLength;
+    length = min(length, bytesRemaining);
+    System.arraycopy(data, readPosition, buffer, offset, length);
+    readPosition += length;
+    bytesRemaining -= length;
+    bytesTransferred(length);
+    return length;
   }
 
   @Override
@@ -90,5 +89,4 @@ public final class ByteArrayDataSource extends BaseDataSource {
     }
     uri = null;
   }
-
 }

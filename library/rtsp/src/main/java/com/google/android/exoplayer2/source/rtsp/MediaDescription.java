@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 
 /** Represents one media description section in a SDP message. */
 /* package */ final class MediaDescription {
@@ -106,7 +107,7 @@ import java.lang.annotation.RetentionPolicy;
     private final int port;
     private final String transportProtocol;
     private final int payloadType;
-    private final ImmutableMap.Builder<String, String> attributesBuilder;
+    private final HashMap<String, String> attributes;
 
     private int bitrate;
     @Nullable private String mediaTitle;
@@ -126,7 +127,7 @@ import java.lang.annotation.RetentionPolicy;
       this.port = port;
       this.transportProtocol = transportProtocol;
       this.payloadType = payloadType;
-      attributesBuilder = new ImmutableMap.Builder<>();
+      attributes = new HashMap<>();
       bitrate = Format.NO_VALUE;
     }
 
@@ -184,7 +185,7 @@ import java.lang.annotation.RetentionPolicy;
      * @return This builder.
      */
     public Builder addAttribute(String attributeName, String attributeValue) {
-      attributesBuilder.put(attributeName, attributeValue);
+      attributes.put(attributeName, attributeValue);
       return this;
     }
 
@@ -195,13 +196,12 @@ import java.lang.annotation.RetentionPolicy;
      *     cannot be parsed.
      */
     public MediaDescription build() {
-      ImmutableMap<String, String> attributes = attributesBuilder.build();
       try {
         // rtpmap attribute is mandatory in RTSP (RFC2326 Section C.1.3).
         checkState(attributes.containsKey(ATTR_RTPMAP));
         RtpMapAttribute rtpMapAttribute =
             RtpMapAttribute.parse(castNonNull(attributes.get(ATTR_RTPMAP)));
-        return new MediaDescription(this, attributes, rtpMapAttribute);
+        return new MediaDescription(this, ImmutableMap.copyOf(attributes), rtpMapAttribute);
       } catch (ParserException e) {
         throw new IllegalStateException(e);
       }
@@ -232,7 +232,6 @@ import java.lang.annotation.RetentionPolicy;
   public final int bitrate;
   /** The assigned media title. */
   @Nullable public final String mediaTitle;
-  // TODO(internal b/172331505) Parse the String representations into objects.
   /** The connection parameters. */
   @Nullable public final String connection;
   /** The encryption parameter. */
@@ -301,7 +300,7 @@ import java.lang.annotation.RetentionPolicy;
    * {@link MediaDescription} does not contain any FMTP attribute.
    *
    * <p>FMTP format reference: RFC2327 Page 27. The spaces around the FMTP attribute delimiters are
-   * removed. For example,
+   * removed.
    */
   public ImmutableMap<String, String> getFmtpParametersAsMap() {
     @Nullable String fmtpAttributeValue = attributes.get(ATTR_FMTP);
@@ -315,7 +314,8 @@ import java.lang.annotation.RetentionPolicy;
 
     // Format of the parameter: RFC3640 Section 4.4.1:
     //   <parameter name>=<value>[; <parameter name>=<value>].
-    String[] parameters = Util.split(fmtpComponents[1], ";\\s?");
+    // Split with an explicit limit of 0 to handle an optional trailing semicolon.
+    String[] parameters = fmtpComponents[1].split(";\\s?", /* limit= */ 0);
     ImmutableMap.Builder<String, String> formatParametersBuilder = new ImmutableMap.Builder<>();
     for (String parameter : parameters) {
       // The parameter values can bear equal signs, so splitAtFirst must be used.

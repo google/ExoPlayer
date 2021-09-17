@@ -70,7 +70,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
-    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'com.google.android.material:material:' + androidxMaterialVersion
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')
     implementation project(modulePrefix + 'library-hls')

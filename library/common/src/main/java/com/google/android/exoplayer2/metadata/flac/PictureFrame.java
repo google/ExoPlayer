@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 import java.util.Arrays;
 
@@ -71,6 +72,11 @@ public final class PictureFrame implements Metadata.Entry {
     this.depth = in.readInt();
     this.colors = in.readInt();
     this.pictureData = castNonNull(in.createByteArray());
+  }
+
+  @Override
+  public void populateMediaMetadata(MediaMetadata.Builder builder) {
+    builder.maybeSetArtworkData(pictureData, pictureType);
   }
 
   @Override

@@ -36,8 +36,8 @@ public final class CompositeSequenceableLoaderTest {
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1000, /* nextLoadPositionUs */ 2000);
     FakeSequenceableLoader loader2 =
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ 2001);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getBufferedPositionUs()).isEqualTo(1000);
   }
 
@@ -55,8 +55,8 @@ public final class CompositeSequenceableLoaderTest {
         new FakeSequenceableLoader(
             /* bufferedPositionUs */ C.TIME_END_OF_SOURCE,
             /* nextLoadPositionUs */ C.TIME_END_OF_SOURCE);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2, loader3});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2, loader3});
     assertThat(compositeSequenceableLoader.getBufferedPositionUs()).isEqualTo(1000);
   }
 
@@ -74,8 +74,8 @@ public final class CompositeSequenceableLoaderTest {
         new FakeSequenceableLoader(
             /* bufferedPositionUs */ C.TIME_END_OF_SOURCE,
             /* nextLoadPositionUs */ C.TIME_END_OF_SOURCE);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getBufferedPositionUs()).isEqualTo(C.TIME_END_OF_SOURCE);
   }
 
@@ -89,8 +89,8 @@ public final class CompositeSequenceableLoaderTest {
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1000, /* nextLoadPositionUs */ 2001);
     FakeSequenceableLoader loader2 =
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ 2000);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getNextLoadPositionUs()).isEqualTo(2000);
   }
 
@@ -107,8 +107,8 @@ public final class CompositeSequenceableLoaderTest {
     FakeSequenceableLoader loader3 =
         new FakeSequenceableLoader(
             /* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ C.TIME_END_OF_SOURCE);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2, loader3});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2, loader3});
     assertThat(compositeSequenceableLoader.getNextLoadPositionUs()).isEqualTo(2000);
   }
 
@@ -124,8 +124,8 @@ public final class CompositeSequenceableLoaderTest {
     FakeSequenceableLoader loader2 =
         new FakeSequenceableLoader(
             /* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ C.TIME_END_OF_SOURCE);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getNextLoadPositionUs()).isEqualTo(C.TIME_END_OF_SOURCE);
   }
 
@@ -140,8 +140,8 @@ public final class CompositeSequenceableLoaderTest {
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1000, /* nextLoadPositionUs */ 2000);
     FakeSequenceableLoader loader2 =
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ 2001);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     compositeSequenceableLoader.continueLoading(100);
 
     assertThat(loader1.numInvocations).isEqualTo(1);
@@ -160,8 +160,8 @@ public final class CompositeSequenceableLoaderTest {
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ 2001);
     FakeSequenceableLoader loader3 =
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1002, /* nextLoadPositionUs */ 2002);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2, loader3});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2, loader3});
     compositeSequenceableLoader.continueLoading(3000);
 
     assertThat(loader1.numInvocations).isEqualTo(1);
@@ -181,8 +181,8 @@ public final class CompositeSequenceableLoaderTest {
     FakeSequenceableLoader loader2 =
         new FakeSequenceableLoader(
             /* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ C.TIME_END_OF_SOURCE);
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     compositeSequenceableLoader.continueLoading(3000);
 
     assertThat(loader1.numInvocations).isEqualTo(0);
@@ -202,8 +202,8 @@ public final class CompositeSequenceableLoaderTest {
         new FakeSequenceableLoader(/* bufferedPositionUs */ 1001, /* nextLoadPositionUs */ 2001);
     loader1.setNextChunkDurationUs(1000);
 
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
 
     assertThat(compositeSequenceableLoader.continueLoading(100)).isTrue();
   }
@@ -222,8 +222,8 @@ public final class CompositeSequenceableLoaderTest {
     // loader2 is not the furthest behind, but it can make progress if allowed.
     loader2.setNextChunkDurationUs(1000);
 
-    CompositeSequenceableLoader compositeSequenceableLoader = new CompositeSequenceableLoader(
-        new SequenceableLoader[] {loader1, loader2});
+    CompositeSequenceableLoader compositeSequenceableLoader =
+        new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
 
     assertThat(compositeSequenceableLoader.continueLoading(3000)).isTrue();
   }
@@ -274,7 +274,5 @@ public final class CompositeSequenceableLoaderTest {
     private void setNextChunkDurationUs(int nextChunkDurationUs) {
       this.nextChunkDurationUs = nextChunkDurationUs;
     }
-
   }
-
 }

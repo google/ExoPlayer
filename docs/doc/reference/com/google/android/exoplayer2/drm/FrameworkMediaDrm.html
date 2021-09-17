@@ -133,7 +133,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">FrameworkMediaDrm</span>
+<pre>@RequiresApi(18)
+public final class <span class="typeNameLabel">FrameworkMediaDrm</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></pre>
 <div class="block">An <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> implementation that wraps the framework <a href="https://developer.android.com/reference/android/media/MediaDrm.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm</code></a>.</div>
@@ -223,7 +224,7 @@ implements <a href="ExoMediaDrm.html" title="interface in com.google.android.exo
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaCrypto(byte%5B%5D)">createMediaCrypto</a></span>&#8203;(byte[]&nbsp;initData)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaCrypto(byte%5B%5D)">createMediaCrypto</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
 <td class="colLast">
 <div class="block">Creates an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for a given session.</div>
 </td>
@@ -477,7 +478,8 @@ implements <a href="ExoMediaDrm.html" title="interface in com.google.android.exo
 <ul class="blockList">
 <li class="blockList">
 <h4>setOnKeyStatusChangeListener</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOnKeyStatusChangeListener&#8203;(@Nullable
+<pre class="methodSignature">@RequiresApi(23)
+public&nbsp;void&nbsp;setOnKeyStatusChangeListener&#8203;(@Nullable
                                          <a href="ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</pre>
 <div class="block">Sets the listener for key status change events.
 
@@ -501,7 +503,8 @@ implements <a href="ExoMediaDrm.html" title="interface in com.google.android.exo
 <ul class="blockList">
 <li class="blockList">
 <h4>setOnExpirationUpdateListener</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOnExpirationUpdateListener&#8203;(@Nullable
+<pre class="methodSignature">@RequiresApi(23)
+public&nbsp;void&nbsp;setOnExpirationUpdateListener&#8203;(@Nullable
                                           <a href="ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</pre>
 <div class="block">Sets the listener for session expiration events.
 
@@ -835,7 +838,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaCrypto</h4>
-<pre class="methodSignature">public&nbsp;<a href="FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&nbsp;createMediaCrypto&#8203;(byte[]&nbsp;initData)
+<pre class="methodSignature">public&nbsp;<a href="FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&nbsp;createMediaCrypto&#8203;(byte[]&nbsp;sessionId)
                                        throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCryptoException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoMediaDrm.html#createMediaCrypto(byte%5B%5D)">ExoMediaDrm</a></code></span></div>
 <div class="block">Creates an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for a given session.</div>
@@ -843,7 +846,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ExoMediaDrm.html#createMediaCrypto(byte%5B%5D)">createMediaCrypto</a></code>&nbsp;in interface&nbsp;<code><a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initData</code> - The ID of the session.</dd>
+<dd><code>sessionId</code> - The ID of the session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the given session.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

@@ -281,5 +281,4 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
       return result;
     }
   }
-
 }

@@ -32,12 +32,13 @@ public final class DecoderCountersUtil {
    */
   public static int getTotalBufferCount(DecoderCounters counters) {
     counters.ensureUpdated();
-    return counters.skippedOutputBufferCount + counters.droppedBufferCount
+    return counters.skippedOutputBufferCount
+        + counters.droppedBufferCount
         + counters.renderedOutputBufferCount;
   }
 
-  public static void assertSkippedOutputBufferCount(String name, DecoderCounters counters,
-      int expected) {
+  public static void assertSkippedOutputBufferCount(
+      String name, DecoderCounters counters, int expected) {
     counters.ensureUpdated();
     int actual = counters.skippedOutputBufferCount;
     assertWithMessage(
@@ -46,8 +47,8 @@ public final class DecoderCountersUtil {
         .isEqualTo(expected);
   }
 
-  public static void assertTotalBufferCount(String name, DecoderCounters counters, int minCount,
-      int maxCount) {
+  public static void assertTotalBufferCount(
+      String name, DecoderCounters counters, int minCount, int maxCount) {
     int actual = getTotalBufferCount(counters);
     assertWithMessage(
             "Codec("
@@ -79,8 +80,8 @@ public final class DecoderCountersUtil {
         .isAtMost(limit);
   }
 
-  public static void assertConsecutiveDroppedBufferLimit(String name, DecoderCounters counters,
-      int limit) {
+  public static void assertConsecutiveDroppedBufferLimit(
+      String name, DecoderCounters counters, int limit) {
     counters.ensureUpdated();
     int actual = counters.maxConsecutiveDroppedBufferCount;
     assertWithMessage(

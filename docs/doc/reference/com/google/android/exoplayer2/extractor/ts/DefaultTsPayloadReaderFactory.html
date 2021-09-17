@@ -479,11 +479,10 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <dd><code>flags</code> - A combination of <code>FLAG_*</code> values that control the behavior of the created
      readers.</dd>
 <dd><code>closedCaptionFormats</code> - <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s to be exposed by payload readers for streams with
-     embedded closed captions when no caption service descriptors are provided. If
-     <a href="#FLAG_OVERRIDE_CAPTION_DESCRIPTORS"><code>FLAG_OVERRIDE_CAPTION_DESCRIPTORS</code></a> is set, <code>closedCaptionFormats</code> overrides
-     any descriptor information. If not set, and <code>closedCaptionFormats</code> is empty, a
-     closed caption track with <a href="../../Format.html#accessibilityChannel"><code>Format.accessibilityChannel</code></a> <a href="../../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> will
-     be exposed.</dd>
+     embedded closed captions when no caption service descriptors are provided. If <a href="#FLAG_OVERRIDE_CAPTION_DESCRIPTORS"><code>FLAG_OVERRIDE_CAPTION_DESCRIPTORS</code></a> is set, <code>closedCaptionFormats</code> overrides any
+     descriptor information. If not set, and <code>closedCaptionFormats</code> is empty, a closed
+     caption track with <a href="../../Format.html#accessibilityChannel"><code>Format.accessibilityChannel</code></a> <a href="../../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> will be
+     exposed.</dd>
 </dl>
 </li>
 </ul>
@@ -506,8 +505,8 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts" target="_top">TsPayloadReader</a>&gt;&nbsp;createInitialPayloadReaders()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.Factory.html#createInitialPayloadReaders()">TsPayloadReader.Factory</a></code></span></div>
 <div class="block">Returns the initial mapping from PIDs to payload readers.
- <p>
- This method allows the injection of payload readers for reserved PIDs, excluding PID 0.</div>
+
+ <p>This method allows the injection of payload readers for reserved PIDs, excluding PID 0.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="TsPayloadReader.Factory.html#createInitialPayloadReaders()">createInitialPayloadReaders</a></code>&nbsp;in interface&nbsp;<code><a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a></code></dd>

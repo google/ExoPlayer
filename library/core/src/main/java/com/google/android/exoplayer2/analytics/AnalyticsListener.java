@@ -26,10 +26,10 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -48,8 +48,9 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.base.Objects;
@@ -76,18 +77,18 @@ public interface AnalyticsListener {
   /** A set of {@link EventFlags}. */
   final class Events {
 
-    private final ExoFlags flags;
+    private final FlagSet flags;
     private final SparseArray<EventTime> eventTimes;
 
     /**
      * Creates an instance.
      *
-     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param flags The {@link FlagSet} containing the {@link EventFlags} in the set.
      * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
      *     all the events recorded in {@code flags}. Events that are not recorded in {@code flags}
      *     are ignored.
      */
-    public Events(ExoFlags flags, SparseArray<EventTime> eventTimes) {
+    public Events(FlagSet flags, SparseArray<EventTime> eventTimes) {
       this.flags = flags;
       SparseArray<EventTime> flagsToTimes = new SparseArray<>(/* initialCapacity= */ flags.size());
       for (int i = 0; i < flags.size(); i++) {
@@ -169,7 +170,11 @@ public interface AnalyticsListener {
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
     EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_AVAILABLE_COMMANDS_CHANGED,
     EVENT_MEDIA_METADATA_CHANGED,
+    EVENT_PLAYLIST_METADATA_CHANGED,
+    EVENT_SEEK_BACK_INCREMENT_CHANGED,
+    EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -221,8 +226,8 @@ public interface AnalyticsListener {
    * {@link Player#getCurrentTrackGroups()} or {@link Player#getCurrentTrackSelections()} changed.
    */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
-  /** {@link Player#getCurrentStaticMetadata()} changed. */
-  int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
+  /** @deprecated See {@link Player#EVENT_MEDIA_METADATA_CHANGED}. */
+  @Deprecated int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
   /** {@link Player#getPlaybackState()} changed. */
@@ -246,8 +251,19 @@ public interface AnalyticsListener {
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** {@link Player#getAvailableCommands()} changed. */
+  int EVENT_AVAILABLE_COMMANDS_CHANGED = Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
   /** {@link Player#getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
+  /** {@link Player#getPlaylistMetadata()} changed. */
+  int EVENT_PLAYLIST_METADATA_CHANGED = Player.EVENT_PLAYLIST_METADATA_CHANGED;
+  /** {@link Player#getSeekBackIncrement()} changed. */
+  int EVENT_SEEK_BACK_INCREMENT_CHANGED = Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
+  /** {@link Player#getSeekForwardIncrement()} changed. */
+  int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
+  /** {@link Player#getMaxSeekToPreviousPosition()} changed. */
+  int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED =
+      Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -584,6 +600,32 @@ public interface AnalyticsListener {
       EventTime eventTime, PlaybackParameters playbackParameters) {}
 
   /**
+   * Called when the seek back increment changed.
+   *
+   * @param eventTime The event time.
+   * @param seekBackIncrementMs The seek back increment, in milliseconds.
+   */
+  default void onSeekBackIncrementChanged(EventTime eventTime, long seekBackIncrementMs) {}
+
+  /**
+   * Called when the seek forward increment changed.
+   *
+   * @param eventTime The event time.
+   * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
+   */
+  default void onSeekForwardIncrementChanged(EventTime eventTime, long seekForwardIncrementMs) {}
+
+  /**
+   * Called when the maximum position for which {@link Player#seekToPrevious()} seeks to the
+   * previous window changes.
+   *
+   * @param eventTime The event time.
+   * @param maxSeekToPreviousPositionMs The maximum seek to previous position, in milliseconds.
+   */
+  default void onMaxSeekToPreviousPositionChanged(
+      EventTime eventTime, int maxSeekToPreviousPositionMs) {}
+
+  /**
    * Called when the repeat mode changed.
    *
    * @param eventTime The event time.
@@ -612,12 +654,23 @@ public interface AnalyticsListener {
   default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
   /**
+   * Called when the player's available commands changed.
+   *
+   * @param eventTime The event time.
+   * @param availableCommands The available commands.
+   */
+  default void onAvailableCommandsChanged(EventTime eventTime, Player.Commands availableCommands) {}
+
+  /**
    * Called when a fatal player error occurred.
+   *
+   * <p>Implementations of {@link Player} may pass an instance of a subclass of {@link
+   * PlaybackException} to this method in order to include more information about the error.
    *
    * @param eventTime The event time.
    * @param error The error.
    */
-  default void onPlayerError(EventTime eventTime, ExoPlaybackException error) {}
+  default void onPlayerError(EventTime eventTime, PlaybackException error) {}
 
   /**
    * Called when the available or selected tracks for the renderers changed.
@@ -630,33 +683,32 @@ public interface AnalyticsListener {
       EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
   /**
-   * Called when the static metadata changes.
-   *
-   * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances, where
-   * the elements correspond to the current track selections (as returned by {@link
-   * #onTracksChanged(EventTime, TrackGroupArray, TrackSelectionArray)}, or an empty list if there
-   * are no track selections or the selected tracks contain no static metadata.
-   *
-   * <p>The metadata is considered static in the sense that it comes from the tracks' declared
-   * Formats, rather than being timed (or dynamic) metadata, which is represented within a metadata
-   * track.
-   *
-   * @param eventTime The event time.
-   * @param metadataList The static metadata.
+   * @deprecated Use {@link Player#getMediaMetadata()} and {@link #onMediaMetadataChanged(EventTime,
+   *     MediaMetadata)} for access to structured metadata, or access the raw static metadata
+   *     directly from the {@link TrackSelection#getFormat(int) track selections' formats}.
    */
+  @Deprecated
   default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
 
   /**
    * Called when the combined {@link MediaMetadata} changes.
    *
    * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-   * and the static and dynamic metadata sourced from {@link
-   * Player.Listener#onStaticMetadataChanged(List)} and {@link MetadataOutput#onMetadata(Metadata)}.
+   * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
+   * selections' formats} and {@link MetadataOutput#onMetadata(Metadata)}.
    *
    * @param eventTime The event time.
    * @param mediaMetadata The combined {@link MediaMetadata}.
    */
   default void onMediaMetadataChanged(EventTime eventTime, MediaMetadata mediaMetadata) {}
+
+  /**
+   * Called when the playlist {@link MediaMetadata} changes.
+   *
+   * @param eventTime The event time.
+   * @param playlistMetadata The playlist {@link MediaMetadata}.
+   */
+  default void onPlaylistMetadataChanged(EventTime eventTime, MediaMetadata playlistMetadata) {}
 
   /**
    * Called when a media source started loading data.
@@ -776,10 +828,10 @@ public interface AnalyticsListener {
    * Called when an audio renderer is enabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
-   *     remains enabled.
+   * @param decoderCounters {@link DecoderCounters} that will be updated by the renderer for as long
+   *     as it remains enabled.
    */
-  default void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onAudioEnabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when an audio renderer creates a decoder.
@@ -855,9 +907,9 @@ public interface AnalyticsListener {
    * Called when an audio renderer is disabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   * @param decoderCounters {@link DecoderCounters} that were updated by the renderer.
    */
-  default void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when the audio session ID changes.
@@ -928,10 +980,10 @@ public interface AnalyticsListener {
    * Called when a video renderer is enabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
-   *     remains enabled.
+   * @param decoderCounters {@link DecoderCounters} that will be updated by the renderer for as long
+   *     as it remains enabled.
    */
-  default void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onVideoEnabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when a video renderer creates a decoder.
@@ -996,9 +1048,9 @@ public interface AnalyticsListener {
    * Called when a video renderer is disabled.
    *
    * @param eventTime The event time.
-   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   * @param decoderCounters {@link DecoderCounters} that were updated by the renderer.
    */
-  default void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {}
+  default void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {}
 
   /**
    * Called when there is an update to the video frame processing offset reported by a video

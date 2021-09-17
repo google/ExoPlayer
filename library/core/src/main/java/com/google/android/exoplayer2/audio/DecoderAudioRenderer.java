@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -94,9 +95,7 @@ public abstract class DecoderAudioRenderer<
     REINITIALIZATION_STATE_WAIT_END_OF_STREAM
   })
   private @interface ReinitializationState {}
-  /**
-   * The decoder does not need to be re-initialized.
-   */
+  /** The decoder does not need to be re-initialized. */
   private static final int REINITIALIZATION_STATE_NONE = 0;
   /**
    * The input format has changed in a way that requires the decoder to be re-initialized, but we
@@ -153,11 +152,7 @@ public abstract class DecoderAudioRenderer<
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
-    this(
-        eventHandler,
-        eventListener,
-        /* audioCapabilities= */ null,
-        audioProcessors);
+    this(eventHandler, eventListener, /* audioCapabilities= */ null, audioProcessors);
   }
 
   /**
@@ -264,7 +259,8 @@ public abstract class DecoderAudioRenderer<
       try {
         audioSink.playToEndOfStream();
       } catch (AudioSink.WriteException e) {
-        throw createRendererException(e, e.format, e.isRecoverable);
+        throw createRendererException(
+            e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
       }
       return;
     }
@@ -284,7 +280,8 @@ public abstract class DecoderAudioRenderer<
         try {
           processEndOfStream();
         } catch (AudioSink.WriteException e) {
-          throw createRendererException(e, /* format= */ null);
+          throw createRendererException(
+              e, /* format= */ null, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
         }
         return;
       } else {
@@ -304,15 +301,19 @@ public abstract class DecoderAudioRenderer<
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
       } catch (DecoderException e) {
+        // Can happen with dequeueOutputBuffer, dequeueInputBuffer, queueInputBuffer
         Log.e(TAG, "Audio codec error", e);
         eventDispatcher.audioCodecError(e);
-        throw createRendererException(e, inputFormat);
+        throw createRendererException(e, inputFormat, PlaybackException.ERROR_CODE_DECODING_FAILED);
       } catch (AudioSink.ConfigurationException e) {
-        throw createRendererException(e, e.format);
+        throw createRendererException(
+            e, e.format, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
       } catch (AudioSink.InitializationException e) {
-        throw createRendererException(e, e.format, e.isRecoverable);
+        throw createRendererException(
+            e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
       } catch (AudioSink.WriteException e) {
-        throw createRendererException(e, e.format, e.isRecoverable);
+        throw createRendererException(
+            e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
       }
       decoderCounters.ensureUpdated();
     }
@@ -388,7 +389,8 @@ public abstract class DecoderAudioRenderer<
         try {
           processEndOfStream();
         } catch (AudioSink.WriteException e) {
-          throw createRendererException(e, e.format, e.isRecoverable);
+          throw createRendererException(
+              e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
         }
       }
       return false;
@@ -417,7 +419,8 @@ public abstract class DecoderAudioRenderer<
   }
 
   private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
-    if (decoder == null || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+    if (decoder == null
+        || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
         || inputStreamEnded) {
       // We need to reinitialize the decoder or the input stream has ended.
       return false;
@@ -621,15 +624,19 @@ public abstract class DecoderAudioRenderer<
       decoder = createDecoder(inputFormat, mediaCrypto);
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
+      eventDispatcher.decoderInitialized(
+          decoder.getName(),
+          codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
     } catch (DecoderException e) {
       Log.e(TAG, "Audio codec error", e);
       eventDispatcher.audioCodecError(e);
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(
+          e, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     } catch (OutOfMemoryError e) {
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(
+          e, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     }
   }
 

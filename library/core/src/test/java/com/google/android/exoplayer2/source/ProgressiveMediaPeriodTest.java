@@ -33,7 +33,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 /** Unit test for {@link ProgressiveMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
@@ -47,7 +46,6 @@ public final class ProgressiveMediaPeriodTest {
   }
 
   @Test
-  @Config(sdk = 30)
   public void prepareUsingMediaParser_updatesSourceInfoBeforeOnPreparedCallback()
       throws TimeoutException {
     testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(new MediaParserExtractorAdapter());

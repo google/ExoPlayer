@@ -198,9 +198,9 @@ extends <a href="DataSource.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a></span></code></th>
 <td class="colLast">
-<div class="block">Stores HTTP request properties (aka HTTP headers) and provides methods to modify the headers
- in a thread safe way to avoid the potential of creating snapshots of an inconsistent or
- unintended state.</div>
+<div class="block">Stores HTTP request properties (aka HTTP headers) and provides methods to modify the headers in
+ a thread safe way to avoid the potential of creating snapshots of an inconsistent or unintended
+ state.</div>
 </td>
 </tr>
 </table>
@@ -293,7 +293,7 @@ extends <a href="DataSource.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;buffer,
     int&nbsp;offset,
-    int&nbsp;readLength)</code></th>
+    int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
@@ -405,7 +405,7 @@ extends <a href="DataSource.html" title="interface in com.google.android.exoplay
 <h4>read</h4>
 <pre class="methodSignature">int&nbsp;read&#8203;(byte[]&nbsp;buffer,
          int&nbsp;offset,
-         int&nbsp;readLength)
+         int&nbsp;length)
   throws <a href="HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DataReader.html#read(byte%5B%5D,int,int)">DataReader</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.
@@ -420,7 +420,7 @@ extends <a href="DataSource.html" title="interface in com.google.android.exoplay
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
+<dd><code>length</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes read, or <a href="../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
      may be less than <code>length</code> because the end of the input (or available data) was

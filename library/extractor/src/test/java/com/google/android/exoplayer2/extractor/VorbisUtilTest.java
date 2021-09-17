@@ -28,9 +28,11 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link VorbisUtil}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class VorbisUtilTest {
 
   @Test
@@ -103,15 +105,15 @@ public final class VorbisUtilTest {
   @Test
   public void verifyVorbisHeaderCapturePattern_withValidHeader_returnsTrue()
       throws ParserException {
-    ParsableByteArray header = new ParsableByteArray(
-        new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    ParsableByteArray header =
+        new ParsableByteArray(new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
     assertThat(verifyVorbisHeaderCapturePattern(0x01, header, false)).isTrue();
   }
 
   @Test
   public void verifyVorbisHeaderCapturePattern_withValidHeader_returnsFalse() {
-    ParsableByteArray header = new ParsableByteArray(
-        new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    ParsableByteArray header =
+        new ParsableByteArray(new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
     try {
       VorbisUtil.verifyVorbisHeaderCapturePattern(0x99, header, false);
       fail();
@@ -123,15 +125,15 @@ public final class VorbisUtilTest {
   @Test
   public void verifyVorbisHeaderCapturePattern_withInvalidHeaderQuite_returnsFalse()
       throws ParserException {
-    ParsableByteArray header = new ParsableByteArray(
-        new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    ParsableByteArray header =
+        new ParsableByteArray(new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
     assertThat(verifyVorbisHeaderCapturePattern(0x99, header, true)).isFalse();
   }
 
   @Test
   public void verifyVorbisHeaderCapturePattern_withInvalidPattern_returnsFalse() {
-    ParsableByteArray header = new ParsableByteArray(
-        new byte[] {0x01, 'x', 'v', 'o', 'r', 'b', 'i', 's'});
+    ParsableByteArray header =
+        new ParsableByteArray(new byte[] {0x01, 'x', 'v', 'o', 'r', 'b', 'i', 's'});
     try {
       VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, header, false);
       fail();
@@ -143,9 +145,8 @@ public final class VorbisUtilTest {
   @Test
   public void verifyVorbisHeaderCapturePatternQuite_withInvalidPatternQuite_returnsFalse()
       throws ParserException {
-    ParsableByteArray header = new ParsableByteArray(
-        new byte[] {0x01, 'x', 'v', 'o', 'r', 'b', 'i', 's'});
+    ParsableByteArray header =
+        new ParsableByteArray(new byte[] {0x01, 'x', 'v', 'o', 'r', 'b', 'i', 's'});
     assertThat(verifyVorbisHeaderCapturePattern(0x01, header, true)).isFalse();
   }
-
 }

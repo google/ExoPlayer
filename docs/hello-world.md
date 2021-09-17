@@ -50,6 +50,8 @@ implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 ~~~
 {: .language-gradle}
 
+When depending on individual modules they must all be the same version.
+
 The available library modules are listed below. Adding a dependency to the full
 ExoPlayer library is equivalent to adding dependencies on all of the library
 modules individually.

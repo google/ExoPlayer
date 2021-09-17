@@ -23,8 +23,8 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -96,7 +96,7 @@ public class FlacPlaybackTest {
     private final AudioSink audioSink;
 
     @Nullable private SimpleExoPlayer player;
-    @Nullable private ExoPlaybackException playbackException;
+    @Nullable private PlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context, AudioSink audioSink) {
       this.uri = uri;
@@ -129,7 +129,7 @@ public class FlacPlaybackTest {
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       playbackException = error;
     }
 

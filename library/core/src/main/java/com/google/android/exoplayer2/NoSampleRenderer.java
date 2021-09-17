@@ -122,8 +122,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void maybeThrowStreamError() throws IOException {
-  }
+  public final void maybeThrowStreamError() throws IOException {}
 
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
@@ -180,7 +179,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -188,8 +187,8 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   /**
    * Called when the renderer is enabled.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
@@ -200,11 +199,11 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   /**
    * Called when the renderer's offset has been changed.
-   * <p>
-   * The default implementation is a no-op.
    *
-   * @param offsetUs The offset that should be subtracted from {@code positionUs} in
-   *     {@link #render(long, long)} to get the playback position with respect to the media.
+   * <p>The default implementation is a no-op.
+   *
+   * @param offsetUs The offset that should be subtracted from {@code positionUs} in {@link
+   *     #render(long, long)} to get the playback position with respect to the media.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onRendererOffsetChanged(long offsetUs) throws ExoPlaybackException {
@@ -212,11 +211,11 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   /**
-   * Called when the position is reset. This occurs when the renderer is enabled after
-   * {@link #onRendererOffsetChanged(long)} has been called, and also when a position
-   * discontinuity is encountered.
-   * <p>
-   * The default implementation is a no-op.
+   * Called when the position is reset. This occurs when the renderer is enabled after {@link
+   * #onRendererOffsetChanged(long)} has been called, and also when a position discontinuity is
+   * encountered.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param positionUs The new playback position in microseconds.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
@@ -228,8 +227,8 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   /**
    * Called when the renderer is started.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @throws ExoPlaybackException If an error occurs.
    */
@@ -248,8 +247,8 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   /**
    * Called when the renderer is disabled.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    */
   protected void onDisabled() {
     // Do nothing.
@@ -275,11 +274,8 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
     return configuration;
   }
 
-  /**
-   * Returns the index of the renderer within the player.
-   */
+  /** Returns the index of the renderer within the player. */
   protected final int getIndex() {
     return index;
   }
-
 }

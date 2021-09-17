@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":38,"i12":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,12 +125,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2">DefaultControlDispatcher</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">ControlDispatcher</span></pre>
-<div class="block">Dispatches operations to the <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.
-
- <p>Implementations may choose to suppress (e.g. prevent playback from resuming if audio focus is
- denied) or modify (e.g. change the seek position to prevent a user from seeking past a
- non-skippable advert) operations.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">ControlDispatcher</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a <a href="ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> or configure the player to customize operations.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -145,7 +144,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -155,6 +154,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchFastForward(com.google.android.exoplayer2.Player)">dispatchFastForward</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a fast forward operation.</div>
 </td>
 </tr>
@@ -162,13 +162,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchNext(com.google.android.exoplayer2.Player)">dispatchNext</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="Player.html#next()"><code>Player.next()</code></a> operation.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Dispatches a <a href="Player.html#seekToNextWindow()"><code>Player.seekToNextWindow()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchPrepare(com.google.android.exoplayer2.Player)">dispatchPrepare</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#prepare()"><code>Player.prepare()</code></a> operation.</div>
 </td>
 </tr>
@@ -176,13 +178,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchPrevious(com.google.android.exoplayer2.Player)">dispatchPrevious</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Dispatches a <a href="Player.html#previous()"><code>Player.previous()</code></a> operation.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Dispatches a <a href="Player.html#seekToPreviousWindow()"><code>Player.seekToPreviousWindow()</code></a> operation.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchRewind(com.google.android.exoplayer2.Player)">dispatchRewind</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a rewind operation.</div>
 </td>
 </tr>
@@ -192,6 +196,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
               int&nbsp;windowIndex,
               long&nbsp;positionMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#seekTo(int,long)"><code>Player.seekTo(int, long)</code></a> operation.</div>
 </td>
 </tr>
@@ -200,6 +205,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetPlaybackParameters(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.PlaybackParameters)">dispatchSetPlaybackParameters</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
 </td>
 </tr>
@@ -208,6 +214,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetPlayWhenReady(com.google.android.exoplayer2.Player,boolean)">dispatchSetPlayWhenReady</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                         boolean&nbsp;playWhenReady)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlayWhenReady(boolean)"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 </td>
 </tr>
@@ -216,6 +223,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetRepeatMode(com.google.android.exoplayer2.Player,int)">dispatchSetRepeatMode</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                      int&nbsp;repeatMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 </td>
 </tr>
@@ -224,6 +232,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchSetShuffleModeEnabled(com.google.android.exoplayer2.Player,boolean)">dispatchSetShuffleModeEnabled</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setShuffleModeEnabled(boolean)"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 </td>
 </tr>
@@ -232,6 +241,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchStop(com.google.android.exoplayer2.Player,boolean)">dispatchStop</a></span>&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
             boolean&nbsp;reset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#stop()"><code>Player.stop()</code></a> operation.</div>
 </td>
 </tr>
@@ -239,6 +249,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFastForwardEnabled()">isFastForwardEnabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 </td>
 </tr>
@@ -246,6 +257,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isRewindEnabled()">isRewindEnabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
 </td>
 </tr>
@@ -273,6 +285,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>dispatchPrepare</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchPrepare&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#prepare()"><code>Player.prepare()</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -290,6 +303,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>dispatchSetPlayWhenReady</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchSetPlayWhenReady&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                  boolean&nbsp;playWhenReady)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlayWhenReady(boolean)"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -309,6 +323,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">boolean&nbsp;dispatchSeekTo&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                        int&nbsp;windowIndex,
                        long&nbsp;positionMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#seekTo(int,long)"><code>Player.seekTo(int, long)</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -328,7 +343,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>dispatchPrevious</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchPrevious&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block">Dispatches a <a href="Player.html#previous()"><code>Player.previous()</code></a> operation.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Dispatches a <a href="Player.html#seekToPreviousWindow()"><code>Player.seekToPreviousWindow()</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
@@ -344,7 +360,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>dispatchNext</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchNext&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block">Dispatches a <a href="Player.html#next()"><code>Player.next()</code></a> operation.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Dispatches a <a href="Player.html#seekToNextWindow()"><code>Player.seekToNextWindow()</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
@@ -360,6 +377,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>dispatchRewind</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchRewind&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a rewind operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -376,6 +394,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>dispatchFastForward</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchFastForward&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a fast forward operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -394,6 +413,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">boolean&nbsp;dispatchSetRepeatMode&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                               <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                               int&nbsp;repeatMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -412,6 +432,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>dispatchSetShuffleModeEnabled</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchSetShuffleModeEnabled&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                       boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setShuffleModeEnabled(boolean)"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -430,6 +451,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>dispatchStop</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchStop&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                      boolean&nbsp;reset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#stop()"><code>Player.stop()</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -448,6 +470,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>dispatchSetPlaybackParameters</h4>
 <pre class="methodSignature">boolean&nbsp;dispatchSetPlaybackParameters&#8203;(<a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                       <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches a <a href="Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a> operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -465,6 +488,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isRewindEnabled</h4>
 <pre class="methodSignature">boolean&nbsp;isRewindEnabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
 </li>
 </ul>
@@ -475,6 +499,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isFastForwardEnabled</h4>
 <pre class="methodSignature">boolean&nbsp;isFastForwardEnabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 </li>
 </ul>

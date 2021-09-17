@@ -131,7 +131,7 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
   }
 
   /** Releases all allocated resources. */
-  @SuppressWarnings({"nullness:argument.type.incompatible"})
+  @SuppressWarnings("nullness:argument")
   public void release() {
     handler.removeCallbacks(this);
     try {

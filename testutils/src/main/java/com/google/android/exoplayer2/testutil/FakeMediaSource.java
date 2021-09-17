@@ -179,20 +179,6 @@ public class FakeMediaSource extends BaseMediaSource {
     return timeline;
   }
 
-  /**
-   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  @Nullable
-  public Object getTag() {
-    if (timeline == null || timeline.isEmpty()) {
-      return null;
-    }
-    return timeline.getWindow(0, new Timeline.Window()).tag;
-  }
-
   @Override
   public MediaItem getMediaItem() {
     if (timeline == null || timeline.isEmpty()) {
@@ -317,16 +303,12 @@ public class FakeMediaSource extends BaseMediaSource {
     return preparedSource;
   }
 
-  /**
-   * Assert that the source and all periods have been released.
-   */
+  /** Assert that the source and all periods have been released. */
   public void assertReleased() {
     assertThat(releasedSource || !preparedSource).isTrue();
   }
 
-  /**
-   * Assert that a media period for the given id has been created.
-   */
+  /** Assert that a media period for the given id has been created. */
   public void assertMediaPeriodCreated(MediaPeriodId mediaPeriodId) {
     assertThat(createdMediaPeriods).contains(mediaPeriodId);
   }

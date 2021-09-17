@@ -29,17 +29,20 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 /** Unit tests for {@link DashManifestParser}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class DashManifestParserTest {
 
   private static final String SAMPLE_MPD_LIVE = "media/mpd/sample_mpd_live";
@@ -53,6 +56,8 @@ public class DashManifestParserTest {
   private static final String SAMPLE_MPD_TRICK_PLAY = "media/mpd/sample_mpd_trick_play";
   private static final String SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_BASE_URL =
       "media/mpd/sample_mpd_availabilityTimeOffset_baseUrl";
+  private static final String SAMPLE_MPD_MULTIPLE_BASE_URLS =
+      "media/mpd/sample_mpd_multiple_baseUrls";
   private static final String SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_TEMPLATE =
       "media/mpd/sample_mpd_availabilityTimeOffset_segmentTemplate";
   private static final String SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_LIST =
@@ -103,10 +108,8 @@ public class DashManifestParserTest {
               (Representation.MultiSegmentRepresentation) representation;
           long firstSegmentIndex = multiSegmentRepresentation.getFirstSegmentNum();
           RangedUri uri = multiSegmentRepresentation.getSegmentUrl(firstSegmentIndex);
-          assertThat(
-                  uri.resolveUriString(representation.baseUrl)
-                      .contains("redirector.googlevideo.com"))
-              .isTrue();
+          assertThat(uri.resolveUriString(representation.baseUrls.get(0).url))
+              .contains("redirector.googlevideo.com");
         }
       }
     }
@@ -568,6 +571,85 @@ public class DashManifestParserTest {
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(2))).isEqualTo(1_230_000);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(3))).isEqualTo(100_000);
     assertThat(getAvailabilityTimeOffsetUs(adaptationSets1.get(0))).isEqualTo(9_999_000);
+  }
+
+  @Test
+  public void baseUrl_absoluteBaseUrls_usesClosestBaseUrl() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_BASE_URL));
+
+    List<AdaptationSet> adaptationSets0 = manifest.getPeriod(0).adaptationSets;
+    assertThat(adaptationSets0.get(0).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("period0");
+    assertThat(adaptationSets0.get(0).representations.get(0).baseUrls.get(0).priority).isEqualTo(2);
+    assertThat(adaptationSets0.get(0).representations.get(0).baseUrls.get(0).weight).isEqualTo(20);
+    assertThat(adaptationSets0.get(1).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("adaptationSet1");
+    assertThat(adaptationSets0.get(1).representations.get(0).baseUrls.get(0).priority).isEqualTo(3);
+    assertThat(adaptationSets0.get(1).representations.get(0).baseUrls.get(0).weight).isEqualTo(30);
+    assertThat(adaptationSets0.get(2).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("representation2");
+    assertThat(adaptationSets0.get(2).representations.get(0).baseUrls.get(0).priority).isEqualTo(4);
+    assertThat(adaptationSets0.get(2).representations.get(0).baseUrls.get(0).weight).isEqualTo(40);
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).serviceLocation)
+        .isEqualTo("http://video-foo.com/baseUrl/adaptationSet3");
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).priority).isEqualTo(1);
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).weight).isEqualTo(1);
+    assertThat(adaptationSets0.get(3).representations.get(0).baseUrls.get(0).url)
+        .isEqualTo("http://video-foo.com/baseUrl/representation3");
+  }
+
+  @Test
+  public void baseUrl_multipleBaseUrls_correctParsingAndUnfolding() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_MULTIPLE_BASE_URLS));
+
+    ImmutableList<BaseUrl> audioBaseUrls =
+        manifest.getPeriod(0).adaptationSets.get(0).representations.get(0).baseUrls;
+    assertThat(audioBaseUrls).hasSize(6);
+    assertThat(audioBaseUrls.get(0).url).endsWith("/baseUrl/a/media/audio");
+    assertThat(audioBaseUrls.get(1).url).endsWith("/baseUrl/b/media/audio");
+    assertThat(audioBaseUrls.get(2).url).endsWith("/baseUrl/c/media/audio");
+    assertThat(audioBaseUrls.get(3).url).endsWith("/baseUrl/a/files/audio");
+    assertThat(audioBaseUrls.get(4).url).endsWith("/baseUrl/b/files/audio");
+    assertThat(audioBaseUrls.get(5).url).endsWith("/baseUrl/c/files/audio");
+    assertThat(audioBaseUrls.get(0).serviceLocation).isEqualTo("a");
+    assertThat(audioBaseUrls.get(1).serviceLocation).isEqualTo("b");
+    assertThat(audioBaseUrls.get(2).serviceLocation).isEqualTo("c");
+    assertThat(audioBaseUrls.get(3).serviceLocation).isEqualTo("a");
+    assertThat(audioBaseUrls.get(4).serviceLocation).isEqualTo("b");
+    assertThat(audioBaseUrls.get(5).serviceLocation).isEqualTo("c");
+    ImmutableList<BaseUrl> videoBaseUrls =
+        manifest.getPeriod(0).adaptationSets.get(1).representations.get(0).baseUrls;
+    assertThat(videoBaseUrls).hasSize(7);
+    assertThat(videoBaseUrls.get(0).url).endsWith("/baseUrl/a/media/video");
+    assertThat(videoBaseUrls.get(1).url).endsWith("/baseUrl/b/media/video");
+    assertThat(videoBaseUrls.get(2).url).endsWith("/baseUrl/c/media/video");
+    assertThat(videoBaseUrls.get(3).url).endsWith("/baseUrl/a/files/video");
+    assertThat(videoBaseUrls.get(4).url).endsWith("/baseUrl/b/files/video");
+    assertThat(videoBaseUrls.get(5).url).endsWith("/baseUrl/c/files/video");
+    assertThat(videoBaseUrls.get(6).url).endsWith("/baseUrl/d/alternative/");
+    assertThat(videoBaseUrls.get(0).serviceLocation).isEqualTo("a");
+    assertThat(videoBaseUrls.get(1).serviceLocation).isEqualTo("b");
+    assertThat(videoBaseUrls.get(2).serviceLocation).isEqualTo("c");
+    assertThat(videoBaseUrls.get(3).serviceLocation).isEqualTo("a");
+    assertThat(videoBaseUrls.get(4).serviceLocation).isEqualTo("b");
+    assertThat(videoBaseUrls.get(5).serviceLocation).isEqualTo("c");
+    assertThat(videoBaseUrls.get(6).serviceLocation).isEqualTo("d");
+    ImmutableList<BaseUrl> textBaseUrls =
+        manifest.getPeriod(0).adaptationSets.get(2).representations.get(0).baseUrls;
+    assertThat(textBaseUrls).hasSize(1);
+    assertThat(textBaseUrls.get(0).url).endsWith("/baseUrl/e/text/");
+    assertThat(textBaseUrls.get(0).serviceLocation).isEqualTo("e");
   }
 
   @Test

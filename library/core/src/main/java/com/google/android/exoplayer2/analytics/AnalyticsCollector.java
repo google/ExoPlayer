@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.analytics;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.os.Looper;
 import android.util.SparseArray;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -49,6 +51,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -81,6 +84,7 @@ public class AnalyticsCollector
 
   private ListenerSet<AnalyticsListener> listeners;
   private @MonotonicNonNull Player player;
+  private @MonotonicNonNull HandlerWrapper handler;
   private boolean isSeeking;
 
   /**
@@ -130,6 +134,7 @@ public class AnalyticsCollector
     Assertions.checkState(
         this.player == null || mediaPeriodQueueTracker.mediaPeriodQueue.isEmpty());
     this.player = checkNotNull(player);
+    handler = clock.createHandler(looper, null);
     listeners =
         listeners.copy(
             looper,
@@ -145,10 +150,13 @@ public class AnalyticsCollector
   public void release() {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     eventTimes.put(AnalyticsListener.EVENT_PLAYER_RELEASED, eventTime);
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_PLAYER_RELEASED,
+        listener -> listener.onPlayerReleased(eventTime));
     // Release listeners lazily so that all events that got triggered as part of player.release()
     // are still delivered to all listeners.
-    listeners.lazyRelease(
-        AnalyticsListener.EVENT_PLAYER_RELEASED, listener -> listener.onPlayerReleased(eventTime));
+    checkStateNotNull(handler).post(() -> listeners.release());
   }
 
   /**
@@ -179,21 +187,6 @@ public class AnalyticsCollector
       sendEvent(
           eventTime, /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onSeekStarted(eventTime));
     }
-  }
-
-  // MetadataOutput events.
-
-  /**
-   * Called when there is metadata associated with current playback time.
-   *
-   * @param metadata The metadata.
-   */
-  public final void onMetadata(Metadata metadata) {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_METADATA,
-        listener -> listener.onMetadata(eventTime, metadata));
   }
 
   // AudioRendererEventListener implementation.
@@ -573,9 +566,9 @@ public class AnalyticsCollector
         listener -> listener.onDownstreamFormatChanged(eventTime, mediaLoadData));
   }
 
-  // Player.EventListener implementation.
+  // Player.Listener implementation.
 
-  // TODO: Use Player.EventListener.onEvents to know when a set of simultaneous callbacks finished.
+  // TODO: Use Player.Listener.onEvents to know when a set of simultaneous callbacks finished.
   // This helps to assign exactly the same EventTime to all of them instead of having slightly
   // different real times.
 
@@ -609,6 +602,7 @@ public class AnalyticsCollector
         listener -> listener.onTracksChanged(eventTime, trackGroups, trackSelections));
   }
 
+  @Deprecated
   @Override
   public final void onStaticMetadataChanged(List<Metadata> metadataList) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
@@ -631,6 +625,15 @@ public class AnalyticsCollector
         });
   }
 
+  @Override
+  public void onAvailableCommandsChanged(Player.Commands availableCommands) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AVAILABLE_COMMANDS_CHANGED,
+        listener -> listener.onAvailableCommandsChanged(eventTime, availableCommands));
+  }
+
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
   @Override
   public final void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
@@ -642,12 +645,12 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onPlaybackStateChanged(@Player.State int state) {
+  public final void onPlaybackStateChanged(@Player.State int playbackState) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_PLAYBACK_STATE_CHANGED,
-        listener -> listener.onPlaybackStateChanged(eventTime, state));
+        listener -> listener.onPlaybackStateChanged(eventTime, playbackState));
   }
 
   @Override
@@ -699,15 +702,22 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onPlayerError(ExoPlaybackException error) {
-    EventTime eventTime =
-        error.mediaPeriodId != null
-            ? generateEventTime(new MediaPeriodId(error.mediaPeriodId))
-            : generateCurrentPlayerMediaPeriodEventTime();
+  public final void onPlayerError(PlaybackException error) {
+    @Nullable EventTime eventTime = null;
+    if (error instanceof ExoPlaybackException) {
+      ExoPlaybackException exoError = (ExoPlaybackException) error;
+      if (exoError.mediaPeriodId != null) {
+        eventTime = generateEventTime(new MediaPeriodId(exoError.mediaPeriodId));
+      }
+    }
+    if (eventTime == null) {
+      eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    }
+    EventTime finalEventTime = eventTime;
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_PLAYER_ERROR,
-        listener -> listener.onPlayerError(eventTime, error));
+        listener -> listener.onPlayerError(finalEventTime, error));
   }
 
   // Calling deprecated callback.
@@ -741,12 +751,58 @@ public class AnalyticsCollector
   }
 
   @Override
+  public void onSeekBackIncrementChanged(long seekBackIncrementMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_SEEK_BACK_INCREMENT_CHANGED,
+        listener -> listener.onSeekBackIncrementChanged(eventTime, seekBackIncrementMs));
+  }
+
+  @Override
+  public void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+        listener -> listener.onSeekForwardIncrementChanged(eventTime, seekForwardIncrementMs));
+  }
+
+  @Override
+  public void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
+        listener ->
+            listener.onMaxSeekToPreviousPositionChanged(eventTime, maxSeekToPreviousPositionMs));
+  }
+
+  @Override
   public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_MEDIA_METADATA_CHANGED,
         listener -> listener.onMediaMetadataChanged(eventTime, mediaMetadata));
+  }
+
+  @Override
+  public void onPlaylistMetadataChanged(MediaMetadata playlistMetadata) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_PLAYLIST_METADATA_CHANGED,
+        listener -> listener.onPlaylistMetadataChanged(eventTime, playlistMetadata));
+  }
+
+  @Override
+  public final void onMetadata(Metadata metadata) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_METADATA,
+        listener -> listener.onMetadata(eventTime, metadata));
   }
 
   @SuppressWarnings("deprecation") // Implementing and calling deprecated listener method.
@@ -757,18 +813,19 @@ public class AnalyticsCollector
         eventTime, /* eventFlag= */ C.INDEX_UNSET, listener -> listener.onSeekProcessed(eventTime));
   }
 
-  // BandwidthMeter.Listener implementation.
+  // BandwidthMeter.EventListener implementation.
 
   @Override
-  public final void onBandwidthSample(int elapsedMs, long bytes, long bitrate) {
+  public final void onBandwidthSample(int elapsedMs, long bytesTransferred, long bitrateEstimate) {
     EventTime eventTime = generateLoadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_BANDWIDTH_ESTIMATE,
-        listener -> listener.onBandwidthEstimate(eventTime, elapsedMs, bytes, bitrate));
+        listener ->
+            listener.onBandwidthEstimate(eventTime, elapsedMs, bytesTransferred, bitrateEstimate));
   }
 
-  // DefaultDrmSessionManager.EventListener implementation.
+  // DrmSessionEventListener implementation.
 
   @Override
   @SuppressWarnings("deprecation") // Calls deprecated listener method.
@@ -829,6 +886,8 @@ public class AnalyticsCollector
         AnalyticsListener.EVENT_DRM_SESSION_RELEASED,
         listener -> listener.onDrmSessionReleased(eventTime));
   }
+
+  // Internal methods.
 
   /**
    * Sends an event to registered listeners.
@@ -891,8 +950,6 @@ public class AnalyticsCollector
         player.getCurrentPosition(),
         player.getTotalBufferedDuration());
   }
-
-  // Internal methods.
 
   private EventTime generateEventTime(@Nullable MediaPeriodId mediaPeriodId) {
     checkNotNull(player);

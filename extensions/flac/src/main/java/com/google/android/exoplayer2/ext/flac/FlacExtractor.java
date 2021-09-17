@@ -51,7 +51,6 @@ public final class FlacExtractor implements Extractor {
   /** Factory that returns one extractor which is a {@link FlacExtractor}. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new FlacExtractor()};
 
-  // LINT.IfChange
   /*
    * Flags in the two FLAC extractors should be kept in sync. If we ever change this then
    * DefaultExtractorsFactory will need modifying, because it currently assumes this is the case.
@@ -73,7 +72,6 @@ public final class FlacExtractor implements Extractor {
    */
   public static final int FLAG_DISABLE_ID3_METADATA =
       com.google.android.exoplayer2.extractor.flac.FlacExtractor.FLAG_DISABLE_ID3_METADATA;
-  // LINT.ThenChange(../../../../../../../../../../extractor/src/main/java/com/google/android/exoplayer2/extractor/flac/FlacExtractor.java)
 
   private final ParsableByteArray outputBuffer;
   private final boolean id3MetadataDisabled;
@@ -179,7 +177,7 @@ public final class FlacExtractor implements Extractor {
   }
 
   @EnsuresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Ensures initialized.
-  @SuppressWarnings({"contracts.postcondition.not.satisfied"})
+  @SuppressWarnings("nullness:contracts.postcondition")
   private FlacDecoderJni initDecoderJni(ExtractorInput input) {
     FlacDecoderJni decoderJni = Assertions.checkNotNull(this.decoderJni);
     decoderJni.setData(input);
@@ -188,7 +186,7 @@ public final class FlacExtractor implements Extractor {
 
   @RequiresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Requires initialized.
   @EnsuresNonNull({"streamMetadata", "outputFrameHolder"}) // Ensures stream metadata decoded.
-  @SuppressWarnings({"contracts.postcondition.not.satisfied"})
+  @SuppressWarnings("nullness:contracts.postcondition")
   private void decodeStreamMetadata(ExtractorInput input) throws IOException {
     if (streamMetadataDecoded) {
       return;

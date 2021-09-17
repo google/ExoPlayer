@@ -574,10 +574,6 @@
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/flac/play.flac"
       },
       {
-        "name": "Big Buck Bunny video (FLV)",
-        "uri": "https://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
-      },
-      {
         "name": "Big Buck Bunny 480p (MP4, AV1)",
         "uri": "https://storage.googleapis.com/downloads.webmproject.org/av1/exoplayer/bbb-av1-480p.mp4"
       },

@@ -104,11 +104,7 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   protected OkHttpDataSource createDataSourceInternal(
       HttpDataSource.RequestProperties defaultRequestProperties) {
     OkHttpDataSource dataSource =
-        new OkHttpDataSource(
-            callFactory,
-            userAgent,
-            cacheControl,
-            defaultRequestProperties);
+        new OkHttpDataSource(callFactory, userAgent, cacheControl, defaultRequestProperties);
     if (listener != null) {
       dataSource.addTransferListener(listener);
     }

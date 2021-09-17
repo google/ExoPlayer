@@ -34,37 +34,40 @@ import java.util.Map;
  */
 /* package */ final class RtspHeaders {
 
-  public static final String ACCEPT = "accept";
-  public static final String ALLOW = "allow";
-  public static final String AUTHORIZATION = "authorization";
-  public static final String BANDWIDTH = "bandwidth";
-  public static final String BLOCKSIZE = "blocksize";
-  public static final String CACHE_CONTROL = "cache-control";
-  public static final String CONNECTION = "connection";
-  public static final String CONTENT_BASE = "content-base";
-  public static final String CONTENT_ENCODING = "content-encoding";
-  public static final String CONTENT_LANGUAGE = "content-language";
-  public static final String CONTENT_LENGTH = "content-length";
-  public static final String CONTENT_LOCATION = "content-location";
-  public static final String CONTENT_TYPE = "content-type";
-  public static final String CSEQ = "cseq";
-  public static final String DATE = "date";
-  public static final String EXPIRES = "expires";
-  public static final String PROXY_AUTHENTICATE = "proxy-authenticate";
-  public static final String PROXY_REQUIRE = "proxy-require";
-  public static final String PUBLIC = "public";
-  public static final String RANGE = "range";
-  public static final String RTP_INFO = "rtp-info";
-  public static final String RTCP_INTERVAL = "rtcp-interval";
-  public static final String SCALE = "scale";
-  public static final String SESSION = "session";
-  public static final String SPEED = "speed";
-  public static final String SUPPORTED = "supported";
-  public static final String TIMESTAMP = "timestamp";
-  public static final String TRANSPORT = "transport";
-  public static final String USER_AGENT = "user-agent";
-  public static final String VIA = "via";
-  public static final String WWW_AUTHENTICATE = "www-authenticate";
+  public static final String ACCEPT = "Accept";
+  public static final String ALLOW = "Allow";
+  public static final String AUTHORIZATION = "Authorization";
+  public static final String BANDWIDTH = "Bandwidth";
+  public static final String BLOCKSIZE = "Blocksize";
+  public static final String CACHE_CONTROL = "Cache-Control";
+  public static final String CONNECTION = "Connection";
+  public static final String CONTENT_BASE = "Content-Base";
+  public static final String CONTENT_ENCODING = "Content-Encoding";
+  public static final String CONTENT_LANGUAGE = "Content-Language";
+  public static final String CONTENT_LENGTH = "Content-Length";
+  public static final String CONTENT_LOCATION = "Content-Location";
+  public static final String CONTENT_TYPE = "Content-Type";
+  public static final String CSEQ = "CSeq";
+  public static final String DATE = "Date";
+  public static final String EXPIRES = "Expires";
+  public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
+  public static final String PROXY_REQUIRE = "Proxy-Require";
+  public static final String PUBLIC = "Public";
+  public static final String RANGE = "Range";
+  public static final String RTP_INFO = "RTP-Info";
+  public static final String RTCP_INTERVAL = "RTCP-Interval";
+  public static final String SCALE = "Scale";
+  public static final String SESSION = "Session";
+  public static final String SPEED = "Speed";
+  public static final String SUPPORTED = "Supported";
+  public static final String TIMESTAMP = "Timestamp";
+  public static final String TRANSPORT = "Transport";
+  public static final String USER_AGENT = "User-Agent";
+  public static final String VIA = "Via";
+  public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+
+  /** An empty header object. */
+  public static final RtspHeaders EMPTY = new RtspHeaders.Builder().build();
 
   /** Builds {@link RtspHeaders} instances. */
   public static final class Builder {
@@ -76,6 +79,16 @@ import java.util.Map;
     }
 
     /**
+     * Creates a new instance to build upon the provided {@link RtspHeaders}.
+     *
+     * @param namesAndValuesBuilder A {@link ImmutableListMultimap.Builder} that this builder builds
+     *     upon.
+     */
+    private Builder(ImmutableListMultimap.Builder<String, String> namesAndValuesBuilder) {
+      this.namesAndValuesBuilder = namesAndValuesBuilder;
+    }
+
+    /**
      * Adds a header name and header value pair.
      *
      * @param headerName The name of the header.
@@ -83,7 +96,7 @@ import java.util.Map;
      * @return This builder.
      */
     public Builder add(String headerName, String headerValue) {
-      namesAndValuesBuilder.put(Ascii.toLowerCase(headerName.trim()), headerValue.trim());
+      namesAndValuesBuilder.put(convertToStandardHeaderName(headerName.trim()), headerValue.trim());
       return this;
     }
 
@@ -130,6 +143,31 @@ import java.util.Map;
 
   private final ImmutableListMultimap<String, String> namesAndValues;
 
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof RtspHeaders)) {
+      return false;
+    }
+    RtspHeaders headers = (RtspHeaders) obj;
+    return namesAndValues.equals(headers.namesAndValues);
+  }
+
+  @Override
+  public int hashCode() {
+    return namesAndValues.hashCode();
+  }
+
+  /** Returns a {@link Builder} initialized with the values of this instance. */
+  public Builder buildUpon() {
+    ImmutableListMultimap.Builder<String, String> namesAndValuesBuilder =
+        new ImmutableListMultimap.Builder<>();
+    namesAndValuesBuilder.putAll(namesAndValues);
+    return new Builder(namesAndValuesBuilder);
+  }
+
   /**
    * Returns a map that associates header names to the list of values associated with the
    * corresponding header name.
@@ -156,10 +194,77 @@ import java.util.Map;
    * list is empty if the header name is not recorded.
    */
   public ImmutableList<String> values(String headerName) {
-    return namesAndValues.get(Ascii.toLowerCase(headerName));
+    return namesAndValues.get(convertToStandardHeaderName(headerName));
   }
 
   private RtspHeaders(Builder builder) {
     this.namesAndValues = builder.namesAndValuesBuilder.build();
+  }
+
+  private static String convertToStandardHeaderName(String messageHeaderName) {
+    if (Ascii.equalsIgnoreCase(messageHeaderName, ACCEPT)) {
+      return ACCEPT;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, ALLOW)) {
+      return ALLOW;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, AUTHORIZATION)) {
+      return AUTHORIZATION;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, BANDWIDTH)) {
+      return BANDWIDTH;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, BLOCKSIZE)) {
+      return BLOCKSIZE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CACHE_CONTROL)) {
+      return CACHE_CONTROL;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CONNECTION)) {
+      return CONNECTION;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CONTENT_BASE)) {
+      return CONTENT_BASE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CONTENT_ENCODING)) {
+      return CONTENT_ENCODING;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CONTENT_LANGUAGE)) {
+      return CONTENT_LANGUAGE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CONTENT_LENGTH)) {
+      return CONTENT_LENGTH;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CONTENT_LOCATION)) {
+      return CONTENT_LOCATION;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CONTENT_TYPE)) {
+      return CONTENT_TYPE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, CSEQ)) {
+      return CSEQ;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, DATE)) {
+      return DATE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, EXPIRES)) {
+      return EXPIRES;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, PROXY_AUTHENTICATE)) {
+      return PROXY_AUTHENTICATE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, PROXY_REQUIRE)) {
+      return PROXY_REQUIRE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, PUBLIC)) {
+      return PUBLIC;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, RANGE)) {
+      return RANGE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, RTP_INFO)) {
+      return RTP_INFO;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, RTCP_INTERVAL)) {
+      return RTCP_INTERVAL;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, SCALE)) {
+      return SCALE;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, SESSION)) {
+      return SESSION;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, SPEED)) {
+      return SPEED;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, SUPPORTED)) {
+      return SUPPORTED;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, TIMESTAMP)) {
+      return TIMESTAMP;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, TRANSPORT)) {
+      return TRANSPORT;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, USER_AGENT)) {
+      return USER_AGENT;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, VIA)) {
+      return VIA;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, WWW_AUTHENTICATE)) {
+      return WWW_AUTHENTICATE;
+    }
+    return messageHeaderName;
   }
 }

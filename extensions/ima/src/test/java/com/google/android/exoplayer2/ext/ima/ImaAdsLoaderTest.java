@@ -56,6 +56,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -93,10 +94,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
+import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowSystemClock;
 
 /** Tests for {@link ImaAdsLoader}. */
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public final class ImaAdsLoaderTest {
 
   private static final long CONTENT_DURATION_US = 10 * C.MICROS_PER_SECOND;
@@ -271,7 +274,11 @@ public final class ImaAdsLoaderTest {
     adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
     videoAdPlayer.pauseAd(TEST_AD_MEDIA_INFO);
     videoAdPlayer.stopAd(TEST_AD_MEDIA_INFO);
-    imaAdsLoader.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
+    ExoPlaybackException anException =
+        ExoPlaybackException.createForSource(
+            new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    imaAdsLoader.onPlayerErrorChanged(anException);
+    imaAdsLoader.onPlayerError(anException);
     imaAdsLoader.onPositionDiscontinuity(
         new Player.PositionInfo(
             /* windowUid= */ new Object(),
@@ -1411,7 +1418,8 @@ public final class ImaAdsLoaderTest {
     public void onAdPlaybackState(AdPlaybackState adPlaybackState) {
       long[][] adDurationsUs = new long[adPlaybackState.adGroupCount][];
       for (int adGroupIndex = 0; adGroupIndex < adPlaybackState.adGroupCount; adGroupIndex++) {
-        adDurationsUs[adGroupIndex] = new long[adPlaybackState.adGroups[adGroupIndex].uris.length];
+        adDurationsUs[adGroupIndex] =
+            new long[adPlaybackState.getAdGroup(adGroupIndex).uris.length];
         Arrays.fill(adDurationsUs[adGroupIndex], TEST_AD_DURATION_US);
       }
       adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);

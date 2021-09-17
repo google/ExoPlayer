@@ -43,16 +43,12 @@ import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Paints subtitle {@link Cue}s.
- */
+/** Paints subtitle {@link Cue}s. */
 /* package */ final class SubtitlePainter {
 
   private static final String TAG = "SubtitlePainter";
 
-  /**
-   * Ratio of inner padding to font size.
-   */
+  /** Ratio of inner padding to font size. */
   private static final float INNER_PADDING_RATIO = 0.125f;
 
   // Styled dimensions.
@@ -71,21 +67,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private Alignment cueTextAlignment;
   @Nullable private Bitmap cueBitmap;
   private float cueLine;
-  @Cue.LineType
-  private int cueLineType;
-  @Cue.AnchorType
-  private int cueLineAnchor;
+  @Cue.LineType private int cueLineType;
+  @Cue.AnchorType private int cueLineAnchor;
   private float cuePosition;
-  @Cue.AnchorType
-  private int cuePositionAnchor;
+  @Cue.AnchorType private int cuePositionAnchor;
   private float cueSize;
   private float cueBitmapHeight;
   private int foregroundColor;
   private int backgroundColor;
   private int windowColor;
   private int edgeColor;
-  @CaptionStyleCompat.EdgeType
-  private int edgeType;
+  @CaptionStyleCompat.EdgeType private int edgeType;
   private float defaultTextSizePx;
   private float cueTextSizePx;
   private float bottomPaddingFraction;
@@ -137,8 +129,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * call, and so an instance of this class is able to optimize repeated calls to this method in
    * which the same parameters are passed.
    *
-   * @param cue The cue to draw.
-   *     sizes embedded within the cue should be applied. Otherwise, it is ignored.
+   * @param cue The cue to draw. sizes embedded within the cue should be applied. Otherwise, it is
+   *     ignored.
    * @param style The style to use when drawing the cue text.
    * @param defaultTextSizePx The default text size to use when drawing the text, in pixels.
    * @param cueTextSizePx The embedded text size of this cue, in pixels.
@@ -291,8 +283,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
-    textLayout = new StaticLayout(cueText, textPaint, availableWidth, textAlignment, spacingMult,
-        spacingAdd, true);
+    textLayout =
+        new StaticLayout(
+            cueText, textPaint, availableWidth, textAlignment, spacingMult, spacingAdd, true);
     int textHeight = textLayout.getHeight();
     int textWidth = 0;
     int lineCount = textLayout.getLineCount();
@@ -364,8 +357,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     // Update the derived drawing variables.
-    this.textLayout = new StaticLayout(cueText, textPaint, textWidth, textAlignment, spacingMult,
-        spacingAdd, true);
+    this.textLayout =
+        new StaticLayout(
+            cueText, textPaint, textWidth, textAlignment, spacingMult, spacingAdd, true);
     this.edgeLayout =
         new StaticLayout(
             cueTextEdge, textPaint, textWidth, textAlignment, spacingMult, spacingAdd, true);
@@ -382,8 +376,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     float anchorX = parentLeft + (parentWidth * cuePosition);
     float anchorY = parentTop + (parentHeight * cueLine);
     int width = Math.round(parentWidth * cueSize);
-    int height = cueBitmapHeight != Cue.DIMEN_UNSET ? Math.round(parentHeight * cueBitmapHeight)
-        : Math.round(width * ((float) cueBitmap.getHeight() / cueBitmap.getWidth()));
+    int height =
+        cueBitmapHeight != Cue.DIMEN_UNSET
+            ? Math.round(parentHeight * cueBitmapHeight)
+            : Math.round(width * ((float) cueBitmap.getHeight() / cueBitmap.getWidth()));
     int x =
         Math.round(
             cuePositionAnchor == Cue.ANCHOR_TYPE_END
@@ -474,5 +470,4 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // equals methods, so we perform one explicitly here.
     return first == second || (first != null && first.equals(second));
   }
-
 }

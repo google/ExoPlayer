@@ -1,5 +1,15 @@
 # Proguard rules specific to the UI module.
 
+# Constructor method accessed via reflection in StyledPlayerView and PlayerView
+-dontnote com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView
+-keepclassmembers class com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView {
+  <init>(android.content.Context);
+}
+-dontnote com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView
+-keepclassmembers class com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView {
+  <init>(android.content.Context);
+}
+
 # Constructor method accessed via reflection in TrackSelectionDialogBuilder
 -dontnote androidx.appcompat.app.AlertDialog.Builder
 -keepclassmembers class androidx.appcompat.app.AlertDialog$Builder {

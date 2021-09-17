@@ -22,11 +22,14 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException;
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import okhttp3.Headers;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import okio.Buffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -124,6 +127,86 @@ public class DefaultHttpDataSourceTest {
 
     assertThat(exception.responseCode).isEqualTo(404);
     assertThat(exception.responseBody).isEqualTo(TestUtil.createByteArray(1, 2, 3));
+  }
+
+  @Test
+  public void open_redirectChanges302PostToGet()
+      throws HttpDataSourceException, InterruptedException {
+    byte[] postBody = new byte[] {1, 2, 3};
+    DefaultHttpDataSource defaultHttpDataSource =
+        new DefaultHttpDataSource.Factory()
+            .setConnectTimeoutMs(1000)
+            .setReadTimeoutMs(1000)
+            .setKeepPostFor302Redirects(false)
+            .setAllowCrossProtocolRedirects(true)
+            .createDataSource();
+
+    MockWebServer mockWebServer = new MockWebServer();
+    String newLocationUrl = mockWebServer.url("/redirect-path").toString();
+    mockWebServer.enqueue(
+        new MockResponse()
+            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+            .addHeader("Location", newLocationUrl));
+    mockWebServer.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK));
+
+    DataSpec dataSpec =
+        new DataSpec.Builder()
+            .setUri(mockWebServer.url("/test-path").toString())
+            .setHttpMethod(DataSpec.HTTP_METHOD_POST)
+            .setHttpBody(postBody)
+            .build();
+
+    defaultHttpDataSource.open(dataSpec);
+
+    RecordedRequest request1 = mockWebServer.takeRequest(10, SECONDS);
+    assertThat(request1).isNotNull();
+    assertThat(request1.getPath()).isEqualTo("/test-path");
+    assertThat(request1.getMethod()).isEqualTo("POST");
+    assertThat(request1.getBodySize()).isEqualTo(postBody.length);
+    RecordedRequest request2 = mockWebServer.takeRequest(10, SECONDS);
+    assertThat(request2).isNotNull();
+    assertThat(request2.getPath()).isEqualTo("/redirect-path");
+    assertThat(request2.getMethod()).isEqualTo("GET");
+    assertThat(request2.getBodySize()).isEqualTo(0);
+  }
+
+  @Test
+  public void open_redirectKeeps302Post() throws HttpDataSourceException, InterruptedException {
+    byte[] postBody = new byte[] {1, 2, 3};
+    DefaultHttpDataSource defaultHttpDataSource =
+        new DefaultHttpDataSource.Factory()
+            .setConnectTimeoutMs(1000)
+            .setReadTimeoutMs(1000)
+            .setKeepPostFor302Redirects(true)
+            .createDataSource();
+
+    MockWebServer mockWebServer = new MockWebServer();
+    String newLocationUrl = mockWebServer.url("/redirect-path").toString();
+    mockWebServer.enqueue(
+        new MockResponse()
+            .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+            .addHeader("Location", newLocationUrl));
+    mockWebServer.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK));
+
+    DataSpec dataSpec =
+        new DataSpec.Builder()
+            .setUri(mockWebServer.url("/test-path").toString())
+            .setHttpMethod(DataSpec.HTTP_METHOD_POST)
+            .setHttpBody(postBody)
+            .build();
+
+    defaultHttpDataSource.open(dataSpec);
+
+    RecordedRequest request1 = mockWebServer.takeRequest(10, SECONDS);
+    assertThat(request1).isNotNull();
+    assertThat(request1.getPath()).isEqualTo("/test-path");
+    assertThat(request1.getMethod()).isEqualTo("POST");
+    assertThat(request1.getBodySize()).isEqualTo(postBody.length);
+    RecordedRequest request2 = mockWebServer.takeRequest(10, SECONDS);
+    assertThat(request2).isNotNull();
+    assertThat(request2.getPath()).isEqualTo("/redirect-path");
+    assertThat(request2.getMethod()).isEqualTo("POST");
+    assertThat(request2.getBodySize()).isEqualTo(postBody.length);
   }
 
   @Test

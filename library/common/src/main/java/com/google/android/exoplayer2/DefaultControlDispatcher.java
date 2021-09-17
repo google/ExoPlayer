@@ -18,24 +18,19 @@ package com.google.android.exoplayer2;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-/** Default {@link ControlDispatcher}. */
+/** @deprecated Use a {@link ForwardingPlayer} or configure the player to customize operations. */
+@Deprecated
 public class DefaultControlDispatcher implements ControlDispatcher {
 
-  /** The default fast forward increment, in milliseconds. */
-  public static final int DEFAULT_FAST_FORWARD_MS = 15_000;
-  /** The default rewind increment, in milliseconds. */
-  public static final int DEFAULT_REWIND_MS = 5000;
-
-  private static final int MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
-
-  private final Timeline.Window window;
-
-  private long rewindIncrementMs;
-  private long fastForwardIncrementMs;
+  private final long rewindIncrementMs;
+  private final long fastForwardIncrementMs;
+  private final boolean rewindAndFastForwardIncrementsSet;
 
   /** Creates an instance. */
   public DefaultControlDispatcher() {
-    this(DEFAULT_FAST_FORWARD_MS, DEFAULT_REWIND_MS);
+    fastForwardIncrementMs = C.TIME_UNSET;
+    rewindIncrementMs = C.TIME_UNSET;
+    rewindAndFastForwardIncrementsSet = false;
   }
 
   /**
@@ -49,7 +44,7 @@ public class DefaultControlDispatcher implements ControlDispatcher {
   public DefaultControlDispatcher(long fastForwardIncrementMs, long rewindIncrementMs) {
     this.fastForwardIncrementMs = fastForwardIncrementMs;
     this.rewindIncrementMs = rewindIncrementMs;
-    window = new Timeline.Window();
+    rewindAndFastForwardIncrementsSet = true;
   }
 
   @Override
@@ -72,44 +67,21 @@ public class DefaultControlDispatcher implements ControlDispatcher {
 
   @Override
   public boolean dispatchPrevious(Player player) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return true;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = player.getPreviousWindowIndex();
-    boolean isUnseekableLiveStream = window.isLive() && !window.isSeekable;
-    if (previousWindowIndex != C.INDEX_UNSET
-        && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-            || isUnseekableLiveStream)) {
-      player.seekTo(previousWindowIndex, C.TIME_UNSET);
-    } else if (!isUnseekableLiveStream) {
-      player.seekTo(windowIndex, /* positionMs= */ 0);
-    }
+    player.seekToPrevious();
     return true;
   }
 
   @Override
   public boolean dispatchNext(Player player) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return true;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int nextWindowIndex = player.getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      player.seekTo(nextWindowIndex, C.TIME_UNSET);
-    } else if (window.isLive() && window.isDynamic) {
-      player.seekTo(windowIndex, C.TIME_UNSET);
-    }
+    player.seekToNext();
     return true;
   }
 
   @Override
   public boolean dispatchRewind(Player player) {
-    if (isRewindEnabled() && player.isCurrentWindowSeekable()) {
+    if (!rewindAndFastForwardIncrementsSet) {
+      player.seekBack();
+    } else if (isRewindEnabled() && player.isCurrentWindowSeekable()) {
       seekToOffset(player, -rewindIncrementMs);
     }
     return true;
@@ -117,7 +89,9 @@ public class DefaultControlDispatcher implements ControlDispatcher {
 
   @Override
   public boolean dispatchFastForward(Player player) {
-    if (isFastForwardEnabled() && player.isCurrentWindowSeekable()) {
+    if (!rewindAndFastForwardIncrementsSet) {
+      player.seekForward();
+    } else if (isFastForwardEnabled() && player.isCurrentWindowSeekable()) {
       seekToOffset(player, fastForwardIncrementMs);
     }
     return true;
@@ -150,40 +124,24 @@ public class DefaultControlDispatcher implements ControlDispatcher {
 
   @Override
   public boolean isRewindEnabled() {
-    return rewindIncrementMs > 0;
+    return !rewindAndFastForwardIncrementsSet || rewindIncrementMs > 0;
   }
 
   @Override
   public boolean isFastForwardEnabled() {
-    return fastForwardIncrementMs > 0;
+    return !rewindAndFastForwardIncrementsSet || fastForwardIncrementMs > 0;
   }
 
   /** Returns the rewind increment in milliseconds. */
-  public long getRewindIncrementMs() {
-    return rewindIncrementMs;
+  public long getRewindIncrementMs(Player player) {
+    return rewindAndFastForwardIncrementsSet ? rewindIncrementMs : player.getSeekBackIncrement();
   }
 
   /** Returns the fast forward increment in milliseconds. */
-  public long getFastForwardIncrementMs() {
-    return fastForwardIncrementMs;
-  }
-
-  /**
-   * @deprecated Create a new instance instead and pass the new instance to the UI component. This
-   *     makes sure the UI gets updated and is in sync with the new values.
-   */
-  @Deprecated
-  public void setRewindIncrementMs(long rewindMs) {
-    this.rewindIncrementMs = rewindMs;
-  }
-
-  /**
-   * @deprecated Create a new instance instead and pass the new instance to the UI component. This
-   *     makes sure the UI gets updated and is in sync with the new values.
-   */
-  @Deprecated
-  public void setFastForwardIncrementMs(long fastForwardMs) {
-    this.fastForwardIncrementMs = fastForwardMs;
+  public long getFastForwardIncrementMs(Player player) {
+    return rewindAndFastForwardIncrementsSet
+        ? fastForwardIncrementMs
+        : player.getSeekForwardIncrement();
   }
 
   // Internal methods.
@@ -195,6 +153,6 @@ public class DefaultControlDispatcher implements ControlDispatcher {
       positionMs = min(positionMs, durationMs);
     }
     positionMs = max(positionMs, 0);
-    player.seekTo(player.getCurrentWindowIndex(), positionMs);
+    player.seekTo(positionMs);
   }
 }

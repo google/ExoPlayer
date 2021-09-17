@@ -22,8 +22,8 @@ import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.StandaloneMediaClock;
 
 /**
- * Default {@link MediaClock} which uses a renderer media clock and falls back to a
- * {@link StandaloneMediaClock} if necessary.
+ * Default {@link MediaClock} which uses a renderer media clock and falls back to a {@link
+ * StandaloneMediaClock} if necessary.
  */
 /* package */ final class DefaultMediaClock implements MediaClock {
 
@@ -60,17 +60,13 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
     isUsingStandaloneClock = true;
   }
 
-  /**
-   * Starts the standalone fallback clock.
-   */
+  /** Starts the standalone fallback clock. */
   public void start() {
     standaloneClockIsStarted = true;
     standaloneClock.start();
   }
 
-  /**
-   * Stops the standalone fallback clock.
-   */
+  /** Stops the standalone fallback clock. */
   public void stop() {
     standaloneClockIsStarted = false;
     standaloneClock.stop();

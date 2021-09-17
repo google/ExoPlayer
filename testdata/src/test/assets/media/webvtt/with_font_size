@@ -1,0 +1,49 @@
+WEBVTT
+
+STYLE
+::cue(.unit-em) {
+  font-size: 4.4em;
+}
+
+STYLE
+::cue(.unit-px) {
+  font-size: 2px;
+}
+
+STYLE
+::cue(.unit-percent) {
+  font-size: 3.5%
+}
+
+STYLE
+::cue(.case-insensitivity) {
+  font-size: 2Px;
+}
+
+STYLE
+::cue(.bad-unit) {
+  font-size: 4.4ef;
+}
+
+STYLE
+::cue(.bad-value) {
+  font-size: 3.5.5%
+}
+
+00:00.000 --> 00:02.000
+<c.unit-em>Sentence with font-size set to 4.4em.</c>
+
+00:02.100 --> 00:02.400
+<c.bad-unit>Sentence with bad font-size unit.</c>
+
+00:02.500 --> 00:04.000
+<c.unit-px>Absolute font-size expressed in px unit!</c>
+
+00:04.500 --> 00:06.000
+<c.unit-percent>Relative font-size expressed in % unit!</c>
+
+00:06.100 --> 00:06.400
+<c.bad-value>Sentence with bad font-size value.</c>
+
+00:06.500 --> 00:08.000
+<c.case-insensitivity>Upper and lower case letters in font-size unit.</c>

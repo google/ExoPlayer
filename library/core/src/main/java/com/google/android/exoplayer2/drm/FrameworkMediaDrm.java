@@ -292,13 +292,15 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public FrameworkMediaCrypto createMediaCrypto(byte[] initData) throws MediaCryptoException {
+  public FrameworkMediaCrypto createMediaCrypto(byte[] sessionId) throws MediaCryptoException {
     // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
     // indicate that it required secure video decoders [Internal ref: b/11428937].
-    boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21
-        && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
+    boolean forceAllowInsecureDecoderComponents =
+        Util.SDK_INT < 21
+            && C.WIDEVINE_UUID.equals(uuid)
+            && "L3".equals(getPropertyString("securityLevel"));
     return new FrameworkMediaCrypto(
-        adjustUuid(uuid), initData, forceAllowInsecureDecoderComponents);
+        adjustUuid(uuid), sessionId, forceAllowInsecureDecoderComponents);
   }
 
   @Override

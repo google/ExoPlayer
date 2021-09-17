@@ -129,19 +129,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public abstract class <span class="typeNameLabel">DataSourceContractTest</span>
+<pre>@RequiresApi(19)
+public abstract class <span class="typeNameLabel">DataSourceContractTest</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">A collection of contract tests for <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> implementations.
-
- <p>All these tests should pass for all implementations - behaviour specific to only a subset of
- implementations should be tested elsewhere.
 
  <p>Subclasses should only include the logic necessary to construct the DataSource and allow it to
  successfully read data. They shouldn't include any new <code>@Test</code> methods -
  implementation-specific tests should be in a separate class.
 
- <p>If one of these tests fails for a particular <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> implementation, that's a bug
- in the implementation. The test should be overridden in the subclass and annotated <code>Ignore</code>, with a link to an issue to track fixing the implementation and un-ignoring the test.</div>
+ <p>Most implementations should pass all these tests. If necessary, subclasses can disable tests
+ by overriding the <code>@Test</code> method with a no-op implementation. It's recommended (but
+ not required) to also annotate this <code>@Ignore</code> so that JUnit correclty reports the
+ test as skipped/ignored instead of passing.</div>
 </li>
 </ul>
 </div>

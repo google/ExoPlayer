@@ -314,7 +314,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;buffer,
     int&nbsp;offset,
-    int&nbsp;readLength)</code></th>
+    int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
@@ -598,7 +598,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <h4>read</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(byte[]&nbsp;buffer,
                 int&nbsp;offset,
-                int&nbsp;readLength)
+                int&nbsp;length)
          throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataReader.html#read(byte%5B%5D,int,int)">DataReader</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.
@@ -615,7 +615,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
+<dd><code>length</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes read, or <a href="../../C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
      may be less than <code>length</code> because the end of the input (or available data) was
@@ -631,8 +631,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;close()
-           throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;close()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.html#close()">DataSource</a></code></span></div>
 <div class="block">Closes the source. This method must be called even if the corresponding call to <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a> threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a>.</div>
 <dl>
@@ -640,8 +639,6 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <dd><code><a href="../../upstream/DataSource.html#close()">close</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../upstream/HttpDataSource.html#close()">close</a></code>&nbsp;in interface&nbsp;<code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></dd>
 </dl>
 </li>
 </ul>

@@ -235,7 +235,7 @@ extends <a href="TrackSelector.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code><a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)">selectTracks</a></span>&#8203;(<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities,
             <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
-            <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+            <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;periodId,
             <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</code></th>
 <td class="colLast">
 <div class="block">Called by the player to perform a track selection.</div>
@@ -340,7 +340,7 @@ public final&nbsp;<a href="MappingTrackSelector.MappedTrackInfo.html" title="cla
 <h4>selectTracks</h4>
 <pre class="methodSignature">public final&nbsp;<a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a>&nbsp;selectTracks&#8203;(<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities,
                                               <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
-                                              <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+                                              <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;periodId,
                                               <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)
                                        throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="TrackSelector.html#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)">TrackSelector</a></code></span></div>
@@ -352,7 +352,7 @@ public final&nbsp;<a href="MappingTrackSelector.MappedTrackInfo.html" title="cla
 <dd><code>rendererCapabilities</code> - The <a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2"><code>RendererCapabilities</code></a> of the renderers for which tracks
      are to be selected.</dd>
 <dd><code>trackGroups</code> - The available track groups.</dd>
-<dd><code>mediaPeriodId</code> - The <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> of the period for which tracks are to be selected.</dd>
+<dd><code>periodId</code> - The <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> of the period for which tracks are to be selected.</dd>
 <dd><code>timeline</code> - The <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> holding the period for which tracks are to be selected.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> describing the track selections.</dd>
