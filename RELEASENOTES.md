@@ -116,6 +116,8 @@
         ([#9416](https://github.com/google/ExoPlayer/issues/9416)).
     *   Fix RTSP WWW-Authenticate header parsing
         ([#9428](https://github.com/google/ExoPlayer/issues/9428)).
+    *   Support RFC4566 SDP attribute field grammar
+        ([#9430](https://github.com/google/ExoPlayer/issues/9430)).
 *   Extractors:
     *   ID3: Fix issue decoding ID3 tags containing UTF-16 encoded strings
         ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
