@@ -316,21 +316,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
             @Nullable
             MediaItem.PlaybackProperties contentPlaybackProperties =
                 contentMediaSource.getMediaItem().playbackProperties;
-            if (contentPlaybackProperties != null
-                && contentPlaybackProperties.drmConfiguration != null) {
-              MediaItem.DrmConfiguration drmConfiguration =
-                  contentPlaybackProperties.drmConfiguration;
-              // TODO(internal b/179984779): Use MediaItem.Builder#setDrmConfiguration() when it's
-              // available.
-              adMediaItem.setDrmUuid(drmConfiguration.uuid);
-              adMediaItem.setDrmKeySetId(drmConfiguration.getKeySetId());
-              adMediaItem.setDrmLicenseUri(drmConfiguration.licenseUri);
-              adMediaItem.setDrmForceDefaultLicenseUri(drmConfiguration.forceDefaultLicenseUri);
-              adMediaItem.setDrmLicenseRequestHeaders(drmConfiguration.requestHeaders);
-              adMediaItem.setDrmMultiSession(drmConfiguration.multiSession);
-              adMediaItem.setDrmPlayClearContentWithoutKey(
-                  drmConfiguration.playClearContentWithoutKey);
-              adMediaItem.setDrmSessionForClearTypes(drmConfiguration.sessionForClearTypes);
+            if (contentPlaybackProperties != null) {
+              adMediaItem.setDrmConfiguration(contentPlaybackProperties.drmConfiguration);
             }
             MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adMediaItem.build());
             adMediaSourceHolder.initializeWithMediaSource(adMediaSource, adUri);

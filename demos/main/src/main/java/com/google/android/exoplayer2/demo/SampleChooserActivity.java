@@ -43,7 +43,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.ParserException;
@@ -54,7 +53,7 @@ import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -64,6 +63,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /** An activity for selecting from a list of media samples. */
 public class SampleChooserActivity extends AppCompatActivity
@@ -345,6 +345,12 @@ public class SampleChooserActivity extends AppCompatActivity
       Uri subtitleUri = null;
       String subtitleMimeType = null;
       String subtitleLanguage = null;
+      UUID drmUuid = null;
+      String drmLicenseUri = null;
+      ImmutableMap<String, String> drmLicenseRequestHeaders = null;
+      boolean drmSessionForClearContent = false;
+      boolean drmMultiSession = false;
+      boolean drmForceDefaultLicenseUri = false;
 
       MediaItem.Builder mediaItem = new MediaItem.Builder();
       reader.beginObject();
@@ -370,11 +376,11 @@ public class SampleChooserActivity extends AppCompatActivity
             mediaItem.setAdTagUri(reader.nextString());
             break;
           case "drm_scheme":
-            mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
+            drmUuid = Util.getDrmUuid(reader.nextString());
             break;
           case "drm_license_uri":
           case "drm_license_url": // For backward compatibility only.
-            mediaItem.setDrmLicenseUri(reader.nextString());
+            drmLicenseUri = reader.nextString();
             break;
           case "drm_key_request_properties":
             Map<String, String> requestHeaders = new HashMap<>();
@@ -383,19 +389,16 @@ public class SampleChooserActivity extends AppCompatActivity
               requestHeaders.put(reader.nextName(), reader.nextString());
             }
             reader.endObject();
-            mediaItem.setDrmLicenseRequestHeaders(requestHeaders);
+            drmLicenseRequestHeaders = ImmutableMap.copyOf(requestHeaders);
             break;
           case "drm_session_for_clear_content":
-            if (reader.nextBoolean()) {
-              mediaItem.setDrmSessionForClearTypes(
-                  ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO));
-            }
+            drmSessionForClearContent = reader.nextBoolean();
             break;
           case "drm_multi_session":
-            mediaItem.setDrmMultiSession(reader.nextBoolean());
+            drmMultiSession = reader.nextBoolean();
             break;
           case "drm_force_default_license_uri":
-            mediaItem.setDrmForceDefaultLicenseUri(reader.nextBoolean());
+            drmForceDefaultLicenseUri = reader.nextBoolean();
             break;
           case "subtitle_uri":
             subtitleUri = Uri.parse(reader.nextString());
@@ -436,6 +439,16 @@ public class SampleChooserActivity extends AppCompatActivity
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
             .setMimeType(adaptiveMimeType);
+        if (drmUuid != null) {
+          mediaItem.setDrmConfiguration(
+              new MediaItem.DrmConfiguration.Builder(drmUuid)
+                  .setLicenseUri(drmLicenseUri)
+                  .setLicenseRequestHeaders(drmLicenseRequestHeaders)
+                  .setSessionForClearPeriods(drmSessionForClearContent)
+                  .setMultiSession(drmMultiSession)
+                  .setForceDefaultLicenseUri(drmForceDefaultLicenseUri)
+                  .build());
+        }
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =
               new MediaItem.Subtitle(

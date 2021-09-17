@@ -63,10 +63,12 @@ For protected content, the media item's DRM properties should be set:
 ~~~
 MediaItem mediaItem = new MediaItem.Builder()
     .setUri(videoUri)
-    .setDrmUuid(C.WIDEVINE_UUID)
-    .setDrmLicenseUri(licenseUri)
-    .setDrmLicenseRequestHeaders(httpRequestHeaders)
-    .setDrmMultiSession(true)
+    .setDrmConfiguration(
+        new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+            .setLicenseUri(licenseUri)
+            .setMultiSession(true)
+            .setLicenseRequestHeaders(httpRequestHeaders)
+            .build())
     .build();
 ~~~
 {: .language-java}

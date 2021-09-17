@@ -96,17 +96,19 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     }
   }
 
-  private static void populateDrmConfiguration(JSONObject json, MediaItem.Builder builder)
+  private static void populateDrmConfiguration(JSONObject json, MediaItem.Builder mediaItem)
       throws JSONException {
-    builder.setDrmUuid(UUID.fromString(json.getString(KEY_UUID)));
-    builder.setDrmLicenseUri(json.getString(KEY_LICENSE_URI));
+    MediaItem.DrmConfiguration.Builder drmConfiguration =
+        new MediaItem.DrmConfiguration.Builder(UUID.fromString(json.getString(KEY_UUID)))
+            .setLicenseUri(json.getString(KEY_LICENSE_URI));
     JSONObject requestHeadersJson = json.getJSONObject(KEY_REQUEST_HEADERS);
     HashMap<String, String> requestHeaders = new HashMap<>();
     for (Iterator<String> iterator = requestHeadersJson.keys(); iterator.hasNext(); ) {
       String key = iterator.next();
       requestHeaders.put(key, requestHeadersJson.getString(key));
     }
-    builder.setDrmLicenseRequestHeaders(requestHeaders);
+    drmConfiguration.setLicenseRequestHeaders(requestHeaders);
+    mediaItem.setDrmConfiguration(drmConfiguration.build());
   }
 
   // Serialization.

@@ -504,9 +504,17 @@ public class PlayerActivity extends AppCompatActivity
             .setUri(downloadRequest.uri)
             .setCustomCacheKey(downloadRequest.customCacheKey)
             .setMimeType(downloadRequest.mimeType)
-            .setStreamKeys(downloadRequest.streamKeys)
-            .setDrmKeySetId(downloadRequest.keySetId)
-            .setDrmLicenseRequestHeaders(getDrmRequestHeaders(item));
+            .setStreamKeys(downloadRequest.streamKeys);
+        @Nullable
+        MediaItem.DrmConfiguration drmConfiguration = item.playbackProperties.drmConfiguration;
+        if (drmConfiguration != null) {
+          builder.setDrmConfiguration(
+              drmConfiguration
+                  .buildUpon()
+                  .setKeySetId(downloadRequest.keySetId)
+                  .setLicenseRequestHeaders(getDrmRequestHeaders(item))
+                  .build());
+        }
 
         mediaItems.add(builder.build());
       } else {

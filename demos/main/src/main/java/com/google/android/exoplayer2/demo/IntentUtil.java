@@ -26,12 +26,12 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /** Util to read from and populate an intent. */
 public class IntentUtil {
@@ -162,16 +162,20 @@ public class IntentUtil {
         headers.put(keyRequestPropertiesArray[i], keyRequestPropertiesArray[i + 1]);
       }
     }
-    builder
-        .setDrmUuid(Util.getDrmUuid(Util.castNonNull(drmSchemeExtra)))
-        .setDrmLicenseUri(intent.getStringExtra(DRM_LICENSE_URI_EXTRA + extrasKeySuffix))
-        .setDrmMultiSession(
-            intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, false))
-        .setDrmForceDefaultLicenseUri(
-            intent.getBooleanExtra(DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix, false))
-        .setDrmLicenseRequestHeaders(headers);
-    if (intent.getBooleanExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, false)) {
-      builder.setDrmSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO));
+    @Nullable UUID drmUuid = Util.getDrmUuid(Util.castNonNull(drmSchemeExtra));
+    if (drmUuid != null) {
+      builder.setDrmConfiguration(
+          new MediaItem.DrmConfiguration.Builder(drmUuid)
+              .setLicenseUri(intent.getStringExtra(DRM_LICENSE_URI_EXTRA + extrasKeySuffix))
+              .setMultiSession(
+                  intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, false))
+              .setForceDefaultLicenseUri(
+                  intent.getBooleanExtra(
+                      DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix, false))
+              .setLicenseRequestHeaders(headers)
+              .setSessionForClearPeriods(
+                  intent.getBooleanExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, false))
+              .build());
     }
     return builder;
   }
