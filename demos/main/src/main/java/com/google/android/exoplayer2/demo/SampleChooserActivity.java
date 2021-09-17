@@ -448,6 +448,18 @@ public class SampleChooserActivity extends AppCompatActivity
                   .setMultiSession(drmMultiSession)
                   .setForceDefaultLicenseUri(drmForceDefaultLicenseUri)
                   .build());
+        } else {
+          checkState(drmLicenseUri == null, "drm_uuid is required if drm_license_uri is set.");
+          checkState(
+              drmLicenseRequestHeaders == null,
+              "drm_uuid is required if drm_key_request_properties is set.");
+          checkState(
+              !drmSessionForClearContent,
+              "drm_uuid is required if drm_session_for_clear_content is set.");
+          checkState(!drmMultiSession, "drm_uuid is required if drm_multi_session is set.");
+          checkState(
+              !drmForceDefaultLicenseUri,
+              "drm_uuid is required if drm_force_default_license_uri is set.");
         }
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =
