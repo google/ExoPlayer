@@ -78,8 +78,7 @@ public final class MediaItem implements Bundleable {
     private List<StreamKey> streamKeys;
     @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
-    @Nullable private Uri adTagUri;
-    @Nullable private Object adsId;
+    @Nullable private AdsConfiguration adsConfiguration;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
     private long liveTargetOffsetMs;
@@ -128,11 +127,7 @@ public final class MediaItem implements Bundleable {
             playbackProperties.drmConfiguration != null
                 ? playbackProperties.drmConfiguration.buildUpon()
                 : new DrmConfiguration.Builder();
-        @Nullable AdsConfiguration adsConfiguration = playbackProperties.adsConfiguration;
-        if (adsConfiguration != null) {
-          adTagUri = adsConfiguration.adTagUri;
-          adsId = adsConfiguration.adsId;
-        }
+        adsConfiguration = playbackProperties.adsConfiguration;
       }
     }
 
@@ -384,54 +379,43 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
-     * Sets the optional ad tag {@link Uri}.
-     *
-     * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
-     * the same ad playback state. To resume ad playback when recreating the playlist on returning
-     * from the background, pass media items with the same ad tag URIs and media IDs to the player.
+     * Sets the optional {@link AdsConfiguration}.
      *
      * <p>This method should only be called if {@link #setUri} is passed a non-null value.
-     *
-     * @param adTagUri The ad tag URI to load.
      */
+    public Builder setAdsConfiguration(@Nullable AdsConfiguration adsConfiguration) {
+      this.adsConfiguration = adsConfiguration;
+      return this;
+    }
+
+    /**
+     * @deprecated Use {@link #setAdsConfiguration(AdsConfiguration)}, parse the {@code adTagUri}
+     *     with {@link Uri#parse(String)} and pass the result to {@link
+     *     AdsConfiguration.Builder#Builder(Uri)} instead.
+     */
+    @Deprecated
     public Builder setAdTagUri(@Nullable String adTagUri) {
       return setAdTagUri(adTagUri != null ? Uri.parse(adTagUri) : null);
     }
 
     /**
-     * Sets the optional ad tag {@link Uri}.
-     *
-     * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
-     * the same ad playback state. To resume ad playback when recreating the playlist on returning
-     * from the background, pass media items with the same ad tag URIs and media IDs to the player.
-     *
-     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
-     *
-     * @param adTagUri The ad tag URI to load.
+     * @deprecated Use {@link #setAdsConfiguration(AdsConfiguration)} and pass the {@code adTagUri}
+     *     to {@link AdsConfiguration.Builder#Builder(Uri)} instead.
      */
+    @Deprecated
     public Builder setAdTagUri(@Nullable Uri adTagUri) {
       return setAdTagUri(adTagUri, /* adsId= */ null);
     }
 
     /**
-     * Sets the optional ad tag {@link Uri} and ads identifier.
-     *
-     * <p>Media items in the playlist that have the same ads identifier and ads loader share the
-     * same ad playback state. To resume ad playback when recreating the playlist on returning from
-     * the background, pass the same ads IDs to the player.
-     *
-     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
-     *
-     * @param adTagUri The ad tag URI to load.
-     * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
-     *     and playback state is shared among all media items that have the same ads ID (by {@link
-     *     Object#equals(Object) equality}) and ads loader, so it is important to pass the same
-     *     identifiers when constructing playlist items each time the player returns to the
-     *     foreground.
+     * @deprecated Use {@link #setAdsConfiguration(AdsConfiguration)}, pass the {@code adTagUri} to
+     *     {@link AdsConfiguration.Builder#Builder(Uri)} and the {@code adsId} to {@link
+     *     AdsConfiguration.Builder#setAdsId(Object)} instead.
      */
+    @Deprecated
     public Builder setAdTagUri(@Nullable Uri adTagUri, @Nullable Object adsId) {
-      this.adTagUri = adTagUri;
-      this.adsId = adsId;
+      this.adsConfiguration =
+          adTagUri != null ? new AdsConfiguration.Builder(adTagUri).setAdsId(adsId).build() : null;
       return this;
     }
 
@@ -530,7 +514,7 @@ public final class MediaItem implements Bundleable {
                 uri,
                 mimeType,
                 drmConfiguration.uuid != null ? drmConfiguration.build() : null,
-                adTagUri != null ? new AdsConfiguration(adTagUri, adsId) : null,
+                adsConfiguration,
                 streamKeys,
                 customCacheKey,
                 subtitles,
@@ -813,28 +797,65 @@ public final class MediaItem implements Bundleable {
   /** Configuration for playing back linear ads with a media item. */
   public static final class AdsConfiguration {
 
+    /** Builder for {@link AdsConfiguration} instances. */
+    public static final class Builder {
+
+      private Uri adTagUri;
+      @Nullable private Object adsId;
+
+      /**
+       * Constructs a new instance.
+       *
+       * @param adTagUri The ad tag URI to load.
+       */
+      public Builder(Uri adTagUri) {
+        this.adTagUri = adTagUri;
+      }
+
+      /** Sets the ad tag URI to load. */
+      public Builder setAdTagUri(Uri adTagUri) {
+        this.adTagUri = adTagUri;
+        return this;
+      }
+
+      /**
+       * Sets the ads identifier.
+       *
+       * <p>See details on {@link AdsConfiguration#adsId} for how the ads identifier is used and how
+       * it's calculated if not explicitly set.
+       */
+      public Builder setAdsId(@Nullable Object adsId) {
+        this.adsId = adsId;
+        return this;
+      }
+
+      public AdsConfiguration build() {
+        return new AdsConfiguration(this);
+      }
+    }
+
     /** The ad tag URI to load. */
     public final Uri adTagUri;
+
     /**
      * An opaque identifier for ad playback state associated with this item, or {@code null} if the
      * combination of the {@link MediaItem.Builder#setMediaId(String) media ID} and {@link #adTagUri
      * ad tag URI} should be used as the ads identifier.
+     *
+     * <p>Media items in the playlist that have the same ads identifier and ads loader share the
+     * same ad playback state. To resume ad playback when recreating the playlist on returning from
+     * the background, pass the same ads identifiers to the player.
      */
     @Nullable public final Object adsId;
 
-    /**
-     * Creates an ads configuration with the given ad tag URI and ads identifier.
-     *
-     * @param adTagUri The ad tag URI to load.
-     * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
-     *     and playback state is shared among all media items that have the same ads ID (by {@link
-     *     Object#equals(Object) equality}) and ads loader, so it is important to pass the same
-     *     identifiers when constructing playlist items each time the player returns to the
-     *     foreground.
-     */
-    private AdsConfiguration(Uri adTagUri, @Nullable Object adsId) {
-      this.adTagUri = adTagUri;
-      this.adsId = adsId;
+    private AdsConfiguration(Builder builder) {
+      this.adTagUri = builder.adTagUri;
+      this.adsId = builder.adsId;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(adTagUri).setAdsId(adsId);
     }
 
     @Override

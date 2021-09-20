@@ -361,6 +361,36 @@ public class MediaItemTest {
   }
 
   @Test
+  public void builderSetAdsConfiguration_justUri() {
+    Uri adTagUri = Uri.parse(URI_STRING + "/ad");
+
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setAdsConfiguration(new MediaItem.AdsConfiguration.Builder(adTagUri).build())
+            .build();
+
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isNull();
+  }
+
+  @Test
+  public void builderSetAdsConfiguration_withAdsId() {
+    Uri adTagUri = Uri.parse(URI_STRING + "/ad");
+    Object adsId = new Object();
+
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(adTagUri).setAdsId(adsId).build())
+            .build();
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isEqualTo(adsId);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter
   public void builderSetAdTagUri_setsAdTagUri() {
     Uri adTagUri = Uri.parse(URI_STRING + "/ad");
 
@@ -371,6 +401,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter
   public void builderSetAdTagUriAndAdsId_setsAdsConfiguration() {
     Uri adTagUri = Uri.parse(URI_STRING + "/ad");
     Object adsId = new Object();
@@ -484,7 +515,8 @@ public class MediaItemTest {
   public void buildUpon_wholeObjectSetters_equalsToOriginal() {
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setAdTagUri(URI_STRING)
+            .setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(Uri.parse(URI_STRING)).build())
             .setClipEndPositionMs(1000)
             .setClipRelativeToDefaultPosition(true)
             .setClipRelativeToLiveWindow(true)
