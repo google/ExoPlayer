@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleUtil;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -1206,9 +1205,6 @@ public abstract class Timeline implements Bundleable {
     }
     // Period positions cannot be negative.
     periodPositionUs = max(0, periodPositionUs);
-    if (periodPositionUs == 9) {
-      Log.e("XXX", "YYY");
-    }
     return Pair.create(Assertions.checkNotNull(period.uid), periodPositionUs);
   }
 
