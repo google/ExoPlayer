@@ -81,11 +81,9 @@ public final class MediaItem implements Bundleable {
     @Nullable private AdsConfiguration adsConfiguration;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
-    private long liveTargetOffsetMs;
-    private long liveMinOffsetMs;
-    private long liveMaxOffsetMs;
-    private float liveMinPlaybackSpeed;
-    private float liveMaxPlaybackSpeed;
+    // TODO: Change this to LiveConfiguration once all the deprecated individual setters
+    // are removed.
+    private LiveConfiguration.Builder liveConfiguration;
 
     /** Creates a builder. */
     @SuppressWarnings("deprecation") // Temporarily uses DrmConfiguration.Builder() constructor.
@@ -94,11 +92,7 @@ public final class MediaItem implements Bundleable {
       drmConfiguration = new DrmConfiguration.Builder();
       streamKeys = Collections.emptyList();
       subtitles = Collections.emptyList();
-      liveTargetOffsetMs = C.TIME_UNSET;
-      liveMinOffsetMs = C.TIME_UNSET;
-      liveMaxOffsetMs = C.TIME_UNSET;
-      liveMinPlaybackSpeed = C.RATE_UNSET;
-      liveMaxPlaybackSpeed = C.RATE_UNSET;
+      liveConfiguration = new LiveConfiguration.Builder();
     }
 
     private Builder(MediaItem mediaItem) {
@@ -110,11 +104,7 @@ public final class MediaItem implements Bundleable {
       clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
-      liveTargetOffsetMs = mediaItem.liveConfiguration.targetOffsetMs;
-      liveMinOffsetMs = mediaItem.liveConfiguration.minOffsetMs;
-      liveMaxOffsetMs = mediaItem.liveConfiguration.maxOffsetMs;
-      liveMinPlaybackSpeed = mediaItem.liveConfiguration.minPlaybackSpeed;
-      liveMaxPlaybackSpeed = mediaItem.liveConfiguration.maxPlaybackSpeed;
+      liveConfiguration = mediaItem.liveConfiguration.buildUpon();
       @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
       if (playbackProperties != null) {
         customCacheKey = playbackProperties.customCacheKey;
@@ -419,68 +409,59 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
+    /** Sets the {@link LiveConfiguration}. Defaults to {@link LiveConfiguration#UNSET}. */
+    public Builder setLiveConfiguration(LiveConfiguration liveConfiguration) {
+      this.liveConfiguration = liveConfiguration.buildUpon();
+      return this;
+    }
+
     /**
-     * Sets the optional target offset from the live edge for live streams, in milliseconds.
-     *
-     * <p>See {@code Player#getCurrentLiveOffset()}.
-     *
-     * @param liveTargetOffsetMs The target offset, in milliseconds, or {@link C#TIME_UNSET} to use
-     *     the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setTargetOffsetMs(long)}.
      */
+    @Deprecated
     public Builder setLiveTargetOffsetMs(long liveTargetOffsetMs) {
-      this.liveTargetOffsetMs = liveTargetOffsetMs;
+      liveConfiguration.setTargetOffsetMs(liveTargetOffsetMs);
       return this;
     }
 
     /**
-     * Sets the optional minimum offset from the live edge for live streams, in milliseconds.
-     *
-     * <p>See {@code Player#getCurrentLiveOffset()}.
-     *
-     * @param liveMinOffsetMs The minimum allowed offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMinOffsetMs(long)}.
      */
+    @Deprecated
     public Builder setLiveMinOffsetMs(long liveMinOffsetMs) {
-      this.liveMinOffsetMs = liveMinOffsetMs;
+      liveConfiguration.setMinOffsetMs(liveMinOffsetMs);
       return this;
     }
 
     /**
-     * Sets the optional maximum offset from the live edge for live streams, in milliseconds.
-     *
-     * <p>See {@code Player#getCurrentLiveOffset()}.
-     *
-     * @param liveMaxOffsetMs The maximum allowed offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMaxOffsetMs(long)}.
      */
+    @Deprecated
     public Builder setLiveMaxOffsetMs(long liveMaxOffsetMs) {
-      this.liveMaxOffsetMs = liveMaxOffsetMs;
+      liveConfiguration.setMaxOffsetMs(liveMaxOffsetMs);
       return this;
     }
 
     /**
-     * Sets the optional minimum playback speed for live stream speed adjustment.
-     *
-     * <p>This value is ignored for other stream types.
-     *
-     * @param minPlaybackSpeed The minimum factor by which playback can be sped up for live streams,
-     *     or {@link C#RATE_UNSET} to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMinPlaybackSpeed(float)}.
      */
+    @Deprecated
     public Builder setLiveMinPlaybackSpeed(float minPlaybackSpeed) {
-      this.liveMinPlaybackSpeed = minPlaybackSpeed;
+      liveConfiguration.setMinPlaybackSpeed(minPlaybackSpeed);
       return this;
     }
 
     /**
-     * Sets the optional maximum playback speed for live stream speed adjustment.
-     *
-     * <p>This value is ignored for other stream types.
-     *
-     * @param maxPlaybackSpeed The maximum factor by which playback can be sped up for live streams,
-     *     or {@link C#RATE_UNSET} to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMaxPlaybackSpeed(float)}.
      */
+    @Deprecated
     public Builder setLiveMaxPlaybackSpeed(float maxPlaybackSpeed) {
-      this.liveMaxPlaybackSpeed = maxPlaybackSpeed;
+      liveConfiguration.setMaxPlaybackSpeed(maxPlaybackSpeed);
       return this;
     }
 
@@ -529,12 +510,7 @@ public final class MediaItem implements Bundleable {
               clipRelativeToDefaultPosition,
               clipStartsAtKeyFrame),
           playbackProperties,
-          new LiveConfiguration(
-              liveTargetOffsetMs,
-              liveMinOffsetMs,
-              liveMaxOffsetMs,
-              liveMinPlaybackSpeed,
-              liveMaxPlaybackSpeed),
+          liveConfiguration.build(),
           mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY);
     }
   }
@@ -971,14 +947,98 @@ public final class MediaItem implements Bundleable {
   /** Live playback configuration. */
   public static final class LiveConfiguration implements Bundleable {
 
-    /** A live playback configuration with unset values. */
-    public static final LiveConfiguration UNSET =
-        new LiveConfiguration(
-            /* targetLiveOffsetMs= */ C.TIME_UNSET,
-            /* minLiveOffsetMs= */ C.TIME_UNSET,
-            /* maxLiveOffsetMs= */ C.TIME_UNSET,
-            /* minPlaybackSpeed= */ C.RATE_UNSET,
-            /* maxPlaybackSpeed= */ C.RATE_UNSET);
+    /** Builder for {@link LiveConfiguration} instances. */
+    public static final class Builder {
+      private long targetOffsetMs;
+      private long minOffsetMs;
+      private long maxOffsetMs;
+      private float minPlaybackSpeed;
+      private float maxPlaybackSpeed;
+
+      /** Constructs an instance. */
+      public Builder() {
+        this.targetOffsetMs = C.TIME_UNSET;
+        this.minOffsetMs = C.TIME_UNSET;
+        this.maxOffsetMs = C.TIME_UNSET;
+        this.minPlaybackSpeed = C.RATE_UNSET;
+        this.maxPlaybackSpeed = C.RATE_UNSET;
+      }
+
+      private Builder(LiveConfiguration liveConfiguration) {
+        this.targetOffsetMs = liveConfiguration.targetOffsetMs;
+        this.minOffsetMs = liveConfiguration.minOffsetMs;
+        this.maxOffsetMs = liveConfiguration.maxOffsetMs;
+        this.minPlaybackSpeed = liveConfiguration.minPlaybackSpeed;
+        this.maxPlaybackSpeed = liveConfiguration.maxPlaybackSpeed;
+      }
+
+      /**
+       * Sets the target live offset, in milliseconds.
+       *
+       * <p>See {@code Player#getCurrentLiveOffset()}.
+       *
+       * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setTargetOffsetMs(long targetOffsetMs) {
+        this.targetOffsetMs = targetOffsetMs;
+        return this;
+      }
+
+      /**
+       * Sets the minimum allowed live offset, in milliseconds.
+       *
+       * <p>See {@code Player#getCurrentLiveOffset()}.
+       *
+       * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMinOffsetMs(long minOffsetMs) {
+        this.minOffsetMs = minOffsetMs;
+        return this;
+      }
+
+      /**
+       * Sets the maximum allowed live offset, in milliseconds.
+       *
+       * <p>See {@code Player#getCurrentLiveOffset()}.
+       *
+       * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMaxOffsetMs(long maxOffsetMs) {
+        this.maxOffsetMs = maxOffsetMs;
+        return this;
+      }
+
+      /**
+       * Sets the minimum playback speed.
+       *
+       * <p>Defaults to {@link C#RATE_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMinPlaybackSpeed(float minPlaybackSpeed) {
+        this.minPlaybackSpeed = minPlaybackSpeed;
+        return this;
+      }
+
+      /**
+       * Sets the maximum playback speed.
+       *
+       * <p>Defaults to {@link C#RATE_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMaxPlaybackSpeed(float maxPlaybackSpeed) {
+        this.maxPlaybackSpeed = maxPlaybackSpeed;
+        return this;
+      }
+
+      /** Creates a {@link LiveConfiguration} with the values from this builder. */
+      public LiveConfiguration build() {
+        return new LiveConfiguration(this);
+      }
+    }
+
+    /**
+     * A live playback configuration with unset values, meaning media-defined default values will be
+     * used.
+     */
+    public static final LiveConfiguration UNSET = new LiveConfiguration.Builder().build();
 
     /**
      * Target offset from the live edge, in milliseconds, or {@link C#TIME_UNSET} to use the
@@ -1010,20 +1070,18 @@ public final class MediaItem implements Bundleable {
      */
     public final float maxPlaybackSpeed;
 
-    /**
-     * Creates a live playback configuration.
-     *
-     * @param targetOffsetMs Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use the
-     *     media-defined default.
-     * @param minOffsetMs The minimum allowed live offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
-     * @param maxOffsetMs The maximum allowed live offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
-     * @param minPlaybackSpeed Minimum playback speed, or {@link C#RATE_UNSET} to use the
-     *     media-defined default.
-     * @param maxPlaybackSpeed Maximum playback speed, or {@link C#RATE_UNSET} to use the
-     *     media-defined default.
-     */
+    @SuppressWarnings("deprecation") // Using the deprecated constructor while it exists.
+    private LiveConfiguration(Builder builder) {
+      this(
+          builder.targetOffsetMs,
+          builder.minOffsetMs,
+          builder.maxOffsetMs,
+          builder.minPlaybackSpeed,
+          builder.maxPlaybackSpeed);
+    }
+
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
     public LiveConfiguration(
         long targetOffsetMs,
         long minOffsetMs,
@@ -1035,6 +1093,11 @@ public final class MediaItem implements Bundleable {
       this.maxOffsetMs = maxOffsetMs;
       this.minPlaybackSpeed = minPlaybackSpeed;
       this.maxPlaybackSpeed = maxPlaybackSpeed;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     @Override

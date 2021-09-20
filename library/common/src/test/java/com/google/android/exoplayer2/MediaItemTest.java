@@ -424,6 +424,29 @@ public class MediaItemTest {
   }
 
   @Test
+  public void builderSetLiveConfiguration() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(10_000)
+                    .setMinOffsetMs(20_000)
+                    .setMaxOffsetMs(30_000)
+                    .setMinPlaybackSpeed(0.5f)
+                    .setMaxPlaybackSpeed(2f)
+                    .build())
+            .build();
+
+    assertThat(mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(10_000);
+    assertThat(mediaItem.liveConfiguration.minOffsetMs).isEqualTo(20_000);
+    assertThat(mediaItem.liveConfiguration.maxOffsetMs).isEqualTo(30_000);
+    assertThat(mediaItem.liveConfiguration.minPlaybackSpeed).isEqualTo(0.5f);
+    assertThat(mediaItem.liveConfiguration.maxPlaybackSpeed).isEqualTo(2f);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Tests deprecated setter
   public void builderSetLiveTargetOffsetMs_setsLiveTargetOffsetMs() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveTargetOffsetMs(10_000).build();
@@ -432,6 +455,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Tests deprecated setter
   public void builderSetMinLivePlaybackSpeed_setsMinLivePlaybackSpeed() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveMinPlaybackSpeed(.9f).build();
@@ -440,6 +464,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Tests deprecated setter
   public void builderSetMaxLivePlaybackSpeed_setsMaxLivePlaybackSpeed() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveMaxPlaybackSpeed(1.1f).build();
@@ -448,6 +473,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Tests deprecated setter
   public void builderSetMinLiveOffset_setsMinLiveOffset() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveMinOffsetMs(1234).build();
@@ -456,6 +482,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Tests deprecated setter
   public void builderSetMaxLiveOffset_setsMaxLiveOffset() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveMaxOffsetMs(1234).build();
@@ -538,11 +565,14 @@ public class MediaItemTest {
             .setMimeType(MimeTypes.APPLICATION_MP4)
             .setUri(URI_STRING)
             .setStreamKeys(ImmutableList.of(new StreamKey(1, 0, 0)))
-            .setLiveTargetOffsetMs(20_000)
-            .setLiveMinPlaybackSpeed(.9f)
-            .setLiveMaxPlaybackSpeed(1.1f)
-            .setLiveMinOffsetMs(2222)
-            .setLiveMaxOffsetMs(4444)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(20_000)
+                    .setMinPlaybackSpeed(.9f)
+                    .setMaxPlaybackSpeed(1.1f)
+                    .setMinOffsetMs(2222)
+                    .setMaxOffsetMs(4444)
+                    .build())
             .setSubtitles(
                 ImmutableList.of(
                     new MediaItem.Subtitle(
@@ -565,11 +595,14 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setMediaId("mediaId")
-            .setLiveTargetOffsetMs(20_000)
-            .setLiveMinOffsetMs(2_222)
-            .setLiveMaxOffsetMs(4_444)
-            .setLiveMinPlaybackSpeed(.9f)
-            .setLiveMaxPlaybackSpeed(1.1f)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(20_000)
+                    .setMinOffsetMs(2_222)
+                    .setMaxOffsetMs(4_444)
+                    .setMinPlaybackSpeed(.9f)
+                    .setMaxPlaybackSpeed(1.1f)
+                    .build())
             .setMediaMetadata(new MediaMetadata.Builder().setTitle("title").build())
             .setClipStartPositionMs(100)
             .setClipEndPositionMs(1_000)
