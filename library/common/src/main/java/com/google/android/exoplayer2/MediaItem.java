@@ -771,6 +771,7 @@ public final class MediaItem implements Bundleable {
       return keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
     }
 
+    /** Returns a {@link Builder} initialized with the values of this instance. */
     public Builder buildUpon() {
       return new Builder(this);
     }
