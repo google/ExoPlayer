@@ -135,7 +135,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
-  @HlsMediaSource.MetadataType private final int metadataType;
+  private final @HlsMediaSource.MetadataType int metadataType;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final ArrayList<HlsMediaChunk> mediaChunks;
   private final List<HlsMediaChunk> readOnlyMediaChunks;

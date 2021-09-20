@@ -57,7 +57,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,6 +85,7 @@ public final class HlsMediaSource extends BaseMediaSource
    */
   @Documented
   @Retention(SOURCE)
+  @Target({ElementType.TYPE_USE})
   @IntDef({METADATA_TYPE_ID3, METADATA_TYPE_EMSG})
   public @interface MetadataType {}
 
@@ -104,7 +107,7 @@ public final class HlsMediaSource extends BaseMediaSource
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
-    @MetadataType private int metadataType;
+    private @MetadataType int metadataType;
     private boolean useSessionKeys;
     private List<StreamKey> streamKeys;
     @Nullable private Object tag;
