@@ -118,9 +118,10 @@ public final class AdPlaybackState implements Bundleable {
 
     /**
      * Returns the index of the next ad in the ad group that should be played after playing {@code
-     * lastPlayedAdIndex}, or {@link #count} if no later ads should be played.
+     * lastPlayedAdIndex}, or {@link #count} if no later ads should be played. If no ads have been
+     * played, pass -1 to get the index of the first ad to play.
      */
-    public int getNextAdIndexToPlay(@IntRange(from = 0) int lastPlayedAdIndex) {
+    public int getNextAdIndexToPlay(@IntRange(from = -1) int lastPlayedAdIndex) {
       int nextAdIndexToPlay = lastPlayedAdIndex + 1;
       while (nextAdIndexToPlay < states.length) {
         if (isServerSideInserted
