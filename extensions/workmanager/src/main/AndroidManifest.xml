@@ -15,4 +15,6 @@
   ~ limitations under the License.
   -->
 
-<manifest package="com.google.android.exoplayer2.ext.workmanager"/>
+<manifest package="com.google.android.exoplayer2.ext.workmanager">
+  <uses-sdk />
+</manifest>
