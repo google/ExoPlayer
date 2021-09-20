@@ -78,7 +78,7 @@ public final class MimeTypes {
   public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
   public static final String AUDIO_DTS_EXPRESS = BASE_TYPE_AUDIO + "/vnd.dts.hd;profile=lbr";
-  public static final String AUDIO_DTS_UHD = BASE_TYPE_AUDIO + "/vnd.dts.uhd";
+  public static final String AUDIO_DTS_X = BASE_TYPE_AUDIO + "/vnd.dts.uhd;profile=p2";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
   public static final String AUDIO_AMR = BASE_TYPE_AUDIO + "/amr";
@@ -410,7 +410,7 @@ public final class MimeTypes {
     } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
       return MimeTypes.AUDIO_DTS_HD;
     } else if (codec.startsWith("dtsx")) {
-      return MimeTypes.AUDIO_DTS_UHD;
+      return MimeTypes.AUDIO_DTS_X;
     } else if (codec.startsWith("opus")) {
       return MimeTypes.AUDIO_OPUS;
     } else if (codec.startsWith("vorbis")) {

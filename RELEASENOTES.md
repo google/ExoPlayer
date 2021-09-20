@@ -26,6 +26,9 @@
         ([#8906](https://github.com/google/ExoPlayer/issues/8906)).
     *   Move `Player.addListener(EventListener)` and
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
+    *   Rename `MimeTypes.AUDIO_DTS_UHD` to `MimeTypes.AUDIO_DTS_X` and add
+        required profile to its value
+        ([#9429](https://github.com/google/ExoPlayer/issues/9429)).
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).

@@ -1374,7 +1374,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else if (atomType == Atom.TYPE_dtse) {
       mimeType = MimeTypes.AUDIO_DTS_EXPRESS;
     } else if (atomType == Atom.TYPE_dtsx) {
-      mimeType = MimeTypes.AUDIO_DTS_UHD;
+      mimeType = MimeTypes.AUDIO_DTS_X;
     } else if (atomType == Atom.TYPE_samr) {
       mimeType = MimeTypes.AUDIO_AMR_NB;
     } else if (atomType == Atom.TYPE_sawb) {
