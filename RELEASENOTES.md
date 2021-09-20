@@ -9,67 +9,23 @@
         `com.google.android.exoplayer2.decoder.CryptoException`.
     *   Make `ExoPlayer.Builder` return a `SimpleExoPlayer` instance.
     *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
-    *   Fix track selection in `StyledPlayerControlView` when using
-        `ForwardingPlayer`.
     *   Remove `ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED`. Use
         `GlUtil.glAssertionsEnabled` instead.
-    *   Fix `FlagSet#equals` on API levels below 24.
-    *   Fix `NullPointerException` being thrown from `CacheDataSource` when
-        reading a fully cached resource with `DataSpec.position` equal to the
-        resource length.
-    *   Fix a bug when [depending on ExoPlayer locally](README.md#locally) with
-        a relative path
-        ([#9403](https://github.com/google/ExoPlayer/issues/9403)).
-    *   Better handle invalid seek requests. Seeks to positions that are before
-        the start or after the end of the media are now handled as seeks to the
-        start and end respectively
-        ([#8906](https://github.com/google/ExoPlayer/issues/8906)).
     *   Move `Player.addListener(EventListener)` and
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
-    *   Rename `MimeTypes.AUDIO_DTS_UHD` to `MimeTypes.AUDIO_DTS_X` and add
-        required profile to its value
-        ([#9429](https://github.com/google/ExoPlayer/issues/9429)).
-*   Extractors:
-    *   Support TS packets without PTS flag
-        ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
 *   Android 12 compatibility:
     *   Disable platform transcoding when playing content URIs on Android 12.
     *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
         calls from the player to `Surface.setFrameRate`. This is useful for
         applications wanting to call `Surface.setFrameRate` directly from
         application code with Android 12's `Surface.CHANGE_FRAME_RATE_ALWAYS`.
-*   Video
-    *   Request smaller decoder input buffers for Dolby Vision. This fixes an
-        issue that could cause UHD Dolby Vision playbacks to fail on some
-        devices, including Amazon Fire TV 4K.
-*   DRM:
-    *   Fix `DefaultDrmSessionManager` to correctly eagerly release preacquired
-        DRM sessions when there's a shortage of DRM resources on the device.
-*   Downloads and caching:
-    *   Workaround platform issue that can cause a `SecurityException` to be
-        thrown from `Requirements.isInternetConnectivityValidated` on devices
-        running Android 11
-        ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
-*   UI
+*   UI:
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
         `Player.addListener`.
-    *   Use `defStyleAttr` when obtaining styled attributes in
-        `StyledPlayerView`, `PlayerView` and `PlayerControlView`
-        ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
-    *   Fix accessibility focus in `PlayerControlView`
-        ([#9111](https://github.com/google/ExoPlayer/issues/9111)).
-    *   Fix issue that `StyledPlayerView` and `PlayerView` don't update UI when
-        available player commands change.
-*   DASH
-    *   Use identical cache keys for downloading and playing DASH segments
-        ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
-    *   Fix base URL selection and load error handling when base URLs are shared
-        across adaptation sets.
-*   HLS
-    *   Fix bug where the player would get stuck if all download attempts fail
-        and would not raise an error to the application.
-        ([#9390](https://github.com/google/ExoPlayer/issues/9390)).
+*   RTSP:
+    *   Support RFC4566 SDP attribute field grammar
+        ([#9430](https://github.com/google/ExoPlayer/issues/9430)).
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.
@@ -99,10 +55,6 @@
         `DownloadService.onDownloadRemoved`. Instead, use
         `DownloadManager.addListener` to register a listener directly to the
         `DownloadManager` returned through `DownloadService.getDownloadManager`.
-*   Cast extension:
-    *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
-        support setting the playback speed
-        ([#6784](https://github.com/google/ExoPlayer/issues/6784)).
     *   Remove `Player.getCurrentStaticMetadata`,
         `Player.Listener.onStaticMetadataChanged` and
         `Player.EVENT_STATIC_METADATA_CHANGED`. Use `Player.getMediaMetadata`,
@@ -110,6 +62,52 @@
         `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
         structured metadata, or access the raw static metadata directly from the
         `TrackSelection#getFormat()`.
+
+### 2.15.1 (2021-09-20)
+
+*   Core Library:
+    *   Fix track selection in `StyledPlayerControlView` when using
+        `ForwardingPlayer`.
+    *   Fix `FlagSet#equals` on API levels below 24.
+    *   Fix `NullPointerException` being thrown from `CacheDataSource` when
+        reading a fully cached resource with `DataSpec.position` equal to the
+        resource length.
+    *   Fix a bug when [depending on ExoPlayer locally](README.md#locally) with
+        a relative path
+        ([#9403](https://github.com/google/ExoPlayer/issues/9403)).
+    *   Better handle invalid seek requests. Seeks to positions that are before
+        the start or after the end of the media are now handled as seeks to the
+        start and end respectively
+        ([8906](https://github.com/google/ExoPlayer/issues/8906)).
+    *   Rename `MimeTypes.AUDIO_DTS_UHD` to `MimeTypes.AUDIO_DTS_X` and add
+        required profile to its value
+        ([#9429](https://github.com/google/ExoPlayer/issues/9429)).
+*   Extractors:
+    *   Support TS packets without PTS flag
+        ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
+    *   Fix issue decoding ID3 tags containing UTF-16 encoded strings
+        ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
+*   Video:
+    *   Request smaller decoder input buffers for Dolby Vision. This fixes an
+        issue that could cause UHD Dolby Vision playbacks to fail on some
+        devices, including Amazon Fire TV 4K.
+*   DRM:
+    *   Fix `DefaultDrmSessionManager` to correctly eagerly release preacquired
+        DRM sessions when there's a shortage of DRM resources on the device.
+*   Downloads and caching:
+    *   Workaround platform issue that can cause a `SecurityException` to be
+        thrown from `Requirements.isInternetConnectivityValidated` on devices
+        running Android 11
+        ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
+*   DASH:
+    *   Use identical cache keys for downloading and playing DASH segments
+        ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
+    *   Fix base URL selection and load error handling when base URLs are shared
+        across adaptation sets.
+*   HLS:
+    *   Fix bug where the player would get stuck if all download attempts fail
+        and would not raise an error to the application
+        ([#9390](https://github.com/google/ExoPlayer/issues/9390)).
 *   RTSP:
     *   Handle when additional spaces are in SDP's RTPMAP atrribute
         ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
@@ -119,11 +117,18 @@
         ([#9416](https://github.com/google/ExoPlayer/issues/9416)).
     *   Fix RTSP WWW-Authenticate header parsing
         ([#9428](https://github.com/google/ExoPlayer/issues/9428)).
-    *   Support RFC4566 SDP attribute field grammar
-        ([#9430](https://github.com/google/ExoPlayer/issues/9430)).
-*   Extractors:
-    *   ID3: Fix issue decoding ID3 tags containing UTF-16 encoded strings
-        ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
+*   UI:
+    *   Use `defStyleAttr` when obtaining styled attributes in
+        `StyledPlayerView`, `PlayerView` and `PlayerControlView`
+        ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
+    *   Fix accessibility focus in `PlayerControlView`
+        ([#9111](https://github.com/google/ExoPlayer/issues/9111)).
+    *   Fix issue that `StyledPlayerView` and `PlayerView` don't update UI when
+        available player commands change.
+*   Cast extension:
+    *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
+        support setting the playback speed
+        ([#6784](https://github.com/google/ExoPlayer/issues/6784)).
 
 ### 2.15.0 (2021-08-10)
 
