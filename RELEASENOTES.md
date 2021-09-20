@@ -1,6 +1,6 @@
 # Release notes
 
-### dev-v2 (not yet released)
+### 2.15.1 (2021-09-20)
 
 *   Core Library:
     *   Fix track selection in `StyledPlayerControlView` when using
@@ -16,31 +16,35 @@
         the start or after the end of the media are now handled as seeks to the
         start and end respectively
         ([8906](https://github.com/google/ExoPlayer/issues/8906)).
+    *   Rename `MimeTypes.AUDIO_DTS_UHD` to `MimeTypes.AUDIO_DTS_X` and add
+        required profile to its value
+        ([#9429](https://github.com/google/ExoPlayer/issues/9429)).
 *   Extractors:
     *   Support TS packets without PTS flag
         ([#9294](https://github.com/google/ExoPlayer/issues/9294)).
-    *   ID3: Fix issue decoding ID3 tags containing UTF-16 encoded strings
+    *   Fix issue decoding ID3 tags containing UTF-16 encoded strings
         ([#9087](https://github.com/google/ExoPlayer/issues/9087)).
 *   Video:
     *   Request smaller decoder input buffers for Dolby Vision. This fixes an
         issue that could cause UHD Dolby Vision playbacks to fail on some
         devices, including Amazon Fire TV 4K.
+*   DRM:
+    *   Fix `DefaultDrmSessionManager` to correctly eagerly release preacquired
+        DRM sessions when there's a shortage of DRM resources on the device.
 *   Downloads and caching:
     *   Workaround platform issue that can cause a `SecurityException` to be
         thrown from `Requirements.isInternetConnectivityValidated` on devices
         running Android 11
         ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
-*   DRM:
-    *   Fix `DefaultDrmSessionManager` to correctly eagerly release preacquired
-        DRM sessions when there's a shortage of DRM resources on the device.
 *   DASH:
     *   Use identical cache keys for downloading and playing DASH segments
         ([#9370](https://github.com/google/ExoPlayer/issues/9370)).
     *   Fix base URL selection and load error handling when base URLs are shared
         across adaptation sets.
-*   HLS
+*   HLS:
     *   Fix bug where the player would get stuck if all download attempts fail
-        and would not raise an error to the application.
+        and would not raise an error to the application
+        ([#9390](https://github.com/google/ExoPlayer/issues/9390)).
 *   RTSP:
     *   Handle when additional spaces are in SDP's RTPMAP atrribute
         ([#9379](https://github.com/google/ExoPlayer/issues/9379)).
@@ -56,8 +60,8 @@
         ([#9024](https://github.com/google/ExoPlayer/issues/9024)).
     *   Fix accessibility focus in `PlayerControlView`
         ([#9111](https://github.com/google/ExoPlayer/issues/9111)).
-    *   Fix issue that `StyledPlayerView` and `PlayerView` don't update UI
-        when available player commands change.
+    *   Fix issue that `StyledPlayerView` and `PlayerView` don't update UI when
+        available player commands change.
 *   Cast extension:
     *   Implement `CastPlayer.setPlaybackParameters(PlaybackParameters)` to
         support setting the playback speed
@@ -287,11 +291,6 @@
         ([#9183](https://github.com/google/ExoPlayer/issues/9183)).
     *   Allow the timeout to be customised via
         `RtspMediaSource.Factory.setTimeoutMs`.
-*   Downloads and caching:
-    *   Workaround platform issue that can cause a `SecurityException` to be
-        thrown from `Requirements.isInternetConnectivityValidated` on devices
-        running Android 11
-        ([#9002](https://github.com/google/ExoPlayer/issues/9002)).
 
 ### 2.14.1 (2021-06-11)
 
