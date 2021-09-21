@@ -144,7 +144,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
   private static JSONObject getDrmConfigurationJson(MediaItem.DrmConfiguration drmConfiguration)
       throws JSONException {
     JSONObject json = new JSONObject();
-    json.put(KEY_UUID, drmConfiguration.uuid);
+    json.put(KEY_UUID, drmConfiguration.scheme);
     json.put(KEY_LICENSE_URI, drmConfiguration.licenseUri);
     json.put(KEY_REQUEST_HEADERS, new JSONObject(drmConfiguration.requestHeaders));
     return json;
@@ -159,9 +159,9 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;
 
     String drmScheme;
-    if (C.WIDEVINE_UUID.equals(drmConfiguration.uuid)) {
+    if (C.WIDEVINE_UUID.equals(drmConfiguration.scheme)) {
       drmScheme = "widevine";
-    } else if (C.PLAYREADY_UUID.equals(drmConfiguration.uuid)) {
+    } else if (C.PLAYREADY_UUID.equals(drmConfiguration.scheme)) {
       drmScheme = "playready";
     } else {
       return null;

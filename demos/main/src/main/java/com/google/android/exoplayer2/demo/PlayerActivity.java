@@ -329,7 +329,7 @@ public class PlayerActivity extends AppCompatActivity
           showToast(R.string.error_drm_unsupported_before_api_18);
           finish();
           return Collections.emptyList();
-        } else if (!FrameworkMediaDrm.isCryptoSchemeSupported(drmConfiguration.uuid)) {
+        } else if (!FrameworkMediaDrm.isCryptoSchemeSupported(drmConfiguration.scheme)) {
           showToast(R.string.error_drm_unsupported_scheme);
           finish();
           return Collections.emptyList();

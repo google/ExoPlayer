@@ -106,6 +106,7 @@ public class MediaItemTest {
             .build();
 
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.scheme).isEqualTo(C.WIDEVINE_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
@@ -140,6 +141,7 @@ public class MediaItemTest {
             .build();
 
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.scheme).isEqualTo(C.CLEARKEY_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.CLEARKEY_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isNull();
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders).isEmpty();
@@ -172,6 +174,7 @@ public class MediaItemTest {
             .build();
 
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.scheme).isEqualTo(C.WIDEVINE_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)

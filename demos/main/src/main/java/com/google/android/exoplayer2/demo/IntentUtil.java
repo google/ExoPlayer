@@ -203,7 +203,7 @@ public class IntentUtil {
 
   private static void addDrmConfigurationToIntent(
       MediaItem.DrmConfiguration drmConfiguration, Intent intent, String extrasKeySuffix) {
-    intent.putExtra(DRM_SCHEME_EXTRA + extrasKeySuffix, drmConfiguration.uuid.toString());
+    intent.putExtra(DRM_SCHEME_EXTRA + extrasKeySuffix, drmConfiguration.scheme.toString());
     intent.putExtra(
         DRM_LICENSE_URI_EXTRA + extrasKeySuffix,
         drmConfiguration.licenseUri != null ? drmConfiguration.licenseUri.toString() : null);

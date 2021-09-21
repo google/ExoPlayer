@@ -261,7 +261,7 @@ public final class MediaItem implements Bundleable {
      */
     @Deprecated
     public Builder setDrmUuid(@Nullable UUID uuid) {
-      drmConfiguration.setNullableUuid(uuid);
+      drmConfiguration.setNullableScheme(uuid);
       return this;
     }
 
@@ -486,7 +486,7 @@ public final class MediaItem implements Bundleable {
     /** Returns a new {@link MediaItem} instance with the current builder values. */
     public MediaItem build() {
       // TODO: remove this check once all the deprecated individual DRM setters are removed.
-      checkState(drmConfiguration.licenseUri == null || drmConfiguration.uuid != null);
+      checkState(drmConfiguration.licenseUri == null || drmConfiguration.scheme != null);
       @Nullable PlaybackProperties playbackProperties = null;
       @Nullable Uri uri = this.uri;
       if (uri != null) {
@@ -494,7 +494,7 @@ public final class MediaItem implements Bundleable {
             new PlaybackProperties(
                 uri,
                 mimeType,
-                drmConfiguration.uuid != null ? drmConfiguration.build() : null,
+                drmConfiguration.scheme != null ? drmConfiguration.build() : null,
                 adsConfiguration,
                 streamKeys,
                 customCacheKey,
@@ -522,7 +522,7 @@ public final class MediaItem implements Bundleable {
     public static final class Builder {
 
       // TODO remove @Nullable annotation when the deprecated zero-arg constructor is removed.
-      @Nullable private UUID uuid;
+      @Nullable private UUID scheme;
       @Nullable private Uri licenseUri;
       private ImmutableMap<String, String> licenseRequestHeaders;
       private boolean multiSession;
@@ -534,10 +534,10 @@ public final class MediaItem implements Bundleable {
       /**
        * Constructs an instance.
        *
-       * @param uuid The {@link UUID} of the protection scheme.
+       * @param scheme The {@link UUID} of the protection scheme.
        */
-      public Builder(UUID uuid) {
-        this.uuid = uuid;
+      public Builder(UUID scheme) {
+        this.scheme = scheme;
         this.licenseRequestHeaders = ImmutableMap.of();
         this.sessionForClearTypes = ImmutableList.of();
       }
@@ -553,7 +553,7 @@ public final class MediaItem implements Bundleable {
       }
 
       private Builder(DrmConfiguration drmConfiguration) {
-        this.uuid = drmConfiguration.uuid;
+        this.scheme = drmConfiguration.scheme;
         this.licenseUri = drmConfiguration.licenseUri;
         this.licenseRequestHeaders = drmConfiguration.requestHeaders;
         this.multiSession = drmConfiguration.multiSession;
@@ -564,8 +564,8 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the {@link UUID} of the protection scheme. */
-      public Builder setUuid(UUID uuid) {
-        this.uuid = uuid;
+      public Builder setScheme(UUID scheme) {
+        this.scheme = scheme;
         return this;
       }
 
@@ -574,8 +574,8 @@ public final class MediaItem implements Bundleable {
        *     MediaItem.Builder#setDrmUuid(UUID)}.
        */
       @Deprecated
-      private Builder setNullableUuid(@Nullable UUID uuid) {
-        this.uuid = uuid;
+      private Builder setNullableScheme(@Nullable UUID scheme) {
+        this.scheme = scheme;
         return this;
       }
 
@@ -679,7 +679,10 @@ public final class MediaItem implements Bundleable {
     }
 
     /** The UUID of the protection scheme. */
-    public final UUID uuid;
+    public final UUID scheme;
+
+    /** @deprecated Use {@link #scheme} instead. */
+    @Deprecated public final UUID uuid;
 
     /**
      * Optional default DRM license server {@link Uri}. If {@code null} then the DRM license server
@@ -712,7 +715,8 @@ public final class MediaItem implements Bundleable {
 
     private DrmConfiguration(Builder builder) {
       checkState(!(builder.forceDefaultLicenseUri && builder.licenseUri == null));
-      this.uuid = checkNotNull(builder.uuid);
+      this.scheme = checkNotNull(builder.scheme);
+      this.uuid = scheme;
       this.licenseUri = builder.licenseUri;
       this.requestHeaders = builder.licenseRequestHeaders;
       this.multiSession = builder.multiSession;
@@ -746,7 +750,7 @@ public final class MediaItem implements Bundleable {
       }
 
       DrmConfiguration other = (DrmConfiguration) obj;
-      return uuid.equals(other.uuid)
+      return scheme.equals(other.scheme)
           && Util.areEqual(licenseUri, other.licenseUri)
           && Util.areEqual(requestHeaders, other.requestHeaders)
           && multiSession == other.multiSession
@@ -758,7 +762,7 @@ public final class MediaItem implements Bundleable {
 
     @Override
     public int hashCode() {
-      int result = uuid.hashCode();
+      int result = scheme.hashCode();
       result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
       result = 31 * result + requestHeaders.hashCode();
       result = 31 * result + (multiSession ? 1 : 0);
