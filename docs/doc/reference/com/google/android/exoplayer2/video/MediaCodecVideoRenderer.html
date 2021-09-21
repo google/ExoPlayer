@@ -1473,7 +1473,9 @@ protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderIn
 <dd><code>bufferPresentationTimeUs</code> - The presentation time of the output buffer in microseconds.</dd>
 <dd><code>isDecodeOnlyBuffer</code> - Whether the buffer was marked with <a href="../C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a>
      by the source.</dd>
-<dd><code>isLastBuffer</code> - Whether the buffer is the last sample of the current stream.</dd>
+<dd><code>isLastBuffer</code> - Whether the buffer is known to contain the last sample of the current
+     stream. This flag is set on a best effort basis, and any logic relying on it should degrade
+     gracefully to handle cases where it's not set.</dd>
 <dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> associated with the buffer.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the output buffer was fully processed (for example, rendered or skipped).</dd>

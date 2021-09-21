@@ -769,7 +769,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_BUFFERING">STATE_BUFFERING</a></span></code></th>
 <td class="colLast">
-<div class="block">The player is not able to immediately play from its current position.</div>
+<div class="block">The player is not able to immediately play the media, but is doing work toward being able to do
+ so.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -783,7 +784,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_IDLE">STATE_IDLE</a></span></code></th>
 <td class="colLast">
-<div class="block">The player does not have any media to play.</div>
+<div class="block">The player is idle, and must be <a href="#prepare()"><code>prepared</code></a> before it will play the media.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -1691,7 +1692,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_IDLE</h4>
 <pre>static final&nbsp;int STATE_IDLE</pre>
-<div class="block">The player does not have any media to play.</div>
+<div class="block">The player is idle, and must be <a href="#prepare()"><code>prepared</code></a> before it will play the media.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.STATE_IDLE">Constant Field Values</a></dd>
@@ -1705,8 +1706,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_BUFFERING</h4>
 <pre>static final&nbsp;int STATE_BUFFERING</pre>
-<div class="block">The player is not able to immediately play from its current position. This state typically
- occurs when more data needs to be loaded.</div>
+<div class="block">The player is not able to immediately play the media, but is doing work toward being able to do
+ so. This state typically occurs when the player needs to buffer more data before playback can
+ start.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.STATE_BUFFERING">Constant Field Values</a></dd>
