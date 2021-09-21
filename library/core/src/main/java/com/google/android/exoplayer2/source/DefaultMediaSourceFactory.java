@@ -350,42 +350,29 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
 
-    // Make sure to retain the very same media item instance, if no value needs to be overridden.
-    if ((mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
-            && liveTargetOffsetMs != C.TIME_UNSET)
-        || (mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
-            && liveMinSpeed != C.RATE_UNSET)
-        || (mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
-            && liveMaxSpeed != C.RATE_UNSET)
-        || (mediaItem.liveConfiguration.minOffsetMs == C.TIME_UNSET
-            && liveMinOffsetMs != C.TIME_UNSET)
-        || (mediaItem.liveConfiguration.maxOffsetMs == C.TIME_UNSET
-            && liveMaxOffsetMs != C.TIME_UNSET)) {
-      mediaItem =
-          mediaItem
-              .buildUpon()
-              .setLiveTargetOffsetMs(
-                  mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
-                      ? liveTargetOffsetMs
-                      : mediaItem.liveConfiguration.targetOffsetMs)
-              .setLiveMinPlaybackSpeed(
-                  mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
-                      ? liveMinSpeed
-                      : mediaItem.liveConfiguration.minPlaybackSpeed)
-              .setLiveMaxPlaybackSpeed(
-                  mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
-                      ? liveMaxSpeed
-                      : mediaItem.liveConfiguration.maxPlaybackSpeed)
-              .setLiveMinOffsetMs(
-                  mediaItem.liveConfiguration.minOffsetMs == C.TIME_UNSET
-                      ? liveMinOffsetMs
-                      : mediaItem.liveConfiguration.minOffsetMs)
-              .setLiveMaxOffsetMs(
-                  mediaItem.liveConfiguration.maxOffsetMs == C.TIME_UNSET
-                      ? liveMaxOffsetMs
-                      : mediaItem.liveConfiguration.maxOffsetMs)
-              .build();
+    MediaItem.LiveConfiguration.Builder liveConfigurationBuilder =
+        mediaItem.liveConfiguration.buildUpon();
+    if (mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET) {
+      liveConfigurationBuilder.setTargetOffsetMs(liveTargetOffsetMs);
     }
+    if (mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET) {
+      liveConfigurationBuilder.setMinPlaybackSpeed(liveMinSpeed);
+    }
+    if (mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET) {
+      liveConfigurationBuilder.setMaxPlaybackSpeed(liveMaxSpeed);
+    }
+    if (mediaItem.liveConfiguration.minOffsetMs == C.TIME_UNSET) {
+      liveConfigurationBuilder.setMinOffsetMs(liveMinOffsetMs);
+    }
+    if (mediaItem.liveConfiguration.maxOffsetMs == C.TIME_UNSET) {
+      liveConfigurationBuilder.setMaxOffsetMs(liveMaxOffsetMs);
+    }
+    MediaItem.LiveConfiguration liveConfiguration = liveConfigurationBuilder.build();
+    // Make sure to retain the very same media item instance, if no value needs to be overridden.
+    if (!liveConfiguration.equals(mediaItem.liveConfiguration)) {
+      mediaItem = mediaItem.buildUpon().setLiveConfiguration(liveConfiguration).build();
+    }
+
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
     List<MediaItem.Subtitle> subtitles = castNonNull(mediaItem.playbackProperties).subtitles;
