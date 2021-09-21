@@ -312,28 +312,25 @@ public final class DashMediaSource extends BaseMediaSource {
      */
     public DashMediaSource createMediaSource(DashManifest manifest, MediaItem mediaItem) {
       Assertions.checkArgument(!manifest.dynamic);
-      List<StreamKey> streamKeys =
-          mediaItem.playbackProperties != null && !mediaItem.playbackProperties.streamKeys.isEmpty()
-              ? mediaItem.playbackProperties.streamKeys
-              : this.streamKeys;
-      if (!streamKeys.isEmpty()) {
+      MediaItem.Builder mediaItemBuilder =
+          mediaItem.buildUpon().setMimeType(MimeTypes.APPLICATION_MPD);
+      if (mediaItem.playbackProperties == null) {
+        mediaItemBuilder.setUri(Uri.EMPTY);
+      }
+      if (mediaItem.playbackProperties == null || mediaItem.playbackProperties.tag == null) {
+        mediaItemBuilder.setTag(tag);
+      }
+      if (mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET) {
+        mediaItemBuilder.setLiveTargetOffsetMs(targetLiveOffsetOverrideMs);
+      }
+      if (mediaItem.playbackProperties == null
+          || mediaItem.playbackProperties.streamKeys.isEmpty()) {
+        mediaItemBuilder.setStreamKeys(streamKeys);
+      }
+      mediaItem = mediaItemBuilder.build();
+      if (!checkNotNull(mediaItem.playbackProperties).streamKeys.isEmpty()) {
         manifest = manifest.copy(streamKeys);
       }
-      boolean hasUri = mediaItem.playbackProperties != null;
-      boolean hasTag = hasUri && mediaItem.playbackProperties.tag != null;
-      boolean hasTargetLiveOffset = mediaItem.liveConfiguration.targetOffsetMs != C.TIME_UNSET;
-      mediaItem =
-          mediaItem
-              .buildUpon()
-              .setMimeType(MimeTypes.APPLICATION_MPD)
-              .setUri(hasUri ? mediaItem.playbackProperties.uri : Uri.EMPTY)
-              .setTag(hasTag ? mediaItem.playbackProperties.tag : tag)
-              .setLiveTargetOffsetMs(
-                  hasTargetLiveOffset
-                      ? mediaItem.liveConfiguration.targetOffsetMs
-                      : targetLiveOffsetOverrideMs)
-              .setStreamKeys(streamKeys)
-              .build();
       return new DashMediaSource(
           mediaItem,
           manifest,
