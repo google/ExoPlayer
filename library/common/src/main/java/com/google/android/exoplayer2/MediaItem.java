@@ -555,7 +555,7 @@ public final class MediaItem implements Bundleable {
       private Builder(DrmConfiguration drmConfiguration) {
         this.scheme = drmConfiguration.scheme;
         this.licenseUri = drmConfiguration.licenseUri;
-        this.licenseRequestHeaders = drmConfiguration.requestHeaders;
+        this.licenseRequestHeaders = drmConfiguration.licenseRequestHeaders;
         this.multiSession = drmConfiguration.multiSession;
         this.playClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
         this.forceDefaultLicenseUri = drmConfiguration.forceDefaultLicenseUri;
@@ -690,8 +690,11 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Uri licenseUri;
 
-    /** The headers to attach to the request to the DRM license server. */
-    public final ImmutableMap<String, String> requestHeaders;
+    /** @deprecated Use {@link #licenseRequestHeaders} instead. */
+    @Deprecated public final ImmutableMap<String, String> requestHeaders;
+
+    /** The headers to attach to requests sent to the DRM license server. */
+    public final ImmutableMap<String, String> licenseRequestHeaders;
 
     /** Whether the DRM configuration is multi session enabled. */
     public final boolean multiSession;
@@ -713,12 +716,14 @@ public final class MediaItem implements Bundleable {
 
     @Nullable private final byte[] keySetId;
 
+    @SuppressWarnings("deprecation") // Setting deprecated field
     private DrmConfiguration(Builder builder) {
       checkState(!(builder.forceDefaultLicenseUri && builder.licenseUri == null));
       this.scheme = checkNotNull(builder.scheme);
       this.uuid = scheme;
       this.licenseUri = builder.licenseUri;
       this.requestHeaders = builder.licenseRequestHeaders;
+      this.licenseRequestHeaders = builder.licenseRequestHeaders;
       this.multiSession = builder.multiSession;
       this.forceDefaultLicenseUri = builder.forceDefaultLicenseUri;
       this.playClearContentWithoutKey = builder.playClearContentWithoutKey;
@@ -752,7 +757,7 @@ public final class MediaItem implements Bundleable {
       DrmConfiguration other = (DrmConfiguration) obj;
       return scheme.equals(other.scheme)
           && Util.areEqual(licenseUri, other.licenseUri)
-          && Util.areEqual(requestHeaders, other.requestHeaders)
+          && Util.areEqual(licenseRequestHeaders, other.licenseRequestHeaders)
           && multiSession == other.multiSession
           && forceDefaultLicenseUri == other.forceDefaultLicenseUri
           && playClearContentWithoutKey == other.playClearContentWithoutKey
@@ -764,7 +769,7 @@ public final class MediaItem implements Bundleable {
     public int hashCode() {
       int result = scheme.hashCode();
       result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
-      result = 31 * result + requestHeaders.hashCode();
+      result = 31 * result + licenseRequestHeaders.hashCode();
       result = 31 * result + (multiSession ? 1 : 0);
       result = 31 * result + (forceDefaultLicenseUri ? 1 : 0);
       result = 31 * result + (playClearContentWithoutKey ? 1 : 0);

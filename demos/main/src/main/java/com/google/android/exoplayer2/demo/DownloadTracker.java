@@ -402,7 +402,7 @@ public class DownloadTracker {
               drmConfiguration.licenseUri.toString(),
               drmConfiguration.forceDefaultLicenseUri,
               httpDataSourceFactory,
-              drmConfiguration.requestHeaders,
+              drmConfiguration.licenseRequestHeaders,
               new DrmSessionEventListener.EventDispatcher());
       try {
         keySetId = offlineLicenseHelper.downloadLicense(format);

@@ -101,7 +101,7 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
             drmConfiguration.licenseUri == null ? null : drmConfiguration.licenseUri.toString(),
             drmConfiguration.forceDefaultLicenseUri,
             dataSourceFactory);
-    for (Map.Entry<String, String> entry : drmConfiguration.requestHeaders.entrySet()) {
+    for (Map.Entry<String, String> entry : drmConfiguration.licenseRequestHeaders.entrySet()) {
       httpDrmCallback.setKeyRequestProperty(entry.getKey(), entry.getValue());
     }
     DefaultDrmSessionManager drmSessionManager =

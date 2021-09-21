@@ -212,9 +212,10 @@ public class IntentUtil {
         DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix,
         drmConfiguration.forceDefaultLicenseUri);
 
-    String[] drmKeyRequestProperties = new String[drmConfiguration.requestHeaders.size() * 2];
+    String[] drmKeyRequestProperties =
+        new String[drmConfiguration.licenseRequestHeaders.size() * 2];
     int index = 0;
-    for (Map.Entry<String, String> entry : drmConfiguration.requestHeaders.entrySet()) {
+    for (Map.Entry<String, String> entry : drmConfiguration.licenseRequestHeaders.entrySet()) {
       drmKeyRequestProperties[index++] = entry.getKey();
       drmKeyRequestProperties[index++] = entry.getValue();
     }

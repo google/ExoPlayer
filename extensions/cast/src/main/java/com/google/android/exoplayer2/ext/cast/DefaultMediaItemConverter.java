@@ -146,7 +146,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     JSONObject json = new JSONObject();
     json.put(KEY_UUID, drmConfiguration.scheme);
     json.put(KEY_LICENSE_URI, drmConfiguration.licenseUri);
-    json.put(KEY_REQUEST_HEADERS, new JSONObject(drmConfiguration.requestHeaders));
+    json.put(KEY_REQUEST_HEADERS, new JSONObject(drmConfiguration.licenseRequestHeaders));
     return json;
   }
 
@@ -173,8 +173,8 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     if (drmConfiguration.licenseUri != null) {
       exoPlayerConfigJson.put("licenseUrl", drmConfiguration.licenseUri);
     }
-    if (!drmConfiguration.requestHeaders.isEmpty()) {
-      exoPlayerConfigJson.put("headers", new JSONObject(drmConfiguration.requestHeaders));
+    if (!drmConfiguration.licenseRequestHeaders.isEmpty()) {
+      exoPlayerConfigJson.put("headers", new JSONObject(drmConfiguration.licenseRequestHeaders));
     }
 
     return exoPlayerConfigJson;

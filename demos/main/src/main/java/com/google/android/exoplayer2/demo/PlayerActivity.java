@@ -527,6 +527,6 @@ public class PlayerActivity extends AppCompatActivity
   @Nullable
   private static Map<String, String> getDrmRequestHeaders(MediaItem item) {
     MediaItem.DrmConfiguration drmConfiguration = item.playbackProperties.drmConfiguration;
-    return drmConfiguration != null ? drmConfiguration.requestHeaders : null;
+    return drmConfiguration != null ? drmConfiguration.licenseRequestHeaders : null;
   }
 }

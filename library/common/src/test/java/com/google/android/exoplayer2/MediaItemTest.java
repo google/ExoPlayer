@@ -86,7 +86,7 @@ public class MediaItemTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation") // Testing deprecated methods
+  @SuppressWarnings("deprecation") // Testing deprecated methods and fields
   public void builderSetDrmPropertiesIndividually() {
     Uri licenseUri = Uri.parse(URI_STRING);
     Map<String, String> requestHeaders = new HashMap<>();
@@ -111,6 +111,8 @@ public class MediaItemTest {
     assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
         .isEqualTo(requestHeaders);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseRequestHeaders)
+        .isEqualTo(requestHeaders);
     assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
     assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isTrue();
     assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isTrue();
@@ -120,7 +122,7 @@ public class MediaItemTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation") // Testing deprecated methods
+  @SuppressWarnings("deprecation") // Testing deprecated methods and fields
   public void builderSetDrmConfigurationOverwritesIndividualProperties() {
     Uri licenseUri = Uri.parse(URI_STRING);
     Map<String, String> requestHeaders = new HashMap<>();
@@ -145,6 +147,7 @@ public class MediaItemTest {
     assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.CLEARKEY_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isNull();
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders).isEmpty();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseRequestHeaders).isEmpty();
     assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isFalse();
     assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isFalse();
     assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isFalse();
@@ -153,6 +156,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated field
   public void builderSetDrmConfiguration() {
     Uri licenseUri = Uri.parse(URI_STRING);
     Map<String, String> requestHeaders = new HashMap<>();
@@ -178,6 +182,8 @@ public class MediaItemTest {
     assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
+        .isEqualTo(requestHeaders);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseRequestHeaders)
         .isEqualTo(requestHeaders);
     assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
     assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isTrue();
