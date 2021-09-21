@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Collections;
 
 /**
@@ -163,7 +165,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     format =
         new Format.Builder()
             .setId(trackId)
-            .setSampleMimeType(subtitle.mimeType)
+            .setSampleMimeType(firstNonNull(subtitle.mimeType, MimeTypes.TEXT_UNKNOWN))
             .setLanguage(subtitle.language)
             .setSelectionFlags(subtitle.selectionFlags)
             .setRoleFlags(subtitle.roleFlags)

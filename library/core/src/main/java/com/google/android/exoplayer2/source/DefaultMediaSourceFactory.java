@@ -381,7 +381,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       mediaSources[0] = mediaSource;
       for (int i = 0; i < subtitles.size(); i++) {
         if (useProgressiveMediaSourceForSubtitles
-            && subtitles.get(i).mimeType.equals(MimeTypes.TEXT_VTT)) {
+            && MimeTypes.TEXT_VTT.equals(subtitles.get(i).mimeType)) {
           int index = i;
           ProgressiveMediaSource.Factory progressiveMediaSourceFactory =
               new ProgressiveMediaSource.Factory(

@@ -98,6 +98,8 @@ public final class MimeTypes {
 
   public static final String TEXT_EXOPLAYER_CUES = BASE_TYPE_TEXT + "/x-exoplayer-cues";
 
+  public static final String TEXT_UNKNOWN = BASE_TYPE_TEXT + "/x-unknown";
+
   // application/ MIME types
 
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";

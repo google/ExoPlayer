@@ -1189,8 +1189,8 @@ public final class MediaItem implements Bundleable {
 
     /** The {@link Uri} to the subtitle file. */
     public final Uri uri;
-    /** The MIME type. */
-    public final String mimeType;
+    /** The optional MIME type of the subtitle file, or {@code null} if unspecified. */
+    @Nullable public final String mimeType;
     /** The language. */
     @Nullable public final String language;
     /** The selection flags. */
@@ -1261,7 +1261,7 @@ public final class MediaItem implements Bundleable {
       Subtitle other = (Subtitle) obj;
 
       return uri.equals(other.uri)
-          && mimeType.equals(other.mimeType)
+          && Util.areEqual(mimeType, other.mimeType)
           && Util.areEqual(language, other.language)
           && selectionFlags == other.selectionFlags
           && roleFlags == other.roleFlags
@@ -1271,7 +1271,7 @@ public final class MediaItem implements Bundleable {
     @Override
     public int hashCode() {
       int result = uri.hashCode();
-      result = 31 * result + mimeType.hashCode();
+      result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + selectionFlags;
       result = 31 * result + roleFlags;
