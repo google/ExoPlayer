@@ -93,7 +93,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -181,6 +181,24 @@ extends <a href="../../BasePlayer.html" title="class in com.google.android.exopl
 <!--   -->
 </a>
 <h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_SPEED_SUPPORTED">MAX_SPEED_SUPPORTED</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MIN_SPEED_SUPPORTED">MIN_SPEED_SUPPORTED</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.BasePlayer">
 <!--   -->
@@ -796,6 +814,42 @@ extends <a href="../../BasePlayer.html" title="class in com.google.android.exopl
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="MIN_SPEED_SUPPORTED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MIN_SPEED_SUPPORTED</h4>
+<pre>public static final&nbsp;float MIN_SPEED_SUPPORTED</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cast.CastPlayer.MIN_SPEED_SUPPORTED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="MAX_SPEED_SUPPORTED">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>MAX_SPEED_SUPPORTED</h4>
+<pre>public static final&nbsp;float MAX_SPEED_SUPPORTED</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.cast.CastPlayer.MAX_SPEED_SUPPORTED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -1302,25 +1356,6 @@ public&nbsp;<a href="../../PlaybackException.html" title="class in com.google.an
 </dl>
 </li>
 </ul>
-<a id="setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setPlaybackParameters</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setPlaybackParameters&#8203;(<a href="../../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">Player</a></code></span></div>
-<div class="block">Attempts to set the playback parameters. Passing <a href="../../PlaybackParameters.html#DEFAULT"><code>PlaybackParameters.DEFAULT</code></a> resets the
- player to the default, which means there is no speed or pitch adjustment.
-
- <p>Playback parameters changes may cause the player to buffer. <a href="../../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.Listener.onPlaybackParametersChanged(PlaybackParameters)</code></a> will be called whenever the currently
- active playback parameters change.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackParameters</code> - The playback parameters.</dd>
-</dl>
-</li>
-</ul>
 <a id="getPlaybackParameters()">
 <!--   -->
 </a>
@@ -1355,6 +1390,25 @@ public&nbsp;<a href="../../PlaybackException.html" title="class in com.google.an
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../Player.html#release()">Player</a></code></span></div>
 <div class="block">Releases the player. This method must be called when the player is no longer required. The
  player must not be used after calling this method.</div>
+</li>
+</ul>
+<a id="setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaybackParameters</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setPlaybackParameters&#8203;(<a href="../../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../Player.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">Player</a></code></span></div>
+<div class="block">Attempts to set the playback parameters. Passing <a href="../../PlaybackParameters.html#DEFAULT"><code>PlaybackParameters.DEFAULT</code></a> resets the
+ player to the default, which means there is no speed or pitch adjustment.
+
+ <p>Playback parameters changes may cause the player to buffer. <a href="../../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)"><code>Player.Listener.onPlaybackParametersChanged(PlaybackParameters)</code></a> will be called whenever the currently
+ active playback parameters change.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackParameters</code> - The playback parameters.</dd>
+</dl>
 </li>
 </ul>
 <a id="setRepeatMode(int)">
@@ -1990,7 +2044,7 @@ public&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
