@@ -43,7 +43,6 @@ public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   public static class Factory implements MediaCodecAdapter.Factory {
 
     @Override
-    @RequiresApi(16)
     public MediaCodecAdapter createAdapter(Configuration configuration) throws IOException {
       @Nullable MediaCodec codec = null;
       @Nullable Surface inputSurface = null;
