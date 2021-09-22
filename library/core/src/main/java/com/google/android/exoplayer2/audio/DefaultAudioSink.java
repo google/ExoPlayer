@@ -1634,6 +1634,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
+  @RequiresApi(29)
   @C.AudioManagerOffloadMode
   private int getOffloadedPlaybackSupport(
       AudioFormat audioFormat, android.media.AudioAttributes audioAttributes) {
