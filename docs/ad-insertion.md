@@ -36,7 +36,11 @@ An ad tag URI can be specified when building a `MediaItem`:
 
 ~~~
 MediaItem mediaItem =
-    new MediaItem.Builder().setUri(videoUri).setAdTagUri(adTagUri).build();
+    new MediaItem.Builder()
+        .setUri(videoUri)
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(adTagUri).build())
+        .build();
 ~~~
 {: .language-java}
 
@@ -88,12 +92,18 @@ playlist from start to finish.
 MediaItem firstItem =
     new MediaItem.Builder()
         .setUri(firstVideoUri)
-        .setAdTagUri(adTagUri, /* adsId= */ adTagUri)
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(adTagUri)
+                .setAdsId(adTagUri)
+                .build())
         .build();
 MediaItem secondItem =
     new MediaItem.Builder()
         .setUri(secondVideoUri)
-        .setAdTagUri(adTagUri, /* adsId= */ adTagUri)
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(adTagUri)
+                .setAdsId(adTagUri)
+                .build())
         .build();
 player.addMediaItem(firstItem);
 player.addMediaItem(secondItem);

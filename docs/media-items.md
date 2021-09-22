@@ -137,7 +137,8 @@ To insert ads, a media item's ad tag URI property should be set:
 ~~~
 MediaItem mediaItem = new MediaItem.Builder()
     .setUri(videoUri)
-    .setAdTagUri(adTagUri)
+    .setAdsConfiguration(
+        new MediaItem.AdsConfiguration.Builder(adTagUri).build())
     .build();
 ~~~
 {: .language-java}

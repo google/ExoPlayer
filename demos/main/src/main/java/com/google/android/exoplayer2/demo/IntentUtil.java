@@ -117,18 +117,22 @@ public class IntentUtil {
       Uri uri, Intent intent, String extrasKeySuffix) {
     @Nullable String mimeType = intent.getStringExtra(MIME_TYPE_EXTRA + extrasKeySuffix);
     @Nullable String title = intent.getStringExtra(TITLE_EXTRA + extrasKeySuffix);
+    @Nullable String adTagUri = intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix);
     MediaItem.Builder builder =
         new MediaItem.Builder()
             .setUri(uri)
             .setMimeType(mimeType)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
-            .setAdTagUri(intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix))
             .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix))
             .setClipStartPositionMs(
                 intent.getLongExtra(CLIP_START_POSITION_MS_EXTRA + extrasKeySuffix, 0))
             .setClipEndPositionMs(
                 intent.getLongExtra(
                     CLIP_END_POSITION_MS_EXTRA + extrasKeySuffix, C.TIME_END_OF_SOURCE));
+    if (adTagUri != null) {
+      builder.setAdsConfiguration(
+          new MediaItem.AdsConfiguration.Builder(Uri.parse(adTagUri)).build());
+    }
 
     return populateDrmPropertiesFromIntent(builder, intent, extrasKeySuffix).build();
   }

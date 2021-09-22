@@ -373,7 +373,8 @@ public class SampleChooserActivity extends AppCompatActivity
             mediaItem.setClipEndPositionMs(reader.nextLong());
             break;
           case "ad_tag_uri":
-            mediaItem.setAdTagUri(reader.nextString());
+            mediaItem.setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(Uri.parse(reader.nextString())).build());
             break;
           case "drm_scheme":
             drmUuid = Util.getDrmUuid(reader.nextString());
