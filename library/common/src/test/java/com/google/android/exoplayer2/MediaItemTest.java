@@ -258,9 +258,17 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Using deprecated constructors
   public void builderSetSubtitles_setsSubtitles() {
     List<MediaItem.Subtitle> subtitles =
-        Arrays.asList(
+        ImmutableList.of(
+            new MediaItem.Subtitle.Builder(Uri.parse(URI_STRING + "/es"))
+                .setMimeType(MimeTypes.TEXT_SSA)
+                .setLanguage(/* language= */ "es")
+                .setSelectionFlags(C.SELECTION_FLAG_FORCED)
+                .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
+                .setLabel("label")
+                .build(),
             new MediaItem.Subtitle(
                 Uri.parse(URI_STRING + "/en"), MimeTypes.APPLICATION_TTML, /* language= */ "en"),
             new MediaItem.Subtitle(
@@ -531,14 +539,14 @@ public class MediaItemTest {
             .setLiveMinOffsetMs(2222)
             .setLiveMaxOffsetMs(4444)
             .setSubtitles(
-                Collections.singletonList(
-                    new MediaItem.Subtitle(
-                        Uri.parse(URI_STRING + "/en"),
-                        MimeTypes.APPLICATION_TTML,
-                        /* language= */ "en",
-                        C.SELECTION_FLAG_FORCED,
-                        C.ROLE_FLAG_ALTERNATE,
-                        "label")))
+                ImmutableList.of(
+                    new MediaItem.Subtitle.Builder(Uri.parse(URI_STRING + "/en"))
+                        .setMimeType(MimeTypes.APPLICATION_TTML)
+                        .setLanguage("en")
+                        .setSelectionFlags(C.SELECTION_FLAG_FORCED)
+                        .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
+                        .setLabel("label")
+                        .build()))
             .setTag(new Object())
             .build();
 
@@ -584,13 +592,13 @@ public class MediaItemTest {
                     .build())
             .setSubtitles(
                 ImmutableList.of(
-                    new MediaItem.Subtitle(
-                        Uri.parse(URI_STRING + "/en"),
-                        MimeTypes.APPLICATION_TTML,
-                        /* language= */ "en",
-                        C.SELECTION_FLAG_FORCED,
-                        C.ROLE_FLAG_ALTERNATE,
-                        "label")))
+                    new MediaItem.Subtitle.Builder(Uri.parse(URI_STRING + "/en"))
+                        .setMimeType(MimeTypes.APPLICATION_TTML)
+                        .setLanguage("en")
+                        .setSelectionFlags(C.SELECTION_FLAG_FORCED)
+                        .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
+                        .setLabel("label")
+                        .build()))
             .setTag(new Object())
             .build();
 

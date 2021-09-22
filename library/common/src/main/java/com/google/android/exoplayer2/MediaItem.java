@@ -1187,6 +1187,75 @@ public final class MediaItem implements Bundleable {
   /** Properties for a text track. */
   public static final class Subtitle {
 
+    /** Builder for {@link Subtitle} instances. */
+    public static final class Builder {
+      private Uri uri;
+      @Nullable private String mimeType;
+      @Nullable private String language;
+      @C.SelectionFlags private int selectionFlags;
+      @C.RoleFlags private int roleFlags;
+      @Nullable private String label;
+
+      /**
+       * Constructs an instance.
+       *
+       * @param uri The {@link Uri} to the subtitle file.
+       */
+      public Builder(Uri uri) {
+        this.uri = uri;
+      }
+
+      private Builder(Subtitle subtitle) {
+        this.uri = subtitle.uri;
+        this.mimeType = subtitle.mimeType;
+        this.language = subtitle.language;
+        this.selectionFlags = subtitle.selectionFlags;
+        this.roleFlags = subtitle.roleFlags;
+        this.label = subtitle.label;
+      }
+
+      /** Sets the {@link Uri} to the subtitle file. */
+      public Builder setUri(Uri uri) {
+        this.uri = uri;
+        return this;
+      }
+
+      /** Sets the MIME type. */
+      public Builder setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+        return this;
+      }
+
+      /** Sets the optional language of the subtitle file. */
+      public Builder setLanguage(@Nullable String language) {
+        this.language = language;
+        return this;
+      }
+
+      /** Sets the flags used for track selection. */
+      public Builder setSelectionFlags(@C.SelectionFlags int selectionFlags) {
+        this.selectionFlags = selectionFlags;
+        return this;
+      }
+
+      /** Sets the role flags. These are used for track selection. */
+      public Builder setRoleFlags(@C.RoleFlags int roleFlags) {
+        this.roleFlags = roleFlags;
+        return this;
+      }
+
+      /** Sets the optional label for this subtitle track. */
+      public Builder setLabel(@Nullable String label) {
+        this.label = label;
+        return this;
+      }
+
+      /** Creates a {@link Subtitle} from the values of this builder. */
+      public Subtitle build() {
+        return new Subtitle(this);
+      }
+    }
+
     /** The {@link Uri} to the subtitle file. */
     public final Uri uri;
     /** The optional MIME type of the subtitle file, or {@code null} if unspecified. */
@@ -1200,40 +1269,21 @@ public final class MediaItem implements Bundleable {
     /** The label. */
     @Nullable public final String label;
 
-    /**
-     * Creates an instance.
-     *
-     * @param uri The {@link Uri URI} to the subtitle file.
-     * @param mimeType The MIME type.
-     * @param language The optional language.
-     */
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
     public Subtitle(Uri uri, String mimeType, @Nullable String language) {
       this(uri, mimeType, language, /* selectionFlags= */ 0);
     }
 
-    /**
-     * Creates an instance.
-     *
-     * @param uri The {@link Uri URI} to the subtitle file.
-     * @param mimeType The MIME type.
-     * @param language The optional language.
-     * @param selectionFlags The selection flags.
-     */
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
     public Subtitle(
         Uri uri, String mimeType, @Nullable String language, @C.SelectionFlags int selectionFlags) {
       this(uri, mimeType, language, selectionFlags, /* roleFlags= */ 0, /* label= */ null);
     }
 
-    /**
-     * Creates an instance.
-     *
-     * @param uri The {@link Uri URI} to the subtitle file.
-     * @param mimeType The MIME type.
-     * @param language The optional language.
-     * @param selectionFlags The selection flags.
-     * @param roleFlags The role flags.
-     * @param label The optional label.
-     */
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
     public Subtitle(
         Uri uri,
         String mimeType,
@@ -1247,6 +1297,20 @@ public final class MediaItem implements Bundleable {
       this.selectionFlags = selectionFlags;
       this.roleFlags = roleFlags;
       this.label = label;
+    }
+
+    private Subtitle(Builder builder) {
+      this.uri = builder.uri;
+      this.mimeType = builder.mimeType;
+      this.language = builder.language;
+      this.selectionFlags = builder.selectionFlags;
+      this.roleFlags = builder.roleFlags;
+      this.label = builder.label;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     @Override
