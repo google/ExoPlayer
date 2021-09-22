@@ -189,7 +189,7 @@ public class DashManifest implements FilterableManifest<DashManifest> {
       List<Representation> representations = adaptationSet.representations;
       ArrayList<Representation> copyRepresentations = new ArrayList<>();
       do {
-        Representation representation = representations.get(key.trackIndex);
+        Representation representation = representations.get(key.streamIndex);
         copyRepresentations.add(representation);
         key = keys.poll();
       } while (key.periodIndex == periodIndex && key.groupIndex == adaptationSetIndex);

@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static com.google.android.exoplayer2.Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
@@ -491,7 +492,11 @@ public class StyledPlayerControlView extends FrameLayout {
       TypedArray a =
           context
               .getTheme()
-              .obtainStyledAttributes(playbackAttrs, R.styleable.StyledPlayerControlView, 0, 0);
+              .obtainStyledAttributes(
+                  playbackAttrs,
+                  R.styleable.StyledPlayerControlView,
+                  defStyleAttr,
+                  /* defStyleRes= */ 0);
       try {
         controllerLayoutId =
             a.getResourceId(
@@ -576,8 +581,8 @@ public class StyledPlayerControlView extends FrameLayout {
     if (customTimeBar != null) {
       timeBar = customTimeBar;
     } else if (timeBarPlaceholder != null) {
-      // Propagate attrs as timebarAttrs so that DefaultTimeBar's custom attributes are transferred,
-      // but standard attributes (e.g. background) are not.
+      // Propagate playbackAttrs as timebarAttrs so that DefaultTimeBar's custom attributes are
+      // transferred, but standard attributes (e.g. background) are not.
       DefaultTimeBar defaultTimeBar =
           new DefaultTimeBar(context, null, 0, playbackAttrs, R.style.ExoStyledControls_TimeBar);
       defaultTimeBar.setId(R.id.exo_progress);
@@ -756,6 +761,9 @@ public class StyledPlayerControlView extends FrameLayout {
     this.player = player;
     if (player != null) {
       player.addListener(componentListener);
+    }
+    if (player instanceof ForwardingPlayer) {
+      player = ((ForwardingPlayer) player).getWrappedPlayer();
     }
     if (player instanceof ExoPlayer) {
       TrackSelector trackSelector = ((ExoPlayer) player).getTrackSelector();
@@ -1763,7 +1771,8 @@ public class StyledPlayerControlView extends FrameLayout {
           EVENT_POSITION_DISCONTINUITY,
           EVENT_TIMELINE_CHANGED,
           EVENT_SEEK_BACK_INCREMENT_CHANGED,
-          EVENT_SEEK_FORWARD_INCREMENT_CHANGED)) {
+          EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+          EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateNavigation();
       }
       if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {

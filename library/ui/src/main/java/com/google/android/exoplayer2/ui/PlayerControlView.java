@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static com.google.android.exoplayer2.Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
@@ -41,10 +42,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -339,6 +343,8 @@ public class PlayerControlView extends FrameLayout {
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
   private long currentWindowOffset;
+  private long currentPosition;
+  private long currentBufferedPosition;
 
   public PlayerControlView(Context context) {
     this(context, /* attrs= */ null);
@@ -377,7 +383,8 @@ public class PlayerControlView extends FrameLayout {
       TypedArray a =
           context
               .getTheme()
-              .obtainStyledAttributes(playbackAttrs, R.styleable.PlayerControlView, 0, 0);
+              .obtainStyledAttributes(
+                  playbackAttrs, R.styleable.PlayerControlView, defStyleAttr, /* defStyleRes= */ 0);
       try {
         showTimeoutMs = a.getInt(R.styleable.PlayerControlView_show_timeout, showTimeoutMs);
         controllerLayoutId =
@@ -424,8 +431,8 @@ public class PlayerControlView extends FrameLayout {
     if (customTimeBar != null) {
       timeBar = customTimeBar;
     } else if (timeBarPlaceholder != null) {
-      // Propagate attrs as timebarAttrs so that DefaultTimeBar's custom attributes are transferred,
-      // but standard attributes (e.g. background) are not.
+      // Propagate playbackAttrs as timebarAttrs so that DefaultTimeBar's custom attributes are
+      // transferred, but standard attributes (e.g. background) are not.
       DefaultTimeBar defaultTimeBar = new DefaultTimeBar(context, null, 0, playbackAttrs);
       defaultTimeBar.setId(R.id.exo_progress);
       defaultTimeBar.setLayoutParams(timeBarPlaceholder.getLayoutParams());
@@ -782,6 +789,7 @@ public class PlayerControlView extends FrameLayout {
       }
       updateAll();
       requestPlayPauseFocus();
+      requestPlayPauseAccessibilityFocus();
     }
     // Call hideAfterTimeout even if already visible to reset the timeout.
     hideAfterTimeout();
@@ -830,17 +838,29 @@ public class PlayerControlView extends FrameLayout {
       return;
     }
     boolean requestPlayPauseFocus = false;
+    boolean requestPlayPauseAccessibilityFocus = false;
     boolean shouldShowPauseButton = shouldShowPauseButton();
     if (playButton != null) {
       requestPlayPauseFocus |= shouldShowPauseButton && playButton.isFocused();
+      requestPlayPauseAccessibilityFocus |=
+          Util.SDK_INT < 21
+              ? requestPlayPauseFocus
+              : (shouldShowPauseButton && Api21.isAccessibilityFocused(playButton));
       playButton.setVisibility(shouldShowPauseButton ? GONE : VISIBLE);
     }
     if (pauseButton != null) {
       requestPlayPauseFocus |= !shouldShowPauseButton && pauseButton.isFocused();
+      requestPlayPauseAccessibilityFocus |=
+          Util.SDK_INT < 21
+              ? requestPlayPauseFocus
+              : (!shouldShowPauseButton && Api21.isAccessibilityFocused(pauseButton));
       pauseButton.setVisibility(shouldShowPauseButton ? VISIBLE : GONE);
     }
     if (requestPlayPauseFocus) {
       requestPlayPauseFocus();
+    }
+    if (requestPlayPauseAccessibilityFocus) {
+      requestPlayPauseAccessibilityFocus();
     }
   }
 
@@ -1020,14 +1040,21 @@ public class PlayerControlView extends FrameLayout {
       position = currentWindowOffset + player.getContentPosition();
       bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
     }
-    if (positionView != null && !scrubbing) {
+    boolean positionChanged = position != currentPosition;
+    boolean bufferedPositionChanged = bufferedPosition != currentBufferedPosition;
+    currentPosition = position;
+    currentBufferedPosition = bufferedPosition;
+
+    // Only update the TextView if the position has changed, else TalkBack will repeatedly read the
+    // same position to the user.
+    if (positionView != null && !scrubbing && positionChanged) {
       positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
     }
     if (timeBar != null) {
       timeBar.setPosition(position);
       timeBar.setBufferedPosition(bufferedPosition);
     }
-    if (progressUpdateListener != null) {
+    if (progressUpdateListener != null && (positionChanged || bufferedPositionChanged)) {
       progressUpdateListener.onProgressUpdate(position, bufferedPosition);
     }
 
@@ -1061,6 +1088,15 @@ public class PlayerControlView extends FrameLayout {
       playButton.requestFocus();
     } else if (shouldShowPauseButton && pauseButton != null) {
       pauseButton.requestFocus();
+    }
+  }
+
+  private void requestPlayPauseAccessibilityFocus() {
+    boolean shouldShowPauseButton = shouldShowPauseButton();
+    if (!shouldShowPauseButton && playButton != null) {
+      playButton.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
+    } else if (shouldShowPauseButton && pauseButton != null) {
+      pauseButton.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
     }
   }
 
@@ -1279,7 +1315,8 @@ public class PlayerControlView extends FrameLayout {
           EVENT_REPEAT_MODE_CHANGED,
           EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           EVENT_POSITION_DISCONTINUITY,
-          EVENT_TIMELINE_CHANGED)) {
+          EVENT_TIMELINE_CHANGED,
+          EVENT_AVAILABLE_COMMANDS_CHANGED)) {
         updateNavigation();
       }
       if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {
@@ -1336,6 +1373,14 @@ public class PlayerControlView extends FrameLayout {
       } else if (shuffleButton == view) {
         controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
       }
+    }
+  }
+
+  @RequiresApi(21)
+  private static final class Api21 {
+    @DoNotInline
+    public static boolean isAccessibilityFocused(View view) {
+      return view.isAccessibilityFocused();
     }
   }
 }

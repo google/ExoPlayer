@@ -15,10 +15,15 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 
@@ -49,11 +54,12 @@ import com.google.common.collect.ImmutableList;
    * </pre>
    *
    * @param rtpInfoString The value of the RTP-Info header, with header name (RTP-Info) removed.
+   * @param sessionUri The session URI, must include an {@code rtsp} scheme.
    * @return A list of parsed {@link RtspTrackTiming}.
    * @throws ParserException If parsing failed.
    */
-  public static ImmutableList<RtspTrackTiming> parseTrackTiming(String rtpInfoString)
-      throws ParserException {
+  public static ImmutableList<RtspTrackTiming> parseTrackTiming(
+      String rtpInfoString, Uri sessionUri) throws ParserException {
 
     ImmutableList.Builder<RtspTrackTiming> listBuilder = new ImmutableList.Builder<>();
     for (String perTrackTimingString : Util.split(rtpInfoString, ",")) {
@@ -69,7 +75,7 @@ import com.google.common.collect.ImmutableList;
 
           switch (attributeName) {
             case "url":
-              uri = Uri.parse(attributeValue);
+              uri = resolveUri(/* urlString= */ attributeValue, sessionUri);
               break;
             case "seq":
               sequenceNumber = Integer.parseInt(attributeValue);
@@ -94,6 +100,48 @@ import com.google.common.collect.ImmutableList;
       listBuilder.add(new RtspTrackTiming(rtpTime, sequenceNumber, uri));
     }
     return listBuilder.build();
+  }
+
+  /**
+   * Resolves the input string to always be an absolute URL with RTP-Info headers
+   *
+   * <p>Handles some servers do not send absolute URL in RTP-Info headers. This method takes in
+   * RTP-Info header's url string, and returns the correctly formatted {@link Uri url} for this
+   * track. The input url string could be
+   *
+   * <ul>
+   *   <li>A correctly formatted URL, like "{@code rtsp://foo.bar/video}".
+   *   <li>A correct URI that is missing the scheme, like "{@code foo.bar/video}".
+   *   <li>A path to the resource, like "{@code video}" or "{@code /video}".
+   * </ul>
+   *
+   * @param urlString The URL included in the RTP-Info header, without the {@code url=} identifier.
+   * @param sessionUri The session URI, must include an {@code rtsp} scheme, or {@link
+   *     IllegalArgumentException} is thrown.
+   * @return The formatted URL.
+   */
+  @VisibleForTesting
+  /* package */ static Uri resolveUri(String urlString, Uri sessionUri) {
+    checkArgument(checkNotNull(sessionUri.getScheme()).equals("rtsp"));
+
+    Uri uri = Uri.parse(urlString);
+    if (uri.isAbsolute()) {
+      return uri;
+    }
+
+    // The urlString is at least missing the scheme.
+    uri = Uri.parse("rtsp://" + urlString);
+    String sessionUriString = sessionUri.toString();
+
+    String host = checkNotNull(uri.getHost());
+    if (host.equals(sessionUri.getHost())) {
+      // Handles the case that the urlString is only missing the scheme.
+      return uri;
+    }
+
+    return sessionUriString.endsWith("/")
+        ? UriUtil.resolveToUri(sessionUriString, urlString)
+        : UriUtil.resolveToUri(sessionUriString + "/", urlString);
   }
 
   /**

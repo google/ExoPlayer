@@ -210,11 +210,17 @@ public final class Requirements implements Parcelable {
     if (activeNetwork == null) {
       return false;
     }
-    @Nullable
-    NetworkCapabilities networkCapabilities =
-        connectivityManager.getNetworkCapabilities(activeNetwork);
-    return networkCapabilities != null
-        && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+
+    try {
+      @Nullable
+      NetworkCapabilities networkCapabilities =
+          connectivityManager.getNetworkCapabilities(activeNetwork);
+      return networkCapabilities != null
+          && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+    } catch (SecurityException e) {
+      // Workaround for https://issuetracker.google.com/issues/175055271.
+      return true;
+    }
   }
 
   @Override

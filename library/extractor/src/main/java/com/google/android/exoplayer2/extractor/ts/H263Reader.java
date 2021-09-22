@@ -87,6 +87,7 @@ public final class H263Reader implements ElementaryStreamReader {
     this.userDataReader = userDataReader;
     prefixFlags = new boolean[4];
     csdBuffer = new CsdBuffer(128);
+    pesTimeUs = C.TIME_UNSET;
     if (userDataReader != null) {
       userData = new NalUnitTargetBuffer(START_CODE_VALUE_USER_DATA, 128);
       userDataParsable = new ParsableByteArray();
@@ -107,6 +108,7 @@ public final class H263Reader implements ElementaryStreamReader {
       userData.reset();
     }
     totalBytesWritten = 0;
+    pesTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -123,7 +125,9 @@ public final class H263Reader implements ElementaryStreamReader {
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
     // TODO (Internal b/32267012): Consider using random access indicator.
-    this.pesTimeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      this.pesTimeUs = pesTimeUs;
+    }
   }
 
   @Override
@@ -462,7 +466,10 @@ public final class H263Reader implements ElementaryStreamReader {
     }
 
     public void onDataEnd(long position, int bytesWrittenPastPosition, boolean hasOutputFormat) {
-      if (startCodeValue == START_CODE_VALUE_VOP && hasOutputFormat && readingSample) {
+      if (startCodeValue == START_CODE_VALUE_VOP
+          && hasOutputFormat
+          && readingSample
+          && sampleTimeUs != C.TIME_UNSET) {
         int size = (int) (position - samplePosition);
         @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
         output.sampleMetadata(

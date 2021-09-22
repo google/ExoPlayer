@@ -131,12 +131,12 @@ public final class AdtsExtractor implements Extractor {
       scratch.setPosition(0);
       int syncBytes = scratch.readUnsignedShort();
       if (!AdtsReader.isAdtsSyncWord(syncBytes)) {
+        // We didn't find an ADTS sync word. Start searching again from one byte further into the
+        // start of the stream.
         validFramesCount = 0;
         totalValidFramesSize = 0;
+        headerPosition++;
         input.resetPeekPosition();
-        if (++headerPosition - startPosition >= MAX_SNIFF_BYTES) {
-          return false;
-        }
         input.advancePeekPosition(headerPosition);
       } else {
         if (++validFramesCount >= 4 && totalValidFramesSize > TsExtractor.TS_PACKET_SIZE) {
@@ -147,12 +147,21 @@ public final class AdtsExtractor implements Extractor {
         input.peekFully(scratch.getData(), 0, 4);
         scratchBits.setPosition(14);
         int frameSize = scratchBits.readBits(13);
-        // Either the stream is malformed OR we're not parsing an ADTS stream.
         if (frameSize <= 6) {
-          return false;
+          // The size is too small, so we're probably not reading an ADTS frame. Start searching
+          // again from one byte further into the start of the stream.
+          validFramesCount = 0;
+          totalValidFramesSize = 0;
+          headerPosition++;
+          input.resetPeekPosition();
+          input.advancePeekPosition(headerPosition);
+        } else {
+          input.advancePeekPosition(frameSize - 6);
+          totalValidFramesSize += frameSize;
         }
-        input.advancePeekPosition(frameSize - 6);
-        totalValidFramesSize += frameSize;
+      }
+      if (headerPosition - startPosition >= MAX_SNIFF_BYTES) {
+        return false;
       }
     }
   }

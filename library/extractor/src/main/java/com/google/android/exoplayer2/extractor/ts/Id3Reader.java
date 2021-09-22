@@ -49,11 +49,13 @@ public final class Id3Reader implements ElementaryStreamReader {
 
   public Id3Reader() {
     id3Header = new ParsableByteArray(ID3_HEADER_LENGTH);
+    sampleTimeUs = C.TIME_UNSET;
   }
 
   @Override
   public void seek() {
     writingSample = false;
+    sampleTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -73,7 +75,9 @@ public final class Id3Reader implements ElementaryStreamReader {
       return;
     }
     writingSample = true;
-    sampleTimeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      sampleTimeUs = pesTimeUs;
+    }
     sampleSize = 0;
     sampleBytesRead = 0;
   }
@@ -120,7 +124,9 @@ public final class Id3Reader implements ElementaryStreamReader {
     if (!writingSample || sampleSize == 0 || sampleBytesRead != sampleSize) {
       return;
     }
-    output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+    if (sampleTimeUs != C.TIME_UNSET) {
+      output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+    }
     writingSample = false;
   }
 }

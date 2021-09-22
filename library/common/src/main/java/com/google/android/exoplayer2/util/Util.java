@@ -2280,21 +2280,20 @@ public final class Util {
    * @return The size of the current mode, in pixels.
    */
   public static Point getCurrentDisplayModeSize(Context context, Display display) {
-    if (Util.SDK_INT <= 29 && display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
-      // On Android TVs it is common for the UI to be configured for a lower resolution than
-      // SurfaceViews can output. Before API 26 the Display object does not provide a way to
-      // identify this case, and up to and including API 28 many devices still do not correctly set
-      // their hardware compositor output size.
-
-      // Sony Android TVs advertise support for 4k output via a system feature.
-      if ("Sony".equals(Util.MANUFACTURER)
-          && Util.MODEL.startsWith("BRAVIA")
-          && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
-        return new Point(3840, 2160);
-      }
-
-      // Otherwise check the system property for display size. From API 28 treble may prevent the
-      // system from writing sys.display-size so we check vendor.display-size instead.
+    if (display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
+      // On Android TVs it's common for the UI to be driven at a lower resolution than the physical
+      // resolution of the display (e.g., driving the UI at 1080p when the display is 4K).
+      // SurfaceView outputs are still able to use the full physical resolution on such devices.
+      //
+      // Prior to API level 26, the Display object did not provide a way to obtain the true physical
+      // resolution of the display. From API level 26, Display.getMode().getPhysical[Width|Height]
+      // is expected to return the display's true physical resolution, but we still see devices
+      // setting their hardware compositor output size incorrectly, which makes this unreliable.
+      // Hence for TV devices, we try and read the display's true physical resolution from system
+      // properties.
+      //
+      // From API level 28, Treble may prevent the system from writing sys.display-size, so we check
+      // vendor.display-size instead.
       @Nullable
       String displaySize =
           Util.SDK_INT < 28
@@ -2315,6 +2314,13 @@ public final class Util {
           // Do nothing.
         }
         Log.e(TAG, "Invalid display size: " + displaySize);
+      }
+
+      // Sony Android TVs advertise support for 4k output via a system feature.
+      if ("Sony".equals(Util.MANUFACTURER)
+          && Util.MODEL.startsWith("BRAVIA")
+          && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
+        return new Point(3840, 2160);
       }
     }
 

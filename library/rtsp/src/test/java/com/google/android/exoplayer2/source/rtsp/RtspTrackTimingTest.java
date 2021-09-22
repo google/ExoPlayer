@@ -35,7 +35,7 @@ public class RtspTrackTimingTest {
         "url=rtsp://video.example.com/twister/video;seq=12312232;rtptime=78712811";
 
     ImmutableList<RtspTrackTiming> trackTimingList =
-        RtspTrackTiming.parseTrackTiming(rtpInfoString);
+        RtspTrackTiming.parseTrackTiming(rtpInfoString, Uri.parse("rtsp://video.example.com"));
 
     assertThat(trackTimingList).hasSize(1);
     RtspTrackTiming trackTiming = trackTimingList.get(0);
@@ -50,7 +50,7 @@ public class RtspTrackTimingTest {
         "url=rtsp://foo.com/bar.avi/streamid=0;seq=45102,url=rtsp://foo.com/bar.avi/streamid=1;seq=30211";
 
     ImmutableList<RtspTrackTiming> trackTimingList =
-        RtspTrackTiming.parseTrackTiming(rtpInfoString);
+        RtspTrackTiming.parseTrackTiming(rtpInfoString, Uri.parse("rtsp://foo.com"));
 
     assertThat(trackTimingList).hasSize(2);
     RtspTrackTiming trackTiming = trackTimingList.get(0);
@@ -67,27 +67,88 @@ public class RtspTrackTimingTest {
   public void parseTiming_withInvalidParameter_throws() {
     String rtpInfoString = "url=rtsp://video.example.com/twister/video;seq=123abc";
 
-    assertThrows(ParserException.class, () -> RtspTrackTiming.parseTrackTiming(rtpInfoString));
-  }
-
-  @Test
-  public void parseTiming_withInvalidUrl_throws() {
-    String rtpInfoString = "url=video.example.com/twister/video;seq=36192348";
-
-    assertThrows(ParserException.class, () -> RtspTrackTiming.parseTrackTiming(rtpInfoString));
+    assertThrows(
+        ParserException.class,
+        () ->
+            RtspTrackTiming.parseTrackTiming(
+                rtpInfoString, Uri.parse("rtsp://video.example.com/twister")));
   }
 
   @Test
   public void parseTiming_withNoParameter_throws() {
     String rtpInfoString = "url=rtsp://video.example.com/twister/video";
 
-    assertThrows(ParserException.class, () -> RtspTrackTiming.parseTrackTiming(rtpInfoString));
+    assertThrows(
+        ParserException.class,
+        () ->
+            RtspTrackTiming.parseTrackTiming(
+                rtpInfoString, Uri.parse("rtsp://video.example.com/twister")));
   }
 
   @Test
   public void parseTiming_withNoUrl_throws() {
     String rtpInfoString = "seq=35421887";
 
-    assertThrows(ParserException.class, () -> RtspTrackTiming.parseTrackTiming(rtpInfoString));
+    assertThrows(
+        ParserException.class,
+        () ->
+            RtspTrackTiming.parseTrackTiming(
+                rtpInfoString, Uri.parse("rtsp://video.example.com/twister")));
+  }
+
+  @Test
+  public void resolveUri_withAbsoluteUri_succeeds() {
+    Uri uri =
+        RtspTrackTiming.resolveUri(
+            "rtsp://video.example.com/twister/video=1?a2bfc09887ce",
+            Uri.parse("rtsp://video.example.com/twister"));
+
+    assertThat(uri).isEqualTo(Uri.parse("rtsp://video.example.com/twister/video=1?a2bfc09887ce"));
+  }
+
+  @Test
+  public void resolveUri_withCompleteUriMissingScheme_succeeds() {
+    Uri uri =
+        RtspTrackTiming.resolveUri(
+            "video.example.com/twister/video=1", Uri.parse("rtsp://video.example.com/twister"));
+
+    assertThat(uri).isEqualTo(Uri.parse("rtsp://video.example.com/twister/video=1"));
+  }
+
+  @Test
+  public void resolveUri_withPartialUriMissingScheme_succeeds() {
+    Uri uri = RtspTrackTiming.resolveUri("video=1", Uri.parse("rtsp://video.example.com/twister"));
+
+    assertThat(uri).isEqualTo(Uri.parse("rtsp://video.example.com/twister/video=1"));
+  }
+
+  @Test
+  public void resolveUri_withMultipartPartialUriMissingScheme_succeeds() {
+    Uri uri =
+        RtspTrackTiming.resolveUri(
+            "container/video=1", Uri.parse("rtsp://video.example.com/twister"));
+
+    assertThat(uri).isEqualTo(Uri.parse("rtsp://video.example.com/twister/container/video=1"));
+  }
+
+  @Test
+  public void resolveUri_withPartialUriMissingSchemeWithIpBaseUri_succeeds() {
+    Uri uri = RtspTrackTiming.resolveUri("video=1", Uri.parse("rtsp://127.0.0.1:18888/test"));
+
+    assertThat(uri).isEqualTo(Uri.parse("rtsp://127.0.0.1:18888/test/video=1"));
+  }
+
+  @Test
+  public void resolveUri_withPartialUriMissingSchemeWithIpBaseUriWithSlash_succeeds() {
+    Uri uri = RtspTrackTiming.resolveUri("video=1", Uri.parse("rtsp://127.0.0.1:18888/test/"));
+
+    assertThat(uri).isEqualTo(Uri.parse("rtsp://127.0.0.1:18888/test/video=1"));
+  }
+
+  @Test
+  public void resolveUri_withSessionUriMissingScheme_throwsIllegalArgumentException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> RtspTrackTiming.resolveUri("video=1", Uri.parse("127.0.0.1:18888/test")));
   }
 }

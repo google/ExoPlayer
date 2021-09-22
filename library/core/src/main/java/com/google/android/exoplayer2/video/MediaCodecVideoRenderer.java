@@ -1359,8 +1359,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // The single entry in streamFormats must correspond to the format for which the codec is
       // being configured.
       if (maxInputSize != Format.NO_VALUE) {
-        int codecMaxInputSize =
-            getCodecMaxInputSize(codecInfo, format.sampleMimeType, format.width, format.height);
+        int codecMaxInputSize = getCodecMaxInputSize(codecInfo, format);
         if (codecMaxInputSize != Format.NO_VALUE) {
           // Scale up the initial video decoder maximum input size so playlist item transitions with
           // small increases in maximum sample size don't require reinitialization. This only makes
@@ -1397,7 +1396,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxInputSize =
             max(
                 maxInputSize,
-                getCodecMaxInputSize(codecInfo, format.sampleMimeType, maxWidth, maxHeight));
+                getCodecMaxInputSize(
+                    codecInfo, format.buildUpon().setWidth(maxWidth).setHeight(maxHeight).build()));
         Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);
       }
     }
@@ -1476,27 +1476,44 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       return format.maxInputSize + totalInitializationDataSize;
     } else {
-      // Calculated maximum input sizes are overestimates, so it's not necessary to add the size of
-      // initialization data.
-      return getCodecMaxInputSize(codecInfo, format.sampleMimeType, format.width, format.height);
+      return getCodecMaxInputSize(codecInfo, format);
     }
   }
 
   /**
-   * Returns a maximum input size for a given codec, MIME type, width and height.
+   * Returns a maximum input size for a given codec and format.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param sampleMimeType The format mime type.
-   * @param width The width in pixels.
-   * @param height The height in pixels.
+   * @param format The format.
    * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
    *     determined.
    */
-  private static int getCodecMaxInputSize(
-      MediaCodecInfo codecInfo, String sampleMimeType, int width, int height) {
+  private static int getCodecMaxInputSize(MediaCodecInfo codecInfo, Format format) {
+    int width = format.width;
+    int height = format.height;
     if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
       // We can't infer a maximum input size without video dimensions.
       return Format.NO_VALUE;
+    }
+
+    String sampleMimeType = format.sampleMimeType;
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(sampleMimeType)) {
+      // Dolby vision can be a wrapper around H264 or H265. We assume it's wrapping H265 by default
+      // because it's the common case, and because some devices may fail to allocate the codec when
+      // the larger buffer size required for H264 is requested. We size buffers for H264 only if the
+      // format contains sufficient information for us to determine unambiguously that it's a H264
+      // profile.
+      sampleMimeType = MimeTypes.VIDEO_H265;
+      @Nullable
+      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+      if (codecProfileAndLevel != null) {
+        int profile = codecProfileAndLevel.first;
+        if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe
+            || profile == CodecProfileLevel.DolbyVisionProfileDvavPer
+            || profile == CodecProfileLevel.DolbyVisionProfileDvavPen) {
+          sampleMimeType = MimeTypes.VIDEO_H264;
+        }
+      }
     }
 
     // Attempt to infer a maximum input size from the format.
@@ -1508,9 +1525,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxPixels = width * height;
         minCompressionRatio = 2;
         break;
-      case MimeTypes.VIDEO_DOLBY_VISION:
-        // Dolby vision can be a wrapper around H264 or H265. We assume H264 here because the
-        // minimum compression ratio is lower, meaning we overestimate the maximum input size.
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
             || ("Amazon".equals(Util.MANUFACTURER)

@@ -446,6 +446,6 @@ public interface AudioSink {
    */
   void experimentalFlushWithoutAudioTrackRelease();
 
-  /** Resets the renderer, releasing any resources that it currently holds. */
+  /** Resets the sink, releasing any resources that it currently holds. */
   void reset();
 }

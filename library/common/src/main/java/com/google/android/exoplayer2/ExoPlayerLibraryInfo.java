@@ -26,11 +26,11 @@ public final class ExoPlayerLibraryInfo {
 
   /** The version of the library expressed as a string, for example "1.2.3". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  public static final String VERSION = "2.15.0";
+  public static final String VERSION = "2.15.1";
 
   /** The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final String VERSION_SLASHY = "ExoPlayerLib/2.15.0";
+  public static final String VERSION_SLASHY = "ExoPlayerLib/2.15.1";
 
   /**
    * The version of the library expressed as an integer, for example 1002003.
@@ -40,7 +40,7 @@ public final class ExoPlayerLibraryInfo {
    * integer version 123045006 (123-045-006).
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final int VERSION_INT = 2015000;
+  public static final int VERSION_INT = 2015001;
 
   /**
    * The default user agent for requests made by the library.

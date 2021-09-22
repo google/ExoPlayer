@@ -85,12 +85,14 @@ public final class H265Reader implements ElementaryStreamReader {
     pps = new NalUnitTargetBuffer(PPS_NUT, 128);
     prefixSei = new NalUnitTargetBuffer(PREFIX_SEI_NUT, 128);
     suffixSei = new NalUnitTargetBuffer(SUFFIX_SEI_NUT, 128);
+    pesTimeUs = C.TIME_UNSET;
     seiWrapper = new ParsableByteArray();
   }
 
   @Override
   public void seek() {
     totalBytesWritten = 0;
+    pesTimeUs = C.TIME_UNSET;
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     vps.reset();
     sps.reset();
@@ -114,7 +116,9 @@ public final class H265Reader implements ElementaryStreamReader {
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
     // TODO (Internal b/32267012): Consider using random access indicator.
-    this.pesTimeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      this.pesTimeUs = pesTimeUs;
+    }
   }
 
   @Override
@@ -536,6 +540,9 @@ public final class H265Reader implements ElementaryStreamReader {
     }
 
     private void outputSample(int offset) {
+      if (sampleTimeUs == C.TIME_UNSET) {
+        return;
+      }
       @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
       int size = (int) (nalUnitPosition - samplePosition);
       output.sampleMetadata(sampleTimeUs, flags, size, offset, null);

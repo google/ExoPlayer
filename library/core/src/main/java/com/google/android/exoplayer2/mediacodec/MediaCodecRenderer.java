@@ -1338,6 +1338,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (c2Mp3TimestampTracker != null) {
       presentationTimeUs =
           c2Mp3TimestampTracker.updateAndGetPresentationTimeUs(inputFormat, buffer);
+      // When draining the C2 MP3 decoder it produces an extra non-empty buffer with a timestamp
+      // after all queued input buffer timestamps (unlike other decoders, which generally propagate
+      // the input timestamps to output buffers 1:1). To detect the end of the stream when this
+      // buffer is dequeued we override the largest queued timestamp accordingly.
+      largestQueuedPresentationTimeUs =
+          max(
+              largestQueuedPresentationTimeUs,
+              c2Mp3TimestampTracker.getLastOutputBufferPresentationTimeUs(inputFormat));
     }
 
     if (buffer.isDecodeOnly()) {
@@ -1347,14 +1355,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       formatQueue.add(presentationTimeUs, inputFormat);
       waitingForFirstSampleInFormat = false;
     }
-
-    // TODO(b/158483277): Find the root cause of why a gap is introduced in MP3 playback when using
-    // presentationTimeUs from the c2Mp3TimestampTracker.
-    if (c2Mp3TimestampTracker != null) {
-      largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, buffer.timeUs);
-    } else {
-      largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, presentationTimeUs);
-    }
+    largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, presentationTimeUs);
     buffer.flip();
     if (buffer.hasSupplementalData()) {
       handleInputBufferSupplementalData(buffer);
@@ -1972,7 +1973,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
    * @param isDecodeOnlyBuffer Whether the buffer was marked with {@link C#BUFFER_FLAG_DECODE_ONLY}
    *     by the source.
-   * @param isLastBuffer Whether the buffer is the last sample of the current stream.
+   * @param isLastBuffer Whether the buffer is known to contain the last sample of the current
+   *     stream. This flag is set on a best effort basis, and any logic relying on it should degrade
+   *     gracefully to handle cases where it's not set.
    * @param format The {@link Format} associated with the buffer.
    * @return Whether the output buffer was fully processed (for example, rendered or skipped).
    * @throws ExoPlaybackException If an error occurs processing the output buffer.

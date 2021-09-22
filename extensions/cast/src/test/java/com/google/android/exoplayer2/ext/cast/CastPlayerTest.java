@@ -61,6 +61,7 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -126,6 +127,7 @@ public class CastPlayerTest {
     // Make the remote media client present the same default values as ExoPlayer:
     when(mockRemoteMediaClient.isPaused()).thenReturn(true);
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_OFF);
+    when(mockMediaStatus.getPlaybackRate()).thenReturn(1.0d);
     castPlayer = new CastPlayer(mockCastContext);
     castPlayer.addListener(mockListener);
     verify(mockRemoteMediaClient).registerCallback(callbackArgumentCaptor.capture());
@@ -206,6 +208,93 @@ public class CastPlayerTest {
     verify(mockListener).onPlayerStateChanged(true, Player.STATE_IDLE);
     verify(mockListener).onPlayWhenReadyChanged(true, Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE);
     assertThat(castPlayer.getPlayWhenReady()).isTrue();
+  }
+
+  @Test
+  public void playbackParameters_defaultPlaybackSpeed_isUnitSpeed() {
+    assertThat(castPlayer.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
+  }
+
+  @Test
+  public void playbackParameters_onStatusUpdated_setsRemotePlaybackSpeed() {
+    PlaybackParameters expectedPlaybackParameters = new PlaybackParameters(/* speed= */ 1.234f);
+    when(mockMediaStatus.getPlaybackRate()).thenReturn(1.234d);
+
+    remoteMediaClientCallback.onStatusUpdated();
+
+    assertThat(castPlayer.getPlaybackParameters()).isEqualTo(expectedPlaybackParameters);
+    verify(mockListener).onPlaybackParametersChanged(expectedPlaybackParameters);
+  }
+
+  @Test
+  public void playbackParameters_onStatusUpdated_ignoreInPausedState() {
+    when(mockMediaStatus.getPlaybackRate()).thenReturn(0.0d);
+
+    remoteMediaClientCallback.onStatusUpdated();
+
+    assertThat(castPlayer.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
+    verifyNoMoreInteractions(mockListener);
+  }
+
+  @Test
+  public void setPlaybackParameters_speedOutOfRange_valueIsConstraintToMinAndMax() {
+    when(mockRemoteMediaClient.setPlaybackRate(eq(2d), any())).thenReturn(mockPendingResult);
+    when(mockRemoteMediaClient.setPlaybackRate(eq(0.5d), any())).thenReturn(mockPendingResult);
+    PlaybackParameters expectedMaxValuePlaybackParameters = new PlaybackParameters(/* speed= */ 2f);
+    PlaybackParameters expectedMinValuePlaybackParameters =
+        new PlaybackParameters(/* speed= */ 0.5f);
+
+    castPlayer.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.001f));
+    verify(mockListener).onPlaybackParametersChanged(expectedMaxValuePlaybackParameters);
+    castPlayer.setPlaybackParameters(new PlaybackParameters(/* speed= */ 0.499f));
+    verify(mockListener).onPlaybackParametersChanged(expectedMinValuePlaybackParameters);
+  }
+
+  @Test
+  public void setPlaybackParameters_masksPendingState() {
+    PlaybackParameters playbackParameters = new PlaybackParameters(/* speed= */ 1.234f);
+    when(mockRemoteMediaClient.setPlaybackRate(eq((double) 1.234f), any()))
+        .thenReturn(mockPendingResult);
+
+    castPlayer.setPlaybackParameters(playbackParameters);
+
+    verify(mockPendingResult).setResultCallback(setResultCallbackArgumentCaptor.capture());
+    assertThat(castPlayer.getPlaybackParameters().speed).isEqualTo(1.234f);
+    verify(mockListener).onPlaybackParametersChanged(playbackParameters);
+
+    // Simulate a status update while the update is pending that must not override the masked speed.
+    when(mockMediaStatus.getPlaybackRate()).thenReturn(99.0d);
+    remoteMediaClientCallback.onStatusUpdated();
+    assertThat(castPlayer.getPlaybackParameters().speed).isEqualTo(1.234f);
+
+    // Call the captured result callback when the device responds. The listener must not be called.
+    when(mockMediaStatus.getPlaybackRate()).thenReturn(1.234d);
+    setResultCallbackArgumentCaptor
+        .getValue()
+        .onResult(mock(RemoteMediaClient.MediaChannelResult.class));
+    assertThat(castPlayer.getPlaybackParameters().speed).isEqualTo(1.234f);
+    verifyNoMoreInteractions(mockListener);
+  }
+
+  @Test
+  public void setPlaybackParameters_speedChangeNotSupported_resetOnResultCallback() {
+    when(mockRemoteMediaClient.setPlaybackRate(eq((double) 1.234f), any()))
+        .thenReturn(mockPendingResult);
+    PlaybackParameters playbackParameters = new PlaybackParameters(/* speed= */ 1.234f);
+
+    // Change the playback speed and and capture the result callback.
+    castPlayer.setPlaybackParameters(playbackParameters);
+    verify(mockPendingResult).setResultCallback(setResultCallbackArgumentCaptor.capture());
+    verify(mockListener).onPlaybackParametersChanged(new PlaybackParameters(/* speed= */ 1.234f));
+
+    // The device does not support speed changes and returns unit speed to the result callback.
+    when(mockMediaStatus.getPlaybackRate()).thenReturn(1.0d);
+    setResultCallbackArgumentCaptor
+        .getValue()
+        .onResult(mock(RemoteMediaClient.MediaChannelResult.class));
+    assertThat(castPlayer.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
+    verify(mockListener).onPlaybackParametersChanged(PlaybackParameters.DEFAULT);
+    verifyNoMoreInteractions(mockListener);
   }
 
   @Test
@@ -1215,7 +1304,7 @@ public class CastPlayerTest {
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_REPEAT_MODE)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)).isTrue();

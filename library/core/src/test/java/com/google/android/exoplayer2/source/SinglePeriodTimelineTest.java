@@ -79,9 +79,9 @@ public final class SinglePeriodTimelineTest {
         timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, windowDurationUs + 1);
     assertThat(position).isNull();
     // Should return (0, duration) with a projection equal to window duration.
-    position = timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, windowDurationUs);
+    position = timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, windowDurationUs - 1);
     assertThat(position.first).isEqualTo(timeline.getUidOfPeriod(0));
-    assertThat(position.second).isEqualTo(windowDurationUs);
+    assertThat(position.second).isEqualTo(windowDurationUs - 1);
     // Should return (0, 0) without a position projection.
     position = timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, 0);
     assertThat(position.first).isEqualTo(timeline.getUidOfPeriod(0));

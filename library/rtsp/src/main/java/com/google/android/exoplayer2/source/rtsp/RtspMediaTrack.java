@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.rtsp;
 import static com.google.android.exoplayer2.source.rtsp.MediaDescription.MEDIA_TYPE_AUDIO;
 import static com.google.android.exoplayer2.source.rtsp.RtpPayloadFormat.getMimeTypeFromRtpMediaType;
 import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_CONTROL;
-import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_RTPMAP;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.NalUnitUtil.NAL_START_CODE;
@@ -95,13 +94,6 @@ import com.google.common.collect.ImmutableMap;
       formatBuilder.setAverageBitrate(mediaDescription.bitrate);
     }
 
-    // rtpmap is mandatory in an RTSP session with dynamic payload types (RFC2326 Section C.1.3).
-    checkArgument(mediaDescription.attributes.containsKey(ATTR_RTPMAP));
-    String rtpmapAttribute = castNonNull(mediaDescription.attributes.get(ATTR_RTPMAP));
-
-    // rtpmap string format: RFC2327 Page 22.
-    String[] rtpmap = Util.split(rtpmapAttribute, " ");
-    checkArgument(rtpmap.length == 2);
     int rtpPayloadType = mediaDescription.rtpMapAttribute.payloadType;
 
     String mimeType = getMimeTypeFromRtpMediaType(mediaDescription.rtpMapAttribute.mediaEncoding);

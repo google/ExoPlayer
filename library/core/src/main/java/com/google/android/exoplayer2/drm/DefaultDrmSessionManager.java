@@ -687,13 +687,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     // If we're short on DRM session resources, first try eagerly releasing all our keepalive
     // sessions and then retry the acquisition.
     if (acquisitionFailedIndicatingResourceShortage(session) && !keepaliveSessions.isEmpty()) {
-      // Make a local copy, because sessions are removed from this.keepaliveSessions during
-      // release (via callback).
-      ImmutableSet<DefaultDrmSession> keepaliveSessions =
-          ImmutableSet.copyOf(this.keepaliveSessions);
-      for (DrmSession keepaliveSession : keepaliveSessions) {
-        keepaliveSession.release(/* eventDispatcher= */ null);
-      }
+      releaseAllKeepaliveSessions();
       undoAcquisition(session, eventDispatcher);
       session = createAndAcquireSession(schemeDatas, isPlaceholderSession, eventDispatcher);
     }
@@ -705,6 +699,11 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         && shouldReleasePreacquiredSessionsBeforeRetrying
         && !preacquiredSessionReferences.isEmpty()) {
       releaseAllPreacquiredSessions();
+      if (!keepaliveSessions.isEmpty()) {
+        // Some preacquired sessions released above are now in their keepalive timeout phase. We
+        // release the keepalive references immediately.
+        releaseAllKeepaliveSessions();
+      }
       undoAcquisition(session, eventDispatcher);
       session = createAndAcquireSession(schemeDatas, isPlaceholderSession, eventDispatcher);
     }
@@ -728,6 +727,15 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     session.release(eventDispatcher);
     if (sessionKeepaliveMs != C.TIME_UNSET) {
       session.release(/* eventDispatcher= */ null);
+    }
+  }
+
+  private void releaseAllKeepaliveSessions() {
+    // Make a local copy, because sessions are removed from this.keepaliveSessions during
+    // release (via callback).
+    ImmutableSet<DefaultDrmSession> keepaliveSessions = ImmutableSet.copyOf(this.keepaliveSessions);
+    for (DrmSession keepaliveSession : keepaliveSessions) {
+      keepaliveSession.release(/* eventDispatcher= */ null);
     }
   }
 

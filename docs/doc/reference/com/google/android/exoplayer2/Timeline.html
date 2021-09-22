@@ -451,7 +451,8 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
                  long&nbsp;windowPositionUs,
                  long&nbsp;defaultPositionProjectionUs)</code></th>
 <td class="colLast">
-<div class="block">Converts (windowIndex, windowPositionUs) to the corresponding (periodUid, periodPositionUs).</div>
+<div class="block">Converts <code>(windowIndex, windowPositionUs)</code> to the corresponding <code>(periodUid,
+ periodPositionUs)</code>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -833,7 +834,9 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/util/
                                                        int&nbsp;windowIndex,
                                                        long&nbsp;windowPositionUs,
                                                        long&nbsp;defaultPositionProjectionUs)</pre>
-<div class="block">Converts (windowIndex, windowPositionUs) to the corresponding (periodUid, periodPositionUs).</div>
+<div class="block">Converts <code>(windowIndex, windowPositionUs)</code> to the corresponding <code>(periodUid,
+ periodPositionUs)</code>. The returned <code>periodPositionUs</code> is constrained to be non-negative,
+ and to be less than the containing period's duration if it is known.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>window</code> - A <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> that may be overwritten.</dd>

@@ -125,6 +125,28 @@ public final class CacheDataSourceTest {
   }
 
   @Test
+  public void cacheAndReadFromLength_readsZeroBytes() throws Exception {
+    // Read and cache all data from upstream.
+    CacheDataSource cacheDataSource =
+        createCacheDataSource(
+            /* setReadException= */ false, /* unknownLength= */ false, /* cacheKeyFactory= */ null);
+    assertReadDataContentLength(
+        cacheDataSource,
+        unboundedDataSpec,
+        /* unknownLength= */ false,
+        /* customCacheKey= */ false);
+
+    // Read from position == length.
+    cacheDataSource =
+        createCacheDataSource(
+            /* setReadException= */ true, /* unknownLength= */ false, /* cacheKeyFactory= */ null);
+    assertReadData(
+        cacheDataSource,
+        unboundedDataSpec.buildUpon().setPosition(TEST_DATA.length).build(),
+        /* unknownLength= */ false);
+  }
+
+  @Test
   public void propagatesHttpHeadersUpstream() throws Exception {
     CacheDataSource cacheDataSource =
         createCacheDataSource(/* setReadException= */ false, /* unknownLength= */ false);
