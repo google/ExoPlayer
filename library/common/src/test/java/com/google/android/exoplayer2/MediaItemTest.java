@@ -307,6 +307,58 @@ public class MediaItemTest {
   }
 
   @Test
+  public void builderSetClippingProperties() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setClippingProperties(
+                new MediaItem.ClippingProperties.Builder()
+                    .setStartPositionMs(1000L)
+                    .setEndPositionMs(2000L)
+                    .setRelativeToLiveWindow(true)
+                    .setRelativeToDefaultPosition(true)
+                    .setStartsAtKeyFrame(true)
+                    .build())
+            .build();
+
+    assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(1000L);
+    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(2000L);
+    assertThat(mediaItem.clippingProperties.relativeToLiveWindow).isTrue();
+    assertThat(mediaItem.clippingProperties.relativeToDefaultPosition).isTrue();
+    assertThat(mediaItem.clippingProperties.startsAtKeyFrame).isTrue();
+  }
+
+  @Test
+  public void clippingPropertiesDefaults() {
+    MediaItem.ClippingProperties clippingProperties =
+        new MediaItem.ClippingProperties.Builder().build();
+
+    assertThat(clippingProperties.startPositionMs).isEqualTo(0L);
+    assertThat(clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(clippingProperties.relativeToLiveWindow).isFalse();
+    assertThat(clippingProperties.relativeToDefaultPosition).isFalse();
+    assertThat(clippingProperties.startsAtKeyFrame).isFalse();
+    assertThat(clippingProperties).isEqualTo(MediaItem.ClippingProperties.UNSET);
+  }
+
+  @Test
+  public void clippingPropertiesBuilder_throwsOnInvalidValues() {
+    MediaItem.ClippingProperties.Builder clippingPropertiesBuilder =
+        new MediaItem.ClippingProperties.Builder();
+    assertThrows(
+        IllegalArgumentException.class, () -> clippingPropertiesBuilder.setStartPositionMs(-1));
+    assertThrows(
+        IllegalArgumentException.class, () -> clippingPropertiesBuilder.setEndPositionMs(-1));
+
+    MediaItem.ClippingProperties clippingProperties = clippingPropertiesBuilder.build();
+
+    // Check neither of the setters succeeded in mutating the builder.
+    assertThat(clippingProperties.startPositionMs).isEqualTo(0L);
+    assertThat(clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter.
   public void builderSetStartPositionMs_setsStartPositionMs() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setClipStartPositionMs(1000L).build();
@@ -315,13 +367,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void builderSetStartPositionMs_zeroByDefault() {
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
-
-    assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(0);
-  }
-
-  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter.
   public void builderSetStartPositionMs_negativeValue_throws() {
     MediaItem.Builder builder = new MediaItem.Builder();
 
@@ -329,6 +375,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter.
   public void builderSetEndPositionMs_setsEndPositionMs() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setClipEndPositionMs(1000L).build();
@@ -337,13 +384,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void builderSetEndPositionMs_timeEndOfSourceByDefault() {
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
-
-    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
-  }
-
-  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter.
   public void builderSetEndPositionMs_timeEndOfSource_setsEndPositionMs() {
     MediaItem mediaItem =
         new MediaItem.Builder()
@@ -356,6 +397,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter.
   public void builderSetEndPositionMs_negativeValue_throws() {
     MediaItem.Builder builder = new MediaItem.Builder();
 
@@ -363,6 +405,7 @@ public class MediaItemTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated setter.
   public void builderSetClippingFlags_setsClippingFlags() {
     MediaItem mediaItem =
         new MediaItem.Builder()
@@ -561,11 +604,14 @@ public class MediaItemTest {
         new MediaItem.Builder()
             .setAdsConfiguration(
                 new MediaItem.AdsConfiguration.Builder(Uri.parse(URI_STRING)).build())
-            .setClipEndPositionMs(1000)
-            .setClipRelativeToDefaultPosition(true)
-            .setClipRelativeToLiveWindow(true)
-            .setClipStartPositionMs(100)
-            .setClipStartsAtKeyFrame(true)
+            .setClippingProperties(
+                new MediaItem.ClippingProperties.Builder()
+                    .setEndPositionMs(1000)
+                    .setRelativeToDefaultPosition(true)
+                    .setRelativeToLiveWindow(true)
+                    .setStartPositionMs(100)
+                    .setStartsAtKeyFrame(true)
+                    .build())
             .setCustomCacheKey("key")
             .setDrmConfiguration(
                 new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)

@@ -67,11 +67,9 @@ public final class MediaItem implements Bundleable {
     @Nullable private String mediaId;
     @Nullable private Uri uri;
     @Nullable private String mimeType;
-    private long clipStartPositionMs;
-    private long clipEndPositionMs;
-    private boolean clipRelativeToLiveWindow;
-    private boolean clipRelativeToDefaultPosition;
-    private boolean clipStartsAtKeyFrame;
+    // TODO: Change this to ClippingProperties once all the deprecated individual setters are
+    // removed.
+    private ClippingProperties.Builder clippingProperties;
     // TODO: Change this to @Nullable DrmConfiguration once all the deprecated individual setters
     // are removed.
     private DrmConfiguration.Builder drmConfiguration;
@@ -88,7 +86,7 @@ public final class MediaItem implements Bundleable {
     /** Creates a builder. */
     @SuppressWarnings("deprecation") // Temporarily uses DrmConfiguration.Builder() constructor.
     public Builder() {
-      clipEndPositionMs = C.TIME_END_OF_SOURCE;
+      clippingProperties = new ClippingProperties.Builder();
       drmConfiguration = new DrmConfiguration.Builder();
       streamKeys = Collections.emptyList();
       subtitles = Collections.emptyList();
@@ -97,11 +95,7 @@ public final class MediaItem implements Bundleable {
 
     private Builder(MediaItem mediaItem) {
       this();
-      clipEndPositionMs = mediaItem.clippingProperties.endPositionMs;
-      clipRelativeToLiveWindow = mediaItem.clippingProperties.relativeToLiveWindow;
-      clipRelativeToDefaultPosition = mediaItem.clippingProperties.relativeToDefaultPosition;
-      clipStartPositionMs = mediaItem.clippingProperties.startPositionMs;
-      clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
+      clippingProperties = mediaItem.clippingProperties.buildUpon();
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
       liveConfiguration = mediaItem.liveConfiguration.buildUpon();
@@ -168,52 +162,59 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
+    /** Sets the {@link ClippingProperties}, defaults to {@link ClippingProperties#UNSET}. */
+    public Builder setClippingProperties(ClippingProperties clippingProperties) {
+      this.clippingProperties = clippingProperties.buildUpon();
+      return this;
+    }
+
     /**
-     * Sets the optional start position in milliseconds which must be a value larger than or equal
-     * to zero (Default: 0).
+     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
+     *     ClippingProperties.Builder#setStartPositionMs(long)} instead.
      */
+    @Deprecated
     public Builder setClipStartPositionMs(@IntRange(from = 0) long startPositionMs) {
-      Assertions.checkArgument(startPositionMs >= 0);
-      this.clipStartPositionMs = startPositionMs;
+      clippingProperties.setStartPositionMs(startPositionMs);
       return this;
     }
 
     /**
-     * Sets the optional end position in milliseconds which must be a value larger than or equal to
-     * zero, or {@link C#TIME_END_OF_SOURCE} to end when playback reaches the end of media (Default:
-     * {@link C#TIME_END_OF_SOURCE}).
+     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
+     *     ClippingProperties.Builder#setEndPositionMs(long)} instead.
      */
+    @Deprecated
     public Builder setClipEndPositionMs(long endPositionMs) {
-      Assertions.checkArgument(endPositionMs == C.TIME_END_OF_SOURCE || endPositionMs >= 0);
-      this.clipEndPositionMs = endPositionMs;
+      clippingProperties.setEndPositionMs(endPositionMs);
       return this;
     }
 
     /**
-     * Sets whether the start/end positions should move with the live window for live streams. If
-     * {@code false}, live streams end when playback reaches the end position in live window seen
-     * when the media is first loaded (Default: {@code false}).
+     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
+     *     ClippingProperties.Builder#setRelativeToLiveWindow(boolean)} instead.
      */
+    @Deprecated
     public Builder setClipRelativeToLiveWindow(boolean relativeToLiveWindow) {
-      this.clipRelativeToLiveWindow = relativeToLiveWindow;
+      clippingProperties.setRelativeToLiveWindow(relativeToLiveWindow);
       return this;
     }
 
     /**
-     * Sets whether the start position and the end position are relative to the default position in
-     * the window (Default: {@code false}).
+     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
+     *     ClippingProperties.Builder#setRelativeToDefaultPosition(boolean)} instead.
      */
+    @Deprecated
     public Builder setClipRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
-      this.clipRelativeToDefaultPosition = relativeToDefaultPosition;
+      clippingProperties.setRelativeToDefaultPosition(relativeToDefaultPosition);
       return this;
     }
 
     /**
-     * Sets whether the start point is guaranteed to be a key frame. If {@code false}, the playback
-     * transition into the clip may not be seamless (Default: {@code false}).
+     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
+     *     ClippingProperties.Builder#setStartsAtKeyFrame(boolean)} instead.
      */
+    @Deprecated
     public Builder setClipStartsAtKeyFrame(boolean startsAtKeyFrame) {
-      this.clipStartsAtKeyFrame = startsAtKeyFrame;
+      clippingProperties.setStartsAtKeyFrame(startsAtKeyFrame);
       return this;
     }
 
@@ -503,12 +504,7 @@ public final class MediaItem implements Bundleable {
       }
       return new MediaItem(
           mediaId != null ? mediaId : DEFAULT_MEDIA_ID,
-          new ClippingProperties(
-              clipStartPositionMs,
-              clipEndPositionMs,
-              clipRelativeToLiveWindow,
-              clipRelativeToDefaultPosition,
-              clipStartsAtKeyFrame),
+          clippingProperties.build(),
           playbackProperties,
           liveConfiguration.build(),
           mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY);
@@ -1347,7 +1343,89 @@ public final class MediaItem implements Bundleable {
   /** Optionally clips the media item to a custom start and end position. */
   public static final class ClippingProperties implements Bundleable {
 
+    /** A clipping properties configuration with default values. */
+    public static final ClippingProperties UNSET = new ClippingProperties.Builder().build();
+
+    /** Builder for {@link ClippingProperties} instances. */
+    public static final class Builder {
+      private long startPositionMs;
+      private long endPositionMs;
+      private boolean relativeToLiveWindow;
+      private boolean relativeToDefaultPosition;
+      private boolean startsAtKeyFrame;
+
+      /** Constructs an instance. */
+      public Builder() {
+        endPositionMs = C.TIME_END_OF_SOURCE;
+      }
+
+      private Builder(ClippingProperties clippingProperties) {
+        startPositionMs = clippingProperties.startPositionMs;
+        endPositionMs = clippingProperties.endPositionMs;
+        relativeToLiveWindow = clippingProperties.relativeToLiveWindow;
+        relativeToDefaultPosition = clippingProperties.relativeToDefaultPosition;
+        startsAtKeyFrame = clippingProperties.startsAtKeyFrame;
+      }
+
+      /**
+       * Sets the optional start position in milliseconds which must be a value larger than or equal
+       * to zero (Default: 0).
+       */
+      public Builder setStartPositionMs(@IntRange(from = 0) long startPositionMs) {
+        Assertions.checkArgument(startPositionMs >= 0);
+        this.startPositionMs = startPositionMs;
+        return this;
+      }
+
+      /**
+       * Sets the optional end position in milliseconds which must be a value larger than or equal
+       * to zero, or {@link C#TIME_END_OF_SOURCE} to end when playback reaches the end of media
+       * (Default: {@link C#TIME_END_OF_SOURCE}).
+       */
+      public Builder setEndPositionMs(long endPositionMs) {
+        Assertions.checkArgument(endPositionMs == C.TIME_END_OF_SOURCE || endPositionMs >= 0);
+        this.endPositionMs = endPositionMs;
+        return this;
+      }
+
+      /**
+       * Sets whether the start/end positions should move with the live window for live streams. If
+       * {@code false}, live streams end when playback reaches the end position in live window seen
+       * when the media is first loaded (Default: {@code false}).
+       */
+      public Builder setRelativeToLiveWindow(boolean relativeToLiveWindow) {
+        this.relativeToLiveWindow = relativeToLiveWindow;
+        return this;
+      }
+
+      /**
+       * Sets whether the start position and the end position are relative to the default position
+       * in the window (Default: {@code false}).
+       */
+      public Builder setRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
+        this.relativeToDefaultPosition = relativeToDefaultPosition;
+        return this;
+      }
+
+      /**
+       * Sets whether the start point is guaranteed to be a key frame. If {@code false}, the
+       * playback transition into the clip may not be seamless (Default: {@code false}).
+       */
+      public Builder setStartsAtKeyFrame(boolean startsAtKeyFrame) {
+        this.startsAtKeyFrame = startsAtKeyFrame;
+        return this;
+      }
+
+      /**
+       * Returns a {@link ClippingProperties} instance initialized with the values of this builder.
+       */
+      public ClippingProperties build() {
+        return new ClippingProperties(this);
+      }
+    }
+
     /** The start position in milliseconds. This is a value larger than or equal to zero. */
+    @IntRange(from = 0)
     public final long startPositionMs;
 
     /**
@@ -1371,17 +1449,17 @@ public final class MediaItem implements Bundleable {
     /** Sets whether the start point is guaranteed to be a key frame. */
     public final boolean startsAtKeyFrame;
 
-    private ClippingProperties(
-        long startPositionMs,
-        long endPositionMs,
-        boolean relativeToLiveWindow,
-        boolean relativeToDefaultPosition,
-        boolean startsAtKeyFrame) {
-      this.startPositionMs = startPositionMs;
-      this.endPositionMs = endPositionMs;
-      this.relativeToLiveWindow = relativeToLiveWindow;
-      this.relativeToDefaultPosition = relativeToDefaultPosition;
-      this.startsAtKeyFrame = startsAtKeyFrame;
+    private ClippingProperties(Builder builder) {
+      this.startPositionMs = builder.startPositionMs;
+      this.endPositionMs = builder.endPositionMs;
+      this.relativeToLiveWindow = builder.relativeToLiveWindow;
+      this.relativeToDefaultPosition = builder.relativeToDefaultPosition;
+      this.startsAtKeyFrame = builder.startsAtKeyFrame;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     @Override
@@ -1445,13 +1523,20 @@ public final class MediaItem implements Bundleable {
     /** Object that can restore {@link ClippingProperties} from a {@link Bundle}. */
     public static final Creator<ClippingProperties> CREATOR =
         bundle ->
-            new ClippingProperties(
-                bundle.getLong(keyForField(FIELD_START_POSITION_MS), /* defaultValue= */ 0),
-                bundle.getLong(
-                    keyForField(FIELD_END_POSITION_MS), /* defaultValue= */ C.TIME_END_OF_SOURCE),
-                bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), false),
-                bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), false),
-                bundle.getBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), false));
+            new ClippingProperties.Builder()
+                .setStartPositionMs(
+                    bundle.getLong(keyForField(FIELD_START_POSITION_MS), /* defaultValue= */ 0))
+                .setEndPositionMs(
+                    bundle.getLong(
+                        keyForField(FIELD_END_POSITION_MS),
+                        /* defaultValue= */ C.TIME_END_OF_SOURCE))
+                .setRelativeToLiveWindow(
+                    bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), false))
+                .setRelativeToDefaultPosition(
+                    bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), false))
+                .setStartsAtKeyFrame(
+                    bundle.getBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), false))
+                .build();
 
     private static String keyForField(@ClippingProperties.FieldNumber int field) {
       return Integer.toString(field, Character.MAX_RADIX);
@@ -1589,13 +1674,7 @@ public final class MediaItem implements Bundleable {
     Bundle clippingPropertiesBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
     ClippingProperties clippingProperties;
     if (clippingPropertiesBundle == null) {
-      clippingProperties =
-          new ClippingProperties(
-              /* startPositionMs= */ 0,
-              /* endPositionMs= */ C.TIME_END_OF_SOURCE,
-              /* relativeToLiveWindow= */ false,
-              /* relativeToDefaultPosition= */ false,
-              /* startsAtKeyFrame= */ false);
+      clippingProperties = ClippingProperties.UNSET;
     } else {
       clippingProperties = ClippingProperties.CREATOR.fromBundle(clippingPropertiesBundle);
     }
