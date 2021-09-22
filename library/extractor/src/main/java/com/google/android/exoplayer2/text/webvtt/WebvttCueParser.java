@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import static com.google.android.exoplayer2.text.span.SpanUtil.addOrReplaceSpan;
 import static java.lang.Math.min;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -39,6 +38,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.SpanUtil;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -662,7 +662,7 @@ public final class WebvttCueParser {
       return;
     }
     if (style.getStyle() != WebvttCssStyle.UNSPECIFIED) {
-      addOrReplaceSpan(
+      SpanUtil.addOrReplaceSpan(
           spannedText,
           new StyleSpan(style.getStyle()),
           start,
@@ -676,7 +676,7 @@ public final class WebvttCueParser {
       spannedText.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasFontColor()) {
-      addOrReplaceSpan(
+      SpanUtil.addOrReplaceSpan(
           spannedText,
           new ForegroundColorSpan(style.getFontColor()),
           start,
@@ -684,7 +684,7 @@ public final class WebvttCueParser {
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasBackgroundColor()) {
-      addOrReplaceSpan(
+      SpanUtil.addOrReplaceSpan(
           spannedText,
           new BackgroundColorSpan(style.getBackgroundColor()),
           start,
@@ -692,7 +692,7 @@ public final class WebvttCueParser {
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.getFontFamily() != null) {
-      addOrReplaceSpan(
+      SpanUtil.addOrReplaceSpan(
           spannedText,
           new TypefaceSpan(style.getFontFamily()),
           start,
@@ -701,7 +701,7 @@ public final class WebvttCueParser {
     }
     switch (style.getFontSizeUnit()) {
       case WebvttCssStyle.FONT_SIZE_UNIT_PIXEL:
-        addOrReplaceSpan(
+        SpanUtil.addOrReplaceSpan(
             spannedText,
             new AbsoluteSizeSpan((int) style.getFontSize(), true),
             start,
@@ -709,7 +709,7 @@ public final class WebvttCueParser {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case WebvttCssStyle.FONT_SIZE_UNIT_EM:
-        addOrReplaceSpan(
+        SpanUtil.addOrReplaceSpan(
             spannedText,
             new RelativeSizeSpan(style.getFontSize()),
             start,
@@ -717,7 +717,7 @@ public final class WebvttCueParser {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case WebvttCssStyle.FONT_SIZE_UNIT_PERCENT:
-        addOrReplaceSpan(
+        SpanUtil.addOrReplaceSpan(
             spannedText,
             new RelativeSizeSpan(style.getFontSize() / 100),
             start,
