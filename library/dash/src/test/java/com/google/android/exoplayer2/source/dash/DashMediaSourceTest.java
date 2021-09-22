@@ -187,7 +187,11 @@ public final class DashMediaSourceTest {
   @Test
   public void factorySetFallbackTargetLiveOffsetMs_withMediaLiveTargetOffsetMs_usesMediaOffset() {
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(2L).build();
+        new MediaItem.Builder()
+            .setUri(Uri.EMPTY)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2L).build())
+            .build();
     DashMediaSource.Factory factory =
         new DashMediaSource.Factory(new FileDataSource.Factory())
             .setFallbackTargetLiveOffsetMs(1234L);
@@ -200,7 +204,11 @@ public final class DashMediaSourceTest {
   @Test
   public void factorySetLivePresentationDelayMs_withMediaLiveTargetOffset_usesMediaOffset() {
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(2L).build();
+        new MediaItem.Builder()
+            .setUri(Uri.EMPTY)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2L).build())
+            .build();
     DashMediaSource.Factory factory =
         new DashMediaSource.Factory(new FileDataSource.Factory())
             .setLivePresentationDelayMs(1234L, /* overridesManifest= */ true);
@@ -290,11 +298,14 @@ public final class DashMediaSourceTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.EMPTY)
-            .setLiveTargetOffsetMs(876L)
-            .setLiveMinPlaybackSpeed(23f)
-            .setLiveMaxPlaybackSpeed(42f)
-            .setLiveMinOffsetMs(500L)
-            .setLiveMaxOffsetMs(20_000L)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(876L)
+                    .setMinPlaybackSpeed(23f)
+                    .setMaxPlaybackSpeed(42f)
+                    .setMinOffsetMs(500L)
+                    .setMaxOffsetMs(20_000L)
+                    .build())
             .build();
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
@@ -336,11 +347,14 @@ public final class DashMediaSourceTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.EMPTY)
-            .setLiveTargetOffsetMs(876L)
-            .setLiveMinPlaybackSpeed(23f)
-            .setLiveMaxPlaybackSpeed(42f)
-            .setLiveMinOffsetMs(200L)
-            .setLiveMaxOffsetMs(999L)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(876L)
+                    .setMinPlaybackSpeed(23f)
+                    .setMaxPlaybackSpeed(42f)
+                    .setMinOffsetMs(200L)
+                    .setMaxOffsetMs(999L)
+                    .build())
             .build();
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
@@ -385,11 +399,14 @@ public final class DashMediaSourceTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.EMPTY)
-            .setLiveTargetOffsetMs(876L)
-            .setLiveMinPlaybackSpeed(23f)
-            .setLiveMaxPlaybackSpeed(42f)
-            .setLiveMinOffsetMs(100L)
-            .setLiveMaxOffsetMs(999L)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(876L)
+                    .setMinPlaybackSpeed(23f)
+                    .setMaxPlaybackSpeed(42f)
+                    .setMinOffsetMs(100L)
+                    .setMaxOffsetMs(999L)
+                    .build())
             .build();
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(

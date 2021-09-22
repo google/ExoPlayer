@@ -641,7 +641,7 @@ public final class HlsMediaSource extends BaseMediaSource
     long targetLiveOffsetMs = C.usToMs(targetLiveOffsetUs);
     if (targetLiveOffsetMs != liveConfiguration.targetOffsetMs) {
       liveConfiguration =
-          mediaItem.buildUpon().setLiveTargetOffsetMs(targetLiveOffsetMs).build().liveConfiguration;
+          liveConfiguration.buildUpon().setTargetOffsetMs(targetLiveOffsetMs).build();
     }
   }
 

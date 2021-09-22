@@ -264,11 +264,14 @@ public final class DefaultMediaSourceFactoryTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(URI_MEDIA + "/file.mp4")
-            .setLiveTargetOffsetMs(10)
-            .setLiveMinOffsetMs(1111)
-            .setLiveMinOffsetMs(3333)
-            .setLiveMinPlaybackSpeed(20.0f)
-            .setLiveMaxPlaybackSpeed(20.0f)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(10)
+                    .setMinOffsetMs(1111)
+                    .setMinOffsetMs(3333)
+                    .setMinPlaybackSpeed(20.0f)
+                    .setMaxPlaybackSpeed(20.0f)
+                    .build())
             .build();
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 

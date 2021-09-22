@@ -223,7 +223,8 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     /**
-     * @deprecated Use {@link MediaItem.Builder#setLiveTargetOffsetMs(long)} to override the
+     * @deprecated Use {@link MediaItem.Builder#setLiveConfiguration(MediaItem.LiveConfiguration)}
+     *     and {@link MediaItem.LiveConfiguration.Builder#setTargetOffsetMs(long)} to override the
      *     manifest, or {@link #setFallbackTargetLiveOffsetMs(long)} to provide a fallback value.
      */
     @Deprecated
@@ -321,7 +322,12 @@ public final class DashMediaSource extends BaseMediaSource {
         mediaItemBuilder.setTag(tag);
       }
       if (mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET) {
-        mediaItemBuilder.setLiveTargetOffsetMs(targetLiveOffsetOverrideMs);
+        mediaItemBuilder.setLiveConfiguration(
+            mediaItem
+                .liveConfiguration
+                .buildUpon()
+                .setTargetOffsetMs(targetLiveOffsetOverrideMs)
+                .build());
       }
       if (mediaItem.playbackProperties == null
           || mediaItem.playbackProperties.streamKeys.isEmpty()) {
@@ -393,7 +399,12 @@ public final class DashMediaSource extends BaseMediaSource {
           builder.setStreamKeys(streamKeys);
         }
         if (needsTargetLiveOffset) {
-          builder.setLiveTargetOffsetMs(targetLiveOffsetOverrideMs);
+          builder.setLiveConfiguration(
+              mediaItem
+                  .liveConfiguration
+                  .buildUpon()
+                  .setTargetOffsetMs(targetLiveOffsetOverrideMs)
+                  .build());
         }
         mediaItem = builder.build();
       }

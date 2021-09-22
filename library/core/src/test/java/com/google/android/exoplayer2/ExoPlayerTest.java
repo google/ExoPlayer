@@ -9101,7 +9101,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     Player.Listener mockListener = mock(Player.Listener.class);
     player.addListener(mockListener);
     player.pause();
@@ -9146,7 +9150,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     player.pause();
 
     player.seekTo(18_000);
@@ -9187,7 +9195,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     player.pause();
     player.setMediaSource(new FakeMediaSource(timeline));
     player.prepare();
@@ -9230,7 +9242,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     Timeline updatedTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -9244,7 +9260,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs + 50_000),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(4_000).build())
+                    .build()));
     FakeMediaSource fakeMediaSource = new FakeMediaSource(initialTimeline);
     player.pause();
     player.setMediaSource(fakeMediaSource);
@@ -9304,7 +9324,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 20 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     Player.Listener mockListener = mock(Player.Listener.class);
     player.addListener(mockListener);
     player.pause();
@@ -9353,7 +9377,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     player.pause();
     player.addMediaSource(new FakeMediaSource(nonLiveTimeline));
     player.addMediaSource(new FakeMediaSource(liveTimeline));
@@ -9393,7 +9421,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     Timeline liveTimeline2 =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -9407,7 +9439,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(4_000).build())
+                    .build()));
     player.pause();
     player.addMediaSource(new FakeMediaSource(liveTimeline1));
     player.addMediaSource(new FakeMediaSource(liveTimeline2));
@@ -9451,7 +9487,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(9_000).build())
+                    .build()));
     Timeline liveTimeline2 =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -9465,7 +9505,11 @@ public final class ExoPlayerTest {
                 /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
                 /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
                 AdPlaybackState.NONE,
-                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build()));
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(4_000).build())
+                    .build()));
     player.pause();
     player.addMediaSource(new FakeMediaSource(liveTimeline1));
     player.addMediaSource(new FakeMediaSource(liveTimeline2));
@@ -9492,7 +9536,11 @@ public final class ExoPlayerTest {
         new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
     ExoPlayer player = new TestExoPlayerBuilder(context).setClock(fakeClock).build();
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build();
+        new MediaItem.Builder()
+            .setUri(Uri.EMPTY)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(4_000).build())
+            .build();
     Timeline liveTimeline =
         new SinglePeriodTimeline(
             /* presentationStartTimeMs= */ C.TIME_UNSET,

@@ -106,7 +106,10 @@ SimpleExoPlayer player =
 MediaItem mediaItem =
     new MediaItem.Builder()
         .setUri(mediaUri)
-        .setLiveMaxPlaybackSpeed(1.02f)
+        .setLiveConfiguration(
+            new MediaItem.LiveConfiguration.Builder()
+                .setMaxPlaybackSpeed(1.02f)
+                .build())
         .build();
 player.setMediaItem(mediaItem);
 ~~~

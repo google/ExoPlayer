@@ -364,7 +364,11 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(3000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(3000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
@@ -439,7 +443,11 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(3000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(3000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
@@ -469,7 +477,11 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:05.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(1000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(1000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
@@ -502,7 +514,11 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:09.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(20_000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(20_000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
