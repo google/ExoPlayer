@@ -19,8 +19,9 @@ class CombinedJavadocPlugin implements Plugin<Project> {
   static final String JAVADOC_TASK_NAME = "generateCombinedJavadoc"
   static final String DACKKA_TASK_NAME = "generateCombinedDackka"
 
+  # Dackka snapshots are listed at https://androidx.dev/dackka/builds.
   static final String DACKKA_JAR_URL =
-      "https://androidx.dev/dackka/builds/7709825/artifacts/dackka-0.0.9.jar"
+      "https://androidx.dev/dackka/builds/7758117/artifacts/dackka-0.0.10.jar"
 
   @Override
   void apply(Project project) {
