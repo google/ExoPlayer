@@ -45,7 +45,7 @@ public class MediaItemTest {
 
     MediaItem mediaItem = MediaItem.fromUri(uri);
 
-    assertThat(mediaItem.playbackProperties.uri).isEqualTo(uri);
+    assertThat(mediaItem.localConfiguration.uri).isEqualTo(uri);
     assertThat(mediaItem.mediaMetadata).isNotNull();
   }
 
@@ -53,7 +53,7 @@ public class MediaItemTest {
   public void builderWithUriAsString_setsUri() {
     MediaItem mediaItem = MediaItem.fromUri(URI_STRING);
 
-    assertThat(mediaItem.playbackProperties.uri.toString()).isEqualTo(URI_STRING);
+    assertThat(mediaItem.localConfiguration.uri.toString()).isEqualTo(URI_STRING);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class MediaItemTest {
   public void builderSetMimeType_isNullByDefault() {
     MediaItem mediaItem = MediaItem.fromUri(URI_STRING);
 
-    assertThat(mediaItem.playbackProperties.mimeType).isNull();
+    assertThat(mediaItem.localConfiguration.mimeType).isNull();
   }
 
   @Test
@@ -75,14 +75,14 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setMimeType(MimeTypes.APPLICATION_MPD).build();
 
-    assertThat(mediaItem.playbackProperties.mimeType).isEqualTo(MimeTypes.APPLICATION_MPD);
+    assertThat(mediaItem.localConfiguration.mimeType).isEqualTo(MimeTypes.APPLICATION_MPD);
   }
 
   @Test
   public void builder_drmConfigIsNullByDefault() {
     // Null value by default.
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
-    assertThat(mediaItem.playbackProperties.drmConfiguration).isNull();
+    assertThat(mediaItem.localConfiguration.drmConfiguration).isNull();
   }
 
   @Test
@@ -105,20 +105,20 @@ public class MediaItemTest {
             .setDrmUuid(C.WIDEVINE_UUID)
             .build();
 
-    assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.scheme).isEqualTo(C.WIDEVINE_UUID);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
+    assertThat(mediaItem.localConfiguration.drmConfiguration).isNotNull();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.scheme).isEqualTo(C.WIDEVINE_UUID);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.licenseUri).isEqualTo(licenseUri);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.requestHeaders)
         .isEqualTo(requestHeaders);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseRequestHeaders)
+    assertThat(mediaItem.localConfiguration.drmConfiguration.licenseRequestHeaders)
         .isEqualTo(requestHeaders);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isTrue();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isTrue();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
+    assertThat(mediaItem.localConfiguration.drmConfiguration.multiSession).isTrue();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.forceDefaultLicenseUri).isTrue();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isTrue();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
   }
 
   @Test
@@ -142,17 +142,17 @@ public class MediaItemTest {
             .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.CLEARKEY_UUID).build())
             .build();
 
-    assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.scheme).isEqualTo(C.CLEARKEY_UUID);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.CLEARKEY_UUID);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isNull();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders).isEmpty();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseRequestHeaders).isEmpty();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isFalse();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isFalse();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isFalse();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes).isEmpty();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.getKeySetId()).isNull();
+    assertThat(mediaItem.localConfiguration.drmConfiguration).isNotNull();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.scheme).isEqualTo(C.CLEARKEY_UUID);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.uuid).isEqualTo(C.CLEARKEY_UUID);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.licenseUri).isNull();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.requestHeaders).isEmpty();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.licenseRequestHeaders).isEmpty();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.multiSession).isFalse();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.forceDefaultLicenseUri).isFalse();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isFalse();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes).isEmpty();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.getKeySetId()).isNull();
   }
 
   @Test
@@ -177,20 +177,20 @@ public class MediaItemTest {
                     .build())
             .build();
 
-    assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.scheme).isEqualTo(C.WIDEVINE_UUID);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
+    assertThat(mediaItem.localConfiguration.drmConfiguration).isNotNull();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.scheme).isEqualTo(C.WIDEVINE_UUID);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.licenseUri).isEqualTo(licenseUri);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.requestHeaders)
         .isEqualTo(requestHeaders);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.licenseRequestHeaders)
+    assertThat(mediaItem.localConfiguration.drmConfiguration.licenseRequestHeaders)
         .isEqualTo(requestHeaders);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isTrue();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isTrue();
-    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
+    assertThat(mediaItem.localConfiguration.drmConfiguration.multiSession).isTrue();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.forceDefaultLicenseUri).isTrue();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isTrue();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO);
-    assertThat(mediaItem.playbackProperties.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
   }
 
   @Test
@@ -206,7 +206,7 @@ public class MediaItemTest {
             .setDrmSessionForClearPeriods(true)
             .build();
 
-    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
+    assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO);
   }
 
@@ -242,7 +242,7 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setCustomCacheKey("key").build();
 
-    assertThat(mediaItem.playbackProperties.customCacheKey).isEqualTo("key");
+    assertThat(mediaItem.localConfiguration.customCacheKey).isEqualTo("key");
   }
 
   @Test
@@ -254,7 +254,7 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setStreamKeys(streamKeys).build();
 
-    assertThat(mediaItem.playbackProperties.streamKeys).isEqualTo(streamKeys);
+    assertThat(mediaItem.localConfiguration.streamKeys).isEqualTo(streamKeys);
   }
 
   @Test
@@ -287,14 +287,14 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setSubtitles(subtitles).build();
 
-    assertThat(mediaItem.playbackProperties.subtitles).isEqualTo(subtitles);
+    assertThat(mediaItem.localConfiguration.subtitles).isEqualTo(subtitles);
   }
 
   @Test
   public void builderSetTag_isNullByDefault() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
-    assertThat(mediaItem.playbackProperties.tag).isNull();
+    assertThat(mediaItem.localConfiguration.tag).isNull();
   }
 
   @Test
@@ -303,7 +303,7 @@ public class MediaItemTest {
 
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).setTag(tag).build();
 
-    assertThat(mediaItem.playbackProperties.tag).isEqualTo(tag);
+    assertThat(mediaItem.localConfiguration.tag).isEqualTo(tag);
   }
 
   @Test
@@ -430,8 +430,8 @@ public class MediaItemTest {
             .setAdsConfiguration(new MediaItem.AdsConfiguration.Builder(adTagUri).build())
             .build();
 
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isNull();
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adsId).isNull();
   }
 
   @Test
@@ -445,8 +445,8 @@ public class MediaItemTest {
             .setAdsConfiguration(
                 new MediaItem.AdsConfiguration.Builder(adTagUri).setAdsId(adsId).build())
             .build();
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isEqualTo(adsId);
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adsId).isEqualTo(adsId);
   }
 
   @Test
@@ -456,8 +456,8 @@ public class MediaItemTest {
 
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri).build();
 
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isNull();
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adsId).isNull();
   }
 
   @Test
@@ -469,8 +469,8 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri, adsId).build();
 
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isEqualTo(adsId);
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.localConfiguration.adsConfiguration.adsId).isEqualTo(adsId);
   }
 
   @Test
@@ -596,6 +596,7 @@ public class MediaItemTest {
     MediaItem copy = mediaItem.buildUpon().build();
 
     assertThat(copy).isEqualTo(mediaItem);
+    assertThat(copy.localConfiguration).isEqualTo(mediaItem.playbackProperties);
   }
 
   @Test
@@ -674,7 +675,7 @@ public class MediaItemTest {
             .setClipStartsAtKeyFrame(true)
             .build();
 
-    assertThat(mediaItem.playbackProperties).isNull();
+    assertThat(mediaItem.localConfiguration).isNull();
     assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle())).isEqualTo(mediaItem);
   }
 
@@ -682,7 +683,7 @@ public class MediaItemTest {
   public void roundTripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
-    assertThat(mediaItem.playbackProperties).isNotNull();
-    assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle()).playbackProperties).isNull();
+    assertThat(mediaItem.localConfiguration).isNotNull();
+    assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle()).localConfiguration).isNull();
   }
 }

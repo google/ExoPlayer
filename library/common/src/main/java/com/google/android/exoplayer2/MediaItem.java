@@ -99,19 +99,19 @@ public final class MediaItem implements Bundleable {
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
       liveConfiguration = mediaItem.liveConfiguration.buildUpon();
-      @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
-      if (playbackProperties != null) {
-        customCacheKey = playbackProperties.customCacheKey;
-        mimeType = playbackProperties.mimeType;
-        uri = playbackProperties.uri;
-        streamKeys = playbackProperties.streamKeys;
-        subtitles = playbackProperties.subtitles;
-        tag = playbackProperties.tag;
+      @Nullable LocalConfiguration localConfiguration = mediaItem.localConfiguration;
+      if (localConfiguration != null) {
+        customCacheKey = localConfiguration.customCacheKey;
+        mimeType = localConfiguration.mimeType;
+        uri = localConfiguration.uri;
+        streamKeys = localConfiguration.streamKeys;
+        subtitles = localConfiguration.subtitles;
+        tag = localConfiguration.tag;
         drmConfiguration =
-            playbackProperties.drmConfiguration != null
-                ? playbackProperties.drmConfiguration.buildUpon()
+            localConfiguration.drmConfiguration != null
+                ? localConfiguration.drmConfiguration.buildUpon()
                 : new DrmConfiguration.Builder();
-        adsConfiguration = playbackProperties.adsConfiguration;
+        adsConfiguration = localConfiguration.adsConfiguration;
       }
     }
 
@@ -128,9 +128,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional URI.
      *
-     * <p>If {@code uri} is null or unset then no {@link PlaybackProperties} object is created
+     * <p>If {@code uri} is null or unset then no {@link LocalConfiguration} object is created
      * during {@link #build()} and no other {@code Builder} methods that would populate {@link
-     * MediaItem#playbackProperties} should be called.
+     * MediaItem#localConfiguration} should be called.
      */
     public Builder setUri(@Nullable String uri) {
       return setUri(uri == null ? null : Uri.parse(uri));
@@ -139,9 +139,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional URI.
      *
-     * <p>If {@code uri} is null or unset then no {@link PlaybackProperties} object is created
+     * <p>If {@code uri} is null or unset then no {@link LocalConfiguration} object is created
      * during {@link #build()} and no other {@code Builder} methods that would populate {@link
-     * MediaItem#playbackProperties} should be called.
+     * MediaItem#localConfiguration} should be called.
      */
     public Builder setUri(@Nullable Uri uri) {
       this.uri = uri;
@@ -334,7 +334,7 @@ public final class MediaItem implements Bundleable {
      * <p>{@code null} or an empty {@link List} can be used for a reset.
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the stream keys are used to create a
-     * {@link PlaybackProperties} object. Otherwise they will be ignored.
+     * {@link LocalConfiguration} object. Otherwise they will be ignored.
      */
     public Builder setStreamKeys(@Nullable List<StreamKey> streamKeys) {
       this.streamKeys =
@@ -485,13 +485,14 @@ public final class MediaItem implements Bundleable {
     }
 
     /** Returns a new {@link MediaItem} instance with the current builder values. */
+    @SuppressWarnings("deprecation") // Using PlaybackProperties while it exists.
     public MediaItem build() {
       // TODO: remove this check once all the deprecated individual DRM setters are removed.
       checkState(drmConfiguration.licenseUri == null || drmConfiguration.scheme != null);
-      @Nullable PlaybackProperties playbackProperties = null;
+      @Nullable PlaybackProperties localConfiguration = null;
       @Nullable Uri uri = this.uri;
       if (uri != null) {
-        playbackProperties =
+        localConfiguration =
             new PlaybackProperties(
                 uri,
                 mimeType,
@@ -505,7 +506,7 @@ public final class MediaItem implements Bundleable {
       return new MediaItem(
           mediaId != null ? mediaId : DEFAULT_MEDIA_ID,
           clippingProperties.build(),
-          playbackProperties,
+          localConfiguration,
           liveConfiguration.build(),
           mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY);
     }
@@ -861,7 +862,8 @@ public final class MediaItem implements Bundleable {
   }
 
   /** Properties for local playback. */
-  public static final class PlaybackProperties {
+  // TODO: Mark this final when PlaybackProperties is deleted.
+  public static class LocalConfiguration {
 
     /** The {@link Uri}. */
     public final Uri uri;
@@ -896,7 +898,7 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Object tag;
 
-    private PlaybackProperties(
+    private LocalConfiguration(
         Uri uri,
         @Nullable String mimeType,
         @Nullable DrmConfiguration drmConfiguration,
@@ -920,10 +922,10 @@ public final class MediaItem implements Bundleable {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof PlaybackProperties)) {
+      if (!(obj instanceof LocalConfiguration)) {
         return false;
       }
-      PlaybackProperties other = (PlaybackProperties) obj;
+      LocalConfiguration other = (LocalConfiguration) obj;
 
       return uri.equals(other.uri)
           && Util.areEqual(mimeType, other.mimeType)
@@ -946,6 +948,31 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + subtitles.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
       return result;
+    }
+  }
+
+  /** @deprecated Use {@link LocalConfiguration}. */
+  @Deprecated
+  public static final class PlaybackProperties extends LocalConfiguration {
+
+    private PlaybackProperties(
+        Uri uri,
+        @Nullable String mimeType,
+        @Nullable DrmConfiguration drmConfiguration,
+        @Nullable AdsConfiguration adsConfiguration,
+        List<StreamKey> streamKeys,
+        @Nullable String customCacheKey,
+        List<Subtitle> subtitles,
+        @Nullable Object tag) {
+      super(
+          uri,
+          mimeType,
+          drmConfiguration,
+          adsConfiguration,
+          streamKeys,
+          customCacheKey,
+          subtitles,
+          tag);
     }
   }
 
@@ -1555,8 +1582,13 @@ public final class MediaItem implements Bundleable {
   /** Identifies the media item. */
   public final String mediaId;
 
-  /** Optional playback properties. May be {@code null} if shared over process boundaries. */
-  @Nullable public final PlaybackProperties playbackProperties;
+  /**
+   * Optional configuration for local playback. May be {@code null} if shared over process
+   * boundaries.
+   */
+  @Nullable public final LocalConfiguration localConfiguration;
+  /** @deprecated Use {@link #localConfiguration} instead. */
+  @Deprecated @Nullable public final PlaybackProperties playbackProperties;
 
   /** The live playback configuration. */
   public final LiveConfiguration liveConfiguration;
@@ -1567,14 +1599,16 @@ public final class MediaItem implements Bundleable {
   /** The clipping properties. */
   public final ClippingProperties clippingProperties;
 
+  @SuppressWarnings("deprecation") // Using PlaybackProperties until it's deleted.
   private MediaItem(
       String mediaId,
       ClippingProperties clippingProperties,
-      @Nullable PlaybackProperties playbackProperties,
+      @Nullable PlaybackProperties localConfiguration,
       LiveConfiguration liveConfiguration,
       MediaMetadata mediaMetadata) {
     this.mediaId = mediaId;
-    this.playbackProperties = playbackProperties;
+    this.localConfiguration = localConfiguration;
+    this.playbackProperties = localConfiguration;
     this.liveConfiguration = liveConfiguration;
     this.mediaMetadata = mediaMetadata;
     this.clippingProperties = clippingProperties;
@@ -1598,7 +1632,7 @@ public final class MediaItem implements Bundleable {
 
     return Util.areEqual(mediaId, other.mediaId)
         && clippingProperties.equals(other.clippingProperties)
-        && Util.areEqual(playbackProperties, other.playbackProperties)
+        && Util.areEqual(localConfiguration, other.localConfiguration)
         && Util.areEqual(liveConfiguration, other.liveConfiguration)
         && Util.areEqual(mediaMetadata, other.mediaMetadata);
   }
@@ -1606,7 +1640,7 @@ public final class MediaItem implements Bundleable {
   @Override
   public int hashCode() {
     int result = mediaId.hashCode();
-    result = 31 * result + (playbackProperties != null ? playbackProperties.hashCode() : 0);
+    result = 31 * result + (localConfiguration != null ? localConfiguration.hashCode() : 0);
     result = 31 * result + liveConfiguration.hashCode();
     result = 31 * result + clippingProperties.hashCode();
     result = 31 * result + mediaMetadata.hashCode();
@@ -1633,7 +1667,7 @@ public final class MediaItem implements Bundleable {
   /**
    * {@inheritDoc}
    *
-   * <p>It omits the {@link #playbackProperties} field. The {@link #playbackProperties} of an
+   * <p>It omits the {@link #localConfiguration} field. The {@link #localConfiguration} of an
    * instance restored by {@link #CREATOR} will always be {@code null}.
    */
   @Override
@@ -1649,7 +1683,7 @@ public final class MediaItem implements Bundleable {
   /**
    * Object that can restore {@link MediaItem} from a {@link Bundle}.
    *
-   * <p>The {@link #playbackProperties} of a restored instance will always be {@code null}.
+   * <p>The {@link #localConfiguration} of a restored instance will always be {@code null}.
    */
   public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
 
