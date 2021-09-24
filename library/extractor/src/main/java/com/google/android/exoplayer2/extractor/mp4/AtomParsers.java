@@ -1130,7 +1130,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         initializationData = avcConfig.initializationData;
         out.nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
         if (!pixelWidthHeightRatioFromPasp) {
-          pixelWidthHeightRatio = avcConfig.pixelWidthAspectRatio;
+          pixelWidthHeightRatio = avcConfig.pixelWidthHeightRatio;
         }
         codecs = avcConfig.codecs;
       } else if (childAtomType == Atom.TYPE_hvcC) {
@@ -1140,6 +1140,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         HevcConfig hevcConfig = HevcConfig.parse(parent);
         initializationData = hevcConfig.initializationData;
         out.nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
+        if (!pixelWidthHeightRatioFromPasp) {
+          pixelWidthHeightRatio = hevcConfig.pixelWidthHeightRatio;
+        }
         codecs = hevcConfig.codecs;
       } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
         @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);

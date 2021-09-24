@@ -27,6 +27,9 @@
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
         `Player.addListener`.
+*   Extractors:
+    *   MP4: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
+    *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
 *   Downloads and caching:
     *   Modify `DownloadService` behavior when `DownloadService.getScheduler`
         returns `null`, or returns a `Scheduler` that does not support the

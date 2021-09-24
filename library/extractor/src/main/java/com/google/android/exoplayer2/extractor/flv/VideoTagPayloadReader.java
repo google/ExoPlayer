@@ -92,7 +92,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
               .setCodecs(avcConfig.codecs)
               .setWidth(avcConfig.width)
               .setHeight(avcConfig.height)
-              .setPixelWidthHeightRatio(avcConfig.pixelWidthAspectRatio)
+              .setPixelWidthHeightRatio(avcConfig.pixelWidthHeightRatio)
               .setInitializationData(avcConfig.initializationData)
               .build();
       output.format(format);

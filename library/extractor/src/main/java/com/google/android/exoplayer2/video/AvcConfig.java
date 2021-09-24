@@ -28,13 +28,6 @@ import java.util.List;
 /** AVC configuration data. */
 public final class AvcConfig {
 
-  public final List<byte[]> initializationData;
-  public final int nalUnitLengthFieldLength;
-  public final int width;
-  public final int height;
-  public final float pixelWidthAspectRatio;
-  @Nullable public final String codecs;
-
   /**
    * Parses AVC configuration data.
    *
@@ -62,7 +55,7 @@ public final class AvcConfig {
 
       int width = Format.NO_VALUE;
       int height = Format.NO_VALUE;
-      float pixelWidthAspectRatio = 1;
+      float pixelWidthHeightRatio = 1;
       @Nullable String codecs = null;
       if (numSequenceParameterSets > 0) {
         byte[] sps = initializationData.get(0);
@@ -71,7 +64,7 @@ public final class AvcConfig {
                 initializationData.get(0), nalUnitLengthFieldLength, sps.length);
         width = spsData.width;
         height = spsData.height;
-        pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
+        pixelWidthHeightRatio = spsData.pixelWidthHeightRatio;
         codecs =
             CodecSpecificDataUtil.buildAvcCodecString(
                 spsData.profileIdc, spsData.constraintsFlagsAndReservedZero2Bits, spsData.levelIdc);
@@ -82,25 +75,51 @@ public final class AvcConfig {
           nalUnitLengthFieldLength,
           width,
           height,
-          pixelWidthAspectRatio,
+          pixelWidthHeightRatio,
           codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw ParserException.createForMalformedContainer("Error parsing AVC config", e);
     }
   }
 
+  /**
+   * List of buffers containing the codec-specific data to be provided to the decoder.
+   *
+   * @see com.google.android.exoplayer2.Format#initializationData
+   */
+  public final List<byte[]> initializationData;
+
+  /** The length of the NAL unit length field in the bitstream's container, in bytes. */
+  public final int nalUnitLengthFieldLength;
+
+  /** The width of each decoded frame, or {@link Format#NO_VALUE} if unknown. */
+  public final int width;
+
+  /** The height of each decoded frame, or {@link Format#NO_VALUE} if unknown. */
+  public final int height;
+
+  /** The pixel width to height ratio. */
+  public final float pixelWidthHeightRatio;
+
+  /**
+   * An RFC 6381 codecs string representing the video format, or {@code null} if not known.
+   *
+   * @see com.google.android.exoplayer2.Format#codecs
+   */
+  @Nullable public final String codecs;
+
   private AvcConfig(
       List<byte[]> initializationData,
       int nalUnitLengthFieldLength,
       int width,
       int height,
-      float pixelWidthAspectRatio,
+      float pixelWidthHeightRatio,
       @Nullable String codecs) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.width = width;
     this.height = height;
-    this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+    this.pixelWidthHeightRatio = pixelWidthHeightRatio;
     this.codecs = codecs;
   }
 

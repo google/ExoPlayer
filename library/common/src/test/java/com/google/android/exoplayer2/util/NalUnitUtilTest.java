@@ -131,7 +131,7 @@ public final class NalUnitUtilTest {
     assertThat(data.frameNumLength).isEqualTo(4);
     assertThat(data.picOrderCntLsbLength).isEqualTo(6);
     assertThat(data.seqParameterSetId).isEqualTo(0);
-    assertThat(data.pixelWidthAspectRatio).isEqualTo(1.0f);
+    assertThat(data.pixelWidthHeightRatio).isEqualTo(1.0f);
     assertThat(data.picOrderCountType).isEqualTo(0);
     assertThat(data.separateColorPlaneFlag).isFalse();
   }
