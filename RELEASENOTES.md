@@ -14,6 +14,10 @@
     *   Move `Player.addListener(EventListener)` and
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
 *   Android 12 compatibility:
+    *   Keep `DownloadService` started and in the foreground whilst waiting for
+        requirements to be met on Android 12. This is necessary due to new
+        [foreground service launch restrictions](https://developer.android.com/about/versions/12/foreground-services).
+        `DownloadService.getScheduler` will not be called on Android 12 devices.
     *   Disable platform transcoding when playing content URIs on Android 12.
     *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
         calls from the player to `Surface.setFrameRate`. This is useful for
@@ -23,6 +27,14 @@
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
         `Player.addListener`.
+*   Downloads and caching:
+    *   Modify `DownloadService` behavior when `DownloadService.getScheduler`
+        returns `null`, or returns a `Scheduler` that does not support the
+        requirements for downloads to continue. In both cases, `DownloadService`
+        will now remain started and in the foreground whilst waiting for
+        requirements to be met.
+    *   Modify `DownlaodService` behavior when running on Android 12 and above.
+        See the "Android 12 compatibility" section above.
 *   RTSP:
     *   Support RFC4566 SDP attribute field grammar
         ([#9430](https://github.com/google/ExoPlayer/issues/9430)).
