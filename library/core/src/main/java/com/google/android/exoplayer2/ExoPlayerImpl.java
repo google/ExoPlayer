@@ -1265,7 +1265,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 .windowIndex;
         mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
       }
-      newMediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
+      mediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
     }
     if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       newMediaMetadata =
