@@ -2306,6 +2306,16 @@ public final class Util {
   }
 
   /**
+   * Returns whether the app is running on an Automotive device.
+   *
+   * @param context Any context.
+   * @return Whether the app is running on an Automotive device.
+   */
+  public static boolean isAutomotive(Context context) {
+    return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
+  }
+
+  /**
    * Gets the size of the current mode of the default display, in pixels.
    *
    * <p>Note that due to application UI scaling, the number of pixels made available to applications
