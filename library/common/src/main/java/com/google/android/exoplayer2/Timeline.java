@@ -17,6 +17,8 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +30,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleUtil;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -1156,7 +1159,9 @@ public abstract class Timeline implements Bundleable {
   }
 
   /**
-   * Converts (windowIndex, windowPositionUs) to the corresponding (periodUid, periodPositionUs).
+   * Converts {@code (windowIndex, windowPositionUs)} to the corresponding {@code (periodUid,
+   * periodPositionUs)}. The returned {@code periodPositionUs} is constrained to be non-negative,
+   * and to be less than the containing period's duration if it is known.
    *
    * @param window A {@link Window} that may be overwritten.
    * @param period A {@link Period} that may be overwritten.
@@ -1193,6 +1198,15 @@ public abstract class Timeline implements Bundleable {
     }
     getPeriod(periodIndex, period, /* setIds= */ true);
     long periodPositionUs = windowPositionUs - period.positionInWindowUs;
+    // The period positions must be less than the period duration, if it is known.
+    if (period.durationUs != C.TIME_UNSET) {
+      periodPositionUs = min(periodPositionUs, period.durationUs - 1);
+    }
+    // Period positions cannot be negative.
+    periodPositionUs = max(0, periodPositionUs);
+    if (periodPositionUs == 9) {
+      Log.e("XXX", "YYY");
+    }
     return Pair.create(Assertions.checkNotNull(period.uid), periodPositionUs);
   }
 

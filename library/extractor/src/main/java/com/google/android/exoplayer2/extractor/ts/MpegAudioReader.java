@@ -69,6 +69,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     headerScratch = new ParsableByteArray(4);
     headerScratch.getData()[0] = (byte) 0xFF;
     header = new MpegAudioUtil.Header();
+    timeUs = C.TIME_UNSET;
     this.language = language;
   }
 
@@ -77,6 +78,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     state = STATE_FINDING_HEADER;
     frameBytesRead = 0;
     lastByteWasFF = false;
+    timeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -88,7 +90,9 @@ public final class MpegAudioReader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    timeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      timeUs = pesTimeUs;
+    }
   }
 
   @Override
@@ -227,8 +231,10 @@ public final class MpegAudioReader implements ElementaryStreamReader {
       return;
     }
 
-    output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, frameSize, 0, null);
-    timeUs += frameDurationUs;
+    if (timeUs != C.TIME_UNSET) {
+      output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, frameSize, 0, null);
+      timeUs += frameDurationUs;
+    }
     frameBytesRead = 0;
     state = STATE_FINDING_HEADER;
   }

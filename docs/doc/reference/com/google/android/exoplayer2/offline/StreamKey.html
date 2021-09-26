@@ -136,11 +136,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public final class <span class="typeNameLabel">StreamKey</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;<a href="StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;, <a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></pre>
-<div class="block">A key for a subset of media which can be separately loaded (a "stream").
+<div class="block">A key for a subset of media that can be separately loaded (a "stream").
 
- <p>The stream key consists of a period index, a group index within the period and a track index
+ <p>The stream key consists of a period index, a group index within the period and a stream index
  within the group. The interpretation of these indices depends on the type of media for which the
- stream key is used.</div>
+ stream key is used. Note that they are <em>not</em> the same as track group and track indices,
+ because multiple tracks can be multiplexed into a single stream.
+
+ <p>Application code should not generally attempt to build StreamKey instances directly. Instead,
+ <code>DownloadHelper.getDownloadRequest</code> can be used to generate download requests with the
+ correct StreamKeys for the track selections that have been configured on the helper. <code>
+ MediaPeriod.getStreamKeys</code> provides a lower level way of generating StreamKeys corresponding to a
+ particular track selection.</div>
 </li>
 </ul>
 </div>
@@ -199,9 +206,18 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#streamIndex">streamIndex</a></span></code></th>
+<td class="colLast">
+<div class="block">The stream index.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackIndex">trackIndex</a></span></code></th>
 <td class="colLast">
-<div class="block">The track index.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#streamIndex"><code>streamIndex</code></a>.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -230,14 +246,18 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int)">StreamKey</a></span>&#8203;(int&nbsp;groupIndex,
-         int&nbsp;trackIndex)</code></th>
-<td class="colLast">&nbsp;</td>
+         int&nbsp;streamIndex)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance with <a href="#periodIndex"><code>periodIndex</code></a> set to 0.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int)">StreamKey</a></span>&#8203;(int&nbsp;periodIndex,
          int&nbsp;groupIndex,
-         int&nbsp;trackIndex)</code></th>
-<td class="colLast">&nbsp;</td>
+         int&nbsp;streamIndex)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -332,14 +352,27 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <div class="block">The group index.</div>
 </li>
 </ul>
+<a id="streamIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>streamIndex</h4>
+<pre>public final&nbsp;int streamIndex</pre>
+<div class="block">The stream index.</div>
+</li>
+</ul>
 <a id="trackIndex">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>trackIndex</h4>
-<pre>public final&nbsp;int trackIndex</pre>
-<div class="block">The track index.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;int trackIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#streamIndex"><code>streamIndex</code></a>.</div>
+</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -368,11 +401,12 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <li class="blockList">
 <h4>StreamKey</h4>
 <pre>public&nbsp;StreamKey&#8203;(int&nbsp;groupIndex,
-                 int&nbsp;trackIndex)</pre>
+                 int&nbsp;streamIndex)</pre>
+<div class="block">Creates an instance with <a href="#periodIndex"><code>periodIndex</code></a> set to 0.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>groupIndex</code> - The group index.</dd>
-<dd><code>trackIndex</code> - The track index.</dd>
+<dd><code>streamIndex</code> - The stream index.</dd>
 </dl>
 </li>
 </ul>
@@ -384,12 +418,13 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <h4>StreamKey</h4>
 <pre>public&nbsp;StreamKey&#8203;(int&nbsp;periodIndex,
                  int&nbsp;groupIndex,
-                 int&nbsp;trackIndex)</pre>
+                 int&nbsp;streamIndex)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>periodIndex</code> - The period index.</dd>
 <dd><code>groupIndex</code> - The group index.</dd>
-<dd><code>trackIndex</code> - The track index.</dd>
+<dd><code>streamIndex</code> - The stream index.</dd>
 </dl>
 </li>
 </ul>

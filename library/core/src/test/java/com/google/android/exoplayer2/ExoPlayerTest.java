@@ -3660,7 +3660,7 @@ public final class ExoPlayerTest {
     Timeline fakeTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
-                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000));
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000_000));
     final ConcatenatingMediaSource underlyingSource = new ConcatenatingMediaSource();
     CompositeMediaSource<Void> delegatingMediaSource =
         new CompositeMediaSource<Void>() {
@@ -5413,7 +5413,7 @@ public final class ExoPlayerTest {
     Timeline fakeTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
-                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000));
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000_000));
     ConcatenatingMediaSource concatenatingMediaSource =
         new ConcatenatingMediaSource(
             /* isAtomic= */ false,
@@ -5452,7 +5452,7 @@ public final class ExoPlayerTest {
     Timeline fakeTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
-                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000));
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000_000));
     ConcatenatingMediaSource concatenatingMediaSource =
         new ConcatenatingMediaSource(/* isAtomic= */ false);
     int[] currentWindowIndices = new int[2];
@@ -5523,7 +5523,7 @@ public final class ExoPlayerTest {
     Timeline fakeTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
-                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000));
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 10_000_000));
     ConcatenatingMediaSource concatenatingMediaSource =
         new ConcatenatingMediaSource(/* isAtomic= */ false);
     int[] currentWindowIndices = new int[2];
@@ -10570,7 +10570,7 @@ public final class ExoPlayerTest {
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
     player.seekForward();
 
-    assertThat(player.getCurrentPosition()).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2);
+    assertThat(player.getCurrentPosition()).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS / 2 - 1);
 
     player.release();
   }

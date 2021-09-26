@@ -94,18 +94,18 @@ import java.util.regex.Pattern;
 
   // Session header pattern, see RFC2326 Sections 3.4 and 12.37.
   private static final Pattern SESSION_HEADER_PATTERN =
-      Pattern.compile("([\\w$-_.+]+)(?:;\\s?timeout=(\\d+))?");
+      Pattern.compile("([\\w$\\-_.+]+)(?:;\\s?timeout=(\\d+))?");
 
   // WWW-Authenticate header pattern, see RFC2068 Sections 14.46 and RFC2069.
   private static final Pattern WWW_AUTHENTICATION_HEADER_DIGEST_PATTERN =
       Pattern.compile(
-          "Digest realm=\"([\\w\\s@.]+)\""
-              + ",\\s?(?:domain=\"(.+)\",\\s?)?"
-              + "nonce=\"(\\w+)\""
-              + "(?:,\\s?opaque=\"(\\w+)\")?");
+          "Digest realm=\"([^\"\\x00-\\x08\\x0A-\\x1f\\x7f]+)\""
+              + ",\\s?(?:domain=\"(.+)\""
+              + ",\\s?)?nonce=\"([^\"\\x00-\\x08\\x0A-\\x1f\\x7f]+)\""
+              + "(?:,\\s?opaque=\"([^\"\\x00-\\x08\\x0A-\\x1f\\x7f]+)\")?");
   // WWW-Authenticate header pattern, see RFC2068 Section 11.1 and RFC2069.
   private static final Pattern WWW_AUTHENTICATION_HEADER_BASIC_PATTERN =
-      Pattern.compile("Basic realm=\"([\\w\\s@.]+)\"");
+      Pattern.compile("Basic realm=\"([^\"\\x00-\\x08\\x0A-\\x1f\\x7f]+)\"");
 
   private static final String RTSP_VERSION = "RTSP/1.0";
   private static final String LF = new String(new byte[] {Ascii.LF});

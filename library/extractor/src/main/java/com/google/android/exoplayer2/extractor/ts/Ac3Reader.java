@@ -85,6 +85,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
+    timeUs = C.TIME_UNSET;
     this.language = language;
   }
 
@@ -93,6 +94,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
     state = STATE_FINDING_SYNC;
     bytesRead = 0;
     lastByteWas0B = false;
+    timeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -104,7 +106,9 @@ public final class Ac3Reader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    timeUs = pesTimeUs;
+    if (pesTimeUs != C.TIME_UNSET) {
+      timeUs = pesTimeUs;
+    }
   }
 
   @Override
@@ -133,8 +137,10 @@ public final class Ac3Reader implements ElementaryStreamReader {
           output.sampleData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
-            output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
-            timeUs += sampleDurationUs;
+            if (timeUs != C.TIME_UNSET) {
+              output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+              timeUs += sampleDurationUs;
+            }
             state = STATE_FINDING_SYNC;
           }
           break;

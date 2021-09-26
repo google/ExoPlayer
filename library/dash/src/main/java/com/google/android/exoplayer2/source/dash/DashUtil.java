@@ -46,20 +46,20 @@ public final class DashUtil {
   /**
    * Builds a {@link DataSpec} for a given {@link RangedUri} belonging to {@link Representation}.
    *
+   * @param representation The {@link Representation} to which the request belongs.
    * @param baseUrl The base url with which to resolve the request URI.
    * @param requestUri The {@link RangedUri} of the data to request.
-   * @param cacheKey An optional cache key.
    * @param flags Flags to be set on the returned {@link DataSpec}. See {@link
    *     DataSpec.Builder#setFlags(int)}.
    * @return The {@link DataSpec}.
    */
   public static DataSpec buildDataSpec(
-      String baseUrl, RangedUri requestUri, @Nullable String cacheKey, int flags) {
+      Representation representation, String baseUrl, RangedUri requestUri, int flags) {
     return new DataSpec.Builder()
         .setUri(requestUri.resolveUri(baseUrl))
         .setPosition(requestUri.start)
         .setLength(requestUri.length)
-        .setKey(cacheKey)
+        .setKey(resolveCacheKey(representation, requestUri))
         .setFlags(flags)
         .build();
   }
@@ -77,8 +77,7 @@ public final class DashUtil {
    */
   public static DataSpec buildDataSpec(
       Representation representation, RangedUri requestUri, int flags) {
-    return buildDataSpec(
-        representation.baseUrls.get(0).url, requestUri, representation.getCacheKey(), flags);
+    return buildDataSpec(representation, representation.baseUrls.get(0).url, requestUri, flags);
   }
 
   /**
@@ -289,9 +288,9 @@ public final class DashUtil {
       throws IOException {
     DataSpec dataSpec =
         DashUtil.buildDataSpec(
+            representation,
             representation.baseUrls.get(baseUrlIndex).url,
             requestUri,
-            representation.getCacheKey(),
             /* flags= */ 0);
     InitializationChunk initializationChunk =
         new InitializationChunk(
@@ -302,6 +301,21 @@ public final class DashUtil {
             null /* trackSelectionData */,
             chunkExtractor);
     initializationChunk.load();
+  }
+
+  /**
+   * Resolves the cache key to be used when requesting the given ranged URI for the given {@link
+   * Representation}.
+   *
+   * @param representation The {@link Representation} to which the URI belongs to.
+   * @param rangedUri The URI for which to resolve the cache key.
+   * @return The cache key.
+   */
+  public static String resolveCacheKey(Representation representation, RangedUri rangedUri) {
+    @Nullable String cacheKey = representation.getCacheKey();
+    return cacheKey != null
+        ? cacheKey
+        : rangedUri.resolveUri(representation.baseUrls.get(0).url).toString();
   }
 
   private static ChunkExtractor newChunkExtractor(int trackType, Format format) {

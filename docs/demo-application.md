@@ -174,7 +174,7 @@ file at `https://yourdomain.com/samples.exolist.json`, you can open it in the
 demo app using:
 
 ~~~
-adb shell am start -a com.android.action.VIEW \
+adb shell am start -a android.intent.action.VIEW \
     -d https://yourdomain.com/samples.exolist.json
 ~~~
 {: .language-shell}

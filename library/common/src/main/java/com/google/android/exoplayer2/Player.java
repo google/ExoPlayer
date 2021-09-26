@@ -988,11 +988,12 @@ public interface Player {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
   @interface State {}
-  /** The player does not have any media to play. */
+  /** The player is idle, and must be {@link #prepare() prepared} before it will play the media. */
   int STATE_IDLE = 1;
   /**
-   * The player is not able to immediately play from its current position. This state typically
-   * occurs when more data needs to be loaded.
+   * The player is not able to immediately play the media, but is doing work toward being able to do
+   * so. This state typically occurs when the player needs to buffer more data before playback can
+   * start.
    */
   int STATE_BUFFERING = 2;
   /**

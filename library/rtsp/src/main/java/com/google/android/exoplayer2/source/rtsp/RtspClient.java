@@ -501,7 +501,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ImmutableList<RtspTrackTiming> trackTimingList =
                 rtpInfoString == null
                     ? ImmutableList.of()
-                    : RtspTrackTiming.parseTrackTiming(rtpInfoString);
+                    : RtspTrackTiming.parseTrackTiming(rtpInfoString, uri);
             onPlayResponseReceived(new RtspPlayResponse(response.status, timing, trackTimingList));
             break;
 

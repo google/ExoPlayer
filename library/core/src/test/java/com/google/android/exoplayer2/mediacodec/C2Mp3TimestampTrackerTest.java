@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -22,6 +23,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,49 +33,68 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class C2Mp3TimestampTrackerTest {
 
-  private static final Format AUDIO_MP3 =
+  private static final Format FORMAT =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.AUDIO_MPEG)
           .setChannelCount(2)
           .setSampleRate(44_100)
           .build();
 
-  private DecoderInputBuffer buffer;
   private C2Mp3TimestampTracker timestampTracker;
+  private DecoderInputBuffer buffer;
+  private DecoderInputBuffer invalidBuffer;
 
   @Before
   public void setUp() {
-    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     timestampTracker = new C2Mp3TimestampTracker();
-    buffer.data = ByteBuffer.wrap(new byte[] {-1, -5, -24, 60});
+    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+    buffer.data = ByteBuffer.wrap(createByteArray(0xFF, 0xFB, 0xE8, 0x3C));
     buffer.timeUs = 100_000;
+    invalidBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+    invalidBuffer.data = ByteBuffer.wrap(createByteArray(0, 0, 0, 0));
+    invalidBuffer.timeUs = 120_000;
   }
 
   @Test
-  public void whenUpdateCalledMultipleTimes_timestampsIncrease() {
-    long first = timestampTracker.updateAndGetPresentationTimeUs(AUDIO_MP3, buffer);
-    long second = timestampTracker.updateAndGetPresentationTimeUs(AUDIO_MP3, buffer);
-    long third = timestampTracker.updateAndGetPresentationTimeUs(AUDIO_MP3, buffer);
+  public void handleBuffers_outputsCorrectTimestamps() {
+    List<Long> presentationTimesUs = new ArrayList<>();
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
+    presentationTimesUs.add(timestampTracker.getLastOutputBufferPresentationTimeUs(FORMAT));
 
-    assertThat(second).isGreaterThan(first);
-    assertThat(third).isGreaterThan(second);
+    assertThat(presentationTimesUs).containsExactly(100_000L, 114_126L, 140_249L, 166_371L);
   }
 
   @Test
-  public void whenResetCalled_timestampsDecrease() {
-    long first = timestampTracker.updateAndGetPresentationTimeUs(AUDIO_MP3, buffer);
-    long second = timestampTracker.updateAndGetPresentationTimeUs(AUDIO_MP3, buffer);
+  public void handleBuffersWithReset_resetsTimestamps() {
+    List<Long> presentationTimesUs = new ArrayList<>();
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
     timestampTracker.reset();
-    long third = timestampTracker.updateAndGetPresentationTimeUs(AUDIO_MP3, buffer);
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
+    presentationTimesUs.add(timestampTracker.getLastOutputBufferPresentationTimeUs(FORMAT));
 
-    assertThat(second).isGreaterThan(first);
-    assertThat(third).isLessThan(second);
+    assertThat(presentationTimesUs).containsExactly(100_000L, 114_126L, 100_000L, 114_126L);
   }
 
   @Test
-  public void whenBufferTimeIsNotZero_firstSampleIsOffset() {
-    long first = timestampTracker.updateAndGetPresentationTimeUs(AUDIO_MP3, buffer);
+  public void handleInvalidBuffer_stopsUpdatingTimestamps() {
+    List<Long> presentationTimesUs = new ArrayList<>();
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer));
+    presentationTimesUs.add(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, invalidBuffer));
+    presentationTimesUs.add(timestampTracker.getLastOutputBufferPresentationTimeUs(FORMAT));
 
-    assertThat(first).isEqualTo(buffer.timeUs);
+    assertThat(presentationTimesUs).containsExactly(100_000L, 114_126L, 120_000L, 120_000L);
+  }
+
+  @Test
+  public void firstTimestamp_matchesBuffer() {
+    assertThat(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, buffer))
+        .isEqualTo(buffer.timeUs);
+    timestampTracker.reset();
+    assertThat(timestampTracker.updateAndGetPresentationTimeUs(FORMAT, invalidBuffer))
+        .isEqualTo(invalidBuffer.timeUs);
   }
 }

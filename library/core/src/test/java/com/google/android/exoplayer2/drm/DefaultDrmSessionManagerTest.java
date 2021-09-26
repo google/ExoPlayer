@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionManager.DrmSessionReference;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.AppManagedProvider;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.FakeExoMediaDrm;
@@ -303,6 +304,64 @@ public class DefaultDrmSessionManagerTest {
   }
 
   @Test(timeout = 10_000)
+  public void maxConcurrentSessionsExceeded_allPreacquiredAndKeepaliveSessionsEagerlyReleased()
+      throws Exception {
+    ImmutableList<DrmInitData.SchemeData> secondSchemeDatas =
+        ImmutableList.of(DRM_SCHEME_DATAS.get(0).copyWithData(TestUtil.createByteArray(4, 5, 6)));
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS, secondSchemeDatas);
+    Format secondFormatWithDrmInitData =
+        new Format.Builder().setDrmInitData(new DrmInitData(secondSchemeDatas)).build();
+    DrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid -> new FakeExoMediaDrm.Builder().setMaxConcurrentSessions(1).build())
+            .setSessionKeepaliveMs(10_000)
+            .setMultiSession(true)
+            .build(/* mediaDrmCallback= */ licenseServer);
+
+    drmSessionManager.prepare();
+    DrmSessionReference firstDrmSessionReference =
+        checkNotNull(
+            drmSessionManager.preacquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    DrmSession firstDrmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    waitForOpenedWithKeys(firstDrmSession);
+    firstDrmSession.release(/* eventDispatcher= */ null);
+
+    // The direct reference to firstDrmSession has been released, it's being kept alive by both
+    // firstDrmSessionReference and drmSessionManager's internal reference.
+    assertThat(firstDrmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+    DrmSession secondDrmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                secondFormatWithDrmInitData));
+    // The drmSessionManager had to release both it's internal keep-alive reference and the
+    // reference represented by firstDrmSessionReference in order to acquire secondDrmSession.
+    assertThat(firstDrmSession.getState()).isEqualTo(DrmSession.STATE_RELEASED);
+
+    waitForOpenedWithKeys(secondDrmSession);
+    assertThat(secondDrmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+
+    // Not needed (because the manager has already released this reference) but we call it anyway
+    // for completeness.
+    firstDrmSessionReference.release();
+    // Clean-up
+    secondDrmSession.release(/* eventDispatcher= */ null);
+    drmSessionManager.release();
+  }
+
+  @Test(timeout = 10_000)
   public void sessionReacquired_keepaliveTimeOutCancelled() throws Exception {
     FakeExoMediaDrm.LicenseServer licenseServer =
         FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
@@ -364,7 +423,7 @@ public class DefaultDrmSessionManagerTest {
 
     drmSessionManager.prepare();
 
-    DrmSessionManager.DrmSessionReference sessionReference =
+    DrmSessionReference sessionReference =
         drmSessionManager.preacquireSession(
             /* playbackLooper= */ checkNotNull(Looper.myLooper()),
             eventDispatcher,
@@ -413,7 +472,7 @@ public class DefaultDrmSessionManagerTest {
 
     drmSessionManager.prepare();
 
-    DrmSessionManager.DrmSessionReference sessionReference =
+    DrmSessionReference sessionReference =
         drmSessionManager.preacquireSession(
             /* playbackLooper= */ checkNotNull(Looper.myLooper()),
             /* eventDispatcher= */ null,
@@ -453,7 +512,7 @@ public class DefaultDrmSessionManagerTest {
 
     drmSessionManager.prepare();
 
-    DrmSessionManager.DrmSessionReference sessionReference =
+    DrmSessionReference sessionReference =
         drmSessionManager.preacquireSession(
             /* playbackLooper= */ checkNotNull(Looper.myLooper()),
             /* eventDispatcher= */ null,

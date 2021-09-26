@@ -156,8 +156,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * <h2>Tunneling</h2>
  *
  * Tunneled playback can be enabled in cases where the combination of renderers and selected tracks
- * support it. Tunneled playback is enabled by passing an audio session ID to {@link
- * ParametersBuilder#setTunnelingEnabled(boolean)}.
+ * supports it. This can be done by using {@link ParametersBuilder#setTunnelingEnabled(boolean)}.
  */
 public class DefaultTrackSelector extends MappingTrackSelector {
 

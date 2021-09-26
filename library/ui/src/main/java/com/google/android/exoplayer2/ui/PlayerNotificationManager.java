@@ -307,25 +307,25 @@ public class PlayerNotificationManager {
   /** A builder for {@link PlayerNotificationManager} instances. */
   public static class Builder {
 
-    private final Context context;
-    private final int notificationId;
-    private final String channelId;
+    protected final Context context;
+    protected final int notificationId;
+    protected final String channelId;
 
-    @Nullable private NotificationListener notificationListener;
-    @Nullable private CustomActionReceiver customActionReceiver;
-    private MediaDescriptionAdapter mediaDescriptionAdapter;
-    private int channelNameResourceId;
-    private int channelDescriptionResourceId;
-    private int channelImportance;
-    private int smallIconResourceId;
-    private int rewindActionIconResourceId;
-    private int playActionIconResourceId;
-    private int pauseActionIconResourceId;
-    private int stopActionIconResourceId;
-    private int fastForwardActionIconResourceId;
-    private int previousActionIconResourceId;
-    private int nextActionIconResourceId;
-    @Nullable private String groupKey;
+    @Nullable protected NotificationListener notificationListener;
+    @Nullable protected CustomActionReceiver customActionReceiver;
+    protected MediaDescriptionAdapter mediaDescriptionAdapter;
+    protected int channelNameResourceId;
+    protected int channelDescriptionResourceId;
+    protected int channelImportance;
+    protected int smallIconResourceId;
+    protected int rewindActionIconResourceId;
+    protected int playActionIconResourceId;
+    protected int pauseActionIconResourceId;
+    protected int stopActionIconResourceId;
+    protected int fastForwardActionIconResourceId;
+    protected int previousActionIconResourceId;
+    protected int nextActionIconResourceId;
+    @Nullable protected String groupKey;
 
     /**
      * @deprecated Use {@link #Builder(Context, int, String)} instead, then call {@link
@@ -707,7 +707,7 @@ public class PlayerNotificationManager {
   private boolean useChronometer;
   @Nullable private String groupKey;
 
-  private PlayerNotificationManager(
+  protected PlayerNotificationManager(
       Context context,
       String channelId,
       int notificationId,
@@ -836,7 +836,7 @@ public class PlayerNotificationManager {
    *
    * @param useNextAction Whether to use the next action.
    */
-  public void setUseNextAction(boolean useNextAction) {
+  public final void setUseNextAction(boolean useNextAction) {
     if (this.useNextAction != useNextAction) {
       this.useNextAction = useNextAction;
       invalidate();
@@ -848,7 +848,7 @@ public class PlayerNotificationManager {
    *
    * @param usePreviousAction Whether to use the previous action.
    */
-  public void setUsePreviousAction(boolean usePreviousAction) {
+  public final void setUsePreviousAction(boolean usePreviousAction) {
     if (this.usePreviousAction != usePreviousAction) {
       this.usePreviousAction = usePreviousAction;
       invalidate();
@@ -865,7 +865,7 @@ public class PlayerNotificationManager {
    *
    * @param useNextActionInCompactView Whether to use the next action in compact view.
    */
-  public void setUseNextActionInCompactView(boolean useNextActionInCompactView) {
+  public final void setUseNextActionInCompactView(boolean useNextActionInCompactView) {
     if (this.useNextActionInCompactView != useNextActionInCompactView) {
       this.useNextActionInCompactView = useNextActionInCompactView;
       if (useNextActionInCompactView) {
@@ -885,7 +885,7 @@ public class PlayerNotificationManager {
    *
    * @param usePreviousActionInCompactView Whether to use the previous action in compact view.
    */
-  public void setUsePreviousActionInCompactView(boolean usePreviousActionInCompactView) {
+  public final void setUsePreviousActionInCompactView(boolean usePreviousActionInCompactView) {
     if (this.usePreviousActionInCompactView != usePreviousActionInCompactView) {
       this.usePreviousActionInCompactView = usePreviousActionInCompactView;
       if (usePreviousActionInCompactView) {
@@ -900,7 +900,7 @@ public class PlayerNotificationManager {
    *
    * @param useFastForwardAction Whether to use the fast forward action.
    */
-  public void setUseFastForwardAction(boolean useFastForwardAction) {
+  public final void setUseFastForwardAction(boolean useFastForwardAction) {
     if (this.useFastForwardAction != useFastForwardAction) {
       this.useFastForwardAction = useFastForwardAction;
       invalidate();
@@ -912,7 +912,7 @@ public class PlayerNotificationManager {
    *
    * @param useRewindAction Whether to use the rewind action.
    */
-  public void setUseRewindAction(boolean useRewindAction) {
+  public final void setUseRewindAction(boolean useRewindAction) {
     if (this.useRewindAction != useRewindAction) {
       this.useRewindAction = useRewindAction;
       invalidate();
@@ -929,7 +929,8 @@ public class PlayerNotificationManager {
    * @param useFastForwardActionInCompactView Whether to use the fast forward action in compact
    *     view.
    */
-  public void setUseFastForwardActionInCompactView(boolean useFastForwardActionInCompactView) {
+  public final void setUseFastForwardActionInCompactView(
+      boolean useFastForwardActionInCompactView) {
     if (this.useFastForwardActionInCompactView != useFastForwardActionInCompactView) {
       this.useFastForwardActionInCompactView = useFastForwardActionInCompactView;
       if (useFastForwardActionInCompactView) {
@@ -948,7 +949,7 @@ public class PlayerNotificationManager {
    *
    * @param useRewindActionInCompactView Whether to use the rewind action in compact view.
    */
-  public void setUseRewindActionInCompactView(boolean useRewindActionInCompactView) {
+  public final void setUseRewindActionInCompactView(boolean useRewindActionInCompactView) {
     if (this.useRewindActionInCompactView != useRewindActionInCompactView) {
       this.useRewindActionInCompactView = useRewindActionInCompactView;
       if (useRewindActionInCompactView) {
@@ -1159,7 +1160,7 @@ public class PlayerNotificationManager {
   }
 
   /** Forces an update of the notification if already started. */
-  public void invalidate() {
+  public final void invalidate() {
     if (isNotificationStarted) {
       postStartOrUpdateNotification();
     }
