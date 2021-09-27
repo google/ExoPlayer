@@ -170,6 +170,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
   private boolean processSeiNalUnitPayload;
+  private boolean processSpsNalUnitPayload;
 
   // Outputs.
   private ExtractorOutput extractorOutput;
@@ -1407,23 +1408,45 @@ public class FragmentedMp4Extractor implements Extractor {
           processSeiNalUnitPayload =
               ceaTrackOutputs.length > 0
                   && NalUnitUtil.isNalUnitSei(track.format.sampleMimeType, nalPrefixData[4]);
+          processSpsNalUnitPayload =
+              NalUnitUtil.isNalUnitSps(track.format.sampleMimeType, nalPrefixData[4]);
           sampleBytesWritten += 5;
           sampleSize += nalUnitLengthFieldLengthDiff;
         } else {
           int writtenBytes;
-          if (processSeiNalUnitPayload) {
-            // Read and write the payload of the SEI NAL unit.
+          if (processSeiNalUnitPayload || processSpsNalUnitPayload) {
+            // We need to process the payload further, so read it into the temporary buffer
+            // before writing.
             nalBuffer.reset(sampleCurrentNalBytesRemaining);
             input.readFully(nalBuffer.getData(), 0, sampleCurrentNalBytesRemaining);
             output.sampleData(nalBuffer, sampleCurrentNalBytesRemaining);
             writtenBytes = sampleCurrentNalBytesRemaining;
-            // Unescape and process the SEI NAL unit.
-            int unescapedLength =
-                NalUnitUtil.unescapeStream(nalBuffer.getData(), nalBuffer.limit());
-            // If the format is H.265/HEVC the NAL unit header has two bytes so skip one more byte.
-            nalBuffer.setPosition(MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType) ? 1 : 0);
-            nalBuffer.setLimit(unescapedLength);
-            CeaUtil.consume(sampleTimeUs, nalBuffer, ceaTrackOutputs);
+            if (processSeiNalUnitPayload) {
+              // Unescape and process the SEI NAL unit.
+              int unescapedLength =
+                  NalUnitUtil.unescapeStream(nalBuffer.getData(), nalBuffer.limit());
+              // If the format is H.265/HEVC the NAL unit header has two bytes so skip one more byte.
+              nalBuffer.setPosition(
+                  MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType) ? 1 : 0);
+              nalBuffer.setLimit(unescapedLength);
+              CeaUtil.consume(sampleTimeUs, nalBuffer, ceaTrackOutputs);
+            } else if (processSpsNalUnitPayload) {
+              // Parse SPS and update the aspect ratio
+              float pixelWidthHeightRatio = track.format.pixelWidthHeightRatio;
+              if (MimeTypes.VIDEO_H264.equals(track.format.sampleMimeType)) {
+                NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnitPayload(
+                    nalBuffer.getData(), 0, nalBuffer.limit());
+                pixelWidthHeightRatio = spsData.pixelWidthHeightRatio;
+              } else if (MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType)) {
+                // TODO: Why is offset 1 necessary?
+                NalUnitUtil.H265SpsData spsData = NalUnitUtil.parseH265SpsNalUnitPayload(
+                    nalBuffer.getData(), 1, nalBuffer.limit());
+                pixelWidthHeightRatio = spsData.pixelWidthHeightRatio;
+              }
+              Format format =
+                track.format.buildUpon().setPixelWidthHeightRatio(pixelWidthHeightRatio).build();
+              output.format(format);
+            }
           } else {
             // Write the payload of the NAL unit.
             writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);

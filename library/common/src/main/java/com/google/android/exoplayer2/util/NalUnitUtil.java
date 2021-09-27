@@ -158,6 +158,7 @@ public final class NalUnitUtil {
   private static final int H264_NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
   private static final int H264_NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
   private static final int H265_NAL_UNIT_TYPE_PREFIX_SEI = 39;
+  private static final int H265_NAL_UNIT_TYPE_SPS = 33;
 
   private static final Object scratchEscapePositionsLock = new Object();
 
@@ -265,6 +266,21 @@ public final class NalUnitUtil {
             && (nalUnitHeaderFirstByte & 0x1F) == H264_NAL_UNIT_TYPE_SEI)
         || (MimeTypes.VIDEO_H265.equals(mimeType)
             && ((nalUnitHeaderFirstByte & 0x7E) >> 1) == H265_NAL_UNIT_TYPE_PREFIX_SEI);
+  }
+
+  /**
+   * Returns whether the NAL unit with the specified header contains a sequence parameter set.
+   *
+   * @param mimeType The sample MIME type, or {@code null} if unknown.
+   * @param nalUnitHeaderFirstByte The first byte of nal_unit().
+   * @return Whether the NAL unit with the specified header is a SPS NAL unit. False is returned if
+   *     the {@code MimeType} is {@code null}.
+   */
+  public static boolean isNalUnitSps(@Nullable String mimeType, byte nalUnitHeaderFirstByte) {
+    return (MimeTypes.VIDEO_H264.equals(mimeType)
+            && (nalUnitHeaderFirstByte & 0x1F) == H264_NAL_UNIT_TYPE_SPS)
+        || (MimeTypes.VIDEO_H265.equals(mimeType)
+            && ((nalUnitHeaderFirstByte & 0x7E) >> 1) == H265_NAL_UNIT_TYPE_SPS);
   }
 
   /**
