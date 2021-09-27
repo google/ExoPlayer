@@ -1,5 +1,4 @@
 1. ExoPlayer源码分析之prepare方法
-
    SimpleExoPlayer->ExoPlayerImpl: player.prepare(mediaSource)
    ExoPlayerImpl->ExoPlayerImplInternal: internalPlayer.prepare(mediaSource)
    ExoPlayerImplInternal->ExoPlayerImplInternal: MSG_PREPARE
@@ -14,7 +13,7 @@
    MediaPeriod->ExtractingLoadable: prepare()
    ExtractingLoadable->DataSource: load()
    ExtractingLoadable->Extracotr(Mp4Extractor): load()
-   Extracotr(Mp4Extractor)->Extracotr(Mp4Extractor): readAtomHeader() processAtomEnded()processMoovAtom
+   Extracotr(Mp4Extractor)->Extracotr(Mp4Extractor): readAtomHeader() processAtomEnded() processMoovAtom
    Extracotr(Mp4Extractor)->ProgressiveMediaPeriod: endTracks()
    ProgressiveMediaPeriod->ExoPlayerImplInternal: onPrepared(MediaPeriod source)
    ExoPlayerImplInternal->ExoPlayerImplInternal: handlePeriodPrepared
@@ -46,6 +45,7 @@ Controlling the player
    setRepeatMode controls if and how media is looped.
    setShuffleModeEnabled controls playlist shuffling.
    setPlaybackParameters adjusts playback speed and audio pitch.
+
 If the player is bound to a PlayerView or PlayerControlView,
 then user interaction with these components will cause corresponding methods on the player to be invoked.
 

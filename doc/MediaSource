@@ -1,5 +1,5 @@
 1. ExoPlayer MediaSource简介
-   在ExoPlayer里每一种媒体资源都是被MediaSource来代表的。
+   在ExoPlayer里每一种媒体资源都可以用MediaSource来代表的。
 
 https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Timeline.html
 
