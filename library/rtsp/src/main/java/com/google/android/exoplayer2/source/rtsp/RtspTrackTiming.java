@@ -122,7 +122,7 @@ import com.google.common.collect.ImmutableList;
    */
   @VisibleForTesting
   /* package */ static Uri resolveUri(String urlString, Uri sessionUri) {
-    checkArgument(checkNotNull(sessionUri.getScheme()).equals("rtsp"));
+    checkArgument(checkNotNull(sessionUri.getScheme()).matches("rtsp|rtsps"));
 
     Uri uri = Uri.parse(urlString);
     if (uri.isAbsolute()) {

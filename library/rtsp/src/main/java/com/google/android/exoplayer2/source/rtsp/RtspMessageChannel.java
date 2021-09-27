@@ -100,6 +100,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public static final int DEFAULT_RTSP_PORT = 554;
 
+  /**
+   * The IANA-registered default port for RTSPS. See <a
+   * href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml">here</a>
+   */
+  public static final int DEFAULT_RTSPS_PORT = 322;
+
   private final MessageListener messageListener;
   private final Loader receiverLoader;
   private final Map<Integer, InterleavedBinaryDataListener> interleavedBinaryDataListeners;

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.rtsp;
 
 import static com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.DEFAULT_RTSP_PORT;
+import static com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.DEFAULT_RTSPS_PORT;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_ANNOUNCE;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_DESCRIBE;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_GET_PARAMETER;
@@ -67,6 +68,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The RTSP client. */
@@ -288,6 +290,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Returns a {@link Socket} that is connected to the {@code uri}. */
   private static Socket getSocket(Uri uri) throws IOException {
     checkArgument(uri.getHost() != null);
+    if (uri.getScheme().equals("rtsps")) {
+      int rtspsPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSPS_PORT;
+      return SSLSocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspsPort);
+    }
     int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
     return SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
   }
