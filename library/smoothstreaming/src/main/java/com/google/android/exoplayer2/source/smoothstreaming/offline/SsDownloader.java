@@ -87,7 +87,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
             .buildUpon()
             .setUri(
                 Util.fixSmoothStreamingIsmManifestUri(
-                    checkNotNull(mediaItem.playbackProperties).uri))
+                    checkNotNull(mediaItem.localConfiguration).uri))
             .build(),
         new SsManifestParser(),
         cacheDataSourceFactory,

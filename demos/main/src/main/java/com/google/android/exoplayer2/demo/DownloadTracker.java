@@ -98,7 +98,7 @@ public class DownloadTracker {
   }
 
   public boolean isDownloaded(MediaItem mediaItem) {
-    @Nullable Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
+    @Nullable Download download = downloads.get(checkNotNull(mediaItem.localConfiguration).uri);
     return download != null && download.state != Download.STATE_FAILED;
   }
 
@@ -110,7 +110,7 @@ public class DownloadTracker {
 
   public void toggleDownload(
       FragmentManager fragmentManager, MediaItem mediaItem, RenderersFactory renderersFactory) {
-    @Nullable Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
+    @Nullable Download download = downloads.get(checkNotNull(mediaItem.localConfiguration).uri);
     if (download != null && download.state != Download.STATE_FAILED) {
       DownloadService.sendRemoveDownload(
           context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
@@ -223,7 +223,7 @@ public class DownloadTracker {
       widevineOfflineLicenseFetchTask =
           new WidevineOfflineLicenseFetchTask(
               format,
-              mediaItem.playbackProperties.drmConfiguration,
+              mediaItem.localConfiguration.drmConfiguration,
               httpDataSourceFactory,
               /* dialogHelper= */ this,
               helper);

@@ -365,24 +365,24 @@ public final class HlsMediaSource extends BaseMediaSource
      *
      * @param mediaItem The {@link MediaItem}.
      * @return The new {@link HlsMediaSource}.
-     * @throws NullPointerException if {@link MediaItem#playbackProperties} is {@code null}.
+     * @throws NullPointerException if {@link MediaItem#localConfiguration} is {@code null}.
      */
     @Override
     public HlsMediaSource createMediaSource(MediaItem mediaItem) {
-      checkNotNull(mediaItem.playbackProperties);
+      checkNotNull(mediaItem.localConfiguration);
       HlsPlaylistParserFactory playlistParserFactory = this.playlistParserFactory;
       List<StreamKey> streamKeys =
-          mediaItem.playbackProperties.streamKeys.isEmpty()
+          mediaItem.localConfiguration.streamKeys.isEmpty()
               ? this.streamKeys
-              : mediaItem.playbackProperties.streamKeys;
+              : mediaItem.localConfiguration.streamKeys;
       if (!streamKeys.isEmpty()) {
         playlistParserFactory =
             new FilteringHlsPlaylistParserFactory(playlistParserFactory, streamKeys);
       }
 
-      boolean needsTag = mediaItem.playbackProperties.tag == null && tag != null;
+      boolean needsTag = mediaItem.localConfiguration.tag == null && tag != null;
       boolean needsStreamKeys =
-          mediaItem.playbackProperties.streamKeys.isEmpty() && !streamKeys.isEmpty();
+          mediaItem.localConfiguration.streamKeys.isEmpty() && !streamKeys.isEmpty();
       if (needsTag && needsStreamKeys) {
         mediaItem = mediaItem.buildUpon().setTag(tag).setStreamKeys(streamKeys).build();
       } else if (needsTag) {
@@ -412,7 +412,7 @@ public final class HlsMediaSource extends BaseMediaSource
   }
 
   private final HlsExtractorFactory extractorFactory;
-  private final MediaItem.PlaybackProperties playbackProperties;
+  private final MediaItem.LocalConfiguration localConfiguration;
   private final HlsDataSourceFactory dataSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final DrmSessionManager drmSessionManager;
@@ -439,7 +439,7 @@ public final class HlsMediaSource extends BaseMediaSource
       boolean allowChunklessPreparation,
       @MetadataType int metadataType,
       boolean useSessionKeys) {
-    this.playbackProperties = checkNotNull(mediaItem.playbackProperties);
+    this.localConfiguration = checkNotNull(mediaItem.localConfiguration);
     this.mediaItem = mediaItem;
     this.liveConfiguration = mediaItem.liveConfiguration;
     this.dataSourceFactory = dataSourceFactory;
@@ -465,7 +465,8 @@ public final class HlsMediaSource extends BaseMediaSource
     drmSessionManager.prepare();
     MediaSourceEventListener.EventDispatcher eventDispatcher =
         createEventDispatcher(/* mediaPeriodId= */ null);
-    playlistTracker.start(playbackProperties.uri, eventDispatcher, /* listener= */ this);
+    playlistTracker.start(
+        localConfiguration.uri, eventDispatcher, /* primaryPlaylistListener= */ this);
   }
 
   @Override

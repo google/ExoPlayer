@@ -74,9 +74,9 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
 
   @Override
   public DrmSessionManager get(MediaItem mediaItem) {
-    checkNotNull(mediaItem.playbackProperties);
+    checkNotNull(mediaItem.localConfiguration);
     @Nullable
-    MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;
+    MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
     if (drmConfiguration == null || Util.SDK_INT < 18) {
       return DrmSessionManager.DRM_UNSUPPORTED;
     }

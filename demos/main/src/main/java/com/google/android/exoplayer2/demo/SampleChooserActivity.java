@@ -249,12 +249,12 @@ public class SampleChooserActivity extends AppCompatActivity
     if (playlistHolder.mediaItems.size() > 1) {
       return R.string.download_playlist_unsupported;
     }
-    MediaItem.PlaybackProperties playbackProperties =
-        checkNotNull(playlistHolder.mediaItems.get(0).playbackProperties);
-    if (playbackProperties.adsConfiguration != null) {
+    MediaItem.LocalConfiguration localConfiguration =
+        checkNotNull(playlistHolder.mediaItems.get(0).localConfiguration);
+    if (localConfiguration.adsConfiguration != null) {
       return R.string.download_ads_unsupported;
     }
-    String scheme = playbackProperties.uri.getScheme();
+    String scheme = localConfiguration.uri.getScheme();
     if (!("http".equals(scheme) || "https".equals(scheme))) {
       return R.string.download_scheme_unsupported;
     }

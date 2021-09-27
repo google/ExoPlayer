@@ -34,7 +34,7 @@ import java.util.List;
 /** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
 public interface MediaSourceFactory {
 
-  /** @deprecated Use {@link MediaItem.PlaybackProperties#streamKeys} instead. */
+  /** @deprecated Use {@link MediaItem.LocalConfiguration#streamKeys} instead. */
   @Deprecated
   default MediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
     return this;

@@ -124,8 +124,8 @@ custom tags, then an implementation might look like:
 public void onMediaItemTransition(
     @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
   @Nullable CustomMetadata metadata = null;
-  if (mediaItem != null && mediaItem.playbackProperties != null) {
-    metadata = (CustomMetadata) mediaItem.playbackProperties.tag;
+  if (mediaItem != null && mediaItem.localConfiguration != null) {
+    metadata = (CustomMetadata) mediaItem.localConfiguration.tag;
   }
   updateUiForPlayingMediaItem(metadata);
 }

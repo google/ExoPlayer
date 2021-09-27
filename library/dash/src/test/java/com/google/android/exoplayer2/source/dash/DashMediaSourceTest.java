@@ -111,9 +111,9 @@ public final class DashMediaSourceTest {
 
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.tag).isEqualTo(tag);
+    assertThat(dashMediaItem.localConfiguration).isNotNull();
+    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility
@@ -129,9 +129,9 @@ public final class DashMediaSourceTest {
 
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
+    assertThat(dashMediaItem.localConfiguration).isNotNull();
+    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
   }
 
   // Tests backwards compatibility
@@ -146,9 +146,9 @@ public final class DashMediaSourceTest {
 
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.streamKeys).containsExactly(streamKey);
+    assertThat(dashMediaItem.localConfiguration).isNotNull();
+    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
   }
 
   // Tests backwards compatibility
@@ -168,9 +168,9 @@ public final class DashMediaSourceTest {
 
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.streamKeys).containsExactly(mediaItemStreamKey);
+    assertThat(dashMediaItem.localConfiguration).isNotNull();
+    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 
   @Test

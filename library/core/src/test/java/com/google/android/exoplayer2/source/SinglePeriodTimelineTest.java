@@ -101,7 +101,7 @@ public final class SinglePeriodTimelineTest {
             new MediaItem.Builder().setUri(Uri.EMPTY).setTag(null).build());
 
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window).tag).isNull();
-    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).mediaItem.playbackProperties.tag)
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).mediaItem.localConfiguration.tag)
         .isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).id).isNull();
@@ -143,7 +143,7 @@ public final class SinglePeriodTimelineTest {
     Window window = timeline.getWindow(/* windowIndex= */ 0, this.window);
 
     assertThat(window.mediaItem).isEqualTo(mediaItem);
-    assertThat(window.tag).isEqualTo(mediaItem.playbackProperties.tag);
+    assertThat(window.tag).isEqualTo(mediaItem.localConfiguration.tag);
   }
 
   @Test

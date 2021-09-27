@@ -59,9 +59,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.tag).isEqualTo(tag);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility
@@ -77,9 +77,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
   }
 
   // Tests backwards compatibility
@@ -94,9 +94,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.streamKeys).containsExactly(streamKey);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
   }
 
   // Tests backwards compatibility
@@ -116,9 +116,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.streamKeys).containsExactly(mediaItemStreamKey);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 
   @Test

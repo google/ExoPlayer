@@ -423,7 +423,7 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getAllValues().get(1).playbackProperties.tag).isEqualTo(3);
+    assertThat(mediaItemCaptor.getAllValues().get(1).localConfiguration.tag).isEqualTo(3);
   }
 
   @SuppressWarnings("deprecation") // Verifies deprecated callback being called correctly.
@@ -533,7 +533,7 @@ public class CastPlayerTest {
     verify(mockRemoteMediaClient)
         .queueInsertItems(
             queueItemsArgumentCaptor.capture(),
-            eq((int) mediaItems.get(index).playbackProperties.tag),
+            eq((int) mediaItems.get(index).localConfiguration.tag),
             any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
@@ -677,7 +677,7 @@ public class CastPlayerTest {
     Timeline currentTimeline = castPlayer.getCurrentTimeline();
     for (int i = 0; i < mediaItems.size(); i++) {
       assertThat(currentTimeline.getWindow(/* windowIndex= */ i, window).uid)
-          .isEqualTo(mediaItems.get(i).playbackProperties.tag);
+          .isEqualTo(mediaItems.get(i).localConfiguration.tag);
     }
   }
 
@@ -696,8 +696,8 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getValue().playbackProperties.tag)
-        .isEqualTo(mediaItem.playbackProperties.tag);
+    assertThat(mediaItemCaptor.getValue().localConfiguration.tag)
+        .isEqualTo(mediaItem.localConfiguration.tag);
   }
 
   @Test
@@ -801,10 +801,10 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getAllValues().get(0).playbackProperties.tag)
-        .isEqualTo(mediaItem1.playbackProperties.tag);
-    assertThat(mediaItemCaptor.getAllValues().get(1).playbackProperties.tag)
-        .isEqualTo(mediaItem2.playbackProperties.tag);
+    assertThat(mediaItemCaptor.getAllValues().get(0).localConfiguration.tag)
+        .isEqualTo(mediaItem1.localConfiguration.tag);
+    assertThat(mediaItemCaptor.getAllValues().get(1).localConfiguration.tag)
+        .isEqualTo(mediaItem2.localConfiguration.tag);
   }
 
   @Test
@@ -886,10 +886,10 @@ public class CastPlayerTest {
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
     List<MediaItem> capturedMediaItems = mediaItemCaptor.getAllValues();
-    assertThat(capturedMediaItems.get(0).playbackProperties.tag)
-        .isEqualTo(mediaItem1.playbackProperties.tag);
-    assertThat(capturedMediaItems.get(1).playbackProperties.tag)
-        .isEqualTo(mediaItem2.playbackProperties.tag);
+    assertThat(capturedMediaItems.get(0).localConfiguration.tag)
+        .isEqualTo(mediaItem1.localConfiguration.tag);
+    assertThat(capturedMediaItems.get(1).localConfiguration.tag)
+        .isEqualTo(mediaItem2.localConfiguration.tag);
   }
 
   @Test
@@ -1012,8 +1012,8 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_SEEK));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
-    assertThat(mediaItemCaptor.getValue().playbackProperties.tag)
-        .isEqualTo(mediaItem2.playbackProperties.tag);
+    assertThat(mediaItemCaptor.getValue().localConfiguration.tag)
+        .isEqualTo(mediaItem2.localConfiguration.tag);
   }
 
   @Test
@@ -1144,7 +1144,7 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getValue().playbackProperties.tag).isEqualTo(2);
+    assertThat(mediaItemCaptor.getValue().localConfiguration.tag).isEqualTo(2);
   }
 
   @Test
@@ -1788,9 +1788,9 @@ public class CastPlayerTest {
       int streamType = streamTypes[i];
       long durationMs = durationsMs[i];
       MediaInfo.Builder mediaInfoBuilder =
-          new MediaInfo.Builder(mediaItem.playbackProperties.uri.toString())
+          new MediaInfo.Builder(mediaItem.localConfiguration.uri.toString())
               .setStreamType(streamType)
-              .setContentType(mediaItem.playbackProperties.mimeType);
+              .setContentType(mediaItem.localConfiguration.mimeType);
       if (durationMs != C.TIME_UNSET) {
         mediaInfoBuilder.setStreamDuration(durationMs);
       }

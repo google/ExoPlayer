@@ -314,10 +314,10 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
             MediaItem.Builder adMediaItem = new MediaItem.Builder().setUri(adUri);
             // Propagate the content's DRM config into the ad media source.
             @Nullable
-            MediaItem.PlaybackProperties contentPlaybackProperties =
-                contentMediaSource.getMediaItem().playbackProperties;
-            if (contentPlaybackProperties != null) {
-              adMediaItem.setDrmConfiguration(contentPlaybackProperties.drmConfiguration);
+            MediaItem.LocalConfiguration contentLocalConfiguration =
+                contentMediaSource.getMediaItem().localConfiguration;
+            if (contentLocalConfiguration != null) {
+              adMediaItem.setDrmConfiguration(contentLocalConfiguration.drmConfiguration);
             }
             MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adMediaItem.build());
             adMediaSourceHolder.initializeWithMediaSource(adMediaSource, adUri);

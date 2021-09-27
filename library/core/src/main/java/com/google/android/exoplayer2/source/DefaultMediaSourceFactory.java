@@ -54,23 +54,23 @@ import java.util.List;
  * factories:
  *
  * <ul>
- *   <li>{@code DashMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#uri uri}
- *       ends in '.mpd' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType field} is
+ *   <li>{@code DashMediaSource.Factory} if the item's {@link MediaItem.LocalConfiguration#uri uri}
+ *       ends in '.mpd' or if its {@link MediaItem.LocalConfiguration#mimeType mimeType field} is
  *       explicitly set to {@link MimeTypes#APPLICATION_MPD} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-dash module
  *       to be added</a> to the app).
- *   <li>{@code HlsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#uri uri}
- *       ends in '.m3u8' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType field} is
+ *   <li>{@code HlsMediaSource.Factory} if the item's {@link MediaItem.LocalConfiguration#uri uri}
+ *       ends in '.m3u8' or if its {@link MediaItem.LocalConfiguration#mimeType mimeType field} is
  *       explicitly set to {@link MimeTypes#APPLICATION_M3U8} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-hls module to
  *       be added</a> to the app).
- *   <li>{@code SsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#uri uri}
- *       ends in '.ism', '.ism/Manifest' or if its {@link MediaItem.PlaybackProperties#mimeType
+ *   <li>{@code SsMediaSource.Factory} if the item's {@link MediaItem.LocalConfiguration#uri uri}
+ *       ends in '.ism', '.ism/Manifest' or if its {@link MediaItem.LocalConfiguration#mimeType
  *       mimeType field} is explicitly set to {@link MimeTypes#APPLICATION_SS} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">
  *       exoplayer-smoothstreaming module to be added</a> to the app).
  *   <li>{@link ProgressiveMediaSource.Factory} serves as a fallback if the item's {@link
- *       MediaItem.PlaybackProperties#uri uri} doesn't match one of the above. It tries to infer the
+ *       MediaItem.LocalConfiguration#uri uri} doesn't match one of the above. It tries to infer the
  *       required extractor by using the {@link DefaultExtractorsFactory} or the {@link
  *       ExtractorsFactory} provided in the constructor. An {@link UnrecognizedInputFormatException}
  *       is thrown if none of the available extractors can read the stream.
@@ -78,7 +78,7 @@ import java.util.List;
  *
  * <h2>Ad support for media items with ad tag URIs</h2>
  *
- * <p>To support media items with {@link MediaItem.PlaybackProperties#adsConfiguration ads
+ * <p>To support media items with {@link MediaItem.LocalConfiguration#adsConfiguration ads
  * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
  * configure the factory with the required providers.
  */
@@ -86,17 +86,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
    * Provides {@link AdsLoader} instances for media items that have {@link
-   * MediaItem.PlaybackProperties#adsConfiguration ad tag URIs}.
+   * MediaItem.LocalConfiguration#adsConfiguration ad tag URIs}.
    */
   public interface AdsLoaderProvider {
 
     /**
      * Returns an {@link AdsLoader} for the given {@link
-     * MediaItem.PlaybackProperties#adsConfiguration ads configuration}, or {@code null} if no ads
+     * MediaItem.LocalConfiguration#adsConfiguration ads configuration}, or {@code null} if no ads
      * loader is available for the given ads configuration.
      *
      * <p>This method is called each time a {@link MediaSource} is created from a {@link MediaItem}
-     * that defines an {@link MediaItem.PlaybackProperties#adsConfiguration ads configuration}.
+     * that defines an {@link MediaItem.LocalConfiguration#adsConfiguration ads configuration}.
      */
     @Nullable
     AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration);
@@ -173,7 +173,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
    * Sets whether a {@link ProgressiveMediaSource} or {@link SingleSampleMediaSource} is constructed
-   * to handle {@link MediaItem.PlaybackProperties#subtitles}. Defaults to false (i.e. {@link
+   * to handle {@link MediaItem.LocalConfiguration#subtitles}. Defaults to false (i.e. {@link
    * SingleSampleMediaSource}.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
@@ -190,7 +190,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
    * Sets the {@link AdsLoaderProvider} that provides {@link AdsLoader} instances for media items
-   * that have {@link MediaItem.PlaybackProperties#adsConfiguration ads configurations}.
+   * that have {@link MediaItem.LocalConfiguration#adsConfiguration ads configurations}.
    *
    * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
    * @return This factory, for convenience.
@@ -341,11 +341,11 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public MediaSource createMediaSource(MediaItem mediaItem) {
-    Assertions.checkNotNull(mediaItem.playbackProperties);
+    Assertions.checkNotNull(mediaItem.localConfiguration);
     @C.ContentType
     int type =
         Util.inferContentTypeForUriAndMimeType(
-            mediaItem.playbackProperties.uri, mediaItem.playbackProperties.mimeType);
+            mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
@@ -375,7 +375,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
-    List<MediaItem.Subtitle> subtitles = castNonNull(mediaItem.playbackProperties).subtitles;
+    List<MediaItem.Subtitle> subtitles = castNonNull(mediaItem.localConfiguration).subtitles;
     if (!subtitles.isEmpty()) {
       MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
       mediaSources[0] = mediaSource;
@@ -434,9 +434,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
-    Assertions.checkNotNull(mediaItem.playbackProperties);
+    Assertions.checkNotNull(mediaItem.localConfiguration);
     @Nullable
-    MediaItem.AdsConfiguration adsConfiguration = mediaItem.playbackProperties.adsConfiguration;
+    MediaItem.AdsConfiguration adsConfiguration = mediaItem.localConfiguration.adsConfiguration;
     if (adsConfiguration == null) {
       return mediaSource;
     }
@@ -460,7 +460,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         /* adsId= */ adsConfiguration.adsId != null
             ? adsConfiguration.adsId
             : ImmutableList.of(
-                mediaItem.mediaId, mediaItem.playbackProperties.uri, adsConfiguration.adTagUri),
+                mediaItem.mediaId, mediaItem.localConfiguration.uri, adsConfiguration.adTagUri),
         /* adMediaSourceFactory= */ this,
         adsLoader,
         adViewProvider);

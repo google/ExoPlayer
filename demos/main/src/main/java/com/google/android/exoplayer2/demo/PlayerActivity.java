@@ -323,7 +323,7 @@ public class PlayerActivity extends AppCompatActivity
       }
 
       MediaItem.DrmConfiguration drmConfiguration =
-          checkNotNull(mediaItem.playbackProperties).drmConfiguration;
+          checkNotNull(mediaItem.localConfiguration).drmConfiguration;
       if (drmConfiguration != null) {
         if (Util.SDK_INT < 18) {
           showToast(R.string.error_drm_unsupported_before_api_18);
@@ -335,7 +335,7 @@ public class PlayerActivity extends AppCompatActivity
           return Collections.emptyList();
         }
       }
-      hasAds |= mediaItem.playbackProperties.adsConfiguration != null;
+      hasAds |= mediaItem.localConfiguration.adsConfiguration != null;
     }
     if (!hasAds) {
       releaseAdsLoader();
@@ -496,7 +496,7 @@ public class PlayerActivity extends AppCompatActivity
     for (MediaItem item : IntentUtil.createMediaItemsFromIntent(intent)) {
       @Nullable
       DownloadRequest downloadRequest =
-          downloadTracker.getDownloadRequest(checkNotNull(item.playbackProperties).uri);
+          downloadTracker.getDownloadRequest(checkNotNull(item.localConfiguration).uri);
       if (downloadRequest != null) {
         MediaItem.Builder builder = item.buildUpon();
         builder
@@ -506,7 +506,7 @@ public class PlayerActivity extends AppCompatActivity
             .setMimeType(downloadRequest.mimeType)
             .setStreamKeys(downloadRequest.streamKeys);
         @Nullable
-        MediaItem.DrmConfiguration drmConfiguration = item.playbackProperties.drmConfiguration;
+        MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
         if (drmConfiguration != null) {
           builder.setDrmConfiguration(
               drmConfiguration
@@ -526,7 +526,7 @@ public class PlayerActivity extends AppCompatActivity
 
   @Nullable
   private static Map<String, String> getDrmRequestHeaders(MediaItem item) {
-    MediaItem.DrmConfiguration drmConfiguration = item.playbackProperties.drmConfiguration;
+    MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
     return drmConfiguration != null ? drmConfiguration.licenseRequestHeaders : null;
   }
 }

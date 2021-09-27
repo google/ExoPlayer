@@ -215,7 +215,7 @@ new PlaybackStatsListener(
     /* keepHistory= */ false, (eventTime, playbackStats) -> {
       Object mediaTag =
           eventTime.timeline.getWindow(eventTime.windowIndex, new Window())
-              .mediaItem.playbackProperties.tag;
+              .mediaItem.localConfiguration.tag;
       // Report playbackStats with mediaTag metadata.
     });
 ~~~

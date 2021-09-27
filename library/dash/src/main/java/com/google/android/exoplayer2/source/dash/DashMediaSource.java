@@ -315,10 +315,10 @@ public final class DashMediaSource extends BaseMediaSource {
       Assertions.checkArgument(!manifest.dynamic);
       MediaItem.Builder mediaItemBuilder =
           mediaItem.buildUpon().setMimeType(MimeTypes.APPLICATION_MPD);
-      if (mediaItem.playbackProperties == null) {
+      if (mediaItem.localConfiguration == null) {
         mediaItemBuilder.setUri(Uri.EMPTY);
       }
-      if (mediaItem.playbackProperties == null || mediaItem.playbackProperties.tag == null) {
+      if (mediaItem.localConfiguration == null || mediaItem.localConfiguration.tag == null) {
         mediaItemBuilder.setTag(tag);
       }
       if (mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET) {
@@ -329,12 +329,12 @@ public final class DashMediaSource extends BaseMediaSource {
                 .setTargetOffsetMs(targetLiveOffsetOverrideMs)
                 .build());
       }
-      if (mediaItem.playbackProperties == null
-          || mediaItem.playbackProperties.streamKeys.isEmpty()) {
+      if (mediaItem.localConfiguration == null
+          || mediaItem.localConfiguration.streamKeys.isEmpty()) {
         mediaItemBuilder.setStreamKeys(streamKeys);
       }
       mediaItem = mediaItemBuilder.build();
-      if (!checkNotNull(mediaItem.playbackProperties).streamKeys.isEmpty()) {
+      if (!checkNotNull(mediaItem.localConfiguration).streamKeys.isEmpty()) {
         manifest = manifest.copy(streamKeys);
       }
       return new DashMediaSource(
@@ -367,26 +367,26 @@ public final class DashMediaSource extends BaseMediaSource {
      *
      * @param mediaItem The media item of the dash stream.
      * @return The new {@link DashMediaSource}.
-     * @throws NullPointerException if {@link MediaItem#playbackProperties} is {@code null}.
+     * @throws NullPointerException if {@link MediaItem#localConfiguration} is {@code null}.
      */
     @Override
     public DashMediaSource createMediaSource(MediaItem mediaItem) {
-      checkNotNull(mediaItem.playbackProperties);
+      checkNotNull(mediaItem.localConfiguration);
       @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser = this.manifestParser;
       if (manifestParser == null) {
         manifestParser = new DashManifestParser();
       }
       List<StreamKey> streamKeys =
-          mediaItem.playbackProperties.streamKeys.isEmpty()
+          mediaItem.localConfiguration.streamKeys.isEmpty()
               ? this.streamKeys
-              : mediaItem.playbackProperties.streamKeys;
+              : mediaItem.localConfiguration.streamKeys;
       if (!streamKeys.isEmpty()) {
         manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
 
-      boolean needsTag = mediaItem.playbackProperties.tag == null && tag != null;
+      boolean needsTag = mediaItem.localConfiguration.tag == null && tag != null;
       boolean needsStreamKeys =
-          mediaItem.playbackProperties.streamKeys.isEmpty() && !streamKeys.isEmpty();
+          mediaItem.localConfiguration.streamKeys.isEmpty() && !streamKeys.isEmpty();
       boolean needsTargetLiveOffset =
           mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
               && targetLiveOffsetOverrideMs != C.TIME_UNSET;
@@ -501,8 +501,8 @@ public final class DashMediaSource extends BaseMediaSource {
       long fallbackTargetLiveOffsetMs) {
     this.mediaItem = mediaItem;
     this.liveConfiguration = mediaItem.liveConfiguration;
-    this.manifestUri = checkNotNull(mediaItem.playbackProperties).uri;
-    this.initialManifestUri = mediaItem.playbackProperties.uri;
+    this.manifestUri = checkNotNull(mediaItem.localConfiguration).uri;
+    this.initialManifestUri = mediaItem.localConfiguration.uri;
     this.manifest = manifest;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;

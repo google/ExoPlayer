@@ -88,22 +88,22 @@ public class IntentUtil {
     Assertions.checkArgument(!mediaItems.isEmpty());
     if (mediaItems.size() == 1) {
       MediaItem mediaItem = mediaItems.get(0);
-      MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
-      intent.setAction(ACTION_VIEW).setData(mediaItem.playbackProperties.uri);
+      MediaItem.LocalConfiguration localConfiguration = checkNotNull(mediaItem.localConfiguration);
+      intent.setAction(ACTION_VIEW).setData(mediaItem.localConfiguration.uri);
       if (mediaItem.mediaMetadata.title != null) {
         intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.title);
       }
-      addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "");
+      addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "");
       addClippingPropertiesToIntent(
           mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "");
     } else {
       intent.setAction(ACTION_VIEW_LIST);
       for (int i = 0; i < mediaItems.size(); i++) {
         MediaItem mediaItem = mediaItems.get(i);
-        MediaItem.PlaybackProperties playbackProperties =
-            checkNotNull(mediaItem.playbackProperties);
-        intent.putExtra(URI_EXTRA + ("_" + i), playbackProperties.uri.toString());
-        addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "_" + i);
+        MediaItem.LocalConfiguration localConfiguration =
+            checkNotNull(mediaItem.localConfiguration);
+        intent.putExtra(URI_EXTRA + ("_" + i), localConfiguration.uri.toString());
+        addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
         addClippingPropertiesToIntent(
             mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "_" + i);
         if (mediaItem.mediaMetadata.title != null) {
@@ -185,20 +185,20 @@ public class IntentUtil {
   }
 
   private static void addPlaybackPropertiesToIntent(
-      MediaItem.PlaybackProperties playbackProperties, Intent intent, String extrasKeySuffix) {
+      MediaItem.LocalConfiguration localConfiguration, Intent intent, String extrasKeySuffix) {
     intent
-        .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, playbackProperties.mimeType)
+        .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, localConfiguration.mimeType)
         .putExtra(
             AD_TAG_URI_EXTRA + extrasKeySuffix,
-            playbackProperties.adsConfiguration != null
-                ? playbackProperties.adsConfiguration.adTagUri.toString()
+            localConfiguration.adsConfiguration != null
+                ? localConfiguration.adsConfiguration.adTagUri.toString()
                 : null);
-    if (playbackProperties.drmConfiguration != null) {
-      addDrmConfigurationToIntent(playbackProperties.drmConfiguration, intent, extrasKeySuffix);
+    if (localConfiguration.drmConfiguration != null) {
+      addDrmConfigurationToIntent(localConfiguration.drmConfiguration, intent, extrasKeySuffix);
     }
-    if (!playbackProperties.subtitles.isEmpty()) {
-      checkState(playbackProperties.subtitles.size() == 1);
-      MediaItem.Subtitle subtitle = playbackProperties.subtitles.get(0);
+    if (!localConfiguration.subtitles.isEmpty()) {
+      checkState(localConfiguration.subtitles.size() == 1);
+      MediaItem.Subtitle subtitle = localConfiguration.subtitles.get(0);
       intent.putExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix, subtitle.uri.toString());
       intent.putExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix, subtitle.mimeType);
       intent.putExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix, subtitle.language);

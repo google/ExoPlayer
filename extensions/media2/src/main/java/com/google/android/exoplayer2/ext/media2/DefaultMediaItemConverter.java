@@ -96,10 +96,10 @@ public class DefaultMediaItemConverter implements MediaItemConverter {
   @Override
   public androidx.media2.common.MediaItem convertToMedia2MediaItem(MediaItem exoPlayerMediaItem) {
     Assertions.checkNotNull(exoPlayerMediaItem);
-    MediaItem.PlaybackProperties playbackProperties =
-        Assertions.checkNotNull(exoPlayerMediaItem.playbackProperties);
+    MediaItem.LocalConfiguration localConfiguration =
+        Assertions.checkNotNull(exoPlayerMediaItem.localConfiguration);
 
-    @Nullable Object tag = playbackProperties.tag;
+    @Nullable Object tag = localConfiguration.tag;
     if (tag instanceof androidx.media2.common.MediaItem) {
       return (androidx.media2.common.MediaItem) tag;
     }

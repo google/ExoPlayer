@@ -85,7 +85,7 @@ public class FakeMediaSource extends BaseMediaSource {
       new MediaItem.Builder().setMediaId("FakeMediaSource").setUri("http://manifest.uri").build();
 
   private static final DataSpec FAKE_DATA_SPEC =
-      new DataSpec(castNonNull(FAKE_MEDIA_ITEM.playbackProperties).uri);
+      new DataSpec(castNonNull(FAKE_MEDIA_ITEM.localConfiguration).uri);
   private static final int MANIFEST_LOAD_BYTES = 100;
 
   private final TrackGroupArray trackGroupArray;

@@ -191,11 +191,11 @@ public final class RtspMediaSource extends BaseMediaSource {
      *
      * @param mediaItem The {@link MediaItem}.
      * @return The new {@link RtspMediaSource}.
-     * @throws NullPointerException if {@link MediaItem#playbackProperties} is {@code null}.
+     * @throws NullPointerException if {@link MediaItem#localConfiguration} is {@code null}.
      */
     @Override
     public RtspMediaSource createMediaSource(MediaItem mediaItem) {
-      checkNotNull(mediaItem.playbackProperties);
+      checkNotNull(mediaItem.localConfiguration);
       return new RtspMediaSource(
           mediaItem,
           forceUseRtpTcp
@@ -241,7 +241,7 @@ public final class RtspMediaSource extends BaseMediaSource {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.userAgent = userAgent;
-    this.uri = checkNotNull(this.mediaItem.playbackProperties).uri;
+    this.uri = checkNotNull(this.mediaItem.localConfiguration).uri;
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.timelineDurationUs = C.TIME_UNSET;
     this.timelineIsPlaceholder = true;

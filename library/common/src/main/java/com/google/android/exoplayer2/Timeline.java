@@ -272,8 +272,8 @@ public abstract class Timeline implements Bundleable {
       this.uid = uid;
       this.mediaItem = mediaItem != null ? mediaItem : EMPTY_MEDIA_ITEM;
       this.tag =
-          mediaItem != null && mediaItem.playbackProperties != null
-              ? mediaItem.playbackProperties.tag
+          mediaItem != null && mediaItem.localConfiguration != null
+              ? mediaItem.localConfiguration.tag
               : null;
       this.manifest = manifest;
       this.presentationStartTimeMs = presentationStartTimeMs;

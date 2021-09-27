@@ -227,14 +227,14 @@ public final class Util {
       return false;
     }
     for (MediaItem mediaItem : mediaItems) {
-      if (mediaItem.playbackProperties == null) {
+      if (mediaItem.localConfiguration == null) {
         continue;
       }
-      if (isLocalFileUri(mediaItem.playbackProperties.uri)) {
+      if (isLocalFileUri(mediaItem.localConfiguration.uri)) {
         return requestExternalStoragePermission(activity);
       }
-      for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {
-        if (isLocalFileUri(mediaItem.playbackProperties.subtitles.get(i).uri)) {
+      for (int i = 0; i < mediaItem.localConfiguration.subtitles.size(); i++) {
+        if (isLocalFileUri(mediaItem.localConfiguration.subtitles.get(i).uri)) {
           return requestExternalStoragePermission(activity);
         }
       }
@@ -255,14 +255,14 @@ public final class Util {
       return true;
     }
     for (MediaItem mediaItem : mediaItems) {
-      if (mediaItem.playbackProperties == null) {
+      if (mediaItem.localConfiguration == null) {
         continue;
       }
-      if (isTrafficRestricted(mediaItem.playbackProperties.uri)) {
+      if (isTrafficRestricted(mediaItem.localConfiguration.uri)) {
         return false;
       }
-      for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {
-        if (isTrafficRestricted(mediaItem.playbackProperties.subtitles.get(i).uri)) {
+      for (int i = 0; i < mediaItem.localConfiguration.subtitles.size(); i++) {
+        if (isTrafficRestricted(mediaItem.localConfiguration.subtitles.get(i).uri)) {
           return false;
         }
       }
