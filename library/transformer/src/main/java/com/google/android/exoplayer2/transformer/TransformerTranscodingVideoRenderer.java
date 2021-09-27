@@ -71,7 +71,6 @@ import java.nio.ByteBuffer;
   @Nullable private GlUtil.Uniform decoderTextureTransformUniform;
 
   @Nullable private MediaCodecAdapterWrapper encoder;
-  private long nextEncoderTimeUs;
   /** Whether encoder's actual output format is obtained. */
   private boolean hasEncoderActualOutputFormat;
 
@@ -304,7 +303,6 @@ import java.nio.ByteBuffer;
     if (!isDecoderSurfacePopulated) {
       if (!waitingForPopulatedDecoderSurface) {
         if (decoder.getOutputBuffer() != null) {
-          nextEncoderTimeUs = checkNotNull(decoder.getOutputBufferInfo()).presentationTimeUs;
           decoder.releaseOutputBuffer(/* render= */ true);
           waitingForPopulatedDecoderSurface = true;
         }
@@ -326,7 +324,8 @@ import java.nio.ByteBuffer;
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     EGLDisplay eglDisplay = checkNotNull(this.eglDisplay);
     EGLSurface eglSurface = checkNotNull(this.eglSurface);
-    EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, nextEncoderTimeUs * 1000L);
+    long decoderSurfaceTextureTimestampNs = decoderSurfaceTexture.getTimestamp();
+    EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, decoderSurfaceTextureTimestampNs);
     EGL14.eglSwapBuffers(eglDisplay, eglSurface);
     isDecoderSurfacePopulated = false;
     return true;
