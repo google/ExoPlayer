@@ -53,7 +53,12 @@ public abstract class SimpleSubtitleDecoder
 
   @Override
   protected final SubtitleOutputBuffer createOutputBuffer() {
-    return new SimpleSubtitleOutputBuffer(this::releaseOutputBuffer);
+    return new SubtitleOutputBuffer() {
+      @Override
+      public void release() {
+        SimpleSubtitleDecoder.this.releaseOutputBuffer(this);
+      }
+    };
   }
 
   @Override

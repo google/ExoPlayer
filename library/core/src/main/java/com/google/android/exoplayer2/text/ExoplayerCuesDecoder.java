@@ -57,7 +57,13 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
     inputBuffer = new SubtitleInputBuffer();
     availableOutputBuffers = new ArrayDeque<>();
     for (int i = 0; i < OUTPUT_BUFFERS_COUNT; i++) {
-      availableOutputBuffers.addFirst(new SimpleSubtitleOutputBuffer(this::releaseOutputBuffer));
+      availableOutputBuffers.addFirst(
+          new SubtitleOutputBuffer() {
+            @Override
+            public void release() {
+              ExoplayerCuesDecoder.this.releaseOutputBuffer(this);
+            }
+          });
     }
     inputBufferState = INPUT_BUFFER_AVAILABLE;
   }
