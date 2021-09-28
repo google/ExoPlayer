@@ -13,6 +13,10 @@
         `GlUtil.glAssertionsEnabled` instead.
     *   Move `Player.addListener(EventListener)` and
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
+*   Video:
+    *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
+        released `Surface` when playing without an app-provided `Surface`
+        ([#9476](https://github.com/google/ExoPlayer/issues/9476)).
 *   Android 12 compatibility:
     *   Keep `DownloadService` started and in the foreground whilst waiting for
         requirements to be met on Android 12. This is necessary due to new

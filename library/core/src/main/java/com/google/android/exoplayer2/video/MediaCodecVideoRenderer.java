@@ -495,11 +495,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       super.onReset();
     } finally {
       if (dummySurface != null) {
-        if (surface == dummySurface) {
-          surface = null;
-        }
-        dummySurface.release();
-        dummySurface = null;
+        releaseDummySurface();
       }
     }
   }
@@ -618,8 +614,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       float codecOperatingRate) {
     if (dummySurface != null && dummySurface.secure != codecInfo.secure) {
       // We can't re-use the current DummySurface instance with the new decoder.
-      dummySurface.release();
-      dummySurface = null;
+      releaseDummySurface();
     }
     String codecMimeType = codecInfo.codecMimeType;
     codecMaxValues = getCodecMaxValues(codecInfo, format, getStreamFormats());
@@ -1176,6 +1171,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         && !tunneling
         && !codecNeedsSetOutputSurfaceWorkaround(codecInfo.name)
         && (!codecInfo.secure || DummySurface.isSecureSupported(context));
+  }
+
+  private void releaseDummySurface() {
+    if (surface == dummySurface) {
+      surface = null;
+    }
+    dummySurface.release();
+    dummySurface = null;
   }
 
   private void setJoiningDeadlineMs() {
