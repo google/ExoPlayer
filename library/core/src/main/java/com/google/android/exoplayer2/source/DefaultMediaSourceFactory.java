@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.extractor.subtitle.SubtitleExtractor;
+import com.google.android.exoplayer2.extractor.text.SubtitleExtractor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;

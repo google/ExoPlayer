@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @NonNullApi
-package com.google.android.exoplayer2.extractor.subtitle;
+package com.google.android.exoplayer2.extractor.text;
 
 import com.google.android.exoplayer2.util.NonNullApi;
