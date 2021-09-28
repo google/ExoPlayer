@@ -94,8 +94,8 @@ public class IntentUtil {
         intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.title);
       }
       addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "");
-      addClippingPropertiesToIntent(
-          mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "");
+      addClippingConfigurationToIntent(
+          mediaItem.clippingConfiguration, intent, /* extrasKeySuffix= */ "");
     } else {
       intent.setAction(ACTION_VIEW_LIST);
       for (int i = 0; i < mediaItems.size(); i++) {
@@ -104,8 +104,8 @@ public class IntentUtil {
             checkNotNull(mediaItem.localConfiguration);
         intent.putExtra(URI_EXTRA + ("_" + i), localConfiguration.uri.toString());
         addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
-        addClippingPropertiesToIntent(
-            mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "_" + i);
+        addClippingConfigurationToIntent(
+            mediaItem.clippingConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
         if (mediaItem.mediaMetadata.title != null) {
           intent.putExtra(TITLE_EXTRA + ("_" + i), mediaItem.mediaMetadata.title);
         }
@@ -236,15 +236,17 @@ public class IntentUtil {
     }
   }
 
-  private static void addClippingPropertiesToIntent(
-      MediaItem.ClippingProperties clippingProperties, Intent intent, String extrasKeySuffix) {
-    if (clippingProperties.startPositionMs != 0) {
+  private static void addClippingConfigurationToIntent(
+      MediaItem.ClippingConfiguration clippingConfiguration,
+      Intent intent,
+      String extrasKeySuffix) {
+    if (clippingConfiguration.startPositionMs != 0) {
       intent.putExtra(
-          CLIP_START_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.startPositionMs);
+          CLIP_START_POSITION_MS_EXTRA + extrasKeySuffix, clippingConfiguration.startPositionMs);
     }
-    if (clippingProperties.endPositionMs != C.TIME_END_OF_SOURCE) {
+    if (clippingConfiguration.endPositionMs != C.TIME_END_OF_SOURCE) {
       intent.putExtra(
-          CLIP_END_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.endPositionMs);
+          CLIP_END_POSITION_MS_EXTRA + extrasKeySuffix, clippingConfiguration.endPositionMs);
     }
   }
 }

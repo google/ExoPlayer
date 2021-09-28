@@ -105,8 +105,8 @@ public class DefaultMediaItemConverter implements MediaItemConverter {
     }
 
     androidx.media2.common.MediaMetadata metadata = getMetadata(exoPlayerMediaItem);
-    long startPositionMs = exoPlayerMediaItem.clippingProperties.startPositionMs;
-    long endPositionMs = exoPlayerMediaItem.clippingProperties.endPositionMs;
+    long startPositionMs = exoPlayerMediaItem.clippingConfiguration.startPositionMs;
+    long endPositionMs = exoPlayerMediaItem.clippingConfiguration.endPositionMs;
     if (endPositionMs == C.TIME_END_OF_SOURCE) {
       endPositionMs = androidx.media2.common.MediaItem.POSITION_UNKNOWN;
     }

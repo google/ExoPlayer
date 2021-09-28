@@ -419,18 +419,18 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   // internal methods
 
   private static MediaSource maybeClipMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
-    if (mediaItem.clippingProperties.startPositionMs == 0
-        && mediaItem.clippingProperties.endPositionMs == C.TIME_END_OF_SOURCE
-        && !mediaItem.clippingProperties.relativeToDefaultPosition) {
+    if (mediaItem.clippingConfiguration.startPositionMs == 0
+        && mediaItem.clippingConfiguration.endPositionMs == C.TIME_END_OF_SOURCE
+        && !mediaItem.clippingConfiguration.relativeToDefaultPosition) {
       return mediaSource;
     }
     return new ClippingMediaSource(
         mediaSource,
-        C.msToUs(mediaItem.clippingProperties.startPositionMs),
-        C.msToUs(mediaItem.clippingProperties.endPositionMs),
-        /* enableInitialDiscontinuity= */ !mediaItem.clippingProperties.startsAtKeyFrame,
-        /* allowDynamicClippingUpdates= */ mediaItem.clippingProperties.relativeToLiveWindow,
-        mediaItem.clippingProperties.relativeToDefaultPosition);
+        C.msToUs(mediaItem.clippingConfiguration.startPositionMs),
+        C.msToUs(mediaItem.clippingConfiguration.endPositionMs),
+        /* enableInitialDiscontinuity= */ !mediaItem.clippingConfiguration.startsAtKeyFrame,
+        /* allowDynamicClippingUpdates= */ mediaItem.clippingConfiguration.relativeToLiveWindow,
+        mediaItem.clippingConfiguration.relativeToDefaultPosition);
   }
 
   private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {

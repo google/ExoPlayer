@@ -33,8 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Instrumentation tests for playback of clipped items using {@link MediaItem#clippingProperties} or
- * {@link ClippingMediaSource} directly.
+ * Instrumentation tests for playback of clipped items using {@link MediaItem#clippingConfiguration}
+ * or {@link ClippingMediaSource} directly.
  */
 @RunWith(AndroidJUnit4.class)
 public final class ClippedPlaybackTest {
