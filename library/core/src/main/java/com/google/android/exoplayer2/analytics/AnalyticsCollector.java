@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.analytics;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.os.Looper;
@@ -49,7 +50,6 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
@@ -108,7 +108,7 @@ public class AnalyticsCollector
    */
   @CallSuper
   public void addListener(AnalyticsListener listener) {
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     listeners.add(listener);
   }
 
@@ -131,8 +131,7 @@ public class AnalyticsCollector
    */
   @CallSuper
   public void setPlayer(Player player, Looper looper) {
-    Assertions.checkState(
-        this.player == null || mediaPeriodQueueTracker.mediaPeriodQueue.isEmpty());
+    checkState(this.player == null || mediaPeriodQueueTracker.mediaPeriodQueue.isEmpty());
     this.player = checkNotNull(player);
     handler = clock.createHandler(looper, null);
     listeners =
@@ -148,15 +147,9 @@ public class AnalyticsCollector
    */
   @CallSuper
   public void release() {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    eventTimes.put(AnalyticsListener.EVENT_PLAYER_RELEASED, eventTime);
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_PLAYER_RELEASED,
-        listener -> listener.onPlayerReleased(eventTime));
-    // Release listeners lazily so that all events that got triggered as part of player.release()
-    // are still delivered to all listeners.
-    checkStateNotNull(handler).post(() -> listeners.release());
+    // Release lazily so that all events that got triggered as part of player.release()
+    // are still delivered to all listeners and onPlayerReleased() is delivered last.
+    checkStateNotNull(handler).post(this::releaseInternal);
   }
 
   /**
@@ -939,6 +932,15 @@ public class AnalyticsCollector
         currentMediaPeriodId,
         player.getCurrentPosition(),
         player.getTotalBufferedDuration());
+  }
+
+  private void releaseInternal() {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_PLAYER_RELEASED,
+        listener -> listener.onPlayerReleased(eventTime));
+    listeners.release();
   }
 
   private EventTime generateEventTime(@Nullable MediaPeriodId mediaPeriodId) {

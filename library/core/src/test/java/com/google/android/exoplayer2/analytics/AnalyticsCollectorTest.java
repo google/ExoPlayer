@@ -35,6 +35,7 @@ import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_ME
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYER_ERROR;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYER_RELEASED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAY_WHEN_READY_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_POSITION_DISCONTINUITY;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_RENDERED_FIRST_FRAME;
@@ -55,8 +56,11 @@ import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -102,6 +106,7 @@ import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.FakeAudioRenderer;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeExoMediaDrm;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
@@ -128,7 +133,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Integration test for {@link AnalyticsCollector}. */
@@ -1971,13 +1975,47 @@ public final class AnalyticsCollectorTest {
         ExoPlaybackException.createForSource(
             new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED));
 
-    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    InOrder inOrder = inOrder(listener1, listener2, listener3);
     inOrder.verify(listener1).onPlayerError(any(), any());
     inOrder.verify(listener2).onPlayerError(any(), any());
     inOrder.verify(listener3).onPlayerError(any(), any());
     inOrder.verify(listener1).onSurfaceSizeChanged(any(), eq(0), eq(0));
     inOrder.verify(listener2).onSurfaceSizeChanged(any(), eq(0), eq(0));
     inOrder.verify(listener3).onSurfaceSizeChanged(any(), eq(0), eq(0));
+  }
+
+  @Test
+  public void release_withCallbacksArrivingAfterRelease_onPlayerReleasedForwardedLast() {
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, /* isAutoAdvancing= */ false);
+    AnalyticsCollector analyticsCollector = new AnalyticsCollector(fakeClock);
+    SimpleExoPlayer simpleExoPlayer =
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).buildExoPlayer();
+    analyticsCollector.setPlayer(simpleExoPlayer, Looper.myLooper());
+    AnalyticsListener analyticsListener = mock(AnalyticsListener.class);
+    analyticsCollector.addListener(analyticsListener);
+
+    // Simulate Player.release(): events arrive to the analytics collector after it's been released.
+    analyticsCollector.release();
+    fakeClock.advanceTime(/* timeDiffMs= */ 1);
+    analyticsCollector.onDroppedFrames(/* count= */ 1, /* elapsedMs= */ 1);
+    fakeClock.advanceTime(/* timeDiffMs= */ 1);
+    ShadowLooper.idleMainLooper();
+
+    InOrder inOrder = inOrder(analyticsListener);
+    inOrder
+        .verify(analyticsListener)
+        .onDroppedVideoFrames(argThat(eventTime -> eventTime.realtimeMs == 1), eq(1), eq(1L));
+    inOrder
+        .verify(analyticsListener)
+        .onEvents(
+            same(simpleExoPlayer), argThat(events -> events.contains(EVENT_DROPPED_VIDEO_FRAMES)));
+    inOrder
+        .verify(analyticsListener)
+        .onPlayerReleased(argThat(eventTime -> eventTime.realtimeMs == 2));
+    inOrder
+        .verify(analyticsListener)
+        .onEvents(same(simpleExoPlayer), argThat(events -> events.contains(EVENT_PLAYER_RELEASED)));
+    inOrder.verifyNoMoreInteractions();
   }
 
   private static TestAnalyticsListener runAnalyticsTest(MediaSource mediaSource) throws Exception {
