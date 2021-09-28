@@ -69,7 +69,7 @@ public final class MediaItem implements Bundleable {
     @Nullable private String mimeType;
     // TODO: Change this to ClippingProperties once all the deprecated individual setters are
     // removed.
-    private ClippingProperties.Builder clippingProperties;
+    private ClippingConfiguration.Builder clippingConfiguration;
     // TODO: Change this to @Nullable DrmConfiguration once all the deprecated individual setters
     // are removed.
     private DrmConfiguration.Builder drmConfiguration;
@@ -86,7 +86,7 @@ public final class MediaItem implements Bundleable {
     /** Creates a builder. */
     @SuppressWarnings("deprecation") // Temporarily uses DrmConfiguration.Builder() constructor.
     public Builder() {
-      clippingProperties = new ClippingProperties.Builder();
+      clippingConfiguration = new ClippingConfiguration.Builder();
       drmConfiguration = new DrmConfiguration.Builder();
       streamKeys = Collections.emptyList();
       subtitles = Collections.emptyList();
@@ -95,7 +95,7 @@ public final class MediaItem implements Bundleable {
 
     private Builder(MediaItem mediaItem) {
       this();
-      clippingProperties = mediaItem.clippingProperties.buildUpon();
+      clippingConfiguration = mediaItem.clippingConfiguration.buildUpon();
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
       liveConfiguration = mediaItem.liveConfiguration.buildUpon();
@@ -162,59 +162,59 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
-    /** Sets the {@link ClippingProperties}, defaults to {@link ClippingProperties#UNSET}. */
-    public Builder setClippingProperties(ClippingProperties clippingProperties) {
-      this.clippingProperties = clippingProperties.buildUpon();
+    /** Sets the {@link ClippingConfiguration}, defaults to {@link ClippingConfiguration#UNSET}. */
+    public Builder setClippingConfiguration(ClippingConfiguration clippingConfiguration) {
+      this.clippingConfiguration = clippingConfiguration.buildUpon();
       return this;
     }
 
     /**
-     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
-     *     ClippingProperties.Builder#setStartPositionMs(long)} instead.
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setStartPositionMs(long)} instead.
      */
     @Deprecated
     public Builder setClipStartPositionMs(@IntRange(from = 0) long startPositionMs) {
-      clippingProperties.setStartPositionMs(startPositionMs);
+      clippingConfiguration.setStartPositionMs(startPositionMs);
       return this;
     }
 
     /**
-     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
-     *     ClippingProperties.Builder#setEndPositionMs(long)} instead.
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setEndPositionMs(long)} instead.
      */
     @Deprecated
     public Builder setClipEndPositionMs(long endPositionMs) {
-      clippingProperties.setEndPositionMs(endPositionMs);
+      clippingConfiguration.setEndPositionMs(endPositionMs);
       return this;
     }
 
     /**
-     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
-     *     ClippingProperties.Builder#setRelativeToLiveWindow(boolean)} instead.
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setRelativeToLiveWindow(boolean)} instead.
      */
     @Deprecated
     public Builder setClipRelativeToLiveWindow(boolean relativeToLiveWindow) {
-      clippingProperties.setRelativeToLiveWindow(relativeToLiveWindow);
+      clippingConfiguration.setRelativeToLiveWindow(relativeToLiveWindow);
       return this;
     }
 
     /**
-     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
-     *     ClippingProperties.Builder#setRelativeToDefaultPosition(boolean)} instead.
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setRelativeToDefaultPosition(boolean)} instead.
      */
     @Deprecated
     public Builder setClipRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
-      clippingProperties.setRelativeToDefaultPosition(relativeToDefaultPosition);
+      clippingConfiguration.setRelativeToDefaultPosition(relativeToDefaultPosition);
       return this;
     }
 
     /**
-     * @deprecated Use {@link #setClippingProperties(ClippingProperties)} and {@link
-     *     ClippingProperties.Builder#setStartsAtKeyFrame(boolean)} instead.
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setStartsAtKeyFrame(boolean)} instead.
      */
     @Deprecated
     public Builder setClipStartsAtKeyFrame(boolean startsAtKeyFrame) {
-      clippingProperties.setStartsAtKeyFrame(startsAtKeyFrame);
+      clippingConfiguration.setStartsAtKeyFrame(startsAtKeyFrame);
       return this;
     }
 
@@ -505,7 +505,7 @@ public final class MediaItem implements Bundleable {
       }
       return new MediaItem(
           mediaId != null ? mediaId : DEFAULT_MEDIA_ID,
-          clippingProperties.build(),
+          clippingConfiguration.buildClippingProperties(),
           localConfiguration,
           liveConfiguration.build(),
           mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY);
@@ -1368,12 +1368,13 @@ public final class MediaItem implements Bundleable {
   }
 
   /** Optionally clips the media item to a custom start and end position. */
-  public static final class ClippingProperties implements Bundleable {
+  // TODO: Mark this final when ClippingProperties is deleted.
+  public static class ClippingConfiguration implements Bundleable {
 
-    /** A clipping properties configuration with default values. */
-    public static final ClippingProperties UNSET = new ClippingProperties.Builder().build();
+    /** A clipping configuration with default values. */
+    public static final ClippingConfiguration UNSET = new ClippingConfiguration.Builder().build();
 
-    /** Builder for {@link ClippingProperties} instances. */
+    /** Builder for {@link ClippingConfiguration} instances. */
     public static final class Builder {
       private long startPositionMs;
       private long endPositionMs;
@@ -1386,12 +1387,12 @@ public final class MediaItem implements Bundleable {
         endPositionMs = C.TIME_END_OF_SOURCE;
       }
 
-      private Builder(ClippingProperties clippingProperties) {
-        startPositionMs = clippingProperties.startPositionMs;
-        endPositionMs = clippingProperties.endPositionMs;
-        relativeToLiveWindow = clippingProperties.relativeToLiveWindow;
-        relativeToDefaultPosition = clippingProperties.relativeToDefaultPosition;
-        startsAtKeyFrame = clippingProperties.startsAtKeyFrame;
+      private Builder(ClippingConfiguration clippingConfiguration) {
+        startPositionMs = clippingConfiguration.startPositionMs;
+        endPositionMs = clippingConfiguration.endPositionMs;
+        relativeToLiveWindow = clippingConfiguration.relativeToLiveWindow;
+        relativeToDefaultPosition = clippingConfiguration.relativeToDefaultPosition;
+        startsAtKeyFrame = clippingConfiguration.startsAtKeyFrame;
       }
 
       /**
@@ -1444,9 +1445,16 @@ public final class MediaItem implements Bundleable {
       }
 
       /**
-       * Returns a {@link ClippingProperties} instance initialized with the values of this builder.
+       * Returns a {@link ClippingConfiguration} instance initialized with the values of this
+       * builder.
        */
-      public ClippingProperties build() {
+      public ClippingConfiguration build() {
+        return buildClippingProperties();
+      }
+
+      /** @deprecated Use {@link #build()} instead. */
+      @Deprecated
+      public ClippingProperties buildClippingProperties() {
         return new ClippingProperties(this);
       }
     }
@@ -1476,7 +1484,7 @@ public final class MediaItem implements Bundleable {
     /** Sets whether the start point is guaranteed to be a key frame. */
     public final boolean startsAtKeyFrame;
 
-    private ClippingProperties(Builder builder) {
+    private ClippingConfiguration(Builder builder) {
       this.startPositionMs = builder.startPositionMs;
       this.endPositionMs = builder.endPositionMs;
       this.relativeToLiveWindow = builder.relativeToLiveWindow;
@@ -1494,11 +1502,11 @@ public final class MediaItem implements Bundleable {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof ClippingProperties)) {
+      if (!(obj instanceof ClippingConfiguration)) {
         return false;
       }
 
-      ClippingProperties other = (ClippingProperties) obj;
+      ClippingConfiguration other = (ClippingConfiguration) obj;
 
       return startPositionMs == other.startPositionMs
           && endPositionMs == other.endPositionMs
@@ -1547,10 +1555,10 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore {@link ClippingProperties} from a {@link Bundle}. */
+    /** Object that can restore {@link ClippingConfiguration} from a {@link Bundle}. */
     public static final Creator<ClippingProperties> CREATOR =
         bundle ->
-            new ClippingProperties.Builder()
+            new ClippingConfiguration.Builder()
                 .setStartPositionMs(
                     bundle.getLong(keyForField(FIELD_START_POSITION_MS), /* defaultValue= */ 0))
                 .setEndPositionMs(
@@ -1563,10 +1571,21 @@ public final class MediaItem implements Bundleable {
                     bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), false))
                 .setStartsAtKeyFrame(
                     bundle.getBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), false))
-                .build();
+                .buildClippingProperties();
 
-    private static String keyForField(@ClippingProperties.FieldNumber int field) {
+    private static String keyForField(@ClippingConfiguration.FieldNumber int field) {
       return Integer.toString(field, Character.MAX_RADIX);
+    }
+  }
+
+  /** @deprecated Use {@link ClippingConfiguration} instead. */
+  @Deprecated
+  public static final class ClippingProperties extends ClippingConfiguration {
+    public static final ClippingProperties UNSET =
+        new ClippingConfiguration.Builder().buildClippingProperties();
+
+    private ClippingProperties(Builder builder) {
+      super(builder);
     }
   }
 
@@ -1597,12 +1616,15 @@ public final class MediaItem implements Bundleable {
   public final MediaMetadata mediaMetadata;
 
   /** The clipping properties. */
-  public final ClippingProperties clippingProperties;
+  public final ClippingConfiguration clippingConfiguration;
+  /** @deprecated Use {@link #clippingConfiguration} instead. */
+  @Deprecated public final ClippingProperties clippingProperties;
 
-  @SuppressWarnings("deprecation") // Using PlaybackProperties until it's deleted.
+  // Using PlaybackProperties and ClippingProperties until they're deleted.
+  @SuppressWarnings("deprecation")
   private MediaItem(
       String mediaId,
-      ClippingProperties clippingProperties,
+      ClippingProperties clippingConfiguration,
       @Nullable PlaybackProperties localConfiguration,
       LiveConfiguration liveConfiguration,
       MediaMetadata mediaMetadata) {
@@ -1611,7 +1633,8 @@ public final class MediaItem implements Bundleable {
     this.playbackProperties = localConfiguration;
     this.liveConfiguration = liveConfiguration;
     this.mediaMetadata = mediaMetadata;
-    this.clippingProperties = clippingProperties;
+    this.clippingConfiguration = clippingConfiguration;
+    this.clippingProperties = clippingConfiguration;
   }
 
   /** Returns a {@link Builder} initialized with the values of this instance. */
@@ -1631,7 +1654,7 @@ public final class MediaItem implements Bundleable {
     MediaItem other = (MediaItem) obj;
 
     return Util.areEqual(mediaId, other.mediaId)
-        && clippingProperties.equals(other.clippingProperties)
+        && clippingConfiguration.equals(other.clippingConfiguration)
         && Util.areEqual(localConfiguration, other.localConfiguration)
         && Util.areEqual(liveConfiguration, other.liveConfiguration)
         && Util.areEqual(mediaMetadata, other.mediaMetadata);
@@ -1642,7 +1665,7 @@ public final class MediaItem implements Bundleable {
     int result = mediaId.hashCode();
     result = 31 * result + (localConfiguration != null ? localConfiguration.hashCode() : 0);
     result = 31 * result + liveConfiguration.hashCode();
-    result = 31 * result + clippingProperties.hashCode();
+    result = 31 * result + clippingConfiguration.hashCode();
     result = 31 * result + mediaMetadata.hashCode();
     return result;
   }
@@ -1676,7 +1699,7 @@ public final class MediaItem implements Bundleable {
     bundle.putString(keyForField(FIELD_MEDIA_ID), mediaId);
     bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
     bundle.putBundle(keyForField(FIELD_MEDIA_METADATA), mediaMetadata.toBundle());
-    bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingProperties.toBundle());
+    bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingConfiguration.toBundle());
     return bundle;
   }
 
@@ -1687,6 +1710,7 @@ public final class MediaItem implements Bundleable {
    */
   public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
 
+  @SuppressWarnings("deprecation") // Unbundling to ClippingProperties while it still exists.
   private static MediaItem fromBundle(Bundle bundle) {
     String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID), DEFAULT_MEDIA_ID));
     @Nullable
@@ -1705,16 +1729,16 @@ public final class MediaItem implements Bundleable {
       mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
     }
     @Nullable
-    Bundle clippingPropertiesBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
-    ClippingProperties clippingProperties;
-    if (clippingPropertiesBundle == null) {
-      clippingProperties = ClippingProperties.UNSET;
+    Bundle clippingConfigurationBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
+    ClippingProperties clippingConfiguration;
+    if (clippingConfigurationBundle == null) {
+      clippingConfiguration = ClippingProperties.UNSET;
     } else {
-      clippingProperties = ClippingProperties.CREATOR.fromBundle(clippingPropertiesBundle);
+      clippingConfiguration = ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
     }
     return new MediaItem(
         mediaId,
-        clippingProperties,
+        clippingConfiguration,
         /* playbackProperties= */ null,
         liveConfiguration,
         mediaMetadata);

@@ -307,12 +307,13 @@ public class MediaItemTest {
   }
 
   @Test
-  public void builderSetClippingProperties() {
+  @SuppressWarnings("deprecation") // Testing deprecated field
+  public void builderSetClippingConfiguration() {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(URI_STRING)
-            .setClippingProperties(
-                new MediaItem.ClippingProperties.Builder()
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
                     .setStartPositionMs(1000L)
                     .setEndPositionMs(2000L)
                     .setRelativeToLiveWindow(true)
@@ -321,40 +322,41 @@ public class MediaItemTest {
                     .build())
             .build();
 
-    assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(1000L);
-    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(2000L);
-    assertThat(mediaItem.clippingProperties.relativeToLiveWindow).isTrue();
-    assertThat(mediaItem.clippingProperties.relativeToDefaultPosition).isTrue();
-    assertThat(mediaItem.clippingProperties.startsAtKeyFrame).isTrue();
+    assertThat(mediaItem.clippingConfiguration.startPositionMs).isEqualTo(1000L);
+    assertThat(mediaItem.clippingConfiguration.endPositionMs).isEqualTo(2000L);
+    assertThat(mediaItem.clippingConfiguration.relativeToLiveWindow).isTrue();
+    assertThat(mediaItem.clippingConfiguration.relativeToDefaultPosition).isTrue();
+    assertThat(mediaItem.clippingConfiguration.startsAtKeyFrame).isTrue();
+    assertThat(mediaItem.clippingConfiguration).isEqualTo(mediaItem.clippingProperties);
   }
 
   @Test
-  public void clippingPropertiesDefaults() {
-    MediaItem.ClippingProperties clippingProperties =
-        new MediaItem.ClippingProperties.Builder().build();
+  public void clippingConfigurationDefaults() {
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder().build();
 
-    assertThat(clippingProperties.startPositionMs).isEqualTo(0L);
-    assertThat(clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
-    assertThat(clippingProperties.relativeToLiveWindow).isFalse();
-    assertThat(clippingProperties.relativeToDefaultPosition).isFalse();
-    assertThat(clippingProperties.startsAtKeyFrame).isFalse();
-    assertThat(clippingProperties).isEqualTo(MediaItem.ClippingProperties.UNSET);
+    assertThat(clippingConfiguration.startPositionMs).isEqualTo(0L);
+    assertThat(clippingConfiguration.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(clippingConfiguration.relativeToLiveWindow).isFalse();
+    assertThat(clippingConfiguration.relativeToDefaultPosition).isFalse();
+    assertThat(clippingConfiguration.startsAtKeyFrame).isFalse();
+    assertThat(clippingConfiguration).isEqualTo(MediaItem.ClippingConfiguration.UNSET);
   }
 
   @Test
-  public void clippingPropertiesBuilder_throwsOnInvalidValues() {
-    MediaItem.ClippingProperties.Builder clippingPropertiesBuilder =
-        new MediaItem.ClippingProperties.Builder();
+  public void clippingConfigurationBuilder_throwsOnInvalidValues() {
+    MediaItem.ClippingConfiguration.Builder clippingConfigurationBuilder =
+        new MediaItem.ClippingConfiguration.Builder();
     assertThrows(
-        IllegalArgumentException.class, () -> clippingPropertiesBuilder.setStartPositionMs(-1));
+        IllegalArgumentException.class, () -> clippingConfigurationBuilder.setStartPositionMs(-1));
     assertThrows(
-        IllegalArgumentException.class, () -> clippingPropertiesBuilder.setEndPositionMs(-1));
+        IllegalArgumentException.class, () -> clippingConfigurationBuilder.setEndPositionMs(-1));
 
-    MediaItem.ClippingProperties clippingProperties = clippingPropertiesBuilder.build();
+    MediaItem.ClippingConfiguration clippingConfiguration = clippingConfigurationBuilder.build();
 
     // Check neither of the setters succeeded in mutating the builder.
-    assertThat(clippingProperties.startPositionMs).isEqualTo(0L);
-    assertThat(clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(clippingConfiguration.startPositionMs).isEqualTo(0L);
+    assertThat(clippingConfiguration.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
   }
 
   @Test
@@ -363,7 +365,7 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setClipStartPositionMs(1000L).build();
 
-    assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(1000L);
+    assertThat(mediaItem.clippingConfiguration.startPositionMs).isEqualTo(1000L);
   }
 
   @Test
@@ -380,7 +382,7 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setClipEndPositionMs(1000L).build();
 
-    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(1000L);
+    assertThat(mediaItem.clippingConfiguration.endPositionMs).isEqualTo(1000L);
   }
 
   @Test
@@ -393,7 +395,7 @@ public class MediaItemTest {
             .setClipEndPositionMs(C.TIME_END_OF_SOURCE)
             .build();
 
-    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(mediaItem.clippingConfiguration.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
   }
 
   @Test
@@ -415,9 +417,9 @@ public class MediaItemTest {
             .setClipStartsAtKeyFrame(true)
             .build();
 
-    assertThat(mediaItem.clippingProperties.relativeToDefaultPosition).isTrue();
-    assertThat(mediaItem.clippingProperties.relativeToLiveWindow).isTrue();
-    assertThat(mediaItem.clippingProperties.startsAtKeyFrame).isTrue();
+    assertThat(mediaItem.clippingConfiguration.relativeToDefaultPosition).isTrue();
+    assertThat(mediaItem.clippingConfiguration.relativeToLiveWindow).isTrue();
+    assertThat(mediaItem.clippingConfiguration.startsAtKeyFrame).isTrue();
   }
 
   @Test
@@ -605,8 +607,8 @@ public class MediaItemTest {
         new MediaItem.Builder()
             .setAdsConfiguration(
                 new MediaItem.AdsConfiguration.Builder(Uri.parse(URI_STRING)).build())
-            .setClippingProperties(
-                new MediaItem.ClippingProperties.Builder()
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
                     .setEndPositionMs(1000)
                     .setRelativeToDefaultPosition(true)
                     .setRelativeToLiveWindow(true)
