@@ -55,7 +55,7 @@ public final class WavPlaybackTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .build();
+            .buildExoPlayer();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     player.setMediaItem(MediaItem.fromUri("asset:///media/wav/" + inputFile));

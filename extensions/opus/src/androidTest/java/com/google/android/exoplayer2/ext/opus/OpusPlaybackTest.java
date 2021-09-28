@@ -97,7 +97,7 @@ public class OpusPlaybackTest {
               textRendererOutput,
               metadataRendererOutput) ->
               new Renderer[] {new LibopusAudioRenderer(eventHandler, audioRendererEventListener)};
-      player = new ExoPlayer.Builder(context, renderersFactory).build();
+      player = new ExoPlayer.Builder(context, renderersFactory).buildExoPlayer();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(

@@ -153,7 +153,7 @@ public final class RtspPlaybackTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(clock)
-            .build();
+            .buildExoPlayer();
     player.setMediaSource(
         new RtspMediaSource(
             MediaItem.fromUri(RtspTestUtils.getTestUri(serverRtspPortNumber)),
