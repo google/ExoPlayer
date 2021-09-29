@@ -221,13 +221,100 @@ public class RtspMediaTrackTest {
   }
 
   @Test
+  public void generatePayloadFormat_withG711MediaDescription_succeeds() {
+    MediaDescription mediaDescription =
+        new MediaDescription.Builder(
+            MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 0)
+            .setConnection("IN IP4 0.0.0.0")
+            .addAttribute(ATTR_CONTROL, "trackID=1")
+            .build();
+
+    RtpPayloadFormat format = RtspMediaTrack.generatePayloadFormat(mediaDescription);
+    RtpPayloadFormat expectedFormat =
+        new RtpPayloadFormat(
+            new Format.Builder()
+                .setSampleMimeType(MimeTypes.AUDIO_MLAW)
+                .setChannelCount(1)
+                .setSampleRate(8_000)
+                .build(),
+            /* rtpPayloadType= */ 0,
+            /* clockRate= */ 8_000,
+            /* fmtpParameters= */ ImmutableMap.of());
+
+    assertThat(format).isEqualTo(expectedFormat);
+  }
+
+  @Test
+  public void generatePayloadFormat_withG711MediaDescriptionAsDynamic_succeeds() {
+    MediaDescription mediaDescription =
+        new MediaDescription.Builder(
+            MEDIA_TYPE_AUDIO, /* port= */ 0, RTP_AVP_PROFILE, /* payloadType= */ 96)
+            .setConnection("IN IP4 0.0.0.0")
+            .addAttribute(ATTR_CONTROL, "trackID=1")
+            .addAttribute(ATTR_RTPMAP, "96 PCMU/8000")
+            .build();
+
+    RtpPayloadFormat format = RtspMediaTrack.generatePayloadFormat(mediaDescription);
+    RtpPayloadFormat expectedFormat =
+        new RtpPayloadFormat(
+            new Format.Builder()
+                .setSampleMimeType(MimeTypes.AUDIO_MLAW)
+                .setChannelCount(1)
+                .setSampleRate(8_000)
+                .build(),
+            /* rtpPayloadType= */ 96,
+            /* clockRate= */ 8_000,
+            /* fmtpParameters= */ ImmutableMap.of());
+
+    assertThat(format).isEqualTo(expectedFormat);
+  }
+
+  @Test
   public void rtspMediaTrack_mediaDescriptionContainsRelativeUri_setsCorrectTrackUri() {
     MediaDescription mediaDescription =
         createGenericMediaDescriptionWithControlAttribute("path1/track2");
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"),
+        /* contentBase= */ null, /* contentLocation= */null);
 
     assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/track2"));
+  }
+
+  @Test
+  public void rtspMediaTrack_mediaDescriptionContainsRelativeUriAppendedToPath_setsCorrectTrackUri() {
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path1/track2");
+
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/"),
+        /* contentBase= */ null, /* contentLocation= */null);
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
+  }
+
+  @Test
+  public void rtspMediaTrack_mediaDescriptionContainsRelativeUriUsesContentBase_setsCorrectTrackUri() {
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path1/track2");
+
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription,
+        /* sessionUri= */ Uri.parse("rtsp://test.com"),
+        /* contentBase= */ "rtsp://test.com/video?input=0&transmission=unicast/",
+        /* contentLocation= */"rtsp://test.com");
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
+  }
+
+  @Test
+  public void rtspMediaTrack_mediaDescriptionContainsRelativeUriUsesContentLocation_setsCorrectTrackUri() {
+    MediaDescription mediaDescription =
+        createGenericMediaDescriptionWithControlAttribute("path1/track2");
+
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription,
+        /* sessionUri= */ Uri.parse("rtsp://test.com"),
+        /* contentBase= */ null,
+        /* contentLocation= */"rtsp://test.com/video?input=0&transmission=unicast/");
+
+    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
   }
 
   @Test
@@ -235,7 +322,8 @@ public class RtspMediaTrackTest {
     MediaDescription mediaDescription =
         createGenericMediaDescriptionWithControlAttribute("rtsp://test.com/foo");
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"),
+        /* contentBase= */ null, /* contentLocation= */null);
 
     assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/foo"));
   }
@@ -244,7 +332,8 @@ public class RtspMediaTrackTest {
   public void rtspMediaTrack_mediaDescriptionContainsGenericUri_setsCorrectTrackUri() {
     MediaDescription mediaDescription = createGenericMediaDescriptionWithControlAttribute("*");
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"));
+    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"),
+        /* contentBase= */ null, /* contentLocation= */null);
 
     assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com"));
   }

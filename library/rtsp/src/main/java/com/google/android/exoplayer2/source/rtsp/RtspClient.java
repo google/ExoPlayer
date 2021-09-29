@@ -321,18 +321,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /**
    * Gets the included {@link RtspMediaTrack RtspMediaTracks} from a {@link SessionDescription}.
-   *
-   * @param sessionDescription The {@link SessionDescription}.
+   *  @param sessionDescription The {@link SessionDescription}.
    * @param uri The RTSP playback URI.
+   * @param contentBase The {@link RtspHeaders#CONTENT_BASE} header from the DESCRIBE response
+   * @param contentLocation The {@link RtspHeaders#CONTENT_LOCATION} header from the DESCRIBE response
    */
   private static ImmutableList<RtspMediaTrack> buildTrackList(
-      SessionDescription sessionDescription, Uri uri) {
+      SessionDescription sessionDescription, Uri uri, String contentBase, String contentLocation) {
     ImmutableList.Builder<RtspMediaTrack> trackListBuilder = new ImmutableList.Builder<>();
     for (int i = 0; i < sessionDescription.mediaDescriptionList.size(); i++) {
       MediaDescription mediaDescription = sessionDescription.mediaDescriptionList.get(i);
       // Includes tracks with supported formats only.
       if (RtpPayloadFormat.isFormatSupported(mediaDescription)) {
-        trackListBuilder.add(new RtspMediaTrack(mediaDescription, uri));
+        trackListBuilder.add(new RtspMediaTrack(mediaDescription, uri, contentBase, contentLocation));
       }
     }
     return trackListBuilder.build();
@@ -573,9 +574,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             break;
 
           case METHOD_DESCRIBE:
-            onDescribeResponseReceived(
-                new RtspDescribeResponse(
-                    response.status, SessionDescriptionParser.parse(response.messageBody)));
+            onDescribeResponseReceived(new RtspDescribeResponse(response));
             break;
 
           case METHOD_SETUP:
@@ -658,7 +657,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
 
-      ImmutableList<RtspMediaTrack> tracks = buildTrackList(response.sessionDescription, uri);
+      ImmutableList<RtspMediaTrack> tracks = buildTrackList(response.sessionDescription, uri,
+          response.contentBase, response.contentLocation);
       if (tracks.isEmpty()) {
         sessionInfoListener.onSessionTimelineRequestFailed("No playable track.", /* cause= */ null);
         return;

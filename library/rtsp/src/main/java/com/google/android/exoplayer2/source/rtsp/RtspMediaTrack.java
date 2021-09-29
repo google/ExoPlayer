@@ -60,10 +60,12 @@ import com.google.common.collect.ImmutableMap;
    * @param mediaDescription The {@link MediaDescription} of this track.
    * @param sessionUri The {@link Uri} of the RTSP playback session.
    */
-  public RtspMediaTrack(MediaDescription mediaDescription, Uri sessionUri) {
+  public RtspMediaTrack(MediaDescription mediaDescription, Uri sessionUri,
+      @Nullable String contentBase, @Nullable String contentLocation) {
     checkArgument(mediaDescription.attributes.containsKey(ATTR_CONTROL));
     payloadFormat = generatePayloadFormat(mediaDescription);
-    uri = extractTrackUri(sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)));
+    uri = extractTrackUri(sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)),
+        contentBase, contentLocation);
   }
 
   @Override
@@ -118,15 +120,11 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(!fmtpParameters.isEmpty());
         processH264FmtpAttribute(formatBuilder, fmtpParameters);
         break;
-      case MimeTypes.AUDIO_AC3:
-        // AC3 does not require a FMTP attribute. Fall through.
       default:
         // Do nothing.
     }
 
     checkArgument(clockRate > 0);
-    // Checks if payload type is "dynamic" as defined in RFC3551 Section 3.
-    checkArgument(rtpPayloadType >= 96);
     return new RtpPayloadFormat(formatBuilder.build(), rtpPayloadType, clockRate, fmtpParameters);
   }
 
@@ -217,16 +215,26 @@ import com.google.common.collect.ImmutableMap;
    *
    * @param sessionUri The session URI.
    * @param controlAttributeString The control attribute from the track's {@link MediaDescription}.
+   * @param contentBase The {@link RtspHeaders#CONTENT_BASE} header from the DESCRIBE response
+   * @param contentLocation The {@link RtspHeaders#CONTENT_LOCATION} header from the DESCRIBE response
    * @return The extracted track URI.
    */
-  private static Uri extractTrackUri(Uri sessionUri, String controlAttributeString) {
+  @VisibleForTesting
+  /* package */ static Uri extractTrackUri(Uri sessionUri, String controlAttributeString,
+      String contentBase, String contentLocation) {
+    if (GENERIC_CONTROL_ATTR.equals(controlAttributeString)) {
+      return sessionUri;
+    }
     Uri controlAttributeUri = Uri.parse(controlAttributeString);
     if (controlAttributeUri.isAbsolute()) {
       return controlAttributeUri;
-    } else if (controlAttributeString.equals(GENERIC_CONTROL_ATTR)) {
-      return sessionUri;
-    } else {
-      return sessionUri.buildUpon().appendEncodedPath(controlAttributeString).build();
     }
+    if (contentBase != null && !contentBase.isEmpty()) {
+      return Uri.parse(contentBase + controlAttributeString);
+    }
+    if (contentLocation != null && !contentLocation.isEmpty()) {
+      return Uri.parse(contentBase + contentLocation);
+    }
+    return sessionUri;
   }
 }

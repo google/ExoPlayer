@@ -15,21 +15,27 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ParserException;
+
 /** Represents an RTSP DESCRIBE response. */
 /* package */ final class RtspDescribeResponse {
   /** The response's status code. */
   public final int status;
   /** The {@link SessionDescription} (see RFC2327) in the DESCRIBE response. */
   public final SessionDescription sessionDescription;
+  /** The {@link RtspHeaders#CONTENT_BASE} header from the response */
+  @Nullable public final String contentBase;
+  /** The {@link RtspHeaders#CONTENT_LOCATION} header from the response */
+  @Nullable public final String contentLocation;
 
   /**
-   * Creates a new instance.
-   *
-   * @param status The response's status code.
-   * @param sessionDescription The {@link SessionDescription} in the DESCRIBE response.
+   * Creates a new instance from a response
    */
-  public RtspDescribeResponse(int status, SessionDescription sessionDescription) {
-    this.status = status;
-    this.sessionDescription = sessionDescription;
+  public RtspDescribeResponse(RtspResponse response) throws ParserException {
+    this.status = response.status;
+    this.sessionDescription = SessionDescriptionParser.parse(response.messageBody);
+    this.contentBase = response.headers.get(RtspHeaders.CONTENT_BASE);
+    this.contentLocation = response.headers.get(RtspHeaders.CONTENT_LOCATION);
   }
 }
