@@ -1985,37 +1985,59 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void release_withCallbacksArrivingAfterRelease_onPlayerReleasedForwardedLast() {
-    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, /* isAutoAdvancing= */ false);
-    AnalyticsCollector analyticsCollector = new AnalyticsCollector(fakeClock);
+  public void release_withCallbacksArrivingAfterRelease_onPlayerReleasedForwardedLast()
+      throws Exception {
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, /* isAutoAdvancing= */ true);
     SimpleExoPlayer simpleExoPlayer =
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).buildExoPlayer();
-    analyticsCollector.setPlayer(simpleExoPlayer, Looper.myLooper());
-    AnalyticsListener analyticsListener = mock(AnalyticsListener.class);
-    analyticsCollector.addListener(analyticsListener);
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setClock(fakeClock)
+            .build();
+    AnalyticsListener analyticsListener =
+        spy(
+            new AnalyticsListener() {
+              @Override
+              public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
+                // Add delay in callback to test whether event timestamp and release timestamp are
+                // in the correct order.
+                fakeClock.advanceTime(1);
+              }
+            });
+    simpleExoPlayer.addAnalyticsListener(analyticsListener);
 
-    // Simulate Player.release(): events arrive to the analytics collector after it's been released.
-    analyticsCollector.release();
-    fakeClock.advanceTime(/* timeDiffMs= */ 1);
-    analyticsCollector.onDroppedFrames(/* count= */ 1, /* elapsedMs= */ 1);
-    fakeClock.advanceTime(/* timeDiffMs= */ 1);
+    // Prepare with media to ensure video renderer is enabled.
+    simpleExoPlayer.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    simpleExoPlayer.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(simpleExoPlayer, Player.STATE_READY);
+
+    // Release and add delay on releasing thread to verify timestamps of events.
+    simpleExoPlayer.release();
+    long releaseTimeMs = fakeClock.currentTimeMillis();
+    fakeClock.advanceTime(1);
     ShadowLooper.idleMainLooper();
 
+    // Verify video disable events and release events arrived in order.
+    ArgumentCaptor<AnalyticsListener.EventTime> videoDisabledEventTime =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    ArgumentCaptor<AnalyticsListener.EventTime> releasedEventTime =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     InOrder inOrder = inOrder(analyticsListener);
+    inOrder.verify(analyticsListener).onVideoDisabled(videoDisabledEventTime.capture(), any());
     inOrder
         .verify(analyticsListener)
-        .onDroppedVideoFrames(argThat(eventTime -> eventTime.realtimeMs == 1), eq(1), eq(1L));
-    inOrder
-        .verify(analyticsListener)
-        .onEvents(
-            same(simpleExoPlayer), argThat(events -> events.contains(EVENT_DROPPED_VIDEO_FRAMES)));
-    inOrder
-        .verify(analyticsListener)
-        .onPlayerReleased(argThat(eventTime -> eventTime.realtimeMs == 2));
+        .onEvents(same(simpleExoPlayer), argThat(events -> events.contains(EVENT_VIDEO_DISABLED)));
+    inOrder.verify(analyticsListener).onPlayerReleased(releasedEventTime.capture());
     inOrder
         .verify(analyticsListener)
         .onEvents(same(simpleExoPlayer), argThat(events -> events.contains(EVENT_PLAYER_RELEASED)));
-    inOrder.verifyNoMoreInteractions();
+
+    // Verify order of timestamps of these events.
+    // This verification is needed as a regression test against [internal ref: b/195396384]. The
+    // root cause of the regression was an onPlayerReleased timestamp that was less than the
+    // previously reported timestamps for other events triggered as part of the release.
+    long videoDisableTimeMs = videoDisabledEventTime.getValue().realtimeMs;
+    assertThat(videoDisableTimeMs).isGreaterThan(releaseTimeMs);
+    assertThat(releasedEventTime.getValue().realtimeMs).isGreaterThan(videoDisableTimeMs);
   }
 
   private static TestAnalyticsListener runAnalyticsTest(MediaSource mediaSource) throws Exception {
