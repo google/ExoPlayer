@@ -501,7 +501,8 @@ public interface ExoPlayer extends Player {
      *
      * @param trackSelector A {@link TrackSelector}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setTrackSelector(TrackSelector trackSelector) {
       wrappedBuilder.setTrackSelector(trackSelector);
@@ -513,7 +514,8 @@ public interface ExoPlayer extends Player {
      *
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
       wrappedBuilder.setMediaSourceFactory(mediaSourceFactory);
@@ -525,7 +527,8 @@ public interface ExoPlayer extends Player {
      *
      * @param loadControl A {@link LoadControl}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setLoadControl(LoadControl loadControl) {
       wrappedBuilder.setLoadControl(loadControl);
@@ -537,7 +540,8 @@ public interface ExoPlayer extends Player {
      *
      * @param bandwidthMeter A {@link BandwidthMeter}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       wrappedBuilder.setBandwidthMeter(bandwidthMeter);
@@ -550,7 +554,8 @@ public interface ExoPlayer extends Player {
      *
      * @param looper A {@link Looper}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setLooper(Looper looper) {
       wrappedBuilder.setLooper(looper);
@@ -562,7 +567,8 @@ public interface ExoPlayer extends Player {
      *
      * @param analyticsCollector An {@link AnalyticsCollector}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       wrappedBuilder.setAnalyticsCollector(analyticsCollector);
@@ -576,7 +582,8 @@ public interface ExoPlayer extends Player {
      *
      * @param priorityTaskManager A {@link PriorityTaskManager}, or null to not use one.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
       wrappedBuilder.setPriorityTaskManager(priorityTaskManager);
@@ -594,7 +601,8 @@ public interface ExoPlayer extends Player {
      * @param audioAttributes {@link AudioAttributes}.
      * @param handleAudioFocus Whether the player should handle audio focus.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
       wrappedBuilder.setAudioAttributes(audioAttributes, handleAudioFocus);
@@ -616,7 +624,8 @@ public interface ExoPlayer extends Player {
      *
      * @param wakeMode A {@link C.WakeMode}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setWakeMode(@C.WakeMode int wakeMode) {
       wrappedBuilder.setWakeMode(wakeMode);
@@ -632,7 +641,8 @@ public interface ExoPlayer extends Player {
      * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
      *     rerouted from a headset to device speakers.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
       wrappedBuilder.setHandleAudioBecomingNoisy(handleAudioBecomingNoisy);
@@ -644,7 +654,8 @@ public interface ExoPlayer extends Player {
      *
      * @param skipSilenceEnabled Whether skipping silences is enabled.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
       wrappedBuilder.setSkipSilenceEnabled(skipSilenceEnabled);
@@ -659,7 +670,8 @@ public interface ExoPlayer extends Player {
      *
      * @param videoScalingMode A {@link C.VideoScalingMode}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
       wrappedBuilder.setVideoScalingMode(videoScalingMode);
@@ -678,7 +690,8 @@ public interface ExoPlayer extends Player {
      *
      * @param videoChangeFrameRateStrategy A {@link C.VideoChangeFrameRateStrategy}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
@@ -695,7 +708,8 @@ public interface ExoPlayer extends Player {
      *
      * @param useLazyPreparation Whether to use lazy preparation.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       wrappedBuilder.setUseLazyPreparation(useLazyPreparation);
@@ -707,7 +721,8 @@ public interface ExoPlayer extends Player {
      *
      * @param seekParameters The {@link SeekParameters}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setSeekParameters(SeekParameters seekParameters) {
       wrappedBuilder.setSeekParameters(seekParameters);
@@ -720,7 +735,8 @@ public interface ExoPlayer extends Player {
      * @param seekBackIncrementMs The seek back increment, in milliseconds.
      * @return This builder.
      * @throws IllegalArgumentException If {@code seekBackIncrementMs} is non-positive.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
       wrappedBuilder.setSeekBackIncrementMs(seekBackIncrementMs);
@@ -733,7 +749,8 @@ public interface ExoPlayer extends Player {
      * @param seekForwardIncrementMs The seek forward increment, in milliseconds.
      * @return This builder.
      * @throws IllegalArgumentException If {@code seekForwardIncrementMs} is non-positive.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
       wrappedBuilder.setSeekForwardIncrementMs(seekForwardIncrementMs);
@@ -749,7 +766,8 @@ public interface ExoPlayer extends Player {
      *
      * @param releaseTimeoutMs The release timeout, in milliseconds.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
       wrappedBuilder.setReleaseTimeoutMs(releaseTimeoutMs);
@@ -765,7 +783,8 @@ public interface ExoPlayer extends Player {
      *
      * @param detachSurfaceTimeoutMs The timeout for detaching a surface, in milliseconds.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
       wrappedBuilder.setDetachSurfaceTimeoutMs(detachSurfaceTimeoutMs);
@@ -782,7 +801,8 @@ public interface ExoPlayer extends Player {
      *
      * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
       wrappedBuilder.setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems);
@@ -795,7 +815,8 @@ public interface ExoPlayer extends Player {
      *
      * @param livePlaybackSpeedControl The {@link LivePlaybackSpeedControl}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
       wrappedBuilder.setLivePlaybackSpeedControl(livePlaybackSpeedControl);
@@ -808,7 +829,8 @@ public interface ExoPlayer extends Player {
      *
      * @param clock A {@link Clock}.
      * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@link #build()} or {@link #buildExoPlayer()} has already
+     *     been called.
      */
     @VisibleForTesting
     public Builder setClock(Clock clock) {
@@ -819,7 +841,8 @@ public interface ExoPlayer extends Player {
     /**
      * Builds a {@link SimpleExoPlayer} instance.
      *
-     * @throws IllegalStateException If this method has already been called.
+     * @throws IllegalStateException If this method or {@link #buildExoPlayer()} has already been
+     *     called.
      */
     @InlineMe(replacement = "this.buildExoPlayer()")
     public SimpleExoPlayer build() {
@@ -829,7 +852,7 @@ public interface ExoPlayer extends Player {
     /**
      * Builds a {@link SimpleExoPlayer} instance.
      *
-     * @throws IllegalStateException If this method has already been called.
+     * @throws IllegalStateException If this method or {@link #build()} has already been called.
      */
     public SimpleExoPlayer buildExoPlayer() {
       return wrappedBuilder.build();
