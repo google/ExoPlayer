@@ -13,6 +13,8 @@
         `GlUtil.glAssertionsEnabled` instead.
     *   Move `Player.addListener(EventListener)` and
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
+    *   Fix `mediaMetadata` being reset when media is
+        repeated ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
 *   Video:
     *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
         released `Surface` when playing without an app-provided `Surface`
