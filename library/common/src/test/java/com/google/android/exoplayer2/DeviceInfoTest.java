@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.device;
+package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.DeviceInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
