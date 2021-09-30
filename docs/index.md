@@ -1,6 +1,10 @@
 ---
 layout: article
 ---
+The Android media team is interested in your experiences with the Android media
+APIs and developer resources. Please provide your feedback by
+[completing this short survey](https://goo.gle/media-survey-6).
+{:.info}
 
 ExoPlayer is an application level media player for Android. It provides an
 alternative to Android’s MediaPlayer API for playing audio and video both
