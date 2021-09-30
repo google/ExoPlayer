@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Utilities for {@link Bundleable}. */
-public final class BundleableUtils {
+public final class BundleableUtil {
 
   /**
    * Converts a {@link Bundleable} to a {@link Bundle}. It's a convenience wrapper of {@link
@@ -142,9 +142,9 @@ public final class BundleableUtils {
    */
   public static void ensureClassLoader(@Nullable Bundle bundle) {
     if (bundle != null) {
-      bundle.setClassLoader(castNonNull(BundleableUtils.class.getClassLoader()));
+      bundle.setClassLoader(castNonNull(BundleableUtil.class.getClassLoader()));
     }
   }
 
-  private BundleableUtils() {}
+  private BundleableUtil() {}
 }

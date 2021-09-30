@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
-import com.google.android.exoplayer2.util.BundleableUtils;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -607,7 +607,7 @@ public interface Player {
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
-      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtils.toNullableBundle(mediaItem));
+      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtil.toNullableBundle(mediaItem));
       bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
       bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
@@ -624,7 +624,7 @@ public interface Player {
           bundle.getInt(keyForField(FIELD_WINDOW_INDEX), /* defaultValue= */ C.INDEX_UNSET);
       @Nullable
       MediaItem mediaItem =
-          BundleableUtils.fromNullableBundle(
+          BundleableUtil.fromNullableBundle(
               MediaItem.CREATOR, bundle.getBundle(keyForField(FIELD_MEDIA_ITEM)));
       int periodIndex =
           bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);

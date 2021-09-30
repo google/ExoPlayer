@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.BundleableUtils;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -236,7 +236,7 @@ public final class ExoPlaybackException extends PlaybackException {
     rendererIndex =
         bundle.getInt(keyForField(FIELD_RENDERER_INDEX), /* defaultValue= */ C.INDEX_UNSET);
     rendererFormat =
-        BundleableUtils.fromNullableBundle(
+        BundleableUtil.fromNullableBundle(
             Format.CREATOR, bundle.getBundle(keyForField(FIELD_RENDERER_FORMAT)));
     rendererFormatSupport =
         bundle.getInt(
@@ -400,7 +400,7 @@ public final class ExoPlaybackException extends PlaybackException {
     bundle.putString(keyForField(FIELD_RENDERER_NAME), rendererName);
     bundle.putInt(keyForField(FIELD_RENDERER_INDEX), rendererIndex);
     bundle.putBundle(
-        keyForField(FIELD_RENDERER_FORMAT), BundleableUtils.toNullableBundle(rendererFormat));
+        keyForField(FIELD_RENDERER_FORMAT), BundleableUtil.toNullableBundle(rendererFormat));
     bundle.putInt(keyForField(FIELD_RENDERER_FORMAT_SUPPORT), rendererFormatSupport);
     bundle.putBoolean(keyForField(FIELD_IS_RECOVERABLE), isRecoverable);
     return bundle;

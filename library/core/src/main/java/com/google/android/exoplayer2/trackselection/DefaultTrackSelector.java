@@ -40,7 +40,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.BundleableUtils;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
@@ -813,13 +813,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           bundle.getIntArray(
               Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES));
       List<TrackGroupArray> trackGroupArrays =
-          BundleableUtils.fromBundleNullableList(
+          BundleableUtil.fromBundleNullableList(
               TrackGroupArray.CREATOR,
               bundle.getParcelableArrayList(
                   Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS)),
               /* defaultValue= */ ImmutableList.of());
       SparseArray<SelectionOverride> selectionOverrides =
-          BundleableUtils.fromBundleNullableSparseArray(
+          BundleableUtil.fromBundleNullableSparseArray(
               SelectionOverride.CREATOR,
               bundle.getSparseParcelableArray(
                   Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES)),
@@ -1197,10 +1197,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             keyForField(FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES), Ints.toArray(rendererIndexes));
         bundle.putParcelableArrayList(
             keyForField(FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS),
-            BundleableUtils.toBundleArrayList(trackGroupArrays));
+            BundleableUtil.toBundleArrayList(trackGroupArrays));
         bundle.putSparseParcelableArray(
-            keyForField(FIELD_SELECTION_OVERRIDES),
-            BundleableUtils.toBundleSparseArray(selections));
+            keyForField(FIELD_SELECTION_OVERRIDES), BundleableUtil.toBundleSparseArray(selections));
       }
     }
 

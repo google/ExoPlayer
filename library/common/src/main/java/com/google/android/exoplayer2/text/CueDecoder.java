@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.text;
 import android.os.Bundle;
 import android.os.Parcel;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.BundleableUtils;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 
@@ -43,6 +43,6 @@ public final class CueDecoder {
     ArrayList<Bundle> bundledCues =
         Assertions.checkNotNull(bundle.getParcelableArrayList(BUNDLED_CUES));
 
-    return BundleableUtils.fromBundleList(Cue.CREATOR, bundledCues);
+    return BundleableUtil.fromBundleList(Cue.CREATOR, bundledCues);
   }
 }

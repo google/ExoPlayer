@@ -20,7 +20,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.util.BundleableUtils;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -1429,7 +1429,7 @@ public final class Format implements Bundleable {
     bundle.putFloat(keyForField(FIELD_PIXEL_WIDTH_HEIGHT_RATIO), pixelWidthHeightRatio);
     bundle.putByteArray(keyForField(FIELD_PROJECTION_DATA), projectionData);
     bundle.putInt(keyForField(FIELD_STEREO_MODE), stereoMode);
-    bundle.putBundle(keyForField(FIELD_COLOR_INFO), BundleableUtils.toNullableBundle(colorInfo));
+    bundle.putBundle(keyForField(FIELD_COLOR_INFO), BundleableUtil.toNullableBundle(colorInfo));
     // Audio specific.
     bundle.putInt(keyForField(FIELD_CHANNEL_COUNT), channelCount);
     bundle.putInt(keyForField(FIELD_SAMPLE_RATE), sampleRate);
@@ -1448,7 +1448,7 @@ public final class Format implements Bundleable {
 
   private static Format fromBundle(Bundle bundle) {
     Builder builder = new Builder();
-    BundleableUtils.ensureClassLoader(bundle);
+    BundleableUtil.ensureClassLoader(bundle);
     builder
         .setId(defaultIfNull(bundle.getString(keyForField(FIELD_ID)), DEFAULT.id))
         .setLabel(defaultIfNull(bundle.getString(keyForField(FIELD_LABEL)), DEFAULT.label))
@@ -1498,7 +1498,7 @@ public final class Format implements Bundleable {
         .setProjectionData(bundle.getByteArray(keyForField(FIELD_PROJECTION_DATA)))
         .setStereoMode(bundle.getInt(keyForField(FIELD_STEREO_MODE), DEFAULT.stereoMode))
         .setColorInfo(
-            BundleableUtils.fromNullableBundle(
+            BundleableUtil.fromNullableBundle(
                 ColorInfo.CREATOR, bundle.getBundle(keyForField(FIELD_COLOR_INFO))))
         // Audio specific.
         .setChannelCount(bundle.getInt(keyForField(FIELD_CHANNEL_COUNT), DEFAULT.channelCount))

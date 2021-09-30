@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.BundleableUtils;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -123,7 +123,7 @@ public final class TrackGroup implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
-        keyForField(FIELD_FORMATS), BundleableUtils.toBundleArrayList(Lists.newArrayList(formats)));
+        keyForField(FIELD_FORMATS), BundleableUtil.toBundleArrayList(Lists.newArrayList(formats)));
     return bundle;
   }
 
@@ -131,7 +131,7 @@ public final class TrackGroup implements Bundleable {
   public static final Creator<TrackGroup> CREATOR =
       bundle -> {
         List<Format> formats =
-            BundleableUtils.fromBundleNullableList(
+            BundleableUtil.fromBundleNullableList(
                 Format.CREATOR,
                 bundle.getParcelableArrayList(keyForField(FIELD_FORMATS)),
                 ImmutableList.of());

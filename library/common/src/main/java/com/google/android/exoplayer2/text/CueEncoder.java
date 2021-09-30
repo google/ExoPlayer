@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.text;
 
 import android.os.Bundle;
 import android.os.Parcel;
-import com.google.android.exoplayer2.util.BundleableUtils;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +31,7 @@ public final class CueEncoder {
    * @return The serialized byte array.
    */
   public byte[] encode(List<Cue> cues) {
-    ArrayList<Bundle> bundledCues = BundleableUtils.toBundleArrayList(cues);
+    ArrayList<Bundle> bundledCues = BundleableUtil.toBundleArrayList(cues);
     Bundle allCuesBundle = new Bundle();
     allCuesBundle.putParcelableArrayList(CueDecoder.BUNDLED_CUES, bundledCues);
     Parcel parcel = Parcel.obtain();
