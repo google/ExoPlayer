@@ -25,6 +25,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
 import android.util.Base64;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -58,14 +59,11 @@ import com.google.common.collect.ImmutableMap;
    * Creates a new instance from a {@link MediaDescription}.
    *
    * @param mediaDescription The {@link MediaDescription} of this track.
-   * @param sessionUri The {@link Uri} of the RTSP playback session.
+   * @param mediaUri The {@link Uri} of the media track.
    */
-  public RtspMediaTrack(MediaDescription mediaDescription, Uri sessionUri,
-      @Nullable String contentBase, @Nullable String contentLocation) {
-    checkArgument(mediaDescription.attributes.containsKey(ATTR_CONTROL));
+  public RtspMediaTrack(MediaDescription mediaDescription, Uri mediaUri) {
     payloadFormat = generatePayloadFormat(mediaDescription);
-    uri = extractTrackUri(sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)),
-        contentBase, contentLocation);
+    uri = mediaUri;
   }
 
   @Override
@@ -219,9 +217,8 @@ import com.google.common.collect.ImmutableMap;
    * @param contentLocation The {@link RtspHeaders#CONTENT_LOCATION} header from the DESCRIBE response
    * @return The extracted track URI.
    */
-  @VisibleForTesting
-  /* package */ static Uri extractTrackUri(Uri sessionUri, String controlAttributeString,
-      String contentBase, String contentLocation) {
+  /* package */ static Uri extractTrackUri(@NonNull Uri sessionUri, @NonNull String controlAttributeString,
+      @Nullable String contentBase, @Nullable String contentLocation) {
     if (GENERIC_CONTROL_ATTR.equals(controlAttributeString)) {
       return sessionUri;
     }
@@ -233,8 +230,8 @@ import com.google.common.collect.ImmutableMap;
       return Uri.parse(contentBase + controlAttributeString);
     }
     if (contentLocation != null && !contentLocation.isEmpty()) {
-      return Uri.parse(contentBase + contentLocation);
+      return Uri.parse(contentLocation + controlAttributeString);
     }
-    return sessionUri;
+    return sessionUri.buildUpon().appendEncodedPath(controlAttributeString).build();
   }
 }

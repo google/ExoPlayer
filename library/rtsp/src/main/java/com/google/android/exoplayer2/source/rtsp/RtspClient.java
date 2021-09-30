@@ -29,10 +29,12 @@ import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_SETUP
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_SET_PARAMETER;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_TEARDOWN;
 import static com.google.android.exoplayer2.source.rtsp.RtspRequest.METHOD_UNSET;
+import static com.google.android.exoplayer2.source.rtsp.SessionDescription.ATTR_CONTROL;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.Math.max;
 
@@ -333,7 +335,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaDescription mediaDescription = sessionDescription.mediaDescriptionList.get(i);
       // Includes tracks with supported formats only.
       if (RtpPayloadFormat.isFormatSupported(mediaDescription)) {
-        trackListBuilder.add(new RtspMediaTrack(mediaDescription, uri, contentBase, contentLocation));
+        Uri mediaUri = RtspMediaTrack.extractTrackUri(
+            uri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)),
+            contentBase, contentLocation);
+        trackListBuilder.add(new RtspMediaTrack(mediaDescription, mediaUri));
       }
     }
     return trackListBuilder.build();

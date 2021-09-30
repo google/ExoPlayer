@@ -222,71 +222,68 @@ public class RtspMediaTrackTest {
 
   @Test
   public void rtspMediaTrack_mediaDescriptionContainsRelativeUri_setsCorrectTrackUri() {
-    MediaDescription mediaDescription =
-        createGenericMediaDescriptionWithControlAttribute("path1/track2");
+    Uri trackUri = RtspMediaTrack.extractTrackUri(
+        /* sessionUri= */ Uri.parse("rtsp://test.com"),
+        /* controlAttributeString= */ "path1/track2",
+        /* contentBase= */ null,
+        /* contentLocation= */null);
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"),
-        /* contentBase= */ null, /* contentLocation= */null);
-
-    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/path1/track2"));
+    assertThat(trackUri).isEqualTo(Uri.parse("rtsp://test.com/path1/track2"));
   }
 
   @Test
   public void rtspMediaTrack_mediaDescriptionContainsRelativeUriAppendedToPath_setsCorrectTrackUri() {
-    MediaDescription mediaDescription =
-        createGenericMediaDescriptionWithControlAttribute("path1/track2");
+    Uri trackUri = RtspMediaTrack.extractTrackUri(
+        /* sessionUri= */ Uri.parse("rtsp://test.com/video"),
+        /* controlAttributeString= */ "path1/track2",
+        /* contentBase= */ null,
+        /* contentLocation= */null);
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/"),
-        /* contentBase= */ null, /* contentLocation= */null);
-
-    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
+    assertThat(trackUri).isEqualTo(Uri.parse("rtsp://test.com/video/path1/track2"));
   }
 
   @Test
   public void rtspMediaTrack_mediaDescriptionContainsRelativeUriUsesContentBase_setsCorrectTrackUri() {
-    MediaDescription mediaDescription =
-        createGenericMediaDescriptionWithControlAttribute("path1/track2");
-
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription,
+    Uri trackUri = RtspMediaTrack.extractTrackUri(
         /* sessionUri= */ Uri.parse("rtsp://test.com"),
+        /* controlAttributeString= */ "path1/track2",
         /* contentBase= */ "rtsp://test.com/video?input=0&transmission=unicast/",
         /* contentLocation= */"rtsp://test.com");
 
-    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
+    assertThat(trackUri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
   }
 
   @Test
   public void rtspMediaTrack_mediaDescriptionContainsRelativeUriUsesContentLocation_setsCorrectTrackUri() {
-    MediaDescription mediaDescription =
-        createGenericMediaDescriptionWithControlAttribute("path1/track2");
-
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription,
+    Uri trackUri = RtspMediaTrack.extractTrackUri(
         /* sessionUri= */ Uri.parse("rtsp://test.com"),
+        /* controlAttributeString= */ "path1/track2",
         /* contentBase= */ null,
         /* contentLocation= */"rtsp://test.com/video?input=0&transmission=unicast/");
 
-    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
+    assertThat(trackUri).isEqualTo(Uri.parse("rtsp://test.com/video?input=0&transmission=unicast/path1/track2"));
   }
 
   @Test
   public void rtspMediaTrack_mediaDescriptionContainsAbsoluteUri_setsCorrectTrackUri() {
-    MediaDescription mediaDescription =
-        createGenericMediaDescriptionWithControlAttribute("rtsp://test.com/foo");
+    Uri trackUri = RtspMediaTrack.extractTrackUri(
+        /* sessionUri= */ Uri.parse("rtsp://test.com"),
+        /* controlAttributeString= */ "rtsp://test.com/foo",
+        /* contentBase= */ null,
+        /* contentLocation= */null);
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"),
-        /* contentBase= */ null, /* contentLocation= */null);
-
-    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com/foo"));
+    assertThat(trackUri).isEqualTo(Uri.parse("rtsp://test.com/foo"));
   }
 
   @Test
   public void rtspMediaTrack_mediaDescriptionContainsGenericUri_setsCorrectTrackUri() {
-    MediaDescription mediaDescription = createGenericMediaDescriptionWithControlAttribute("*");
+    Uri trackUri = RtspMediaTrack.extractTrackUri(
+        /* sessionUri= */ Uri.parse("rtsp://test.com"),
+        /* controlAttributeString= */ "*",
+        /* contentBase= */ "rtsp://example.com",
+        /* contentLocation= */"rtsp://example.com");
 
-    RtspMediaTrack mediaTrack = new RtspMediaTrack(mediaDescription, Uri.parse("rtsp://test.com"),
-        /* contentBase= */ null, /* contentLocation= */null);
-
-    assertThat(mediaTrack.uri).isEqualTo(Uri.parse("rtsp://test.com"));
+    assertThat(trackUri).isEqualTo(Uri.parse("rtsp://test.com"));
   }
 
   @Test
