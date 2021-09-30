@@ -118,11 +118,15 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(!fmtpParameters.isEmpty());
         processH264FmtpAttribute(formatBuilder, fmtpParameters);
         break;
+      case MimeTypes.AUDIO_AC3:
+        // AC3 does not require a FMTP attribute. Fall through.
       default:
         // Do nothing.
     }
 
     checkArgument(clockRate > 0);
+    // Checks if payload type is "dynamic" as defined in RFC3551 Section 3.
+    checkArgument(rtpPayloadType >= 96);
     return new RtpPayloadFormat(formatBuilder.build(), rtpPayloadType, clockRate, fmtpParameters);
   }
 
