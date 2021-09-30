@@ -90,7 +90,7 @@ import java.util.ArrayList;
     currentItemIndex = C.INDEX_UNSET;
 
     trackSelector = new DefaultTrackSelector(context);
-    exoPlayer = new ExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
+    exoPlayer = new ExoPlayer.Builder(context).setTrackSelector(trackSelector).buildExoPlayer();
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 
