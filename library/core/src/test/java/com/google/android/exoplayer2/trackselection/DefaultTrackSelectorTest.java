@@ -45,10 +45,12 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -152,16 +154,21 @@ public final class DefaultTrackSelectorTest {
     assertThat(parametersFromBundle).isEqualTo(parametersToBundle);
   }
 
-  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
+  /** Tests that an empty override clears a track selection. */
   @Test
-  public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
-    SelectionOverride selectionOverrideToBundle =
-        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
+  public void selectTracks_withNullOverride_clearsTrackSelection() throws ExoPlaybackException {
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                ImmutableMap.of(VIDEO_TRACK_GROUP, new TrackSelectionOverride(ImmutableSet.of()))));
 
-    SelectionOverride selectionOverrideFromBundle =
-        SelectionOverride.CREATOR.fromBundle(selectionOverrideToBundle.toBundle());
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
 
-    assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
+    assertSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {null, DEFAULT});
   }
 
   /** Tests that a null override clears a track selection. */
@@ -189,6 +196,29 @@ public final class DefaultTrackSelectorTest {
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
     assertSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  /** Tests that an empty override is not applied for a different set of available track groups. */
+  @Test
+  public void selectTracks_withEmptyTrackOverrideForDifferentTracks_hasNoEffect()
+      throws ExoPlaybackException {
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                ImmutableMap.of(
+                    new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), TrackSelectionOverride.DISABLE)));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactlyElementsIn(TRACK_SELECTIONS).inOrder();
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
@@ -1815,6 +1845,10 @@ public final class DefaultTrackSelectorTest {
         .setRendererDisabled(1, true)
         .setRendererDisabled(3, true)
         .setRendererDisabled(5, false)
+        .setTrackSelectionOverrides(
+            ImmutableMap.of(
+                AUDIO_TRACK_GROUP,
+                new TrackSelectionOverride(/* tracks= */ ImmutableSet.of(3, 4, 5))))
         .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
         .build();
   }

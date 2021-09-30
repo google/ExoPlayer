@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -605,6 +606,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Override
     public ParametersBuilder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
       super.setForceHighestSupportedBitrate(forceHighestSupportedBitrate);
+      return this;
+    }
+
+    @Override
+    public ParametersBuilder setTrackSelectionOverrides(
+        Map<TrackGroup, TrackSelectionOverride> trackSelectionOverrides) {
+      super.setTrackSelectionOverrides(trackSelectionOverrides);
       return this;
     }
 
@@ -1490,19 +1498,33 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Apply track disabling and overriding.
     for (int i = 0; i < rendererCount; i++) {
+      // Per renderer and per track type disabling
       @C.TrackType int rendererType = mappedTrackInfo.getRendererType(i);
       if (params.getRendererDisabled(i) || params.disabledTrackTypes.contains(rendererType)) {
         definitions[i] = null;
         continue;
       }
+      // Per TrackGroupArray override
       TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(i);
       if (params.hasSelectionOverride(i, rendererTrackGroups)) {
-        SelectionOverride override = params.getSelectionOverride(i, rendererTrackGroups);
+        @Nullable SelectionOverride override = params.getSelectionOverride(i, rendererTrackGroups);
         definitions[i] =
             override == null
                 ? null
                 : new ExoTrackSelection.Definition(
                     rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
+        continue;
+      }
+      // Per TrackGroup override
+      for (int j = 0; j < rendererTrackGroups.length; j++) {
+        TrackGroup trackGroup = rendererTrackGroups.get(j);
+        @Nullable
+        TrackSelectionOverride overrideTracks = params.trackSelectionOverrides.get(trackGroup);
+        if (overrideTracks != null) {
+          definitions[i] =
+              new ExoTrackSelection.Definition(trackGroup, Ints.toArray(overrideTracks.tracks));
+          break;
+        }
       }
     }
 

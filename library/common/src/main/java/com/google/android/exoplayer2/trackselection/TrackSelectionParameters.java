@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.BundleableUtil.fromBundleNullableList;
+import static com.google.android.exoplayer2.util.BundleableUtil.toBundleArrayList;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 import android.content.Context;
@@ -23,23 +25,27 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.accessibility.CaptioningManager;
-import androidx.annotation.CallSuper;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * Constraint parameters for track selection.
@@ -93,6 +99,7 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
+    private ImmutableMap<TrackGroup, TrackSelectionOverride> trackSelectionOverrides;
     private ImmutableSet<@C.TrackType Integer> disabledTrackTypes;
 
     /**
@@ -123,6 +130,7 @@ public class TrackSelectionParameters implements Bundleable {
       // General
       forceLowestBitrate = false;
       forceHighestSupportedBitrate = false;
+      trackSelectionOverrides = ImmutableMap.of();
       disabledTrackTypes = ImmutableSet.of();
     }
 
@@ -224,7 +232,17 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE),
               DEFAULT_WITHOUT_CONTEXT.forceHighestSupportedBitrate);
-
+      List<TrackGroup> keys =
+          fromBundleNullableList(
+              TrackGroup.CREATOR,
+              bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDE_KEYS)),
+              ImmutableList.of());
+      List<TrackSelectionOverride> values =
+          fromBundleNullableList(
+              TrackSelectionOverride.CREATOR,
+              bundle.getParcelableArrayList(keyForField(FIELD_SELECTION_OVERRIDE_VALUES)),
+              ImmutableList.of());
+      trackSelectionOverrides = zipToMap(keys, values);
       disabledTrackTypes =
           ImmutableSet.copyOf(
               Ints.asList(
@@ -238,6 +256,7 @@ public class TrackSelectionParameters implements Bundleable {
       "preferredAudioLanguages",
       "preferredAudioMimeTypes",
       "preferredTextLanguages",
+      "trackSelectionOverrides",
       "disabledTrackTypes",
     })
     private void init(@UnknownInitialization Builder this, TrackSelectionParameters parameters) {
@@ -267,6 +286,7 @@ public class TrackSelectionParameters implements Bundleable {
       // General
       forceLowestBitrate = parameters.forceLowestBitrate;
       forceHighestSupportedBitrate = parameters.forceHighestSupportedBitrate;
+      trackSelectionOverrides = parameters.trackSelectionOverrides;
       disabledTrackTypes = parameters.disabledTrackTypes;
     }
 
@@ -616,6 +636,18 @@ public class TrackSelectionParameters implements Bundleable {
     }
 
     /**
+     * Sets the selection overrides.
+     *
+     * @param trackSelectionOverrides The track selection overrides.
+     * @return This builder.
+     */
+    public Builder setTrackSelectionOverrides(
+        Map<TrackGroup, TrackSelectionOverride> trackSelectionOverrides) {
+      this.trackSelectionOverrides = ImmutableMap.copyOf(trackSelectionOverrides);
+      return this;
+    }
+
+    /**
      * Sets the disabled track types, preventing all tracks of those types from being selected for
      * playback.
      *
@@ -658,6 +690,83 @@ public class TrackSelectionParameters implements Bundleable {
         listBuilder.add(Util.normalizeLanguageCode(checkNotNull(language)));
       }
       return listBuilder.build();
+    }
+
+    private static <K, V> ImmutableMap<@NonNull K, @NonNull V> zipToMap(
+        List<@NonNull K> keys, List<@NonNull V> values) {
+      ImmutableMap.Builder<@NonNull K, @NonNull V> builder = new ImmutableMap.Builder<>();
+      for (int i = 0; i < keys.size(); i++) {
+        builder.put(keys.get(i), values.get(i));
+      }
+      return builder.build();
+    }
+  }
+
+  /**
+   * Forces the selection of {@link #tracks} for a {@link TrackGroup}.
+   *
+   * @see #trackSelectionOverrides
+   */
+  public static final class TrackSelectionOverride implements Bundleable {
+    /** Force the selection of the associated {@link TrackGroup}, but no track will be played. */
+    public static final TrackSelectionOverride DISABLE =
+        new TrackSelectionOverride(ImmutableSet.of());
+
+    /** The index of tracks in a {@link TrackGroup} to be selected. */
+    public final ImmutableSet<Integer> tracks;
+
+    /** Constructs an instance to force {@code tracks} to be selected. */
+    public TrackSelectionOverride(ImmutableSet<Integer> tracks) {
+      this.tracks = tracks;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      TrackSelectionOverride that = (TrackSelectionOverride) obj;
+      return tracks.equals(that.tracks);
+    }
+
+    @Override
+    public int hashCode() {
+      return tracks.hashCode();
+    }
+
+    // Bundleable implementation
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_TRACKS,
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_TRACKS = 0;
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putIntArray(keyForField(FIELD_TRACKS), Ints.toArray(tracks));
+      return bundle;
+    }
+
+    /** Object that can restore {@code TrackSelectionOverride} from a {@link Bundle}. */
+    public static final Creator<TrackSelectionOverride> CREATOR =
+        bundle -> {
+          @Nullable int[] tracks = bundle.getIntArray(keyForField(FIELD_TRACKS));
+          if (tracks == null) {
+            return DISABLE;
+          }
+          return new TrackSelectionOverride(ImmutableSet.copyOf(Ints.asList(tracks)));
+        };
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
@@ -810,6 +919,30 @@ public class TrackSelectionParameters implements Bundleable {
    * other constraints. The default value is {@code false}.
    */
   public final boolean forceHighestSupportedBitrate;
+
+  /**
+   * For each {@link TrackGroup} in the map, forces the tracks associated with it to be selected for
+   * playback.
+   *
+   * <p>For example if {@code trackSelectionOverrides.equals(ImmutableMap.of(trackGroup,
+   * ImmutableSet.of(1, 2, 3)))}, the tracks 1, 2 and 3 of {@code trackGroup} will be selected.
+   *
+   * <p>If multiple of the current {@link TrackGroup}s of the same {@link C.TrackType} are
+   * overridden, it is undetermined which one(s) will be selected. For example if a {@link
+   * MediaItem} has 2 video track groups (for example 2 different angles), and both are overriden,
+   * it is undetermined which one will be selected.
+   *
+   * <p>If multiple tracks of the {@link TrackGroup} are overriden, all supported (see {@link
+   * C.FormatSupport}) will be selected.
+   *
+   * <p>If a {@link TrackGroup} is associated with an empty set of tracks, no tracks will be played.
+   * This is similar to {@link #disabledTrackTypes}, except it will only affect the playback of the
+   * associated {@link TrackGroup}. For example, if the {@link C#TRACK_TYPE_VIDEO} {@link
+   * TrackGroup} is associated with no tracks, no video will play until the next video starts.
+   *
+   * <p>The default value is that no {@link TrackGroup} selections are overridden (empty map).
+   */
+  public final ImmutableMap<TrackGroup, TrackSelectionOverride> trackSelectionOverrides;
   /**
    * The track types that are disabled. No track of a disabled type will be selected, thus no track
    * type contained in the set will be played. The default value is that no track type is disabled
@@ -844,6 +977,7 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     this.forceLowestBitrate = builder.forceLowestBitrate;
     this.forceHighestSupportedBitrate = builder.forceHighestSupportedBitrate;
+    this.trackSelectionOverrides = builder.trackSelectionOverrides;
     this.disabledTrackTypes = builder.disabledTrackTypes;
   }
 
@@ -887,6 +1021,7 @@ public class TrackSelectionParameters implements Bundleable {
         // General
         && forceLowestBitrate == other.forceLowestBitrate
         && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
+        && trackSelectionOverrides.equals(other.trackSelectionOverrides)
         && disabledTrackTypes.equals(other.disabledTrackTypes);
   }
 
@@ -919,6 +1054,7 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     result = 31 * result + (forceLowestBitrate ? 1 : 0);
     result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
+    result = 31 * result + trackSelectionOverrides.hashCode();
     result = 31 * result + disabledTrackTypes.hashCode();
     return result;
   }
@@ -950,6 +1086,8 @@ public class TrackSelectionParameters implements Bundleable {
     FIELD_PREFERRED_AUDIO_MIME_TYPES,
     FIELD_FORCE_LOWEST_BITRATE,
     FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE,
+    FIELD_SELECTION_OVERRIDE_KEYS,
+    FIELD_SELECTION_OVERRIDE_VALUES,
     FIELD_DISABLED_TRACK_TYPE,
   })
   private @interface FieldNumber {}
@@ -976,10 +1114,11 @@ public class TrackSelectionParameters implements Bundleable {
   private static final int FIELD_PREFERRED_AUDIO_MIME_TYPES = 20;
   private static final int FIELD_FORCE_LOWEST_BITRATE = 21;
   private static final int FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE = 22;
-  private static final int FIELD_DISABLED_TRACK_TYPE = 23;
+  private static final int FIELD_SELECTION_OVERRIDE_KEYS = 23;
+  private static final int FIELD_SELECTION_OVERRIDE_VALUES = 24;
+  private static final int FIELD_DISABLED_TRACK_TYPE = 25;
 
   @Override
-  @CallSuper
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
 
@@ -1019,6 +1158,12 @@ public class TrackSelectionParameters implements Bundleable {
     bundle.putBoolean(keyForField(FIELD_FORCE_LOWEST_BITRATE), forceLowestBitrate);
     bundle.putBoolean(
         keyForField(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE), forceHighestSupportedBitrate);
+    bundle.putParcelableArrayList(
+        keyForField(FIELD_SELECTION_OVERRIDE_KEYS),
+        toBundleArrayList(trackSelectionOverrides.keySet()));
+    bundle.putParcelableArrayList(
+        keyForField(FIELD_SELECTION_OVERRIDE_VALUES),
+        toBundleArrayList(trackSelectionOverrides.values()));
     bundle.putIntArray(keyForField(FIELD_DISABLED_TRACK_TYPE), Ints.toArray(disabledTrackTypes));
 
     return bundle;

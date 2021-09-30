@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /** Utilities for {@link Bundleable}. */
@@ -108,14 +109,15 @@ public final class BundleableUtil {
   }
 
   /**
-   * Converts a list of {@link Bundleable} to an {@link ArrayList} of {@link Bundle} so that the
-   * returned list can be put to {@link Bundle} using {@link Bundle#putParcelableArrayList}
+   * Converts a collection of {@link Bundleable} to an {@link ArrayList} of {@link Bundle} so that
+   * the returned list can be put to {@link Bundle} using {@link Bundle#putParcelableArrayList}
    * conveniently.
    */
-  public static <T extends Bundleable> ArrayList<Bundle> toBundleArrayList(List<T> bundleableList) {
-    ArrayList<Bundle> arrayList = new ArrayList<>(bundleableList.size());
-    for (int i = 0; i < bundleableList.size(); i++) {
-      arrayList.add(bundleableList.get(i).toBundle());
+  public static <T extends Bundleable> ArrayList<Bundle> toBundleArrayList(
+      Collection<T> bundleables) {
+    ArrayList<Bundle> arrayList = new ArrayList<>(bundleables.size());
+    for (T element : bundleables) {
+      arrayList.add(element.toBundle());
     }
     return arrayList;
   }

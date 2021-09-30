@@ -19,8 +19,14 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,10 +64,16 @@ public class TrackSelectionParametersTest {
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isFalse();
+    assertThat(parameters.trackSelectionOverrides).isEmpty();
+    assertThat(parameters.disabledTrackTypes).isEmpty();
   }
 
   @Test
   public void parametersSet_fromDefault_isAsExpected() {
+    ImmutableMap<TrackGroup, TrackSelectionOverride> trackSelectionOverrides =
+        ImmutableMap.of(
+            new TrackGroup(new Format.Builder().build()),
+            new TrackSelectionOverride(/* tracks= */ ImmutableSet.of(2, 3)));
     TrackSelectionParameters parameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT
             .buildUpon()
@@ -90,6 +102,8 @@ public class TrackSelectionParametersTest {
             // General
             .setForceLowestBitrate(false)
             .setForceHighestSupportedBitrate(true)
+            .setTrackSelectionOverrides(trackSelectionOverrides)
+            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT))
             .build();
 
     // Video
@@ -122,6 +136,9 @@ public class TrackSelectionParametersTest {
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isTrue();
+    assertThat(parameters.trackSelectionOverrides).isEqualTo(trackSelectionOverrides);
+    assertThat(parameters.disabledTrackTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT);
   }
 
   @Test
@@ -159,5 +176,18 @@ public class TrackSelectionParametersTest {
     assertThat(parameters.viewportWidth).isEqualTo(Integer.MAX_VALUE);
     assertThat(parameters.viewportHeight).isEqualTo(Integer.MAX_VALUE);
     assertThat(parameters.viewportOrientationMayChange).isTrue();
+  }
+
+  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
+  @Test
+  public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
+    SelectionOverride selectionOverrideToBundle =
+        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
+
+    SelectionOverride selectionOverrideFromBundle =
+        DefaultTrackSelector.SelectionOverride.CREATOR.fromBundle(
+            selectionOverrideToBundle.toBundle());
+
+    assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
   }
 }
