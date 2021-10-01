@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.ceil;
@@ -212,6 +213,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public static MediaCodecAdapterWrapper createForVideoEncoding(
       Format format, Map<String, Integer> additionalEncoderConfig) throws IOException {
+    checkArgument(format.width != Format.NO_VALUE);
+    checkArgument(format.height != Format.NO_VALUE);
+    checkArgument(format.frameRate != Format.NO_VALUE);
+    checkArgument(format.averageBitrate != Format.NO_VALUE);
+
     @Nullable MediaCodecAdapter adapter = null;
     try {
       MediaFormat mediaFormat =
