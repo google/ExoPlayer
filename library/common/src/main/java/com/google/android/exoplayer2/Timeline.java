@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1148,11 +1149,35 @@ public abstract class Timeline implements Bundleable {
         == C.INDEX_UNSET;
   }
 
+  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead. */
+  @Deprecated
+  @InlineMe(replacement = "this.getPeriodPositionUs(window, period, windowIndex, windowPositionUs)")
+  public final Pair<Object, Long> getPeriodPosition(
+      Window window, Period period, int windowIndex, long windowPositionUs) {
+    return getPeriodPositionUs(window, period, windowIndex, windowPositionUs);
+  }
+  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead. */
+  @Deprecated
+  @Nullable
+  @InlineMe(
+      replacement =
+          "this.getPeriodPositionUs("
+              + "window, period, windowIndex, windowPositionUs, defaultPositionProjectionUs)")
+  public final Pair<Object, Long> getPeriodPosition(
+      Window window,
+      Period period,
+      int windowIndex,
+      long windowPositionUs,
+      long defaultPositionProjectionUs) {
+    return getPeriodPositionUs(
+        window, period, windowIndex, windowPositionUs, defaultPositionProjectionUs);
+  }
+
   /**
    * Calls {@link #getPeriodPosition(Window, Period, int, long, long)} with a zero default position
    * projection.
    */
-  public final Pair<Object, Long> getPeriodPosition(
+  public final Pair<Object, Long> getPeriodPositionUs(
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return Assertions.checkNotNull(
         getPeriodPosition(
@@ -1176,7 +1201,7 @@ public abstract class Timeline implements Bundleable {
    *     position could not be projected by {@code defaultPositionProjectionUs}.
    */
   @Nullable
-  public final Pair<Object, Long> getPeriodPosition(
+  public final Pair<Object, Long> getPeriodPositionUs(
       Window window,
       Period period,
       int windowIndex,
