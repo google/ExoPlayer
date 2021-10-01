@@ -54,7 +54,6 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
-import com.google.errorprone.annotations.InlineMe;
 import java.util.List;
 
 /**
@@ -839,13 +838,12 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Builds a {@link SimpleExoPlayer} instance.
+     * Builds a {@link Player} instance.
      *
      * @throws IllegalStateException If this method or {@link #buildExoPlayer()} has already been
      *     called.
      */
-    @InlineMe(replacement = "this.buildExoPlayer()")
-    public SimpleExoPlayer build() {
+    public Player build() {
       return buildExoPlayer();
     }
 
