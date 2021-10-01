@@ -75,7 +75,7 @@ public final class MediaItem implements Bundleable {
     private DrmConfiguration.Builder drmConfiguration;
     private List<StreamKey> streamKeys;
     @Nullable private String customCacheKey;
-    private List<Subtitle> subtitles;
+    private ImmutableList<SubtitleConfiguration> subtitleConfigurations;
     @Nullable private AdsConfiguration adsConfiguration;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
@@ -89,7 +89,7 @@ public final class MediaItem implements Bundleable {
       clippingConfiguration = new ClippingConfiguration.Builder();
       drmConfiguration = new DrmConfiguration.Builder();
       streamKeys = Collections.emptyList();
-      subtitles = Collections.emptyList();
+      subtitleConfigurations = ImmutableList.of();
       liveConfiguration = new LiveConfiguration.Builder();
     }
 
@@ -105,7 +105,7 @@ public final class MediaItem implements Bundleable {
         mimeType = localConfiguration.mimeType;
         uri = localConfiguration.uri;
         streamKeys = localConfiguration.streamKeys;
-        subtitles = localConfiguration.subtitles;
+        subtitleConfigurations = localConfiguration.subtitleConfigurations;
         tag = localConfiguration.tag;
         drmConfiguration =
             localConfiguration.drmConfiguration != null
@@ -355,17 +355,24 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
+     * @deprecated Use {@link #setSubtitleConfigurations(List)} instead. Note that {@link
+     *     #setSubtitleConfigurations(List)} doesn't accept null, use an empty list to clear the
+     *     contents.
+     */
+    @Deprecated
+    public Builder setSubtitles(@Nullable List<Subtitle> subtitles) {
+      this.subtitleConfigurations =
+          subtitles != null ? ImmutableList.copyOf(subtitles) : ImmutableList.of();
+      return this;
+    }
+
+    /**
      * Sets the optional subtitles.
-     *
-     * <p>{@code null} or an empty {@link List} can be used for a reset.
      *
      * <p>This method should only be called if {@link #setUri} is passed a non-null value.
      */
-    public Builder setSubtitles(@Nullable List<Subtitle> subtitles) {
-      this.subtitles =
-          subtitles != null && !subtitles.isEmpty()
-              ? Collections.unmodifiableList(new ArrayList<>(subtitles))
-              : Collections.emptyList();
+    public Builder setSubtitleConfigurations(List<SubtitleConfiguration> subtitleConfigurations) {
+      this.subtitleConfigurations = ImmutableList.copyOf(subtitleConfigurations);
       return this;
     }
 
@@ -500,7 +507,7 @@ public final class MediaItem implements Bundleable {
                 adsConfiguration,
                 streamKeys,
                 customCacheKey,
-                subtitles,
+                subtitleConfigurations,
                 tag);
       }
       return new MediaItem(
@@ -889,7 +896,9 @@ public final class MediaItem implements Bundleable {
     @Nullable public final String customCacheKey;
 
     /** Optional subtitles to be sideloaded. */
-    public final List<Subtitle> subtitles;
+    public final ImmutableList<SubtitleConfiguration> subtitleConfigurations;
+    /** @deprecated Use {@link #subtitleConfigurations} instead. */
+    @Deprecated public final List<Subtitle> subtitles;
 
     /**
      * Optional tag for custom attributes. The tag for the media source which will be published in
@@ -898,6 +907,7 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Object tag;
 
+    @SuppressWarnings("deprecation") // Setting deprecated subtitles field.
     private LocalConfiguration(
         Uri uri,
         @Nullable String mimeType,
@@ -905,7 +915,7 @@ public final class MediaItem implements Bundleable {
         @Nullable AdsConfiguration adsConfiguration,
         List<StreamKey> streamKeys,
         @Nullable String customCacheKey,
-        List<Subtitle> subtitles,
+        ImmutableList<SubtitleConfiguration> subtitleConfigurations,
         @Nullable Object tag) {
       this.uri = uri;
       this.mimeType = mimeType;
@@ -913,7 +923,12 @@ public final class MediaItem implements Bundleable {
       this.adsConfiguration = adsConfiguration;
       this.streamKeys = streamKeys;
       this.customCacheKey = customCacheKey;
-      this.subtitles = subtitles;
+      this.subtitleConfigurations = subtitleConfigurations;
+      ImmutableList.Builder<Subtitle> subtitles = ImmutableList.builder();
+      for (int i = 0; i < subtitleConfigurations.size(); i++) {
+        subtitles.add(subtitleConfigurations.get(i).buildUpon().buildSubtitle());
+      }
+      this.subtitles = subtitles.build();
       this.tag = tag;
     }
 
@@ -933,7 +948,7 @@ public final class MediaItem implements Bundleable {
           && Util.areEqual(adsConfiguration, other.adsConfiguration)
           && streamKeys.equals(other.streamKeys)
           && Util.areEqual(customCacheKey, other.customCacheKey)
-          && subtitles.equals(other.subtitles)
+          && subtitleConfigurations.equals(other.subtitleConfigurations)
           && Util.areEqual(tag, other.tag);
     }
 
@@ -945,7 +960,7 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + (adsConfiguration == null ? 0 : adsConfiguration.hashCode());
       result = 31 * result + streamKeys.hashCode();
       result = 31 * result + (customCacheKey == null ? 0 : customCacheKey.hashCode());
-      result = 31 * result + subtitles.hashCode();
+      result = 31 * result + subtitleConfigurations.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
       return result;
     }
@@ -962,7 +977,7 @@ public final class MediaItem implements Bundleable {
         @Nullable AdsConfiguration adsConfiguration,
         List<StreamKey> streamKeys,
         @Nullable String customCacheKey,
-        List<Subtitle> subtitles,
+        ImmutableList<SubtitleConfiguration> subtitleConfigurations,
         @Nullable Object tag) {
       super(
           uri,
@@ -971,7 +986,7 @@ public final class MediaItem implements Bundleable {
           adsConfiguration,
           streamKeys,
           customCacheKey,
-          subtitles,
+          subtitleConfigurations,
           tag);
     }
   }
@@ -1208,9 +1223,10 @@ public final class MediaItem implements Bundleable {
   }
 
   /** Properties for a text track. */
-  public static final class Subtitle {
+  // TODO: Mark this final when Subtitle is deleted.
+  public static class SubtitleConfiguration {
 
-    /** Builder for {@link Subtitle} instances. */
+    /** Builder for {@link SubtitleConfiguration} instances. */
     public static final class Builder {
       private Uri uri;
       @Nullable private String mimeType;
@@ -1228,13 +1244,13 @@ public final class MediaItem implements Bundleable {
         this.uri = uri;
       }
 
-      private Builder(Subtitle subtitle) {
-        this.uri = subtitle.uri;
-        this.mimeType = subtitle.mimeType;
-        this.language = subtitle.language;
-        this.selectionFlags = subtitle.selectionFlags;
-        this.roleFlags = subtitle.roleFlags;
-        this.label = subtitle.label;
+      private Builder(SubtitleConfiguration subtitleConfiguration) {
+        this.uri = subtitleConfiguration.uri;
+        this.mimeType = subtitleConfiguration.mimeType;
+        this.language = subtitleConfiguration.language;
+        this.selectionFlags = subtitleConfiguration.selectionFlags;
+        this.roleFlags = subtitleConfiguration.roleFlags;
+        this.label = subtitleConfiguration.label;
       }
 
       /** Sets the {@link Uri} to the subtitle file. */
@@ -1273,8 +1289,12 @@ public final class MediaItem implements Bundleable {
         return this;
       }
 
-      /** Creates a {@link Subtitle} from the values of this builder. */
-      public Subtitle build() {
+      /** Creates a {@link SubtitleConfiguration} from the values of this builder. */
+      public SubtitleConfiguration build() {
+        return new SubtitleConfiguration(this);
+      }
+
+      private Subtitle buildSubtitle() {
         return new Subtitle(this);
       }
     }
@@ -1291,6 +1311,70 @@ public final class MediaItem implements Bundleable {
     @C.RoleFlags public final int roleFlags;
     /** The label. */
     @Nullable public final String label;
+
+    private SubtitleConfiguration(
+        Uri uri,
+        String mimeType,
+        @Nullable String language,
+        @C.SelectionFlags int selectionFlags,
+        @C.RoleFlags int roleFlags,
+        @Nullable String label) {
+      this.uri = uri;
+      this.mimeType = mimeType;
+      this.language = language;
+      this.selectionFlags = selectionFlags;
+      this.roleFlags = roleFlags;
+      this.label = label;
+    }
+
+    private SubtitleConfiguration(Builder builder) {
+      this.uri = builder.uri;
+      this.mimeType = builder.mimeType;
+      this.language = builder.language;
+      this.selectionFlags = builder.selectionFlags;
+      this.roleFlags = builder.roleFlags;
+      this.label = builder.label;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof SubtitleConfiguration)) {
+        return false;
+      }
+
+      SubtitleConfiguration other = (SubtitleConfiguration) obj;
+
+      return uri.equals(other.uri)
+          && Util.areEqual(mimeType, other.mimeType)
+          && Util.areEqual(language, other.language)
+          && selectionFlags == other.selectionFlags
+          && roleFlags == other.roleFlags
+          && Util.areEqual(label, other.label);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = uri.hashCode();
+      result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
+      result = 31 * result + (language == null ? 0 : language.hashCode());
+      result = 31 * result + selectionFlags;
+      result = 31 * result + roleFlags;
+      result = 31 * result + (label == null ? 0 : label.hashCode());
+      return result;
+    }
+  }
+
+  /** @deprecated Use {@link MediaItem.SubtitleConfiguration} instead */
+  @Deprecated
+  public static final class Subtitle extends SubtitleConfiguration {
 
     /** @deprecated Use {@link Builder} instead. */
     @Deprecated
@@ -1314,56 +1398,11 @@ public final class MediaItem implements Bundleable {
         @C.SelectionFlags int selectionFlags,
         @C.RoleFlags int roleFlags,
         @Nullable String label) {
-      this.uri = uri;
-      this.mimeType = mimeType;
-      this.language = language;
-      this.selectionFlags = selectionFlags;
-      this.roleFlags = roleFlags;
-      this.label = label;
+      super(uri, mimeType, language, selectionFlags, roleFlags, label);
     }
 
     private Subtitle(Builder builder) {
-      this.uri = builder.uri;
-      this.mimeType = builder.mimeType;
-      this.language = builder.language;
-      this.selectionFlags = builder.selectionFlags;
-      this.roleFlags = builder.roleFlags;
-      this.label = builder.label;
-    }
-
-    /** Returns a {@link Builder} initialized with the values of this instance. */
-    public Builder buildUpon() {
-      return new Builder(this);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof Subtitle)) {
-        return false;
-      }
-
-      Subtitle other = (Subtitle) obj;
-
-      return uri.equals(other.uri)
-          && Util.areEqual(mimeType, other.mimeType)
-          && Util.areEqual(language, other.language)
-          && selectionFlags == other.selectionFlags
-          && roleFlags == other.roleFlags
-          && Util.areEqual(label, other.label);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = uri.hashCode();
-      result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
-      result = 31 * result + (language == null ? 0 : language.hashCode());
-      result = 31 * result + selectionFlags;
-      result = 31 * result + roleFlags;
-      result = 31 * result + (label == null ? 0 : label.hashCode());
-      return result;
+      super(builder);
     }
   }
 

@@ -258,11 +258,11 @@ public class MediaItemTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation") // Using deprecated constructors
+  @SuppressWarnings("deprecation") // Using deprecated Subtitle type
   public void builderSetSubtitles_setsSubtitles() {
-    List<MediaItem.Subtitle> subtitles =
+    List<MediaItem.SubtitleConfiguration> subtitleConfigurations =
         ImmutableList.of(
-            new MediaItem.Subtitle.Builder(Uri.parse(URI_STRING + "/es"))
+            new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/es"))
                 .setMimeType(MimeTypes.TEXT_SSA)
                 .setLanguage(/* language= */ "es")
                 .setSelectionFlags(C.SELECTION_FLAG_FORCED)
@@ -285,9 +285,14 @@ public class MediaItemTest {
                 "label"));
 
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(URI_STRING).setSubtitles(subtitles).build();
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setSubtitleConfigurations(subtitleConfigurations)
+            .build();
 
-    assertThat(mediaItem.localConfiguration.subtitles).isEqualTo(subtitles);
+    assertThat(mediaItem.localConfiguration.subtitleConfigurations)
+        .isEqualTo(subtitleConfigurations);
+    assertThat(mediaItem.localConfiguration.subtitles).isEqualTo(subtitleConfigurations);
   }
 
   @Test
@@ -583,9 +588,9 @@ public class MediaItemTest {
             .setLiveMaxPlaybackSpeed(1.1f)
             .setLiveMinOffsetMs(2222)
             .setLiveMaxOffsetMs(4444)
-            .setSubtitles(
+            .setSubtitleConfigurations(
                 ImmutableList.of(
-                    new MediaItem.Subtitle.Builder(Uri.parse(URI_STRING + "/en"))
+                    new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en"))
                         .setMimeType(MimeTypes.APPLICATION_TTML)
                         .setLanguage("en")
                         .setSelectionFlags(C.SELECTION_FLAG_FORCED)
@@ -639,9 +644,9 @@ public class MediaItemTest {
                     .setMinOffsetMs(2222)
                     .setMaxOffsetMs(4444)
                     .build())
-            .setSubtitles(
+            .setSubtitleConfigurations(
                 ImmutableList.of(
-                    new MediaItem.Subtitle.Builder(Uri.parse(URI_STRING + "/en"))
+                    new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en"))
                         .setMimeType(MimeTypes.APPLICATION_TTML)
                         .setLanguage("en")
                         .setSelectionFlags(C.SELECTION_FLAG_FORCED)
