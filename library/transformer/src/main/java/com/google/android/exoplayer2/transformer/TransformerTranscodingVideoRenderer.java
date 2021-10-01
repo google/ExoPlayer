@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -158,7 +159,9 @@ import java.nio.ByteBuffer;
     }
 
     try {
-      encoder = MediaCodecAdapterWrapper.createForVideoEncoding(encoderConfigurationOutputFormat);
+      encoder =
+          MediaCodecAdapterWrapper.createForVideoEncoding(
+              encoderConfigurationOutputFormat, ImmutableMap.of());
     } catch (IOException e) {
       throw createRendererException(
           // TODO(claincly): should be "ENCODER_INIT_FAILED"
