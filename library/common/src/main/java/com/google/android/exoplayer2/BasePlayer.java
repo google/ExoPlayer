@@ -228,11 +228,6 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public final void stop() {
-    stop(/* reset= */ false);
-  }
-
-  @Override
   public final int getNextWindowIndex() {
     Timeline timeline = getCurrentTimeline();
     return timeline.isEmpty()

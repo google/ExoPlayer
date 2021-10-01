@@ -494,6 +494,12 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  public void stop() {
+    stop(/* reset= */ false);
+  }
+
+  @Deprecated
+  @Override
   public void stop(boolean reset) {
     playbackState = STATE_IDLE;
     if (remoteMediaClient != null) {

@@ -417,6 +417,12 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void stop() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
+  @Override
   public void stop(boolean reset) {
     throw new UnsupportedOperationException();
   }

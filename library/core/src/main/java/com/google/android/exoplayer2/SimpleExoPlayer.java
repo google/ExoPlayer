@@ -1378,6 +1378,11 @@ public class SimpleExoPlayer extends BasePlayer
     player.setForegroundMode(foregroundMode);
   }
 
+  @Override
+  public void stop() {
+    stop(/* reset= */ false);
+  }
+
   @Deprecated
   @Override
   public void stop(boolean reset) {

@@ -739,6 +739,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void stop() {
+    stop(/* reset= */ false);
+  }
+
+  @Deprecated
+  @Override
   public void stop(boolean reset) {
     stop(reset, /* error= */ null);
   }
