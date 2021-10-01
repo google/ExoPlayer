@@ -26,6 +26,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.MediaItem;
@@ -178,10 +179,9 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     }
 
     /**
-     * Skips calling {@link com.google.android.exoplayer2.ExoPlayer#setMediaSources(List)} before
-     * preparing. Calling this method is not allowed after calls to {@link
-     * #setMediaSources(MediaSource...)}, {@link #setTimeline(Timeline)} and/or {@link
-     * #setManifest(Object)}.
+     * Skips calling {@link ExoPlayer#setMediaSources(List)} before preparing. Calling this method
+     * is not allowed after calls to {@link #setMediaSources(MediaSource...)}, {@link
+     * #setTimeline(Timeline)} and/or {@link #setManifest(Object)}.
      *
      * @return This builder.
      */

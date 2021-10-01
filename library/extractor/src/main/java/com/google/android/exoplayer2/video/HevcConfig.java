@@ -111,7 +111,7 @@ public final class HevcConfig {
   /**
    * List of buffers containing the codec-specific data to be provided to the decoder.
    *
-   * @see com.google.android.exoplayer2.Format#initializationData
+   * <p>See {@link Format#initializationData}.
    */
   public final List<byte[]> initializationData;
 
@@ -130,7 +130,7 @@ public final class HevcConfig {
   /**
    * An RFC 6381 codecs string representing the video format, or {@code null} if not known.
    *
-   * @see com.google.android.exoplayer2.Format#codecs
+   * <p>See {@link Format#codecs}.
    */
   @Nullable public final String codecs;
 

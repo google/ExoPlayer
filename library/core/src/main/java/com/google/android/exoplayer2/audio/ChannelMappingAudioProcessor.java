@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.audio;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 
@@ -33,9 +34,10 @@ import java.nio.ByteBuffer;
    * Resets the channel mapping. After calling this method, call {@link #configure(AudioFormat)} to
    * start using the new channel map.
    *
+   * <p>See {@link AudioSink#configure(Format, int, int[])}.
+   *
    * @param outputChannels The mapping from input to output channel indices, or {@code null} to
    *     leave the input unchanged.
-   * @see AudioSink#configure(com.google.android.exoplayer2.Format, int, int[])
    */
   public void setChannelMap(@Nullable int[] outputChannels) {
     pendingOutputChannels = outputChannels;

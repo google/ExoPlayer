@@ -350,8 +350,7 @@ public final class Cea608Decoder extends CeaDecoder {
    * Constructs an instance.
    *
    * @param mimeType The MIME type of the CEA-608 data.
-   * @param accessibilityChannel The Accessibility channel, or {@link
-   *     com.google.android.exoplayer2.Format#NO_VALUE} if unknown.
+   * @param accessibilityChannel The Accessibility channel, or {@link Format#NO_VALUE} if unknown.
    * @param validDataChannelTimeoutMs The timeout (in milliseconds) permitted by ANSI/CTA-608-E
    *     R-2014 Annex C.9 to clear "stuck" captions where no removal control code is received. The
    *     timeout should be at least {@link #MIN_DATA_CHANNEL_TIMEOUT_MS} or {@link C#TIME_UNSET} for

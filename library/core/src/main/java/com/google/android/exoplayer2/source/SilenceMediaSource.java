@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -56,9 +57,8 @@ public final class SilenceMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Sets a tag for the media source which will be published in the {@link
-     * com.google.android.exoplayer2.Timeline} of the source as {@link
-     * MediaItem.LocalConfiguration#tag Window#mediaItem.localConfiguration.tag}.
+     * Sets a tag for the media source which will be published in the {@link Timeline} of the source
+     * as {@link MediaItem.LocalConfiguration#tag Window#mediaItem.localConfiguration.tag}.
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.

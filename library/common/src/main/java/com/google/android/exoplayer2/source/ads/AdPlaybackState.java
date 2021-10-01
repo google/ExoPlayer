@@ -27,6 +27,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -52,8 +53,8 @@ public final class AdPlaybackState implements Bundleable {
   public static final class AdGroup implements Bundleable {
 
     /**
-     * The time of the ad group in the {@link com.google.android.exoplayer2.Timeline.Period}, in
-     * microseconds, or {@link C#TIME_END_OF_SOURCE} to indicate a postroll ad.
+     * The time of the ad group in the {@link Timeline.Period}, in microseconds, or {@link
+     * C#TIME_END_OF_SOURCE} to indicate a postroll ad.
      */
     public final long timeUs;
     /** The number of ads in the ad group, or {@link C#LENGTH_UNSET} if unknown. */
@@ -75,9 +76,8 @@ public final class AdPlaybackState implements Bundleable {
     /**
      * Creates a new ad group with an unspecified number of ads.
      *
-     * @param timeUs The time of the ad group in the {@link
-     *     com.google.android.exoplayer2.Timeline.Period}, in microseconds, or {@link
-     *     C#TIME_END_OF_SOURCE} to indicate a postroll ad.
+     * @param timeUs The time of the ad group in the {@link Timeline.Period}, in microseconds, or
+     *     {@link C#TIME_END_OF_SOURCE} to indicate a postroll ad.
      */
     public AdGroup(long timeUs) {
       this(
@@ -452,8 +452,8 @@ public final class AdPlaybackState implements Bundleable {
    *
    * @param adsId The opaque identifier for ads with which this instance is associated.
    * @param adGroupTimesUs The times of ad groups in microseconds, relative to the start of the
-   *     {@link com.google.android.exoplayer2.Timeline.Period} they belong to. A final element with
-   *     the value {@link C#TIME_END_OF_SOURCE} indicates that there is a postroll ad.
+   *     {@link Timeline.Period} they belong to. A final element with the value {@link
+   *     C#TIME_END_OF_SOURCE} indicates that there is a postroll ad.
    */
   public AdPlaybackState(Object adsId, long... adGroupTimesUs) {
     this(
