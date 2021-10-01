@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
@@ -115,14 +115,15 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     /**
      * Returns a new {@link SingleSampleMediaSource} using the current parameters.
      *
-     * @param subtitle The {@link MediaItem.Subtitle}.
+     * @param subtitleConfiguration The {@link MediaItem.SubtitleConfiguration}.
      * @param durationUs The duration of the media stream in microseconds.
      * @return The new {@link SingleSampleMediaSource}.
      */
-    public SingleSampleMediaSource createMediaSource(MediaItem.Subtitle subtitle, long durationUs) {
+    public SingleSampleMediaSource createMediaSource(
+        MediaItem.SubtitleConfiguration subtitleConfiguration, long durationUs) {
       return new SingleSampleMediaSource(
           trackId,
-          subtitle,
+          subtitleConfiguration,
           dataSourceFactory,
           durationUs,
           loadErrorHandlingPolicy,
@@ -144,7 +145,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
   private SingleSampleMediaSource(
       @Nullable String trackId,
-      MediaItem.Subtitle subtitle,
+      MediaItem.SubtitleConfiguration subtitleConfiguration,
       DataSource.Factory dataSourceFactory,
       long durationUs,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
@@ -157,21 +158,24 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.EMPTY)
-            .setMediaId(subtitle.uri.toString())
-            .setSubtitles(Collections.singletonList(subtitle))
+            .setMediaId(subtitleConfiguration.uri.toString())
+            .setSubtitleConfigurations(ImmutableList.of(subtitleConfiguration))
             .setTag(tag)
             .build();
     format =
         new Format.Builder()
             .setId(trackId)
-            .setSampleMimeType(firstNonNull(subtitle.mimeType, MimeTypes.TEXT_UNKNOWN))
-            .setLanguage(subtitle.language)
-            .setSelectionFlags(subtitle.selectionFlags)
-            .setRoleFlags(subtitle.roleFlags)
-            .setLabel(subtitle.label)
+            .setSampleMimeType(firstNonNull(subtitleConfiguration.mimeType, MimeTypes.TEXT_UNKNOWN))
+            .setLanguage(subtitleConfiguration.language)
+            .setSelectionFlags(subtitleConfiguration.selectionFlags)
+            .setRoleFlags(subtitleConfiguration.roleFlags)
+            .setLabel(subtitleConfiguration.label)
             .build();
     dataSpec =
-        new DataSpec.Builder().setUri(subtitle.uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
+        new DataSpec.Builder()
+            .setUri(subtitleConfiguration.uri)
+            .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+            .build();
     timeline =
         new SinglePeriodTimeline(
             durationUs,

@@ -196,12 +196,13 @@ public class IntentUtil {
     if (localConfiguration.drmConfiguration != null) {
       addDrmConfigurationToIntent(localConfiguration.drmConfiguration, intent, extrasKeySuffix);
     }
-    if (!localConfiguration.subtitles.isEmpty()) {
-      checkState(localConfiguration.subtitles.size() == 1);
-      MediaItem.Subtitle subtitle = localConfiguration.subtitles.get(0);
-      intent.putExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix, subtitle.uri.toString());
-      intent.putExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix, subtitle.mimeType);
-      intent.putExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix, subtitle.language);
+    if (!localConfiguration.subtitleConfigurations.isEmpty()) {
+      checkState(localConfiguration.subtitleConfigurations.size() == 1);
+      MediaItem.SubtitleConfiguration subtitleConfiguration =
+          localConfiguration.subtitleConfigurations.get(0);
+      intent.putExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix, subtitleConfiguration.uri.toString());
+      intent.putExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix, subtitleConfiguration.mimeType);
+      intent.putExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix, subtitleConfiguration.language);
     }
   }
 

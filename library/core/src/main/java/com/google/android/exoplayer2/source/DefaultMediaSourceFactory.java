@@ -173,8 +173,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
    * Sets whether a {@link ProgressiveMediaSource} or {@link SingleSampleMediaSource} is constructed
-   * to handle {@link MediaItem.LocalConfiguration#subtitles}. Defaults to false (i.e. {@link
-   * SingleSampleMediaSource}.
+   * to handle {@link MediaItem.LocalConfiguration#subtitleConfigurations}. Defaults to false (i.e.
+   * {@link SingleSampleMediaSource}.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
    *
@@ -375,13 +375,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
-    List<MediaItem.Subtitle> subtitles = castNonNull(mediaItem.localConfiguration).subtitles;
-    if (!subtitles.isEmpty()) {
-      MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
+    List<MediaItem.SubtitleConfiguration> subtitleConfigurations =
+        castNonNull(mediaItem.localConfiguration).subtitleConfigurations;
+    if (!subtitleConfigurations.isEmpty()) {
+      MediaSource[] mediaSources = new MediaSource[subtitleConfigurations.size() + 1];
       mediaSources[0] = mediaSource;
-      for (int i = 0; i < subtitles.size(); i++) {
+      for (int i = 0; i < subtitleConfigurations.size(); i++) {
         if (useProgressiveMediaSourceForSubtitles
-            && MimeTypes.TEXT_VTT.equals(subtitles.get(i).mimeType)) {
+            && MimeTypes.TEXT_VTT.equals(subtitleConfigurations.get(i).mimeType)) {
           int index = i;
           ProgressiveMediaSource.Factory progressiveMediaSourceFactory =
               new ProgressiveMediaSource.Factory(
@@ -391,23 +392,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                         new SubtitleExtractor(
                             new WebvttDecoder(),
                             new Format.Builder()
-                                .setSampleMimeType(subtitles.get(index).mimeType)
-                                .setLanguage(subtitles.get(index).language)
-                                .setSelectionFlags(subtitles.get(index).selectionFlags)
-                                .setRoleFlags(subtitles.get(index).roleFlags)
-                                .setLabel(subtitles.get(index).label)
+                                .setSampleMimeType(subtitleConfigurations.get(index).mimeType)
+                                .setLanguage(subtitleConfigurations.get(index).language)
+                                .setSelectionFlags(subtitleConfigurations.get(index).selectionFlags)
+                                .setRoleFlags(subtitleConfigurations.get(index).roleFlags)
+                                .setLabel(subtitleConfigurations.get(index).label)
                                 .build())
                       });
           mediaSources[i + 1] =
               progressiveMediaSourceFactory.createMediaSource(
-                  MediaItem.fromUri(subtitles.get(i).uri.toString()));
+                  MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
         } else {
           SingleSampleMediaSource.Factory singleSampleSourceFactory =
               new SingleSampleMediaSource.Factory(dataSourceFactory)
                   .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
           mediaSources[i + 1] =
               singleSampleSourceFactory.createMediaSource(
-                  subtitles.get(i), /* durationUs= */ C.TIME_UNSET);
+                  subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
         }
       }
 
