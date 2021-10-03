@@ -343,8 +343,8 @@ public class PlayerControlView extends FrameLayout {
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
   private long currentWindowOffset;
-  private long currentPosition;
-  private long currentBufferedPosition;
+  private long currentPosition = C.POSITION_UNSET;
+  private long currentBufferedPosition = C.POSITION_UNSET;
 
   public PlayerControlView(Context context) {
     this(context, /* attrs= */ null);
