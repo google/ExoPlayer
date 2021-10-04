@@ -31,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

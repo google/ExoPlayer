@@ -461,7 +461,7 @@ public final class C {
 
   /**
    * Playback offload mode. One of {@link #PLAYBACK_OFFLOAD_NOT_SUPPORTED},{@link
-   * PLAYBACK_OFFLOAD_SUPPORTED} or {@link PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED}.
+   * #PLAYBACK_OFFLOAD_SUPPORTED} or {@link #PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED}.
    */
   @IntDef({
     PLAYBACK_OFFLOAD_NOT_SUPPORTED,
