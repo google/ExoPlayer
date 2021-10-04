@@ -1498,34 +1498,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Apply track disabling and overriding.
     for (int i = 0; i < rendererCount; i++) {
-      // Per renderer and per track type disabling
-      @C.TrackType int rendererType = mappedTrackInfo.getRendererType(i);
-      if (params.getRendererDisabled(i) || params.disabledTrackTypes.contains(rendererType)) {
-        definitions[i] = null;
-        continue;
-      }
-      // Per TrackGroupArray override
-      TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(i);
-      if (params.hasSelectionOverride(i, rendererTrackGroups)) {
-        @Nullable SelectionOverride override = params.getSelectionOverride(i, rendererTrackGroups);
-        definitions[i] =
-            override == null
-                ? null
-                : new ExoTrackSelection.Definition(
-                    rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
-        continue;
-      }
-      // Per TrackGroup override
-      for (int j = 0; j < rendererTrackGroups.length; j++) {
-        TrackGroup trackGroup = rendererTrackGroups.get(j);
-        @Nullable
-        TrackSelectionOverride overrideTracks = params.trackSelectionOverrides.get(trackGroup);
-        if (overrideTracks != null) {
-          definitions[i] =
-              new ExoTrackSelection.Definition(trackGroup, Ints.toArray(overrideTracks.tracks));
-          break;
-        }
-      }
+      definitions[i] = maybeApplyOverride(mappedTrackInfo, params, i, definitions[i]);
     }
 
     @NullableType
@@ -1555,6 +1528,44 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     return Pair.create(rendererConfigurations, rendererTrackSelections);
+  }
+
+  /**
+   * Returns the {@link ExoTrackSelection.Definition} of a renderer after applying selection
+   * overriding and renderer disabling.
+   */
+  protected ExoTrackSelection.@NullableType Definition maybeApplyOverride(
+      MappedTrackInfo mappedTrackInfo,
+      Parameters params,
+      int rendererIndex,
+      ExoTrackSelection.@NullableType Definition currentDefinition) {
+    // Per renderer and per track type disabling
+    @C.TrackType int rendererType = mappedTrackInfo.getRendererType(rendererIndex);
+    if (params.getRendererDisabled(rendererIndex)
+        || params.disabledTrackTypes.contains(rendererType)) {
+      return null;
+    }
+    // Per TrackGroupArray override
+    TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+    if (params.hasSelectionOverride(rendererIndex, rendererTrackGroups)) {
+      @Nullable
+      SelectionOverride override = params.getSelectionOverride(rendererIndex, rendererTrackGroups);
+      if (override == null) {
+        return null;
+      }
+      return new ExoTrackSelection.Definition(
+          rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
+    }
+    // Per TrackGroup override
+    for (int j = 0; j < rendererTrackGroups.length; j++) {
+      TrackGroup trackGroup = rendererTrackGroups.get(j);
+      @Nullable
+      TrackSelectionOverride overrideTracks = params.trackSelectionOverrides.get(trackGroup);
+      if (overrideTracks != null) {
+        return new ExoTrackSelection.Definition(trackGroup, Ints.toArray(overrideTracks.tracks));
+      }
+    }
+    return currentDefinition; // No override
   }
 
   // Track selection prior to overrides and disabled flags being applied.
