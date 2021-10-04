@@ -350,9 +350,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
-  private boolean enableAsynchronousBufferQueueing;
-  private boolean forceAsyncQueueingSynchronizationWorkaround;
-  private boolean enableSynchronizeCodecInteractionsWithQueueing;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
   private long outputStreamStartPositionUs;
@@ -428,46 +425,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     this.renderTimeLimitMs = renderTimeLimitMs;
   }
 
-  /**
-   * Enables asynchronous input buffer queueing.
-   *
-   * <p>Operates the underlying {@link MediaCodec} in asynchronous mode and submits input buffers
-   * from a separate thread to unblock the playback thread.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the renderer is used.
-   */
-  public void experimentalSetAsynchronousBufferQueueingEnabled(boolean enabled) {
-    enableAsynchronousBufferQueueing = enabled;
-  }
-
-  /**
-   * Enables the asynchronous queueing synchronization workaround.
-   *
-   * <p>When enabled, the queueing threads for {@link MediaCodec} instance will synchronize on a
-   * shared lock when submitting buffers to the respective {@link MediaCodec}.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the renderer is used.
-   */
-  public void experimentalSetForceAsyncQueueingSynchronizationWorkaround(boolean enabled) {
-    this.forceAsyncQueueingSynchronizationWorkaround = enabled;
-  }
-
-  /**
-   * Enables synchronizing codec interactions with asynchronous buffer queueing.
-   *
-   * <p>When enabled, codec interactions will wait until all input buffers pending for asynchronous
-   * queueing are submitted to the {@link MediaCodec} first. This method is effective only if {@link
-   * #experimentalSetAsynchronousBufferQueueingEnabled asynchronous buffer queueing} is enabled.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the renderer is used.
-   */
-  public void experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(boolean enabled) {
-    enableSynchronizeCodecInteractionsWithQueueing = enabled;
-  }
-
   @Override
   @AdaptiveSupport
   public final int supportsMixedMimeTypeAdaptation() {
@@ -520,7 +477,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     no codec operating rate should be set.
    * @return The parameters needed to call {@link MediaCodec#configure}.
    */
-  @Nullable
   protected abstract MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
       Format format,
@@ -1092,7 +1048,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void initCodec(MediaCodecInfo codecInfo, MediaCrypto crypto) throws Exception {
     long codecInitializingTimestamp;
     long codecInitializedTimestamp;
-    @Nullable MediaCodecAdapter codecAdapter = null;
     String codecName = codecInfo.name;
     float codecOperatingRate =
         Util.SDK_INT < 23
@@ -1105,19 +1060,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     TraceUtil.beginSection("createCodec:" + codecName);
     MediaCodecAdapter.Configuration configuration =
         getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
-    if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
-      codecAdapter =
-          new AsynchronousMediaCodecAdapter.Factory(
-                  getTrackType(),
-                  forceAsyncQueueingSynchronizationWorkaround,
-                  enableSynchronizeCodecInteractionsWithQueueing)
-              .createAdapter(configuration);
-    } else {
-      codecAdapter = codecAdapterFactory.createAdapter(configuration);
-    }
+    codec = codecAdapterFactory.createAdapter(configuration);
     codecInitializedTimestamp = SystemClock.elapsedRealtime();
 
-    this.codec = codecAdapter;
     this.codecInfo = codecInfo;
     this.codecOperatingRate = codecOperatingRate;
     codecInputFormat = inputFormat;
@@ -1133,7 +1078,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecNeedsMonoChannelCountWorkaround(codecName, codecInputFormat);
     codecNeedsEosPropagation =
         codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
-    if (codecAdapter.needsReconfiguration()) {
+    if (codec.needsReconfiguration()) {
       this.codecReconfigured = true;
       this.codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       this.codecNeedsAdaptationWorkaroundBuffer =

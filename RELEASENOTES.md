@@ -3,6 +3,10 @@
 ### dev-v2 (not yet released)
 
 *   Core Library:
+    *   Enable MediaCodec asynchronous queueing by default on devices with API
+        level >= 31. Add methods in `DefaultMediaCodecRendererFactory` and
+        `DefaultRenderersFactory` to force enable or force disable asynchronous
+        queueing ([6348](https://github.com/google/ExoPlayer/issues/6348)).
     *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
         `com.google.android.exoplayer2.DeviceInfo`.
     *   Move `com.google.android.exoplayer2.drm.DecryptionException` to
@@ -13,8 +17,8 @@
         `GlUtil.glAssertionsEnabled` instead.
     *   Move `Player.addListener(EventListener)` and
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
-    *   Fix `mediaMetadata` being reset when media is
-        repeated ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
+    *   Fix `mediaMetadata` being reset when media is repeated
+        ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
 *   Video:
     *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
         released `Surface` when playing without an app-provided `Surface`

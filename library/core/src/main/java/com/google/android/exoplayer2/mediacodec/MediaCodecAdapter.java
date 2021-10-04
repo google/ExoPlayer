@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
@@ -179,7 +178,7 @@ public interface MediaCodecAdapter {
   interface Factory {
 
     /** Default factory used in most cases. */
-    Factory DEFAULT = new SynchronousMediaCodecAdapter.Factory();
+    Factory DEFAULT = new DefaultMediaCodecAdapterFactory();
 
     /** Creates a {@link MediaCodecAdapter} instance. */
     MediaCodecAdapter createAdapter(Configuration configuration) throws IOException;

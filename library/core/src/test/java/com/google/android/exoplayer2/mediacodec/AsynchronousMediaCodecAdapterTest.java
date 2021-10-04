@@ -54,7 +54,6 @@ public class AsynchronousMediaCodecAdapterTest {
         new AsynchronousMediaCodecAdapter.Factory(
                 /* callbackThreadSupplier= */ () -> callbackThread,
                 /* queueingThreadSupplier= */ () -> queueingThread,
-                /* forceQueueingSynchronizationWorkaround= */ false,
                 /* synchronizeCodecInteractionsWithQueueing= */ false)
             .createAdapter(configuration);
     bufferInfo = new MediaCodec.BufferInfo();
