@@ -104,8 +104,14 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
     if (TextUtils.isEmpty(language) || C.LANGUAGE_UNDETERMINED.equals(language)) {
       return "";
     }
-    Locale locale = Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
-    return locale.getDisplayName();
+    Locale languageLocale =
+        Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
+    Locale displayLocale = Util.getDefaultDisplayLocale();
+    String languageName = languageLocale.getDisplayName(displayLocale);
+    // Capitalize the first letter. See: https://github.com/google/ExoPlayer/issues/9452.
+    int firstCodePointLength = languageName.offsetByCodePoints(0, 1);
+    return languageName.substring(0, firstCodePointLength).toUpperCase(displayLocale)
+        + languageName.substring(firstCodePointLength);
   }
 
   private String buildRoleString(Format format) {

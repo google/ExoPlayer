@@ -2243,6 +2243,11 @@ public final class Util {
     return systemLocales;
   }
 
+  /** Returns the default {@link Locale.Category#DISPLAY DISPLAY} {@link Locale}. */
+  public static Locale getDefaultDisplayLocale() {
+    return Util.SDK_INT >= 24 ? Locale.getDefault(Locale.Category.DISPLAY) : Locale.getDefault();
+  }
+
   /**
    * Uncompresses the data in {@code input}.
    *
