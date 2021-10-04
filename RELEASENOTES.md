@@ -38,6 +38,8 @@
 *   Extractors:
     *   MP4: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
     *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
+    *   TS: Map stream type 0x80 to H262
+        ([#9472](https://github.com/google/ExoPlayer/issues/9472)).
 *   Downloads and caching:
     *   Modify `DownloadService` behavior when `DownloadService.getScheduler`
         returns `null`, or returns a `Scheduler` that does not support the
