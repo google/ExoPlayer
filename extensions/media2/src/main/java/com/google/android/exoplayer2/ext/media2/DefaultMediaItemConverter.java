@@ -27,6 +27,7 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.UriMediaItem;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -85,8 +86,7 @@ public class DefaultMediaItemConverter implements MediaItemConverter {
     return new MediaItem.Builder()
         .setUri(uri)
         .setMediaId(mediaId != null ? mediaId : MediaItem.DEFAULT_MEDIA_ID)
-        .setMediaMetadata(
-            new com.google.android.exoplayer2.MediaMetadata.Builder().setTitle(title).build())
+        .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
         .setTag(media2MediaItem)
         .setClipStartPositionMs(startPositionMs)
         .setClipEndPositionMs(endPositionMs)
