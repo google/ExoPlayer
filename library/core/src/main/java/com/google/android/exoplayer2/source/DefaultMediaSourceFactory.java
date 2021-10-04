@@ -27,12 +27,17 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.text.SubtitleDecoderFactory;
 import com.google.android.exoplayer2.text.SubtitleExtractor;
-import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -44,6 +49,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -381,27 +387,27 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       MediaSource[] mediaSources = new MediaSource[subtitleConfigurations.size() + 1];
       mediaSources[0] = mediaSource;
       for (int i = 0; i < subtitleConfigurations.size(); i++) {
-        if (useProgressiveMediaSourceForSubtitles
-            && MimeTypes.TEXT_VTT.equals(subtitleConfigurations.get(i).mimeType)) {
-          int index = i;
-          ProgressiveMediaSource.Factory progressiveMediaSourceFactory =
-              new ProgressiveMediaSource.Factory(
-                  dataSourceFactory,
-                  () ->
-                      new Extractor[] {
-                        new SubtitleExtractor(
-                            new WebvttDecoder(),
-                            new Format.Builder()
-                                .setSampleMimeType(subtitleConfigurations.get(index).mimeType)
-                                .setLanguage(subtitleConfigurations.get(index).language)
-                                .setSelectionFlags(subtitleConfigurations.get(index).selectionFlags)
-                                .setRoleFlags(subtitleConfigurations.get(index).roleFlags)
-                                .setLabel(subtitleConfigurations.get(index).label)
-                                .build())
-                      });
+        if (useProgressiveMediaSourceForSubtitles) {
+          Format format =
+              new Format.Builder()
+                  .setSampleMimeType(subtitleConfigurations.get(i).mimeType)
+                  .setLanguage(subtitleConfigurations.get(i).language)
+                  .setSelectionFlags(subtitleConfigurations.get(i).selectionFlags)
+                  .setRoleFlags(subtitleConfigurations.get(i).roleFlags)
+                  .setLabel(subtitleConfigurations.get(i).label)
+                  .build();
+          ExtractorsFactory extractorsFactory =
+              () ->
+                  new Extractor[] {
+                    SubtitleDecoderFactory.DEFAULT.supportsFormat(format)
+                        ? new SubtitleExtractor(
+                            SubtitleDecoderFactory.DEFAULT.createDecoder(format), format)
+                        : new UnknownSubtitlesExtractor(format)
+                  };
           mediaSources[i + 1] =
-              progressiveMediaSourceFactory.createMediaSource(
-                  MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
+              new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
+                  .createMediaSource(
+                      MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
         } else {
           SingleSampleMediaSource.Factory singleSampleSourceFactory =
               new SingleSampleMediaSource.Factory(dataSourceFactory)
@@ -512,5 +518,48 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     factories.put(
         C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory));
     return factories;
+  }
+
+  private static final class UnknownSubtitlesExtractor implements Extractor {
+    private final Format format;
+
+    public UnknownSubtitlesExtractor(Format format) {
+      this.format = format;
+    }
+
+    @Override
+    public boolean sniff(ExtractorInput input) {
+      return true;
+    }
+
+    @Override
+    public void init(ExtractorOutput output) {
+      TrackOutput trackOutput = output.track(/* id= */ 0, C.TRACK_TYPE_TEXT);
+      output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
+      output.endTracks();
+      trackOutput.format(
+          format
+              .buildUpon()
+              .setSampleMimeType(MimeTypes.TEXT_UNKNOWN)
+              .setCodecs(format.sampleMimeType)
+              .build());
+    }
+
+    @Override
+    public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+      int skipResult = input.skip(Integer.MAX_VALUE);
+      if (skipResult == C.RESULT_END_OF_INPUT) {
+        return RESULT_END_OF_INPUT;
+      }
+      return RESULT_CONTINUE;
+    }
+
+    @Override
+    public void seek(long position, long timeUs) {
+      return;
+    }
+
+    @Override
+    public void release() {}
   }
 }
