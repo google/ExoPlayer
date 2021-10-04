@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -140,7 +142,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     // glDrawArrays uses it.
     private final FloatBuffer[] textureCoords;
 
-    private int program;
+    @Nullable private GlUtil.Program program;
     private int colorMatrixLocation;
 
     // Accessed only from the GL thread.
@@ -161,9 +163,9 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-      program = GlUtil.compileProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-      GLES20.glUseProgram(program);
-      int posLocation = GLES20.glGetAttribLocation(program, "in_pos");
+      program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
+      program.use();
+      int posLocation = program.glGetAttribLocation("in_pos");
       GLES20.glEnableVertexAttribArray(posLocation);
       GLES20.glVertexAttribPointer(
           posLocation,
@@ -172,14 +174,14 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
           /* normalized= */ false,
           /* stride= */ 0,
           TEXTURE_VERTICES);
-      texLocations[0] = GLES20.glGetAttribLocation(program, "in_tc_y");
+      texLocations[0] = checkNotNull(program).glGetAttribLocation("in_tc_y");
       GLES20.glEnableVertexAttribArray(texLocations[0]);
-      texLocations[1] = GLES20.glGetAttribLocation(program, "in_tc_u");
+      texLocations[1] = checkNotNull(program).glGetAttribLocation("in_tc_u");
       GLES20.glEnableVertexAttribArray(texLocations[1]);
-      texLocations[2] = GLES20.glGetAttribLocation(program, "in_tc_v");
+      texLocations[2] = checkNotNull(program).glGetAttribLocation("in_tc_v");
       GLES20.glEnableVertexAttribArray(texLocations[2]);
       GlUtil.checkGlError();
-      colorMatrixLocation = GLES20.glGetUniformLocation(program, "mColorConversion");
+      colorMatrixLocation = checkNotNull(program).glGetUniformLocation("mColorConversion");
       GlUtil.checkGlError();
       setupTextures();
       GlUtil.checkGlError();
@@ -296,7 +298,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     private void setupTextures() {
       GLES20.glGenTextures(3, yuvTextures, /* offset= */ 0);
       for (int i = 0; i < 3; i++) {
-        GLES20.glUniform1i(GLES20.glGetUniformLocation(program, TEXTURE_UNIFORMS[i]), i);
+        GLES20.glUniform1i(checkNotNull(program).glGetUniformLocation(TEXTURE_UNIFORMS[i]), i);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
         GLES20.glTexParameterf(

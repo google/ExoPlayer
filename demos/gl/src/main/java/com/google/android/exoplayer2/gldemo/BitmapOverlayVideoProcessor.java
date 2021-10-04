@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.gldemo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -26,7 +28,6 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 import java.util.Locale;
@@ -49,7 +50,7 @@ import javax.microedition.khronos.opengles.GL10;
   private final Bitmap logoBitmap;
   private final Canvas overlayCanvas;
 
-  private int program;
+  @Nullable private GlUtil.Program program;
   @Nullable private GlUtil.Attribute[] attributes;
   @Nullable private GlUtil.Uniform[] uniforms;
 
@@ -77,27 +78,40 @@ import javax.microedition.khronos.opengles.GL10;
 
   @Override
   public void initialize() {
-    String vertexShaderCode;
-    String fragmentShaderCode;
     try {
-      vertexShaderCode = GlUtil.loadAsset(context, "bitmap_overlay_video_processor_vertex.glsl");
-      fragmentShaderCode =
-          GlUtil.loadAsset(context, "bitmap_overlay_video_processor_fragment.glsl");
+      program =
+          new GlUtil.Program(
+              context,
+              /* vertexShaderFilePath= */ "bitmap_overlay_video_processor_vertex.glsl",
+              /* fragmentShaderFilePath= */ "bitmap_overlay_video_processor_fragment.glsl");
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-    program = GlUtil.compileProgram(vertexShaderCode, fragmentShaderCode);
-    GlUtil.Attribute[] attributes = GlUtil.getAttributes(program);
-    GlUtil.Uniform[] uniforms = GlUtil.getUniforms(program);
+    program.use();
+    GlUtil.Attribute[] attributes = program.getAttributes();
     for (GlUtil.Attribute attribute : attributes) {
       if (attribute.name.equals("a_position")) {
-        attribute.setBuffer(new float[] {-1, -1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, 1, 1, 0, 1}, 4);
+        attribute.setBuffer(
+            new float[] {
+              -1, -1, 0, 1,
+              1, -1, 0, 1,
+              -1, 1, 0, 1,
+              1, 1, 0, 1
+            },
+            4);
       } else if (attribute.name.equals("a_texcoord")) {
-        attribute.setBuffer(new float[] {0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1}, 4);
+        attribute.setBuffer(
+            new float[] {
+              0, 0, 0, 1,
+              1, 0, 0, 1,
+              0, 1, 0, 1,
+              1, 1, 0, 1
+            },
+            4);
       }
     }
     this.attributes = attributes;
-    this.uniforms = uniforms;
+    this.uniforms = checkNotNull(program).getUniforms();
     GLES20.glGenTextures(1, textures, 0);
     GLES20.glBindTexture(GL10.GL_TEXTURE_2D, textures[0]);
     GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
@@ -126,9 +140,8 @@ import javax.microedition.khronos.opengles.GL10;
     GlUtil.checkGlError();
 
     // Run the shader program.
-    GlUtil.Uniform[] uniforms = Assertions.checkNotNull(this.uniforms);
-    GlUtil.Attribute[] attributes = Assertions.checkNotNull(this.attributes);
-    GLES20.glUseProgram(program);
+    GlUtil.Uniform[] uniforms = checkNotNull(this.uniforms);
+    GlUtil.Attribute[] attributes = checkNotNull(this.attributes);
     for (GlUtil.Uniform uniform : uniforms) {
       switch (uniform.name) {
         case "tex_sampler_0":
