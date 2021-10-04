@@ -33,6 +33,8 @@
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
         `Player.addListener`.
+    *   Fix initial timestamp display in `PlayerControlView`
+        ([#9524](https://github.com/google/ExoPlayer/issues/9254)).
 *   Extractors:
     *   MP4: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
     *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.

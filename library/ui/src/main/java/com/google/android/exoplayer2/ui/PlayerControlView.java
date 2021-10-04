@@ -508,6 +508,9 @@ public class PlayerControlView extends FrameLayout {
     shuffleOnContentDescription = resources.getString(R.string.exo_controls_shuffle_on_description);
     shuffleOffContentDescription =
         resources.getString(R.string.exo_controls_shuffle_off_description);
+
+    currentPosition = C.TIME_UNSET;
+    currentBufferedPosition = C.TIME_UNSET;
   }
 
   /**
