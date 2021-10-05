@@ -22,6 +22,10 @@ import com.google.android.exoplayer2.util.Util;
 /** Utilities for handling WAVE files. */
 public final class WavUtil {
 
+  /** Four character code for "RF64". */
+  public static final int RF64_FOURCC = 0x52463634;
+  /** Four character code for "ds64". */
+  public static final int DS64_FOURCC = 0x64733634;
   /** Four character code for "RIFF". */
   public static final int RIFF_FOURCC = 0x52494646;
   /** Four character code for "WAVE". */

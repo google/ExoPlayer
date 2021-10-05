@@ -50,7 +50,7 @@ import java.io.IOException;
 
     // Attempt to read the RIFF chunk.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    if (chunkHeader.id != WavUtil.RIFF_FOURCC) {
+    if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.RF64_FOURCC) {
       return null;
     }
 
@@ -117,14 +117,23 @@ import java.io.IOException;
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we find the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
+    long dataSize = -1;
     while (chunkHeader.id != WavUtil.DATA_FOURCC) {
       if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC) {
         Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
       }
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
       // Override size of RIFF chunk, since it describes its size as the entire file.
-      if (chunkHeader.id == WavUtil.RIFF_FOURCC) {
+      // Also, ignore the size of RF64 chunk, since its always going to be 0xFFFFFFFF
+      if (chunkHeader.id == WavUtil.RIFF_FOURCC || chunkHeader.id == WavUtil.RF64_FOURCC) {
         bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
+      } else if (chunkHeader.id == WavUtil.DS64_FOURCC) {
+        int ds64Size = (int) chunkHeader.size;
+        ParsableByteArray ds64Bytes = new ParsableByteArray(ds64Size);
+        input.peekFully(ds64Bytes.getData(), 0, ds64Size);
+        // ds64 chunk contains 64bit sizes. From position 12 to 20 is the data size
+        ds64Bytes.setPosition(12);
+        dataSize = ds64Bytes.readLong();
       }
       if (bytesToSkip > Integer.MAX_VALUE) {
         throw ParserException.createForUnsupportedContainerFeature(
@@ -133,11 +142,15 @@ import java.io.IOException;
       input.skipFully((int) bytesToSkip);
       chunkHeader = ChunkHeader.peek(input, scratch);
     }
+    // Use size from data chunk if it wasn't determined from ds64 chunk
+    if (dataSize == -1) {
+      dataSize = chunkHeader.size;
+    }
     // Skip past the "data" header.
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
     long dataStartPosition = input.getPosition();
-    long dataEndPosition = dataStartPosition + chunkHeader.size;
+    long dataEndPosition = dataStartPosition + dataSize;
     long inputLength = input.getLength();
     if (inputLength != C.LENGTH_UNSET && dataEndPosition > inputLength) {
       Log.w(TAG, "Data exceeds input length: " + dataEndPosition + ", " + inputLength);
