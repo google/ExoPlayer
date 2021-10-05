@@ -2127,6 +2127,7 @@ public interface Player {
    * Returns an estimate of the percentage in the current content window or ad up to which data is
    * buffered, or 0 if no estimate is available.
    */
+  @IntRange(from = 0, to = 100)
   int getBufferedPercentage();
 
   /**
@@ -2211,17 +2212,19 @@ public interface Player {
   AudioAttributes getAudioAttributes();
 
   /**
-   * Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
+   * Sets the audio volume, valid values are between 0 (silence) and 1 (unity gain, signal
+   * unchanged), inclusive.
    *
    * @param volume Linear output gain to apply to all audio channels.
    */
-  void setVolume(@FloatRange(from = 0) float volume);
+  void setVolume(@FloatRange(from = 0, to = 1.0) float volume);
 
   /**
    * Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
    *
    * @return The linear gain applied to all audio channels.
    */
+  @FloatRange(from = 0, to = 1.0)
   float getVolume();
 
   /**
@@ -2337,6 +2340,7 @@ public interface Player {
    * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of the
    * remote device is returned.
    */
+  @IntRange(from = 0)
   int getDeviceVolume();
 
   /** Gets whether the device is muted or not. */
@@ -2347,7 +2351,7 @@ public interface Player {
    *
    * @param volume The volume to set.
    */
-  void setDeviceVolume(int volume);
+  void setDeviceVolume(@IntRange(from = 0) int volume);
 
   /** Increases the volume of the device. */
   void increaseDeviceVolume();
