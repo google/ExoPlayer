@@ -443,7 +443,7 @@ public interface Player {
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
     @Event
-    public int get(@IntRange(from = 0) int index) {
+    public int get(int index) {
       return flags.get(index);
     }
 
@@ -856,7 +856,7 @@ public interface Player {
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
     @Command
-    public int get(@IntRange(from = 0) int index) {
+    public int get(int index) {
       return flags.get(index);
     }
 
@@ -1537,7 +1537,7 @@ public interface Player {
    *     the playlist, the media item is added to the end of the playlist.
    * @param mediaItem The {@link MediaItem} to add.
    */
-  void addMediaItem(@IntRange(from = 0) int index, MediaItem mediaItem);
+  void addMediaItem(int index, MediaItem mediaItem);
 
   /**
    * Adds a list of media items to the end of the playlist.
@@ -1553,7 +1553,7 @@ public interface Player {
    *     the playlist, the media items are added to the end of the playlist.
    * @param mediaItems The {@link MediaItem MediaItems} to add.
    */
-  void addMediaItems(@IntRange(from = 0) int index, List<MediaItem> mediaItems);
+  void addMediaItems(int index, List<MediaItem> mediaItems);
 
   /**
    * Moves the media item at the current index to the new index.
@@ -1562,7 +1562,7 @@ public interface Player {
    * @param newIndex The new index of the media item. If the new index is larger than the size of
    *     the playlist the item is moved to the end of the playlist.
    */
-  void moveMediaItem(@IntRange(from = 0) int currentIndex, @IntRange(from = 0) int newIndex);
+  void moveMediaItem(int currentIndex, int newIndex);
 
   /**
    * Moves the media item range to the new index.
@@ -1573,17 +1573,14 @@ public interface Player {
    *     than the size of the remaining playlist after removing the range, the range is moved to the
    *     end of the playlist.
    */
-  void moveMediaItems(
-      @IntRange(from = 0) int fromIndex,
-      @IntRange(from = 0) int toIndex,
-      @IntRange(from = 0) int newIndex);
+  void moveMediaItems(int fromIndex, int toIndex, int newIndex);
 
   /**
    * Removes the media item at the given index of the playlist.
    *
    * @param index The index at which to remove the media item.
    */
-  void removeMediaItem(@IntRange(from = 0) int index);
+  void removeMediaItem(int index);
 
   /**
    * Removes a range of media items from the playlist.
@@ -1592,7 +1589,7 @@ public interface Player {
    * @param toIndex The index of the first item to be kept (exclusive). If the index is larger than
    *     the size of the playlist, media items to the end of the playlist are removed.
    */
-  void removeMediaItems(@IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex);
+  void removeMediaItems(int fromIndex, int toIndex);
 
   /** Clears the playlist. */
   void clearMediaItems();
@@ -1770,7 +1767,7 @@ public interface Player {
    * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
    *     {@code windowIndex} is not within the bounds of the current timeline.
    */
-  void seekToDefaultPosition(@IntRange(from = 0) int windowIndex);
+  void seekToDefaultPosition(int windowIndex);
 
   /**
    * Seeks to a position specified in milliseconds in the current window.
@@ -1789,7 +1786,7 @@ public interface Player {
    * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
    *     {@code windowIndex} is not within the bounds of the current timeline.
    */
-  void seekTo(@IntRange(from = 0) int windowIndex, long positionMs);
+  void seekTo(int windowIndex, long positionMs);
 
   /**
    * Returns the {@link #seekBack()} increment.
