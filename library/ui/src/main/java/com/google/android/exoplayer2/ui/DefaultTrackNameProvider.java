@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import android.content.res.Resources;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
@@ -100,12 +101,26 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
   }
 
   private String buildLanguageString(Format format) {
-    String language = format.language;
+    @Nullable String language = format.language;
     if (TextUtils.isEmpty(language) || C.LANGUAGE_UNDETERMINED.equals(language)) {
       return "";
     }
-    Locale locale = Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
-    return locale.getDisplayName();
+    Locale languageLocale =
+        Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
+    Locale displayLocale = Util.getDefaultDisplayLocale();
+    String languageName = languageLocale.getDisplayName(displayLocale);
+    if (TextUtils.isEmpty(languageName)) {
+      return "";
+    }
+    try {
+      // Capitalize the first letter. See: https://github.com/google/ExoPlayer/issues/9452.
+      int firstCodePointLength = languageName.offsetByCodePoints(0, 1);
+      return languageName.substring(0, firstCodePointLength).toUpperCase(displayLocale)
+          + languageName.substring(firstCodePointLength);
+    } catch (IndexOutOfBoundsException e) {
+      // Should never happen, but return the unmodified language name if it does.
+      return languageName;
+    }
   }
 
   private String buildRoleString(Format format) {
