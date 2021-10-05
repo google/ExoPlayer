@@ -807,6 +807,8 @@ public class DashManifestParser extends DefaultHandler
         accessibilityChannel = parseCea708AccessibilityChannel(accessibilityDescriptors);
       }
       formatBuilder.setAccessibilityChannel(accessibilityChannel);
+    } else if (MimeTypes.isImage(sampleMimeType)) {
+      formatBuilder.setWidth(width).setHeight(height);
     }
 
     return formatBuilder.build();
@@ -1634,6 +1636,9 @@ public class DashManifestParser extends DefaultHandler
         return MimeTypes.getTextMediaMimeType(codecs);
       }
       // All other text types are raw formats.
+      return containerMimeType;
+    } else if (MimeTypes.isImage(containerMimeType)) {
+      // Image types are raw formats.
       return containerMimeType;
     } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
       @Nullable String mimeType = MimeTypes.getMediaMimeType(codecs);

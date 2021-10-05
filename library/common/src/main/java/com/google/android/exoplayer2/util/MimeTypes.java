@@ -201,6 +201,11 @@ public final class MimeTypes {
         || APPLICATION_DVBSUBS.equals(mimeType);
   }
 
+  /** Returns whether the given string is an image MIME type. */
+  public static boolean isImage(@Nullable String mimeType) {
+    return BASE_TYPE_IMAGE.equals(getTopLevelType(mimeType));
+  }
+
   /**
    * Returns true if it is known that all samples in a stream of the given MIME type and codec are
    * guaranteed to be sync samples (i.e., {@link C#BUFFER_FLAG_KEY_FRAME} is guaranteed to be set on
@@ -505,6 +510,8 @@ public final class MimeTypes {
       return C.TRACK_TYPE_VIDEO;
     } else if (isText(mimeType)) {
       return C.TRACK_TYPE_TEXT;
+    } else if (isImage(mimeType)) {
+      return C.TRACK_TYPE_IMAGE;
     } else if (APPLICATION_ID3.equals(mimeType)
         || APPLICATION_EMSG.equals(mimeType)
         || APPLICATION_SCTE35.equals(mimeType)) {

@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -112,6 +113,36 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.isText(MimeTypes.AUDIO_MP4)).isFalse();
     assertThat(MimeTypes.isText(MimeTypes.AUDIO_AAC)).isFalse();
     assertThat(MimeTypes.isText("application/custom")).isFalse();
+  }
+
+  @Test
+  public void isImage_returnsCorrectResult() {
+    assertThat(MimeTypes.isImage(MimeTypes.IMAGE_JPEG)).isTrue();
+    assertThat(MimeTypes.isImage("image/custom")).isTrue();
+
+    assertThat(MimeTypes.isImage(MimeTypes.VIDEO_MP4)).isFalse();
+    assertThat(MimeTypes.isImage("application/custom")).isFalse();
+  }
+
+  @Test
+  public void getTrackType_returnsCorrectResult() {
+    assertThat(MimeTypes.getTrackType(MimeTypes.VIDEO_H264)).isEqualTo(C.TRACK_TYPE_VIDEO);
+    assertThat(MimeTypes.getTrackType("video/custom")).isEqualTo(C.TRACK_TYPE_VIDEO);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.AUDIO_AAC)).isEqualTo(C.TRACK_TYPE_AUDIO);
+    assertThat(MimeTypes.getTrackType("audio/custom")).isEqualTo(C.TRACK_TYPE_AUDIO);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.TEXT_SSA)).isEqualTo(C.TRACK_TYPE_TEXT);
+    assertThat(MimeTypes.getTrackType("text/custom")).isEqualTo(C.TRACK_TYPE_TEXT);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.IMAGE_JPEG)).isEqualTo(C.TRACK_TYPE_IMAGE);
+    assertThat(MimeTypes.getTrackType("image/custom")).isEqualTo(C.TRACK_TYPE_IMAGE);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.APPLICATION_CEA608)).isEqualTo(C.TRACK_TYPE_TEXT);
+    assertThat(MimeTypes.getTrackType(MimeTypes.APPLICATION_EMSG)).isEqualTo(C.TRACK_TYPE_METADATA);
+    assertThat(MimeTypes.getTrackType(MimeTypes.APPLICATION_CAMERA_MOTION))
+        .isEqualTo(C.TRACK_TYPE_CAMERA_MOTION);
+    assertThat(MimeTypes.getTrackType("application/custom")).isEqualTo(C.TRACK_TYPE_UNKNOWN);
   }
 
   @Test

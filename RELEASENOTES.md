@@ -57,6 +57,10 @@
 *   RTSP:
     *   Support RFC4566 SDP attribute field grammar
         ([#9430](https://github.com/google/ExoPlayer/issues/9430)).
+*   DASH:
+    *   Populate `Format.sampleMimeType`, `width` and `height` for image
+        `AdaptationSet` elements
+        ([#9500](https://github.com/google/ExoPlayer/issues/9500)).
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.
