@@ -186,7 +186,6 @@ import java.nio.ByteBuffer;
     }
     eglSurface =
         GlUtil.getEglSurface(eglDisplay, checkNotNull(checkNotNull(encoder).getInputSurface()));
-
     GlUtil.focusSurface(
         eglDisplay,
         eglContext,
@@ -194,20 +193,17 @@ import java.nio.ByteBuffer;
         encoderConfigurationOutputFormat.width,
         encoderConfigurationOutputFormat.height);
     decoderTextureId = GlUtil.createExternalTexture();
-
-    GlUtil.Program copyProgram;
+    String vertexShaderCode;
+    String fragmentShaderCode;
     try {
-      copyProgram =
-          new GlUtil.Program(
-              context,
-              /* vertexShaderFilePath= */ "shaders/blit_vertex_shader.glsl",
-              /* fragmentShaderFilePath= */ "shaders/copy_external_fragment_shader.glsl");
+      vertexShaderCode = GlUtil.loadAsset(context, "shaders/blit_vertex_shader.glsl");
+      fragmentShaderCode = GlUtil.loadAsset(context, "shaders/copy_external_fragment_shader.glsl");
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-
-    copyProgram.use();
-    GlUtil.Attribute[] copyAttributes = copyProgram.getAttributes();
+    int copyProgram = GlUtil.compileProgram(vertexShaderCode, fragmentShaderCode);
+    GLES20.glUseProgram(copyProgram);
+    GlUtil.Attribute[] copyAttributes = GlUtil.getAttributes(copyProgram);
     checkState(copyAttributes.length == 2, "Expected program to have two vertex attributes.");
     for (GlUtil.Attribute copyAttribute : copyAttributes) {
       if (copyAttribute.name.equals("a_position")) {
@@ -233,7 +229,7 @@ import java.nio.ByteBuffer;
       }
       copyAttribute.bind();
     }
-    GlUtil.Uniform[] copyUniforms = copyProgram.getUniforms();
+    GlUtil.Uniform[] copyUniforms = GlUtil.getUniforms(copyProgram);
     checkState(copyUniforms.length == 2, "Expected program to have two uniforms.");
     for (GlUtil.Uniform copyUniform : copyUniforms) {
       if (copyUniform.name.equals("tex_sampler")) {

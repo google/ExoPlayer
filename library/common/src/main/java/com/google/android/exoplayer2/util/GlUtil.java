@@ -54,160 +54,6 @@ public final class GlUtil {
   /** Thrown when the required EGL version is not supported by the device. */
   public static final class UnsupportedEglVersionException extends Exception {}
 
-  /** GL program. */
-  public static final class Program {
-    /** The identifier of a compiled and linked GLSL shader program. */
-    private final int programId;
-
-    /**
-     * Compiles a GL shader program from vertex and fragment shader code.
-     *
-     * @param vertexShaderCode GLES20 vertex shader program.
-     * @param fragmentShaderCode GLES20 fragment shader program.
-     */
-    public Program(String vertexShaderCode, String fragmentShaderCode) {
-      programId = GLES20.glCreateProgram();
-      checkGlError();
-
-      // Add the vertex and fragment shaders.
-      addShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-      addShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-      // Link and check for errors.
-      GLES20.glLinkProgram(programId);
-      int[] linkStatus = new int[] {GLES20.GL_FALSE};
-      GLES20.glGetProgramiv(programId, GLES20.GL_LINK_STATUS, linkStatus, 0);
-      if (linkStatus[0] != GLES20.GL_TRUE) {
-        throwGlException(
-            "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
-      }
-      checkGlError();
-    }
-
-    /**
-     * Compiles a GL shader program from vertex and fragment shader code.
-     *
-     * @param context The {@link Context}.
-     * @param vertexShaderFilePath The path to a GLES20 vertex shader program.
-     * @param fragmentShaderFilePath The path to a fragment shader program.
-     * @throws IOException When failing to read the shader files.
-     */
-    public Program(Context context, String vertexShaderFilePath, String fragmentShaderFilePath)
-        throws IOException {
-      this(loadAsset(context, vertexShaderFilePath), loadAsset(context, fragmentShaderFilePath));
-    }
-
-    /**
-     * Compiles a GL shader program from vertex and fragment shader code.
-     *
-     * @param vertexShaderCode GLES20 vertex shader program as arrays of strings. Strings are joined
-     *     by adding a new line character in between each of them.
-     * @param fragmentShaderCode GLES20 fragment shader program as arrays of strings. Strings are
-     *     joined by adding a new line character in between each of them.
-     */
-    public Program(String[] vertexShaderCode, String[] fragmentShaderCode) {
-      this(TextUtils.join("\n", vertexShaderCode), TextUtils.join("\n", fragmentShaderCode));
-    }
-
-    /** Uses the program. */
-    public void use() {
-      GLES20.glUseProgram(programId);
-    }
-
-    /** Deletes the program. Deleted programs cannot be used again. */
-    public void delete() {
-      GLES20.glDeleteProgram(programId);
-    }
-
-    /** Returns the location of an {@link Attribute}. */
-    public int glGetAttribLocation(String attributeName) {
-      return GLES20.glGetAttribLocation(programId, attributeName);
-    }
-
-    /** Returns the location of a {@link Uniform}. */
-    public int glGetUniformLocation(String uniformName) {
-      return GLES20.glGetUniformLocation(programId, uniformName);
-    }
-
-    /** Returns the program's {@link Attribute}s. */
-    public Attribute[] getAttributes() {
-      int[] attributeCount = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, 0);
-      if (attributeCount[0] != 2) {
-        throw new IllegalStateException("Expected two attributes.");
-      }
-
-      Attribute[] attributes = new Attribute[attributeCount[0]];
-      for (int i = 0; i < attributeCount[0]; i++) {
-        attributes[i] = createAttribute(i);
-      }
-      return attributes;
-    }
-
-    /** Returns the program's {@link Uniform}s. */
-    public Uniform[] getUniforms() {
-      int[] uniformCount = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORMS, uniformCount, 0);
-
-      Uniform[] uniforms = new Uniform[uniformCount[0]];
-      for (int i = 0; i < uniformCount[0]; i++) {
-        uniforms[i] = createUniform(i);
-      }
-
-      return uniforms;
-    }
-
-    private Uniform createUniform(int index) {
-      int[] length = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, length, 0);
-
-      int[] type = new int[1];
-      int[] size = new int[1];
-      byte[] name = new byte[length[0]];
-      int[] ignore = new int[1];
-
-      GLES20.glGetActiveUniform(programId, index, length[0], ignore, 0, size, 0, type, 0, name, 0);
-      String nameString = new String(name, 0, strlen(name));
-      int location = glGetAttribLocation(nameString);
-      int typeInt = type[0];
-
-      return new Uniform(nameString, location, typeInt);
-    }
-
-    private Attribute createAttribute(int index) {
-      int[] length = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, 0);
-
-      int[] type = new int[1];
-      int[] size = new int[1];
-      byte[] nameBytes = new byte[length[0]];
-      int[] ignore = new int[1];
-
-      GLES20.glGetActiveAttrib(
-          programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
-      String name = new String(nameBytes, 0, strlen(nameBytes));
-      int location = glGetAttribLocation(name);
-
-      return new Attribute(name, index, location);
-    }
-
-    private void addShader(int type, String shaderCode) {
-      int shader = GLES20.glCreateShader(type);
-      GLES20.glShaderSource(shader, shaderCode);
-      GLES20.glCompileShader(shader);
-
-      int[] result = new int[] {GLES20.GL_FALSE};
-      GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
-      if (result[0] != GLES20.GL_TRUE) {
-        throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + shaderCode);
-      }
-
-      GLES20.glAttachShader(programId, shader);
-      GLES20.glDeleteShader(shader);
-      checkGlError();
-    }
-  }
-
   /**
    * GL attribute, which can be attached to a buffer with {@link Attribute#setBuffer(float[], int)}.
    */
@@ -222,11 +68,26 @@ public final class GlUtil {
     @Nullable private Buffer buffer;
     private int size;
 
-    /** Creates a new GL attribute. */
-    public Attribute(String name, int index, int location) {
-      this.name = name;
+    /**
+     * Creates a new GL attribute.
+     *
+     * @param program The identifier of a compiled and linked GLSL shader program.
+     * @param index The index of the attribute. After this instance has been constructed, the name
+     *     of the attribute is available via the {@link #name} field.
+     */
+    public Attribute(int program, int index) {
+      int[] len = new int[1];
+      GLES20.glGetProgramiv(program, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, len, 0);
+
+      int[] type = new int[1];
+      int[] size = new int[1];
+      byte[] nameBytes = new byte[len[0]];
+      int[] ignore = new int[1];
+
+      GLES20.glGetActiveAttrib(program, index, len[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
+      name = new String(nameBytes, 0, strlen(nameBytes));
+      location = GLES20.glGetAttribLocation(program, name);
       this.index = index;
-      this.location = location;
     }
 
     /**
@@ -276,12 +137,28 @@ public final class GlUtil {
     private int texId;
     private int unit;
 
-    /** Creates a new GL uniform. */
-    public Uniform(String name, int location, int type) {
-      this.name = name;
-      this.location = location;
-      this.type = type;
-      this.value = new float[16];
+    /**
+     * Creates a new GL uniform.
+     *
+     * @param program The identifier of a compiled and linked GLSL shader program.
+     * @param index The index of the uniform. After this instance has been constructed, the name of
+     *     the uniform is available via the {@link #name} field.
+     */
+    public Uniform(int program, int index) {
+      int[] len = new int[1];
+      GLES20.glGetProgramiv(program, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, len, 0);
+
+      int[] type = new int[1];
+      int[] size = new int[1];
+      byte[] name = new byte[len[0]];
+      int[] ignore = new int[1];
+
+      GLES20.glGetActiveUniform(program, index, len[0], ignore, 0, size, 0, type, 0, name, 0);
+      this.name = new String(name, 0, strlen(name));
+      location = GLES20.glGetUniformLocation(program, this.name);
+      this.type = type[0];
+
+      value = new float[16];
     }
 
     /**
@@ -456,6 +333,74 @@ public final class GlUtil {
   }
 
   /**
+   * Builds a GL shader program from vertex and fragment shader code.
+   *
+   * @param vertexCode GLES20 vertex shader program as arrays of strings. Strings are joined by
+   *     adding a new line character in between each of them.
+   * @param fragmentCode GLES20 fragment shader program as arrays of strings. Strings are joined by
+   *     adding a new line character in between each of them.
+   * @return GLES20 program id.
+   */
+  public static int compileProgram(String[] vertexCode, String[] fragmentCode) {
+    return compileProgram(TextUtils.join("\n", vertexCode), TextUtils.join("\n", fragmentCode));
+  }
+
+  /**
+   * Builds a GL shader program from vertex and fragment shader code.
+   *
+   * @param vertexCode GLES20 vertex shader program.
+   * @param fragmentCode GLES20 fragment shader program.
+   * @return GLES20 program id.
+   */
+  public static int compileProgram(String vertexCode, String fragmentCode) {
+    int program = GLES20.glCreateProgram();
+    checkGlError();
+
+    // Add the vertex and fragment shaders.
+    addShader(GLES20.GL_VERTEX_SHADER, vertexCode, program);
+    addShader(GLES20.GL_FRAGMENT_SHADER, fragmentCode, program);
+
+    // Link and check for errors.
+    GLES20.glLinkProgram(program);
+    int[] linkStatus = new int[] {GLES20.GL_FALSE};
+    GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
+    if (linkStatus[0] != GLES20.GL_TRUE) {
+      throwGlException("Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(program));
+    }
+    checkGlError();
+
+    return program;
+  }
+
+  /** Returns the {@link Attribute}s in the specified {@code program}. */
+  public static Attribute[] getAttributes(int program) {
+    int[] attributeCount = new int[1];
+    GLES20.glGetProgramiv(program, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, 0);
+    if (attributeCount[0] != 2) {
+      throw new IllegalStateException("Expected two attributes.");
+    }
+
+    Attribute[] attributes = new Attribute[attributeCount[0]];
+    for (int i = 0; i < attributeCount[0]; i++) {
+      attributes[i] = new Attribute(program, i);
+    }
+    return attributes;
+  }
+
+  /** Returns the {@link Uniform}s in the specified {@code program}. */
+  public static Uniform[] getUniforms(int program) {
+    int[] uniformCount = new int[1];
+    GLES20.glGetProgramiv(program, GLES20.GL_ACTIVE_UNIFORMS, uniformCount, 0);
+
+    Uniform[] uniforms = new Uniform[uniformCount[0]];
+    for (int i = 0; i < uniformCount[0]; i++) {
+      uniforms[i] = new Uniform(program, i);
+    }
+
+    return uniforms;
+  }
+
+  /**
    * Deletes a GL texture.
    *
    * @param textureId The ID of the texture to delete.
@@ -531,6 +476,22 @@ public final class GlUtil {
         GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
     checkGlError();
     return texId[0];
+  }
+
+  private static void addShader(int type, String source, int program) {
+    int shader = GLES20.glCreateShader(type);
+    GLES20.glShaderSource(shader, source);
+    GLES20.glCompileShader(shader);
+
+    int[] result = new int[] {GLES20.GL_FALSE};
+    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
+    if (result[0] != GLES20.GL_TRUE) {
+      throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + source);
+    }
+
+    GLES20.glAttachShader(program, shader);
+    GLES20.glDeleteShader(shader);
+    checkGlError();
   }
 
   private static void throwGlException(String errorMsg) {
