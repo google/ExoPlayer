@@ -543,10 +543,6 @@
     "name": "Misc",
     "samples": [
       {
-        "name": "User File",
-        "uri": "content://user"
-      },
-      {
         "name": "Dizzy (MP4)",
         "uri": "https://html5demos.com/assets/dizzy.mp4"
       },
