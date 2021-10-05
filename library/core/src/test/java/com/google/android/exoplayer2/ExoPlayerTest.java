@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_GET_DEVICE_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TIMELINE;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TRACK_INFOS;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
 import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP;
@@ -8344,6 +8345,7 @@ public final class ExoPlayerTest {
     assertThat(player.isCommandAvailable(COMMAND_SET_VIDEO_SURFACE)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_GET_TEXT)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SET_TRACK_SELECTION_PARAMETERS)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_GET_TRACK_INFOS)).isTrue();
   }
 
   @Test
@@ -11238,7 +11240,8 @@ public final class ExoPlayerTest {
         COMMAND_ADJUST_DEVICE_VOLUME,
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
-        COMMAND_SET_TRACK_SELECTION_PARAMETERS);
+        COMMAND_SET_TRACK_SELECTION_PARAMETERS,
+        COMMAND_GET_TRACK_INFOS);
     if (!isTimelineEmpty) {
       builder.add(COMMAND_SEEK_TO_PREVIOUS);
     }

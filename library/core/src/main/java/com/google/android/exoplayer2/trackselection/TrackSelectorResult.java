@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.trackselection;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -32,6 +33,8 @@ public final class TrackSelectorResult {
   public final @NullableType RendererConfiguration[] rendererConfigurations;
   /** A {@link ExoTrackSelection} array containing the track selection for each renderer. */
   public final @NullableType ExoTrackSelection[] selections;
+  /** Describe the tracks and which one were selected. */
+  public final TracksInfo tracksInfo;
   /**
    * An opaque object that will be returned to {@link TrackSelector#onSelectionActivated(Object)}
    * should the selections be activated.
@@ -45,13 +48,34 @@ public final class TrackSelectorResult {
    * @param info An opaque object that will be returned to {@link
    *     TrackSelector#onSelectionActivated(Object)} should the selection be activated. May be
    *     {@code null}.
+   * @deprecated Use {@link #TrackSelectorResult(RendererConfiguration[], ExoTrackSelection[],
+   *     TracksInfo, Object)}.
    */
+  @Deprecated
   public TrackSelectorResult(
       @NullableType RendererConfiguration[] rendererConfigurations,
       @NullableType ExoTrackSelection[] selections,
       @Nullable Object info) {
+    this(rendererConfigurations, selections, TracksInfo.EMPTY, info);
+  }
+
+  /**
+   * @param rendererConfigurations A {@link RendererConfiguration} for each renderer. A null entry
+   *     indicates the corresponding renderer should be disabled.
+   * @param selections A {@link ExoTrackSelection} array containing the selection for each renderer.
+   * @param tracksInfo Description of the available tracks and which one were selected.
+   * @param info An opaque object that will be returned to {@link
+   *     TrackSelector#onSelectionActivated(Object)} should the selection be activated. May be
+   *     {@code null}.
+   */
+  public TrackSelectorResult(
+      @NullableType RendererConfiguration[] rendererConfigurations,
+      @NullableType ExoTrackSelection[] selections,
+      TracksInfo tracksInfo,
+      @Nullable Object info) {
     this.rendererConfigurations = rendererConfigurations;
     this.selections = selections.clone();
+    this.tracksInfo = tracksInfo;
     this.info = info;
     length = rendererConfigurations.length;
   }

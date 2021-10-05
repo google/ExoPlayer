@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -586,6 +587,7 @@ public class AnalyticsCollector
   }
 
   @Override
+  @SuppressWarnings("deprecation") // Implementing and calling deprecate listener method
   public final void onTracksChanged(
       TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
@@ -593,6 +595,15 @@ public class AnalyticsCollector
         eventTime,
         AnalyticsListener.EVENT_TRACKS_CHANGED,
         listener -> listener.onTracksChanged(eventTime, trackGroups, trackSelections));
+  }
+
+  @Override
+  public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_TRACKS_CHANGED,
+        listener -> listener.onTracksInfoChanged(eventTime, tracksInfo));
   }
 
   @SuppressWarnings("deprecation") // Calling deprecated listener method.

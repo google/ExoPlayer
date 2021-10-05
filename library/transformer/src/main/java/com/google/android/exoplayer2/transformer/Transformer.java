@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -53,10 +54,8 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -636,8 +635,7 @@ public final class Transformer {
     }
 
     @Override
-    public void onTracksChanged(
-        EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    public void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {
       if (muxerWrapper.getTrackCount() == 0) {
         handleTransformationEnded(
             new IllegalStateException(

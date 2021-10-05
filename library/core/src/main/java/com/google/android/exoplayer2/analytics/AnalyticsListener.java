@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -221,7 +222,8 @@ public interface AnalyticsListener {
    */
   int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
   /**
-   * {@link Player#getCurrentTrackGroups()} or {@link Player#getCurrentTrackSelections()} changed.
+   * {@link Player#getCurrentTracksInfo()}, {@link Player#getCurrentTrackGroups()} or {@link
+   * Player#getCurrentTrackSelections()} changed.
    */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
@@ -674,9 +676,19 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param trackGroups The available tracks. May be empty.
    * @param trackSelections The track selections for each renderer. May contain null elements.
+   * @deprecated Use {@link #onTracksInfoChanged}.
    */
+  @Deprecated
   default void onTracksChanged(
       EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
+
+  /**
+   * Called when the available or selected tracks change.
+   *
+   * @param eventTime The event time.
+   * @param tracksInfo The available tracks information. Never null, but may be of length zero.
+   */
+  default void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {}
 
   /**
    * Called when the combined {@link MediaMetadata} changes.

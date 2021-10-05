@@ -38,9 +38,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -383,7 +381,6 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
 
   private SimpleExoPlayer player;
   private Exception exception;
-  private TrackGroupArray trackGroups;
   private boolean playerWasPrepared;
 
   private ExoPlayerTestRunner(
@@ -563,17 +560,6 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   }
 
   /**
-   * Asserts that the last track group array reported by {@link
-   * Player.Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)} is equal to the provided
-   * track group array.
-   *
-   * @param trackGroupArray The expected {@link TrackGroupArray}.
-   */
-  public void assertTrackGroupsEqual(TrackGroupArray trackGroupArray) {
-    assertThat(this.trackGroups).isEqualTo(trackGroupArray);
-  }
-
-  /**
    * Asserts that {@link Player.Listener#onPositionDiscontinuity(Player.PositionInfo,
    * Player.PositionInfo, int)} was not called.
    */
@@ -654,11 +640,6 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
       @Nullable MediaItem mediaItem, @Player.MediaItemTransitionReason int reason) {
     mediaItems.add(mediaItem);
     mediaItemTransitionReasons.add(reason);
-  }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    this.trackGroups = trackGroups;
   }
 
   @Override

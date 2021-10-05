@@ -196,6 +196,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         new TrackSelectorResult(
             new RendererConfiguration[renderers.length],
             new ExoTrackSelection[renderers.length],
+            TracksInfo.EMPTY,
             /* info= */ null);
     period = new Timeline.Period();
     permanentAvailableCommands =
@@ -210,7 +211,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 COMMAND_GET_TIMELINE,
                 COMMAND_GET_MEDIA_ITEMS_METADATA,
                 COMMAND_SET_MEDIA_ITEMS_METADATA,
-                COMMAND_CHANGE_MEDIA_ITEMS)
+                COMMAND_CHANGE_MEDIA_ITEMS,
+                COMMAND_GET_TRACK_INFOS)
             .addIf(COMMAND_SET_TRACK_SELECTION_PARAMETERS, trackSelector.isSetParametersSupported())
             .addAll(additionalPermanentAvailableCommands)
             .build();
@@ -952,6 +954,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public TracksInfo getCurrentTracksInfo() {
+    return playbackInfo.trackSelectorResult.tracksInfo;
+  }
+
+  @Override
   public TrackSelectionParameters getTrackSelectionParameters() {
     return trackSelector.getParameters();
   }
@@ -1274,6 +1281,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
+      listeners.queueEvent(
+          Player.EVENT_TRACKS_CHANGED,
+          listener -> listener.onTracksInfoChanged(newPlaybackInfo.trackSelectorResult.tracksInfo));
     }
     if (metadataChanged) {
       final MediaMetadata finalMediaMetadata = mediaMetadata;

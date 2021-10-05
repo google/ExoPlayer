@@ -1457,6 +1457,12 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public TracksInfo getCurrentTracksInfo() {
+    verifyApplicationThread();
+    return player.getCurrentTracksInfo();
+  }
+
+  @Override
   public TrackSelectionParameters getTrackSelectionParameters() {
     verifyApplicationThread();
     return player.getTrackSelectionParameters();

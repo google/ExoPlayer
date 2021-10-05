@@ -361,6 +361,11 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
+  public TracksInfo getCurrentTracksInfo() {
+    return player.getCurrentTracksInfo();
+  }
+
+  @Override
   public TrackSelectionParameters getTrackSelectionParameters() {
     return player.getTrackSelectionParameters();
   }
@@ -643,6 +648,11 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
       eventListener.onTracksChanged(trackGroups, trackSelections);
+    }
+
+    @Override
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+      eventListener.onTracksInfoChanged(tracksInfo);
     }
 
     @Override

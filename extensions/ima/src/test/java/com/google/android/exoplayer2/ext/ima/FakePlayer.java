@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
@@ -238,6 +239,11 @@ import com.google.android.exoplayer2.util.ListenerSet;
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
     return new TrackSelectionArray();
+  }
+
+  @Override
+  public TracksInfo getCurrentTracksInfo() {
+    return TracksInfo.EMPTY;
   }
 
   @Override

@@ -57,11 +57,8 @@ import java.util.List;
  * <ul>
  *   <li>They can provide a {@link Timeline} representing the structure of the media being played,
  *       which can be obtained by calling {@link #getCurrentTimeline()}.
- *   <li>They can provide a {@link TrackGroupArray} defining the currently available tracks, which
- *       can be obtained by calling {@link #getCurrentTrackGroups()}.
- *   <li>They can provide a {@link TrackSelectionArray} defining which of the currently available
- *       tracks are selected to be rendered. This can be obtained by calling {@link
- *       #getCurrentTrackSelections()}}.
+ *   <li>They can provide a {@link TracksInfo} defining the currently available tracks and which are
+ *       selected to be rendered, which can be obtained by calling {@link #getCurrentTracksInfo()}.
  * </ul>
  */
 public interface Player {
@@ -122,9 +119,21 @@ public interface Player {
      *     concrete implementation may include null elements if it has a fixed number of renderer
      *     components, wishes to report a TrackSelection for each of them, and has one or more
      *     renderer components that is not assigned any selected tracks.
+     * @deprecated Use {@link #onTracksInfoChanged(TracksInfo)} instead.
      */
+    @Deprecated
     default void onTracksChanged(
         TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
+
+    /**
+     * Called when the available or selected tracks change.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param tracksInfo The available tracks information. Never null, but may be of length zero.
+     */
+    default void onTracksInfoChanged(TracksInfo tracksInfo) {}
 
     /**
      * Called when the combined {@link MediaMetadata} changes.
@@ -693,6 +702,7 @@ public interface Player {
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
+        COMMAND_GET_TRACK_INFOS,
       };
 
       private final FlagSet.Builder flagsBuilder;
@@ -923,8 +933,7 @@ public interface Player {
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
 
     @Override
-    default void onTracksChanged(
-        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
+    default void onTracksInfoChanged(TracksInfo tracksInfo) {}
 
     @Override
     default void onIsLoadingChanged(boolean isLoading) {}
@@ -1278,7 +1287,7 @@ public interface Player {
   int EVENT_TIMELINE_CHANGED = 0;
   /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
-  /** {@link #getCurrentTrackGroups()} or {@link #getCurrentTrackSelections()} changed. */
+  /** {@link #getCurrentTracksInfo()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
   /** {@link #isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = 3;
@@ -1331,8 +1340,8 @@ public interface Player {
    * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_AUDIO_ATTRIBUTES}, {@link
    * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
    * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
-   * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT} or {@link
-   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS}.
+   * #COMMAND_SET_VIDEO_SURFACE}, {@link #COMMAND_GET_TEXT}, {@link
+   * #COMMAND_SET_TRACK_SELECTION_PARAMETERS} or {@link #COMMAND_GET_TRACK_INFOS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1366,6 +1375,7 @@ public interface Player {
     COMMAND_SET_VIDEO_SURFACE,
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
+    COMMAND_GET_TRACK_INFOS,
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1424,6 +1434,8 @@ public interface Player {
   int COMMAND_GET_TEXT = 27;
   /** Command to set the player's track selection parameters. */
   int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 28;
+  /** Command to get track infos. */
+  int COMMAND_GET_TRACK_INFOS = 29;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;
@@ -1962,7 +1974,9 @@ public interface Player {
    * Returns the available track groups.
    *
    * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   * @deprecated Use {@link #getCurrentTracksInfo()}.
    */
+  @Deprecated
   TrackGroupArray getCurrentTrackGroups();
 
   /**
@@ -1973,10 +1987,23 @@ public interface Player {
    * components that is not assigned any selected tracks.
    *
    * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   * @deprecated Use {@link #getCurrentTracksInfo()}.
    */
+  @Deprecated
   TrackSelectionArray getCurrentTrackSelections();
 
-  /** Returns the parameters constraining the track selection. */
+  /**
+   * Returns the available tracks, as well as the tracks' support, type, and selection status.
+   *
+   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   */
+  TracksInfo getCurrentTracksInfo();
+
+  /**
+   * Returns the parameters constraining the track selection.
+   *
+   * @see Listener#onTrackSelectionParametersChanged}
+   */
   TrackSelectionParameters getTrackSelectionParameters();
 
   /**

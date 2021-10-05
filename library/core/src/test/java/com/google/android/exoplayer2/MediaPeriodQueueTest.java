@@ -771,7 +771,10 @@ public final class MediaPeriodQueueTest {
         mediaSourceList,
         getNextMediaPeriodInfo(),
         new TrackSelectorResult(
-            new RendererConfiguration[0], new ExoTrackSelection[0], /* info= */ null));
+            new RendererConfiguration[0],
+            new ExoTrackSelection[0],
+            TracksInfo.EMPTY,
+            /* info= */ null));
   }
 
   private void clear() {

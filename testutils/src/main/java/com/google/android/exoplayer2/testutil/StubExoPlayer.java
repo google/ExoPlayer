@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -460,6 +461,11 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TracksInfo getCurrentTracksInfo() {
     throw new UnsupportedOperationException();
   }
 

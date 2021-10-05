@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -50,6 +51,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationLi
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
@@ -1715,6 +1717,32 @@ public final class DefaultTrackSelectorTest {
             new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
     assertFixedSelection(result.selections[0], trackGroups, formatAac);
+  }
+
+  /** Tests audio track selection when there are multiple audio renderers. */
+  @Test
+  public void selectTracks_multipleRenderer_allSelected() throws Exception {
+    RendererCapabilities[] rendererCapabilities =
+        new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES, AUDIO_CAPABILITIES};
+    TrackGroupArray trackGroups = new TrackGroupArray(AUDIO_TRACK_GROUP);
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(3);
+    assertThat(result.rendererConfigurations)
+        .asList()
+        .containsExactly(null, DEFAULT, null)
+        .inOrder();
+    assertThat(result.selections[0]).isNull();
+    assertFixedSelection(result.selections[1], trackGroups, trackGroups.get(0).getFormat(0));
+    assertThat(result.selections[2]).isNull();
+    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos =
+        result.tracksInfo.getTrackGroupInfos();
+    assertThat(trackGroupInfos).hasSize(1);
+    assertThat(trackGroupInfos.get(0).getTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
+    assertThat(trackGroupInfos.get(0).isTrackSelected(0)).isTrue();
+    assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
   }
 
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
