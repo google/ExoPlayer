@@ -505,7 +505,7 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public int getCurrentWindowIndex() {
+  public int getCurrentMediaItemIndex() {
     throw new UnsupportedOperationException();
   }
 

@@ -144,25 +144,37 @@ public abstract class BasePlayer implements Player {
   @Deprecated
   @Override
   public final boolean hasPrevious() {
-    return hasPreviousWindow();
+    return hasPreviousMediaItem();
+  }
+
+  @Deprecated
+  @Override
+  public final boolean hasPreviousWindow() {
+    return hasPreviousMediaItem();
   }
 
   @Override
-  public final boolean hasPreviousWindow() {
-    return getPreviousWindowIndex() != C.INDEX_UNSET;
+  public final boolean hasPreviousMediaItem() {
+    return getPreviousMediaItemIndex() != C.INDEX_UNSET;
   }
 
   @Deprecated
   @Override
   public final void previous() {
-    seekToPreviousWindow();
+    seekToPreviousMediaItem();
+  }
+
+  @Deprecated
+  @Override
+  public final void seekToPreviousWindow() {
+    seekToPreviousMediaItem();
   }
 
   @Override
-  public final void seekToPreviousWindow() {
-    int previousWindowIndex = getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET) {
-      seekToDefaultPosition(previousWindowIndex);
+  public final void seekToPreviousMediaItem() {
+    int previousMediaItemIndex = getPreviousMediaItemIndex();
+    if (previousMediaItemIndex != C.INDEX_UNSET) {
+      seekToDefaultPosition(previousMediaItemIndex);
     }
   }
 
@@ -187,25 +199,37 @@ public abstract class BasePlayer implements Player {
   @Deprecated
   @Override
   public final boolean hasNext() {
-    return hasNextWindow();
+    return hasNextMediaItem();
+  }
+
+  @Deprecated
+  @Override
+  public final boolean hasNextWindow() {
+    return hasNextMediaItem();
   }
 
   @Override
-  public final boolean hasNextWindow() {
-    return getNextWindowIndex() != C.INDEX_UNSET;
+  public final boolean hasNextMediaItem() {
+    return getNextMediaItemIndex() != C.INDEX_UNSET;
   }
 
   @Deprecated
   @Override
   public final void next() {
-    seekToNextWindow();
+    seekToNextMediaItem();
+  }
+
+  @Deprecated
+  @Override
+  public final void seekToNextWindow() {
+    seekToNextMediaItem();
   }
 
   @Override
-  public final void seekToNextWindow() {
-    int nextWindowIndex = getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      seekToDefaultPosition(nextWindowIndex);
+  public final void seekToNextMediaItem() {
+    int nextMediaItemIndex = getNextMediaItemIndex();
+    if (nextMediaItemIndex != C.INDEX_UNSET) {
+      seekToDefaultPosition(nextMediaItemIndex);
     }
   }
 
@@ -227,22 +251,40 @@ public abstract class BasePlayer implements Player {
     setPlaybackParameters(getPlaybackParameters().withSpeed(speed));
   }
 
+  @Deprecated
+  @Override
+  public final int getCurrentWindowIndex() {
+    return getCurrentMediaItemIndex();
+  }
+
+  @Deprecated
   @Override
   public final int getNextWindowIndex() {
+    return getNextMediaItemIndex();
+  }
+
+  @Override
+  public final int getNextMediaItemIndex() {
     Timeline timeline = getCurrentTimeline();
     return timeline.isEmpty()
         ? C.INDEX_UNSET
         : timeline.getNextWindowIndex(
-            getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
+            getCurrentMediaItemIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
+  }
+
+  @Deprecated
+  @Override
+  public final int getPreviousWindowIndex() {
+    return getPreviousMediaItemIndex();
   }
 
   @Override
-  public final int getPreviousWindowIndex() {
+  public final int getPreviousMediaItemIndex() {
     Timeline timeline = getCurrentTimeline();
     return timeline.isEmpty()
         ? C.INDEX_UNSET
         : timeline.getPreviousWindowIndex(
-            getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
+            getCurrentMediaItemIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
   }
 
   @Override
@@ -280,16 +322,28 @@ public abstract class BasePlayer implements Player {
         : duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100);
   }
 
+  @Deprecated
   @Override
   public final boolean isCurrentWindowDynamic() {
-    Timeline timeline = getCurrentTimeline();
-    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
+    return isCurrentMediaItemDynamic();
   }
 
   @Override
-  public final boolean isCurrentWindowLive() {
+  public final boolean isCurrentMediaItemDynamic() {
     Timeline timeline = getCurrentTimeline();
-    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isLive();
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isDynamic;
+  }
+
+  @Deprecated
+  @Override
+  public final boolean isCurrentWindowLive() {
+    return isCurrentMediaItemLive();
+  }
+
+  @Override
+  public final boolean isCurrentMediaItemLive() {
+    Timeline timeline = getCurrentTimeline();
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isLive();
   }
 
   @Override
@@ -305,10 +359,16 @@ public abstract class BasePlayer implements Player {
     return window.getCurrentUnixTimeMs() - window.windowStartTimeMs - getContentPosition();
   }
 
+  @Deprecated
   @Override
   public final boolean isCurrentWindowSeekable() {
+    return isCurrentMediaItemSeekable();
+  }
+
+  @Override
+  public final boolean isCurrentMediaItemSeekable() {
     Timeline timeline = getCurrentTimeline();
-    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentMediaItemIndex(), window).isSeekable;
   }
 
   @Override

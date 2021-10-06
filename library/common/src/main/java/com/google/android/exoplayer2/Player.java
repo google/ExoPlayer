@@ -80,9 +80,10 @@ public interface Player {
     /**
      * Called when the timeline has been refreshed.
      *
-     * <p>Note that the current window or period index may change as a result of a timeline change.
-     * If playback can't continue smoothly because of this timeline change, a separate {@link
-     * #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} callback will be triggered.
+     * <p>Note that the current {@link MediaItem} or playback position may change as a result of a
+     * timeline change. If playback can't continue smoothly because of this timeline change, a
+     * separate {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} callback will be
+     * triggered.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -253,7 +254,7 @@ public interface Player {
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
-     * @param shuffleModeEnabled Whether shuffling of windows is enabled.
+     * @param shuffleModeEnabled Whether shuffling of {@link MediaItem media items} is enabled.
      */
     default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
 
@@ -377,7 +378,7 @@ public interface Player {
      *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
      *       {@link Player#seekTo(long)} after a {@link #onMediaItemTransition(MediaItem, int)}).
      *   <li>They intend to use multiple state values together or in combination with {@link Player}
-     *       getter methods. For example using {@link #getCurrentWindowIndex()} with the {@code
+     *       getter methods. For example using {@link #getCurrentMediaItemIndex()} with the {@code
      *       timeline} provided in {@link #onTimelineChanged(Timeline, int)} is only safe from
      *       within this method.
      *   <li>They are interested in events that logically happened together (e.g {@link
@@ -677,12 +678,12 @@ public interface Player {
         COMMAND_PLAY_PAUSE,
         COMMAND_PREPARE_STOP,
         COMMAND_SEEK_TO_DEFAULT_POSITION,
-        COMMAND_SEEK_IN_CURRENT_WINDOW,
-        COMMAND_SEEK_TO_PREVIOUS_WINDOW,
+        COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
         COMMAND_SEEK_TO_PREVIOUS,
-        COMMAND_SEEK_TO_NEXT_WINDOW,
+        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
         COMMAND_SEEK_TO_NEXT,
-        COMMAND_SEEK_TO_WINDOW,
+        COMMAND_SEEK_TO_MEDIA_ITEM,
         COMMAND_SEEK_BACK,
         COMMAND_SEEK_FORWARD,
         COMMAND_SET_SPEED_AND_PITCH,
@@ -1145,20 +1146,22 @@ public interface Player {
   @interface RepeatMode {}
   /**
    * Normal playback without repetition. "Previous" and "Next" actions move to the previous and next
-   * windows respectively, and do nothing when there is no previous or next window to move to.
+   * {@link MediaItem} respectively, and do nothing when there is no previous or next {@link
+   * MediaItem} to move to.
    */
   int REPEAT_MODE_OFF = 0;
   /**
-   * Repeats the currently playing window infinitely during ongoing playback. "Previous" and "Next"
-   * actions behave as they do in {@link #REPEAT_MODE_OFF}, moving to the previous and next windows
-   * respectively, and doing nothing when there is no previous or next window to move to.
+   * Repeats the currently playing {@link MediaItem} infinitely during ongoing playback. "Previous"
+   * and "Next" actions behave as they do in {@link #REPEAT_MODE_OFF}, moving to the previous and
+   * next {@link MediaItem} respectively, and doing nothing when there is no previous or next {@link
+   * MediaItem} to move to.
    */
   int REPEAT_MODE_ONE = 1;
   /**
    * Repeats the entire timeline infinitely. "Previous" and "Next" actions behave as they do in
    * {@link #REPEAT_MODE_OFF}, but with looping at the ends so that "Previous" when playing the
-   * first window will move to the last window, and "Next" when playing the last window will move to
-   * the first window.
+   * first {@link MediaItem} will move to the last {@link MediaItem}, and "Next" when playing the
+   * last {@link MediaItem} will move to the first {@link MediaItem}.
    */
   int REPEAT_MODE_ALL = 2;
 
@@ -1330,9 +1333,9 @@ public interface Player {
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
    * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
-   * #COMMAND_SEEK_IN_CURRENT_WINDOW}, {@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW}, {@link
-   * #COMMAND_SEEK_TO_PREVIOUS}, {@link #COMMAND_SEEK_TO_NEXT_WINDOW}, {@link
-   * #COMMAND_SEEK_TO_NEXT}, {@link #COMMAND_SEEK_TO_WINDOW}, {@link #COMMAND_SEEK_BACK}, {@link
+   * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link
+   * #COMMAND_SEEK_TO_PREVIOUS}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
+   * #COMMAND_SEEK_TO_NEXT}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link #COMMAND_SEEK_BACK}, {@link
    * #COMMAND_SEEK_FORWARD}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
    * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
    * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_TIMELINE}, {@link
@@ -1350,12 +1353,12 @@ public interface Player {
     COMMAND_PLAY_PAUSE,
     COMMAND_PREPARE_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
-    COMMAND_SEEK_IN_CURRENT_WINDOW,
-    COMMAND_SEEK_TO_PREVIOUS_WINDOW,
+    COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
     COMMAND_SEEK_TO_PREVIOUS,
-    COMMAND_SEEK_TO_NEXT_WINDOW,
+    COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
     COMMAND_SEEK_TO_NEXT,
-    COMMAND_SEEK_TO_WINDOW,
+    COMMAND_SEEK_TO_MEDIA_ITEM,
     COMMAND_SEEK_BACK,
     COMMAND_SEEK_FORWARD,
     COMMAND_SET_SPEED_AND_PITCH,
@@ -1382,23 +1385,31 @@ public interface Player {
   int COMMAND_PLAY_PAUSE = 1;
   /** Command to prepare the player, stop playback or release the player. */
   int COMMAND_PREPARE_STOP = 2;
-  /** Command to seek to the default position of the current window. */
+  /** Command to seek to the default position of the current {@link MediaItem}. */
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 3;
-  /** Command to seek anywhere into the current window. */
-  int COMMAND_SEEK_IN_CURRENT_WINDOW = 4;
-  /** Command to seek to the default position of the previous window. */
-  int COMMAND_SEEK_TO_PREVIOUS_WINDOW = 5;
-  /** Command to seek to an earlier position in the current or previous window. */
+  /** Command to seek anywhere into the current {@link MediaItem}. */
+  int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 4;
+  /** @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead. */
+  @Deprecated int COMMAND_SEEK_IN_CURRENT_WINDOW = COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+  /** Command to seek to the default position of the previous {@link MediaItem}. */
+  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 5;
+  /** @deprecated Use {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} instead. */
+  @Deprecated int COMMAND_SEEK_TO_PREVIOUS_WINDOW = COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+  /** Command to seek to an earlier position in the current or previous {@link MediaItem}. */
   int COMMAND_SEEK_TO_PREVIOUS = 6;
-  /** Command to seek to the default position of the next window. */
-  int COMMAND_SEEK_TO_NEXT_WINDOW = 7;
-  /** Command to seek to a later position in the current or next window. */
+  /** Command to seek to the default position of the next {@link MediaItem}. */
+  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 7;
+  /** @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead. */
+  @Deprecated int COMMAND_SEEK_TO_NEXT_WINDOW = COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+  /** Command to seek to a later position in the current or next {@link MediaItem}. */
   int COMMAND_SEEK_TO_NEXT = 8;
-  /** Command to seek anywhere in any window. */
-  int COMMAND_SEEK_TO_WINDOW = 9;
-  /** Command to seek back by a fixed increment into the current window. */
+  /** Command to seek anywhere in any {@link MediaItem}. */
+  int COMMAND_SEEK_TO_MEDIA_ITEM = 9;
+  /** @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead. */
+  @Deprecated int COMMAND_SEEK_TO_WINDOW = COMMAND_SEEK_TO_MEDIA_ITEM;
+  /** Command to seek back by a fixed increment into the current {@link MediaItem}. */
   int COMMAND_SEEK_BACK = 10;
-  /** Command to seek forward by a fixed increment into the current window. */
+  /** Command to seek forward by a fixed increment into the current {@link MediaItem}. */
   int COMMAND_SEEK_FORWARD = 11;
   /** Command to set the playback speed and pitch. */
   int COMMAND_SET_SPEED_AND_PITCH = 12;
@@ -1406,7 +1417,7 @@ public interface Player {
   int COMMAND_SET_SHUFFLE_MODE = 13;
   /** Command to set the repeat mode. */
   int COMMAND_SET_REPEAT_MODE = 14;
-  /** Command to get the {@link MediaItem} of the current window. */
+  /** Command to get the currently playing {@link MediaItem}. */
   int COMMAND_GET_CURRENT_MEDIA_ITEM = 15;
   /** Command to get the information about the current timeline. */
   int COMMAND_GET_TIMELINE = 16;
@@ -1478,7 +1489,7 @@ public interface Player {
    * @param mediaItems The new {@link MediaItem MediaItems}.
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
-   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   *     by {@link #getCurrentMediaItemIndex()} and {@link #getCurrentPosition()}.
    */
   void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition);
 
@@ -1518,7 +1529,7 @@ public interface Player {
    *
    * @param mediaItem The new {@link MediaItem}.
    * @param resetPosition Whether the playback position should be reset to the default position. If
-   *     false, playback will start from the position defined by {@link #getCurrentWindowIndex()}
+   *     false, playback will start from the position defined by {@link #getCurrentMediaItemIndex()}
    *     and {@link #getCurrentPosition()}.
    */
   void setMediaItem(MediaItem mediaItem, boolean resetPosition);
@@ -1599,12 +1610,12 @@ public interface Player {
    *
    * <p>This method does not execute the command.
    *
-   * <p>Executing a command that is not available (for example, calling {@link #seekToNextWindow()}
-   * if {@link #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor
-   * generate a {@link #getPlayerError()} player error}.
+   * <p>Executing a command that is not available (for example, calling {@link
+   * #seekToNextMediaItem()} if {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will
+   * neither throw an exception nor generate a {@link #getPlayerError()} player error}.
    *
-   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
-   * unavailable if there is no such {@link MediaItem}.
+   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} and {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}
+   * are unavailable if there is no such {@link MediaItem}.
    *
    * @param command A {@link Command}.
    * @return Whether the {@link Command} is available.
@@ -1623,11 +1634,11 @@ public interface Player {
    * change.
    *
    * <p>Executing a command that is not available (for example, calling {@link #seekToNextWindow()}
-   * if {@link #COMMAND_SEEK_TO_NEXT_WINDOW} is unavailable) will neither throw an exception nor
+   * if {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will neither throw an exception nor
    * generate a {@link #getPlayerError()} player error}.
    *
-   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_WINDOW} and {@link #COMMAND_SEEK_TO_NEXT_WINDOW} are
-   * unavailable if there is no such {@link MediaItem}.
+   * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} and {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}
+   * are unavailable if there is no such {@link MediaItem}.
    *
    * @return The currently available {@link Commands}.
    * @see Listener#onAvailableCommandsChanged
@@ -1810,38 +1821,46 @@ public interface Player {
   /** Seeks forward in the current window by {@link #getSeekForwardIncrement()} milliseconds. */
   void seekForward();
 
-  /** @deprecated Use {@link #hasPreviousWindow()} instead. */
+  /** @deprecated Use {@link #hasPreviousMediaItem()} instead. */
   @Deprecated
   boolean hasPrevious();
 
+  /** @deprecated Use {@link #hasPreviousMediaItem()} instead. */
+  @Deprecated
+  boolean hasPreviousWindow();
+
   /**
-   * Returns whether a previous window exists, which may depend on the current repeat mode and
+   * Returns whether a previous media item exists, which may depend on the current repeat mode and
    * whether shuffle mode is enabled.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  boolean hasPreviousWindow();
+  boolean hasPreviousMediaItem();
 
-  /** @deprecated Use {@link #seekToPreviousWindow()} instead. */
+  /** @deprecated Use {@link #seekToPreviousMediaItem()} instead. */
   @Deprecated
   void previous();
 
+  /** @deprecated Use {@link #seekToPreviousMediaItem()} instead. */
+  @Deprecated
+  void seekToPreviousWindow();
+
   /**
-   * Seeks to the default position of the previous window, which may depend on the current repeat
-   * mode and whether shuffle mode is enabled. Does nothing if {@link #hasPreviousWindow()} is
-   * {@code false}.
+   * Seeks to the default position of the previous {@link MediaItem}, which may depend on the
+   * current repeat mode and whether shuffle mode is enabled. Does nothing if {@link
+   * #hasPreviousMediaItem()} is {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  void seekToPreviousWindow();
+  void seekToPreviousMediaItem();
 
   /**
-   * Returns the maximum position for which {@link #seekToPrevious()} seeks to the previous window,
-   * in milliseconds.
+   * Returns the maximum position for which {@link #seekToPrevious()} seeks to the previous {@link
+   * MediaItem}, in milliseconds.
    *
    * @return The maximum seek to previous position, in milliseconds.
    * @see Listener#onMaxSeekToPreviousPositionChanged(long)
@@ -1849,28 +1868,34 @@ public interface Player {
   long getMaxSeekToPreviousPosition();
 
   /**
-   * Seeks to an earlier position in the current or previous window (if available). More precisely:
+   * Seeks to an earlier position in the current or previous {@link MediaItem} (if available). More
+   * precisely:
    *
    * <ul>
    *   <li>If the timeline is empty or seeking is not possible, does nothing.
-   *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and {@link
-   *       #isCurrentWindowSeekable() unseekable}, then:
+   *   <li>Otherwise, if the current {@link MediaItem} is {@link #isCurrentMediaItemLive()} live}
+   *       and {@link #isCurrentMediaItemSeekable() unseekable}, then:
    *       <ul>
-   *         <li>If {@link #hasPreviousWindow() a previous window exists}, seeks to the default
-   *             position of the previous window.
+   *         <li>If {@link #hasPreviousMediaItem() a previous media item exists}, seeks to the
+   *             default position of the previous media item.
    *         <li>Otherwise, does nothing.
    *       </ul>
-   *   <li>Otherwise, if {@link #hasPreviousWindow() a previous window exists} and the {@link
+   *   <li>Otherwise, if {@link #hasPreviousMediaItem() a previous media item exists} and the {@link
    *       #getCurrentPosition() current position} is less than {@link
-   *       #getMaxSeekToPreviousPosition()}, seeks to the default position of the previous window.
-   *   <li>Otherwise, seeks to 0 in the current window.
+   *       #getMaxSeekToPreviousPosition()}, seeks to the default position of the previous {@link
+   *       MediaItem}.
+   *   <li>Otherwise, seeks to 0 in the current {@link MediaItem}.
    * </ul>
    */
   void seekToPrevious();
 
-  /** @deprecated Use {@link #hasNextWindow()} instead. */
+  /** @deprecated Use {@link #hasNextMediaItem()} instead. */
   @Deprecated
   boolean hasNext();
+
+  /** @deprecated Use {@link #hasNextMediaItem()} instead. */
+  @Deprecated
+  boolean hasNextWindow();
 
   /**
    * Returns whether a next window exists, which may depend on the current repeat mode and whether
@@ -1880,31 +1905,37 @@ public interface Player {
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  boolean hasNextWindow();
+  boolean hasNextMediaItem();
 
-  /** @deprecated Use {@link #seekToNextWindow()} instead. */
+  /** @deprecated Use {@link #seekToNextMediaItem()} instead. */
   @Deprecated
   void next();
 
+  /** @deprecated Use {@link #seekToNextMediaItem()} instead. */
+  @Deprecated
+  void seekToNextWindow();
+
   /**
    * Seeks to the default position of the next window, which may depend on the current repeat mode
-   * and whether shuffle mode is enabled. Does nothing if {@link #hasNextWindow()} is {@code false}.
+   * and whether shuffle mode is enabled. Does nothing if {@link #hasNextMediaItem()} is {@code
+   * false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
-  void seekToNextWindow();
+  void seekToNextMediaItem();
 
   /**
-   * Seeks to a later position in the current or next window (if available). More precisely:
+   * Seeks to a later position in the current or next {@link MediaItem} (if available). More
+   * precisely:
    *
    * <ul>
    *   <li>If the timeline is empty or seeking is not possible, does nothing.
-   *   <li>Otherwise, if {@link #hasNextWindow() a next window exists}, seeks to the default
-   *       position of the next window.
-   *   <li>Otherwise, if the current window is {@link #isCurrentWindowLive() live} and has not
-   *       ended, seeks to the live edge of the current window.
+   *   <li>Otherwise, if {@link #hasNextMediaItem() a next media item exists}, seeks to the default
+   *       position of the next {@link MediaItem}.
+   *   <li>Otherwise, if the current window is {@link #isCurrentMediaItemLive() live} and has not
+   *       ended, seeks to the live edge of the current {@link MediaItem}.
    *   <li>Otherwise, does nothing.
    * </ul>
    */
@@ -2057,38 +2088,51 @@ public interface Player {
   /** Returns the index of the period currently being played. */
   int getCurrentPeriodIndex();
 
-  /**
-   * Returns the index of the current {@link Timeline.Window window} in the {@link
-   * #getCurrentTimeline() timeline}, or the prospective window index if the {@link
-   * #getCurrentTimeline() current timeline} is empty.
-   */
+  /** @deprecated Use {@link #getCurrentMediaItem()} instead. */
+  @Deprecated
   int getCurrentWindowIndex();
 
   /**
-   * Returns the index of the window that will be played if {@link #seekToNextWindow()} is called,
-   * which may depend on the current repeat mode and whether shuffle mode is enabled. Returns {@link
-   * C#INDEX_UNSET} if {@link #hasNextWindow()} is {@code false}.
-   *
-   * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
-   * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
-   * details.
+   * Returns the index of the current {@link MediaItem} in the {@link #getCurrentTimeline()
+   * timeline}, or the prospective index if the {@link #getCurrentTimeline() current timeline} is
+   * empty.
    */
+  int getCurrentMediaItemIndex();
+
+  /** @deprecated Use {@link #getNextMediaItemIndex()} instead. */
+  @Deprecated
   int getNextWindowIndex();
 
   /**
-   * Returns the index of the window that will be played if {@link #seekToPreviousWindow()} is
-   * called, which may depend on the current repeat mode and whether shuffle mode is enabled.
-   * Returns {@link C#INDEX_UNSET} if {@link #hasPreviousWindow()} is {@code false}.
+   * Returns the index of the {@link MediaItem} that will be played if {@link
+   * #seekToNextMediaItem()} is called, which may depend on the current repeat mode and whether
+   * shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if {@link #hasNextMediaItem()} is {@code
+   * false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
    * details.
    */
+  int getNextMediaItemIndex();
+
+  /** @deprecated Use {@link #getPreviousMediaItemIndex()} instead. */
+  @Deprecated
   int getPreviousWindowIndex();
 
   /**
-   * Returns the media item of the current window in the timeline. May be null if the timeline is
-   * empty.
+   * Returns the index of the {@link MediaItem} that will be played if {@link
+   * #seekToPreviousMediaItem()} is called, which may depend on the current repeat mode and whether
+   * shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if {@link #hasPreviousMediaItem()} is
+   * {@code false}.
+   *
+   * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
+   * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
+   * details.
+   */
+  int getPreviousMediaItemIndex();
+
+  /**
+   * Returns the currently playing {@link MediaItem}. May be null if the timeline is empty.
    *
    * @see Listener#onMediaItemTransition(MediaItem, int)
    */
@@ -2102,26 +2146,25 @@ public interface Player {
   MediaItem getMediaItemAt(@IntRange(from = 0) int index);
 
   /**
-   * Returns the duration of the current content window or ad in milliseconds, or {@link
-   * C#TIME_UNSET} if the duration is not known.
+   * Returns the duration of the current content or ad in milliseconds, or {@link C#TIME_UNSET} if
+   * the duration is not known.
    */
   long getDuration();
 
   /**
-   * Returns the playback position in the current content window or ad, in milliseconds, or the
-   * prospective position in milliseconds if the {@link #getCurrentTimeline() current timeline} is
-   * empty.
+   * Returns the playback position in the current content or ad, in milliseconds, or the prospective
+   * position in milliseconds if the {@link #getCurrentTimeline() current timeline} is empty.
    */
   long getCurrentPosition();
 
   /**
-   * Returns an estimate of the position in the current content window or ad up to which data is
-   * buffered, in milliseconds.
+   * Returns an estimate of the position in the current content or ad up to which data is buffered,
+   * in milliseconds.
    */
   long getBufferedPosition();
 
   /**
-   * Returns an estimate of the percentage in the current content window or ad up to which data is
+   * Returns an estimate of the percentage in the current content or ad up to which data is
    * buffered, or 0 if no estimate is available.
    */
   @IntRange(from = 0, to = 100)
@@ -2129,29 +2172,38 @@ public interface Player {
 
   /**
    * Returns an estimate of the total buffered duration from the current position, in milliseconds.
-   * This includes pre-buffered data for subsequent ads and windows.
+   * This includes pre-buffered data for subsequent ads and {@link MediaItem media items}.
    */
   long getTotalBufferedDuration();
 
-  /**
-   * Returns whether the current window is dynamic, or {@code false} if the {@link Timeline} is
-   * empty.
-   *
-   * @see Timeline.Window#isDynamic
-   */
+  /** @deprecated Use {@link #isCurrentMediaItemDynamic()} instead. */
+  @Deprecated
   boolean isCurrentWindowDynamic();
 
   /**
-   * Returns whether the current window is live, or {@code false} if the {@link Timeline} is empty.
+   * Returns whether the current {@link MediaItem} is dynamic (may change when the {@link Timeline}
+   * is updated,) or {@code false} if the {@link Timeline} is empty.
    *
-   * @see Timeline.Window#isLive()
+   * @see Timeline.Window#isDynamic
    */
+  boolean isCurrentMediaItemDynamic();
+
+  /** @deprecated Use {@link #isCurrentMediaItemLive()} instead. */
+  @Deprecated
   boolean isCurrentWindowLive();
 
   /**
+   * Returns whether the current {@link MediaItem} is live, or {@code false} if the {@link Timeline}
+   * is empty.
+   *
+   * @see Timeline.Window#isLive()
+   */
+  boolean isCurrentMediaItemLive();
+
+  /**
    * Returns the offset of the current playback position from the live edge in milliseconds, or
-   * {@link C#TIME_UNSET} if the current window {@link #isCurrentWindowLive() isn't live} or the
-   * offset is unknown.
+   * {@link C#TIME_UNSET} if the current {@link MediaItem} {@link #isCurrentMediaItemLive()} isn't
+   * live} or the offset is unknown.
    *
    * <p>The offset is calculated as {@code currentTime - playbackPosition}, so should usually be
    * positive.
@@ -2161,13 +2213,17 @@ public interface Player {
    */
   long getCurrentLiveOffset();
 
+  /** @deprecated Use {@link #isCurrentMediaItemSeekable()} instead. */
+  @Deprecated
+  boolean isCurrentWindowSeekable();
+
   /**
-   * Returns whether the current window is seekable, or {@code false} if the {@link Timeline} is
-   * empty.
+   * Returns whether the current {@link MediaItem} is seekable, or {@code false} if the {@link
+   * Timeline} is empty.
    *
    * @see Timeline.Window#isSeekable
    */
-  boolean isCurrentWindowSeekable();
+  boolean isCurrentMediaItemSeekable();
 
   /** Returns whether the player is currently playing an ad. */
   boolean isPlayingAd();
@@ -2185,9 +2241,9 @@ public interface Player {
   int getCurrentAdIndexInAdGroup();
 
   /**
-   * If {@link #isPlayingAd()} returns {@code true}, returns the duration of the current content
-   * window in milliseconds, or {@link C#TIME_UNSET} if the duration is not known. If there is no ad
-   * playing, the returned duration is the same as that returned by {@link #getDuration()}.
+   * If {@link #isPlayingAd()} returns {@code true}, returns the duration of the current content in
+   * milliseconds, or {@link C#TIME_UNSET} if the duration is not known. If there is no ad playing,
+   * the returned duration is the same as that returned by {@link #getDuration()}.
    */
   long getContentDuration();
 
@@ -2200,8 +2256,8 @@ public interface Player {
 
   /**
    * If {@link #isPlayingAd()} returns {@code true}, returns an estimate of the content position in
-   * the current content window up to which data is buffered, in milliseconds. If there is no ad
-   * playing, the returned position is the same as that returned by {@link #getBufferedPosition()}.
+   * the current content up to which data is buffered, in milliseconds. If there is no ad playing,
+   * the returned position is the same as that returned by {@link #getBufferedPosition()}.
    */
   long getContentBufferedPosition();
 

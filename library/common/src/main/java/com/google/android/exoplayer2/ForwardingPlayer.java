@@ -266,9 +266,15 @@ public class ForwardingPlayer implements Player {
     return player.hasPrevious();
   }
 
+  @Deprecated
   @Override
   public boolean hasPreviousWindow() {
     return player.hasPreviousWindow();
+  }
+
+  @Override
+  public boolean hasPreviousMediaItem() {
+    return player.hasPreviousMediaItem();
   }
 
   @Deprecated
@@ -277,9 +283,15 @@ public class ForwardingPlayer implements Player {
     player.previous();
   }
 
+  @Deprecated
   @Override
   public void seekToPreviousWindow() {
     player.seekToPreviousWindow();
+  }
+
+  @Override
+  public void seekToPreviousMediaItem() {
+    player.seekToPreviousMediaItem();
   }
 
   @Override
@@ -298,9 +310,15 @@ public class ForwardingPlayer implements Player {
     return player.hasNext();
   }
 
+  @Deprecated
   @Override
   public boolean hasNextWindow() {
     return player.hasNextWindow();
+  }
+
+  @Override
+  public boolean hasNextMediaItem() {
+    return player.hasNextMediaItem();
   }
 
   @Deprecated
@@ -309,9 +327,15 @@ public class ForwardingPlayer implements Player {
     player.next();
   }
 
+  @Deprecated
   @Override
   public void seekToNextWindow() {
     player.seekToNextWindow();
+  }
+
+  @Override
+  public void seekToNextMediaItem() {
+    player.seekToNextMediaItem();
   }
 
   @Override
@@ -406,19 +430,37 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentPeriodIndex();
   }
 
+  @Deprecated
   @Override
   public int getCurrentWindowIndex() {
     return player.getCurrentWindowIndex();
   }
 
   @Override
+  public int getCurrentMediaItemIndex() {
+    return player.getCurrentMediaItemIndex();
+  }
+
+  @Deprecated
+  @Override
   public int getNextWindowIndex() {
     return player.getNextWindowIndex();
   }
 
   @Override
+  public int getNextMediaItemIndex() {
+    return player.getNextMediaItemIndex();
+  }
+
+  @Deprecated
+  @Override
   public int getPreviousWindowIndex() {
     return player.getPreviousWindowIndex();
+  }
+
+  @Override
+  public int getPreviousMediaItemIndex() {
+    return player.getPreviousMediaItemIndex();
   }
 
   @Nullable
@@ -462,14 +504,26 @@ public class ForwardingPlayer implements Player {
     return player.getTotalBufferedDuration();
   }
 
+  @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
     return player.isCurrentWindowDynamic();
   }
 
   @Override
+  public boolean isCurrentMediaItemDynamic() {
+    return player.isCurrentMediaItemDynamic();
+  }
+
+  @Deprecated
+  @Override
   public boolean isCurrentWindowLive() {
     return player.isCurrentWindowLive();
+  }
+
+  @Override
+  public boolean isCurrentMediaItemLive() {
+    return player.isCurrentMediaItemLive();
   }
 
   @Override
@@ -477,9 +531,15 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentLiveOffset();
   }
 
+  @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
     return player.isCurrentWindowSeekable();
+  }
+
+  @Override
+  public boolean isCurrentMediaItemSeekable() {
+    return player.isCurrentMediaItemSeekable();
   }
 
   @Override

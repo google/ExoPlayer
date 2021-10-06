@@ -1502,7 +1502,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public int getCurrentWindowIndex() {
+  public int getCurrentMediaItemIndex() {
     verifyApplicationThread();
     return player.getCurrentWindowIndex();
   }

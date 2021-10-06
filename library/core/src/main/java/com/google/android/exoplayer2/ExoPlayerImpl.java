@@ -843,7 +843,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public int getCurrentWindowIndex() {
+  public int getCurrentMediaItemIndex() {
     int currentWindowIndex = getCurrentWindowIndexInternal();
     return currentWindowIndex == C.INDEX_UNSET ? 0 : currentWindowIndex;
   }

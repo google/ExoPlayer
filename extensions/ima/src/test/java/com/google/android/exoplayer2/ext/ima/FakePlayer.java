@@ -265,7 +265,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
   }
 
   @Override
-  public int getCurrentWindowIndex() {
+  public int getCurrentMediaItemIndex() {
     return 0;
   }
 
