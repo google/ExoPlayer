@@ -389,20 +389,20 @@ public abstract class BasePlayer implements Player {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
         .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
-        .addIf(COMMAND_SEEK_IN_CURRENT_WINDOW, isCurrentWindowSeekable() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_PREVIOUS_WINDOW, hasPreviousWindow() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPreviousWindow() && !isPlayingAd())
         .addIf(
             COMMAND_SEEK_TO_PREVIOUS,
             !getCurrentTimeline().isEmpty()
                 && (hasPreviousWindow() || !isCurrentWindowLive() || isCurrentWindowSeekable())
                 && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_NEXT_WINDOW, hasNextWindow() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNextWindow() && !isPlayingAd())
         .addIf(
             COMMAND_SEEK_TO_NEXT,
             !getCurrentTimeline().isEmpty()
                 && (hasNextWindow() || (isCurrentWindowLive() && isCurrentWindowDynamic()))
                 && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_WINDOW, !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
         .addIf(COMMAND_SEEK_BACK, isCurrentWindowSeekable() && !isPlayingAd())
         .addIf(COMMAND_SEEK_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
         .build();

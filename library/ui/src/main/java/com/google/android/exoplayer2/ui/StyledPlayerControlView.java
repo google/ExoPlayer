@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static com.google.android.exoplayer2.Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
@@ -1126,7 +1126,7 @@ public class StyledPlayerControlView extends FrameLayout {
     boolean enableFastForward = false;
     boolean enableNext = false;
     if (player != null) {
-      enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW);
+      enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
       enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
       enableRewind =
           player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();

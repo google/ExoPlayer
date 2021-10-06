@@ -220,7 +220,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         new Commands.Builder()
             .addAll(permanentAvailableCommands)
             .add(COMMAND_SEEK_TO_DEFAULT_POSITION)
-            .add(COMMAND_SEEK_TO_WINDOW)
+            .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
     mediaMetadata = MediaMetadata.EMPTY;
     playlistMetadata = MediaMetadata.EMPTY;

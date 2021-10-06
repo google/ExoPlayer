@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.ext.media2;
 
 import static com.google.android.exoplayer2.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_WINDOW;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.util.Util.postOrRun;
@@ -264,7 +264,7 @@ import java.util.List;
     Assertions.checkState(0 <= index && index < timeline.getWindowCount());
     int windowIndex = player.getCurrentWindowIndex();
     if (windowIndex != index) {
-      return player.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)
+      return player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)
           && controlDispatcher.dispatchSeekTo(player, index, C.TIME_UNSET);
     }
     return false;
@@ -334,7 +334,7 @@ import java.util.List;
   public boolean play() {
     if (player.getPlaybackState() == Player.STATE_ENDED) {
       boolean seekHandled =
-          player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)
+          player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
               && controlDispatcher.dispatchSeekTo(
                   player, player.getCurrentWindowIndex(), /* positionMs= */ 0);
       if (!seekHandled) {
@@ -361,7 +361,7 @@ import java.util.List;
   }
 
   public boolean seekTo(long position) {
-    return player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)
+    return player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
         && controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), position);
   }
 
