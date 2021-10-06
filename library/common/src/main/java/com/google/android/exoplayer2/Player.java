@@ -2182,7 +2182,7 @@ public interface Player {
 
   /**
    * Returns whether the current {@link MediaItem} is dynamic (may change when the {@link Timeline}
-   * is updated,) or {@code false} if the {@link Timeline} is empty.
+   * is updated), or {@code false} if the {@link Timeline} is empty.
    *
    * @see Timeline.Window#isDynamic
    */
