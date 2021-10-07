@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.DeviceInfo;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -34,8 +35,11 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -44,6 +48,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -125,6 +130,21 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public void removeAudioOffloadListener(AudioOffloadListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public AnalyticsCollector getAnalyticsCollector() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addAnalyticsListener(AnalyticsListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeAnalyticsListener(AnalyticsListener listener) {
     throw new UnsupportedOperationException();
   }
 
@@ -671,6 +691,57 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public boolean getPauseAtEndOfMediaItems() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public Format getAudioFormat() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public Format getVideoFormat() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public DecoderCounters getAudioDecoderCounters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public DecoderCounters getVideoDecoderCounters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
+  @Override
+  public void setHandleWakeLock(boolean handleWakeLock) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setWakeMode(int wakeMode) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
+  @Override
+  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     throw new UnsupportedOperationException();
   }
 

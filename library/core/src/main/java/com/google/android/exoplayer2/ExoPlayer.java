@@ -27,6 +27,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioSink;
@@ -943,6 +944,23 @@ public interface ExoPlayer extends Player {
    */
   void removeAudioOffloadListener(AudioOffloadListener listener);
 
+  /** Returns the {@link AnalyticsCollector} used for collecting analytics events. */
+  AnalyticsCollector getAnalyticsCollector();
+
+  /**
+   * Adds an {@link AnalyticsListener} to receive analytics events.
+   *
+   * @param listener The listener to be added.
+   */
+  void addAnalyticsListener(AnalyticsListener listener);
+
+  /**
+   * Removes an {@link AnalyticsListener}.
+   *
+   * @param listener The listener to be removed.
+   */
+  void removeAnalyticsListener(AnalyticsListener listener);
+
   /** Returns the number of renderers. */
   int getRendererCount();
 
@@ -1267,6 +1285,77 @@ public interface ExoPlayer extends Player {
    * @see #setPauseAtEndOfMediaItems(boolean)
    */
   boolean getPauseAtEndOfMediaItems();
+
+  /** Returns the audio format currently being played, or null if no audio is being played. */
+  @Nullable
+  Format getAudioFormat();
+
+  /** Returns the video format currently being played, or null if no video is being played. */
+  @Nullable
+  Format getVideoFormat();
+
+  /** Returns {@link DecoderCounters} for audio, or null if no audio is being played. */
+  @Nullable
+  DecoderCounters getAudioDecoderCounters();
+
+  /** Returns {@link DecoderCounters} for video, or null if no video is being played. */
+  @Nullable
+  DecoderCounters getVideoDecoderCounters();
+
+  /**
+   * Sets whether the player should pause automatically when audio is rerouted from a headset to
+   * device speakers. See the <a
+   * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">audio
+   * becoming noisy</a> documentation for more information.
+   *
+   * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
+   *     rerouted from a headset to device speakers.
+   */
+  void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy);
+
+  /** @deprecated Use {@link #setWakeMode(int)} instead. */
+  @Deprecated
+  void setHandleWakeLock(boolean handleWakeLock);
+
+  /**
+   * Sets how the player should keep the device awake for playback when the screen is off.
+   *
+   * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK} permission.
+   * It should be used together with a foreground {@link android.app.Service} for use cases where
+   * playback occurs and the screen is off (e.g. background audio playback). It is not useful when
+   * the screen will be kept on during playback (e.g. foreground video playback).
+   *
+   * <p>When enabled, the locks ({@link android.os.PowerManager.WakeLock} / {@link
+   * android.net.wifi.WifiManager.WifiLock}) will be held whenever the player is in the {@link
+   * #STATE_READY} or {@link #STATE_BUFFERING} states with {@code playWhenReady = true}. The locks
+   * held depends on the specified {@link C.WakeMode}.
+   *
+   * @param wakeMode The {@link C.WakeMode} option to keep the device awake during playback.
+   */
+  void setWakeMode(@C.WakeMode int wakeMode);
+
+  /**
+   * Sets a {@link PriorityTaskManager}, or null to clear a previously set priority task manager.
+   *
+   * <p>The priority {@link C#PRIORITY_PLAYBACK} will be set while the player is loading.
+   *
+   * @param priorityTaskManager The {@link PriorityTaskManager}, or null to clear a previously set
+   *     priority task manager.
+   */
+  void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager);
+
+  /**
+   * Sets whether the player should throw an {@link IllegalStateException} when methods are called
+   * from a thread other than the one associated with {@link #getApplicationLooper()}.
+   *
+   * <p>The default is {@code true} and this method will be removed in the future.
+   *
+   * @param throwsWhenUsingWrongThread Whether to throw when methods are called from a wrong thread.
+   * @deprecated Disabling the enforcement can result in hard-to-detect bugs. Do not use this method
+   *     except to ease the transition while wrong thread access problems are fixed.
+   */
+  @Deprecated
+  void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread);
 
   /**
    * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will run as

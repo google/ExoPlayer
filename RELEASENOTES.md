@@ -7,6 +7,9 @@
         level >= 31. Add methods in `DefaultMediaCodecRendererFactory` and
         `DefaultRenderersFactory` to force enable or force disable asynchronous
         queueing ([6348](https://github.com/google/ExoPlayer/issues/6348)).
+    *   Add 12 public method headers to `ExoPlayer` that exist in
+        `SimpleExoPlayer`, such that all public methods in `SimpleExoPlayer`
+        are overrides.
     *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
         `com.google.android.exoplayer2.DeviceInfo`.
     *   Move `com.google.android.exoplayer2.drm.DecryptionException` to

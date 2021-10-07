@@ -906,41 +906,25 @@ public class SimpleExoPlayer extends BasePlayer
     notifySkipSilenceEnabledChanged();
   }
 
-  /** Returns the {@link AnalyticsCollector} used for collecting analytics events. */
+  @Override
   public AnalyticsCollector getAnalyticsCollector() {
     return analyticsCollector;
   }
 
-  /**
-   * Adds an {@link AnalyticsListener} to receive analytics events.
-   *
-   * @param listener The listener to be added.
-   */
+  @Override
   public void addAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     Assertions.checkNotNull(listener);
     analyticsCollector.addListener(listener);
   }
 
-  /**
-   * Removes an {@link AnalyticsListener}.
-   *
-   * @param listener The listener to be removed.
-   */
+  @Override
   public void removeAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     analyticsCollector.removeListener(listener);
   }
 
-  /**
-   * Sets whether the player should pause automatically when audio is rerouted from a headset to
-   * device speakers. See the <a
-   * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">audio
-   * becoming noisy</a> documentation for more information.
-   *
-   * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
-   *     rerouted from a headset to device speakers.
-   */
+  @Override
   public void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
     verifyApplicationThread();
     if (playerReleased) {
@@ -949,14 +933,7 @@ public class SimpleExoPlayer extends BasePlayer
     audioBecomingNoisyManager.setEnabled(handleAudioBecomingNoisy);
   }
 
-  /**
-   * Sets a {@link PriorityTaskManager}, or null to clear a previously set priority task manager.
-   *
-   * <p>The priority {@link C#PRIORITY_PLAYBACK} will be set while the player is loading.
-   *
-   * @param priorityTaskManager The {@link PriorityTaskManager}, or null to clear a previously set
-   *     priority task manager.
-   */
+  @Override
   public void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
     verifyApplicationThread();
     if (Util.areEqual(this.priorityTaskManager, priorityTaskManager)) {
@@ -974,25 +951,25 @@ public class SimpleExoPlayer extends BasePlayer
     this.priorityTaskManager = priorityTaskManager;
   }
 
-  /** Returns the video format currently being played, or null if no video is being played. */
+  @Override
   @Nullable
   public Format getVideoFormat() {
     return videoFormat;
   }
 
-  /** Returns the audio format currently being played, or null if no audio is being played. */
+  @Override
   @Nullable
   public Format getAudioFormat() {
     return audioFormat;
   }
 
-  /** Returns {@link DecoderCounters} for video, or null if no video is being played. */
+  @Override
   @Nullable
   public DecoderCounters getVideoDecoderCounters() {
     return videoDecoderCounters;
   }
 
-  /** Returns {@link DecoderCounters} for audio, or null if no audio is being played. */
+  @Override
   @Nullable
   public DecoderCounters getAudioDecoderCounters() {
     return audioDecoderCounters;
@@ -1561,39 +1538,13 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getContentBufferedPosition();
   }
 
-  /**
-   * Sets whether the player should use a {@link android.os.PowerManager.WakeLock} to ensure the
-   * device stays awake for playback, even when the screen is off.
-   *
-   * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK} permission.
-   * It should be used together with a foreground {@link android.app.Service} for use cases where
-   * playback can occur when the screen is off (e.g. background audio playback). It is not useful if
-   * the screen will always be on during playback (e.g. foreground video playback).
-   *
-   * @param handleWakeLock Whether the player should use a {@link android.os.PowerManager.WakeLock}
-   *     to ensure the device stays awake for playback, even when the screen is off.
-   * @deprecated Use {@link #setWakeMode(int)} instead.
-   */
   @Deprecated
+  @Override
   public void setHandleWakeLock(boolean handleWakeLock) {
     setWakeMode(handleWakeLock ? C.WAKE_MODE_LOCAL : C.WAKE_MODE_NONE);
   }
 
-  /**
-   * Sets how the player should keep the device awake for playback when the screen is off.
-   *
-   * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK} permission.
-   * It should be used together with a foreground {@link android.app.Service} for use cases where
-   * playback occurs and the screen is off (e.g. background audio playback). It is not useful when
-   * the screen will be kept on during playback (e.g. foreground video playback).
-   *
-   * <p>When enabled, the locks ({@link android.os.PowerManager.WakeLock} / {@link
-   * android.net.wifi.WifiManager.WifiLock}) will be held whenever the player is in the {@link
-   * #STATE_READY} or {@link #STATE_BUFFERING} states with {@code playWhenReady = true}. The locks
-   * held depends on the specified {@link C.WakeMode}.
-   *
-   * @param wakeMode The {@link C.WakeMode} option to keep the device awake during playback.
-   */
+  @Override
   public void setWakeMode(@C.WakeMode int wakeMode) {
     verifyApplicationThread();
     switch (wakeMode) {
@@ -1656,17 +1607,8 @@ public class SimpleExoPlayer extends BasePlayer
     streamVolumeManager.setMuted(muted);
   }
 
-  /**
-   * Sets whether the player should throw an {@link IllegalStateException} when methods are called
-   * from a thread other than the one associated with {@link #getApplicationLooper()}.
-   *
-   * <p>The default is {@code true} and this method will be removed in the future.
-   *
-   * @param throwsWhenUsingWrongThread Whether to throw when methods are called from a wrong thread.
-   * @deprecated Disabling the enforcement can result in hard-to-detect bugs. Do not use this method
-   *     except to ease the transition while wrong thread access problems are fixed.
-   */
   @Deprecated
+  @Override
   public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
