@@ -52,9 +52,7 @@ public class SimpleExoPlayerTest {
   public void builder_inBackgroundThread_doesNotThrow() throws Exception {
     Thread builderThread =
         new Thread(
-            () ->
-                new ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
-                    .buildExoPlayer());
+            () -> new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build());
     AtomicReference<Throwable> builderThrow = new AtomicReference<>();
     builderThread.setUncaughtExceptionHandler((thread, throwable) -> builderThrow.set(throwable));
 
@@ -67,7 +65,7 @@ public class SimpleExoPlayerTest {
   @Test
   public void onPlaylistMetadataChanged_calledWhenPlaylistMetadataSet() {
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).buildExoPlayer();
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
     Player.Listener playerListener = mock(Player.Listener.class);
     player.addListener(playerListener);
     AnalyticsListener analyticsListener = mock(AnalyticsListener.class);
@@ -88,7 +86,7 @@ public class SimpleExoPlayerTest {
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
     // Do something that requires clean-up callbacks like decoder disabling.
@@ -114,7 +112,7 @@ public class SimpleExoPlayerTest {
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
     player.setMediaSource(
@@ -135,7 +133,7 @@ public class SimpleExoPlayerTest {
   @Test
   public void releaseAfterVolumeChanges_triggerPendingVolumeEventInListener() throws Exception {
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).buildExoPlayer();
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
 
@@ -149,7 +147,7 @@ public class SimpleExoPlayerTest {
   @Test
   public void releaseAfterVolumeChanges_triggerPendingDeviceVolumeEventsInListener() {
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).buildExoPlayer();
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
 

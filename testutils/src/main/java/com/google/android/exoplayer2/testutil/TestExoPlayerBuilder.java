@@ -313,6 +313,6 @@ public class TestExoPlayerBuilder {
     if (mediaSourceFactory != null) {
       builder.setMediaSourceFactory(mediaSourceFactory);
     }
-    return builder.buildExoPlayer();
+    return builder.build();
   }
 }

@@ -173,7 +173,7 @@ public final class MainActivity extends Activity {
       throw new IllegalStateException();
     }
 
-    SimpleExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).buildExoPlayer();
+    SimpleExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
     player.setRepeatMode(Player.REPEAT_MODE_ALL);
     player.setMediaSource(mediaSource);
     player.prepare();

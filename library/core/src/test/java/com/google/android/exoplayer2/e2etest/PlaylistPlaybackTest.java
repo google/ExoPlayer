@@ -48,7 +48,7 @@ public final class PlaylistPlaybackTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     player.addMediaItem(MediaItem.fromUri("asset:///media/wav/sample.wav"));
@@ -70,7 +70,7 @@ public final class PlaylistPlaybackTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     player.addMediaItem(MediaItem.fromUri("asset:///media/mka/bear-opus.mka"));

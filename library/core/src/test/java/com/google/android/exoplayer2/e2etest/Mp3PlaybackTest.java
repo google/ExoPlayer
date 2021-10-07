@@ -63,7 +63,7 @@ public final class Mp3PlaybackTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     player.setMediaItem(MediaItem.fromUri("asset:///media/mp3/" + inputFile));

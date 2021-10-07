@@ -80,7 +80,7 @@ public class Mp4PlaybackTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(applicationContext, renderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
 
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);

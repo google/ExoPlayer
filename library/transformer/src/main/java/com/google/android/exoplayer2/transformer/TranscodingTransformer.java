@@ -496,7 +496,7 @@ public final class TranscodingTransformer {
             .setLoadControl(loadControl)
             .setLooper(looper)
             .setClock(clock)
-            .buildExoPlayer();
+            .build();
     player.setMediaItem(mediaItem);
     player.addAnalyticsListener(
         new TranscodingTransformerAnalyticsListener(mediaItem, muxerWrapper));

@@ -90,7 +90,7 @@ public class EndToEndGaplessTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
 
     player.setMediaItems(
         ImmutableList.of(

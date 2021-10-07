@@ -317,7 +317,7 @@ import java.util.List;
       SimpleExoPlayer player =
           new ExoPlayer.Builder(host, new DebugRenderersFactory(host))
               .setTrackSelector(trackSelector)
-              .buildExoPlayer();
+              .build();
       player.setVideoSurface(surface);
       return player;
     }

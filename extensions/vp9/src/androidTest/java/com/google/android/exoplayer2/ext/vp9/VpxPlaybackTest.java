@@ -131,7 +131,7 @@ public class VpxPlaybackTest {
                     videoRendererEventListener,
                     /* maxDroppedFramesToNotify= */ -1)
               };
-      player = new ExoPlayer.Builder(context, renderersFactory).buildExoPlayer();
+      player = new ExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(

@@ -146,7 +146,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
@@ -205,7 +205,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
@@ -265,7 +265,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
     SimpleExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+            .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
@@ -320,9 +320,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
   public void playbackWithSeek_isHandledCorrectly() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(context)
-            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .buildExoPlayer();
+        new ExoPlayer.Builder(context).setClock(new FakeClock(/* isAutoAdvancing= */ true)).build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
 
     ServerSideInsertedAdsMediaSource mediaSource =

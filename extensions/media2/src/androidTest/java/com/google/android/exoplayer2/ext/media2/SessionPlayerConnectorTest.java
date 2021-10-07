@@ -170,8 +170,7 @@ public class SessionPlayerConnectorTest {
     SimpleExoPlayer simpleExoPlayer = null;
     SessionPlayerConnector playerConnector = null;
     try {
-      simpleExoPlayer =
-          new ExoPlayer.Builder(context).setLooper(Looper.myLooper()).buildExoPlayer();
+      simpleExoPlayer = new ExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
       playerConnector =
           new SessionPlayerConnector(simpleExoPlayer, new DefaultMediaItemConverter());
       playerConnector.setControlDispatcher(controlDispatcher);
@@ -196,8 +195,7 @@ public class SessionPlayerConnectorTest {
     Player forwardingPlayer = null;
     SessionPlayerConnector playerConnector = null;
     try {
-      Player simpleExoPlayer =
-          new ExoPlayer.Builder(context).setLooper(Looper.myLooper()).buildExoPlayer();
+      Player simpleExoPlayer = new ExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
       forwardingPlayer =
           new ForwardingPlayer(simpleExoPlayer) {
             @Override

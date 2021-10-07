@@ -485,7 +485,7 @@ public final class Transformer {
             .setLoadControl(loadControl)
             .setLooper(looper)
             .setClock(clock)
-            .buildExoPlayer();
+            .build();
     player.setMediaItem(mediaItem);
     player.addAnalyticsListener(new TransformerAnalyticsListener(mediaItem, muxerWrapper));
     player.prepare();

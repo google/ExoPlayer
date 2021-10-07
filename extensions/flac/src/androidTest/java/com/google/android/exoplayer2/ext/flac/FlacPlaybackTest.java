@@ -117,7 +117,7 @@ public class FlacPlaybackTest {
               new Renderer[] {
                 new LibflacAudioRenderer(eventHandler, audioRendererEventListener, audioSink)
               };
-      player = new ExoPlayer.Builder(context, renderersFactory).buildExoPlayer();
+      player = new ExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(

@@ -59,7 +59,7 @@ public final class ClippedPlaybackTest {
     getInstrumentation()
         .runOnMainSync(
             () -> {
-              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).buildExoPlayer());
+              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).build());
               player.get().addListener(textCapturer);
               player.get().setMediaItem(mediaItem);
               player.get().prepare();
@@ -101,7 +101,7 @@ public final class ClippedPlaybackTest {
     getInstrumentation()
         .runOnMainSync(
             () -> {
-              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).buildExoPlayer());
+              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).build());
               player.get().addListener(textCapturer);
               player.get().setMediaItems(mediaItems);
               player.get().prepare();

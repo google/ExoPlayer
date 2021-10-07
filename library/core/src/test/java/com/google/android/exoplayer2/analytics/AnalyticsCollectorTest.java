@@ -1954,7 +1954,7 @@ public final class AnalyticsCollectorTest {
   public void recursiveListenerInvocation_arrivesInCorrectOrder() {
     AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
     analyticsCollector.setPlayer(
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).buildExoPlayer(),
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
         Looper.myLooper());
     AnalyticsListener listener1 = mock(AnalyticsListener.class);
     AnalyticsListener listener2 =
