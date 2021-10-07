@@ -838,12 +838,12 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Builds a {@link Player} instance.
+     * Builds a {@link SimpleExoPlayer} instance.
      *
      * @throws IllegalStateException If this method or {@link #buildExoPlayer()} has already been
      *     called.
      */
-    public Player build() {
+    public SimpleExoPlayer build() {
       return buildExoPlayer();
     }
 
