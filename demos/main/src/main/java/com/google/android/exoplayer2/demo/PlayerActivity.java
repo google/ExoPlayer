@@ -278,7 +278,7 @@ public class PlayerActivity extends AppCompatActivity
           new ExoPlayer.Builder(/* context= */ this, renderersFactory)
               .setMediaSourceFactory(mediaSourceFactory)
               .setTrackSelector(trackSelector)
-              .buildExoPlayer();
+              .build();
       player.addListener(new PlayerEventListener());
       player.addAnalyticsListener(new EventLogger(trackSelector));
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
