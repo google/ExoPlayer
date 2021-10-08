@@ -63,8 +63,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
    * {@link Player} instance. The caller remains responsible for releasing the player when it's no
    * longer required.
    *
-   * @param context The current context (activity).
-   * @param player Instance of your exoplayer that needs to be configured.
+   * @param context The current {@link Context} (activity).
+   * @param player The {@link Player} being used.
    * @param updatePeriodMs The delay between player control updates, in milliseconds.
    */
   public LeanbackPlayerAdapter(Context context, Player player, final int updatePeriodMs) {
@@ -267,9 +267,9 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
         callback.onError(
             LeanbackPlayerAdapter.this,
             error.errorCode,
-            // This string was probably tailored for MediaPlayer, whose callback takes 2 ints as
-            // error code. Since ExoPlayer provides a single error code, we just pass 0 as the
-            // extra.
+            // This string was probably tailored for MediaPlayer, whose error callback takes two
+            // int arguments (int what, int extra). Since PlaybackException defines a single error
+            // code, we pass 0 as the extra.
             context.getString(
                 R.string.lb_media_player_error, /* formatArgs...= */ error.errorCode, 0));
       }
