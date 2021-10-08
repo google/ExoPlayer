@@ -743,7 +743,7 @@ public final class WebvttCueParser {
   private static String getTagName(String tagExpression) {
     tagExpression = tagExpression.trim();
     Assertions.checkArgument(!tagExpression.isEmpty());
-    return Util.splitAtFirst(tagExpression, "[ \\.]")[0];
+    return Util.splitAtFirst(tagExpression, "[ \\.]")[0].toLowerCase();
   }
 
   private static List<StyleMatch> getApplicableStyles(
