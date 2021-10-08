@@ -1,6 +1,6 @@
-# ExoPlayer RTMP extension
+# RTMP DataSource module
 
-The RTMP extension is a [DataSource][] implementation for playing [RTMP][]
+This module provides a [DataSource][] implementation for requesting [RTMP][]
 streams using [LibRtmp Client for Android][].
 
 [DataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html
@@ -33,8 +33,8 @@ locally. Instructions for doing this can be found in the [top level README][].
 
 ## Using the module
 
-ExoPlayer requests data through `DataSource` instances. These instances are
-obtained from instances of `DataSource.Factory`, which are instantiated and
+Media components request data through `DataSource` instances. These instances
+are obtained from instances of `DataSource.Factory`, which are instantiated and
 injected from application code.
 
 `DefaultDataSource` will automatically use the RTMP extension whenever it's

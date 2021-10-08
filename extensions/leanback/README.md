@@ -1,7 +1,8 @@
-# ExoPlayer Leanback extension
+# Leanback UI module
 
-This [Leanback][] Extension provides a [PlayerAdapter][] implementation for
-ExoPlayer.
+This module provides a [PlayerAdapter][] wrapper for `Player`, making it
+possible to connect `Player` implementations such as `ExoPlayer` to the playback
+widgets provided by `androidx.leanback:leanback`.
 
 [PlayerAdapter]: https://developer.android.com/reference/android/support/v17/leanback/media/PlayerAdapter.html
 [Leanback]: https://developer.android.com/reference/android/support/v17/leanback/package-summary.html

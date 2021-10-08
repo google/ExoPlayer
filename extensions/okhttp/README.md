@@ -1,6 +1,6 @@
-# ExoPlayer OkHttp extension
+# OkHttp DataSource module
 
-The OkHttp extension is an [HttpDataSource][] implementation that uses Square's
+This module provides an [HttpDataSource][] implementation that uses Square's
 [OkHttp][].
 
 OkHttp is a modern network stack that's widely used by many popular Android
@@ -35,8 +35,8 @@ locally. Instructions for doing this can be found in the [top level README][].
 
 ## Using the module
 
-ExoPlayer requests data through `DataSource` instances. These instances are
-obtained from instances of `DataSource.Factory`, which are instantiated and
+Media components request data through `DataSource` instances. These instances
+are obtained from instances of `DataSource.Factory`, which are instantiated and
 injected from application code.
 
 If your application only needs to play http(s) content, using the OkHttp
