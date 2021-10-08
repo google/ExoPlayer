@@ -57,6 +57,9 @@
   <string name="exo_download_completed">Спампоўка завершана</string>
   <string name="exo_download_failed">Збой спампоўкі</string>
   <string name="exo_download_removing">Выдаленне спамповак</string>
+  <string name="exo_download_paused">Спампоўкі прыпынены</string>
+  <string name="exo_download_paused_for_network">Спампоўкі чакаюць падключэння да сеткі</string>
+  <string name="exo_download_paused_for_wifi">Спампоўкі чакаюць падключэння да Wi-Fi</string>
   <string name="exo_track_selection_title_video">Відэа</string>
   <string name="exo_track_selection_title_audio">Аўдыя</string>
   <string name="exo_track_selection_title_text">Тэкст</string>

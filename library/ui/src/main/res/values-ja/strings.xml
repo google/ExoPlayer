@@ -53,6 +53,9 @@
   <string name="exo_download_completed">ダウンロードが完了しました</string>
   <string name="exo_download_failed">ダウンロードに失敗しました</string>
   <string name="exo_download_removing">ダウンロードを削除しています</string>
+  <string name="exo_download_paused">ダウンロード一時停止</string>
+  <string name="exo_download_paused_for_network">ダウンロード停止: ネットワーク接続中</string>
+  <string name="exo_download_paused_for_wifi">ダウンロード停止: Wi-Fi 接続中</string>
   <string name="exo_track_selection_title_video">動画</string>
   <string name="exo_track_selection_title_audio">音声</string>
   <string name="exo_track_selection_title_text">文字</string>

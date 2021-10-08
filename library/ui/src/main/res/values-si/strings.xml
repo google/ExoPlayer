@@ -53,6 +53,9 @@
   <string name="exo_download_completed">බාගැනීම සම්පූර්ණ කරන ලදී</string>
   <string name="exo_download_failed">බාගැනීම අසමත් විය</string>
   <string name="exo_download_removing">බාගැනීම් ඉවත් කිරීම</string>
+  <string name="exo_download_paused">බාගැනීම් විරාම කර ඇත</string>
+  <string name="exo_download_paused_for_network">ජාලය සඳහා බාගැනීම් රැඳී සිටී</string>
+  <string name="exo_download_paused_for_wifi">WiFi සඳහා බාගැනීම් රැඳී සිටී</string>
   <string name="exo_track_selection_title_video">වීඩියෝ</string>
   <string name="exo_track_selection_title_audio">ශ්‍රව්‍ය</string>
   <string name="exo_track_selection_title_text">පෙළ</string>

@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Nedlastingen er fullført</string>
   <string name="exo_download_failed">Nedlastingen mislyktes</string>
   <string name="exo_download_removing">Fjerner nedlastinger</string>
+  <string name="exo_download_paused">Nedlastinger er satt på pause</string>
+  <string name="exo_download_paused_for_network">Nedlastinger venter på nettverket</string>
+  <string name="exo_download_paused_for_wifi">Nedlastinger venter på Wi-FI-tilkobling</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Lyd</string>
   <string name="exo_track_selection_title_text">Tekst</string>

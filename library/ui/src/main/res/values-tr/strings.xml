@@ -53,6 +53,9 @@
   <string name="exo_download_completed">İndirme işlemi tamamlandı</string>
   <string name="exo_download_failed">İndirilemedi</string>
   <string name="exo_download_removing">İndirilenler kaldırılıyor</string>
+  <string name="exo_download_paused">İndirmeler duraklatıldı</string>
+  <string name="exo_download_paused_for_network">İndirmeler için ağ bekleniyor</string>
+  <string name="exo_download_paused_for_wifi">İndirmeler için kablosuz ağ bekleniyor</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Ses</string>
   <string name="exo_track_selection_title_text">Metin</string>

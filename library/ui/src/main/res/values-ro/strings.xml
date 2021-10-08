@@ -55,6 +55,9 @@
   <string name="exo_download_completed">Descărcarea a fost finalizată</string>
   <string name="exo_download_failed">Descărcarea nu a reușit</string>
   <string name="exo_download_removing">Se elimină descărcările</string>
+  <string name="exo_download_paused">Descărcările au fost întrerupte</string>
+  <string name="exo_download_paused_for_network">Descărcările așteaptă rețeaua</string>
+  <string name="exo_download_paused_for_wifi">Descărcările așteaptă rețeaua Wi-Fi</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Text</string>

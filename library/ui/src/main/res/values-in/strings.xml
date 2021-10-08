@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Download selesai</string>
   <string name="exo_download_failed">Download gagal</string>
   <string name="exo_download_removing">Menghapus download</string>
+  <string name="exo_download_paused">Download dijeda</string>
+  <string name="exo_download_paused_for_network">Download menunggu konektivitas jaringan</string>
+  <string name="exo_download_paused_for_wifi">Download menunggu konektivitas Wi-Fi</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Teks</string>

@@ -57,6 +57,9 @@
   <string name="exo_download_completed">Завантаження завершено</string>
   <string name="exo_download_failed">Не вдалося завантажити</string>
   <string name="exo_download_removing">Завантаження видаляються</string>
+  <string name="exo_download_paused">Завантаження призупинено</string>
+  <string name="exo_download_paused_for_network">Очікується підключення до мережі</string>
+  <string name="exo_download_paused_for_wifi">Очікується підключення до Wi-Fi</string>
   <string name="exo_track_selection_title_video">Відео</string>
   <string name="exo_track_selection_title_audio">Аудіо</string>
   <string name="exo_track_selection_title_text">Текст</string>

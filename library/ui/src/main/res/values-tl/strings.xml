@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Tapos na ang pag-download</string>
   <string name="exo_download_failed">Hindi na-download</string>
   <string name="exo_download_removing">Inaalis ang mga na-download</string>
+  <string name="exo_download_paused">Na-pause ang mga pag-download</string>
+  <string name="exo_download_paused_for_network">Naghihintay ng network ang pag-download</string>
+  <string name="exo_download_paused_for_wifi">Naghihintay ng WiFi ang mga pag-download</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Text</string>

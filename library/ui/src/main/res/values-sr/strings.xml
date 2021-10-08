@@ -55,6 +55,9 @@
   <string name="exo_download_completed">Преузимање је завршено</string>
   <string name="exo_download_failed">Преузимање није успело</string>
   <string name="exo_download_removing">Преузимања се уклањају</string>
+  <string name="exo_download_paused">Преузимања су паузирана</string>
+  <string name="exo_download_paused_for_network">Преузимања чекају на мрежу</string>
+  <string name="exo_download_paused_for_wifi">Преузимања чекају на WiFi</string>
   <string name="exo_track_selection_title_video">Видео</string>
   <string name="exo_track_selection_title_audio">Аудио</string>
   <string name="exo_track_selection_title_text">Текст</string>
@@ -64,9 +67,9 @@
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">Моно</string>
   <string name="exo_track_stereo">Стерео</string>
-  <string name="exo_track_surround">Звучни систем</string>
-  <string name="exo_track_surround_5_point_1">Звучни систем 5.1</string>
-  <string name="exo_track_surround_7_point_1">Звучни систем 7.1</string>
+  <string name="exo_track_surround">Просторни звук</string>
+  <string name="exo_track_surround_5_point_1">Просторни звук 5.1</string>
+  <string name="exo_track_surround_7_point_1">Просторни звук 7.1</string>
   <string name="exo_track_role_alternate">Алтернативно</string>
   <string name="exo_track_role_supplementary">Додатно</string>
   <string name="exo_track_role_commentary">Коментар</string>

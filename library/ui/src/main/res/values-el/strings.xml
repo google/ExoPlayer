@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Η λήψη ολοκληρώθηκε</string>
   <string name="exo_download_failed">Η λήψη απέτυχε</string>
   <string name="exo_download_removing">Κατάργηση λήψεων</string>
+  <string name="exo_download_paused">Οι λήψεις τέθηκαν σε παύση.</string>
+  <string name="exo_download_paused_for_network">Οι λήψεις είναι σε αναμονή για δίκτυο.</string>
+  <string name="exo_download_paused_for_wifi">Οι λήψεις είναι σε αναμονή για Wi-Fi.</string>
   <string name="exo_track_selection_title_video">Βίντεο</string>
   <string name="exo_track_selection_title_audio">Ήχος</string>
   <string name="exo_track_selection_title_text">Κείμενο</string>

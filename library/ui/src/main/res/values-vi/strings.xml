@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Đã hoàn tất tải xuống</string>
   <string name="exo_download_failed">Không tải xuống được</string>
   <string name="exo_download_removing">Đang xóa các mục đã tải xuống</string>
+  <string name="exo_download_paused">Đã tạm dừng tải xuống</string>
+  <string name="exo_download_paused_for_network">Đang chờ có mạng để tải xuống</string>
+  <string name="exo_download_paused_for_wifi">Đang chờ có Wi-Fi để tải xuống</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Âm thanh</string>
   <string name="exo_track_selection_title_text">Văn bản</string>

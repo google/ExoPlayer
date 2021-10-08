@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Жүктеп алынды</string>
   <string name="exo_download_failed">Жүктеп алынбады</string>
   <string name="exo_download_removing">Жүктеп алынғандар өшірілуде</string>
+  <string name="exo_download_paused">Жүктеп алу процестері уақытша тоқтады.</string>
+  <string name="exo_download_paused_for_network">Жүктеп алу үшін желіге қосылу керек.</string>
+  <string name="exo_download_paused_for_wifi">Жүктеп алу үшін Wi-Fi-ға қосылу керек.</string>
   <string name="exo_track_selection_title_video">Бейне</string>
   <string name="exo_track_selection_title_audio">Aудиомазмұн</string>
   <string name="exo_track_selection_title_text">Мәтін</string>

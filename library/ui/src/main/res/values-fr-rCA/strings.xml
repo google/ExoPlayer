@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Téléchargement terminé</string>
   <string name="exo_download_failed">Échec du téléchargement</string>
   <string name="exo_download_removing">Suppression des téléchargements en cours…</string>
+  <string name="exo_download_paused">Téléchargements interrompus</string>
+  <string name="exo_download_paused_for_network">Téléchargements en attente du réseau</string>
+  <string name="exo_download_paused_for_wifi">Téléchargements en attente du Wi-Fi</string>
   <string name="exo_track_selection_title_video">Vidéo</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Texte</string>

@@ -53,6 +53,9 @@
   <string name="exo_download_completed">ഡൗൺലോഡ് പൂർത്തിയായി</string>
   <string name="exo_download_failed">ഡൗൺലോഡ് പരാജയപ്പെട്ടു</string>
   <string name="exo_download_removing">ഡൗൺലോഡുകൾ നീക്കം ചെയ്യുന്നു</string>
+  <string name="exo_download_paused">ഡൗൺലോഡുകൾ താൽക്കാലികമായി നിർത്തി</string>
+  <string name="exo_download_paused_for_network">ഡൗൺലോഡുകൾ നെറ്റ്‌വർക്കിന് കാത്തിരിക്കുന്നു</string>
+  <string name="exo_download_paused_for_wifi">ഡൗൺലോഡുകൾ വൈഫൈയ്ക്കായി കാത്തിരിക്കുന്നു</string>
   <string name="exo_track_selection_title_video">വീഡിയോ</string>
   <string name="exo_track_selection_title_audio">ഓഡിയോ</string>
   <string name="exo_track_selection_title_text">ടെക്‌സ്റ്റ്</string>

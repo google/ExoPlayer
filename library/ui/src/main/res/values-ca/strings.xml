@@ -53,6 +53,9 @@
   <string name="exo_download_completed">S\'ha completat la baixada</string>
   <string name="exo_download_failed">No s\'ha pogut baixar</string>
   <string name="exo_download_removing">S\'estan suprimint les baixades</string>
+  <string name="exo_download_paused">Les baixades estan en pausa</string>
+  <string name="exo_download_paused_for_network">Les baixades estan esperant una xarxa</string>
+  <string name="exo_download_paused_for_wifi">Les baixades estan esperant una Wi‑Fi</string>
   <string name="exo_track_selection_title_video">Vídeo</string>
   <string name="exo_track_selection_title_audio">Àudio</string>
   <string name="exo_track_selection_title_text">Text</string>

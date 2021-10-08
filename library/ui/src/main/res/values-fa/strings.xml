@@ -53,6 +53,9 @@
   <string name="exo_download_completed">بارگیری کامل شد</string>
   <string name="exo_download_failed">بارگیری نشد</string>
   <string name="exo_download_removing">حذف بارگیری‌ها</string>
+  <string name="exo_download_paused">بارگیری‌ها موقتاً متوقف شد</string>
+  <string name="exo_download_paused_for_network">بارگیری‌ها درانتظار شبکه است</string>
+  <string name="exo_download_paused_for_wifi">بارگیری‌ها در انتظار Wi-Fi است</string>
   <string name="exo_track_selection_title_video">ویدیو</string>
   <string name="exo_track_selection_title_audio">صوتی</string>
   <string name="exo_track_selection_title_text">نوشتار</string>

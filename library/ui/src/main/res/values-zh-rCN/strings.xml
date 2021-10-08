@@ -53,6 +53,9 @@
   <string name="exo_download_completed">下载完毕</string>
   <string name="exo_download_failed">下载失败</string>
   <string name="exo_download_removing">正在移除下载内容</string>
+  <string name="exo_download_paused">下载已暂停</string>
+  <string name="exo_download_paused_for_network">正在等待连接到网络以进行下载</string>
+  <string name="exo_download_paused_for_wifi">正在等待连接到 WLAN 网络以进行下载</string>
   <string name="exo_track_selection_title_video">视频</string>
   <string name="exo_track_selection_title_audio">音频</string>
   <string name="exo_track_selection_title_text">文字</string>

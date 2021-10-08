@@ -53,6 +53,9 @@
   <string name="exo_download_completed">பதிவிறக்கப்பட்டது</string>
   <string name="exo_download_failed">பதிவிறக்க முடியவில்லை</string>
   <string name="exo_download_removing">பதிவிறக்கங்கள் அகற்றப்படுகின்றன</string>
+  <string name="exo_download_paused">பதிவிறக்கங்கள் இடைநிறுத்தப்பட்டன</string>
+  <string name="exo_download_paused_for_network">நெட்வொர்க்கிற்காகக் காத்திருக்கின்றன</string>
+  <string name="exo_download_paused_for_wifi">Wi-Fiகாகக் காத்திருக்கின்றன</string>
   <string name="exo_track_selection_title_video">வீடியோ</string>
   <string name="exo_track_selection_title_audio">ஆடியோ</string>
   <string name="exo_track_selection_title_text">உரை</string>

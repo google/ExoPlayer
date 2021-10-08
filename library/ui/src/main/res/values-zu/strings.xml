@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Ukulanda kuqedile</string>
   <string name="exo_download_failed">Ukulanda kuhlulekile</string>
   <string name="exo_download_removing">Kususwa okulandiwe</string>
+  <string name="exo_download_paused">Okulandwayo kumiswe isikhashana</string>
+  <string name="exo_download_paused_for_network">Ukulanda kulinde inethiwekhi</string>
+  <string name="exo_download_paused_for_wifi">Ukulanda kulinde i-WiFi</string>
   <string name="exo_track_selection_title_video">Ividiyo</string>
   <string name="exo_track_selection_title_audio">Umsindo</string>
   <string name="exo_track_selection_title_text">Umbhalo</string>

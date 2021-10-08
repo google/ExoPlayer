@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Niðurhali lokið</string>
   <string name="exo_download_failed">Niðurhal mistókst</string>
   <string name="exo_download_removing">Fjarlægir niðurhal</string>
+  <string name="exo_download_paused">Niðurhöl í bið</string>
+  <string name="exo_download_paused_for_network">Niðurhöl bíða eftir netkerfi</string>
+  <string name="exo_download_paused_for_wifi">Niðurhöl bíða eftir WiFi</string>
   <string name="exo_track_selection_title_video">Myndskeið</string>
   <string name="exo_track_selection_title_audio">Hljóð</string>
   <string name="exo_track_selection_title_text">Texti</string>

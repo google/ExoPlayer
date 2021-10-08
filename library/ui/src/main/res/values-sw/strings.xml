@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Imepakuliwa</string>
   <string name="exo_download_failed">Imeshindwa kupakua</string>
   <string name="exo_download_removing">Inaondoa vipakuliwa</string>
+  <string name="exo_download_paused">Imesimamisha shughuli ya kupakua</string>
+  <string name="exo_download_paused_for_network">Upakuaji unasubiri mtandao</string>
+  <string name="exo_download_paused_for_wifi">Upakuaji unasubiri Wi-Fi</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Sauti</string>
   <string name="exo_track_selection_title_text">Maandishi</string>

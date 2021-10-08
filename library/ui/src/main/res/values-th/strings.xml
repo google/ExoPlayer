@@ -53,6 +53,9 @@
   <string name="exo_download_completed">การดาวน์โหลดเสร็จสมบูรณ์</string>
   <string name="exo_download_failed">การดาวน์โหลดล้มเหลว</string>
   <string name="exo_download_removing">กำลังนำรายการที่ดาวน์โหลดออก</string>
+  <string name="exo_download_paused">การดาวน์โหลดหยุดชั่วคราว</string>
+  <string name="exo_download_paused_for_network">กำลังรอเครือข่ายเพื่อดาวน์โหลด</string>
+  <string name="exo_download_paused_for_wifi">กำลังรอ Wi-Fi เพื่อดาวน์โหลด</string>
   <string name="exo_track_selection_title_video">วิดีโอ</string>
   <string name="exo_track_selection_title_audio">เสียง</string>
   <string name="exo_track_selection_title_text">ข้อความ</string>

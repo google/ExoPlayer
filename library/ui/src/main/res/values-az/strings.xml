@@ -53,6 +53,9 @@
   <string name="exo_download_completed">Endirmə tamamlandı</string>
   <string name="exo_download_failed">Endirmə alınmadı</string>
   <string name="exo_download_removing">Endirilənlər silinir</string>
+  <string name="exo_download_paused">Endirmə durdurulub</string>
+  <string name="exo_download_paused_for_network">Endirmələr şəbəkəni gözləyir</string>
+  <string name="exo_download_paused_for_wifi">Endirmələr WiFi şəbəkəsini gözləyir</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Mətn</string>

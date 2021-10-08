@@ -53,6 +53,9 @@
   <string name="exo_download_completed">ດາວໂຫລດສຳເລັດແລ້ວ</string>
   <string name="exo_download_failed">ດາວໂຫຼດບໍ່ສຳເລັດ</string>
   <string name="exo_download_removing">ກຳລັງລຶບການດາວໂຫລດອອກ</string>
+  <string name="exo_download_paused">ຢຸດດາວໂຫຼດຊົ່ວຄາວແລ້ວ</string>
+  <string name="exo_download_paused_for_network">ການດາວໂຫຼດກຳລັງລໍຖ້າເຄືອຂ່າຍຢູ່</string>
+  <string name="exo_download_paused_for_wifi">ການດາວໂຫຼດກຳລັງລໍຖ້າ WiFi ຢູ່</string>
   <string name="exo_track_selection_title_video">ວິດີໂອ</string>
   <string name="exo_track_selection_title_audio">ສຽງ</string>
   <string name="exo_track_selection_title_text">ຂໍ້ຄວາມ</string>

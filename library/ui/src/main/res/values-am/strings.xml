@@ -53,6 +53,9 @@
   <string name="exo_download_completed">ማውረድ ተጠናቋል</string>
   <string name="exo_download_failed">ማውረድ አልተሳካም</string>
   <string name="exo_download_removing">ውርዶችን በማስወገድ ላይ</string>
+  <string name="exo_download_paused">ውርዶች ባሉበት ቆመዋል</string>
+  <string name="exo_download_paused_for_network">አውታረ መረቦችን በመጠባበቅ ላይ ያሉ ውርዶች</string>
+  <string name="exo_download_paused_for_wifi">WiFiን በመጠባበቅ ላይ ያሉ ውርዶች</string>
   <string name="exo_track_selection_title_video">ቪዲዮ</string>
   <string name="exo_track_selection_title_audio">ኦዲዮ</string>
   <string name="exo_track_selection_title_text">ጽሑፍ</string>

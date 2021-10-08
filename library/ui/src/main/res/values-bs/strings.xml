@@ -55,6 +55,9 @@
   <string name="exo_download_completed">Preuzimanje je završeno</string>
   <string name="exo_download_failed">Preuzimanje nije uspjelo</string>
   <string name="exo_download_removing">Uklanjanje preuzimanja</string>
+  <string name="exo_download_paused">Preuzimanja su pauzirana</string>
+  <string name="exo_download_paused_for_network">Preuzimanja čekaju povezivanje s mrežom</string>
+  <string name="exo_download_paused_for_wifi">Preuzimanja čekaju WiFi</string>
   <string name="exo_track_selection_title_video">Videozapis</string>
   <string name="exo_track_selection_title_audio">Zvuk</string>
   <string name="exo_track_selection_title_text">Tekst</string>
