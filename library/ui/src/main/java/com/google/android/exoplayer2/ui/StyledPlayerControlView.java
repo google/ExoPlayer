@@ -199,9 +199,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * default animation implementation expects certain relative positions between children. See also <a
  * href="CustomLayout">Specifying a custom layout file</a>.
  *
- * <p>The layout files in your {@code res/layout*} will override the one provided by the ExoPlayer
- * library, and will be inflated for use by StyledPlayerControlView. The view identifies and binds
- * its children by looking for the following ids:
+ * <p>The layout files in your {@code res/layout*} will override the one provided by the library,
+ * and will be inflated for use by StyledPlayerControlView. The view identifies and binds its
+ * children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_play_pause}</b> - The play and pause button.
@@ -843,7 +843,7 @@ public class StyledPlayerControlView extends FrameLayout {
   /**
    * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
    *     You can also customize some operations when configuring the player (for example by using
-   *     {@link ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+   *     {@code ExoPlayer.Builder.setSeekBackIncrementMs(long)}).
    */
   @Deprecated
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {

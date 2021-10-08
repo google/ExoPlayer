@@ -48,7 +48,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaMetadata;
@@ -188,8 +187,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * To customize the layout of StyledPlayerView throughout your app, or just for certain
  * configurations, you can define {@code exo_styled_player_view.xml} layout files in your
  * application {@code res/layout*} directories. These layouts will override the one provided by the
- * ExoPlayer library, and will be inflated for use by StyledPlayerView. The view identifies and
- * binds its children by looking for the following ids:
+ * library, and will be inflated for use by StyledPlayerView. The view identifies and binds its
+ * children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
@@ -952,7 +951,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   /**
    * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
    *     You can also customize some operations when configuring the player (for example by using
-   *     {@link ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
+   *     {@code ExoPlayer.Builder.setSeekBackIncrementMs(long)}).
    */
   @Deprecated
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {

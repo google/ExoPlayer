@@ -164,8 +164,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * To customize the layout of PlayerControlView throughout your app, or just for certain
  * configurations, you can define {@code exo_player_control_view.xml} layout files in your
  * application {@code res/layout*} directories. These layouts will override the one provided by the
- * ExoPlayer library, and will be inflated for use by PlayerControlView. The view identifies and
- * binds its children by looking for the following ids:
+ * library, and will be inflated for use by PlayerControlView. The view identifies and binds its
+ * children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_play}</b> - The play button.
