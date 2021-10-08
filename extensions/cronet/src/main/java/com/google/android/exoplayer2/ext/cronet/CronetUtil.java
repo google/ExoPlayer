@@ -35,9 +35,30 @@ public final class CronetUtil {
   private static final String TAG = "CronetUtil";
 
   /**
-   * Builds a {@link CronetEngine} suitable for use with ExoPlayer. When choosing a {@link
-   * CronetProvider Cronet provider} to build the {@link CronetEngine}, disabled providers are not
-   * considered. Neither are fallback providers, since it's more efficient to use {@link
+   * Builds a {@link CronetEngine} suitable for use with {@link CronetDataSource}. When choosing a
+   * {@link CronetProvider Cronet provider} to build the {@link CronetEngine}, disabled providers
+   * are not considered. Neither are fallback providers, since it's more efficient to use {@link
+   * DefaultHttpDataSource} than it is to use {@link CronetDataSource} with a fallback {@link
+   * CronetEngine}.
+   *
+   * <p>Note that it's recommended for applications to create only one instance of {@link
+   * CronetEngine}, so if your application already has an instance for performing other networking,
+   * then that instance should be used and calling this method is unnecessary. See the <a
+   * href="https://developer.android.com/guide/topics/connectivity/cronet/start">Android developer
+   * guide</a> to learn more about using Cronet for network operations.
+   *
+   * @param context A context.
+   * @return The {@link CronetEngine}, or {@code null} if no suitable engine could be built.
+   */
+  @Nullable
+  public static CronetEngine buildCronetEngine(Context context) {
+    return buildCronetEngine(context, /* userAgent= */ null, /* preferGooglePlayServices= */ false);
+  }
+
+  /**
+   * Builds a {@link CronetEngine} suitable for use with {@link CronetDataSource}. When choosing a
+   * {@link CronetProvider Cronet provider} to build the {@link CronetEngine}, disabled providers
+   * are not considered. Neither are fallback providers, since it's more efficient to use {@link
    * DefaultHttpDataSource} than it is to use {@link CronetDataSource} with a fallback {@link
    * CronetEngine}.
    *
