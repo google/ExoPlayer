@@ -1,4 +1,4 @@
-# ExoPlayer SmoothStreaming library module #
+# ExoPlayer SmoothStreaming library module
 
 Provides support for SmoothStreaming content.
 
@@ -17,7 +17,7 @@ For advanced playback use cases, applications can build `SsMediaSource`
 instances and pass them directly to the player. For advanced download use cases,
 `SsDownloader` can be used directly.
 
-## Links ##
+## Links
 
 * [Developer Guide][].
 * [Javadoc][]: Classes matching

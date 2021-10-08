@@ -1,4 +1,4 @@
-# ExoPlayer website #
+# ExoPlayer website 
 
 The [ExoPlayer website](https://exoplayer.dev/) is hosted on
 GitHub Pages, and is statically generated using Jekyll.

@@ -1,9 +1,9 @@
-# ExoPlayer AV1 extension #
+# ExoPlayer AV1 extension
 
 The AV1 extension provides `Libgav1VideoRenderer`, which uses libgav1 native
 library to decode AV1 videos.
 
-## License note ##
+## License note
 
 Please note that whilst the code in this repository is licensed under
 [Apache 2.0][], using this extension also requires building and including one or
@@ -11,7 +11,7 @@ more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions (Linux, macOS) ##
+## Build instructions (Linux, macOS)
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -61,14 +61,14 @@ to configure and build libgav1 and the extension's [JNI wrapper library][].
 [Ninja]: https://ninja-build.org
 [JNI wrapper library]: https://github.com/google/ExoPlayer/blob/release-v2/extensions/av1/src/main/jni/gav1_jni.cc
 
-## Build instructions (Windows) ##
+## Build instructions (Windows)
 
 We do not provide support for building this extension on Windows, however it
 should be possible to follow the Linux instructions in [Windows PowerShell][].
 
 [Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
-## Using the extension ##
+## Using the module
 
 Once you've followed the instructions above to check out, build and depend on
 the extension, the next step is to tell ExoPlayer to use `Libgav1VideoRenderer`.
@@ -96,7 +96,7 @@ a custom track selector the choice of `Renderer` is up to your implementation.
 You need to make sure you are passing a `Libgav1VideoRenderer` to the player and
 then you need to implement your own logic to use the renderer for a given track.
 
-## Using the extension in the demo application ##
+## Using the module in the demo application
 
 To try out playback using the extension in the [demo application][], see
 [enabling extension decoders][].
@@ -104,7 +104,7 @@ To try out playback using the extension in the [demo application][], see
 [demo application]: https://exoplayer.dev/demo-application.html
 [enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
 
-## Rendering options ##
+## Rendering options
 
 There are two possibilities for rendering the output `Libgav1VideoRenderer`
 gets from the libgav1 decoder:
@@ -129,7 +129,7 @@ gets from the libgav1 decoder:
 Note: Although the default option uses `ANativeWindow`, based on our testing the
 GL rendering mode has better performance, so should be preferred
 
-## Links ##
+## Links
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.av1.*`
   belong to this module.

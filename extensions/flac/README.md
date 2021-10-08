@@ -1,9 +1,9 @@
-# ExoPlayer Flac extension #
+# ExoPlayer Flac extension
 
 The Flac extension provides `FlacExtractor` and `LibflacAudioRenderer`, which
 use libFLAC (the Flac decoding library) to extract and decode FLAC audio.
 
-## License note ##
+## License note
 
 Please note that whilst the code in this repository is licensed under
 [Apache 2.0][], using this extension also requires building and including one or
@@ -11,7 +11,7 @@ more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions (Linux, macOS) ##
+## Build instructions (Linux, macOS)
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -53,27 +53,27 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 
-## Build instructions (Windows) ##
+## Build instructions (Windows)
 
 We do not provide support for building this extension on Windows, however it
 should be possible to follow the Linux instructions in [Windows PowerShell][].
 
 [Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
-## Using the extension ##
+## Using the module
 
 Once you've followed the instructions above to check out, build and depend on
 the extension, the next step is to tell ExoPlayer to use the extractor and/or
 renderer.
 
-### Using `FlacExtractor` ###
+### Using `FlacExtractor`
 
 `FlacExtractor` is used via `ProgressiveMediaSource`. If you're using
 `DefaultExtractorsFactory`, `FlacExtractor` will automatically be used to read
 `.flac` files. If you're not using `DefaultExtractorsFactory`, return a
 `FlacExtractor` from your `ExtractorsFactory.createExtractors` implementation.
 
-### Using `LibflacAudioRenderer` ###
+### Using `LibflacAudioRenderer`
 
 * If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you can
   enable using the extension by setting the `extensionRendererMode` parameter of
@@ -96,7 +96,7 @@ a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibflacAudioRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
 
-## Using the extension in the demo application ##
+## Using the module in the demo application
 
 To try out playback using the extension in the [demo application][], see
 [enabling extension decoders][].
@@ -104,7 +104,7 @@ To try out playback using the extension in the [demo application][], see
 [demo application]: https://exoplayer.dev/demo-application.html
 [enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
 
-## Links ##
+## Links
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.flac.*`
   belong to this module.

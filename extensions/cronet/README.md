@@ -1,4 +1,4 @@
-# ExoPlayer Cronet extension #
+# ExoPlayer Cronet extension
 
 The Cronet extension is an [HttpDataSource][] implementation that uses
 [Cronet][].
@@ -14,16 +14,16 @@ for most use cases.
 [HttpDataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
 [Cronet]: https://developer.android.com/guide/topics/connectivity/cronet
 
-## Getting the extension ##
+## Getting the module
 
-The easiest way to use the extension is to add it as a gradle dependency:
+The easiest way to get the module is to add it as a gradle dependency:
 
 ```gradle
 implementation 'com.google.android.exoplayer:extension-cronet:2.X.X'
 ```
 
-where `2.X.X` is the version, which must match the version of the ExoPlayer
-library being used.
+where `2.X.X` is the version, which must match the version of the other media
+modules being used.
 
 Alternatively, you can clone the ExoPlayer repository and depend on the module
 locally. Instructions for doing this can be found in ExoPlayer's
@@ -31,7 +31,7 @@ locally. Instructions for doing this can be found in ExoPlayer's
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 
-## Using the extension ##
+## Using the module
 
 ExoPlayer requests data through `DataSource` instances. These instances are
 obtained from instances of `DataSource.Factory`, which are instantiated and
@@ -47,16 +47,16 @@ new DefaultDataSourceFactory(
     /* baseDataSourceFactory= */ new CronetDataSource.Factory(...) );
 ```
 
-## Cronet implementations ##
+## Cronet implementations
 
 To instantiate a `CronetDataSource.Factory` you'll need a `CronetEngine`. A
 `CronetEngine` can be obtained from one of a number of Cronet implementations.
 It's recommended that an application should only have a single `CronetEngine`
 instance.
 
-### Available implementations ###
+### Available implementations
 
-#### Google Play Services ####
+#### Google Play Services
 
 By default, ExoPlayer's Cronet extension depends on
 `com.google.android.gms:play-services-cronet`, which loads an implementation of
@@ -72,7 +72,7 @@ includes one of the alternative Cronet implementations described below, you will
 not be able to instantiate a `CronetEngine` in this case. Your application code
 should handle this by falling back to use `DefaultHttpDataSource` instead.
 
-#### Cronet Embedded ####
+#### Cronet Embedded
 
 Cronet Embedded bundles a full Cronet implementation directly into your
 application. To use it, add an additional dependency on
@@ -84,7 +84,7 @@ use of Cronet Embedded may be appropriate if:
   not widely available.
 * You want to control the exact version of the Cronet implementation being used.
 
-#### Cronet Fallback ####
+#### Cronet Fallback
 
 There's also a fallback implementation of Cronet, which uses Android's default
 network stack under the hood. It can be used by adding a dependency on
@@ -98,7 +98,7 @@ you know when your application's `CronetEngine` has been obtained from the
 fallback implementation. In this case, avoid using it with ExoPlayer and use
 `DefaultHttpDataSource` instead.
 
-### CronetEngine instantiation ###
+### CronetEngine instantiation
 
 Cronet's [Send a simple request][] page documents the simplest way of building a
 `CronetEngine`, which is suitable if your application is only using the
@@ -121,7 +121,7 @@ still using it for other networking performed by your application.
 
 [Send a simple request]: https://developer.android.com/guide/topics/connectivity/cronet/start
 
-## Links ##
+## Links
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.cronet.*`
   belong to this module.

@@ -1,4 +1,4 @@
-# ExoPlayer IMA extension #
+# ExoPlayer IMA extension
 
 The IMA extension is an [AdsLoader][] implementation wrapping the
 [Interactive Media Ads SDK for Android][IMA]. You can use it to insert ads
@@ -7,16 +7,16 @@ alongside content.
 [IMA]: https://developers.google.com/interactive-media-ads/docs/sdks/android/
 [AdsLoader]: https://exoplayer.dev/doc/reference/index.html?com/google/android/exoplayer2/source/ads/AdsLoader.html
 
-## Getting the extension ##
+## Getting the module
 
-The easiest way to use the extension is to add it as a gradle dependency:
+The easiest way to get the module is to add it as a gradle dependency:
 
 ```gradle
 implementation 'com.google.android.exoplayer:extension-ima:2.X.X'
 ```
 
-where `2.X.X` is the version, which must match the version of the ExoPlayer
-library being used.
+where `2.X.X` is the version, which must match the version of the other media
+modules being used.
 
 Alternatively, you can clone the ExoPlayer repository and depend on the module
 locally. Instructions for doing this can be found in ExoPlayer's
@@ -24,7 +24,7 @@ locally. Instructions for doing this can be found in ExoPlayer's
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 
-## Using the extension ##
+## Using the module
 
 To use the extension, follow the instructions on the
 [Ad insertion page](https://exoplayer.dev/ad-insertion.html#declarative-ad-support)
@@ -52,7 +52,7 @@ in the "IMA sample ad tags" section of the sample chooser. The demo app's
 `PlayerActivity` also shows how to persist the `ImaAdsLoader` instance and the
 player position when backgrounded during ad playback.
 
-## Links ##
+## Links
 
 * [ExoPlayer documentation on ad insertion][]
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ima.*`

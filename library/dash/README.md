@@ -1,4 +1,4 @@
-# ExoPlayer DASH library module #
+# ExoPlayer DASH library module
 
 Provides support for Dynamic Adaptive Streaming over HTTP (DASH) content.
 
@@ -16,7 +16,7 @@ For advanced playback use cases, applications can build `DashMediaSource`
 instances and pass them directly to the player. For advanced download use cases,
 `DashDownloader` can be used directly.
 
-## Links ##
+## Links
 
 * [Developer Guide][].
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.source.dash.*`

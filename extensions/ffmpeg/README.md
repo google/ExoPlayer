@@ -1,9 +1,9 @@
-# ExoPlayer FFmpeg extension #
+# ExoPlayer FFmpeg extension
 
 The FFmpeg extension provides `FfmpegAudioRenderer`, which uses FFmpeg for
 decoding and can render audio encoded in a variety of formats.
 
-## License note ##
+## License note
 
 Please note that whilst the code in this repository is licensed under
 [Apache 2.0][], using this extension also requires building and including one or
@@ -11,7 +11,7 @@ more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions (Linux, macOS) ##
+## Build instructions (Linux, macOS)
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -77,14 +77,14 @@ cd "${FFMPEG_EXT_PATH}/jni" && \
   "${FFMPEG_EXT_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
 ```
 
-## Build instructions (Windows) ##
+## Build instructions (Windows)
 
 We do not provide support for building this extension on Windows, however it
 should be possible to follow the Linux instructions in [Windows PowerShell][].
 
 [Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
-## Using the extension ##
+## Using the module
 
 Once you've followed the instructions above to check out, build and depend on
 the extension, the next step is to tell ExoPlayer to use `FfmpegAudioRenderer`.
@@ -116,7 +116,7 @@ then implement your own logic to use the renderer for a given track.
 [#2781]: https://github.com/google/ExoPlayer/issues/2781
 [Supported formats]: https://exoplayer.dev/supported-formats.html#ffmpeg-extension
 
-## Using the extension in the demo application ##
+## Using the module in the demo application
 
 To try out playback using the extension in the [demo application][], see
 [enabling extension decoders][].
@@ -124,7 +124,7 @@ To try out playback using the extension in the [demo application][], see
 [demo application]: https://exoplayer.dev/demo-application.html
 [enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
 
-## Links ##
+## Links
 
 * [Troubleshooting using extensions][]
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ffmpeg.*`

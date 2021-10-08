@@ -1,8 +1,8 @@
-# ExoPlayer UI library module #
+# ExoPlayer UI library module
 
 Provides UI components and resources for use with ExoPlayer.
 
-## Links ##
+## Links
 
 * [Developer Guide][].
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ui.*`

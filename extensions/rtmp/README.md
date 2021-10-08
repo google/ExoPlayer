@@ -1,4 +1,4 @@
-# ExoPlayer RTMP extension #
+# ExoPlayer RTMP extension
 
 The RTMP extension is a [DataSource][] implementation for playing [RTMP][]
 streams using [LibRtmp Client for Android][].
@@ -7,7 +7,7 @@ streams using [LibRtmp Client for Android][].
 [RTMP]: https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol
 [LibRtmp Client for Android]: https://github.com/ant-media/LibRtmp-Client-for-Android
 
-## License note ##
+## License note
 
 Please note that whilst the code in this repository is licensed under
 [Apache 2.0][], using this extension requires depending on LibRtmp Client for
@@ -15,16 +15,16 @@ Android, which is licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Getting the extension ##
+## Getting the module
 
-The easiest way to use the extension is to add it as a gradle dependency:
+The easiest way to get the module is to add it as a gradle dependency:
 
 ```gradle
 implementation 'com.google.android.exoplayer:extension-rtmp:2.X.X'
 ```
 
-where `2.X.X` is the version, which must match the version of the ExoPlayer
-library being used.
+where `2.X.X` is the version, which must match the version of the other media
+modules being used.
 
 Alternatively, you can clone the ExoPlayer repository and depend on the module
 locally. Instructions for doing this can be found in ExoPlayer's
@@ -32,7 +32,7 @@ locally. Instructions for doing this can be found in ExoPlayer's
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 
-## Using the extension ##
+## Using the module
 
 ExoPlayer requests data through `DataSource` instances. These instances are
 obtained from instances of `DataSource.Factory`, which are instantiated and
@@ -47,7 +47,7 @@ doesn't need to handle any other protocols, you can update any
 `DataSource.Factory` instantiations in your application code to use
 `RtmpDataSource.Factory` directly.
 
-## Links ##
+## Links
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.rtmp.*`
   belong to this module.

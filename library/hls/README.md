@@ -1,4 +1,4 @@
-# ExoPlayer HLS library module #
+# ExoPlayer HLS library module
 
 Provides support for HTTP Live Streaming (HLS) content.
 
@@ -16,7 +16,7 @@ For advanced playback use cases, applications can build `HlsMediaSource`
 instances and pass them directly to the player. For advanced download use cases,
 `HlsDownloader` can be used directly.
 
-## Links ##
+## Links
 
 *   [Developer Guide][].
 *   [Javadoc][]: Classes matching `com.google.android.exoplayer2.source.hls.*` belong to

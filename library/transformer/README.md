@@ -1,8 +1,8 @@
-# ExoPlayer transformer library module #
+# ExoPlayer transformer library module
 
 Provides support for transforming media files.
 
-## Links ##
+## Links
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.transformer.*`
   belong to this module.
