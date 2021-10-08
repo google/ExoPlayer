@@ -13,8 +13,8 @@ more external libraries as described below. These are licensed separately.
 
 ## Build instructions (Linux, macOS)
 
-To use this extension you need to clone the ExoPlayer repository and depend on
-its modules locally. Instructions for doing this can be found in ExoPlayer's
+To use the module you need to clone this GitHub project and depend on its
+modules locally. Instructions for doing this can be found in the
 [top level README][].
 
 In addition, it's necessary to build the extension's native components as
