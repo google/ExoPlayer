@@ -38,6 +38,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -82,6 +83,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @RequiresApi(18)
 public final class Transformer {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.transformer");
+  }
 
   /** A builder for {@link Transformer} instances. */
   public static final class Builder {
