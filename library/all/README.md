@@ -1,8 +1,8 @@
 # ExoPlayer full library
 
-An empty module that depends on all of the other library modules. Depending on
-the full library is equivalent to depending on all of the other library modules
-individually. See the [top level README][] for more information.
+An empty module that depends on all of the other ExoPlayer library modules.
+Depending on the full library is equivalent to depending on all of the other
+library modules individually. See the [top level README][] for more information.
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 

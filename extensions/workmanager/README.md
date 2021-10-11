@@ -1,6 +1,6 @@
-# ExoPlayer WorkManager extension
+# ExoPlayer WorkManager module
 
-This extension provides a Scheduler implementation which uses [WorkManager][].
+This module provides a `Scheduler` implementation that uses [WorkManager][].
 
 [WorkManager]: https://developer.android.com/topic/libraries/architecture/workmanager.html
 
@@ -19,3 +19,10 @@ Alternatively, you can clone this GitHub project and depend on the module
 locally. Instructions for doing this can be found in the [top level README][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
+
+## Links
+
+*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.workmanager.*`
+    belong to this module.
+
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html
