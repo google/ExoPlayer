@@ -1,7 +1,7 @@
-# ExoPlayer Media2 extension
+# Media2 module
 
-The Media2 extension provides builders for [SessionPlayer][] and [MediaSession.SessionCallback][] in
-the [Media2 library][].
+The Media2 module provides builders for [SessionPlayer][] and
+[MediaSession.SessionCallback][] in the [Media2 library][].
 
 Compared to [MediaSessionConnector][] that uses [MediaSessionCompat][], this provides finer grained
 control for incoming calls, so you can selectively allow/reject commands per controller.
