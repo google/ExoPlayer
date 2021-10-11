@@ -1,9 +1,7 @@
-# ExoPlayer Cast extension
+# Cast module
 
-## Description
-
-The cast extension is a [Player][] implementation that controls playback on a
-Cast receiver app.
+This module provides a [Player][] implementation that controls a Cast receiver
+app.
 
 [Player]: https://exoplayer.dev/doc/reference/index.html?com/google/android/exoplayer2/Player.html
 
@@ -25,5 +23,14 @@ locally. Instructions for doing this can be found in the [top level README][].
 
 ## Using the module
 
-Create a `CastPlayer` and use it to integrate Cast into your app using
-ExoPlayer's common `Player` interface.
+Create a `CastPlayer` and use it to control a Cast receiver app. Since
+`CastPlayer` implements the `Player` interface, it can be passed to all media
+components that accept a `Player`, including the UI components provided by the
+UI module.
+
+## Links
+
+*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.cast.*` belong to this
+    module.
+
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

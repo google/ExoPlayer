@@ -1322,7 +1322,7 @@ public final class CastPlayer extends BasePlayer {
       currentWindowIndex = timeline.getIndexOfPeriod(currentItem.getItemId());
     }
     if (currentWindowIndex == C.INDEX_UNSET) {
-      // The timeline is empty. Fall back to index 0, which is what ExoPlayer would do.
+      // The timeline is empty. Fall back to index 0.
       currentWindowIndex = 0;
     }
     return currentWindowIndex;
