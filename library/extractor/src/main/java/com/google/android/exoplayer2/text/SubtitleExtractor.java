@@ -199,7 +199,9 @@ public class SubtitleExtractor implements Extractor {
     if (readResult != C.RESULT_END_OF_INPUT) {
       bytesRead += readResult;
     }
-    return readResult == C.RESULT_END_OF_INPUT;
+    long inputLength = input.getLength();
+    return (inputLength != C.LENGTH_UNSET && bytesRead == inputLength)
+        || readResult == C.RESULT_END_OF_INPUT;
   }
 
   /** Decodes the subtitle data and stores the samples in the memory of the extractor. */
