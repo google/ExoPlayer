@@ -1,12 +1,12 @@
-# ExoPlayer VP9 extension
+# ExoPlayer VP9 module
 
-The VP9 extension provides `LibvpxVideoRenderer`, which uses libvpx (the VPx
+The VP9 module provides `LibvpxVideoRenderer`, which uses libvpx (the VPx
 decoding library) to decode VP9 video.
 
 ## License note
 
 Please note that whilst the code in this repository is licensed under
-[Apache 2.0][], using this extension also requires building and including one or
+[Apache 2.0][], using this module also requires building and including one or
 more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
@@ -17,8 +17,7 @@ To use the module you need to clone this GitHub project and depend on its
 modules locally. Instructions for doing this can be found in the
 [top level README][].
 
-In addition, it's necessary to build the extension's native components as
-follows:
+In addition, it's necessary to build the module's native components as follows:
 
 * Set the following environment variables:
 
@@ -46,8 +45,8 @@ git checkout tags/v1.8.0 -b v1.8.0 && \
 LIBVPX_PATH="$(pwd)"
 ```
 
-* Add a link to the libvpx source code in the vp9 extension `jni` directory and
-  run a script that generates necessary configuration files for libvpx:
+*   Add a link to the libvpx source code in the vp9 module `jni` directory and
+    run a script that generates necessary configuration files for libvpx:
 
 ```
 cd ${VP9_EXT_PATH}/jni && \
@@ -67,8 +66,8 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 
 ## Build instructions (Windows)
 
-We do not provide support for building this extension on Windows, however it
-should be possible to follow the Linux instructions in [Windows PowerShell][].
+We do not provide support for building this module on Windows, however it should
+be possible to follow the Linux instructions in [Windows PowerShell][].
 
 [Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
@@ -89,22 +88,23 @@ Once you've followed the instructions above to check out, build and depend on
 the extension, the next step is to tell ExoPlayer to use `LibvpxVideoRenderer`.
 How you do this depends on which player API you're using:
 
-* If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you can
-  enable using the extension by setting the `extensionRendererMode` parameter of
-  the `DefaultRenderersFactory` constructor to `EXTENSION_RENDERER_MODE_ON`.
-  This will use `LibvpxVideoRenderer` for playback if `MediaCodecVideoRenderer`
-  doesn't support decoding the input VP9 stream. Pass
-  `EXTENSION_RENDERER_MODE_PREFER` to give `LibvpxVideoRenderer` priority over
-  `MediaCodecVideoRenderer`.
-* If you've subclassed `DefaultRenderersFactory`, add a `LibvpxVideoRenderer`
-  to the output list in `buildVideoRenderers`. ExoPlayer will use the first
-  `Renderer` in the list that supports the input media format.
-* If you've implemented your own `RenderersFactory`, return a
-  `LibvpxVideoRenderer` instance from `createRenderers`. ExoPlayer will use the
-  first `Renderer` in the returned array that supports the input media format.
-* If you're using `ExoPlayer.Builder`, pass a `LibvpxVideoRenderer` in the array
-  of `Renderer`s. ExoPlayer will use the first `Renderer` in the list that
-  supports the input media format.
+*   If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you
+    can enable using the module by setting the `extensionRendererMode` parameter
+    of the `DefaultRenderersFactory` constructor to
+    `EXTENSION_RENDERER_MODE_ON`. This will use `LibvpxVideoRenderer` for
+    playback if `MediaCodecVideoRenderer` doesn't support decoding the input VP9
+    stream. Pass `EXTENSION_RENDERER_MODE_PREFER` to give `LibvpxVideoRenderer`
+    priority over `MediaCodecVideoRenderer`.
+*   If you've subclassed `DefaultRenderersFactory`, add a `LibvpxVideoRenderer`
+    to the output list in `buildVideoRenderers`. ExoPlayer will use the first
+    `Renderer` in the list that supports the input media format.
+*   If you've implemented your own `RenderersFactory`, return a
+    `LibvpxVideoRenderer` instance from `createRenderers`. ExoPlayer will use
+    the first `Renderer` in the returned array that supports the input media
+    format.
+*   If you're using `ExoPlayer.Builder`, pass a `LibvpxVideoRenderer` in the
+    array of `Renderer`s. ExoPlayer will use the first `Renderer` in the list
+    that supports the input media format.
 
 Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation,
@@ -113,7 +113,7 @@ player, then implement your own logic to use the renderer for a given track.
 
 ## Using the module in the demo application
 
-To try out playback using the extension in the [demo application][], see
+To try out playback using the module in the [demo application][], see
 [enabling extension decoders][].
 
 [demo application]: https://exoplayer.dev/demo-application.html

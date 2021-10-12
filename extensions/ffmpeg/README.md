@@ -1,12 +1,12 @@
-# ExoPlayer FFmpeg extension
+# ExoPlayer FFmpeg module
 
-The FFmpeg extension provides `FfmpegAudioRenderer`, which uses FFmpeg for
-decoding and can render audio encoded in a variety of formats.
+The FFmpeg module provides `FfmpegAudioRenderer`, which uses FFmpeg for decoding
+and can render audio encoded in a variety of formats.
 
 ## License note
 
 Please note that whilst the code in this repository is licensed under
-[Apache 2.0][], using this extension also requires building and including one or
+[Apache 2.0][], using this module also requires building and including one or
 more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
@@ -15,8 +15,8 @@ more external libraries as described below. These are licensed separately.
 
 To use the module you need to clone this GitHub project and depend on its
 modules locally. Instructions for doing this can be found in the
-[top level README][]. The extension is not provided via Google's Maven
-repository (see [#2781][] for more information).
+[top level README][]. The module is not provided via Google's Maven repository
+(see [#2781][] for more information).
 
 In addition, it's necessary to manually build the FFmpeg library, so that gradle
 can bundle the FFmpeg binaries in the APK:
@@ -60,7 +60,7 @@ FFMPEG_PATH="$(pwd)"
 ENABLED_DECODERS=(vorbis opus flac)
 ```
 
-* Add a link to the FFmpeg source code in the FFmpeg extension `jni` directory.
+*   Add a link to the FFmpeg source code in the FFmpeg module `jni` directory.
 
 ```
 cd "${FFMPEG_EXT_PATH}/jni" && \
@@ -79,32 +79,34 @@ cd "${FFMPEG_EXT_PATH}/jni" && \
 
 ## Build instructions (Windows)
 
-We do not provide support for building this extension on Windows, however it
-should be possible to follow the Linux instructions in [Windows PowerShell][].
+We do not provide support for building this module on Windows, however it should
+be possible to follow the Linux instructions in [Windows PowerShell][].
 
 [Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
 ## Using the module
 
 Once you've followed the instructions above to check out, build and depend on
-the extension, the next step is to tell ExoPlayer to use `FfmpegAudioRenderer`.
-How you do this depends on which player API you're using:
+the module, the next step is to tell ExoPlayer to use `FfmpegAudioRenderer`. How
+you do this depends on which player API you're using:
 
-* If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you can
-  enable using the extension by setting the `extensionRendererMode` parameter of
-  the `DefaultRenderersFactory` constructor to `EXTENSION_RENDERER_MODE_ON`.
-  This will use `FfmpegAudioRenderer` for playback if `MediaCodecAudioRenderer`
-  doesn't support the input format. Pass `EXTENSION_RENDERER_MODE_PREFER` to
-  give `FfmpegAudioRenderer` priority over `MediaCodecAudioRenderer`.
-* If you've subclassed `DefaultRenderersFactory`, add an `FfmpegAudioRenderer`
-  to the output list in `buildAudioRenderers`. ExoPlayer will use the first
-  `Renderer` in the list that supports the input media format.
-* If you've implemented your own `RenderersFactory`, return an
-  `FfmpegAudioRenderer` instance from `createRenderers`. ExoPlayer will use the
-  first `Renderer` in the returned array that supports the input media format.
-* If you're using `ExoPlayer.Builder`, pass an `FfmpegAudioRenderer` in the
-  array of `Renderer`s. ExoPlayer will use the first `Renderer` in the list that
-  supports the input media format.
+*   If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you
+    can enable using the module by setting the `extensionRendererMode` parameter
+    of the `DefaultRenderersFactory` constructor to
+    `EXTENSION_RENDERER_MODE_ON`. This will use `FfmpegAudioRenderer` for
+    playback if `MediaCodecAudioRenderer` doesn't support the input format. Pass
+    `EXTENSION_RENDERER_MODE_PREFER` to give `FfmpegAudioRenderer` priority over
+    `MediaCodecAudioRenderer`.
+*   If you've subclassed `DefaultRenderersFactory`, add an `FfmpegAudioRenderer`
+    to the output list in `buildAudioRenderers`. ExoPlayer will use the first
+    `Renderer` in the list that supports the input media format.
+*   If you've implemented your own `RenderersFactory`, return an
+    `FfmpegAudioRenderer` instance from `createRenderers`. ExoPlayer will use
+    the first `Renderer` in the returned array that supports the input media
+    format.
+*   If you're using `ExoPlayer.Builder`, pass an `FfmpegAudioRenderer` in the
+    array of `Renderer`s. ExoPlayer will use the first `Renderer` in the list
+    that supports the input media format.
 
 Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation,
@@ -118,7 +120,7 @@ then implement your own logic to use the renderer for a given track.
 
 ## Using the module in the demo application
 
-To try out playback using the extension in the [demo application][], see
+To try out playback using the module in the [demo application][], see
 [enabling extension decoders][].
 
 [demo application]: https://exoplayer.dev/demo-application.html
