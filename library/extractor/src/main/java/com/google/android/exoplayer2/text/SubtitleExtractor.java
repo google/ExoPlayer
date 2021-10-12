@@ -212,6 +212,7 @@ public class SubtitleExtractor implements Extractor {
       }
       inputBuffer.ensureSpaceForWrite(bytesRead);
       inputBuffer.data.put(subtitleData.getData(), /* offset= */ 0, bytesRead);
+      inputBuffer.data.limit(bytesRead);
       subtitleDecoder.queueInputBuffer(inputBuffer);
       @Nullable SubtitleOutputBuffer outputBuffer = subtitleDecoder.dequeueOutputBuffer();
       while (outputBuffer == null) {

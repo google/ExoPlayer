@@ -44,7 +44,7 @@ public class SubtitleExtractorTest {
           + "This is the second subtitle.\n"
           + "\n"
           + "00:02.600 --> 00:04.567\n"
-          + "This is the third subtitle.";
+          + "This is the third subtitle.\n";
 
   @Test
   public void extractor_outputsCues() throws Exception {
