@@ -85,7 +85,7 @@ be possible to follow the Linux instructions in [Windows PowerShell][].
 ## Using the module
 
 Once you've followed the instructions above to check out, build and depend on
-the extension, the next step is to tell ExoPlayer to use `LibvpxVideoRenderer`.
+the module, the next step is to tell ExoPlayer to use `LibvpxVideoRenderer`.
 How you do this depends on which player API you're using:
 
 *   If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you
