@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,6 +67,19 @@ public final class MkvPlaybackTest {
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
+    // TODO(internal b/174661563): Remove the for-loop below to enable the text renderer when
+    //  subtitle output is not flaky.
+    for (int textRendererIndex = 0;
+        textRendererIndex < player.getRendererCount();
+        textRendererIndex++) {
+      if (player.getRendererType(textRendererIndex) == C.TRACK_TYPE_TEXT) {
+        player.setTrackSelectionParameters(
+            new DefaultTrackSelector.ParametersBuilder(applicationContext)
+                .setRendererDisabled(textRendererIndex, /* disabled= */ true)
+                .build());
+        break;
+      }
+    }
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 

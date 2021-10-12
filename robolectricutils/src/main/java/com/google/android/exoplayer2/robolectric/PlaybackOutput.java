@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.robolectric;
 
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.dvbsi.AppInfoTable;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
@@ -55,8 +55,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
   private final List<Metadata> metadatas;
   private final List<List<Cue>> subtitles;
 
-  private PlaybackOutput(
-      SimpleExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
+  private PlaybackOutput(ExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
     this.capturingRenderersFactory = capturingRenderersFactory;
 
     metadatas = Collections.synchronizedList(new ArrayList<>());
@@ -73,7 +72,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
 
           @Override
           public void onCues(List<Cue> cues) {
-            // TODO(internal b/174661563): Output subtitle data when it's not flaky.
+            subtitles.add(cues);
           }
         });
   }
@@ -85,13 +84,13 @@ public final class PlaybackOutput implements Dumper.Dumpable {
    * <p>Must be called <b>before</b> playback to ensure metadata and text output is captured
    * correctly.
    *
-   * @param player The {@link SimpleExoPlayer} to capture metadata and text output from.
+   * @param player The {@link ExoPlayer} to capture metadata and text output from.
    * @param capturingRenderersFactory The {@link CapturingRenderersFactory} to capture audio and
    *     video output from.
    * @return A new instance that can be used to dump the playback output.
    */
   public static PlaybackOutput register(
-      SimpleExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
+      ExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
     return new PlaybackOutput(player, capturingRenderersFactory);
   }
 
