@@ -7349,7 +7349,7 @@ public final class ExoPlayerTest {
           }
         };
     AtomicReference<Timeline> timelineAfterError = new AtomicReference<>();
-    AtomicReference<TrackGroupArray> trackGroupsAfterError = new AtomicReference<>();
+    AtomicReference<TracksInfo> trackInfosAfterError = new AtomicReference<>();
     AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
     AtomicInteger windowIndexAfterError = new AtomicInteger();
     ActionSchedule actionSchedule =
@@ -7363,7 +7363,7 @@ public final class ExoPlayerTest {
                           @Override
                           public void onPlayerError(EventTime eventTime, PlaybackException error) {
                             timelineAfterError.set(player.getCurrentTimeline());
-                            trackGroupsAfterError.set(player.getCurrentTrackGroups());
+                            trackInfosAfterError.set(player.getCurrentTracksInfo());
                             trackSelectionsAfterError.set(player.getCurrentTrackSelections());
                             windowIndexAfterError.set(player.getCurrentWindowIndex());
                           }
@@ -7393,8 +7393,8 @@ public final class ExoPlayerTest {
 
     assertThat(timelineAfterError.get().getWindowCount()).isEqualTo(1);
     assertThat(windowIndexAfterError.get()).isEqualTo(0);
-    assertThat(trackGroupsAfterError.get().length).isEqualTo(1);
-    assertThat(trackGroupsAfterError.get().get(0).getFormat(0))
+    assertThat(trackInfosAfterError.get().getTrackGroupInfos()).hasSize(1);
+    assertThat(trackInfosAfterError.get().getTrackGroupInfos().get(0).getTrackGroup().getFormat(0))
         .isEqualTo(ExoPlayerTestRunner.AUDIO_FORMAT);
     assertThat(trackSelectionsAfterError.get().get(0)).isNull(); // Video renderer.
     assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.

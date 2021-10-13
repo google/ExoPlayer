@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
@@ -46,11 +47,8 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -69,7 +67,7 @@ public class PlayerActivity extends AppCompatActivity
 
   // Saved instance state keys.
 
-  private static final String KEY_TRACK_SELECTOR_PARAMETERS = "track_selector_parameters";
+  private static final String KEY_TRACK_SELECTION_PARAMETERS = "track_selection_parameters";
   private static final String KEY_WINDOW = "window";
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
@@ -84,9 +82,9 @@ public class PlayerActivity extends AppCompatActivity
   private DataSource.Factory dataSourceFactory;
   private List<MediaItem> mediaItems;
   private DefaultTrackSelector trackSelector;
-  private DefaultTrackSelector.Parameters trackSelectorParameters;
+  private DefaultTrackSelector.Parameters trackSelectionParameters;
   private DebugTextViewHelper debugViewHelper;
-  private TrackGroupArray lastSeenTrackGroupArray;
+  private TracksInfo lastSeenTracksInfo;
   private boolean startAutoPlay;
   private int startWindow;
   private long startPosition;
@@ -114,16 +112,16 @@ public class PlayerActivity extends AppCompatActivity
     playerView.requestFocus();
 
     if (savedInstanceState != null) {
-      trackSelectorParameters =
+      // Restore as DefaultTrackSelector.Parameters in case ExoPlayer specific parameters were set.
+      trackSelectionParameters =
           DefaultTrackSelector.Parameters.CREATOR.fromBundle(
-              savedInstanceState.getBundle(KEY_TRACK_SELECTOR_PARAMETERS));
+              savedInstanceState.getBundle(KEY_TRACK_SELECTION_PARAMETERS));
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
       startWindow = savedInstanceState.getInt(KEY_WINDOW);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
     } else {
-      DefaultTrackSelector.ParametersBuilder builder =
-          new DefaultTrackSelector.ParametersBuilder(/* context= */ this);
-      trackSelectorParameters = builder.build();
+      trackSelectionParameters =
+          new DefaultTrackSelector.ParametersBuilder(/* context= */ this).build();
       clearStartPosition();
     }
   }
@@ -209,7 +207,7 @@ public class PlayerActivity extends AppCompatActivity
     super.onSaveInstanceState(outState);
     updateTrackSelectorParameters();
     updateStartPosition();
-    outState.putBundle(KEY_TRACK_SELECTOR_PARAMETERS, trackSelectorParameters.toBundle());
+    outState.putBundle(KEY_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle());
     outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
     outState.putInt(KEY_WINDOW, startWindow);
     outState.putLong(KEY_POSITION, startPosition);
@@ -272,13 +270,13 @@ public class PlayerActivity extends AppCompatActivity
               .setAdViewProvider(playerView);
 
       trackSelector = new DefaultTrackSelector(/* context= */ this);
-      trackSelector.setParameters(trackSelectorParameters);
-      lastSeenTrackGroupArray = null;
+      lastSeenTracksInfo = TracksInfo.EMPTY;
       player =
           new ExoPlayer.Builder(/* context= */ this, renderersFactory)
               .setMediaSourceFactory(mediaSourceFactory)
               .setTrackSelector(trackSelector)
               .build();
+      player.setTrackSelectionParameters(trackSelectionParameters);
       player.addListener(new PlayerEventListener());
       player.addAnalyticsListener(new EventLogger(trackSelector));
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
@@ -361,7 +359,6 @@ public class PlayerActivity extends AppCompatActivity
       player.release();
       player = null;
       mediaItems = Collections.emptyList();
-      trackSelector = null;
     }
     if (adsLoader != null) {
       adsLoader.setPlayer(null);
@@ -377,8 +374,11 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private void updateTrackSelectorParameters() {
-    if (trackSelector != null) {
-      trackSelectorParameters = trackSelector.getParameters();
+    if (player != null) {
+      // Until the demo app is fully migrated to TrackSelectionParameters, rely on ExoPlayer to use
+      // DefaultTrackSelector by default.
+      trackSelectionParameters =
+          (DefaultTrackSelector.Parameters) player.getTrackSelectionParameters();
     }
   }
 
@@ -438,23 +438,18 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     @SuppressWarnings("ReferenceEquality")
-    public void onTracksChanged(
-        @NonNull TrackGroupArray trackGroups, @NonNull TrackSelectionArray trackSelections) {
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
       updateButtonVisibility();
-      if (trackGroups != lastSeenTrackGroupArray) {
-        MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-        if (mappedTrackInfo != null) {
-          if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
-              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-            showToast(R.string.error_unsupported_video);
-          }
-          if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_AUDIO)
-              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-            showToast(R.string.error_unsupported_audio);
-          }
-        }
-        lastSeenTrackGroupArray = trackGroups;
+      if (tracksInfo == lastSeenTracksInfo) {
+        return;
       }
+      if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)) {
+        showToast(R.string.error_unsupported_video);
+      }
+      if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)) {
+        showToast(R.string.error_unsupported_audio);
+      }
+      lastSeenTracksInfo = tracksInfo;
     }
   }
 

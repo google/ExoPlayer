@@ -48,7 +48,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
@@ -58,12 +57,9 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -1296,7 +1292,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   private void updateForCurrentTrackSelections(boolean isNewPlayer) {
     @Nullable Player player = this.player;
-    if (player == null || player.getCurrentTrackGroups().isEmpty()) {
+    if (player == null || player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
       if (!keepContentOnPlayerReset) {
         hideArtwork();
         closeShutter();
@@ -1309,20 +1305,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       closeShutter();
     }
 
-    TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
-    for (int i = 0; i < trackSelections.length; i++) {
-      @Nullable TrackSelection trackSelection = trackSelections.get(i);
-      if (trackSelection != null) {
-        for (int j = 0; j < trackSelection.length(); j++) {
-          Format format = trackSelection.getFormat(j);
-          if (MimeTypes.getTrackType(format.sampleMimeType) == C.TRACK_TYPE_VIDEO) {
-            // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
-            // in onRenderedFirstFrame().
-            hideArtwork();
-            return;
-          }
-        }
-      }
+    if (player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+      // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
+      // in onRenderedFirstFrame().
+      hideArtwork();
+      return;
     }
 
     // Video disabled so the shutter must be closed.
@@ -1558,7 +1545,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
-      } else if (!player.getCurrentTrackGroups().isEmpty()) {
+      } else if (!player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
         lastPeriodUidWithTracks =
             timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
       } else if (lastPeriodUidWithTracks != null) {

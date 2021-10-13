@@ -32,6 +32,8 @@ import static com.google.android.exoplayer2.Player.EVENT_SEEK_FORWARD_INCREMENT_
 import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TRACKS_CHANGED;
+import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.clearTrackSelectionOverridesForType;
+import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.forceTrackSelection;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -59,7 +61,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
@@ -67,24 +68,23 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -437,9 +437,8 @@ public class StyledPlayerControlView extends FrameLayout {
   private boolean needToHideBars;
   private int settingsWindowMargin;
 
-  @Nullable private DefaultTrackSelector trackSelector;
-  private TrackSelectionAdapter textTrackSelectionAdapter;
-  private TrackSelectionAdapter audioTrackSelectionAdapter;
+  private TextTrackSelectionAdapter textTrackSelectionAdapter;
+  private AudioTrackSelectionAdapter audioTrackSelectionAdapter;
   // TODO(insun): Add setTrackNameProvider to use customized track name provider.
   private TrackNameProvider trackNameProvider;
 
@@ -764,14 +763,6 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player instanceof ForwardingPlayer) {
       player = ((ForwardingPlayer) player).getWrappedPlayer();
     }
-    if (player instanceof ExoPlayer) {
-      TrackSelector trackSelector = ((ExoPlayer) player).getTrackSelector();
-      if (trackSelector instanceof DefaultTrackSelector) {
-        this.trackSelector = (DefaultTrackSelector) trackSelector;
-      }
-    } else {
-      this.trackSelector = null;
-    }
     updateAll();
   }
 
@@ -818,7 +809,7 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param listener The listener to be notified about visibility changes.
    */
   public void addVisibilityListener(VisibilityListener listener) {
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     visibilityListeners.add(listener);
   }
 
@@ -1254,58 +1245,46 @@ public class StyledPlayerControlView extends FrameLayout {
   private void initTrackSelectionAdapter() {
     textTrackSelectionAdapter.clear();
     audioTrackSelectionAdapter.clear();
-    if (player == null || trackSelector == null) {
+    if (player == null
+        || !player.isCommandAvailable(Player.COMMAND_GET_TRACK_INFOS)
+        || !player.isCommandAvailable(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
       return;
     }
-    DefaultTrackSelector trackSelector = this.trackSelector;
-    @Nullable MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-    if (mappedTrackInfo == null) {
+    TracksInfo tracksInfo = player.getCurrentTracksInfo();
+    List<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
+    if (trackGroupInfos.isEmpty()) {
       return;
     }
-    List<TrackInfo> textTracks = new ArrayList<>();
-    List<TrackInfo> audioTracks = new ArrayList<>();
-    List<Integer> textRendererIndices = new ArrayList<>();
-    List<Integer> audioRendererIndices = new ArrayList<>();
-    for (int rendererIndex = 0;
-        rendererIndex < mappedTrackInfo.getRendererCount();
-        rendererIndex++) {
-      if (mappedTrackInfo.getRendererType(rendererIndex) == C.TRACK_TYPE_TEXT
+    List<TrackInformation> textTracks = new ArrayList<>();
+    List<TrackInformation> audioTracks = new ArrayList<>();
+    for (int trackGroupIndex = 0; trackGroupIndex < trackGroupInfos.size(); trackGroupIndex++) {
+      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(trackGroupIndex);
+      if (!trackGroupInfo.isSupported()) {
+        continue;
+      }
+      if (trackGroupInfo.getTrackType() == C.TRACK_TYPE_TEXT
           && controlViewLayoutManager.getShowButton(subtitleButton)) {
         // Get TrackSelection at the corresponding renderer index.
-        gatherTrackInfosForAdapter(mappedTrackInfo, rendererIndex, textTracks);
-        textRendererIndices.add(rendererIndex);
-      } else if (mappedTrackInfo.getRendererType(rendererIndex) == C.TRACK_TYPE_AUDIO) {
-        gatherTrackInfosForAdapter(mappedTrackInfo, rendererIndex, audioTracks);
-        audioRendererIndices.add(rendererIndex);
+        gatherTrackInfosForAdapter(tracksInfo, trackGroupIndex, textTracks);
+      } else if (trackGroupInfo.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        gatherTrackInfosForAdapter(tracksInfo, trackGroupIndex, audioTracks);
       }
     }
-    textTrackSelectionAdapter.init(textRendererIndices, textTracks, mappedTrackInfo);
-    audioTrackSelectionAdapter.init(audioRendererIndices, audioTracks, mappedTrackInfo);
+    textTrackSelectionAdapter.init(textTracks);
+    audioTrackSelectionAdapter.init(audioTracks);
   }
 
   private void gatherTrackInfosForAdapter(
-      MappedTrackInfo mappedTrackInfo, int rendererIndex, List<TrackInfo> tracks) {
-    TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(rendererIndex);
+      TracksInfo tracksInfo, int trackGroupIndex, List<TrackInformation> tracks) {
 
-    TrackSelectionArray trackSelections = checkNotNull(player).getCurrentTrackSelections();
-    @Nullable TrackSelection trackSelection = trackSelections.get(rendererIndex);
-
-    for (int groupIndex = 0; groupIndex < trackGroupArray.length; groupIndex++) {
-      TrackGroup trackGroup = trackGroupArray.get(groupIndex);
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        Format format = trackGroup.getFormat(trackIndex);
-        if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
-            == C.FORMAT_HANDLED) {
-          boolean trackIsSelected =
-              trackSelection != null && trackSelection.indexOf(format) != C.INDEX_UNSET;
-          tracks.add(
-              new TrackInfo(
-                  rendererIndex,
-                  groupIndex,
-                  trackIndex,
-                  trackNameProvider.getTrackName(format),
-                  trackIsSelected));
-        }
+    TrackGroupInfo trackGroupInfo = tracksInfo.getTrackGroupInfos().get(trackGroupIndex);
+    TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
+    for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+      Format format = trackGroup.getFormat(trackIndex);
+      if (trackGroupInfo.isTrackSupported(trackIndex)) {
+        tracks.add(
+            new TrackInformation(
+                tracksInfo, trackGroupIndex, trackIndex, trackNameProvider.getTrackName(format)));
       }
     }
   }
@@ -1988,33 +1967,36 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private static final class TrackInfo {
+  private static final class TrackInformation {
 
-    public final int rendererIndex;
-    public final int groupIndex;
+    private TracksInfo tracksInfo;
+    private int trackGroupIndex;
+    public final TrackGroupInfo trackGroupInfo;
+    public final TrackGroup trackGroup;
     public final int trackIndex;
     public final String trackName;
-    public final boolean selected;
 
-    public TrackInfo(
-        int rendererIndex, int groupIndex, int trackIndex, String trackName, boolean selected) {
-      this.rendererIndex = rendererIndex;
-      this.groupIndex = groupIndex;
+    public TrackInformation(
+        TracksInfo tracksInfo, int trackGroupIndex, int trackIndex, String trackName) {
+      this.tracksInfo = tracksInfo;
+      this.trackGroupIndex = trackGroupIndex;
+      this.trackGroupInfo = tracksInfo.getTrackGroupInfos().get(trackGroupIndex);
+      this.trackGroup = trackGroupInfo.getTrackGroup();
       this.trackIndex = trackIndex;
       this.trackName = trackName;
-      this.selected = selected;
+    }
+
+    public boolean isSelected() {
+      return trackGroupInfo.isTrackSelected(trackIndex);
     }
   }
 
   private final class TextTrackSelectionAdapter extends TrackSelectionAdapter {
     @Override
-    public void init(
-        List<Integer> rendererIndices,
-        List<TrackInfo> trackInfos,
-        MappedTrackInfo mappedTrackInfo) {
+    public void init(List<TrackInformation> trackInformations) {
       boolean subtitleIsOn = false;
-      for (int i = 0; i < trackInfos.size(); i++) {
-        if (trackInfos.get(i).selected) {
+      for (int i = 0; i < trackInformations.size(); i++) {
+        if (trackInformations.get(i).isSelected()) {
           subtitleIsOn = true;
           break;
         }
@@ -2026,9 +2008,7 @@ public class StyledPlayerControlView extends FrameLayout {
         subtitleButton.setContentDescription(
             subtitleIsOn ? subtitleOnContentDescription : subtitleOffContentDescription);
       }
-      this.rendererIndices = rendererIndices;
-      this.tracks = trackInfos;
-      this.mappedTrackInfo = mappedTrackInfo;
+      this.tracks = trackInformations;
     }
 
     @Override
@@ -2037,7 +2017,7 @@ public class StyledPlayerControlView extends FrameLayout {
       holder.textView.setText(R.string.exo_track_selection_none);
       boolean isTrackSelectionOff = true;
       for (int i = 0; i < tracks.size(); i++) {
-        if (tracks.get(i).selected) {
+        if (tracks.get(i).isSelected()) {
           isTrackSelectionOff = false;
           break;
         }
@@ -2045,16 +2025,18 @@ public class StyledPlayerControlView extends FrameLayout {
       holder.checkView.setVisibility(isTrackSelectionOff ? VISIBLE : INVISIBLE);
       holder.itemView.setOnClickListener(
           v -> {
-            if (trackSelector != null) {
-              ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-              for (int i = 0; i < rendererIndices.size(); i++) {
-                int rendererIndex = rendererIndices.get(i);
-                parametersBuilder =
-                    parametersBuilder
-                        .clearSelectionOverrides(rendererIndex)
-                        .setRendererDisabled(rendererIndex, true);
-              }
-              checkNotNull(trackSelector).setParameters(parametersBuilder);
+            if (player != null) {
+              TrackSelectionParameters trackSelectionParameters =
+                  player.getTrackSelectionParameters();
+              player.setTrackSelectionParameters(
+                  trackSelectionParameters
+                      .buildUpon()
+                      .setDisabledTrackTypes(
+                          new ImmutableSet.Builder<@C.TrackType Integer>()
+                              .addAll(trackSelectionParameters.disabledTrackTypes)
+                              .add(C.TRACK_TYPE_TEXT)
+                              .build())
+                      .build());
               settingsWindow.dismiss();
             }
           });
@@ -2064,8 +2046,8 @@ public class StyledPlayerControlView extends FrameLayout {
     public void onBindViewHolder(SubSettingViewHolder holder, int position) {
       super.onBindViewHolder(holder, position);
       if (position > 0) {
-        TrackInfo track = tracks.get(position - 1);
-        holder.checkView.setVisibility(track.selected ? VISIBLE : INVISIBLE);
+        TrackInformation track = tracks.get(position - 1);
+        holder.checkView.setVisibility(track.isSelected() ? VISIBLE : INVISIBLE);
       }
     }
 
@@ -2083,11 +2065,9 @@ public class StyledPlayerControlView extends FrameLayout {
       holder.textView.setText(R.string.exo_track_selection_auto);
       // hasSelectionOverride is true means there is an explicit track selection, not "Auto".
       boolean hasSelectionOverride = false;
-      DefaultTrackSelector.Parameters parameters = checkNotNull(trackSelector).getParameters();
-      for (int i = 0; i < rendererIndices.size(); i++) {
-        int rendererIndex = rendererIndices.get(i);
-        TrackGroupArray trackGroups = checkNotNull(mappedTrackInfo).getTrackGroups(rendererIndex);
-        if (parameters.hasSelectionOverride(rendererIndex, trackGroups)) {
+      TrackSelectionParameters parameters = checkNotNull(player).getTrackSelectionParameters();
+      for (int i = 0; i < tracks.size(); i++) {
+        if (parameters.trackSelectionOverrides.containsKey(tracks.get(i).trackGroup)) {
           hasSelectionOverride = true;
           break;
         }
@@ -2095,14 +2075,20 @@ public class StyledPlayerControlView extends FrameLayout {
       holder.checkView.setVisibility(hasSelectionOverride ? INVISIBLE : VISIBLE);
       holder.itemView.setOnClickListener(
           v -> {
-            if (trackSelector != null) {
-              ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-              for (int i = 0; i < rendererIndices.size(); i++) {
-                int rendererIndex = rendererIndices.get(i);
-                parametersBuilder = parametersBuilder.clearSelectionOverrides(rendererIndex);
-              }
-              checkNotNull(trackSelector).setParameters(parametersBuilder);
+            if (player == null) {
+              return;
             }
+            TrackSelectionParameters trackSelectionParameters =
+                player.getTrackSelectionParameters();
+            // Remove all audio overrides.
+            ImmutableMap<TrackGroup, TrackSelectionOverride> trackSelectionOverrides =
+                clearTrackSelectionOverridesForType(
+                    C.TRACK_TYPE_AUDIO, trackSelectionParameters.trackSelectionOverrides);
+            player.setTrackSelectionParameters(
+                trackSelectionParameters
+                    .buildUpon()
+                    .setTrackSelectionOverrides(trackSelectionOverrides)
+                    .build());
             settingsAdapter.setSubTextAtPosition(
                 SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
                 getResources().getString(R.string.exo_track_selection_auto));
@@ -2116,22 +2102,19 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void init(
-        List<Integer> rendererIndices,
-        List<TrackInfo> trackInfos,
-        MappedTrackInfo mappedTrackInfo) {
+    public void init(List<TrackInformation> trackInformations) {
       // Update subtext in settings menu with current audio track selection.
       boolean hasSelectionOverride = false;
-      for (int i = 0; i < rendererIndices.size(); i++) {
-        int rendererIndex = rendererIndices.get(i);
-        TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-        if (trackSelector != null
-            && trackSelector.getParameters().hasSelectionOverride(rendererIndex, trackGroups)) {
+      for (int i = 0; i < trackInformations.size(); i++) {
+        if (checkNotNull(player)
+            .getTrackSelectionParameters()
+            .trackSelectionOverrides
+            .containsKey(trackInformations.get(i).trackGroup)) {
           hasSelectionOverride = true;
           break;
         }
       }
-      if (trackInfos.isEmpty()) {
+      if (trackInformations.isEmpty()) {
         settingsAdapter.setSubTextAtPosition(
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_none));
@@ -2142,35 +2125,28 @@ public class StyledPlayerControlView extends FrameLayout {
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_auto));
       } else {
-        for (int i = 0; i < trackInfos.size(); i++) {
-          TrackInfo track = trackInfos.get(i);
-          if (track.selected) {
+        for (int i = 0; i < trackInformations.size(); i++) {
+          TrackInformation track = trackInformations.get(i);
+          if (track.isSelected()) {
             settingsAdapter.setSubTextAtPosition(
                 SETTINGS_AUDIO_TRACK_SELECTION_POSITION, track.trackName);
             break;
           }
         }
       }
-      this.rendererIndices = rendererIndices;
-      this.tracks = trackInfos;
-      this.mappedTrackInfo = mappedTrackInfo;
+      this.tracks = trackInformations;
     }
   }
 
   private abstract class TrackSelectionAdapter extends RecyclerView.Adapter<SubSettingViewHolder> {
 
-    protected List<Integer> rendererIndices;
-    protected List<TrackInfo> tracks;
-    protected @Nullable MappedTrackInfo mappedTrackInfo;
+    protected List<TrackInformation> tracks;
 
-    public TrackSelectionAdapter() {
-      this.rendererIndices = new ArrayList<>();
+    protected TrackSelectionAdapter() {
       this.tracks = new ArrayList<>();
-      this.mappedTrackInfo = null;
     }
 
-    public abstract void init(
-        List<Integer> rendererIndices, List<TrackInfo> trackInfos, MappedTrackInfo mappedTrackInfo);
+    public abstract void init(List<TrackInformation> trackInformations);
 
     @Override
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -2181,52 +2157,48 @@ public class StyledPlayerControlView extends FrameLayout {
       return new SubSettingViewHolder(v);
     }
 
-    public abstract void onBindViewHolderAtZeroPosition(SubSettingViewHolder holder);
+    protected abstract void onBindViewHolderAtZeroPosition(SubSettingViewHolder holder);
 
-    public abstract void onTrackSelection(String subtext);
+    protected abstract void onTrackSelection(String subtext);
 
     @Override
     public void onBindViewHolder(SubSettingViewHolder holder, int position) {
-      if (trackSelector == null || mappedTrackInfo == null) {
+      if (player == null) {
         return;
       }
       if (position == 0) {
         onBindViewHolderAtZeroPosition(holder);
       } else {
-        TrackInfo track = tracks.get(position - 1);
-        TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(track.rendererIndex);
+        TrackInformation track = tracks.get(position - 1);
         boolean explicitlySelected =
-            checkNotNull(trackSelector)
-                    .getParameters()
-                    .hasSelectionOverride(track.rendererIndex, trackGroups)
-                && track.selected;
+            checkNotNull(player)
+                    .getTrackSelectionParameters()
+                    .trackSelectionOverrides
+                    .containsKey(track.trackGroup)
+                && track.isSelected();
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
             v -> {
-              if (mappedTrackInfo != null && trackSelector != null) {
-                ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-                for (int i = 0; i < rendererIndices.size(); i++) {
-                  int rendererIndex = rendererIndices.get(i);
-                  if (rendererIndex == track.rendererIndex) {
-                    parametersBuilder =
-                        parametersBuilder
-                            .setSelectionOverride(
-                                rendererIndex,
-                                checkNotNull(mappedTrackInfo).getTrackGroups(rendererIndex),
-                                new SelectionOverride(track.groupIndex, track.trackIndex))
-                            .setRendererDisabled(rendererIndex, false);
-                  } else {
-                    parametersBuilder =
-                        parametersBuilder
-                            .clearSelectionOverrides(rendererIndex)
-                            .setRendererDisabled(rendererIndex, true);
-                  }
-                }
-                checkNotNull(trackSelector).setParameters(parametersBuilder);
-                onTrackSelection(track.trackName);
-                settingsWindow.dismiss();
+              if (player == null) {
+                return;
               }
+              TrackSelectionParameters trackSelectionParameters =
+                  player.getTrackSelectionParameters();
+              Map<TrackGroup, TrackSelectionOverride> overrides =
+                  forceTrackSelection(
+                      trackSelectionParameters.trackSelectionOverrides,
+                      track.tracksInfo,
+                      track.trackGroupIndex,
+                      new TrackSelectionOverride(ImmutableSet.of(track.trackIndex)));
+              checkNotNull(player)
+                  .setTrackSelectionParameters(
+                      trackSelectionParameters
+                          .buildUpon()
+                          .setTrackSelectionOverrides(overrides)
+                          .build());
+              onTrackSelection(track.trackName);
+              settingsWindow.dismiss();
             });
       }
     }
@@ -2236,9 +2208,8 @@ public class StyledPlayerControlView extends FrameLayout {
       return tracks.isEmpty() ? 0 : tracks.size() + 1;
     }
 
-    public void clear() {
+    protected void clear() {
       tracks = Collections.emptyList();
-      mappedTrackInfo = null;
     }
   }
 

@@ -112,10 +112,13 @@ public final class TracksInfo implements Bundleable {
     /**
      * Returns if a track in a {@link TrackGroup} is selected for playback.
      *
-     * <p>Multiple tracks of a track group may be selected, in which case the the active one
-     * (currently playing) is undefined. This is common in adaptive streaming, where multiple tracks
-     * of different quality are selected and the active one changes depending on the network and the
-     * {@link TrackSelectionParameters}.
+     * <p>Multiple tracks of a track group may be selected. This is common in adaptive streaming,
+     * where multiple tracks of different quality are selected and the player switches between them
+     * depending on the network and the {@link TrackSelectionParameters}.
+     *
+     * <p>While this class doesn't provide which selected track is currently playing, some player
+     * implementations have ways of getting such information. For example ExoPlayer provides this
+     * information in {@code ExoTrackSelection.getSelectedFormat}.
      *
      * @param trackIndex The index of the track in the {@link TrackGroup}.
      * @return true if the track is selected, false otherwise.
