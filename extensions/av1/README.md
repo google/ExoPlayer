@@ -23,29 +23,28 @@ dependencies as follows:
 * Set the following environment variables:
 
 ```
-cd "<path to exoplayer checkout>"
-EXOPLAYER_ROOT="$(pwd)"
-AV1_EXT_PATH="${EXOPLAYER_ROOT}/extensions/av1/src/main"
+cd "<path to project checkout>"
+AV1_MODULE_PATH="$(pwd)/extensions/av1/src/main"
 ```
 
 * Fetch cpu_features library:
 
 ```
-cd "${AV1_EXT_PATH}/jni" && \
+cd "${AV1_MODULE_PATH}/jni" && \
 git clone https://github.com/google/cpu_features
 ```
 
 * Fetch libgav1:
 
 ```
-cd "${AV1_EXT_PATH}/jni" && \
+cd "${AV1_MODULE_PATH}/jni" && \
 git clone https://chromium.googlesource.com/codecs/libgav1
 ```
 
 * Fetch Abseil:
 
 ```
-cd "${AV1_EXT_PATH}/jni/libgav1" && \
+cd "${AV1_MODULE_PATH}/jni/libgav1" && \
 git clone https://github.com/abseil/abseil-cpp.git third_party/abseil-cpp
 ```
 
@@ -113,19 +112,22 @@ gets from the libgav1 decoder:
 
 *   GL rendering using GL shader for color space conversion
 
-    *   If you are using `SimpleExoPlayer` with `PlayerView`, enable this option
-        by setting `surface_type` of `PlayerView` to be
+    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
+        enable this option by setting `surface_type` of view to be
         `video_decoder_gl_surface_view`.
     *   Otherwise, enable this option by sending `Libgav1VideoRenderer` a
-        message of type `Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER`
+        message of type `Renderer.MSG_SET_VIDEO_OUTPUT`
         with an instance of `VideoDecoderOutputBufferRenderer` as its object.
+        `VideoDecoderGLSurfaceView` is the concrete
+        `VideoDecoderOutputBufferRenderer` implementation used by
+        `(Styled)PlayerView`.
 
 *   Native rendering using `ANativeWindow`
 
-    *   If you are using `SimpleExoPlayer` with `PlayerView`, this option is
-        enabled by default.
+    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
+        this option is enabled by default.
     *   Otherwise, enable this option by sending `Libgav1VideoRenderer` a
-        message of type `Renderer.MSG_SET_SURFACE` with an instance of
+        message of type `Renderer.MSG_SET_VIDEO_OUTPUT` with an instance of
         `SurfaceView` as its object.
 
 Note: Although the default option uses `ANativeWindow`, based on our testing the

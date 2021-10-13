@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-FFMPEG_EXT_PATH=$1
+FFMPEG_MODULE_PATH=$1
 NDK_PATH=$2
 HOST_PLATFORM=$3
 ENABLED_DECODERS=("${@:4}")
@@ -43,7 +43,7 @@ for decoder in "${ENABLED_DECODERS[@]}"
 do
     COMMON_OPTIONS="${COMMON_OPTIONS} --enable-decoder=${decoder}"
 done
-cd "${FFMPEG_EXT_PATH}/jni/ffmpeg"
+cd "${FFMPEG_MODULE_PATH}/jni/ffmpeg"
 ./configure \
     --libdir=android-libs/armeabi-v7a \
     --arch=arm \

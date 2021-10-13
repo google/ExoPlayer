@@ -22,9 +22,8 @@ In addition, it's necessary to build the module's native components as follows:
 * Set the following environment variables:
 
 ```
-cd "<path to exoplayer checkout>"
-EXOPLAYER_ROOT="$(pwd)"
-OPUS_EXT_PATH="${EXOPLAYER_ROOT}/extensions/opus/src/main"
+cd "<path to project checkout>"
+OPUS_MODULE_PATH="$(pwd)/extensions/opus/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in an environment variable.
@@ -37,20 +36,20 @@ NDK_PATH="<path to Android NDK>"
 * Fetch libopus:
 
 ```
-cd "${OPUS_EXT_PATH}/jni" && \
+cd "${OPUS_MODULE_PATH}/jni" && \
 git clone https://gitlab.xiph.org/xiph/opus.git libopus
 ```
 
 * Run the script to convert arm assembly to NDK compatible format:
 
 ```
-cd ${OPUS_EXT_PATH}/jni && ./convert_android_asm.sh
+cd ${OPUS_MODULE_PATH}/jni && ./convert_android_asm.sh
 ```
 
 * Build the JNI native libraries from the command line:
 
 ```
-cd "${OPUS_EXT_PATH}"/jni && \
+cd "${OPUS_MODULE_PATH}"/jni && \
 ${NDK_PATH}/ndk-build APP_ABI=all -j4
 ```
 
@@ -70,7 +69,7 @@ be possible to follow the Linux instructions in [Windows PowerShell][].
   * Arm assembly should be converted by running `convert_android_asm.sh`
   * Clean and re-build the project.
 * If you want to use your own version of libopus, place it in
-  `${OPUS_EXT_PATH}/jni/libopus`.
+  `${OPUS_MODULE_PATH}/jni/libopus`.
 
 ## Using the module
 

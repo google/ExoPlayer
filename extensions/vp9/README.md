@@ -22,9 +22,8 @@ In addition, it's necessary to build the module's native components as follows:
 * Set the following environment variables:
 
 ```
-cd "<path to exoplayer checkout>"
-EXOPLAYER_ROOT="$(pwd)"
-VP9_EXT_PATH="${EXOPLAYER_ROOT}/extensions/vp9/src/main"
+cd "<path to project checkout>"
+VP9_MODULE_PATH="$(pwd)/extensions/vp9/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in an environment variable.
@@ -49,7 +48,7 @@ LIBVPX_PATH="$(pwd)"
     run a script that generates necessary configuration files for libvpx:
 
 ```
-cd ${VP9_EXT_PATH}/jni && \
+cd ${VP9_MODULE_PATH}/jni && \
 ln -s "$LIBVPX_PATH" libvpx && \
 ./generate_libvpx_android_configs.sh
 ```
@@ -57,7 +56,7 @@ ln -s "$LIBVPX_PATH" libvpx && \
 * Build the JNI native libraries from the command line:
 
 ```
-cd "${VP9_EXT_PATH}"/jni && \
+cd "${VP9_MODULE_PATH}"/jni && \
 ${NDK_PATH}/ndk-build APP_ABI=all -j4
 ```
 
@@ -78,7 +77,7 @@ be possible to follow the Linux instructions in [Windows PowerShell][].
     `generate_libvpx_android_configs.sh`
   * Clean and re-build the project.
 * If you want to use your own version of libvpx, point to it with the
-  `${VP9_EXT_PATH}/jni/libvpx` symlink. Please note that
+  `${VP9_MODULE_PATH}/jni/libvpx` symlink. Please note that
   `generate_libvpx_android_configs.sh` and the makefiles may need to be modified
   to work with arbitrary versions of libvpx.
 
@@ -126,20 +125,23 @@ gets from the libvpx decoder:
 
 *   GL rendering using GL shader for color space conversion
 
-    *   If you are using `SimpleExoPlayer` with `PlayerView`, enable this option
-        by setting `surface_type` of `PlayerView` to be
+    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
+        enable this option by setting `surface_type` of view to be
         `video_decoder_gl_surface_view`.
     *   Otherwise, enable this option by sending `LibvpxVideoRenderer` a message
-        of type `Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER` with an
+        of type `Renderer.MSG_SET_VIDEO_OUTPUT` with an
         instance of `VideoDecoderOutputBufferRenderer` as its object.
+        `VideoDecoderGLSurfaceView` is the concrete
+        `VideoDecoderOutputBufferRenderer` implementation used by
+        `(Styled)PlayerView`.
 
 *   Native rendering using `ANativeWindow`
 
-    *   If you are using `SimpleExoPlayer` with `PlayerView`, this option is
-        enabled by default.
+    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
+        this option is enabled by default.
     *   Otherwise, enable this option by sending `LibvpxVideoRenderer` a message
-        of type `Renderer.MSG_SET_SURFACE` with an instance of `SurfaceView` as
-        its object.
+        of type `Renderer.MSG_SET_VIDEO_OUTPUT` with an instance of
+        `SurfaceView` as its object.
 
 Note: Although the default option uses `ANativeWindow`, based on our testing the
 GL rendering mode has better performance, so should be preferred.

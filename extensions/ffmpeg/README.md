@@ -24,9 +24,8 @@ can bundle the FFmpeg binaries in the APK:
 * Set the following shell variable:
 
 ```
-cd "<path to exoplayer checkout>"
-EXOPLAYER_ROOT="$(pwd)"
-FFMPEG_EXT_PATH="${EXOPLAYER_ROOT}/extensions/ffmpeg/src/main"
+cd "<path to project checkout>"
+FFMPEG_MODULE_PATH="$(pwd)/extensions/ffmpeg/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in a shell variable.
@@ -63,7 +62,7 @@ ENABLED_DECODERS=(vorbis opus flac)
 *   Add a link to the FFmpeg source code in the FFmpeg module `jni` directory.
 
 ```
-cd "${FFMPEG_EXT_PATH}/jni" && \
+cd "${FFMPEG_MODULE_PATH}/jni" && \
 ln -s "$FFMPEG_PATH" ffmpeg
 ```
 
@@ -72,9 +71,9 @@ ln -s "$FFMPEG_PATH" ffmpeg
   different architectures:
 
 ```
-cd "${FFMPEG_EXT_PATH}/jni" && \
+cd "${FFMPEG_MODULE_PATH}/jni" && \
 ./build_ffmpeg.sh \
-  "${FFMPEG_EXT_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
+  "${FFMPEG_MODULE_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
 ```
 
 ## Build instructions (Windows)
