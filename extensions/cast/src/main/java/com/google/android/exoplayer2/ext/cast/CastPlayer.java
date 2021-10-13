@@ -94,7 +94,8 @@ public final class CastPlayer extends BasePlayer {
       new Commands.Builder()
           .addAll(
               COMMAND_PLAY_PAUSE,
-              COMMAND_PREPARE_STOP,
+              COMMAND_PREPARE,
+              COMMAND_STOP,
               COMMAND_SEEK_TO_DEFAULT_POSITION,
               COMMAND_SEEK_TO_MEDIA_ITEM,
               COMMAND_SET_REPEAT_MODE,

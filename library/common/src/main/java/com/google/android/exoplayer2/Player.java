@@ -676,7 +676,8 @@ public interface Player {
       @Command
       private static final int[] SUPPORTED_COMMANDS = {
         COMMAND_PLAY_PAUSE,
-        COMMAND_PREPARE_STOP,
+        COMMAND_PREPARE,
+        COMMAND_STOP,
         COMMAND_SEEK_TO_DEFAULT_POSITION,
         COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
         COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
@@ -1332,7 +1333,7 @@ public interface Player {
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
-   * #COMMAND_PREPARE_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
+   * #COMMAND_PREPARE}, {@link #COMMAND_STOP}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
    * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_PREVIOUS}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_NEXT}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link #COMMAND_SEEK_BACK}, {@link
@@ -1351,7 +1352,8 @@ public interface Player {
   @IntDef({
     COMMAND_INVALID,
     COMMAND_PLAY_PAUSE,
-    COMMAND_PREPARE_STOP,
+    COMMAND_PREPARE,
+    COMMAND_STOP,
     COMMAND_SEEK_TO_DEFAULT_POSITION,
     COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
     COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
@@ -1383,70 +1385,72 @@ public interface Player {
   @interface Command {}
   /** Command to start, pause or resume playback. */
   int COMMAND_PLAY_PAUSE = 1;
-  /** Command to prepare the player, stop playback or release the player. */
-  int COMMAND_PREPARE_STOP = 2;
+  /** Command to prepare the player. */
+  int COMMAND_PREPARE = 2;
+  /** Command to stop playback or release the player. */
+  int COMMAND_STOP = 3;
   /** Command to seek to the default position of the current {@link MediaItem}. */
-  int COMMAND_SEEK_TO_DEFAULT_POSITION = 3;
+  int COMMAND_SEEK_TO_DEFAULT_POSITION = 4;
   /** Command to seek anywhere into the current {@link MediaItem}. */
-  int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 4;
+  int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 5;
   /** @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead. */
   @Deprecated int COMMAND_SEEK_IN_CURRENT_WINDOW = COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
   /** Command to seek to the default position of the previous {@link MediaItem}. */
-  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 5;
+  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
   /** @deprecated Use {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} instead. */
   @Deprecated int COMMAND_SEEK_TO_PREVIOUS_WINDOW = COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
   /** Command to seek to an earlier position in the current or previous {@link MediaItem}. */
-  int COMMAND_SEEK_TO_PREVIOUS = 6;
+  int COMMAND_SEEK_TO_PREVIOUS = 7;
   /** Command to seek to the default position of the next {@link MediaItem}. */
-  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 7;
+  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 8;
   /** @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead. */
   @Deprecated int COMMAND_SEEK_TO_NEXT_WINDOW = COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
   /** Command to seek to a later position in the current or next {@link MediaItem}. */
-  int COMMAND_SEEK_TO_NEXT = 8;
+  int COMMAND_SEEK_TO_NEXT = 9;
   /** Command to seek anywhere in any {@link MediaItem}. */
-  int COMMAND_SEEK_TO_MEDIA_ITEM = 9;
+  int COMMAND_SEEK_TO_MEDIA_ITEM = 10;
   /** @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead. */
   @Deprecated int COMMAND_SEEK_TO_WINDOW = COMMAND_SEEK_TO_MEDIA_ITEM;
   /** Command to seek back by a fixed increment into the current {@link MediaItem}. */
-  int COMMAND_SEEK_BACK = 10;
+  int COMMAND_SEEK_BACK = 11;
   /** Command to seek forward by a fixed increment into the current {@link MediaItem}. */
-  int COMMAND_SEEK_FORWARD = 11;
+  int COMMAND_SEEK_FORWARD = 12;
   /** Command to set the playback speed and pitch. */
-  int COMMAND_SET_SPEED_AND_PITCH = 12;
+  int COMMAND_SET_SPEED_AND_PITCH = 13;
   /** Command to enable shuffling. */
-  int COMMAND_SET_SHUFFLE_MODE = 13;
+  int COMMAND_SET_SHUFFLE_MODE = 14;
   /** Command to set the repeat mode. */
-  int COMMAND_SET_REPEAT_MODE = 14;
+  int COMMAND_SET_REPEAT_MODE = 15;
   /** Command to get the currently playing {@link MediaItem}. */
-  int COMMAND_GET_CURRENT_MEDIA_ITEM = 15;
+  int COMMAND_GET_CURRENT_MEDIA_ITEM = 16;
   /** Command to get the information about the current timeline. */
-  int COMMAND_GET_TIMELINE = 16;
+  int COMMAND_GET_TIMELINE = 17;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 17;
+  int COMMAND_GET_MEDIA_ITEMS_METADATA = 18;
   /** Command to set the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_SET_MEDIA_ITEMS_METADATA = 18;
+  int COMMAND_SET_MEDIA_ITEMS_METADATA = 19;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 19;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 20;
   /** Command to get the player current {@link AudioAttributes}. */
-  int COMMAND_GET_AUDIO_ATTRIBUTES = 20;
+  int COMMAND_GET_AUDIO_ATTRIBUTES = 21;
   /** Command to get the player volume. */
-  int COMMAND_GET_VOLUME = 21;
+  int COMMAND_GET_VOLUME = 22;
   /** Command to get the device volume and whether it is muted. */
-  int COMMAND_GET_DEVICE_VOLUME = 22;
+  int COMMAND_GET_DEVICE_VOLUME = 23;
   /** Command to set the player volume. */
-  int COMMAND_SET_VOLUME = 23;
+  int COMMAND_SET_VOLUME = 24;
   /** Command to set the device volume and mute it. */
-  int COMMAND_SET_DEVICE_VOLUME = 24;
+  int COMMAND_SET_DEVICE_VOLUME = 25;
   /** Command to increase and decrease the device volume and mute it. */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 25;
+  int COMMAND_ADJUST_DEVICE_VOLUME = 26;
   /** Command to set and clear the surface on which to render the video. */
-  int COMMAND_SET_VIDEO_SURFACE = 26;
+  int COMMAND_SET_VIDEO_SURFACE = 27;
   /** Command to get the text that should currently be displayed by the player. */
-  int COMMAND_GET_TEXT = 27;
+  int COMMAND_GET_TEXT = 28;
   /** Command to set the player's track selection parameters. */
-  int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 28;
+  int COMMAND_SET_TRACK_SELECTION_PARAMETERS = 29;
   /** Command to get track infos. */
-  int COMMAND_GET_TRACK_INFOS = 29;
+  int COMMAND_GET_TRACK_INFOS = 30;
 
   /** Represents an invalid {@link Command}. */
   int COMMAND_INVALID = -1;

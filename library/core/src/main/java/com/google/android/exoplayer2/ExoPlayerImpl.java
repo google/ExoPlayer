@@ -207,7 +207,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         new Commands.Builder()
             .addAll(
                 COMMAND_PLAY_PAUSE,
-                COMMAND_PREPARE_STOP,
+                COMMAND_PREPARE,
+                COMMAND_STOP,
                 COMMAND_SET_SPEED_AND_PITCH,
                 COMMAND_SET_SHUFFLE_MODE,
                 COMMAND_SET_REPEAT_MODE,
