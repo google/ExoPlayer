@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
@@ -96,7 +95,7 @@ public class FlacPlaybackTest {
     private final Uri uri;
     private final AudioSink audioSink;
 
-    @Nullable private SimpleExoPlayer player;
+    @Nullable private ExoPlayer player;
     @Nullable private PlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context, AudioSink audioSink) {

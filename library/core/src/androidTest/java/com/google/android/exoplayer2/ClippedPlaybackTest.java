@@ -54,7 +54,7 @@ public final class ClippedPlaybackTest {
             // Expect the clipping to affect both subtitles and video.
             .setClipEndPositionMs(1000)
             .build();
-    AtomicReference<SimpleExoPlayer> player = new AtomicReference<>();
+    AtomicReference<ExoPlayer> player = new AtomicReference<>();
     TextCapturingPlaybackListener textCapturer = new TextCapturingPlaybackListener();
     getInstrumentation()
         .runOnMainSync(
@@ -96,7 +96,7 @@ public final class ClippedPlaybackTest {
                 // subtitle content (3.5s).
                 .setClipEndPositionMs(4_000)
                 .build());
-    AtomicReference<SimpleExoPlayer> player = new AtomicReference<>();
+    AtomicReference<ExoPlayer> player = new AtomicReference<>();
     TextCapturingPlaybackListener textCapturer = new TextCapturingPlaybackListener();
     getInstrumentation()
         .runOnMainSync(

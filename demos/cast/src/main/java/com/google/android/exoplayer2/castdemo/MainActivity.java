@@ -37,8 +37,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Assertions;
@@ -48,8 +48,8 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
 
 /**
- * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
- * Cast extension.
+ * An activity that plays video using {@link ExoPlayer} and supports casting using ExoPlayer's Cast
+ * extension.
  */
 public class MainActivity extends AppCompatActivity
     implements OnClickListener, PlayerManager.Listener {

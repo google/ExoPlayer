@@ -44,7 +44,6 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -366,7 +365,7 @@ public final class TranscodingTransformer {
 
   private TranscodingTransformer.Listener listener;
   @Nullable private MuxerWrapper muxerWrapper;
-  @Nullable private SimpleExoPlayer player;
+  @Nullable private ExoPlayer player;
   @ProgressState private int progressState;
 
   private TranscodingTransformer(

@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
@@ -64,7 +63,7 @@ import java.util.ArrayList;
   private Player currentPlayer;
 
   /**
-   * Creates a new manager for {@link SimpleExoPlayer} and {@link CastPlayer}.
+   * Creates a new manager for {@link ExoPlayer} and {@link CastPlayer}.
    *
    * @param listener A {@link Listener} for queue position changes.
    * @param localPlayerView The {@link PlayerView} for local playback.

@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -67,7 +66,7 @@ public final class MainActivity extends Activity {
   @Nullable private SurfaceView nonFullScreenView;
   @Nullable private SurfaceView currentOutputView;
 
-  @Nullable private static SimpleExoPlayer player;
+  @Nullable private static ExoPlayer player;
   @Nullable private static SurfaceControl surfaceControl;
   @Nullable private static Surface videoSurface;
 
@@ -217,7 +216,7 @@ public final class MainActivity extends Activity {
     } else {
       throw new IllegalStateException();
     }
-    SimpleExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
+    ExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
     player.setMediaSource(mediaSource);
     player.prepare();
     player.play();

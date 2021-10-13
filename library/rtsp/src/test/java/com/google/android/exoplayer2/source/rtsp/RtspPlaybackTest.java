@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Listener;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
@@ -103,8 +102,7 @@ public final class RtspPlaybackTest {
             fakeRtpDataChannel);
 
     try (RtspServer rtspServer = new RtspServer(responseProvider)) {
-      SimpleExoPlayer player =
-          createSimpleExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+      ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
       PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
       player.prepare();
@@ -126,8 +124,7 @@ public final class RtspPlaybackTest {
         new RtspServer(
             new ResponseProvider(
                 clock, ImmutableList.of(mp4aLatmRtpPacketStreamDump), fakeRtpDataChannel))) {
-      SimpleExoPlayer player =
-          createSimpleExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+      ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
       AtomicReference<Throwable> playbackError = new AtomicReference<>();
       player.prepare();
@@ -148,9 +145,9 @@ public final class RtspPlaybackTest {
     }
   }
 
-  private SimpleExoPlayer createSimpleExoPlayer(
+  private ExoPlayer createExoPlayer(
       int serverRtspPortNumber, RtpDataChannel.Factory rtpDataChannelFactory) {
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(clock)
             .build();

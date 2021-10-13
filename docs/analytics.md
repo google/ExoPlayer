@@ -44,7 +44,7 @@ implementations. You can easily add your own listener and override only the
 methods you are interested in:
 
 ~~~
-simpleExoPlayer.addAnalyticsListener(new AnalyticsListener() {
+exoPlayer.addAnalyticsListener(new AnalyticsListener() {
     @Override
     public void onPlaybackStateChanged(
         EventTime eventTime, @Player.State int state) {
@@ -98,7 +98,7 @@ current playback session at any time using
 `PlaybackStatsListener.getPlaybackStats()`.
 
 ~~~
-simpleExoPlayer.addAnalyticsListener(
+exoPlayer.addAnalyticsListener(
     new PlaybackStatsListener(
         /* keepHistory= */ true, (eventTime, playbackStats) -> {
           // Analytics data for the session started at `eventTime` is ready.
@@ -246,7 +246,7 @@ class ExtendedCollector extends AnalyticsCollector {
 }
 
 // Usage - Setup and listener registration.
-SimpleExoPlayer player = new ExoPlayer.Builder(context)
+ExoPlayer player = new ExoPlayer.Builder(context)
     .setAnalyticsCollector(new ExtendedCollector())
     .build();
 player.addAnalyticsListener(new ExtendedListener() {

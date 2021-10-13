@@ -53,7 +53,7 @@ MediaSourceFactory mediaSourceFactory =
     new DefaultMediaSourceFactory(context)
         .setAdsLoaderProvider(adsLoaderProvider)
         .setAdViewProvider(playerView);
-SimpleExoPlayer player = new ExoPlayer.Builder(context)
+ExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(mediaSourceFactory)
     .build();
 ~~~
@@ -209,7 +209,7 @@ events to an ad SDK or ad server. For example, the media stream may include
 timed events that need to be reported by the client (see [supported formats][]
 for information on what timed metadata formats are supported by ExoPlayer). Apps
 can listen for timed metadata events from the player, e.g., via
-`SimpleExoPlayer.addMetadataOutput`.
+`ExoPlayer.addMetadataOutput`.
 
 The IMA extension currently only handles client-side ad insertion. It does not
 provide any integration with the DAI part of the IMA SDK.

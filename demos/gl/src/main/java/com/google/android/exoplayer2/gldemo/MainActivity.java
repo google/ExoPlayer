@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -65,7 +64,7 @@ public final class MainActivity extends Activity {
   @Nullable private PlayerView playerView;
   @Nullable private VideoProcessingGLSurfaceView videoProcessingGLSurfaceView;
 
-  @Nullable private SimpleExoPlayer player;
+  @Nullable private ExoPlayer player;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -173,7 +172,7 @@ public final class MainActivity extends Activity {
       throw new IllegalStateException();
     }
 
-    SimpleExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
+    ExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
     player.setRepeatMode(Player.REPEAT_MODE_ALL);
     player.setMediaSource(mediaSource);
     player.prepare();

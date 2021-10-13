@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -107,7 +106,7 @@ public class VpxPlaybackTest {
     private final Context context;
     private final Uri uri;
 
-    @Nullable private SimpleExoPlayer player;
+    @Nullable private ExoPlayer player;
     @Nullable private PlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context) {

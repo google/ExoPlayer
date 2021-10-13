@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -71,7 +70,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
           .build();
 
   /**
-   * Builder to set-up a {@link ExoPlayerTestRunner}. Default fake implementations will be used for
+   * Builder to set-up an {@link ExoPlayerTestRunner}. Default fake implementations will be used for
    * unset test properties.
    */
   public static final class Builder {
@@ -267,7 +266,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
 
     /**
      * Sets an {@link ActionSchedule} to be run by the test runner. The first action will be
-     * executed immediately before {@link SimpleExoPlayer#prepare()}.
+     * executed immediately before {@link ExoPlayer#prepare()}.
      *
      * @param actionSchedule An {@link ActionSchedule} to be used by the test runner.
      * @return This builder.
@@ -379,7 +378,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   private final ArrayList<Integer> playbackStates;
   private final boolean pauseAtEndOfMediaItems;
 
-  private SimpleExoPlayer player;
+  private ExoPlayer player;
   private Exception exception;
   private boolean playerWasPrepared;
 

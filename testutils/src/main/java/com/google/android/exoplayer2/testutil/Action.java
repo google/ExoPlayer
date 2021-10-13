@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -72,7 +71,7 @@ public abstract class Action {
    *     null} if there's no next action.
    */
   public final void doActionAndScheduleNext(
-      SimpleExoPlayer player,
+      ExoPlayer player,
       DefaultTrackSelector trackSelector,
       @Nullable Surface surface,
       HandlerWrapper handler,
@@ -84,7 +83,7 @@ public abstract class Action {
   }
 
   /**
-   * Called by {@link #doActionAndScheduleNext(SimpleExoPlayer, DefaultTrackSelector, Surface,
+   * Called by {@link #doActionAndScheduleNext(ExoPlayer, DefaultTrackSelector, Surface,
    * HandlerWrapper, ActionNode)} to perform the action and to schedule the next action node.
    *
    * @param player The player to which the action should be applied.
@@ -96,7 +95,7 @@ public abstract class Action {
    *     null} if there's no next action.
    */
   protected void doActionAndScheduleNextImpl(
-      SimpleExoPlayer player,
+      ExoPlayer player,
       DefaultTrackSelector trackSelector,
       @Nullable Surface surface,
       HandlerWrapper handler,
@@ -108,7 +107,7 @@ public abstract class Action {
   }
 
   /**
-   * Called by {@link #doActionAndScheduleNextImpl(SimpleExoPlayer, DefaultTrackSelector, Surface,
+   * Called by {@link #doActionAndScheduleNextImpl(ExoPlayer, DefaultTrackSelector, Surface,
    * HandlerWrapper, ActionNode)} to perform the action.
    *
    * @param player The player to which the action should be applied.
@@ -117,7 +116,7 @@ public abstract class Action {
    *     needed.
    */
   protected abstract void doActionImpl(
-      SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface);
+      ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface);
 
   /** Calls {@link Player#seekTo(long)} or {@link Player#seekTo(int, long)}. */
   public static final class Seek extends Action {
@@ -157,7 +156,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       try {
         if (windowIndex == null) {
           player.seekTo(positionMs);
@@ -172,7 +171,7 @@ public abstract class Action {
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#setMediaSources(List, int, long)}. */
+  /** Calls {@link ExoPlayer#setMediaSources(List, int, long)}. */
   public static final class SetMediaItems extends Action {
 
     private final int windowIndex;
@@ -195,12 +194,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setMediaSources(Arrays.asList(mediaSources), windowIndex, positionMs);
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#addMediaSources(List)}. */
+  /** Calls {@link ExoPlayer#addMediaSources(List)}. */
   public static final class AddMediaItems extends Action {
 
     private final MediaSource[] mediaSources;
@@ -216,12 +215,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.addMediaSources(Arrays.asList(mediaSources));
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#setMediaSources(List, boolean)}. */
+  /** Calls {@link ExoPlayer#setMediaSources(List, boolean)}. */
   public static final class SetMediaItemsResetPosition extends Action {
 
     private final boolean resetPosition;
@@ -241,12 +240,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setMediaSources(Arrays.asList(mediaSources), resetPosition);
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#moveMediaItem(int, int)}. */
+  /** Calls {@link ExoPlayer#moveMediaItem(int, int)}. */
   public static class MoveMediaItem extends Action {
 
     private final int currentIndex;
@@ -265,12 +264,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.moveMediaItem(currentIndex, newIndex);
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#removeMediaItem(int)}. */
+  /** Calls {@link ExoPlayer#removeMediaItem(int)}. */
   public static class RemoveMediaItem extends Action {
 
     private final int index;
@@ -286,12 +285,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.removeMediaItem(index);
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#removeMediaItems(int, int)}. */
+  /** Calls {@link ExoPlayer#removeMediaItems(int, int)}. */
   public static class RemoveMediaItems extends Action {
 
     private final int fromIndex;
@@ -310,12 +309,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.removeMediaItems(fromIndex, toIndex);
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#clearMediaItems()}}. */
+  /** Calls {@link ExoPlayer#clearMediaItems()}}. */
   public static class ClearMediaItems extends Action {
 
     /** @param tag A tag to use for logging. */
@@ -325,7 +324,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.clearMediaItems();
     }
   }
@@ -360,7 +359,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       if (reset == null) {
         player.stop();
       } else {
@@ -385,7 +384,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setPlayWhenReady(playWhenReady);
     }
   }
@@ -412,13 +411,13 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       trackSelector.setParameters(
           trackSelector.buildUponParameters().setRendererDisabled(rendererIndex, disabled));
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#clearVideoSurface()}. */
+  /** Calls {@link ExoPlayer#clearVideoSurface()}. */
   public static final class ClearVideoSurface extends Action {
 
     /** @param tag A tag to use for logging. */
@@ -428,12 +427,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.clearVideoSurface();
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#setVideoSurface(Surface)}. */
+  /** Calls {@link ExoPlayer#setVideoSurface(Surface)}. */
   public static final class SetVideoSurface extends Action {
 
     /** @param tag A tag to use for logging. */
@@ -443,12 +442,12 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setVideoSurface(Assertions.checkNotNull(surface));
     }
   }
 
-  /** Calls {@link SimpleExoPlayer#setAudioAttributes(AudioAttributes, boolean)}. */
+  /** Calls {@link ExoPlayer#setAudioAttributes(AudioAttributes, boolean)}. */
   public static final class SetAudioAttributes extends Action {
 
     private final AudioAttributes audioAttributes;
@@ -468,7 +467,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setAudioAttributes(audioAttributes, handleAudioFocus);
     }
   }
@@ -482,7 +481,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.prepare();
     }
   }
@@ -503,7 +502,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setRepeatMode(repeatMode);
     }
   }
@@ -524,7 +523,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setShuffleOrder(shuffleOrder);
     }
   }
@@ -545,7 +544,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setShuffleModeEnabled(shuffleModeEnabled);
     }
   }
@@ -591,9 +590,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        final SimpleExoPlayer player,
-        DefaultTrackSelector trackSelector,
-        @Nullable Surface surface) {
+        final ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       if (target instanceof PlayerTarget) {
         ((PlayerTarget) target).setPlayer(player);
       }
@@ -627,7 +624,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player.setPlaybackParameters(playbackParameters);
     }
   }
@@ -648,7 +645,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       player
           .createMessage(
               (messageType, payload) -> {
@@ -680,7 +677,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -724,7 +721,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -768,7 +765,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -798,7 +795,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -816,7 +813,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -839,7 +836,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -863,7 +860,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -890,7 +887,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -914,7 +911,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -940,7 +937,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -964,7 +961,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -980,7 +977,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -1004,7 +1001,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -1030,7 +1027,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -1045,7 +1042,7 @@ public abstract class Action {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -1065,7 +1062,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }
@@ -1083,7 +1080,7 @@ public abstract class Action {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       if (runnable instanceof PlayerRunnable) {
         ((PlayerRunnable) runnable).setPlayer(player);
       }

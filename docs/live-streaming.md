@@ -96,7 +96,7 @@ values will override parameters defined by the media.
 
 ~~~
 // Global settings.
-SimpleExoPlayer player =
+ExoPlayer player =
     new ExoPlayer.Builder(context)
         .setMediaSourceFactory(
             new DefaultMediaSourceFactory(context).setLiveTargetOffsetMs(5000))
@@ -166,7 +166,7 @@ implementation, which is `DefaultLivePlaybackSpeedControl`. In both cases an
 instance can be set when building the player:
 
 ~~~
-SimpleExoPlayer player =
+ExoPlayer player =
     new ExoPlayer.Builder(context)
         .setLivePlaybackSpeedControl(
             new DefaultLivePlaybackSpeedControl.Builder()

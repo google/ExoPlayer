@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -61,7 +60,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/** An activity that plays media using {@link SimpleExoPlayer}. */
+/** An activity that plays media using {@link ExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
     implements OnClickListener, StyledPlayerControlView.VisibilityListener {
 
@@ -75,7 +74,7 @@ public class PlayerActivity extends AppCompatActivity
   protected StyledPlayerView playerView;
   protected LinearLayout debugRootView;
   protected TextView debugTextView;
-  protected @Nullable SimpleExoPlayer player;
+  protected @Nullable ExoPlayer player;
 
   private boolean isShowingTrackSelectionDialog;
   private Button selectTracksButton;

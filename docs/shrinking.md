@@ -49,7 +49,7 @@ By default, the player's renderers will be created using
 none of them will be removed by code shrinking. If you know that your app only
 needs a subset of renderers, you can specify your own `RenderersFactory`
 instead. For example, an app that only plays audio can define a factory like
-this when instantiating `SimpleExoPlayer` instances:
+this when instantiating `ExoPlayer` instances:
 
 ~~~
 RenderersFactory audioOnlyRenderersFactory =
@@ -58,7 +58,7 @@ RenderersFactory audioOnlyRenderersFactory =
             new MediaCodecAudioRenderer(
                 context, MediaCodecSelector.DEFAULT, handler, audioListener)
            };
-SimpleExoPlayer player =
+ExoPlayer player =
     new ExoPlayer.Builder(context, audioOnlyRenderersFactory).build();
 ~~~
 {: .language-java}
@@ -80,7 +80,7 @@ an app that only needs to play mp4 files can provide a factory like:
 ~~~
 ExtractorsFactory mp4ExtractorFactory =
     () -> new Extractor[] {new Mp4Extractor()};
-SimpleExoPlayer player =
+ExoPlayer player =
     new ExoPlayer.Builder(context, mp4ExtractorFactory).build();
 ~~~
 {: .language-java}
@@ -98,18 +98,18 @@ constructor, if your app is doing one of the following:
 
 ~~~
 // Only playing DASH, HLS or SmoothStreaming.
-SimpleExoPlayer player =
+ExoPlayer player =
     new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
 
 // Providing a customized `DefaultMediaSourceFactory`
-SimpleExoPlayer player =
+ExoPlayer player =
     new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY)
         .setMediaSourceFactory(
             new DefaultMediaSourceFactory(context, customExtractorsFactory))
         .build();
 
 // Using a MediaSource directly.
-SimpleExoPlayer player =
+ExoPlayer player =
     new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
 ProgressiveMediaSource mediaSource =
     new ProgressiveMediaSource.Factory(

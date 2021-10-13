@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -312,9 +311,9 @@ import java.util.List;
     }
 
     @Override
-    protected SimpleExoPlayer buildExoPlayer(
+    protected ExoPlayer buildExoPlayer(
         HostActivity host, Surface surface, MappingTrackSelector trackSelector) {
-      SimpleExoPlayer player =
+      ExoPlayer player =
           new ExoPlayer.Builder(host, new DebugRenderersFactory(host))
               .setTrackSelector(trackSelector)
               .build();

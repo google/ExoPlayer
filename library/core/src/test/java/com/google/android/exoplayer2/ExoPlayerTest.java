@@ -206,7 +206,7 @@ public final class ExoPlayerTest {
         new MaskingMediaSource.PlaceholderTimeline(FakeMediaSource.FAKE_MEDIA_ITEM);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_UNKNOWN);
 
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
     Player.Listener mockListener = mock(Player.Listener.class);
     player.addListener(mockListener);
 
@@ -237,7 +237,7 @@ public final class ExoPlayerTest {
   public void playSinglePeriodTimeline() throws Exception {
     Timeline timeline = new FakeTimeline();
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
     Player.Listener mockListener = mock(Player.Listener.class);
     player.addListener(mockListener);
 
@@ -272,7 +272,7 @@ public final class ExoPlayerTest {
   public void playMultiPeriodTimeline() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
     Player.Listener mockPlayerListener = mock(Player.Listener.class);
     player.addListener(mockPlayerListener);
 
@@ -310,7 +310,7 @@ public final class ExoPlayerTest {
     Timeline timeline =
         new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 100, /* id= */ 0));
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
     Player.Listener mockPlayerListener = mock(Player.Listener.class);
     player.addListener(mockPlayerListener);
 
@@ -342,7 +342,7 @@ public final class ExoPlayerTest {
     Timeline timeline = new FakeTimeline();
     final FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
     final FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(context).setRenderers(videoRenderer, audioRenderer).build();
     Player.Listener mockPlayerListener = mock(Player.Listener.class);
     player.addListener(mockPlayerListener);
@@ -366,7 +366,7 @@ public final class ExoPlayerTest {
     final FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
     final FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
     final FakeRenderer textRenderer = new FakeRenderer(C.TRACK_TYPE_TEXT);
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(context).setRenderers(videoRenderer, audioRenderer).build();
     Player.Listener mockPlayerListener = mock(Player.Listener.class);
     player.addListener(mockPlayerListener);
@@ -404,7 +404,7 @@ public final class ExoPlayerTest {
     final FakeRenderer textRenderer = new FakeRenderer(C.TRACK_TYPE_TEXT);
     Format textFormat =
         new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).setLanguage("en").build();
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(context).setRenderers(audioRenderer, textRenderer).build();
     Player.Listener mockPlayerListener = mock(Player.Listener.class);
     player.addListener(mockPlayerListener);
@@ -440,7 +440,7 @@ public final class ExoPlayerTest {
     final FakeRenderer textRenderer = new FakeRenderer(C.TRACK_TYPE_TEXT);
     Format textFormat =
         new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).setLanguage("en").build();
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(context)
             .setRenderers(videoRenderer, audioRenderer, textRenderer)
             .build();
@@ -531,7 +531,7 @@ public final class ExoPlayerTest {
             return videoRenderer.isEnded();
           }
         };
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(context).setRenderers(videoRenderer, audioRenderer).build();
     Player.Listener mockPlayerListener = mock(Player.Listener.class);
     player.addListener(mockPlayerListener);
@@ -581,7 +581,7 @@ public final class ExoPlayerTest {
         };
     Timeline thirdTimeline = new FakeTimeline();
     MediaSource thirdSource = new FakeMediaSource(thirdTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
     Player.Listener mockPlayerListener = mock(Player.Listener.class);
     player.addListener(mockPlayerListener);
 
@@ -639,7 +639,7 @@ public final class ExoPlayerTest {
   public void repeatModeChanges() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
     AnalyticsListener mockAnalyticsListener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(mockAnalyticsListener);
 
@@ -803,7 +803,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     try {
                       player.seekTo(/* windowIndex= */ 100, /* positionMs= */ 0);
                     } catch (IllegalSeekPositionException e) {
@@ -1196,7 +1196,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     try {
                       player.getClock().onThreadBlocked();
                       createPeriodCalledCountDownLatch.await();
@@ -1273,7 +1273,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionWhenReady.set(player.getCurrentPosition());
                   }
                 })
@@ -1306,7 +1306,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndex[0] = player.getCurrentWindowIndex();
                     currentPosition[0] = player.getCurrentPosition();
                     bufferedPosition[0] = player.getBufferedPosition();
@@ -1322,7 +1322,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndex[2] = player.getCurrentWindowIndex();
                     currentPosition[2] = player.getCurrentPosition();
                     bufferedPosition[2] = player.getBufferedPosition();
@@ -1398,7 +1398,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndex[0] = player.getCurrentWindowIndex();
                     currentPosition[0] = player.getCurrentPosition();
                     bufferedPosition[0] = player.getBufferedPosition();
@@ -1414,7 +1414,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndex[2] = player.getCurrentWindowIndex();
                     currentPosition[2] = player.getCurrentPosition();
                     bufferedPosition[2] = player.getBufferedPosition();
@@ -1492,7 +1492,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndex[0] = player.getCurrentWindowIndex();
                     currentPosition[0] = player.getCurrentPosition();
                     bufferedPosition[0] = player.getBufferedPosition();
@@ -1508,7 +1508,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndex[2] = player.getCurrentWindowIndex();
                     currentPosition[2] = player.getCurrentPosition();
                     bufferedPosition[2] = player.getBufferedPosition();
@@ -1559,7 +1559,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndexAfterStop.set(player.getCurrentWindowIndex());
                     positionAfterStop.set(player.getCurrentPosition());
                   }
@@ -1627,7 +1627,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionAfterReprepare.set(player.getCurrentPosition());
                   }
                 })
@@ -1681,7 +1681,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionAfterReprepare.set(player.getCurrentPosition());
                   }
                 })
@@ -1738,7 +1738,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionAfterReprepare.set(player.getCurrentPosition());
                   }
                 })
@@ -1846,7 +1846,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void seekAndReprepareAfterPlaybackError_keepsSeekPositionAndTimeline() throws Exception {
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     Player.Listener mockListener = mock(Player.Listener.class);
     player.addListener(mockListener);
     FakeMediaSource fakeMediaSource = new FakeMediaSource();
@@ -1907,7 +1907,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndexAfterAddingSources.set(player.getCurrentWindowIndex());
                   }
                 })
@@ -1940,7 +1940,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Position while in error state
                     positionHolder[0] = player.getCurrentPosition();
                     windowIndexHolder[0] = player.getCurrentWindowIndex();
@@ -1950,7 +1950,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Position while repreparing.
                     positionHolder[1] = player.getCurrentPosition();
                     windowIndexHolder[1] = player.getCurrentWindowIndex();
@@ -1960,7 +1960,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Position after repreparation finished.
                     positionHolder[2] = player.getCurrentPosition();
                     windowIndexHolder[2] = player.getCurrentWindowIndex();
@@ -2005,7 +2005,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Position while in error state
                     positionHolder[0] = player.getCurrentPosition();
                     windowIndexHolder[0] = player.getCurrentWindowIndex();
@@ -2016,7 +2016,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Position while in error state
                     positionHolder[1] = player.getCurrentPosition();
                     windowIndexHolder[1] = player.getCurrentWindowIndex();
@@ -2026,7 +2026,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Position after prepare.
                     positionHolder[2] = player.getCurrentPosition();
                     windowIndexHolder[2] = player.getCurrentWindowIndex();
@@ -2618,7 +2618,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     message.set(
                         player.createMessage(target).setPosition(/* positionMs= */ 50).send());
                   }
@@ -2648,7 +2648,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     message.set(
                         player
                             .createMessage(target)
@@ -2879,7 +2879,7 @@ public final class ExoPlayerTest {
             return super.createPeriod(id, allocator, startPositionUs);
           }
         };
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.setMediaSource(mediaSource);
     // Throw on the playback thread if the player position reaches a value that is just less than
     // seek position. This ensures that playback stops and the assertion on the player position
@@ -2973,7 +2973,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     mediaSource.removeMediaSource(/* index= */ 0);
                     try {
                       // Wait until the source to be removed is released on the playback thread. So
@@ -2994,7 +2994,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowCount[0] = player.getCurrentTimeline().getWindowCount();
                     position[0] = player.getCurrentPosition();
                   }
@@ -3076,7 +3076,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerReference.set(player);
                     player.addListener(playerListener1);
                     player.addListener(playerListener2);
@@ -3137,7 +3137,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerReference.set(player);
                     player.addListener(playerListener);
                   }
@@ -3176,7 +3176,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerReference.set(player);
                     player.addListener(playerListener);
                   }
@@ -3244,7 +3244,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerReference.set(player);
                     player.addListener(playerListener);
                   }
@@ -3375,7 +3375,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionWhenReady.set(player.getContentPosition());
                   }
                 })
@@ -3419,7 +3419,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     periodIndexWhenReady.set(player.getCurrentPeriodIndex());
                     positionWhenReady.set(player.getContentPosition());
                   }
@@ -3469,7 +3469,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerReference.set(player);
                     player.addListener(playerListener);
                   }
@@ -3520,7 +3520,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerReference.set(player);
                     player.addListener(playerListener);
                   }
@@ -3573,7 +3573,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerReference.set(player);
                     player.addListener(playerListener);
                   }
@@ -3593,7 +3593,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void adInMovingLiveWindow_keepsContentPosition() throws Exception {
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     AdPlaybackState adPlaybackState =
         FakeTimeline.createAdPlaybackState(
             /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */ 42_000_004_000_000L);
@@ -3648,9 +3648,7 @@ public final class ExoPlayerTest {
         new Action("getPlaybackSpeed", /* description= */ null) {
           @Override
           protected void doActionImpl(
-              SimpleExoPlayer player,
-              DefaultTrackSelector trackSelector,
-              @Nullable Surface surface) {
+              ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
             maskedPlaybackSpeeds.add(player.getPlaybackParameters().speed);
           }
         };
@@ -3864,7 +3862,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPlaybackPositions[0] = player.getCurrentPosition();
                     windowCounts[0] = player.getCurrentTimeline().getWindowCount();
@@ -3902,7 +3900,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionMs[0] = player.getCurrentPosition();
                     bufferedPositions[0] = player.getBufferedPosition();
                     //noinspection deprecation
@@ -3916,7 +3914,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndex[0] = player.getCurrentWindowIndex();
                     positionMs[2] = player.getCurrentPosition();
                     bufferedPositions[2] = player.getBufferedPosition();
@@ -3956,7 +3954,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionMs[0] = player.getCurrentPosition();
                     bufferedPositions[0] = player.getBufferedPosition();
                     player.setMediaSource(mediaSource, /* startPositionMs= */ 7000);
@@ -3969,7 +3967,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndex[0] = player.getCurrentWindowIndex();
                     positionMs[2] = player.getCurrentPosition();
                     bufferedPositions[2] = player.getBufferedPosition();
@@ -4003,7 +4001,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(9000);
           }
         },
@@ -4035,7 +4033,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(9200);
           }
         },
@@ -4067,7 +4065,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(1000);
           }
         },
@@ -4094,7 +4092,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(0, 1000);
           }
         },
@@ -4123,7 +4121,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(2, 1000);
           }
         },
@@ -4157,7 +4155,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(1, 1000);
           }
         },
@@ -4193,7 +4191,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(1, 1000);
           }
         },
@@ -4228,7 +4226,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(1, 5000);
           }
         },
@@ -4261,7 +4259,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.seekTo(1, 5000);
           }
         },
@@ -4297,7 +4295,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.addMediaSource(
                 /* index= */ 1, createPartiallyBufferedMediaSource(/* maxBufferedPositionMs= */ 0));
           }
@@ -4331,7 +4329,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.moveMediaItem(/* currentIndex= */ 1, /* newIndex= */ 2);
           }
         },
@@ -4365,7 +4363,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.moveMediaItem(/* currentIndex= */ 3, /* newIndex= */ 1);
           }
         },
@@ -4400,7 +4398,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.removeMediaItem(/* index= */ 0);
           }
         },
@@ -4435,7 +4433,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.removeMediaItem(/* index= */ 2);
           }
         },
@@ -4470,7 +4468,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.removeMediaItem(/* index= */ 1);
           }
         },
@@ -4504,7 +4502,7 @@ public final class ExoPlayerTest {
     runPositionMaskingCapturingActionSchedule(
         new PlayerRunnable() {
           @Override
-          public void run(SimpleExoPlayer player) {
+          public void run(ExoPlayer player) {
             player.clearMediaItems();
           }
         },
@@ -4544,7 +4542,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndex[0] = player.getCurrentWindowIndex();
                     positionMs[0] = player.getCurrentPosition();
                     bufferedPosition[0] = player.getBufferedPosition();
@@ -4555,7 +4553,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndex[1] = player.getCurrentWindowIndex();
                     positionMs[1] = player.getCurrentPosition();
                     bufferedPosition[1] = player.getBufferedPosition();
@@ -4651,7 +4649,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.addMediaSource(/* index= */ 1, new FakeMediaSource());
                     windowIndex[0] = player.getCurrentWindowIndex();
                     isPlayingAd[0] = player.isPlayingAd();
@@ -4664,7 +4662,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndex[1] = player.getCurrentWindowIndex();
                     isPlayingAd[1] = player.isPlayingAd();
                     positionMs[1] = player.getCurrentPosition();
@@ -4677,7 +4675,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.addMediaSource(new FakeMediaSource());
                     windowIndex[2] = player.getCurrentWindowIndex();
                     isPlayingAd[2] = player.isPlayingAd();
@@ -4752,7 +4750,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 8000);
                     windowIndex[0] = player.getCurrentWindowIndex();
                     isPlayingAd[0] = player.isPlayingAd();
@@ -4765,7 +4763,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndex[1] = player.getCurrentWindowIndex();
                     isPlayingAd[1] = player.isPlayingAd();
                     positionMs[1] = player.getCurrentPosition();
@@ -4820,7 +4818,7 @@ public final class ExoPlayerTest {
                 adPlaybackState));
     FakeMediaSource adsMediaSource = new FakeMediaSource(adTimeline);
 
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.setMediaSource(adsMediaSource);
     player.pause();
     player.prepare();
@@ -4835,7 +4833,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void becomingNoisyIgnoredIfBecomingNoisyHandlingIsDisabled() throws Exception {
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.play();
 
     player.setHandleAudioBecomingNoisy(false);
@@ -4849,7 +4847,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void pausesWhenBecomingNoisyIfBecomingNoisyHandlingIsEnabled() throws Exception {
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.play();
 
     player.setHandleAudioBecomingNoisy(true);
@@ -5063,7 +5061,7 @@ public final class ExoPlayerTest {
                 /* deferOnPrepared= */ id.adIndexInAdGroup == 1);
           }
         };
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.setMediaSource(mediaSource);
     player.prepare();
     player.play();
@@ -5322,7 +5320,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.setMediaSource(new FakeMediaSource(), /* startPositionMs= */ 1000);
                     maskingPlaybackState[0] = player.getPlaybackState();
                   }
@@ -5509,7 +5507,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                   }
                 })
@@ -5574,7 +5572,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPlaybackPositions[0] = player.getCurrentPosition();
                   }
@@ -5610,7 +5608,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPlaybackPositions[0] = player.getCurrentPosition();
                     windowCounts[0] = player.getCurrentTimeline().getWindowCount();
@@ -5626,7 +5624,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[1] = player.getCurrentWindowIndex();
                     currentPlaybackPositions[1] = player.getCurrentPosition();
                     windowCounts[1] = player.getCurrentTimeline().getWindowCount();
@@ -5681,7 +5679,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPlaybackPositions[0] = player.getCurrentPosition();
                     windowCounts[0] = player.getCurrentTimeline().getWindowCount();
@@ -5697,7 +5695,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[1] = player.getCurrentWindowIndex();
                     currentPlaybackPositions[1] = player.getCurrentPosition();
                     windowCounts[1] = player.getCurrentTimeline().getWindowCount();
@@ -5761,7 +5759,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionAfterSetPlayWhenReady.set(player.getCurrentPosition());
                   }
                 })
@@ -5785,7 +5783,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentPositionMs[0] = player.getCurrentPosition();
                     bufferedPositionMs[0] = player.getBufferedPosition();
                     player.setPlayWhenReady(true);
@@ -5822,7 +5820,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentPositionMs[0] = player.getCurrentPosition();
                     bufferedPositionMs[0] = player.getBufferedPosition();
                     player.setShuffleModeEnabled(true);
@@ -5859,7 +5857,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     positionAfterSetShuffleOrder.set(player.getCurrentPosition());
                   }
                 })
@@ -5882,7 +5880,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     List<MediaSource> listOfTwo =
                         ImmutableList.of(new FakeMediaSource(), new FakeMediaSource());
@@ -5895,7 +5893,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                   }
                 })
@@ -5920,7 +5918,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 1000);
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPositions[0] = player.getCurrentPosition();
@@ -5958,7 +5956,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     List<MediaSource> listOfTwo =
                         ImmutableList.of(new FakeMediaSource(), new FakeMediaSource());
@@ -5971,7 +5969,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                   }
                 })
@@ -5999,7 +5997,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     List<MediaSource> listOfTwo =
                         ImmutableList.of(new FakeMediaSource(), new FakeMediaSource());
@@ -6012,7 +6010,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                   }
                 })
@@ -6037,7 +6035,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Increase current window index.
                     player.addMediaSource(/* index= */ 0, new FakeMediaSource());
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
@@ -6046,7 +6044,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Current window index is unchanged.
                     player.addMediaSource(/* index= */ 2, new FakeMediaSource());
                     currentWindowIndices[1] = player.getCurrentWindowIndex();
@@ -6055,7 +6053,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     MediaSource mediaSource = new FakeMediaSource();
                     ConcatenatingMediaSource concatenatingMediaSource =
                         new ConcatenatingMediaSource(mediaSource, mediaSource, mediaSource);
@@ -6067,7 +6065,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     ConcatenatingMediaSource concatenatingMediaSource =
                         new ConcatenatingMediaSource();
                     // Current window index is unchanged when adding empty source.
@@ -6103,7 +6101,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPositions[0] = player.getCurrentPosition();
                     bufferedPositions[0] = player.getBufferedPosition();
@@ -6119,7 +6117,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                     currentPositions[2] = player.getCurrentPosition();
                     bufferedPositions[2] = player.getBufferedPosition();
@@ -6152,7 +6150,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPositions[0] = player.getCurrentPosition();
                     bufferedPositions[0] = player.getBufferedPosition();
@@ -6168,7 +6166,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                     currentPositions[2] = player.getCurrentPosition();
                     bufferedPositions[2] = player.getBufferedPosition();
@@ -6198,7 +6196,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     // Increase current window index.
                     player.addMediaSource(/* index= */ 0, new FakeMediaSource());
@@ -6209,7 +6207,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                   }
                 })
@@ -6233,7 +6231,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set empty media item with no seek.
                     player.setMediaSource(new ConcatenatingMediaSource());
                     maskingPlaybackStates[0] = player.getPlaybackState();
@@ -6242,7 +6240,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with an implicit seek to the current position.
                     player.setMediaSource(new FakeMediaSource());
                     maskingPlaybackStates[1] = player.getPlaybackState();
@@ -6251,7 +6249,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with an explicit seek.
                     player.setMediaSource(
                         new FakeMediaSource(), /* startPositionMs= */ C.TIME_UNSET);
@@ -6261,7 +6259,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set empty media item with an explicit seek.
                     player.setMediaSource(
                         new ConcatenatingMediaSource(), /* startPositionMs= */ C.TIME_UNSET);
@@ -6301,7 +6299,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set a media item with an implicit seek to the current position which is
                     // invalid in the new timeline.
                     player.setMediaSource(
@@ -6339,7 +6337,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with no seek.
                     player.setMediaSource(new FakeMediaSource());
                     maskingPlaybackStates[0] = player.getPlaybackState();
@@ -6374,7 +6372,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set an empty media item with no seek.
                     player.setMediaSource(new ConcatenatingMediaSource());
                     maskingPlaybackStates[0] = player.getPlaybackState();
@@ -6415,7 +6413,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set empty media item with an implicit seek to the current position.
                     player.setMediaSource(new ConcatenatingMediaSource());
                     maskingPlaybackStates[0] = player.getPlaybackState();
@@ -6425,7 +6423,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set empty media item with an explicit seek.
                     player.setMediaSource(
                         new ConcatenatingMediaSource(), /* startPositionMs= */ C.TIME_UNSET);
@@ -6436,7 +6434,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with an implicit seek to the current position.
                     player.setMediaSource(firstMediaSource);
                     maskingPlaybackStates[2] = player.getPlaybackState();
@@ -6447,7 +6445,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with an explicit seek.
                     player.setMediaSource(secondMediaSource, /* startPositionMs= */ C.TIME_UNSET);
                     maskingPlaybackStates[3] = player.getPlaybackState();
@@ -6496,7 +6494,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with an invalid implicit seek to the current position.
                     player.setMediaSource(
                         new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1, 1L)),
@@ -6536,7 +6534,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with no seek (keep current position).
                     player.setMediaSource(new FakeMediaSource(), /* resetPosition= */ false);
                     maskingPlaybackStates[0] = player.getPlaybackState();
@@ -6576,7 +6574,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set an empty media item with no seek.
                     player.setMediaSource(new ConcatenatingMediaSource());
                     maskingPlaybackStates[0] = player.getPlaybackState();
@@ -6616,7 +6614,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set empty media item with an implicit seek to current position.
                     player.setMediaSource(
                         new ConcatenatingMediaSource(), /* resetPosition= */ false);
@@ -6630,7 +6628,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set empty media item with an explicit seek.
                     player.setMediaSource(
                         new ConcatenatingMediaSource(), /* startPositionMs= */ C.TIME_UNSET);
@@ -6644,7 +6642,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with an explicit seek.
                     player.setMediaSource(secondMediaSource, /* startPositionMs= */ C.TIME_UNSET);
                     // Expect masking state is buffering,
@@ -6657,7 +6655,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Set media item with an implicit seek to the current position.
                     player.setMediaSource(secondMediaSource, /* resetPosition= */ false);
                     // Expect masking state is buffering,
@@ -6729,7 +6727,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // An implicit, invalid seek picking up the position set by the initial seek.
                     player.setMediaSource(firstMediaSource, /* resetPosition= */ false);
                     // Expect masking state is ended,
@@ -6778,7 +6776,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.addMediaSource(/* index= */ 0, new FakeMediaSource());
                     positions[0] = player.getCurrentPosition();
                     positions[1] = player.getBufferedPosition();
@@ -6814,7 +6812,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     // If the timeline is empty masking variables are used.
                     currentPositions[0] = player.getCurrentPosition();
@@ -6837,7 +6835,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[4] = player.getCurrentWindowIndex();
                     // Finally original playbackInfo coming from EPII is used.
                     currentPositions[2] = player.getCurrentPosition();
@@ -6875,7 +6873,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     player.addMediaSource(new FakeMediaSource());
                     currentWindowIndices[1] = player.getCurrentWindowIndex();
@@ -6886,7 +6884,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                   }
                 })
@@ -6917,7 +6915,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Move the current item down in the playlist.
                     player.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 2, /* newIndex= */ 1);
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
@@ -6926,7 +6924,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Move the current item up in the playlist.
                     player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3, /* newIndex= */ 0);
                     currentWindowIndices[1] = player.getCurrentWindowIndex();
@@ -6936,7 +6934,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Move items from before to behind the current item.
                     player.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 2, /* newIndex= */ 1);
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
@@ -6945,7 +6943,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Move items from behind to before the current item.
                     player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 3, /* newIndex= */ 0);
                     currentWindowIndices[3] = player.getCurrentWindowIndex();
@@ -6954,7 +6952,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Move items from before to before the current item.
                     // No change in currentWindowIndex.
                     player.moveMediaItems(/* fromIndex= */ 0, /* toIndex= */ 1, /* newIndex= */ 1);
@@ -6965,7 +6963,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Move items from behind to behind the current item.
                     // No change in currentWindowIndex.
                     player.moveMediaItems(/* fromIndex= */ 1, /* toIndex= */ 2, /* newIndex= */ 2);
@@ -6992,7 +6990,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Increase current window index.
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     player.moveMediaItem(/* currentIndex= */ 0, /* newIndex= */ 1);
@@ -7004,7 +7002,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                   }
                 })
@@ -7028,7 +7026,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Decrease current window index.
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     player.removeMediaItem(/* index= */ 0);
@@ -7058,7 +7056,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Remove the current item.
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPositions[0] = player.getCurrentPosition();
@@ -7110,7 +7108,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Expect the current window index to be 2 after seek.
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPositions[0] = player.getCurrentPosition();
@@ -7129,7 +7127,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Expects the current window index still on 0.
                     currentWindowIndices[2] = player.getCurrentWindowIndex();
                     // Insert an item at begin when the playlist is not empty.
@@ -7146,7 +7144,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[4] = player.getCurrentWindowIndex();
                     // Implicit seek to the current window index, which is out of bounds in new
                     // timeline.
@@ -7161,7 +7159,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[6] = player.getCurrentWindowIndex();
                     // Explicit seek to (0, C.TIME_UNSET). Player transitions to BUFFERING.
                     player.setMediaSource(fourthMediaSource, /* startPositionMs= */ 5000);
@@ -7175,7 +7173,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Check whether actual window index is equal masking index from above.
                     currentWindowIndices[8] = player.getCurrentWindowIndex();
                   }
@@ -7253,7 +7251,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentPosition[0] = player.getCurrentPosition();
                     bufferedPosition[0] = player.getBufferedPosition();
@@ -7294,7 +7292,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     currentWindowIndices[0] = player.getCurrentWindowIndex();
                     currentStates[0] = player.getPlaybackState();
                     player.clearMediaItems();
@@ -7306,7 +7304,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     // Transitions to ended when prepared with zero media items.
                     currentStates[2] = player.getPlaybackState();
                   }
@@ -7357,7 +7355,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.addAnalyticsListener(
                         new AnalyticsListener() {
                           @Override
@@ -7412,7 +7410,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.seekTo(player.getCurrentPosition());
                   }
                 })
@@ -7421,7 +7419,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     windowIndexAfterFinalEndedState.set(player.getCurrentWindowIndex());
                   }
                 })
@@ -7456,7 +7454,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playbackStateAfterPause.set(player.getPlaybackState());
                     windowIndexAfterPause.set(player.getCurrentWindowIndex());
                     positionAfterPause.set(player.getContentPosition());
@@ -7495,7 +7493,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playbackStateAfterPause.set(player.getPlaybackState());
                     windowIndexAfterPause.set(player.getCurrentWindowIndex());
                     positionAfterPause.set(player.getContentPosition());
@@ -7747,7 +7745,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.addListener(playerListener1);
                     player.addListener(playerListener2);
                   }
@@ -7915,7 +7913,7 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     playerHolder[0] = player;
                   }
                 })
@@ -8993,7 +8991,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void enableOffloadSchedulingWhileIdle_isToggled_isReported() throws Exception {
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
 
     player.experimentalSetOffloadSchedulingEnabled(true);
     assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isTrue();
@@ -9005,7 +9003,7 @@ public final class ExoPlayerTest {
   @Test
   public void enableOffloadSchedulingWhilePlaying_isToggled_isReported() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
     player.prepare();
@@ -9022,7 +9020,7 @@ public final class ExoPlayerTest {
   public void enableOffloadSchedulingWhileSleepingForOffload_isDisabled_isReported()
       throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
     player.experimentalSetOffloadSchedulingEnabled(true);
@@ -9038,7 +9036,7 @@ public final class ExoPlayerTest {
   @Test
   public void enableOffloadScheduling_isEnable_playerSleeps() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
     player.experimentalSetOffloadSchedulingEnabled(true);
@@ -9056,7 +9054,7 @@ public final class ExoPlayerTest {
       experimentalEnableOffloadSchedulingWhileSleepingForOffload_isDisabled_renderingResumes()
           throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
     player.experimentalSetOffloadSchedulingEnabled(true);
@@ -9074,7 +9072,7 @@ public final class ExoPlayerTest {
   @Test
   public void wakeupListenerWhileSleepingForOffload_isWokenUp_renderingResumes() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
-    SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
     player.experimentalSetOffloadSchedulingEnabled(true);
@@ -11119,7 +11117,7 @@ public final class ExoPlayerTest {
   public void newServerSideInsertedAdAtPlaybackPosition_keepsRenderersEnabled() throws Exception {
     // Injecting renderer to count number of renderer resets.
     AtomicReference<FakeVideoRenderer> videoRenderer = new AtomicReference<>();
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(context)
             .setRenderersFactory(
                 (handler, videoListener, audioListener, textOutput, metadataOutput) -> {
@@ -11192,14 +11190,14 @@ public final class ExoPlayerTest {
         .executeRunnable(
             new PlayerRunnable() {
               @Override
-              public void run(SimpleExoPlayer player) {
+              public void run(ExoPlayer player) {
                 player.setVideoSurface(surface1);
               }
             })
         .executeRunnable(
             new PlayerRunnable() {
               @Override
-              public void run(SimpleExoPlayer player) {
+              public void run(ExoPlayer player) {
                 player.setVideoSurface(surface2);
               }
             });
@@ -11330,7 +11328,7 @@ public final class ExoPlayerTest {
     }
 
     @Override
-    public void handleMessage(SimpleExoPlayer player, int messageType, @Nullable Object message) {
+    public void handleMessage(ExoPlayer player, int messageType, @Nullable Object message) {
       windowIndex = player.getCurrentWindowIndex();
       positionMs = player.getCurrentPosition();
       messageCount++;
@@ -11344,7 +11342,7 @@ public final class ExoPlayerTest {
     @Nullable public Timeline timeline;
 
     @Override
-    public void run(SimpleExoPlayer player) {
+    public void run(ExoPlayer player) {
       playWhenReady = player.getPlayWhenReady();
       playbackState = player.getPlaybackState();
       timeline = player.getCurrentTimeline();
@@ -11379,7 +11377,7 @@ public final class ExoPlayerTest {
     }
 
     @Override
-    public void run(SimpleExoPlayer player) {
+    public void run(ExoPlayer player) {
       playbackStates[index] = player.getPlaybackState();
       timelineWindowCount[index] = player.getCurrentTimeline().getWindowCount();
     }

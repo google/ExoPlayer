@@ -23,7 +23,6 @@ import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
@@ -33,8 +32,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
- * Helper methods to block the calling thread until the provided {@link SimpleExoPlayer} instance
- * reaches a particular state.
+ * Helper methods to block the calling thread until the provided {@link ExoPlayer} instance reaches
+ * a particular state.
  */
 public class TestPlayerRunHelper {
 
@@ -260,7 +259,7 @@ public class TestPlayerRunHelper {
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void runUntilRenderedFirstFrame(SimpleExoPlayer player) throws TimeoutException {
+  public static void runUntilRenderedFirstFrame(ExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
     Player.Listener listener =

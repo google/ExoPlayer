@@ -20,12 +20,12 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -91,7 +91,7 @@ public final class ActionSchedule {
    *     notification is needed.
    */
   /* package */ void start(
-      SimpleExoPlayer player,
+      ExoPlayer player,
       DefaultTrackSelector trackSelector,
       @Nullable Surface surface,
       HandlerWrapper mainHandler,
@@ -601,7 +601,7 @@ public final class ActionSchedule {
       void onMessageArrived();
     }
 
-    @Nullable private SimpleExoPlayer player;
+    @Nullable private ExoPlayer player;
     private boolean hasArrived;
     @Nullable private Callback callback;
 
@@ -613,8 +613,7 @@ public final class ActionSchedule {
     }
 
     /** Handles the message send to the component and additionally provides access to the player. */
-    public abstract void handleMessage(
-        SimpleExoPlayer player, int messageType, @Nullable Object message);
+    public abstract void handleMessage(ExoPlayer player, int messageType, @Nullable Object message);
 
     @Override
     public final void handleMessage(
@@ -626,8 +625,8 @@ public final class ActionSchedule {
       }
     }
 
-    /** Sets the player to be passed to {@link #handleMessage(SimpleExoPlayer, int, Object)}. */
-    /* package */ void setPlayer(SimpleExoPlayer player) {
+    /** Sets the player to be passed to {@link #handleMessage(ExoPlayer, int, Object)}. */
+    /* package */ void setPlayer(ExoPlayer player) {
       this.player = player;
     }
   }
@@ -638,18 +637,18 @@ public final class ActionSchedule {
    */
   public abstract static class PlayerRunnable implements Runnable {
 
-    @Nullable private SimpleExoPlayer player;
+    @Nullable private ExoPlayer player;
 
     /** Executes Runnable with reference to player. */
-    public abstract void run(SimpleExoPlayer player);
+    public abstract void run(ExoPlayer player);
 
     @Override
     public final void run() {
       run(Assertions.checkStateNotNull(player));
     }
 
-    /** Sets the player to be passed to {@link #run(SimpleExoPlayer)} . */
-    /* package */ void setPlayer(SimpleExoPlayer player) {
+    /** Sets the player to be passed to {@link #run(ExoPlayer)} . */
+    /* package */ void setPlayer(ExoPlayer player) {
       this.player = player;
     }
   }
@@ -663,7 +662,7 @@ public final class ActionSchedule {
 
     @Nullable private ActionNode next;
 
-    private @MonotonicNonNull SimpleExoPlayer player;
+    private @MonotonicNonNull ExoPlayer player;
     private @MonotonicNonNull DefaultTrackSelector trackSelector;
     @Nullable private Surface surface;
     private @MonotonicNonNull HandlerWrapper mainHandler;
@@ -707,7 +706,7 @@ public final class ActionSchedule {
      * @param mainHandler A handler associated with the main thread of the host activity.
      */
     public void schedule(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper mainHandler) {
@@ -754,7 +753,7 @@ public final class ActionSchedule {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Do nothing.
     }
   }
@@ -774,7 +773,7 @@ public final class ActionSchedule {
 
     @Override
     protected void doActionAndScheduleNextImpl(
-        SimpleExoPlayer player,
+        ExoPlayer player,
         DefaultTrackSelector trackSelector,
         @Nullable Surface surface,
         HandlerWrapper handler,
@@ -788,7 +787,7 @@ public final class ActionSchedule {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
+        ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       // Not triggered.
     }
   }

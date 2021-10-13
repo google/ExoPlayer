@@ -81,7 +81,6 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.TracksInfo;
@@ -1048,7 +1047,7 @@ public final class AnalyticsCollectorTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.addListener(
                         new Player.Listener() {
                           @Override
@@ -1422,7 +1421,7 @@ public final class AnalyticsCollectorTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.getAnalyticsCollector().notifySeekStarted();
                   }
                 })
@@ -1653,7 +1652,7 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void onEvents_isReportedWithCorrectEventTimes() throws Exception {
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
     Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     player.setVideoSurface(surface);
@@ -1987,7 +1986,7 @@ public final class AnalyticsCollectorTest {
   public void release_withCallbacksArrivingAfterRelease_onPlayerReleasedForwardedLast()
       throws Exception {
     FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, /* isAutoAdvancing= */ true);
-    SimpleExoPlayer simpleExoPlayer =
+    ExoPlayer exoPlayer =
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
             .setClock(fakeClock)
             .build();
@@ -2001,16 +2000,16 @@ public final class AnalyticsCollectorTest {
                 fakeClock.advanceTime(1);
               }
             });
-    simpleExoPlayer.addAnalyticsListener(analyticsListener);
+    exoPlayer.addAnalyticsListener(analyticsListener);
 
     // Prepare with media to ensure video renderer is enabled.
-    simpleExoPlayer.setMediaSource(
+    exoPlayer.setMediaSource(
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
-    simpleExoPlayer.prepare();
-    TestPlayerRunHelper.runUntilPlaybackState(simpleExoPlayer, Player.STATE_READY);
+    exoPlayer.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(exoPlayer, Player.STATE_READY);
 
     // Release and add delay on releasing thread to verify timestamps of events.
-    simpleExoPlayer.release();
+    exoPlayer.release();
     long releaseTimeMs = fakeClock.currentTimeMillis();
     fakeClock.advanceTime(1);
     ShadowLooper.idleMainLooper();
@@ -2024,11 +2023,11 @@ public final class AnalyticsCollectorTest {
     inOrder.verify(analyticsListener).onVideoDisabled(videoDisabledEventTime.capture(), any());
     inOrder
         .verify(analyticsListener)
-        .onEvents(same(simpleExoPlayer), argThat(events -> events.contains(EVENT_VIDEO_DISABLED)));
+        .onEvents(same(exoPlayer), argThat(events -> events.contains(EVENT_VIDEO_DISABLED)));
     inOrder.verify(analyticsListener).onPlayerReleased(releasedEventTime.capture());
     inOrder
         .verify(analyticsListener)
-        .onEvents(same(simpleExoPlayer), argThat(events -> events.contains(EVENT_PLAYER_RELEASED)));
+        .onEvents(same(exoPlayer), argThat(events -> events.contains(EVENT_PLAYER_RELEASED)));
 
     // Verify order of timestamps of these events.
     // This verification is needed as a regression test against [internal ref: b/195396384]. The

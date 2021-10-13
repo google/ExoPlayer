@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.util.concurrent.atomic.AtomicReference;
 import okhttp3.mockwebserver.MockResponse;
@@ -64,7 +63,7 @@ public final class DrmPlaybackTest {
                     .setLicenseUri(mockWebServer.url("license").toString())
                     .build())
             .build();
-    AtomicReference<SimpleExoPlayer> player = new AtomicReference<>();
+    AtomicReference<ExoPlayer> player = new AtomicReference<>();
     ConditionVariable playbackComplete = new ConditionVariable();
     AtomicReference<PlaybackException> playbackException = new AtomicReference<>();
     getInstrumentation()

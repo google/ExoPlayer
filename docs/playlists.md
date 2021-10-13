@@ -166,9 +166,9 @@ This can be customized by providing a custom shuffle order implementation:
 
 ~~~
 // Set the custom shuffle order.
-simpleExoPlayer.setShuffleOrder(shuffleOrder);
+exoPlayer.setShuffleOrder(shuffleOrder);
 // Enable shuffle mode.
-simpleExoPlayer.setShuffleModeEnabled(/* shuffleModeEnabled= */ true);
+exoPlayer.setShuffleModeEnabled(/* shuffleModeEnabled= */ true);
 ~~~
 {: .language-java}
 

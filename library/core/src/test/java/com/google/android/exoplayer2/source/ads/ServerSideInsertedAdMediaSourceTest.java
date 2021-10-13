@@ -38,7 +38,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
@@ -143,7 +142,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
   public void playbackWithPredefinedAds_playsSuccessfulWithoutRendererResets() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(context);
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
@@ -202,7 +201,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
   public void playbackWithNewlyInsertedAds_playsSuccessfulWithoutRendererResets() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(context);
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
@@ -262,7 +261,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(context);
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
@@ -319,7 +318,7 @@ public final class ServerSideInsertedAdMediaSourceTest {
   @Test
   public void playbackWithSeek_isHandledCorrectly() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new ExoPlayer.Builder(context).setClock(new FakeClock(/* isAutoAdvancing= */ true)).build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
 
