@@ -62,7 +62,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
@@ -76,6 +75,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.Tra
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
@@ -1251,42 +1251,35 @@ public class StyledPlayerControlView extends FrameLayout {
       return;
     }
     TracksInfo tracksInfo = player.getCurrentTracksInfo();
-    List<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    if (trackGroupInfos.isEmpty()) {
-      return;
+    audioTrackSelectionAdapter.init(
+        gatherSupportedTrackInfosOfType(tracksInfo, C.TRACK_TYPE_AUDIO));
+    if (controlViewLayoutManager.getShowButton(subtitleButton)) {
+      textTrackSelectionAdapter.init(
+          gatherSupportedTrackInfosOfType(tracksInfo, C.TRACK_TYPE_TEXT));
+    } else {
+      textTrackSelectionAdapter.init(ImmutableList.of());
     }
-    List<TrackInformation> textTracks = new ArrayList<>();
-    List<TrackInformation> audioTracks = new ArrayList<>();
-    for (int trackGroupIndex = 0; trackGroupIndex < trackGroupInfos.size(); trackGroupIndex++) {
-      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(trackGroupIndex);
-      if (!trackGroupInfo.isSupported()) {
-        continue;
-      }
-      if (trackGroupInfo.getTrackType() == C.TRACK_TYPE_TEXT
-          && controlViewLayoutManager.getShowButton(subtitleButton)) {
-        // Get TrackSelection at the corresponding renderer index.
-        gatherTrackInfosForAdapter(tracksInfo, trackGroupIndex, textTracks);
-      } else if (trackGroupInfo.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        gatherTrackInfosForAdapter(tracksInfo, trackGroupIndex, audioTracks);
-      }
-    }
-    textTrackSelectionAdapter.init(textTracks);
-    audioTrackSelectionAdapter.init(audioTracks);
   }
 
-  private void gatherTrackInfosForAdapter(
-      TracksInfo tracksInfo, int trackGroupIndex, List<TrackInformation> tracks) {
-
-    TrackGroupInfo trackGroupInfo = tracksInfo.getTrackGroupInfos().get(trackGroupIndex);
-    TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
-    for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-      Format format = trackGroup.getFormat(trackIndex);
-      if (trackGroupInfo.isTrackSupported(trackIndex)) {
-        tracks.add(
-            new TrackInformation(
-                tracksInfo, trackGroupIndex, trackIndex, trackNameProvider.getTrackName(format)));
+  private ImmutableList<TrackInformation> gatherSupportedTrackInfosOfType(
+      TracksInfo tracksInfo, @C.TrackType int trackType) {
+    ImmutableList.Builder<TrackInformation> tracks = new ImmutableList.Builder<>();
+    List<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
+    for (int trackGroupIndex = 0; trackGroupIndex < trackGroupInfos.size(); trackGroupIndex++) {
+      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(trackGroupIndex);
+      if (trackGroupInfo.getTrackType() != trackType) {
+        continue;
+      }
+      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
+      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        if (!trackGroupInfo.isTrackSupported(trackIndex)) {
+          continue;
+        }
+        String trackName = trackNameProvider.getTrackName(trackGroup.getFormat(trackIndex));
+        tracks.add(new TrackInformation(tracksInfo, trackGroupIndex, trackIndex, trackName));
       }
     }
+    return tracks.build();
   }
 
   private void updateTimeline() {
