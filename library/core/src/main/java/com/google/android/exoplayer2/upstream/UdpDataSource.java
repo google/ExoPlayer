@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -63,7 +64,6 @@ public final class UdpDataSource extends BaseDataSource {
   @Nullable private DatagramSocket socket;
   @Nullable private MulticastSocket multicastSocket;
   @Nullable private InetAddress address;
-  @Nullable private InetSocketAddress socketAddress;
   private boolean opened;
 
   private int packetRemaining;
@@ -98,12 +98,12 @@ public final class UdpDataSource extends BaseDataSource {
   @Override
   public long open(DataSpec dataSpec) throws UdpDataSourceException {
     uri = dataSpec.uri;
-    String host = uri.getHost();
+    String host = checkNotNull(uri.getHost());
     int port = uri.getPort();
     transferInitializing(dataSpec);
     try {
       address = InetAddress.getByName(host);
-      socketAddress = new InetSocketAddress(address, port);
+      InetSocketAddress socketAddress = new InetSocketAddress(address, port);
       if (address.isMulticastAddress()) {
         multicastSocket = new MulticastSocket(socketAddress);
         multicastSocket.joinGroup(address);
@@ -133,7 +133,7 @@ public final class UdpDataSource extends BaseDataSource {
     if (packetRemaining == 0) {
       // We've read all of the data from the current packet. Get another.
       try {
-        socket.receive(packet);
+        checkNotNull(socket).receive(packet);
       } catch (SocketTimeoutException e) {
         throw new UdpDataSourceException(
             e, PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT);
@@ -163,7 +163,7 @@ public final class UdpDataSource extends BaseDataSource {
     uri = null;
     if (multicastSocket != null) {
       try {
-        multicastSocket.leaveGroup(address);
+        multicastSocket.leaveGroup(checkNotNull(address));
       } catch (IOException e) {
         // Do nothing.
       }
@@ -174,7 +174,6 @@ public final class UdpDataSource extends BaseDataSource {
       socket = null;
     }
     address = null;
-    socketAddress = null;
     packetRemaining = 0;
     if (opened) {
       opened = false;
