@@ -66,10 +66,12 @@ public final class AesCipherDataSink implements DataSink {
   @Override
   public void open(DataSpec dataSpec) throws IOException {
     wrappedDataSink.open(dataSpec);
-    long nonce = CryptoUtil.getFNV64Hash(dataSpec.key);
     cipher =
         new AesFlushingCipher(
-            Cipher.ENCRYPT_MODE, secretKey, nonce, dataSpec.uriPositionOffset + dataSpec.position);
+            Cipher.ENCRYPT_MODE,
+            secretKey,
+            dataSpec.key,
+            dataSpec.uriPositionOffset + dataSpec.position);
   }
 
   @Override
