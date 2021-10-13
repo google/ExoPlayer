@@ -22,7 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -49,7 +48,7 @@ import org.junit.rules.ExternalResource;
   private ExecutorService executor;
 
   private SessionPlayerConnector sessionPlayerConnector;
-  private SimpleExoPlayer exoPlayer;
+  private ExoPlayer exoPlayer;
   @Nullable private DataSourceInstrumentation dataSourceInstrumentation;
 
   @Override
@@ -111,7 +110,7 @@ import org.junit.rules.ExternalResource;
     return sessionPlayerConnector;
   }
 
-  public SimpleExoPlayer getSimpleExoPlayer() {
+  public ExoPlayer getExoPlayer() {
     return exoPlayer;
   }
 
