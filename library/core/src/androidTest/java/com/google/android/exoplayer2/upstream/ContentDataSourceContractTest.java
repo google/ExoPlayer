@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.AssetContentProvider;
 import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.common.collect.ImmutableList;
@@ -41,18 +42,18 @@ public final class ContentDataSourceContractTest extends DataSourceContractTest 
     return ImmutableList.of(
         new TestResource.Builder()
             .setName("simple (pipe=false)")
-            .setUri(TestContentProvider.buildUri(DATA_PATH, /* pipeMode= */ false))
+            .setUri(AssetContentProvider.buildUri(DATA_PATH, /* pipeMode= */ false))
             .setExpectedBytes(completeData)
             .build(),
         new TestResource.Builder()
             .setName("simple (pipe=true)")
-            .setUri(TestContentProvider.buildUri(DATA_PATH, /* pipeMode= */ true))
+            .setUri(AssetContentProvider.buildUri(DATA_PATH, /* pipeMode= */ true))
             .setExpectedBytes(completeData)
             .build());
   }
 
   @Override
   protected Uri getNotFoundUri() {
-    return TestContentProvider.buildUri("not/a/real/path", /* pipeMode= */ false);
+    return AssetContentProvider.buildUri("not/a/real/path", /* pipeMode= */ false);
   }
 }

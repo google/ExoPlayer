@@ -22,6 +22,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.AssetContentProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public final class ContentDataSourceTest {
   public void readInvalidUri() throws Exception {
     ContentDataSource dataSource =
         new ContentDataSource(ApplicationProvider.getApplicationContext());
-    Uri contentUri = TestContentProvider.buildUri("does/not.exist", false);
+    Uri contentUri = AssetContentProvider.buildUri("does/not.exist", false);
     DataSpec dataSpec = new DataSpec(contentUri);
     try {
       dataSource.open(dataSpec);
@@ -83,7 +84,7 @@ public final class ContentDataSourceTest {
   }
 
   private static void assertData(int offset, int length, boolean pipeMode) throws IOException {
-    Uri contentUri = TestContentProvider.buildUri(DATA_PATH, pipeMode);
+    Uri contentUri = AssetContentProvider.buildUri(DATA_PATH, pipeMode);
     ContentDataSource dataSource =
         new ContentDataSource(ApplicationProvider.getApplicationContext());
     try {
