@@ -1327,8 +1327,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       parent.skipBytes(6); // sampleSize, compressionId, packetSize.
 
       sampleRate = parent.readUnsignedFixedPoint1616();
-      parent.skipBytes(-4);
       // The sample rate has been redefined as a 32-bit value for Dolby TrueHD (MLP) streams.
+      parent.setPosition(parent.getPosition() - 4);
       sampleRateMlp = parent.readInt();
 
       if (quickTimeSoundDescriptionVersion == 1) {
