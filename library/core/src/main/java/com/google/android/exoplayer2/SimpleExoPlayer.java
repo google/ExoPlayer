@@ -88,10 +88,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeoutException;
 
-/**
- * An {@link ExoPlayer} implementation that uses default {@link Renderer} components. Instances can
- * be obtained from {@link ExoPlayer.Builder}.
- */
+/** @deprecated Use {@link ExoPlayer} instead. */
+@Deprecated
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
         ExoPlayer.AudioComponent,

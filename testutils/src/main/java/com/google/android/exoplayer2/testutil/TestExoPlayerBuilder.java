@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.util.Clock;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A builder of {@link SimpleExoPlayer} instances for testing. */
+@SuppressWarnings("deprecation") // Returning deprecated type for backwards compatibility.
 public class TestExoPlayerBuilder {
 
   private final Context context;
