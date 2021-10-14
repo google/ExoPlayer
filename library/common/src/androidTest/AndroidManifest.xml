@@ -16,19 +16,20 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.google.android.exoplayer2.core.test">
+    package="com.google.android.exoplayer2.common.test">
 
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-  <uses-permission android:name="android.permission.INTERNET"/>
   <uses-sdk/>
 
   <application
       android:allowBackup="false"
-      tools:ignore="MissingApplicationIcon,HardcodedDebugMode"
-      android:usesCleartextTraffic="true"/>
+      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
+    <provider
+      android:authorities="com.google.android.exoplayer2.testutil.AssetContentProvider"
+      android:name="com.google.android.exoplayer2.testutil.AssetContentProvider"/>
+  </application>
 
   <instrumentation
-      android:targetPackage="com.google.android.exoplayer2.core.test"
+      android:targetPackage="com.google.android.exoplayer2.common.test"
       android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

@@ -19,7 +19,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.core.test.R;
+import com.google.android.exoplayer2.common.test.R;
 import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
