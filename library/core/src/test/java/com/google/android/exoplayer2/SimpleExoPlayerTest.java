@@ -53,7 +53,7 @@ public class SimpleExoPlayerTest {
   public void builder_inBackgroundThread_doesNotThrow() throws Exception {
     Thread builderThread =
         new Thread(
-            () -> new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build());
+            () -> new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build());
     AtomicReference<Throwable> builderThrow = new AtomicReference<>();
     builderThread.setUncaughtExceptionHandler((thread, throwable) -> builderThrow.set(throwable));
 
@@ -66,7 +66,7 @@ public class SimpleExoPlayerTest {
   @Test
   public void onPlaylistMetadataChanged_calledWhenPlaylistMetadataSet() {
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
     Player.Listener playerListener = mock(Player.Listener.class);
     player.addListener(playerListener);
     AnalyticsListener analyticsListener = mock(AnalyticsListener.class);
@@ -82,7 +82,7 @@ public class SimpleExoPlayerTest {
   @Test
   public void release_triggersAllPendingEventsInAnalyticsListeners() throws Exception {
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(
+        new SimpleExoPlayer.Builder(
                 ApplicationProvider.getApplicationContext(),
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
@@ -108,7 +108,7 @@ public class SimpleExoPlayerTest {
   public void releaseAfterRendererEvents_triggersPendingVideoEventsInListener() throws Exception {
     Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(
+        new SimpleExoPlayer.Builder(
                 ApplicationProvider.getApplicationContext(),
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
@@ -134,7 +134,7 @@ public class SimpleExoPlayerTest {
   @Test
   public void releaseAfterVolumeChanges_triggerPendingVolumeEventInListener() throws Exception {
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
 
@@ -148,7 +148,7 @@ public class SimpleExoPlayerTest {
   @Test
   public void releaseAfterVolumeChanges_triggerPendingDeviceVolumeEventsInListener() {
     SimpleExoPlayer player =
-        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
 

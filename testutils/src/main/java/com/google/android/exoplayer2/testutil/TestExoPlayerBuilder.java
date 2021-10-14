@@ -22,7 +22,6 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -274,11 +273,7 @@ public class TestExoPlayerBuilder {
     return seekForwardIncrementMs;
   }
 
-  /**
-   * Builds an {@link SimpleExoPlayer} using the provided values or their defaults.
-   *
-   * @return The built {@link ExoPlayerTestRunner}.
-   */
+  /** Builds an {@link SimpleExoPlayer} using the provided values or their defaults. */
   public SimpleExoPlayer build() {
     Assertions.checkNotNull(
         looper, "TestExoPlayer builder run on a thread without Looper and no Looper specified.");
@@ -300,8 +295,8 @@ public class TestExoPlayerBuilder {
                   };
     }
 
-    ExoPlayer.Builder builder =
-        new ExoPlayer.Builder(context, playerRenderersFactory)
+    SimpleExoPlayer.Builder builder =
+        new SimpleExoPlayer.Builder(context, playerRenderersFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setBandwidthMeter(bandwidthMeter)
