@@ -27,7 +27,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -144,37 +143,32 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onSkipToPrevious(Player player, @Deprecated ControlDispatcher controlDispatcher) {
-    controlDispatcher.dispatchPrevious(player);
+  public void onSkipToPrevious(Player player) {
+    player.seekToPrevious();
   }
 
   @Override
-  public void onSkipToQueueItem(
-      Player player, @Deprecated ControlDispatcher controlDispatcher, long id) {
+  public void onSkipToQueueItem(Player player, long id) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
     }
     int windowIndex = (int) id;
     if (0 <= windowIndex && windowIndex < timeline.getWindowCount()) {
-      controlDispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET);
+      player.seekToDefaultPosition(windowIndex);
     }
   }
 
   @Override
-  public void onSkipToNext(Player player, @Deprecated ControlDispatcher controlDispatcher) {
-    controlDispatcher.dispatchNext(player);
+  public void onSkipToNext(Player player) {
+    player.seekToNext();
   }
 
   // CommandReceiver implementation.
 
   @Override
   public boolean onCommand(
-      Player player,
-      @Deprecated ControlDispatcher controlDispatcher,
-      String command,
-      @Nullable Bundle extras,
-      @Nullable ResultReceiver cb) {
+      Player player, String command, @Nullable Bundle extras, @Nullable ResultReceiver cb) {
     return false;
   }
 

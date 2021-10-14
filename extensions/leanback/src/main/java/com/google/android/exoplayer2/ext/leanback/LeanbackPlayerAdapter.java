@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -74,17 +73,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     handler = Util.createHandlerForCurrentOrMainLooper();
     playerListener = new PlayerListener();
     controlDispatcher = new DefaultControlDispatcher();
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to the constructor instead. You can also
-   *     customize some operations when configuring the player (for example by using {@code
-   *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
-    this.controlDispatcher =
-        controlDispatcher == null ? new DefaultControlDispatcher() : controlDispatcher;
   }
 
   /**

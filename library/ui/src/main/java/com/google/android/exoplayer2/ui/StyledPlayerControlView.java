@@ -832,19 +832,6 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@code ExoPlayer.Builder.setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    if (this.controlDispatcher != controlDispatcher) {
-      this.controlDispatcher = controlDispatcher;
-      updateNavigation();
-    }
-  }
-
-  /**
    * Sets whether the rewind button is shown.
    *
    * @param showRewindButton Whether the rewind button is shown.

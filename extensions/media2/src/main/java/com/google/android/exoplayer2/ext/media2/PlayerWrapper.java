@@ -35,7 +35,6 @@ import androidx.media2.common.SessionPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -161,16 +160,6 @@ import java.util.List;
     if (playbackState == Player.STATE_BUFFERING) {
       bufferingItem = getCurrentMediaItem();
     }
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to the constructor instead. You can also
-   *     customize some operations when configuring the player (for example by using {@code
-   *     ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    this.controlDispatcher = controlDispatcher;
   }
 
   public boolean setMediaItem(androidx.media2.common.MediaItem media2MediaItem) {

@@ -42,8 +42,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
@@ -150,37 +148,6 @@ public class SessionPlayerConnectorTest {
             });
     assertThat(onPlayerStatePlayingLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
-  }
-
-  @Test
-  @LargeTest
-  public void play_withCustomControlDispatcher_isSkipped() throws Exception {
-    if (Looper.myLooper() == null) {
-      Looper.prepare();
-    }
-
-    ControlDispatcher controlDispatcher =
-        new DefaultControlDispatcher() {
-          @Override
-          public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
-            return false;
-          }
-        };
-    ExoPlayer exoPlayer = null;
-    SessionPlayerConnector playerConnector = null;
-    try {
-      exoPlayer = new ExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
-      playerConnector = new SessionPlayerConnector(exoPlayer, new DefaultMediaItemConverter());
-      playerConnector.setControlDispatcher(controlDispatcher);
-      assertPlayerResult(playerConnector.play(), RESULT_INFO_SKIPPED);
-    } finally {
-      if (playerConnector != null) {
-        playerConnector.close();
-      }
-      if (exoPlayer != null) {
-        exoPlayer.release();
-      }
-    }
   }
 
   @Test

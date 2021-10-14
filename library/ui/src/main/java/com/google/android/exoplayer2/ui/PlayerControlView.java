@@ -52,9 +52,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
@@ -609,19 +607,6 @@ public class PlayerControlView extends FrameLayout {
    */
   public void setProgressUpdateListener(@Nullable ProgressUpdateListener listener) {
     this.progressUpdateListener = listener;
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@link ExoPlayer.Builder#setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    if (this.controlDispatcher != controlDispatcher) {
-      this.controlDispatcher = controlDispatcher;
-      updateNavigation();
-    }
   }
 
   /**

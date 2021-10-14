@@ -54,7 +54,6 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -813,21 +812,6 @@ public class PlayerNotificationManager {
     if (player != null) {
       player.addListener(playerListener);
       postStartOrUpdateNotification();
-    }
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@code ExoPlayer.Builder.setSeekBackIncrementMs(long)}), or configure whether the rewind
-   *     and fast forward actions should be used with {{@link #setUseRewindAction(boolean)}} and
-   *     {@link #setUseFastForwardAction(boolean)}.
-   */
-  @Deprecated
-  public final void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    if (this.controlDispatcher != controlDispatcher) {
-      this.controlDispatcher = controlDispatcher;
-      invalidate();
     }
   }
 

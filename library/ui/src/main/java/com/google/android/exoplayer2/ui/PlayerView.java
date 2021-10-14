@@ -46,8 +46,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -925,17 +923,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     if (listener != null) {
       controller.addVisibilityListener(listener);
     }
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@code ExoPlayer.Builder.setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    Assertions.checkStateNotNull(controller);
-    controller.setControlDispatcher(controlDispatcher);
   }
 
   /**
