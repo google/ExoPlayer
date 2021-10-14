@@ -102,4 +102,10 @@ public final class Mp4ExtractorTest {
     ExtractorAsserts.assertBehavior(
         Mp4Extractor::new, "media/mp4/sample_with_color_info.mp4", simulationConfig);
   }
+
+  @Test
+  public void mp4SampleWithDolbyTrueHDTrack() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_dthd.mp4", simulationConfig);
+  }
 }

@@ -962,6 +962,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_ac_3
           || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_ac_4
+          || childAtomType == Atom.TYPE_mlpa
           || childAtomType == Atom.TYPE_dtsc
           || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh
@@ -1317,13 +1318,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     int channelCount;
     int sampleRate;
+    int sampleRateMlp = 0;
     @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
     @Nullable String codecs = null;
 
     if (quickTimeSoundDescriptionVersion == 0 || quickTimeSoundDescriptionVersion == 1) {
       channelCount = parent.readUnsignedShort();
       parent.skipBytes(6); // sampleSize, compressionId, packetSize.
+
       sampleRate = parent.readUnsignedFixedPoint1616();
+      parent.skipBytes(-4);
+      // The sample rate has been redefined as a 32-bit value for Dolby TrueHD (MLP) streams.
+      sampleRateMlp = parent.readInt();
 
       if (quickTimeSoundDescriptionVersion == 1) {
         parent.skipBytes(16);
@@ -1404,6 +1410,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       mimeType = MimeTypes.AUDIO_OPUS;
     } else if (atomType == Atom.TYPE_fLaC) {
       mimeType = MimeTypes.AUDIO_FLAC;
+    } else if (atomType == Atom.TYPE_mlpa) {
+      mimeType = MimeTypes.AUDIO_TRUEHD;
     }
 
     @Nullable List<byte[]> initializationData = null;
@@ -1457,6 +1465,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         parent.setPosition(Atom.HEADER_SIZE + childPosition);
         out.format =
             Ac4Util.parseAc4AnnexEFormat(parent, Integer.toString(trackId), language, drmInitData);
+      } else if (childAtomType == Atom.TYPE_dmlp) {
+        if (sampleRateMlp <= 0) {
+          throw ParserException.createForMalformedContainer(
+              "Invalid sample rate for Dolby TrueHD MLP stream: " + sampleRateMlp,
+              /* cause= */ null);
+        }
+        sampleRate = sampleRateMlp;
+        // The channel count from the sample entry must be ignored for Dolby TrueHD (MLP) streams
+        // because these streams can carry simultaneously multiple representations of the same
+        // audio. Use stereo by default.
+        channelCount = 2;
       } else if (childAtomType == Atom.TYPE_ddts) {
         out.format =
             new Format.Builder()

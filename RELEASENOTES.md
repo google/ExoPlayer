@@ -8,8 +8,8 @@
         `DefaultRenderersFactory` to force enable or force disable asynchronous
         queueing ([6348](https://github.com/google/ExoPlayer/issues/6348)).
     *   Add 12 public method headers to `ExoPlayer` that exist in
-        `SimpleExoPlayer`, such that all public methods in `SimpleExoPlayer`
-        are overrides.
+        `SimpleExoPlayer`, such that all public methods in `SimpleExoPlayer` are
+        overrides.
     *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
         `com.google.android.exoplayer2.DeviceInfo`.
     *   Move `com.google.android.exoplayer2.drm.DecryptionException` to
@@ -51,6 +51,8 @@
         ([#9452](https://github.com/google/ExoPlayer/issues/9452)).
 *   Extractors:
     *   MP4: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
+    *   MP4: Add support for Dolby TrueHD (only for unfragmented streams)
+        ([#9496](https://github.com/google/ExoPlayer/issues/9496)).
     *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
     *   TS: Map stream type 0x80 to H262
         ([#9472](https://github.com/google/ExoPlayer/issues/9472)).
