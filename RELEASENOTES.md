@@ -36,6 +36,11 @@
         calls from the player to `Surface.setFrameRate`. This is useful for
         applications wanting to call `Surface.setFrameRate` directly from
         application code with Android 12's `Surface.CHANGE_FRAME_RATE_ALWAYS`.
+    *   Upgrade the WorkManager extension to depend on
+        `androidx.work:work-runtime:2.7.0`. Earlier versions of `work-runtime`
+        are not compatible with apps targeting Android 12, and will crash with
+        an `IllegalArgumentException` when creating `PendingIntent`s
+        ([#9181](https://github.com/google/ExoPlayer/issues/9181)).
 *   UI:
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
