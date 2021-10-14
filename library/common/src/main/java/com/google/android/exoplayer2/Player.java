@@ -473,8 +473,10 @@ public interface Player {
      * The UID of the window, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
      */
     @Nullable public final Object windowUid;
-    /** The window index. */
-    public final int windowIndex;
+    /** @deprecated Use {@link #mediaItemIndex} instead. */
+    @Deprecated public final int windowIndex;
+    /** The media item index. */
+    public final int mediaItemIndex;
     /** The media item, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}. */
     @Nullable public final MediaItem mediaItem;
     /**
@@ -509,7 +511,7 @@ public interface Player {
     @Deprecated
     public PositionInfo(
         @Nullable Object windowUid,
-        int windowIndex,
+        int mediaItemIndex,
         @Nullable Object periodUid,
         int periodIndex,
         long positionMs,
@@ -518,7 +520,7 @@ public interface Player {
         int adIndexInAdGroup) {
       this(
           windowUid,
-          windowIndex,
+          mediaItemIndex,
           MediaItem.EMPTY,
           periodUid,
           periodIndex,
@@ -531,7 +533,7 @@ public interface Player {
     /** Creates an instance. */
     public PositionInfo(
         @Nullable Object windowUid,
-        int windowIndex,
+        int mediaItemIndex,
         @Nullable MediaItem mediaItem,
         @Nullable Object periodUid,
         int periodIndex,
@@ -540,7 +542,8 @@ public interface Player {
         int adGroupIndex,
         int adIndexInAdGroup) {
       this.windowUid = windowUid;
-      this.windowIndex = windowIndex;
+      this.windowIndex = mediaItemIndex;
+      this.mediaItemIndex = mediaItemIndex;
       this.mediaItem = mediaItem;
       this.periodUid = periodUid;
       this.periodIndex = periodIndex;
@@ -559,7 +562,7 @@ public interface Player {
         return false;
       }
       PositionInfo that = (PositionInfo) o;
-      return windowIndex == that.windowIndex
+      return mediaItemIndex == that.mediaItemIndex
           && periodIndex == that.periodIndex
           && positionMs == that.positionMs
           && contentPositionMs == that.contentPositionMs
@@ -574,11 +577,10 @@ public interface Player {
     public int hashCode() {
       return Objects.hashCode(
           windowUid,
-          windowIndex,
+          mediaItemIndex,
           mediaItem,
           periodUid,
           periodIndex,
-          windowIndex,
           positionMs,
           contentPositionMs,
           adGroupIndex,
@@ -589,7 +591,7 @@ public interface Player {
     @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
-      FIELD_WINDOW_INDEX,
+      FIELD_MEDIA_ITEM_INDEX,
       FIELD_MEDIA_ITEM,
       FIELD_PERIOD_INDEX,
       FIELD_POSITION_MS,
@@ -599,7 +601,7 @@ public interface Player {
     })
     private @interface FieldNumber {}
 
-    private static final int FIELD_WINDOW_INDEX = 0;
+    private static final int FIELD_MEDIA_ITEM_INDEX = 0;
     private static final int FIELD_MEDIA_ITEM = 1;
     private static final int FIELD_PERIOD_INDEX = 2;
     private static final int FIELD_POSITION_MS = 3;
@@ -616,7 +618,7 @@ public interface Player {
     @Override
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
-      bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
+      bundle.putInt(keyForField(FIELD_MEDIA_ITEM_INDEX), mediaItemIndex);
       bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), BundleableUtil.toNullableBundle(mediaItem));
       bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
       bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
@@ -630,8 +632,8 @@ public interface Player {
     public static final Creator<PositionInfo> CREATOR = PositionInfo::fromBundle;
 
     private static PositionInfo fromBundle(Bundle bundle) {
-      int windowIndex =
-          bundle.getInt(keyForField(FIELD_WINDOW_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      int mediaItemIndex =
+          bundle.getInt(keyForField(FIELD_MEDIA_ITEM_INDEX), /* defaultValue= */ C.INDEX_UNSET);
       @Nullable
       MediaItem mediaItem =
           BundleableUtil.fromNullableBundle(
@@ -648,7 +650,7 @@ public interface Player {
           bundle.getInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), /* defaultValue= */ C.INDEX_UNSET);
       return new PositionInfo(
           /* windowUid= */ null,
-          windowIndex,
+          mediaItemIndex,
           mediaItem,
           /* periodUid= */ null,
           periodIndex,
