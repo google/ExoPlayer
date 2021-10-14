@@ -352,7 +352,7 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * A builder for {@link SimpleExoPlayer} instances.
+   * A builder for {@link ExoPlayer} instances.
    *
    * <p>See {@link #Builder(Context)} for the list of default values.
    */
@@ -818,11 +818,11 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Builds a {@link SimpleExoPlayer} instance.
+     * Builds an {@link ExoPlayer} instance.
      *
      * @throws IllegalStateException If this method has already been called.
      */
-    public SimpleExoPlayer build() {
+    public ExoPlayer build() {
       return wrappedBuilder.build();
     }
   }
