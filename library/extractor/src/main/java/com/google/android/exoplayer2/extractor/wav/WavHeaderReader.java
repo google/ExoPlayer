@@ -122,7 +122,8 @@ import java.io.IOException;
     long dataSize = -1;
 
     while (chunkHeader.id != WavUtil.DATA_FOURCC) {
-      if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC) {
+      if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC
+          && chunkHeader.id != WavUtil. RF64_FOURCC && chunkHeader.id != WavUtil. DS64_FOURCC) {
         Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
       }
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
