@@ -151,8 +151,8 @@ public class EventLogger implements AnalyticsListener {
         .append("reason=")
         .append(getDiscontinuityReasonString(reason))
         .append(", PositionInfo:old [")
-        .append("window=")
-        .append(oldPosition.windowIndex)
+        .append("mediaItem=")
+        .append(oldPosition.mediaItemIndex)
         .append(", period=")
         .append(oldPosition.periodIndex)
         .append(", pos=")
@@ -168,8 +168,8 @@ public class EventLogger implements AnalyticsListener {
     }
     builder
         .append("], PositionInfo:new [")
-        .append("window=")
-        .append(newPosition.windowIndex)
+        .append("mediaItem=")
+        .append(newPosition.mediaItemIndex)
         .append(", period=")
         .append(newPosition.periodIndex)
         .append(", pos=")

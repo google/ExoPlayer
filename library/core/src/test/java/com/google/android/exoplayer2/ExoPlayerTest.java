@@ -9774,7 +9774,7 @@ public final class ExoPlayerTest {
     Player.PositionInfo newPositionInfo = newPosition.getValue();
     assertThat(oldPositionInfo.periodUid).isEqualTo(newPositionInfo.periodUid);
     assertThat(oldPositionInfo.periodIndex).isEqualTo(newPositionInfo.periodIndex);
-    assertThat(oldPositionInfo.windowIndex).isEqualTo(newPositionInfo.windowIndex);
+    assertThat(oldPositionInfo.mediaItemIndex).isEqualTo(newPositionInfo.mediaItemIndex);
     assertThat(oldPositionInfo.mediaItem.localConfiguration.tag).isEqualTo(1);
     assertThat(oldPositionInfo.windowUid).isEqualTo(newPositionInfo.windowUid);
     assertThat(oldPositionInfo.positionMs).isEqualTo(10_000);
@@ -9796,7 +9796,7 @@ public final class ExoPlayerTest {
     newPositionInfo = newPosition.getValue();
     assertThat(oldPositionInfo.periodUid).isEqualTo(newPositionInfo.periodUid);
     assertThat(oldPositionInfo.periodIndex).isEqualTo(newPositionInfo.periodIndex);
-    assertThat(oldPositionInfo.windowIndex).isEqualTo(newPositionInfo.windowIndex);
+    assertThat(oldPositionInfo.mediaItemIndex).isEqualTo(newPositionInfo.mediaItemIndex);
     assertThat(oldPositionInfo.mediaItem.localConfiguration.tag).isEqualTo(1);
     assertThat(oldPositionInfo.windowUid).isEqualTo(newPositionInfo.windowUid);
     assertThat(oldPositionInfo.positionMs).isEqualTo(10_000);
@@ -9816,13 +9816,13 @@ public final class ExoPlayerTest {
             eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     oldPositionInfo = oldPosition.getValue();
     newPositionInfo = newPosition.getValue();
-    assertThat(oldPositionInfo.windowIndex).isEqualTo(1);
+    assertThat(oldPositionInfo.mediaItemIndex).isEqualTo(1);
     assertThat(oldPositionInfo.mediaItem.localConfiguration.tag).isEqualTo(2);
     assertThat(oldPositionInfo.windowUid).isNotEqualTo(newPositionInfo.windowUid);
     assertThat(oldPositionInfo.positionMs).isEqualTo(20_000);
     assertThat(oldPositionInfo.contentPositionMs).isEqualTo(20_000);
     assertThat(newPositionInfo.positionMs).isEqualTo(0);
-    assertThat(newPositionInfo.windowIndex).isEqualTo(0);
+    assertThat(newPositionInfo.mediaItemIndex).isEqualTo(0);
     inOrder
         .verify(listener)
         .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
@@ -9887,91 +9887,91 @@ public final class ExoPlayerTest {
     // starts with ad to ad transition
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).positionMs).isEqualTo(5000);
     assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
     assertThat(oldPositions.get(0).adGroupIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).adIndexInAdGroup).isEqualTo(0);
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs).isEqualTo(0);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
     assertThat(newPositions.get(0).adGroupIndex).isEqualTo(0);
     assertThat(newPositions.get(0).adIndexInAdGroup).isEqualTo(1);
     // ad to content transition
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(1).positionMs).isEqualTo(5000);
     assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(0);
     assertThat(oldPositions.get(1).adGroupIndex).isEqualTo(0);
     assertThat(oldPositions.get(1).adIndexInAdGroup).isEqualTo(1);
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(1).positionMs).isEqualTo(0);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
     assertThat(newPositions.get(1).adGroupIndex).isEqualTo(-1);
     assertThat(newPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
 
     // second add group (mid-roll)
-    assertThat(oldPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(2).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(2).positionMs).isEqualTo(7000);
     assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(7000);
     assertThat(oldPositions.get(2).adGroupIndex).isEqualTo(-1);
     assertThat(oldPositions.get(2).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(2).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(2).positionMs).isEqualTo(0);
     assertThat(newPositions.get(2).contentPositionMs).isEqualTo(7000);
     assertThat(newPositions.get(2).adGroupIndex).isEqualTo(1);
     assertThat(newPositions.get(2).adIndexInAdGroup).isEqualTo(0);
     // ad to ad transition
-    assertThat(oldPositions.get(3).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(3).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(3).positionMs).isEqualTo(5000);
     assertThat(oldPositions.get(3).contentPositionMs).isEqualTo(7000);
     assertThat(oldPositions.get(3).adGroupIndex).isEqualTo(1);
     assertThat(oldPositions.get(3).adIndexInAdGroup).isEqualTo(0);
-    assertThat(newPositions.get(3).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(3).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(3).positionMs).isEqualTo(0);
     assertThat(newPositions.get(3).contentPositionMs).isEqualTo(7000);
     assertThat(newPositions.get(3).adGroupIndex).isEqualTo(1);
     assertThat(newPositions.get(3).adIndexInAdGroup).isEqualTo(1);
     // ad to content transition
-    assertThat(oldPositions.get(4).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(4).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(4).positionMs).isEqualTo(5000);
     assertThat(oldPositions.get(4).contentPositionMs).isEqualTo(7000);
     assertThat(oldPositions.get(4).adGroupIndex).isEqualTo(1);
     assertThat(oldPositions.get(4).adIndexInAdGroup).isEqualTo(1);
-    assertThat(newPositions.get(4).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(4).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(4).positionMs).isEqualTo(7000);
     assertThat(newPositions.get(4).contentPositionMs).isEqualTo(7000);
     assertThat(newPositions.get(4).adGroupIndex).isEqualTo(-1);
     assertThat(newPositions.get(4).adIndexInAdGroup).isEqualTo(-1);
 
     // third add group (post-roll)
-    assertThat(oldPositions.get(5).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(5).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(5).positionMs).isEqualTo(10000);
     assertThat(oldPositions.get(5).contentPositionMs).isEqualTo(10000);
     assertThat(oldPositions.get(5).adGroupIndex).isEqualTo(-1);
     assertThat(oldPositions.get(5).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(5).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(5).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(5).positionMs).isEqualTo(0);
     assertThat(newPositions.get(5).contentPositionMs).isEqualTo(10000);
     assertThat(newPositions.get(5).adGroupIndex).isEqualTo(2);
     assertThat(newPositions.get(5).adIndexInAdGroup).isEqualTo(0);
     // ad to ad transition
-    assertThat(oldPositions.get(6).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(6).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(6).positionMs).isEqualTo(5000);
     assertThat(oldPositions.get(6).contentPositionMs).isEqualTo(10000);
     assertThat(oldPositions.get(6).adGroupIndex).isEqualTo(2);
     assertThat(oldPositions.get(6).adIndexInAdGroup).isEqualTo(0);
-    assertThat(newPositions.get(6).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(6).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(6).positionMs).isEqualTo(0);
     assertThat(newPositions.get(6).contentPositionMs).isEqualTo(10000);
     assertThat(newPositions.get(6).adGroupIndex).isEqualTo(2);
     assertThat(newPositions.get(6).adIndexInAdGroup).isEqualTo(1);
     // post roll ad to end of content transition
-    assertThat(oldPositions.get(7).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(7).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(7).positionMs).isEqualTo(5000);
     assertThat(oldPositions.get(7).contentPositionMs).isEqualTo(10000);
     assertThat(oldPositions.get(7).adGroupIndex).isEqualTo(2);
     assertThat(oldPositions.get(7).adIndexInAdGroup).isEqualTo(1);
-    assertThat(newPositions.get(7).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(7).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(7).positionMs).isEqualTo(9999);
     assertThat(newPositions.get(7).contentPositionMs).isEqualTo(9999);
     assertThat(newPositions.get(7).adGroupIndex).isEqualTo(-1);
@@ -10032,34 +10032,34 @@ public final class ExoPlayerTest {
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
     // SEEK behind mid roll
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(980L, 1_000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(980L, 1_000L));
     assertThat(oldPositions.get(0).adGroupIndex).isEqualTo(-1);
     assertThat(oldPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs).isEqualTo(8_000);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(8_000);
     assertThat(newPositions.get(0).adGroupIndex).isEqualTo(-1);
     assertThat(newPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
     // SEEK_ADJUSTMENT back to ad
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(1).positionMs).isEqualTo(8_000);
     assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(8_000);
     assertThat(oldPositions.get(1).adGroupIndex).isEqualTo(-1);
     assertThat(oldPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(1).positionMs).isEqualTo(0);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(8000);
     assertThat(newPositions.get(1).adGroupIndex).isEqualTo(0);
     assertThat(newPositions.get(1).adIndexInAdGroup).isEqualTo(0);
     // AUTO_TRANSITION back to content
-    assertThat(oldPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(2).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(2).positionMs).isEqualTo(5_000);
     assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(8_000);
     assertThat(oldPositions.get(2).adGroupIndex).isEqualTo(0);
     assertThat(oldPositions.get(2).adIndexInAdGroup).isEqualTo(0);
-    assertThat(newPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(2).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(2).positionMs).isEqualTo(8_000);
     assertThat(newPositions.get(2).contentPositionMs).isEqualTo(8_000);
     assertThat(newPositions.get(2).adGroupIndex).isEqualTo(-1);
@@ -10138,7 +10138,7 @@ public final class ExoPlayerTest {
         .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
     assertThat(oldPosition.getValue().windowUid)
         .isEqualTo(player.getCurrentTimeline().getWindow(0, window).uid);
-    assertThat(oldPosition.getValue().windowIndex).isEqualTo(0);
+    assertThat(oldPosition.getValue().mediaItemIndex).isEqualTo(0);
     assertThat(oldPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-0");
     assertThat(oldPosition.getValue().positionMs).isEqualTo(10_000);
     assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(10_000);
@@ -10146,7 +10146,7 @@ public final class ExoPlayerTest {
     assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
     assertThat(newPosition.getValue().windowUid)
         .isEqualTo(player.getCurrentTimeline().getWindow(1, window).uid);
-    assertThat(newPosition.getValue().windowIndex).isEqualTo(1);
+    assertThat(newPosition.getValue().mediaItemIndex).isEqualTo(1);
     assertThat(newPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-1");
     assertThat(newPosition.getValue().positionMs).isEqualTo(0);
     assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
@@ -10166,13 +10166,13 @@ public final class ExoPlayerTest {
         .isEqualTo(player.getCurrentTimeline().getWindow(1, window).uid);
     assertThat(newPosition.getValue().windowUid)
         .isEqualTo(player.getCurrentTimeline().getWindow(2, window).uid);
-    assertThat(oldPosition.getValue().windowIndex).isEqualTo(1);
+    assertThat(oldPosition.getValue().mediaItemIndex).isEqualTo(1);
     assertThat(oldPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-1");
     assertThat(oldPosition.getValue().positionMs).isEqualTo(15_000);
     assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(15_000);
     assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(-1);
     assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(newPosition.getValue().mediaItemIndex).isEqualTo(2);
     assertThat(newPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-2");
     assertThat(newPosition.getValue().positionMs).isEqualTo(0);
     assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
@@ -10186,14 +10186,14 @@ public final class ExoPlayerTest {
             oldPosition.capture(),
             newPosition.capture(),
             eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
-    assertThat(oldPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(oldPosition.getValue().mediaItemIndex).isEqualTo(2);
     assertThat(oldPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-2");
     assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
     assertThat(oldPosition.getValue().positionMs).isEqualTo(20_000);
     assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(20_000);
     assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(-1);
     assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
-    assertThat(newPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(newPosition.getValue().mediaItemIndex).isEqualTo(2);
     assertThat(newPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-2");
     assertThat(newPosition.getValue().positionMs).isEqualTo(0);
     assertThat(newPosition.getValue().contentPositionMs).isEqualTo(20_000);
@@ -10208,14 +10208,14 @@ public final class ExoPlayerTest {
             newPosition.capture(),
             eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
-    assertThat(oldPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(oldPosition.getValue().mediaItemIndex).isEqualTo(2);
     assertThat(oldPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-2");
     assertThat(oldPosition.getValue().positionMs).isEqualTo(5_000);
     assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(20_000);
     assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(0);
     assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(0);
     assertThat(newPosition.getValue().windowUid).isEqualTo(oldPosition.getValue().windowUid);
-    assertThat(newPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(newPosition.getValue().mediaItemIndex).isEqualTo(2);
     assertThat(newPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-2");
     assertThat(newPosition.getValue().positionMs).isEqualTo(19_999);
     assertThat(newPosition.getValue().contentPositionMs).isEqualTo(19_999);
@@ -10233,14 +10233,14 @@ public final class ExoPlayerTest {
         .verify(listener)
         .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
     assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
-    assertThat(oldPosition.getValue().windowIndex).isEqualTo(2);
+    assertThat(oldPosition.getValue().mediaItemIndex).isEqualTo(2);
     assertThat(oldPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-2");
     assertThat(oldPosition.getValue().positionMs).isEqualTo(20_000);
     assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(20_000);
     assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(-1);
     assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(-1);
     assertThat(newPosition.getValue().windowUid).isNotEqualTo(oldPosition.getValue().windowUid);
-    assertThat(newPosition.getValue().windowIndex).isEqualTo(3);
+    assertThat(newPosition.getValue().mediaItemIndex).isEqualTo(3);
     assertThat(newPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-3");
     assertThat(newPosition.getValue().positionMs).isEqualTo(0);
     assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
@@ -10255,14 +10255,14 @@ public final class ExoPlayerTest {
             newPosition.capture(),
             eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     assertThat(oldPosition.getValue().windowUid).isEqualTo(lastNewWindowUid);
-    assertThat(oldPosition.getValue().windowIndex).isEqualTo(3);
+    assertThat(oldPosition.getValue().mediaItemIndex).isEqualTo(3);
     assertThat(oldPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-3");
     assertThat(oldPosition.getValue().positionMs).isEqualTo(5_000);
     assertThat(oldPosition.getValue().contentPositionMs).isEqualTo(0);
     assertThat(oldPosition.getValue().adGroupIndex).isEqualTo(0);
     assertThat(oldPosition.getValue().adIndexInAdGroup).isEqualTo(0);
     assertThat(newPosition.getValue().windowUid).isEqualTo(oldPosition.getValue().windowUid);
-    assertThat(newPosition.getValue().windowIndex).isEqualTo(3);
+    assertThat(newPosition.getValue().mediaItemIndex).isEqualTo(3);
     assertThat(newPosition.getValue().mediaItem.localConfiguration.tag).isEqualTo("id-3");
     assertThat(newPosition.getValue().positionMs).isEqualTo(0);
     assertThat(newPosition.getValue().contentPositionMs).isEqualTo(0);
@@ -10323,10 +10323,10 @@ public final class ExoPlayerTest {
         .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs).isEqualTo(0);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
     player.release();
@@ -10462,17 +10462,17 @@ public final class ExoPlayerTest {
             oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(1);
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs).isEqualTo(0);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(1).positionMs).isIn(Range.closed(1980L, 2000L));
     assertThat(oldPositions.get(1).contentPositionMs).isIn(Range.closed(1980L, 2000L));
     assertThat(newPositions.get(1).windowUid).isNull();
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(1).positionMs).isEqualTo(0);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
     player.release();
@@ -10536,16 +10536,16 @@ public final class ExoPlayerTest {
             oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(1);
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(1);
     assertThat(newPositions.get(0).positionMs).isEqualTo(0);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(1);
     assertThat(oldPositions.get(1).positionMs).isEqualTo(0);
     assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(1).positionMs).isEqualTo(0);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
     player.release();
@@ -10618,16 +10618,16 @@ public final class ExoPlayerTest {
     // inOrder.verify(listener, never()).onPositionDiscontinuity(any(), any(), anyInt());
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(1);
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs).isEqualTo(1234);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(1234);
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(1).positionMs).isEqualTo(1234);
     assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(1234);
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(1).positionMs).isEqualTo(1234);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(1234);
     player.release();
@@ -10724,20 +10724,20 @@ public final class ExoPlayerTest {
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
     assertThat(oldPositions.get(0).windowUid).isEqualTo(newPositions.get(0).windowUid);
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).mediaItem.localConfiguration.tag).isEqualTo("id-0");
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).mediaItem.localConfiguration.tag).isEqualTo("id-0");
     assertThat(newPositions.get(0).positionMs).isEqualTo(7_000);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(7_000);
     assertThat(oldPositions.get(1).windowUid).isNotEqualTo(newPositions.get(1).windowUid);
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(1).mediaItem.localConfiguration.tag).isEqualTo("id-0");
     assertThat(oldPositions.get(1).positionMs).isEqualTo(7_000);
     assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(7_000);
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(1);
     assertThat(newPositions.get(1).mediaItem.localConfiguration.tag).isEqualTo("id-1");
     assertThat(newPositions.get(1).positionMs).isEqualTo(1_000);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(1_000);
@@ -10767,32 +10767,32 @@ public final class ExoPlayerTest {
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
     // a seek from initial state to masked seek position
     assertThat(oldPositions.get(0).windowUid).isNull();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).mediaItem).isNull();
     assertThat(oldPositions.get(0).positionMs).isEqualTo(0);
     assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).windowUid).isNull();
     assertThat(newPositions.get(0).positionMs).isEqualTo(7_000);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(7_000);
     // a seek from masked seek position to another masked position across windows
     assertThat(oldPositions.get(1).windowUid).isNull();
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(1).mediaItem).isNull();
     assertThat(oldPositions.get(1).positionMs).isEqualTo(7_000);
     assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(7_000);
     assertThat(newPositions.get(1).windowUid).isNull();
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(1);
     assertThat(newPositions.get(1).positionMs).isEqualTo(1_000);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(1_000);
     // a seek from masked seek position to another masked position within window
     assertThat(oldPositions.get(2).windowUid).isNull();
-    assertThat(oldPositions.get(2).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(2).mediaItemIndex).isEqualTo(1);
     assertThat(oldPositions.get(2).mediaItem).isNull();
     assertThat(oldPositions.get(2).positionMs).isEqualTo(1_000);
     assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(1_000);
     assertThat(newPositions.get(2).windowUid).isNull();
-    assertThat(newPositions.get(2).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(2).mediaItemIndex).isEqualTo(1);
     assertThat(newPositions.get(2).positionMs).isEqualTo(5_000);
     assertThat(newPositions.get(2).contentPositionMs).isEqualTo(5_000);
     player.release();
@@ -10827,7 +10827,7 @@ public final class ExoPlayerTest {
             oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).positionMs)
         .isIn(
             Range.closed(
@@ -10836,7 +10836,7 @@ public final class ExoPlayerTest {
         .isIn(
             Range.closed(
                 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS - 20, 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS));
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs)
         .isIn(
             Range.closed(C.DEFAULT_SEEK_BACK_INCREMENT_MS - 20, C.DEFAULT_SEEK_BACK_INCREMENT_MS));
@@ -10896,10 +10896,10 @@ public final class ExoPlayerTest {
             oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).positionMs).isEqualTo(0);
     assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).positionMs).isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
     assertThat(newPositions.get(0).contentPositionMs)
         .isEqualTo(C.DEFAULT_SEEK_FORWARD_INCREMENT_MS);
@@ -11039,12 +11039,12 @@ public final class ExoPlayerTest {
             oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(oldPositions.get(0).mediaItem.localConfiguration.tag).isEqualTo(123);
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
     assertThat(newPositions.get(0).windowUid).isNull();
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(0).mediaItem).isNull();
     assertThat(newPositions.get(0).positionMs).isEqualTo(0);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
@@ -11097,17 +11097,17 @@ public final class ExoPlayerTest {
     List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
     List<Player.PositionInfo> newPositions = newPosition.getAllValues();
     // First seek
-    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).mediaItemIndex).isEqualTo(1);
     assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(1980L, 2000L));
     assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(1980L, 2000L));
-    assertThat(newPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(0).mediaItemIndex).isEqualTo(1);
     assertThat(newPositions.get(0).positionMs).isEqualTo(2122);
     assertThat(newPositions.get(0).contentPositionMs).isEqualTo(2122);
     // Second seek.
-    assertThat(oldPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(1).mediaItemIndex).isEqualTo(1);
     assertThat(oldPositions.get(1).positionMs).isEqualTo(2122);
     assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(2122);
-    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).mediaItemIndex).isEqualTo(0);
     assertThat(newPositions.get(1).positionMs).isEqualTo(2222);
     assertThat(newPositions.get(1).contentPositionMs).isEqualTo(2222);
     player.release();

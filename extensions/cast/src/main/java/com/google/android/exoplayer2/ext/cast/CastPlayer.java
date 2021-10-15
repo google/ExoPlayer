@@ -463,7 +463,7 @@ public final class CastPlayer extends BasePlayer {
             listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
             listener.onPositionDiscontinuity(oldPosition, newPosition, DISCONTINUITY_REASON_SEEK);
           });
-      if (oldPosition.windowIndex != newPosition.windowIndex) {
+      if (oldPosition.mediaItemIndex != newPosition.mediaItemIndex) {
         // TODO(internal b/182261884): queue `onMediaItemTransition` event when the media item is
         // repeated.
         MediaItem mediaItem = getCurrentTimeline().getWindow(windowIndex, window).mediaItem;
