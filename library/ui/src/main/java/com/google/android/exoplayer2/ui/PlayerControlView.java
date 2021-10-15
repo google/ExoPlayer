@@ -50,8 +50,6 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
@@ -321,7 +319,6 @@ public class PlayerControlView extends FrameLayout {
   private final String shuffleOffContentDescription;
 
   @Nullable private Player player;
-  private ControlDispatcher controlDispatcher;
   @Nullable private ProgressUpdateListener progressUpdateListener;
 
   private boolean isAttachedToWindow;
@@ -418,7 +415,6 @@ public class PlayerControlView extends FrameLayout {
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
-    controlDispatcher = new DefaultControlDispatcher();
     updateProgressAction = this::updateProgress;
     hideAction = this::hide;
 
@@ -695,13 +691,13 @@ public class PlayerControlView extends FrameLayout {
       @Player.RepeatMode int currentMode = player.getRepeatMode();
       if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE
           && currentMode != Player.REPEAT_MODE_OFF) {
-        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_OFF);
+        player.setRepeatMode(Player.REPEAT_MODE_OFF);
       } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE
           && currentMode == Player.REPEAT_MODE_ALL) {
-        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ONE);
+        player.setRepeatMode(Player.REPEAT_MODE_ONE);
       } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL
           && currentMode == Player.REPEAT_MODE_ONE) {
-        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ALL);
+        player.setRepeatMode(Player.REPEAT_MODE_ALL);
       }
     }
     updateRepeatModeButton();
@@ -867,11 +863,8 @@ public class PlayerControlView extends FrameLayout {
     if (player != null) {
       enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
       enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
-      enableRewind =
-          player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
-      enableFastForward =
-          player.isCommandAvailable(COMMAND_SEEK_FORWARD)
-              && controlDispatcher.isFastForwardEnabled();
+      enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
+      enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
       enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
     }
 
@@ -1123,8 +1116,8 @@ public class PlayerControlView extends FrameLayout {
     updateProgress();
   }
 
-  private boolean seekTo(Player player, int windowIndex, long positionMs) {
-    return controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
+  private void seekTo(Player player, int windowIndex, long positionMs) {
+    player.seekTo(windowIndex, positionMs);
   }
 
   @Override
@@ -1183,10 +1176,10 @@ public class PlayerControlView extends FrameLayout {
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
       if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
         if (player.getPlaybackState() != Player.STATE_ENDED) {
-          controlDispatcher.dispatchFastForward(player);
+          player.seekForward();
         }
       } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       } else if (event.getRepeatCount() == 0) {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
@@ -1200,10 +1193,10 @@ public class PlayerControlView extends FrameLayout {
             dispatchPause(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_NEXT:
-            controlDispatcher.dispatchNext(player);
+            player.seekToNext();
             break;
           case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-            controlDispatcher.dispatchPrevious(player);
+            player.seekToPrevious();
             break;
           default:
             break;
@@ -1233,15 +1226,15 @@ public class PlayerControlView extends FrameLayout {
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
     if (state == Player.STATE_IDLE) {
-      controlDispatcher.dispatchPrepare(player);
+      player.prepare();
     } else if (state == Player.STATE_ENDED) {
       seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
     }
-    controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+    player.play();
   }
 
   private void dispatchPause(Player player) {
-    controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+    player.pause();
   }
 
   @SuppressLint("InlinedApi")
@@ -1343,24 +1336,24 @@ public class PlayerControlView extends FrameLayout {
         return;
       }
       if (nextButton == view) {
-        controlDispatcher.dispatchNext(player);
+        player.seekToNext();
       } else if (previousButton == view) {
-        controlDispatcher.dispatchPrevious(player);
+        player.seekToPrevious();
       } else if (fastForwardButton == view) {
         if (player.getPlaybackState() != Player.STATE_ENDED) {
-          controlDispatcher.dispatchFastForward(player);
+          player.seekForward();
         }
       } else if (rewindButton == view) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       } else if (playButton == view) {
         dispatchPlay(player);
       } else if (pauseButton == view) {
         dispatchPause(player);
       } else if (repeatToggleButton == view) {
-        controlDispatcher.dispatchSetRepeatMode(
-            player, RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
+        player.setRepeatMode(
+            RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
       } else if (shuffleButton == view) {
-        controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
+        player.setShuffleModeEnabled(!player.getShuffleModeEnabled());
       }
     }
   }

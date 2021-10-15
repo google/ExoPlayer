@@ -26,8 +26,6 @@ import androidx.leanback.media.PlaybackGlueHost;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.media.SurfaceHolderGlueHost;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -51,7 +49,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   private final PlayerListener playerListener;
   private final int updatePeriodMs;
 
-  private ControlDispatcher controlDispatcher;
   @Nullable private ErrorMessageProvider<? super PlaybackException> errorMessageProvider;
   @Nullable private SurfaceHolderGlueHost surfaceHolderGlueHost;
   private boolean hasSurface;
@@ -72,7 +69,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     this.updatePeriodMs = updatePeriodMs;
     handler = Util.createHandlerForCurrentOrMainLooper();
     playerListener = new PlayerListener();
-    controlDispatcher = new DefaultControlDispatcher();
   }
 
   /**
@@ -143,27 +139,27 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   @Override
   public void play() {
     if (player.getPlaybackState() == Player.STATE_IDLE) {
-      controlDispatcher.dispatchPrepare(player);
+      player.prepare();
     } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-      controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+      player.seekToDefaultPosition(player.getCurrentWindowIndex());
     }
-    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)
-        && controlDispatcher.dispatchSetPlayWhenReady(player, true)) {
+    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+      player.play();
       getCallback().onPlayStateChanged(this);
     }
   }
 
   @Override
   public void pause() {
-    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)
-        && controlDispatcher.dispatchSetPlayWhenReady(player, false)) {
+    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+      player.pause();
       getCallback().onPlayStateChanged(this);
     }
   }
 
   @Override
   public void seekTo(long positionMs) {
-    controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), positionMs);
+    player.seekTo(player.getCurrentMediaItemIndex(), positionMs);
   }
 
   @Override

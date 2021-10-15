@@ -33,8 +33,6 @@ import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -123,7 +121,6 @@ import java.util.List;
   private final List<androidx.media2.common.MediaItem> media2Playlist;
   private final List<MediaItem> exoPlayerPlaylist;
 
-  private ControlDispatcher controlDispatcher;
   private int sessionPlayerState;
   private boolean prepared;
   @Nullable private androidx.media2.common.MediaItem bufferingItem;
@@ -142,7 +139,6 @@ import java.util.List;
     this.player = player;
     this.mediaItemConverter = mediaItemConverter;
 
-    controlDispatcher = new DefaultControlDispatcher();
     componentListener = new ComponentListener();
     player.addListener(componentListener);
 
@@ -235,13 +231,19 @@ import java.util.List;
   }
 
   public boolean skipToPreviousPlaylistItem() {
-    return player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)
-        && controlDispatcher.dispatchPrevious(player);
+    if (!player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
+      return false;
+    }
+    player.seekToPrevious();
+    return true;
   }
 
   public boolean skipToNextPlaylistItem() {
-    return player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)
-        && controlDispatcher.dispatchNext(player);
+    if (!player.isCommandAvailable(COMMAND_SEEK_TO_NEXT)) {
+      return false;
+    }
+    player.seekToNext();
+    return true;
   }
 
   public boolean skipToPlaylistItem(@IntRange(from = 0) int index) {
@@ -252,11 +254,11 @@ import java.util.List;
     // but RESULT_ERROR_INVALID_STATE with IllegalStateException is expected here.
     Assertions.checkState(0 <= index && index < timeline.getWindowCount());
     int windowIndex = player.getCurrentWindowIndex();
-    if (windowIndex != index) {
-      return player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)
-          && controlDispatcher.dispatchSeekTo(player, index, C.TIME_UNSET);
+    if (windowIndex == index || !player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+      return false;
     }
-    return false;
+    player.seekToDefaultPosition(index);
+    return true;
   }
 
   public boolean updatePlaylistMetadata(@Nullable MediaMetadata metadata) {
@@ -265,15 +267,19 @@ import java.util.List;
   }
 
   public boolean setRepeatMode(int repeatMode) {
-    return player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)
-        && controlDispatcher.dispatchSetRepeatMode(
-            player, Utils.getExoPlayerRepeatMode(repeatMode));
+    if (!player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)) {
+      return false;
+    }
+    player.setRepeatMode(Utils.getExoPlayerRepeatMode(repeatMode));
+    return true;
   }
 
   public boolean setShuffleMode(int shuffleMode) {
-    return player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)
-        && controlDispatcher.dispatchSetShuffleModeEnabled(
-            player, Utils.getExoPlayerShuffleMode(shuffleMode));
+    if (!player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)) {
+      return false;
+    }
+    player.setShuffleModeEnabled(Utils.getExoPlayerShuffleMode(shuffleMode));
+    return true;
   }
 
   @Nullable
@@ -322,36 +328,38 @@ import java.util.List;
 
   public boolean play() {
     if (player.getPlaybackState() == Player.STATE_ENDED) {
-      boolean seekHandled =
-          player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
-              && controlDispatcher.dispatchSeekTo(
-                  player, player.getCurrentWindowIndex(), /* positionMs= */ 0);
-      if (!seekHandled) {
+      if (!player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
         return false;
       }
+      player.seekTo(player.getCurrentWindowIndex(), /* positionMs= */ 0);
     }
     boolean playWhenReady = player.getPlayWhenReady();
     int suppressReason = player.getPlaybackSuppressionReason();
-    if (playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE) {
+    if ((playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE)
+        || !player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
       return false;
     }
-    return player.isCommandAvailable(COMMAND_PLAY_PAUSE)
-        && controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+    player.play();
+    return true;
   }
 
   public boolean pause() {
     boolean playWhenReady = player.getPlayWhenReady();
     int suppressReason = player.getPlaybackSuppressionReason();
-    if (!playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE) {
+    if ((!playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE)
+        || !player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
       return false;
     }
-    return player.isCommandAvailable(COMMAND_PLAY_PAUSE)
-        && controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+    player.pause();
+    return true;
   }
 
   public boolean seekTo(long position) {
-    return player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
-        && controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), position);
+    if (!player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
+      return false;
+    }
+    player.seekTo(player.getCurrentWindowIndex(), position);
+    return true;
   }
 
   public long getCurrentPosition() {
@@ -471,7 +479,8 @@ import java.util.List;
   }
 
   public void reset() {
-    controlDispatcher.dispatchStop(player, /* reset= */ true);
+    player.stop();
+    player.clearMediaItems();
     prepared = false;
     bufferingItem = null;
   }

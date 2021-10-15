@@ -52,8 +52,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -682,7 +680,6 @@ public class PlayerNotificationManager {
   @Nullable private NotificationCompat.Builder builder;
   @Nullable private List<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
-  private ControlDispatcher controlDispatcher;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
   @Nullable private MediaSessionCompat.Token mediaSessionToken;
@@ -731,7 +728,6 @@ public class PlayerNotificationManager {
     this.customActionReceiver = customActionReceiver;
     this.smallIconResourceId = smallIconResourceId;
     this.groupKey = groupKey;
-    controlDispatcher = new DefaultControlDispatcher();
     instanceId = instanceIdCounter++;
     // This fails the nullness checker because handleMessage() is 'called' while `this` is still
     // @UnderInitialization. No tasks are scheduled on mainHandler before the constructor completes,
@@ -1308,10 +1304,8 @@ public class PlayerNotificationManager {
    */
   protected List<String> getActions(Player player) {
     boolean enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
-    boolean enableRewind =
-        player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
-    boolean enableFastForward =
-        player.isCommandAvailable(COMMAND_SEEK_FORWARD) && controlDispatcher.isFastForwardEnabled();
+    boolean enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
+    boolean enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
     boolean enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
 
     List<String> stringActions = new ArrayList<>();
@@ -1535,23 +1529,23 @@ public class PlayerNotificationManager {
       String action = intent.getAction();
       if (ACTION_PLAY.equals(action)) {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
-          controlDispatcher.dispatchPrepare(player);
+          player.prepare();
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          player.seekToDefaultPosition(player.getCurrentWindowIndex());
         }
-        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+        player.play();
       } else if (ACTION_PAUSE.equals(action)) {
-        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+        player.pause();
       } else if (ACTION_PREVIOUS.equals(action)) {
-        controlDispatcher.dispatchPrevious(player);
+        player.seekToPrevious();
       } else if (ACTION_REWIND.equals(action)) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       } else if (ACTION_FAST_FORWARD.equals(action)) {
-        controlDispatcher.dispatchFastForward(player);
+        player.seekForward();
       } else if (ACTION_NEXT.equals(action)) {
-        controlDispatcher.dispatchNext(player);
+        player.seekToNext();
       } else if (ACTION_STOP.equals(action)) {
-        controlDispatcher.dispatchStop(player, /* reset= */ true);
+        player.stop(/* reset= */ true);
       } else if (ACTION_DISMISS.equals(action)) {
         stopNotification(/* dismissedByUser= */ true);
       } else if (action != null

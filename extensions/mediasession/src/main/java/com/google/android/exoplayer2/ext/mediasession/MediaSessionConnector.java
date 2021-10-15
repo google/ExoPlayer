@@ -45,8 +45,6 @@ import android.view.KeyEvent;
 import androidx.annotation.LongDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -450,7 +448,6 @@ public final class MediaSessionConnector {
   private final ArrayList<CommandReceiver> commandReceivers;
   private final ArrayList<CommandReceiver> customCommandReceivers;
 
-  private ControlDispatcher controlDispatcher;
   private CustomActionProvider[] customActionProviders;
   private Map<String, CustomActionProvider> customActionMap;
   @Nullable private MediaMetadataProvider mediaMetadataProvider;
@@ -480,7 +477,6 @@ public final class MediaSessionConnector {
     componentListener = new ComponentListener();
     commandReceivers = new ArrayList<>();
     customCommandReceivers = new ArrayList<>();
-    controlDispatcher = new DefaultControlDispatcher();
     customActionProviders = new CustomActionProvider[0];
     customActionMap = Collections.emptyMap();
     mediaMetadataProvider =
@@ -885,10 +881,8 @@ public final class MediaSessionConnector {
 
   private long buildPlaybackActions(Player player) {
     boolean enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
-    boolean enableRewind =
-        player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
-    boolean enableFastForward =
-        player.isCommandAvailable(COMMAND_SEEK_FORWARD) && controlDispatcher.isFastForwardEnabled();
+    boolean enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
+    boolean enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
 
     boolean enableSetRating = false;
     boolean enableSetCaptioningEnabled = false;
@@ -976,7 +970,7 @@ public final class MediaSessionConnector {
   }
 
   private void seekTo(Player player, int windowIndex, long positionMs) {
-    controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
+    player.seekTo(windowIndex, positionMs);
   }
 
   private static int getMediaSessionPlaybackState(
@@ -1173,20 +1167,19 @@ public final class MediaSessionConnector {
           if (playbackPreparer != null) {
             playbackPreparer.onPrepare(/* playWhenReady= */ true);
           } else {
-            controlDispatcher.dispatchPrepare(player);
+            player.prepare();
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
-        controlDispatcher.dispatchSetPlayWhenReady(
-            Assertions.checkNotNull(player), /* playWhenReady= */ true);
+        Assertions.checkNotNull(player).play();
       }
     }
 
     @Override
     public void onPause() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PAUSE)) {
-        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+        player.pause();
       }
     }
 
@@ -1200,21 +1193,22 @@ public final class MediaSessionConnector {
     @Override
     public void onFastForward() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_FAST_FORWARD)) {
-        controlDispatcher.dispatchFastForward(player);
+        player.seekForward();
       }
     }
 
     @Override
     public void onRewind() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_REWIND)) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       }
     }
 
     @Override
     public void onStop() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_STOP)) {
-        controlDispatcher.dispatchStop(player, /* reset= */ true);
+        player.stop();
+        player.clearMediaItems();
       }
     }
 
@@ -1233,7 +1227,7 @@ public final class MediaSessionConnector {
             shuffleModeEnabled = false;
             break;
         }
-        controlDispatcher.dispatchSetShuffleModeEnabled(player, shuffleModeEnabled);
+        player.setShuffleModeEnabled(shuffleModeEnabled);
       }
     }
 
@@ -1255,15 +1249,14 @@ public final class MediaSessionConnector {
             repeatMode = Player.REPEAT_MODE_OFF;
             break;
         }
-        controlDispatcher.dispatchSetRepeatMode(player, repeatMode);
+        player.setRepeatMode(repeatMode);
       }
     }
 
     @Override
     public void onSetPlaybackSpeed(float speed) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED) && speed > 0) {
-        controlDispatcher.dispatchSetPlaybackParameters(
-            player, player.getPlaybackParameters().withSpeed(speed));
+        player.setPlaybackParameters(player.getPlaybackParameters().withSpeed(speed));
       }
     }
 

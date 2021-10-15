@@ -107,12 +107,10 @@
         `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
         structured metadata, or access the raw static metadata directly from the
         `TrackSelection#getFormat()`.
-    *   Remove `setControlDispatcher` from `PlayerWrapper`,
-        `SessionPlayerConnector`, `MediaSessionConnector`, `PlayerControlView`,
-        `PlayerNotificationManager`, `PlayerView`, `StyledPlayerControlView`,
-        `StyledPlayerView` and `LeanbackPlayerAdapter`. Operations can be
-        customized by using a `ForwardingPlayer`, or when configuring the player
-        (for example by using `ExoPlayer.Builder.setSeekBackIncrementMs`).
+    *   Remove `ControlDispatcher` and `DefaultControlDispatcher`. Operations
+        can be customized by using a `ForwardingPlayer`, or when configuring the
+        player (for example by using
+        `ExoPlayer.Builder.setSeekBackIncrementMs`).
 
 ### 2.15.1 (2021-09-20)
 
