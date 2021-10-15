@@ -110,7 +110,8 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
                 drmConfiguration.scheme, FrameworkMediaDrm.DEFAULT_PROVIDER)
             .setMultiSession(drmConfiguration.multiSession)
             .setPlayClearSamplesWithoutKeys(drmConfiguration.playClearContentWithoutKey)
-            .setUseDrmSessionsForClearContent(Ints.toArray(drmConfiguration.sessionForClearTypes))
+            .setUseDrmSessionsForClearContent(
+                Ints.toArray(drmConfiguration.forcedSessionTrackTypes))
             .build(httpDrmCallback);
     drmSessionManager.setMode(MODE_PLAYBACK, drmConfiguration.getKeySetId());
     return drmSessionManager;

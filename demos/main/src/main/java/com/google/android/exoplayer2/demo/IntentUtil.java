@@ -226,13 +226,14 @@ public class IntentUtil {
     }
     intent.putExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA + extrasKeySuffix, drmKeyRequestProperties);
 
-    List<@C.TrackType Integer> drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
-    if (!drmSessionForClearTypes.isEmpty()) {
+    List<@C.TrackType Integer> forcedDrmSessionTrackTypes =
+        drmConfiguration.forcedSessionTrackTypes;
+    if (!forcedDrmSessionTrackTypes.isEmpty()) {
       // Only video and audio together are supported.
       Assertions.checkState(
-          drmSessionForClearTypes.size() == 2
-              && drmSessionForClearTypes.contains(C.TRACK_TYPE_VIDEO)
-              && drmSessionForClearTypes.contains(C.TRACK_TYPE_AUDIO));
+          forcedDrmSessionTrackTypes.size() == 2
+              && forcedDrmSessionTrackTypes.contains(C.TRACK_TYPE_VIDEO)
+              && forcedDrmSessionTrackTypes.contains(C.TRACK_TYPE_AUDIO));
       intent.putExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, true);
     }
   }
