@@ -1173,6 +1173,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         && (!codecInfo.secure || DummySurface.isSecureSupported(context));
   }
 
+  @RequiresApi(17)
   private void releaseDummySurface() {
     if (surface == dummySurface) {
       surface = null;
