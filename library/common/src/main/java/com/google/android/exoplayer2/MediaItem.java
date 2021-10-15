@@ -298,22 +298,22 @@ public final class MediaItem implements Bundleable {
 
     /**
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
-     *     DrmConfiguration.Builder#setSessionForClearPeriods(boolean)} instead.
+     *     DrmConfiguration.Builder#forceSessionsForAudioAndVideoTracks(boolean)} instead.
      */
     @Deprecated
     public Builder setDrmSessionForClearPeriods(boolean sessionForClearPeriods) {
-      drmConfiguration.setSessionForClearPeriods(sessionForClearPeriods);
+      drmConfiguration.forceSessionsForAudioAndVideoTracks(sessionForClearPeriods);
       return this;
     }
 
     /**
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
-     *     DrmConfiguration.Builder#setSessionForClearTypes(List)} instead.
+     *     DrmConfiguration.Builder#setForcedSessionTrackTypes(List)} instead.
      */
     @Deprecated
     public Builder setDrmSessionForClearTypes(
         @Nullable List<@C.TrackType Integer> sessionForClearTypes) {
-      drmConfiguration.setSessionForClearTypes(sessionForClearTypes);
+      drmConfiguration.setForcedSessionTrackTypes(sessionForClearTypes);
       return this;
     }
 
@@ -532,7 +532,7 @@ public final class MediaItem implements Bundleable {
       private boolean multiSession;
       private boolean playClearContentWithoutKey;
       private boolean forceDefaultLicenseUri;
-      private ImmutableList<@C.TrackType Integer> sessionForClearTypes;
+      private ImmutableList<@C.TrackType Integer> forcedSessionTrackTypes;
       @Nullable private byte[] keySetId;
 
       /**
@@ -543,7 +543,7 @@ public final class MediaItem implements Bundleable {
       public Builder(UUID scheme) {
         this.scheme = scheme;
         this.licenseRequestHeaders = ImmutableMap.of();
-        this.sessionForClearTypes = ImmutableList.of();
+        this.forcedSessionTrackTypes = ImmutableList.of();
       }
 
       /**
@@ -553,7 +553,7 @@ public final class MediaItem implements Bundleable {
       @Deprecated
       private Builder() {
         this.licenseRequestHeaders = ImmutableMap.of();
-        this.sessionForClearTypes = ImmutableList.of();
+        this.forcedSessionTrackTypes = ImmutableList.of();
       }
 
       private Builder(DrmConfiguration drmConfiguration) {
@@ -563,7 +563,7 @@ public final class MediaItem implements Bundleable {
         this.multiSession = drmConfiguration.multiSession;
         this.playClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
         this.forceDefaultLicenseUri = drmConfiguration.forceDefaultLicenseUri;
-        this.sessionForClearTypes = drmConfiguration.sessionForClearTypes;
+        this.forcedSessionTrackTypes = drmConfiguration.forcedSessionTrackTypes;
         this.keySetId = drmConfiguration.keySetId;
       }
 
@@ -633,11 +633,12 @@ public final class MediaItem implements Bundleable {
        * C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_AUDIO}.
        *
        * <p>This method overrides what has been set by previously calling {@link
-       * #setSessionForClearTypes(List)}.
+       * #setForcedSessionTrackTypes(List)}.
        */
-      public Builder setSessionForClearPeriods(boolean sessionForClearPeriods) {
-        this.setSessionForClearTypes(
-            sessionForClearPeriods
+      public Builder forceSessionsForAudioAndVideoTracks(
+          boolean useClearSessionsForAudioAndVideoTracks) {
+        this.setForcedSessionTrackTypes(
+            useClearSessionsForAudioAndVideoTracks
                 ? ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO)
                 : ImmutableList.of());
         return this;
@@ -648,18 +649,18 @@ public final class MediaItem implements Bundleable {
        * when the tracks are in the clear.
        *
        * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
-       * C#TRACK_TYPE_AUDIO}, {@link #setSessionForClearPeriods(boolean)} can be used.
+       * C#TRACK_TYPE_AUDIO}, {@link #forceSessionsForAudioAndVideoTracks(boolean)} can be used.
        *
        * <p>This method overrides what has been set by previously calling {@link
-       * #setSessionForClearPeriods(boolean)}.
+       * #forceSessionsForAudioAndVideoTracks(boolean)}.
        *
        * <p>{@code null} or an empty {@link List} can be used for a reset.
        */
-      public Builder setSessionForClearTypes(
-          @Nullable List<@C.TrackType Integer> sessionForClearTypes) {
-        this.sessionForClearTypes =
-            sessionForClearTypes != null
-                ? ImmutableList.copyOf(sessionForClearTypes)
+      public Builder setForcedSessionTrackTypes(
+          @Nullable List<@C.TrackType Integer> forcedSessionTrackTypes) {
+        this.forcedSessionTrackTypes =
+            forcedSessionTrackTypes != null
+                ? ImmutableList.copyOf(forcedSessionTrackTypes)
                 : ImmutableList.of();
         return this;
       }
@@ -715,8 +716,12 @@ public final class MediaItem implements Bundleable {
      */
     public final boolean forceDefaultLicenseUri;
 
-    /** The types of clear tracks for which to use a DRM session. */
-    public final ImmutableList<@C.TrackType Integer> sessionForClearTypes;
+    /** @deprecated Use {@link #forcedSessionTrackTypes}. */
+    @Deprecated public final ImmutableList<@C.TrackType Integer> sessionForClearTypes;
+    /**
+     * The types of tracks for which to always use a DRM session even if the content is unencrypted.
+     */
+    public final ImmutableList<@C.TrackType Integer> forcedSessionTrackTypes;
 
     @Nullable private final byte[] keySetId;
 
@@ -731,7 +736,8 @@ public final class MediaItem implements Bundleable {
       this.multiSession = builder.multiSession;
       this.forceDefaultLicenseUri = builder.forceDefaultLicenseUri;
       this.playClearContentWithoutKey = builder.playClearContentWithoutKey;
-      this.sessionForClearTypes = builder.sessionForClearTypes;
+      this.sessionForClearTypes = builder.forcedSessionTrackTypes;
+      this.forcedSessionTrackTypes = builder.forcedSessionTrackTypes;
       this.keySetId =
           builder.keySetId != null
               ? Arrays.copyOf(builder.keySetId, builder.keySetId.length)
@@ -765,7 +771,7 @@ public final class MediaItem implements Bundleable {
           && multiSession == other.multiSession
           && forceDefaultLicenseUri == other.forceDefaultLicenseUri
           && playClearContentWithoutKey == other.playClearContentWithoutKey
-          && sessionForClearTypes.equals(other.sessionForClearTypes)
+          && forcedSessionTrackTypes.equals(other.forcedSessionTrackTypes)
           && Arrays.equals(keySetId, other.keySetId);
     }
 
@@ -777,7 +783,7 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + (multiSession ? 1 : 0);
       result = 31 * result + (forceDefaultLicenseUri ? 1 : 0);
       result = 31 * result + (playClearContentWithoutKey ? 1 : 0);
-      result = 31 * result + sessionForClearTypes.hashCode();
+      result = 31 * result + forcedSessionTrackTypes.hashCode();
       result = 31 * result + Arrays.hashCode(keySetId);
       return result;
     }

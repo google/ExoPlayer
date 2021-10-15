@@ -118,6 +118,8 @@ public class MediaItemTest {
     assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isTrue();
     assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.forcedSessionTrackTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO);
     assertThat(mediaItem.localConfiguration.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
   }
 
@@ -152,6 +154,7 @@ public class MediaItemTest {
     assertThat(mediaItem.localConfiguration.drmConfiguration.forceDefaultLicenseUri).isFalse();
     assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isFalse();
     assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes).isEmpty();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.forcedSessionTrackTypes).isEmpty();
     assertThat(mediaItem.localConfiguration.drmConfiguration.getKeySetId()).isNull();
   }
 
@@ -172,7 +175,7 @@ public class MediaItemTest {
                     .setMultiSession(true)
                     .setForceDefaultLicenseUri(true)
                     .setPlayClearContentWithoutKey(true)
-                    .setSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+                    .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
                     .setKeySetId(keySetId)
                     .build())
             .build();
@@ -190,11 +193,13 @@ public class MediaItemTest {
     assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isTrue();
     assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.forcedSessionTrackTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO);
     assertThat(mediaItem.localConfiguration.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
   }
 
   @Test
-  @SuppressWarnings("deprecation") // Testing deprecated methods
+  @SuppressWarnings("deprecation") // Testing deprecated methods and field
   public void builderSetDrmSessionForClearPeriods_setsAudioAndVideoTracks() {
     Uri licenseUri = Uri.parse(URI_STRING);
     MediaItem mediaItem =
@@ -208,19 +213,24 @@ public class MediaItemTest {
 
     assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO);
+    assertThat(mediaItem.localConfiguration.drmConfiguration.forcedSessionTrackTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO);
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated field
   public void drmConfigurationBuilderSetSessionForClearPeriods_overridesSetSessionForClearTypes() {
     Uri licenseUri = Uri.parse(URI_STRING);
     MediaItem.DrmConfiguration drmConfiguration =
         new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
             .setLicenseUri(licenseUri)
-            .setSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
-            .setSessionForClearPeriods(true)
+            .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+            .forceSessionsForAudioAndVideoTracks(true)
             .build();
 
     assertThat(drmConfiguration.sessionForClearTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO);
+    assertThat(drmConfiguration.forcedSessionTrackTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO);
   }
 
@@ -628,7 +638,7 @@ public class MediaItemTest {
                     .setMultiSession(true)
                     .setForceDefaultLicenseUri(true)
                     .setPlayClearContentWithoutKey(true)
-                    .setSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+                    .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
                     .setKeySetId(new byte[] {1, 2, 3})
                     .build())
             .setMediaId("mediaId")

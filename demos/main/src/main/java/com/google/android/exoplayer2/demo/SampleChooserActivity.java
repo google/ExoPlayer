@@ -445,7 +445,7 @@ public class SampleChooserActivity extends AppCompatActivity
               new MediaItem.DrmConfiguration.Builder(drmUuid)
                   .setLicenseUri(drmLicenseUri)
                   .setLicenseRequestHeaders(drmLicenseRequestHeaders)
-                  .setSessionForClearPeriods(drmSessionForClearContent)
+                  .forceSessionsForAudioAndVideoTracks(drmSessionForClearContent)
                   .setMultiSession(drmMultiSession)
                   .setForceDefaultLicenseUri(drmForceDefaultLicenseUri)
                   .build());
