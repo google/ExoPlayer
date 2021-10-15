@@ -247,12 +247,15 @@ public final class MediaItem implements Bundleable {
 
     /**
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
-     *     DrmConfiguration.Builder#setLicenseRequestHeaders(Map)} instead.
+     *     DrmConfiguration.Builder#setLicenseRequestHeaders(Map)} instead. Note that {@link
+     *     DrmConfiguration.Builder#setLicenseRequestHeaders(Map)} doesn't accept null, use an empty
+     *     map to clear the headers.
      */
     @Deprecated
     public Builder setDrmLicenseRequestHeaders(
         @Nullable Map<String, String> licenseRequestHeaders) {
-      drmConfiguration.setLicenseRequestHeaders(licenseRequestHeaders);
+      drmConfiguration.setLicenseRequestHeaders(
+          licenseRequestHeaders != null ? licenseRequestHeaders : ImmutableMap.of());
       return this;
     }
 
@@ -308,12 +311,15 @@ public final class MediaItem implements Bundleable {
 
     /**
      * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
-     *     DrmConfiguration.Builder#setForcedSessionTrackTypes(List)} instead.
+     *     DrmConfiguration.Builder#setForcedSessionTrackTypes(List)} instead. Note that {@link
+     *     DrmConfiguration.Builder#setForcedSessionTrackTypes(List)} doesn't accept null, use an
+     *     empty list to clear the contents.
      */
     @Deprecated
     public Builder setDrmSessionForClearTypes(
         @Nullable List<@C.TrackType Integer> sessionForClearTypes) {
-      drmConfiguration.setForcedSessionTrackTypes(sessionForClearTypes);
+      drmConfiguration.setForcedSessionTrackTypes(
+          sessionForClearTypes != null ? sessionForClearTypes : ImmutableList.of());
       return this;
     }
 
@@ -596,11 +602,8 @@ public final class MediaItem implements Bundleable {
       }
 
       /** Sets the optional request headers attached to DRM license requests. */
-      public Builder setLicenseRequestHeaders(@Nullable Map<String, String> licenseRequestHeaders) {
-        this.licenseRequestHeaders =
-            licenseRequestHeaders != null
-                ? ImmutableMap.copyOf(licenseRequestHeaders)
-                : ImmutableMap.of();
+      public Builder setLicenseRequestHeaders(Map<String, String> licenseRequestHeaders) {
+        this.licenseRequestHeaders = ImmutableMap.copyOf(licenseRequestHeaders);
         return this;
       }
 
@@ -653,15 +656,10 @@ public final class MediaItem implements Bundleable {
        *
        * <p>This method overrides what has been set by previously calling {@link
        * #forceSessionsForAudioAndVideoTracks(boolean)}.
-       *
-       * <p>{@code null} or an empty {@link List} can be used for a reset.
        */
       public Builder setForcedSessionTrackTypes(
-          @Nullable List<@C.TrackType Integer> forcedSessionTrackTypes) {
-        this.forcedSessionTrackTypes =
-            forcedSessionTrackTypes != null
-                ? ImmutableList.copyOf(forcedSessionTrackTypes)
-                : ImmutableList.of();
+          List<@C.TrackType Integer> forcedSessionTrackTypes) {
+        this.forcedSessionTrackTypes = ImmutableList.copyOf(forcedSessionTrackTypes);
         return this;
       }
 
