@@ -348,7 +348,7 @@ public class SampleChooserActivity extends AppCompatActivity
       String subtitleLanguage = null;
       UUID drmUuid = null;
       String drmLicenseUri = null;
-      ImmutableMap<String, String> drmLicenseRequestHeaders = null;
+      ImmutableMap<String, String> drmLicenseRequestHeaders = ImmutableMap.of();
       boolean drmSessionForClearContent = false;
       boolean drmMultiSession = false;
       boolean drmForceDefaultLicenseUri = false;
@@ -453,7 +453,7 @@ public class SampleChooserActivity extends AppCompatActivity
         } else {
           checkState(drmLicenseUri == null, "drm_uuid is required if drm_license_uri is set.");
           checkState(
-              drmLicenseRequestHeaders == null,
+              drmLicenseRequestHeaders.isEmpty(),
               "drm_uuid is required if drm_key_request_properties is set.");
           checkState(
               !drmSessionForClearContent,
