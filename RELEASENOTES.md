@@ -28,6 +28,10 @@
     *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
         released `Surface` when playing without an app-provided `Surface`
         ([#9476](https://github.com/google/ExoPlayer/issues/9476)).
+*   DRM:
+    *   Log an error (instead of throwing `IllegalStateException`) when calling
+        `DefaultDrmSession#release()` on a fully released session
+        ([#9392](https://github.com/google/ExoPlayer/issues/9392)).
 *   Android 12 compatibility:
     *   Keep `DownloadService` started and in the foreground whilst waiting for
         requirements to be met on Android 12. This is necessary due to new

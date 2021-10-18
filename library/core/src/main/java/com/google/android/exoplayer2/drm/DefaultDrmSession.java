@@ -296,7 +296,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
-    checkState(referenceCount >= 0);
+    if (referenceCount < 0) {
+      Log.e(TAG, "Session reference count less than zero: " + referenceCount);
+      referenceCount = 0;
+    }
     if (eventDispatcher != null) {
       eventDispatchers.add(eventDispatcher);
     }
@@ -320,7 +323,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
-    checkState(referenceCount > 0);
+    if (referenceCount <= 0) {
+      Log.e(TAG, "release() called on a session that's already fully released.");
+      return;
+    }
     if (--referenceCount == 0) {
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
