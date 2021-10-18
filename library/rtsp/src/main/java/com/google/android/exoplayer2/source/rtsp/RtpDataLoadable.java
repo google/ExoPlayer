@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -162,7 +163,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
     } finally {
-      Util.closeQuietly(dataChannel);
+      DataSourceUtil.closeQuietly(dataChannel);
     }
   }
 

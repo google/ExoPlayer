@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.testutil.CacheAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
@@ -325,7 +326,7 @@ public final class CacheDataSourceTest {
     CacheDataSource cacheDataSource = new CacheDataSource(cache, upstream, 0);
 
     cacheDataSource.open(unboundedDataSpec);
-    Util.readToEnd(cacheDataSource);
+    DataSourceUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
 
     assertThat(upstream.getAndClearOpenedDataSpecs()).hasLength(1);
@@ -342,7 +343,7 @@ public final class CacheDataSourceTest {
             cache, upstream, CacheDataSource.FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS);
 
     cacheDataSource.open(unboundedDataSpec);
-    Util.readToEnd(cacheDataSource);
+    DataSourceUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
 
     assertThat(cache.getKeys()).isEmpty();
@@ -391,7 +392,7 @@ public final class CacheDataSourceTest {
     cacheWriter.cache();
 
     // Read the rest of the data.
-    Util.readToEnd(cacheDataSource);
+    DataSourceUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -440,7 +441,7 @@ public final class CacheDataSourceTest {
     cacheWriter.cache();
 
     // Read the rest of the data.
-    Util.readToEnd(cacheDataSource);
+    DataSourceUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -469,14 +470,14 @@ public final class CacheDataSourceTest {
 
     // Open source and read some data from upstream as the data hasn't cached yet.
     cacheDataSource.open(unboundedDataSpec);
-    Util.readExactly(cacheDataSource, 100);
+    DataSourceUtil.readExactly(cacheDataSource, 100);
 
     // Delete cached data.
     cache.removeResource(cacheDataSource.getCacheKeyFactory().buildCacheKey(unboundedDataSpec));
     assertCacheEmpty(cache);
 
     // Read the rest of the data.
-    Util.readToEnd(cacheDataSource);
+    DataSourceUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -506,7 +507,7 @@ public final class CacheDataSourceTest {
     cacheDataSource.open(unboundedDataSpec);
 
     // Read the first half from upstream as it hasn't cached yet.
-    Util.readExactly(cacheDataSource, halfDataLength);
+    DataSourceUtil.readExactly(cacheDataSource, halfDataLength);
 
     // Delete the cached latter half.
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(defaultCacheKey);
@@ -517,7 +518,7 @@ public final class CacheDataSourceTest {
     }
 
     // Read the rest of the data.
-    Util.readToEnd(cacheDataSource);
+    DataSourceUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 

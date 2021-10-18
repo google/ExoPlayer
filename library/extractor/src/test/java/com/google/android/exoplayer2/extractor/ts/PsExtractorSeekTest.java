@@ -31,9 +31,9 @@ import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
@@ -198,7 +198,7 @@ public final class PsExtractorSeekTest {
   private long readInputLength() throws IOException {
     DataSpec dataSpec = new DataSpec(Uri.parse("asset:///" + PS_FILE_PATH));
     long totalInputLength = dataSource.open(dataSpec);
-    Util.closeQuietly(dataSource);
+    DataSourceUtil.closeQuietly(dataSource);
     return totalInputLength;
   }
 
@@ -229,7 +229,7 @@ public final class PsExtractorSeekTest {
           extractorReadResult = psExtractor.read(extractorInput, positionHolder);
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (extractorReadResult == Extractor.RESULT_SEEK) {
@@ -257,7 +257,7 @@ public final class PsExtractorSeekTest {
           readResult = extractor.read(input, positionHolder);
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (readResult == Extractor.RESULT_SEEK) {
@@ -283,7 +283,7 @@ public final class PsExtractorSeekTest {
           readResult = extractor.read(input, positionHolder);
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
       if (readResult == Extractor.RESULT_SEEK) {
         input = getExtractorInputFromPosition(positionHolder.position);

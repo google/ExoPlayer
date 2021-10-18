@@ -34,6 +34,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -119,8 +120,8 @@ public abstract class DataSourceContractTest {
         long length = dataSource.open(new DataSpec(resource.getUri()));
         byte[] data =
             unboundedReadsAreIndefinite()
-                ? Util.readExactly(dataSource, resource.getExpectedBytes().length)
-                : Util.readToEnd(dataSource);
+                ? DataSourceUtil.readExactly(dataSource, resource.getExpectedBytes().length)
+                : DataSourceUtil.readToEnd(dataSource);
 
         if (length != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(resource.getExpectedBytes().length);
@@ -148,8 +149,8 @@ public abstract class DataSourceContractTest {
                 new DataSpec.Builder().setUri(resource.getUri()).setPosition(3).build());
         byte[] data =
             unboundedReadsAreIndefinite()
-                ? Util.readExactly(dataSource, resource.getExpectedBytes().length - 3)
-                : Util.readToEnd(dataSource);
+                ? DataSourceUtil.readExactly(dataSource, resource.getExpectedBytes().length - 3)
+                : DataSourceUtil.readToEnd(dataSource);
 
         if (length != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(resource.getExpectedBytes().length - 3);
@@ -176,7 +177,7 @@ public abstract class DataSourceContractTest {
       try {
         long length =
             dataSource.open(new DataSpec.Builder().setUri(resource.getUri()).setLength(4).build());
-        byte[] data = Util.readToEnd(dataSource);
+        byte[] data = DataSourceUtil.readToEnd(dataSource);
 
         assertThat(length).isEqualTo(4);
         byte[] expectedData = Arrays.copyOf(resource.getExpectedBytes(), 4);
@@ -205,7 +206,7 @@ public abstract class DataSourceContractTest {
                     .setPosition(2)
                     .setLength(2)
                     .build());
-        byte[] data = Util.readToEnd(dataSource);
+        byte[] data = DataSourceUtil.readToEnd(dataSource);
 
         assertThat(length).isEqualTo(2);
         byte[] expectedData = Arrays.copyOfRange(resource.getExpectedBytes(), 2, 4);
@@ -232,7 +233,9 @@ public abstract class DataSourceContractTest {
       try {
         long length = dataSource.open(dataSpec);
         byte[] data =
-            unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
+            unboundedReadsAreIndefinite()
+                ? Util.EMPTY_BYTE_ARRAY
+                : DataSourceUtil.readToEnd(dataSource);
 
         // The DataSource.open() contract requires the returned length to equal the length in the
         // DataSpec if set. This is true even though the DataSource implementation may know that
@@ -267,7 +270,9 @@ public abstract class DataSourceContractTest {
       try {
         long length = dataSource.open(dataSpec);
         byte[] data =
-            unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
+            unboundedReadsAreIndefinite()
+                ? Util.EMPTY_BYTE_ARRAY
+                : DataSourceUtil.readToEnd(dataSource);
 
         // The DataSource.open() contract requires the returned length to equal the length in the
         // DataSpec if set. This is true even though the DataSource implementation may know that
@@ -321,7 +326,7 @@ public abstract class DataSourceContractTest {
               .build();
       try {
         long length = dataSource.open(dataSpec);
-        byte[] data = Util.readExactly(dataSource, /* length= */ 1);
+        byte[] data = DataSourceUtil.readExactly(dataSource, /* length= */ 1);
         // TODO: Decide what the allowed behavior should be for the next read, and assert it.
 
         // The DataSource.open() contract requires the returned length to equal the length in the
@@ -361,8 +366,8 @@ public abstract class DataSourceContractTest {
                     .build());
         byte[] data =
             unboundedReadsAreIndefinite()
-                ? Util.readExactly(dataSource, resource.getExpectedBytes().length)
-                : Util.readToEnd(dataSource);
+                ? DataSourceUtil.readExactly(dataSource, resource.getExpectedBytes().length)
+                : DataSourceUtil.readToEnd(dataSource);
 
         if (length != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(resource.getExpectedBytes().length);
@@ -423,9 +428,9 @@ public abstract class DataSourceContractTest {
         inOrder.verifyNoMoreInteractions();
 
         if (unboundedReadsAreIndefinite()) {
-          Util.readExactly(dataSource, resource.getExpectedBytes().length);
+          DataSourceUtil.readExactly(dataSource, resource.getExpectedBytes().length);
         } else {
-          Util.readToEnd(dataSource);
+          DataSourceUtil.readToEnd(dataSource);
         }
         // Verify sufficient onBytesTransferred() callbacks have been triggered before closing the
         // DataSource.

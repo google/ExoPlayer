@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -284,7 +285,7 @@ public class SampleChooserActivity extends AppCompatActivity
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;
         } finally {
-          Util.closeQuietly(dataSource);
+          DataSourceUtil.closeQuietly(dataSource);
         }
       }
       return result;

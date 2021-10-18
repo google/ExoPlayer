@@ -30,12 +30,12 @@ import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.EOFException;
@@ -472,7 +472,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }
     } finally {
-      Util.closeQuietly(dataSource);
+      DataSourceUtil.closeQuietly(dataSource);
     }
   }
 

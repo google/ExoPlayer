@@ -139,7 +139,7 @@ public final class DataSchemeDataSourceTest {
     String data = "Some Data!<>:\"/\\|?*%";
     schemeDataDataSource.open(new DataSpec(Util.getDataUriForString("text/plain", data)));
 
-    assertThat(Util.fromUtf8Bytes(Util.readToEnd(schemeDataDataSource))).isEqualTo(data);
+    assertThat(Util.fromUtf8Bytes(DataSourceUtil.readToEnd(schemeDataDataSource))).isEqualTo(data);
   }
 
   private static DataSpec buildDataSpec(String uriString) {
@@ -163,7 +163,7 @@ public final class DataSchemeDataSourceTest {
     try {
       long length = dataSource.open(dataSpec);
       assertThat(length).isEqualTo(expectedData.length);
-      byte[] readData = Util.readToEnd(dataSource);
+      byte[] readData = DataSourceUtil.readToEnd(dataSource);
       assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();

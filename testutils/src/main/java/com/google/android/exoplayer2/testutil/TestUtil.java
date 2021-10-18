@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -218,7 +219,7 @@ public class TestUtil {
     try {
       long length = dataSource.open(dataSpec);
       assertThat(length).isEqualTo(expectKnownLength ? expectedData.length : C.LENGTH_UNSET);
-      byte[] readData = Util.readToEnd(dataSource);
+      byte[] readData = DataSourceUtil.readToEnd(dataSource);
       assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
@@ -325,7 +326,7 @@ public class TestUtil {
           }
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (readResult == Extractor.RESULT_SEEK) {
@@ -413,7 +414,7 @@ public class TestUtil {
           extractorReadResult = extractor.read(extractorInput, positionHolder);
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (extractorReadResult == Extractor.RESULT_SEEK) {

@@ -18,10 +18,10 @@ package com.google.android.exoplayer2.upstream.cache;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
@@ -158,7 +158,7 @@ public final class CacheWriter {
         resolvedLength = dataSource.open(boundedDataSpec);
         isDataSourceOpen = true;
       } catch (IOException e) {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
     }
 
@@ -171,7 +171,7 @@ public final class CacheWriter {
       try {
         resolvedLength = dataSource.open(unboundedDataSpec);
       } catch (IOException e) {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
         throw e;
       }
     }
@@ -194,7 +194,7 @@ public final class CacheWriter {
         onRequestEndPosition(position + totalBytesRead);
       }
     } catch (IOException e) {
-      Util.closeQuietly(dataSource);
+      DataSourceUtil.closeQuietly(dataSource);
       throw e;
     }
 
