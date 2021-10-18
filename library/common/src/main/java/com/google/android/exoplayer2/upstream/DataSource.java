@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import androidx.media3.common.DataReader;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.util.Collections;

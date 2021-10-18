@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.extractor;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.media3.common.DataReader;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;

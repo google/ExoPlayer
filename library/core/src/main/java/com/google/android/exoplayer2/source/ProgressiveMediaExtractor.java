@@ -16,11 +16,11 @@
 package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
-import androidx.media3.common.DataReader;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.upstream.DataReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
