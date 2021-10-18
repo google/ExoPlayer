@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.upstream.cache;
+package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,7 +23,8 @@ import static org.mockito.Mockito.when;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheSpan;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,7 +57,6 @@ public final class CachedRegionTrackerTest {
   @Mock private Cache cache;
   private CachedRegionTracker tracker;
 
-  private CachedContentIndex index;
   private File cacheDir;
 
   @Before
@@ -66,7 +66,6 @@ public final class CachedRegionTrackerTest {
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
     cacheDir =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    index = new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider());
   }
 
   @After
@@ -128,14 +127,13 @@ public final class CachedRegionTrackerTest {
   }
 
   private CacheSpan newCacheSpan(int position, int length) throws IOException {
-    int id = index.assignIdForKey(CACHE_KEY);
-    File cacheFile = createCacheSpanFile(cacheDir, id, position, length, 0);
-    return SimpleCacheSpan.createCacheEntry(cacheFile, length, index);
+    File cacheFile = createCacheSpanFile(cacheDir, position, length);
+    return new CacheSpan(CACHE_KEY, position, length, /* lastTouchTimestamp= */ 0, cacheFile);
   }
 
-  public static File createCacheSpanFile(
-      File cacheDir, int id, long offset, int length, long lastTouchTimestamp) throws IOException {
-    File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastTouchTimestamp);
+  public static File createCacheSpanFile(File cacheDir, long position, int length)
+      throws IOException {
+    File cacheFile = new File(cacheDir, "test." + position);
     createTestFile(cacheFile, length);
     return cacheFile;
   }

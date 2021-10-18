@@ -14,6 +14,8 @@
         `com.google.android.exoplayer2.DeviceInfo`.
     *   Move `com.google.android.exoplayer2.drm.DecryptionException` to
         `com.google.android.exoplayer2.decoder.CryptoException`.
+    *   Move `com.google.android.exoplayer2.upstream.cache.CachedRegionTracker`
+        to `com.google.android.exoplayer2.upstream.CachedRegionTracker`.
     *   Make `ExoPlayer.Builder` return a `SimpleExoPlayer` instance.
     *   Deprecate `SimpleExoPlayer.Builder`. Use `ExoPlayer.Builder` instead.
     *   Remove `ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED`. Use
