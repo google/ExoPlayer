@@ -27,7 +27,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-workmanager'
+    releaseArtifactId = 'extension-workmanager'
     releaseDescription = 'WorkManager extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'

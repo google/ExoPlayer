@@ -41,7 +41,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-extractor'
+    releaseArtifactId = 'exoplayer-extractor'
     releaseDescription = 'The ExoPlayer library extractor module.'
 }
 apply from: '../../publish.gradle'

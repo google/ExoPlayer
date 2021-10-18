@@ -30,7 +30,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-cast'
+    releaseArtifactId = 'extension-cast'
     releaseDescription = 'Cast extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'

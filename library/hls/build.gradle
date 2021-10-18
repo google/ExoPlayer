@@ -42,7 +42,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-hls'
+    releaseArtifactId = 'exoplayer-hls'
     releaseDescription = 'The ExoPlayer library HLS module.'
 }
 apply from: '../../publish.gradle'

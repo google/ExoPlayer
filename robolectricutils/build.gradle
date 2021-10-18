@@ -29,7 +29,7 @@ ext {
 apply from: '../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-robolectricutils'
+    releaseArtifactId = 'exoplayer-robolectricutils'
     releaseDescription = 'Robolectric utils for ExoPlayer.'
 }
 apply from: '../publish.gradle'

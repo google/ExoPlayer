@@ -25,10 +25,10 @@ afterEvaluate {
                 from components.release
                 artifact androidSourcesJar
                 groupId = 'com.google.android.exoplayer'
-                artifactId = releaseArtifact
+                artifactId = releaseArtifactId
                 version releaseVersion
                 pom {
-                    name = releaseArtifact
+                    name = releaseArtifactId
                     description = releaseDescription
                     licenses {
                         license {

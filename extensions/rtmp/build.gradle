@@ -29,7 +29,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-rtmp'
+    releaseArtifactId = 'extension-rtmp'
     releaseDescription = 'RTMP extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'
