@@ -58,7 +58,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /** An activity that plays media using {@link ExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
@@ -503,11 +502,7 @@ public class PlayerActivity extends AppCompatActivity
         MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
         if (drmConfiguration != null) {
           builder.setDrmConfiguration(
-              drmConfiguration
-                  .buildUpon()
-                  .setKeySetId(downloadRequest.keySetId)
-                  .setLicenseRequestHeaders(getDrmRequestHeaders(item))
-                  .build());
+              drmConfiguration.buildUpon().setKeySetId(downloadRequest.keySetId).build());
         }
 
         mediaItems.add(builder.build());
@@ -516,11 +511,5 @@ public class PlayerActivity extends AppCompatActivity
       }
     }
     return mediaItems;
-  }
-
-  @Nullable
-  private static Map<String, String> getDrmRequestHeaders(MediaItem item) {
-    MediaItem.DrmConfiguration drmConfiguration = item.localConfiguration.drmConfiguration;
-    return drmConfiguration != null ? drmConfiguration.licenseRequestHeaders : null;
   }
 }
