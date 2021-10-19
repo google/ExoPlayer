@@ -19,17 +19,17 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TraceUtil;
 import java.util.HashSet;
 
-/** Information about the library. */
+/** Information about the media libraries. */
 public final class ExoPlayerLibraryInfo {
 
   /** A tag to use when logging library information. */
-  public static final String TAG = "ExoPlayer";
+  public static final String TAG = "ExoPlayerLib";
 
   /** The version of the library expressed as a string, for example "1.2.3". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
   public static final String VERSION = "2.15.1";
 
-  /** The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}. */
+  /** The version of the library expressed as {@code TAG + "/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
   public static final String VERSION_SLASHY = "ExoPlayerLib/2.15.1";
 
