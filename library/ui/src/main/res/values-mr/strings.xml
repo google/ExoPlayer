@@ -47,15 +47,6 @@
   <string name="exo_controls_cc_disabled_description">सबटायटल सुरू करा</string>
   <string name="exo_controls_playback_speed">वेग</string>
   <string name="exo_controls_playback_speed_normal">सामान्य</string>
-  <string name="exo_download_description">डाउनलोड करा</string>
-  <string name="exo_download_notification_channel_name">डाउनलोड</string>
-  <string name="exo_download_downloading">डाउनलोड होत आहे</string>
-  <string name="exo_download_completed">डाउनलोड पूर्ण झाले</string>
-  <string name="exo_download_failed">डाउनलोड अयशस्वी झाले</string>
-  <string name="exo_download_removing">डाउनलोड काढून टाकत आहे</string>
-  <string name="exo_download_paused">डाउनलोड थांबवले</string>
-  <string name="exo_download_paused_for_network">डाउनलोड नेटवर्कची प्रतीक्षा करत आहेत</string>
-  <string name="exo_download_paused_for_wifi">डाउनलोड वायफाय ची प्रतीक्षा करत आहेत</string>
   <string name="exo_track_selection_title_video">व्हिडिओ</string>
   <string name="exo_track_selection_title_audio">ऑडिओ</string>
   <string name="exo_track_selection_title_text">मजकूर</string>

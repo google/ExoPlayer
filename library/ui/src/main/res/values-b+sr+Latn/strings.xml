@@ -49,15 +49,6 @@
   <string name="exo_controls_cc_disabled_description">Omogući titlove</string>
   <string name="exo_controls_playback_speed">Brzina</string>
   <string name="exo_controls_playback_speed_normal">Uobičajena</string>
-  <string name="exo_download_description">Preuzmi</string>
-  <string name="exo_download_notification_channel_name">Preuzimanja</string>
-  <string name="exo_download_downloading">Preuzima se</string>
-  <string name="exo_download_completed">Preuzimanje je završeno</string>
-  <string name="exo_download_failed">Preuzimanje nije uspelo</string>
-  <string name="exo_download_removing">Preuzimanja se uklanjaju</string>
-  <string name="exo_download_paused">Preuzimanja su pauzirana</string>
-  <string name="exo_download_paused_for_network">Preuzimanja čekaju na mrežu</string>
-  <string name="exo_download_paused_for_wifi">Preuzimanja čekaju na WiFi</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Tekst</string>

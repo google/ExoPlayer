@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.core.R;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import java.util.List;
