@@ -26,7 +26,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-mediasession'
+    releaseArtifactId = 'extension-mediasession'
     releaseDescription = 'Media session extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'
