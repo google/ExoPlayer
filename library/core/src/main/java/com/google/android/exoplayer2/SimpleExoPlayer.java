@@ -28,7 +28,6 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLE
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VOLUME;
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -53,23 +52,19 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -102,51 +97,24 @@ public class SimpleExoPlayer extends BasePlayer
   @SuppressWarnings("deprecation")
   public static final class Builder {
 
-    private final Context context;
-    private final RenderersFactory renderersFactory;
-
-    private Clock clock;
-    private long foregroundModeTimeoutMs;
-    private TrackSelector trackSelector;
-    private MediaSourceFactory mediaSourceFactory;
-    private LoadControl loadControl;
-    private BandwidthMeter bandwidthMeter;
-    private AnalyticsCollector analyticsCollector;
-    private Looper looper;
-    @Nullable private PriorityTaskManager priorityTaskManager;
-    private AudioAttributes audioAttributes;
-    private boolean handleAudioFocus;
-    @C.WakeMode private int wakeMode;
-    private boolean handleAudioBecomingNoisy;
-    private boolean skipSilenceEnabled;
-    @C.VideoScalingMode private int videoScalingMode;
-    @C.VideoChangeFrameRateStrategy private int videoChangeFrameRateStrategy;
-    private boolean useLazyPreparation;
-    private SeekParameters seekParameters;
-    private long seekBackIncrementMs;
-    private long seekForwardIncrementMs;
-    private LivePlaybackSpeedControl livePlaybackSpeedControl;
-    private long releaseTimeoutMs;
-    private long detachSurfaceTimeoutMs;
-    private boolean pauseAtEndOfMediaItems;
-    private boolean buildCalled;
+    private final ExoPlayer.Builder wrappedBuilder;
 
     /** @deprecated Use {@link ExoPlayer.Builder#Builder(Context)} instead. */
     @Deprecated
     public Builder(Context context) {
-      this(context, new DefaultRenderersFactory(context), new DefaultExtractorsFactory());
+      wrappedBuilder = new ExoPlayer.Builder(context);
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory)} instead. */
     @Deprecated
     public Builder(Context context, RenderersFactory renderersFactory) {
-      this(context, renderersFactory, new DefaultExtractorsFactory());
+      wrappedBuilder = new ExoPlayer.Builder(context, renderersFactory);
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#Builder(Context, ExtractorsFactory)} instead. */
     @Deprecated
     public Builder(Context context, ExtractorsFactory extractorsFactory) {
-      this(context, new DefaultRenderersFactory(context), extractorsFactory);
+      wrappedBuilder = new ExoPlayer.Builder(context, extractorsFactory);
     }
 
     /**
@@ -156,14 +124,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Deprecated
     public Builder(
         Context context, RenderersFactory renderersFactory, ExtractorsFactory extractorsFactory) {
-      this(
-          context,
-          renderersFactory,
-          new DefaultTrackSelector(context),
-          new DefaultMediaSourceFactory(context, extractorsFactory),
-          new DefaultLoadControl(),
-          DefaultBandwidthMeter.getSingletonInstance(context),
-          new AnalyticsCollector(Clock.DEFAULT));
+      wrappedBuilder = new ExoPlayer.Builder(context, renderersFactory, extractorsFactory);
     }
 
     /**
@@ -179,26 +140,15 @@ public class SimpleExoPlayer extends BasePlayer
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         AnalyticsCollector analyticsCollector) {
-      this.context = context;
-      this.renderersFactory = renderersFactory;
-      this.trackSelector = trackSelector;
-      this.mediaSourceFactory = mediaSourceFactory;
-      this.loadControl = loadControl;
-      this.bandwidthMeter = bandwidthMeter;
-      this.analyticsCollector = analyticsCollector;
-      looper = Util.getCurrentOrMainLooper();
-      audioAttributes = AudioAttributes.DEFAULT;
-      wakeMode = C.WAKE_MODE_NONE;
-      videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
-      videoChangeFrameRateStrategy = C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS;
-      useLazyPreparation = true;
-      seekParameters = SeekParameters.DEFAULT;
-      seekBackIncrementMs = C.DEFAULT_SEEK_BACK_INCREMENT_MS;
-      seekForwardIncrementMs = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
-      livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
-      clock = Clock.DEFAULT;
-      releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
-      detachSurfaceTimeoutMs = DEFAULT_DETACH_SURFACE_TIMEOUT_MS;
+      wrappedBuilder =
+          new ExoPlayer.Builder(
+              context,
+              renderersFactory,
+              trackSelector,
+              mediaSourceFactory,
+              loadControl,
+              bandwidthMeter,
+              analyticsCollector);
     }
 
     /**
@@ -207,16 +157,14 @@ public class SimpleExoPlayer extends BasePlayer
      */
     @Deprecated
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
-      Assertions.checkState(!buildCalled);
-      foregroundModeTimeoutMs = timeoutMs;
+      wrappedBuilder.experimentalSetForegroundModeTimeoutMs(timeoutMs);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setTrackSelector(TrackSelector)} instead. */
     @Deprecated
     public Builder setTrackSelector(TrackSelector trackSelector) {
-      Assertions.checkState(!buildCalled);
-      this.trackSelector = trackSelector;
+      wrappedBuilder.setTrackSelector(trackSelector);
       return this;
     }
 
@@ -225,32 +173,28 @@ public class SimpleExoPlayer extends BasePlayer
      */
     @Deprecated
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
-      Assertions.checkState(!buildCalled);
-      this.mediaSourceFactory = mediaSourceFactory;
+      wrappedBuilder.setMediaSourceFactory(mediaSourceFactory);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setLoadControl(LoadControl)} instead. */
     @Deprecated
     public Builder setLoadControl(LoadControl loadControl) {
-      Assertions.checkState(!buildCalled);
-      this.loadControl = loadControl;
+      wrappedBuilder.setLoadControl(loadControl);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setBandwidthMeter(BandwidthMeter)} instead. */
     @Deprecated
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
-      Assertions.checkState(!buildCalled);
-      this.bandwidthMeter = bandwidthMeter;
+      wrappedBuilder.setBandwidthMeter(bandwidthMeter);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setLooper(Looper)} instead. */
     @Deprecated
     public Builder setLooper(Looper looper) {
-      Assertions.checkState(!buildCalled);
-      this.looper = looper;
+      wrappedBuilder.setLooper(looper);
       return this;
     }
 
@@ -259,8 +203,7 @@ public class SimpleExoPlayer extends BasePlayer
      */
     @Deprecated
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
-      Assertions.checkState(!buildCalled);
-      this.analyticsCollector = analyticsCollector;
+      wrappedBuilder.setAnalyticsCollector(analyticsCollector);
       return this;
     }
 
@@ -270,8 +213,7 @@ public class SimpleExoPlayer extends BasePlayer
      */
     @Deprecated
     public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
-      Assertions.checkState(!buildCalled);
-      this.priorityTaskManager = priorityTaskManager;
+      wrappedBuilder.setPriorityTaskManager(priorityTaskManager);
       return this;
     }
 
@@ -281,41 +223,35 @@ public class SimpleExoPlayer extends BasePlayer
      */
     @Deprecated
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
-      Assertions.checkState(!buildCalled);
-      this.audioAttributes = audioAttributes;
-      this.handleAudioFocus = handleAudioFocus;
+      wrappedBuilder.setAudioAttributes(audioAttributes, handleAudioFocus);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setWakeMode(int)} instead. */
     @Deprecated
     public Builder setWakeMode(@C.WakeMode int wakeMode) {
-      Assertions.checkState(!buildCalled);
-      this.wakeMode = wakeMode;
+      wrappedBuilder.setWakeMode(wakeMode);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setHandleAudioBecomingNoisy(boolean)} instead. */
     @Deprecated
     public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
-      Assertions.checkState(!buildCalled);
-      this.handleAudioBecomingNoisy = handleAudioBecomingNoisy;
+      wrappedBuilder.setHandleAudioBecomingNoisy(handleAudioBecomingNoisy);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setSkipSilenceEnabled(boolean)} instead. */
     @Deprecated
     public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
-      Assertions.checkState(!buildCalled);
-      this.skipSilenceEnabled = skipSilenceEnabled;
+      wrappedBuilder.setSkipSilenceEnabled(skipSilenceEnabled);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setVideoScalingMode(int)} instead. */
     @Deprecated
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
-      Assertions.checkState(!buildCalled);
-      this.videoScalingMode = videoScalingMode;
+      wrappedBuilder.setVideoScalingMode(videoScalingMode);
       return this;
     }
 
@@ -323,66 +259,56 @@ public class SimpleExoPlayer extends BasePlayer
     @Deprecated
     public Builder setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
-      Assertions.checkState(!buildCalled);
-      this.videoChangeFrameRateStrategy = videoChangeFrameRateStrategy;
+      wrappedBuilder.setVideoChangeFrameRateStrategy(videoChangeFrameRateStrategy);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setUseLazyPreparation(boolean)} instead. */
     @Deprecated
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
-      Assertions.checkState(!buildCalled);
-      this.useLazyPreparation = useLazyPreparation;
+      wrappedBuilder.setUseLazyPreparation(useLazyPreparation);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setSeekParameters(SeekParameters)} instead. */
     @Deprecated
     public Builder setSeekParameters(SeekParameters seekParameters) {
-      Assertions.checkState(!buildCalled);
-      this.seekParameters = seekParameters;
+      wrappedBuilder.setSeekParameters(seekParameters);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setSeekBackIncrementMs(long)} instead. */
     @Deprecated
     public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
-      checkArgument(seekBackIncrementMs > 0);
-      Assertions.checkState(!buildCalled);
-      this.seekBackIncrementMs = seekBackIncrementMs;
+      wrappedBuilder.setSeekBackIncrementMs(seekBackIncrementMs);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setSeekForwardIncrementMs(long)} instead. */
     @Deprecated
     public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
-      checkArgument(seekForwardIncrementMs > 0);
-      Assertions.checkState(!buildCalled);
-      this.seekForwardIncrementMs = seekForwardIncrementMs;
+      wrappedBuilder.setSeekForwardIncrementMs(seekForwardIncrementMs);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setReleaseTimeoutMs(long)} instead. */
     @Deprecated
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
-      Assertions.checkState(!buildCalled);
-      this.releaseTimeoutMs = releaseTimeoutMs;
+      wrappedBuilder.setReleaseTimeoutMs(releaseTimeoutMs);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setDetachSurfaceTimeoutMs(long)} instead. */
     @Deprecated
     public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
-      Assertions.checkState(!buildCalled);
-      this.detachSurfaceTimeoutMs = detachSurfaceTimeoutMs;
+      wrappedBuilder.setDetachSurfaceTimeoutMs(detachSurfaceTimeoutMs);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#setPauseAtEndOfMediaItems(boolean)} instead. */
     @Deprecated
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
-      Assertions.checkState(!buildCalled);
-      this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
+      wrappedBuilder.setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems);
       return this;
     }
 
@@ -392,8 +318,7 @@ public class SimpleExoPlayer extends BasePlayer
      */
     @Deprecated
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
-      Assertions.checkState(!buildCalled);
-      this.livePlaybackSpeedControl = livePlaybackSpeedControl;
+      wrappedBuilder.setLivePlaybackSpeedControl(livePlaybackSpeedControl);
       return this;
     }
 
@@ -401,17 +326,14 @@ public class SimpleExoPlayer extends BasePlayer
     @Deprecated
     @VisibleForTesting
     public Builder setClock(Clock clock) {
-      Assertions.checkState(!buildCalled);
-      this.clock = clock;
+      wrappedBuilder.setClock(clock);
       return this;
     }
 
     /** @deprecated Use {@link ExoPlayer.Builder#build()} instead. */
     @Deprecated
     public SimpleExoPlayer build() {
-      Assertions.checkState(!buildCalled);
-      buildCalled = true;
-      return new SimpleExoPlayer(/* builder= */ this);
+      return wrappedBuilder.buildSimpleExoPlayer();
     }
   }
 
@@ -463,7 +385,7 @@ public class SimpleExoPlayer extends BasePlayer
   private DeviceInfo deviceInfo;
   private VideoSize videoSize;
 
-  /** @deprecated Use the {@link Builder} and pass it to {@link #SimpleExoPlayer(Builder)}. */
+  /** @deprecated Use the {@link ExoPlayer.Builder}. */
   @Deprecated
   @SuppressWarnings("deprecation")
   protected SimpleExoPlayer(
@@ -478,7 +400,7 @@ public class SimpleExoPlayer extends BasePlayer
       Clock clock,
       Looper applicationLooper) {
     this(
-        new Builder(context, renderersFactory)
+        new ExoPlayer.Builder(context, renderersFactory)
             .setTrackSelector(trackSelector)
             .setMediaSourceFactory(mediaSourceFactory)
             .setLoadControl(loadControl)
@@ -490,8 +412,13 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   /** @param builder The {@link Builder} to obtain all construction parameters. */
-  @SuppressWarnings("deprecation")
   protected SimpleExoPlayer(Builder builder) {
+    this(builder.wrappedBuilder);
+  }
+
+  /** @param builder The {@link ExoPlayer.Builder} to obtain all construction parameters. */
+  @SuppressWarnings("deprecation")
+  /* package */ SimpleExoPlayer(ExoPlayer.Builder builder) {
     constructorFinished = new ConditionVariable();
     try {
       applicationContext = builder.context.getApplicationContext();

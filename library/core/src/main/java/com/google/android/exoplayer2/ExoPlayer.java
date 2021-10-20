@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.content.Context;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
@@ -359,7 +362,34 @@ public interface ExoPlayer extends Player {
   @SuppressWarnings("deprecation")
   final class Builder {
 
-    private final SimpleExoPlayer.Builder wrappedBuilder;
+    /* package */ final Context context;
+    /* package */ final RenderersFactory renderersFactory;
+
+    /* package */ Clock clock;
+    /* package */ long foregroundModeTimeoutMs;
+    /* package */ TrackSelector trackSelector;
+    /* package */ MediaSourceFactory mediaSourceFactory;
+    /* package */ LoadControl loadControl;
+    /* package */ BandwidthMeter bandwidthMeter;
+    /* package */ AnalyticsCollector analyticsCollector;
+    /* package */ Looper looper;
+    @Nullable /* package */ PriorityTaskManager priorityTaskManager;
+    /* package */ AudioAttributes audioAttributes;
+    /* package */ boolean handleAudioFocus;
+    @C.WakeMode /* package */ int wakeMode;
+    /* package */ boolean handleAudioBecomingNoisy;
+    /* package */ boolean skipSilenceEnabled;
+    @C.VideoScalingMode /* package */ int videoScalingMode;
+    @C.VideoChangeFrameRateStrategy /* package */ int videoChangeFrameRateStrategy;
+    /* package */ boolean useLazyPreparation;
+    /* package */ SeekParameters seekParameters;
+    /* package */ long seekBackIncrementMs;
+    /* package */ long seekForwardIncrementMs;
+    /* package */ LivePlaybackSpeedControl livePlaybackSpeedControl;
+    /* package */ long releaseTimeoutMs;
+    /* package */ long detachSurfaceTimeoutMs;
+    /* package */ boolean pauseAtEndOfMediaItems;
+    /* package */ boolean buildCalled;
 
     /**
      * Creates a builder.
@@ -404,7 +434,7 @@ public interface ExoPlayer extends Player {
      * @param context A {@link Context}.
      */
     public Builder(Context context) {
-      wrappedBuilder = new SimpleExoPlayer.Builder(context);
+      this(context, new DefaultRenderersFactory(context), new DefaultExtractorsFactory());
     }
 
     /**
@@ -417,7 +447,7 @@ public interface ExoPlayer extends Player {
      *     player.
      */
     public Builder(Context context, RenderersFactory renderersFactory) {
-      wrappedBuilder = new SimpleExoPlayer.Builder(context, renderersFactory);
+      this(context, renderersFactory, new DefaultExtractorsFactory());
     }
 
     /**
@@ -430,7 +460,7 @@ public interface ExoPlayer extends Player {
      *     its container.
      */
     public Builder(Context context, ExtractorsFactory extractorsFactory) {
-      wrappedBuilder = new SimpleExoPlayer.Builder(context, extractorsFactory);
+      this(context, new DefaultRenderersFactory(context), extractorsFactory);
     }
 
     /**
@@ -446,7 +476,14 @@ public interface ExoPlayer extends Player {
      */
     public Builder(
         Context context, RenderersFactory renderersFactory, ExtractorsFactory extractorsFactory) {
-      wrappedBuilder = new SimpleExoPlayer.Builder(context, renderersFactory, extractorsFactory);
+      this(
+          context,
+          renderersFactory,
+          new DefaultTrackSelector(context),
+          new DefaultMediaSourceFactory(context, extractorsFactory),
+          new DefaultLoadControl(),
+          DefaultBandwidthMeter.getSingletonInstance(context),
+          new AnalyticsCollector(Clock.DEFAULT));
     }
 
     /**
@@ -472,15 +509,26 @@ public interface ExoPlayer extends Player {
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         AnalyticsCollector analyticsCollector) {
-      wrappedBuilder =
-          new SimpleExoPlayer.Builder(
-              context,
-              renderersFactory,
-              trackSelector,
-              mediaSourceFactory,
-              loadControl,
-              bandwidthMeter,
-              analyticsCollector);
+      this.context = context;
+      this.renderersFactory = renderersFactory;
+      this.trackSelector = trackSelector;
+      this.mediaSourceFactory = mediaSourceFactory;
+      this.loadControl = loadControl;
+      this.bandwidthMeter = bandwidthMeter;
+      this.analyticsCollector = analyticsCollector;
+      looper = Util.getCurrentOrMainLooper();
+      audioAttributes = AudioAttributes.DEFAULT;
+      wakeMode = C.WAKE_MODE_NONE;
+      videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
+      videoChangeFrameRateStrategy = C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS;
+      useLazyPreparation = true;
+      seekParameters = SeekParameters.DEFAULT;
+      seekBackIncrementMs = C.DEFAULT_SEEK_BACK_INCREMENT_MS;
+      seekForwardIncrementMs = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
+      livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
+      clock = Clock.DEFAULT;
+      releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
+      detachSurfaceTimeoutMs = DEFAULT_DETACH_SURFACE_TIMEOUT_MS;
     }
 
     /**
@@ -493,7 +541,8 @@ public interface ExoPlayer extends Player {
      * @param timeoutMs The time limit in milliseconds.
      */
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
-      wrappedBuilder.experimentalSetForegroundModeTimeoutMs(timeoutMs);
+      checkState(!buildCalled);
+      foregroundModeTimeoutMs = timeoutMs;
       return this;
     }
 
@@ -505,7 +554,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setTrackSelector(TrackSelector trackSelector) {
-      wrappedBuilder.setTrackSelector(trackSelector);
+      checkState(!buildCalled);
+      this.trackSelector = trackSelector;
       return this;
     }
 
@@ -517,7 +567,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
-      wrappedBuilder.setMediaSourceFactory(mediaSourceFactory);
+      checkState(!buildCalled);
+      this.mediaSourceFactory = mediaSourceFactory;
       return this;
     }
 
@@ -529,7 +580,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setLoadControl(LoadControl loadControl) {
-      wrappedBuilder.setLoadControl(loadControl);
+      checkState(!buildCalled);
+      this.loadControl = loadControl;
       return this;
     }
 
@@ -541,7 +593,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
-      wrappedBuilder.setBandwidthMeter(bandwidthMeter);
+      checkState(!buildCalled);
+      this.bandwidthMeter = bandwidthMeter;
       return this;
     }
 
@@ -554,7 +607,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setLooper(Looper looper) {
-      wrappedBuilder.setLooper(looper);
+      checkState(!buildCalled);
+      this.looper = looper;
       return this;
     }
 
@@ -566,7 +620,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
-      wrappedBuilder.setAnalyticsCollector(analyticsCollector);
+      checkState(!buildCalled);
+      this.analyticsCollector = analyticsCollector;
       return this;
     }
 
@@ -580,7 +635,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
-      wrappedBuilder.setPriorityTaskManager(priorityTaskManager);
+      checkState(!buildCalled);
+      this.priorityTaskManager = priorityTaskManager;
       return this;
     }
 
@@ -598,7 +654,9 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
-      wrappedBuilder.setAudioAttributes(audioAttributes, handleAudioFocus);
+      checkState(!buildCalled);
+      this.audioAttributes = audioAttributes;
+      this.handleAudioFocus = handleAudioFocus;
       return this;
     }
 
@@ -620,7 +678,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setWakeMode(@C.WakeMode int wakeMode) {
-      wrappedBuilder.setWakeMode(wakeMode);
+      checkState(!buildCalled);
+      this.wakeMode = wakeMode;
       return this;
     }
 
@@ -636,7 +695,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
-      wrappedBuilder.setHandleAudioBecomingNoisy(handleAudioBecomingNoisy);
+      checkState(!buildCalled);
+      this.handleAudioBecomingNoisy = handleAudioBecomingNoisy;
       return this;
     }
 
@@ -648,7 +708,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
-      wrappedBuilder.setSkipSilenceEnabled(skipSilenceEnabled);
+      checkState(!buildCalled);
+      this.skipSilenceEnabled = skipSilenceEnabled;
       return this;
     }
 
@@ -663,7 +724,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
-      wrappedBuilder.setVideoScalingMode(videoScalingMode);
+      checkState(!buildCalled);
+      this.videoScalingMode = videoScalingMode;
       return this;
     }
 
@@ -683,7 +745,8 @@ public interface ExoPlayer extends Player {
      */
     public Builder setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
-      wrappedBuilder.setVideoChangeFrameRateStrategy(videoChangeFrameRateStrategy);
+      checkState(!buildCalled);
+      this.videoChangeFrameRateStrategy = videoChangeFrameRateStrategy;
       return this;
     }
 
@@ -699,7 +762,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
-      wrappedBuilder.setUseLazyPreparation(useLazyPreparation);
+      checkState(!buildCalled);
+      this.useLazyPreparation = useLazyPreparation;
       return this;
     }
 
@@ -711,7 +775,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setSeekParameters(SeekParameters seekParameters) {
-      wrappedBuilder.setSeekParameters(seekParameters);
+      checkState(!buildCalled);
+      this.seekParameters = seekParameters;
       return this;
     }
 
@@ -724,7 +789,9 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
-      wrappedBuilder.setSeekBackIncrementMs(seekBackIncrementMs);
+      checkArgument(seekBackIncrementMs > 0);
+      checkState(!buildCalled);
+      this.seekBackIncrementMs = seekBackIncrementMs;
       return this;
     }
 
@@ -737,7 +804,9 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
-      wrappedBuilder.setSeekForwardIncrementMs(seekForwardIncrementMs);
+      checkArgument(seekForwardIncrementMs > 0);
+      checkState(!buildCalled);
+      this.seekForwardIncrementMs = seekForwardIncrementMs;
       return this;
     }
 
@@ -753,7 +822,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
-      wrappedBuilder.setReleaseTimeoutMs(releaseTimeoutMs);
+      checkState(!buildCalled);
+      this.releaseTimeoutMs = releaseTimeoutMs;
       return this;
     }
 
@@ -769,7 +839,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
-      wrappedBuilder.setDetachSurfaceTimeoutMs(detachSurfaceTimeoutMs);
+      checkState(!buildCalled);
+      this.detachSurfaceTimeoutMs = detachSurfaceTimeoutMs;
       return this;
     }
 
@@ -786,7 +857,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
-      wrappedBuilder.setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems);
+      checkState(!buildCalled);
+      this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
       return this;
     }
 
@@ -799,7 +871,8 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
-      wrappedBuilder.setLivePlaybackSpeedControl(livePlaybackSpeedControl);
+      checkState(!buildCalled);
+      this.livePlaybackSpeedControl = livePlaybackSpeedControl;
       return this;
     }
 
@@ -813,7 +886,8 @@ public interface ExoPlayer extends Player {
      */
     @VisibleForTesting
     public Builder setClock(Clock clock) {
-      wrappedBuilder.setClock(clock);
+      checkState(!buildCalled);
+      this.clock = clock;
       return this;
     }
 
@@ -823,7 +897,13 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If this method has already been called.
      */
     public ExoPlayer build() {
-      return wrappedBuilder.build();
+      return buildSimpleExoPlayer();
+    }
+
+    /* package */ SimpleExoPlayer buildSimpleExoPlayer() {
+      checkState(!buildCalled);
+      buildCalled = true;
+      return new SimpleExoPlayer(/* builder= */ this);
     }
   }
 
