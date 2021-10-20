@@ -15,10 +15,11 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.content.Context;
-import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -44,14 +45,19 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * The default {@link MediaSourceFactory} implementation.
@@ -111,8 +117,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private static final String TAG = "DefaultMediaSourceFactory";
 
   private final DataSource.Factory dataSourceFactory;
-  private final SparseArray<MediaSourceFactory> mediaSourceFactories;
-  @C.ContentType private final int[] supportedTypes;
+  private final DelegateFactoryLoader delegateFactoryLoader;
 
   @Nullable private AdsLoaderProvider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
@@ -165,11 +170,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    mediaSourceFactories = loadDelegates(dataSourceFactory, extractorsFactory);
-    supportedTypes = new int[mediaSourceFactories.size()];
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      supportedTypes[i] = mediaSourceFactories.keyAt(i);
-    }
+    delegateFactoryLoader = new DelegateFactoryLoader(dataSourceFactory, extractorsFactory);
     liveTargetOffsetMs = C.TIME_UNSET;
     liveMinOffsetMs = C.TIME_UNSET;
     liveMaxOffsetMs = C.TIME_UNSET;
@@ -278,41 +279,30 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
-  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
   @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      mediaSourceFactories.valueAt(i).setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
-    }
+    delegateFactoryLoader.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
     return this;
   }
 
-  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
   @Override
   public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      mediaSourceFactories.valueAt(i).setDrmUserAgent(userAgent);
-    }
+    delegateFactoryLoader.setDrmUserAgent(userAgent);
     return this;
   }
 
-  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      mediaSourceFactories.valueAt(i).setDrmSessionManager(drmSessionManager);
-    }
+    delegateFactoryLoader.setDrmSessionManager(drmSessionManager);
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
       @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      mediaSourceFactories.valueAt(i).setDrmSessionManagerProvider(drmSessionManagerProvider);
-    }
+    delegateFactoryLoader.setDrmSessionManagerProvider(drmSessionManagerProvider);
     return this;
   }
 
@@ -320,9 +310,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(
       @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      mediaSourceFactories.valueAt(i).setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
-    }
+    delegateFactoryLoader.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
     return this;
   }
 
@@ -334,26 +322,25 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Deprecated
   @Override
   public DefaultMediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      mediaSourceFactories.valueAt(i).setStreamKeys(streamKeys);
-    }
+    delegateFactoryLoader.setStreamKeys(streamKeys);
     return this;
   }
 
   @Override
   public int[] getSupportedTypes() {
-    return Arrays.copyOf(supportedTypes, supportedTypes.length);
+    return delegateFactoryLoader.getSupportedTypes();
   }
 
   @Override
   public MediaSource createMediaSource(MediaItem mediaItem) {
-    Assertions.checkNotNull(mediaItem.localConfiguration);
+    checkNotNull(mediaItem.localConfiguration);
     @C.ContentType
     int type =
         Util.inferContentTypeForUriAndMimeType(
             mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
-    @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
-    Assertions.checkNotNull(
+    @Nullable
+    MediaSourceFactory mediaSourceFactory = delegateFactoryLoader.getMediaSourceFactory(type);
+    checkStateNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
 
     MediaItem.LiveConfiguration.Builder liveConfigurationBuilder =
@@ -433,22 +420,22 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     }
     return new ClippingMediaSource(
         mediaSource,
-        C.msToUs(mediaItem.clippingConfiguration.startPositionMs),
-        C.msToUs(mediaItem.clippingConfiguration.endPositionMs),
+        Util.msToUs(mediaItem.clippingConfiguration.startPositionMs),
+        Util.msToUs(mediaItem.clippingConfiguration.endPositionMs),
         /* enableInitialDiscontinuity= */ !mediaItem.clippingConfiguration.startsAtKeyFrame,
         /* allowDynamicClippingUpdates= */ mediaItem.clippingConfiguration.relativeToLiveWindow,
         mediaItem.clippingConfiguration.relativeToDefaultPosition);
   }
 
   private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
-    Assertions.checkNotNull(mediaItem.localConfiguration);
+    checkNotNull(mediaItem.localConfiguration);
     @Nullable
     MediaItem.AdsConfiguration adsConfiguration = mediaItem.localConfiguration.adsConfiguration;
     if (adsConfiguration == null) {
       return mediaSource;
     }
-    AdsLoaderProvider adsLoaderProvider = this.adsLoaderProvider;
-    AdViewProvider adViewProvider = this.adViewProvider;
+    @Nullable AdsLoaderProvider adsLoaderProvider = this.adsLoaderProvider;
+    @Nullable AdViewProvider adViewProvider = this.adViewProvider;
     if (adsLoaderProvider == null || adViewProvider == null) {
       Log.w(
           TAG,
@@ -473,51 +460,181 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         adViewProvider);
   }
 
-  private static SparseArray<MediaSourceFactory> loadDelegates(
-      DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
-    SparseArray<MediaSourceFactory> factories = new SparseArray<>();
-    try {
-      Class<? extends MediaSourceFactory> factoryClazz =
-          Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
-              .asSubclass(MediaSourceFactory.class);
-      factories.put(
-          C.TYPE_DASH,
-          factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory));
-    } catch (Exception e) {
-      // Expected if the app was built without the dash module.
+  /** Loads media source factories lazily. */
+  private static final class DelegateFactoryLoader {
+    private final DataSource.Factory dataSourceFactory;
+    private final ExtractorsFactory extractorsFactory;
+    private final Map<Integer, @NullableType Supplier<MediaSourceFactory>>
+        mediaSourceFactorySuppliers;
+    private final Set<Integer> supportedTypes;
+    private final Map<Integer, MediaSourceFactory> mediaSourceFactories;
+
+    @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
+    @Nullable private String userAgent;
+    @Nullable private DrmSessionManager drmSessionManager;
+    @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
+    @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+    @Nullable private List<StreamKey> streamKeys;
+
+    public DelegateFactoryLoader(
+        DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
+      this.dataSourceFactory = dataSourceFactory;
+      this.extractorsFactory = extractorsFactory;
+      mediaSourceFactorySuppliers = new HashMap<>();
+      supportedTypes = new HashSet<>();
+      mediaSourceFactories = new HashMap<>();
     }
-    try {
-      Class<? extends MediaSourceFactory> factoryClazz =
-          Class.forName(
-                  "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory")
-              .asSubclass(MediaSourceFactory.class);
-      factories.put(
-          C.TYPE_SS,
-          factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory));
-    } catch (Exception e) {
-      // Expected if the app was built without the smoothstreaming module.
+
+    @C.ContentType
+    public int[] getSupportedTypes() {
+      ensureAllSuppliersAreLoaded();
+      return Ints.toArray(supportedTypes);
     }
-    try {
-      Class<? extends MediaSourceFactory> factoryClazz =
-          Class.forName("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory")
-              .asSubclass(MediaSourceFactory.class);
-      factories.put(
-          C.TYPE_HLS,
-          factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory));
-    } catch (Exception e) {
-      // Expected if the app was built without the hls module.
+
+    @SuppressWarnings("deprecation") // Forwarding to deprecated methods.
+    @Nullable
+    public MediaSourceFactory getMediaSourceFactory(@C.ContentType int contentType) {
+      @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(contentType);
+      if (mediaSourceFactory != null) {
+        return mediaSourceFactory;
+      }
+      @Nullable
+      Supplier<MediaSourceFactory> mediaSourceFactorySupplier = maybeLoadSupplier(contentType);
+      if (mediaSourceFactorySupplier == null) {
+        return null;
+      }
+
+      mediaSourceFactory = mediaSourceFactorySupplier.get();
+      if (drmHttpDataSourceFactory != null) {
+        mediaSourceFactory.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      }
+      if (userAgent != null) {
+        mediaSourceFactory.setDrmUserAgent(userAgent);
+      }
+      if (drmSessionManager != null) {
+        mediaSourceFactory.setDrmSessionManager(drmSessionManager);
+      }
+      if (drmSessionManagerProvider != null) {
+        mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
+      }
+      if (loadErrorHandlingPolicy != null) {
+        mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+      }
+      if (streamKeys != null) {
+        mediaSourceFactory.setStreamKeys(streamKeys);
+      }
+      mediaSourceFactories.put(contentType, mediaSourceFactory);
+      return mediaSourceFactory;
     }
-    try {
-      Class<? extends MediaSourceFactory> factoryClazz =
-          Class.forName("com.google.android.exoplayer2.source.rtsp.RtspMediaSource$Factory")
-              .asSubclass(MediaSourceFactory.class);
-      factories.put(C.TYPE_RTSP, factoryClazz.getConstructor().newInstance());
-    } catch (Exception e) {
-      // Expected if the app was built without the RTSP module.
+
+    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
+    public void setDrmHttpDataSourceFactory(
+        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
+      this.drmHttpDataSourceFactory = drmHttpDataSourceFactory;
+      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      }
     }
-    factories.put(
-        C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory));
-    return factories;
+
+    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
+    public void setDrmUserAgent(@Nullable String userAgent) {
+      this.userAgent = userAgent;
+      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setDrmUserAgent(userAgent);
+      }
+    }
+
+    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
+    public void setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
+      this.drmSessionManager = drmSessionManager;
+      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setDrmSessionManager(drmSessionManager);
+      }
+    }
+
+    public void setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      this.drmSessionManagerProvider = drmSessionManagerProvider;
+      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
+      }
+    }
+
+    public void setLoadErrorHandlingPolicy(
+        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+      }
+    }
+
+    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
+    public void setStreamKeys(@Nullable List<StreamKey> streamKeys) {
+      this.streamKeys = streamKeys;
+      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setStreamKeys(streamKeys);
+      }
+    }
+
+    private void ensureAllSuppliersAreLoaded() {
+      maybeLoadSupplier(C.TYPE_DASH);
+      maybeLoadSupplier(C.TYPE_SS);
+      maybeLoadSupplier(C.TYPE_HLS);
+      maybeLoadSupplier(C.TYPE_RTSP);
+      maybeLoadSupplier(C.TYPE_OTHER);
+    }
+
+    @Nullable
+    private Supplier<MediaSourceFactory> maybeLoadSupplier(@C.ContentType int contentType) {
+      if (mediaSourceFactorySuppliers.containsKey(contentType)) {
+        return mediaSourceFactorySuppliers.get(contentType);
+      }
+
+      @Nullable Supplier<MediaSourceFactory> mediaSourceFactorySupplier = null;
+      try {
+        Class<? extends MediaSourceFactory> clazz;
+        switch (contentType) {
+          case C.TYPE_DASH:
+            clazz =
+                Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
+                    .asSubclass(MediaSourceFactory.class);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            break;
+          case C.TYPE_SS:
+            clazz =
+                Class.forName(
+                        "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory")
+                    .asSubclass(MediaSourceFactory.class);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            break;
+          case C.TYPE_HLS:
+            clazz =
+                Class.forName("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory")
+                    .asSubclass(MediaSourceFactory.class);
+            mediaSourceFactorySupplier = () -> newInstance(clazz, dataSourceFactory);
+            break;
+          case C.TYPE_RTSP:
+            clazz =
+                Class.forName("com.google.android.exoplayer2.source.rtsp.RtspMediaSource$Factory")
+                    .asSubclass(MediaSourceFactory.class);
+            mediaSourceFactorySupplier = () -> newInstance(clazz);
+            break;
+          case C.TYPE_OTHER:
+            mediaSourceFactorySupplier =
+                () -> new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
+            break;
+          default:
+            // Do nothing.
+        }
+      } catch (ClassNotFoundException e) {
+        // Expected if the app was built without the specific module.
+      }
+      mediaSourceFactorySuppliers.put(contentType, mediaSourceFactorySupplier);
+      if (mediaSourceFactorySupplier != null) {
+        supportedTypes.add(contentType);
+      }
+      return mediaSourceFactorySupplier;
+    }
   }
 
   private static final class UnknownSubtitlesExtractor implements Extractor {
@@ -555,11 +672,26 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     }
 
     @Override
-    public void seek(long position, long timeUs) {
-      return;
-    }
+    public void seek(long position, long timeUs) {}
 
     @Override
     public void release() {}
+  }
+
+  private static MediaSourceFactory newInstance(
+      Class<? extends MediaSourceFactory> clazz, DataSource.Factory dataSourceFactory) {
+    try {
+      return clazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory);
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private static MediaSourceFactory newInstance(Class<? extends MediaSourceFactory> clazz) {
+    try {
+      return clazz.getConstructor().newInstance();
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 }
