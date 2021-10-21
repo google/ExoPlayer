@@ -14,23 +14,24 @@
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+
     buildTypes {
         debug {
             testCoverageEnabled = true
         }
     }
+
+    sourceSets {
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+        test.assets.srcDir '../../testdata/src/test/assets/'
+    }
 }
 
 dependencies {
-    api ('com.google.guava:guava:' + guavaVersion) {
-        // Exclude dependencies that are only used by Guava at compile time
-        // (but declared as runtime deps) [internal b/168188131].
-        exclude group: 'com.google.code.findbugs', module: 'jsr305'
-        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
-        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
-        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
-        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
-    }
+    implementation project(modulePrefix + 'library-common')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
@@ -46,20 +47,19 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'androidx.test:core:' + androidxTestCoreVersion
     testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
-    testImplementation 'junit:junit:' + junitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
-    testImplementation project(modulePrefix + 'library-core')
     testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {
-    javadocTitle = 'Common module'
+    javadocTitle = 'DataSource module'
 }
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifactId = 'exoplayer-common'
-    releaseDescription = 'The ExoPlayer library common module.'
+    releaseArtifactId = 'exoplayer-datasource'
+    releaseDescription = 'The ExoPlayer library DataSource module.'
 }
 apply from: '../../publish.gradle'

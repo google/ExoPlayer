@@ -17,6 +17,7 @@ android.defaultConfig.minSdkVersion 21
 
 dependencies {
     implementation project(modulePrefix + 'library-common')
+    implementation project(modulePrefix + 'library-datasource')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion

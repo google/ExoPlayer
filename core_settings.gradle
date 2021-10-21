@@ -51,6 +51,8 @@ project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui'
 include modulePrefix + 'extension-leanback'
 project(modulePrefix + 'extension-leanback').projectDir = new File(rootDir, 'extensions/leanback')
 
+include modulePrefix + 'library-datasource'
+project(modulePrefix + 'library-datasource').projectDir = new File(rootDir, 'library/datasource')
 include modulePrefix + 'extension-cronet'
 project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
 include modulePrefix + 'extension-rtmp'
