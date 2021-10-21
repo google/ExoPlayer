@@ -42,6 +42,8 @@ project(modulePrefix + 'library-transformer').projectDir = new File(rootDir, 'li
 include modulePrefix + 'library-ui'
 project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
 
+include modulePrefix + 'library-decoder'
+project(modulePrefix + 'library-decoder').projectDir = new File(rootDir, 'library/decoder')
 include modulePrefix + 'extension-av1'
 project(modulePrefix + 'extension-av1').projectDir = new File(rootDir, 'extensions/av1')
 include modulePrefix + 'extension-ffmpeg'

@@ -24,6 +24,8 @@ android {
 }
 
 dependencies {
+    implementation project(modulePrefix + 'library-decoder')
+    // TODO(b/203752526): Remove this dependency.
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion

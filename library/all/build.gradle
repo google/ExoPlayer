@@ -14,6 +14,9 @@
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
+    api project(modulePrefix + 'library-common')
+    api project(modulePrefix + 'library-decoder')
+    api project(modulePrefix + 'library-extractor')
     api project(modulePrefix + 'library-core')
     api project(modulePrefix + 'library-dash')
     api project(modulePrefix + 'library-hls')
