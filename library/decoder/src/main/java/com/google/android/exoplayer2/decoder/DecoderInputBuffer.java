@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.decoder;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -72,6 +73,9 @@ public class DecoderInputBuffer extends Buffer {
   public static final int BUFFER_REPLACEMENT_MODE_NORMAL = 1;
   /** Allows buffer replacement using {@link ByteBuffer#allocateDirect(int)}. */
   public static final int BUFFER_REPLACEMENT_MODE_DIRECT = 2;
+
+  /** The {@link Format}. */
+  @Nullable public Format format;
 
   /** {@link CryptoInfo} for encrypted data. */
   public final CryptoInfo cryptoInfo;

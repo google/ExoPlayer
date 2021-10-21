@@ -20,13 +20,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /** Buffer for {@link SimpleDecoder} output. */
-public class SimpleOutputBuffer extends OutputBuffer {
+public class SimpleDecoderOutputBuffer extends DecoderOutputBuffer {
 
-  private final Owner<SimpleOutputBuffer> owner;
+  private final Owner<SimpleDecoderOutputBuffer> owner;
 
   @Nullable public ByteBuffer data;
 
-  public SimpleOutputBuffer(Owner<SimpleOutputBuffer> owner) {
+  public SimpleDecoderOutputBuffer(Owner<SimpleDecoderOutputBuffer> owner) {
     this.owner = owner;
   }
 

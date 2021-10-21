@@ -44,7 +44,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
-import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.decoder.SimpleDecoderOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
@@ -82,7 +82,10 @@ import java.lang.annotation.RetentionPolicy;
  */
 public abstract class DecoderAudioRenderer<
         T extends
-            Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>>
+            Decoder<
+                    DecoderInputBuffer,
+                    ? extends SimpleDecoderOutputBuffer,
+                    ? extends DecoderException>>
     extends BaseRenderer implements MediaClock {
 
   private static final String TAG = "DecoderAudioRenderer";
@@ -124,7 +127,7 @@ public abstract class DecoderAudioRenderer<
   @Nullable private T decoder;
 
   @Nullable private DecoderInputBuffer inputBuffer;
-  @Nullable private SimpleOutputBuffer outputBuffer;
+  @Nullable private SimpleDecoderOutputBuffer outputBuffer;
   @Nullable private DrmSession decoderDrmSession;
   @Nullable private DrmSession sourceDrmSession;
 
@@ -456,6 +459,7 @@ public abstract class DecoderAudioRenderer<
           return false;
         }
         inputBuffer.flip();
+        inputBuffer.format = inputFormat;
         onQueueInputBuffer(inputBuffer);
         decoder.queueInputBuffer(inputBuffer);
         decoderReceivedBuffers = true;

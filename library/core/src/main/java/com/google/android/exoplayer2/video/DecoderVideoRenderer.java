@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
@@ -108,10 +109,10 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   @Nullable
   private Decoder<
-          VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
+          DecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
       decoder;
 
-  private VideoDecoderInputBuffer inputBuffer;
+  private DecoderInputBuffer inputBuffer;
   private VideoDecoderOutputBuffer outputBuffer;
   @VideoOutputMode private int outputMode;
   @Nullable private Object output;
@@ -415,7 +416,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    *
    * @param buffer The buffer that will be queued.
    */
-  protected void onQueueInputBuffer(VideoDecoderInputBuffer buffer) {
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
     // Do nothing.
   }
 
@@ -536,7 +537,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    * @throws DecoderException If an error occurred creating a suitable decoder.
    */
   protected abstract Decoder<
-          VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
+          DecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
       createDecoder(Format format, @Nullable CryptoConfig cryptoConfig) throws DecoderException;
 
   /**

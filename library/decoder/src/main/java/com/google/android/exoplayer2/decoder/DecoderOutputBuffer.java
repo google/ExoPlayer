@@ -16,10 +16,10 @@
 package com.google.android.exoplayer2.decoder;
 
 /** Output buffer decoded by a {@link Decoder}. */
-public abstract class OutputBuffer extends Buffer {
+public abstract class DecoderOutputBuffer extends Buffer {
 
   /** Buffer owner. */
-  public interface Owner<S extends OutputBuffer> {
+  public interface Owner<S extends DecoderOutputBuffer> {
 
     /**
      * Releases the buffer.

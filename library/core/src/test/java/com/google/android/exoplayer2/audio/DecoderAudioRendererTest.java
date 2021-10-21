@@ -34,7 +34,7 @@ import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
-import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.decoder.SimpleDecoderOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
@@ -133,10 +133,10 @@ public class DecoderAudioRendererTest {
   }
 
   private static final class FakeDecoder
-      extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, DecoderException> {
+      extends SimpleDecoder<DecoderInputBuffer, SimpleDecoderOutputBuffer, DecoderException> {
 
     public FakeDecoder() {
-      super(new DecoderInputBuffer[1], new SimpleOutputBuffer[1]);
+      super(new DecoderInputBuffer[1], new SimpleDecoderOutputBuffer[1]);
     }
 
     @Override
@@ -150,8 +150,8 @@ public class DecoderAudioRendererTest {
     }
 
     @Override
-    protected SimpleOutputBuffer createOutputBuffer() {
-      return new SimpleOutputBuffer(this::releaseOutputBuffer);
+    protected SimpleDecoderOutputBuffer createOutputBuffer() {
+      return new SimpleDecoderOutputBuffer(this::releaseOutputBuffer);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class DecoderAudioRendererTest {
 
     @Override
     protected DecoderException decode(
-        DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
+        DecoderInputBuffer inputBuffer, SimpleDecoderOutputBuffer outputBuffer, boolean reset) {
       if (inputBuffer.isEndOfStream()) {
         outputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
       }

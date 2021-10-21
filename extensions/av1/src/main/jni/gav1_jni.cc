@@ -537,7 +537,7 @@ DECODER_FUNC(jlong, gav1Init, jint threads) {
 
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
-      "com/google/android/exoplayer2/video/VideoDecoderOutputBuffer");
+      "com/google/android/exoplayer2/decoder/VideoDecoderOutputBuffer");
   context->decoder_private_field =
       env->GetFieldID(outputBufferClass, "decoderPrivate", "I");
   context->output_mode_field = env->GetFieldID(outputBufferClass, "mode", "I");

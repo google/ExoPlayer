@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.video;
+package com.google.android.exoplayer2.decoder;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.decoder.OutputBuffer;
 import java.nio.ByteBuffer;
 
 /** Video decoder output buffer containing video frame data. */
-public class VideoDecoderOutputBuffer extends OutputBuffer {
+public class VideoDecoderOutputBuffer extends DecoderOutputBuffer {
 
   public static final int COLORSPACE_UNKNOWN = 0;
   public static final int COLORSPACE_BT601 = 1;

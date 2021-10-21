@@ -26,16 +26,15 @@ import com.google.android.exoplayer2.decoder.CryptoException;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
+import com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
-import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
 import java.nio.ByteBuffer;
 
 /** Vpx decoder. */
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 public final class VpxDecoder
-    extends SimpleDecoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, VpxDecoderException> {
+    extends SimpleDecoder<DecoderInputBuffer, VideoDecoderOutputBuffer, VpxDecoderException> {
 
   // These constants should match the codes returned from vpxDecode and vpxSecureDecode functions in
   // https://github.com/google/ExoPlayer/blob/release-v2/extensions/vp9/src/main/jni/vpx_jni.cc.
@@ -68,9 +67,7 @@ public final class VpxDecoder
       @Nullable CryptoConfig cryptoConfig,
       int threads)
       throws VpxDecoderException {
-    super(
-        new VideoDecoderInputBuffer[numInputBuffers],
-        new VideoDecoderOutputBuffer[numOutputBuffers]);
+    super(new DecoderInputBuffer[numInputBuffers], new VideoDecoderOutputBuffer[numOutputBuffers]);
     if (!VpxLibrary.isAvailable()) {
       throw new VpxDecoderException("Failed to load decoder native libraries.");
     }
@@ -92,8 +89,8 @@ public final class VpxDecoder
   }
 
   @Override
-  protected VideoDecoderInputBuffer createInputBuffer() {
-    return new VideoDecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+  protected DecoderInputBuffer createInputBuffer() {
+    return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
   }
 
   @Override
@@ -119,7 +116,7 @@ public final class VpxDecoder
   @Override
   @Nullable
   protected VpxDecoderException decode(
-      VideoDecoderInputBuffer inputBuffer, VideoDecoderOutputBuffer outputBuffer, boolean reset) {
+      DecoderInputBuffer inputBuffer, VideoDecoderOutputBuffer outputBuffer, boolean reset) {
     if (reset && lastSupplementalData != null) {
       // Don't propagate supplemental data across calls to flush the decoder.
       lastSupplementalData.clear();

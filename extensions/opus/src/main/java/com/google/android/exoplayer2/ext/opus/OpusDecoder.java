@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.decoder.CryptoException;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
-import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.decoder.SimpleDecoderOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -35,7 +35,7 @@ import java.util.List;
 /** Opus decoder. */
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 public final class OpusDecoder
-    extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, OpusDecoderException> {
+    extends SimpleDecoder<DecoderInputBuffer, SimpleDecoderOutputBuffer, OpusDecoderException> {
 
   private static final int NO_ERROR = 0;
   private static final int DECODE_ERROR = -1;
@@ -73,7 +73,7 @@ public final class OpusDecoder
       @Nullable CryptoConfig cryptoConfig,
       boolean outputFloat)
       throws OpusDecoderException {
-    super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
+    super(new DecoderInputBuffer[numInputBuffers], new SimpleDecoderOutputBuffer[numOutputBuffers]);
     if (!OpusLibrary.isAvailable()) {
       throw new OpusDecoderException("Failed to load decoder native libraries");
     }
@@ -147,8 +147,8 @@ public final class OpusDecoder
   }
 
   @Override
-  protected SimpleOutputBuffer createOutputBuffer() {
-    return new SimpleOutputBuffer(this::releaseOutputBuffer);
+  protected SimpleDecoderOutputBuffer createOutputBuffer() {
+    return new SimpleDecoderOutputBuffer(this::releaseOutputBuffer);
   }
 
   @Override
@@ -159,7 +159,7 @@ public final class OpusDecoder
   @Override
   @Nullable
   protected OpusDecoderException decode(
-      DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
+      DecoderInputBuffer inputBuffer, SimpleDecoderOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       opusReset(nativeDecoderContext);
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to
@@ -239,14 +239,14 @@ public final class OpusDecoder
       long timeUs,
       ByteBuffer inputBuffer,
       int inputSize,
-      SimpleOutputBuffer outputBuffer);
+      SimpleDecoderOutputBuffer outputBuffer);
 
   private native int opusSecureDecode(
       long decoder,
       long timeUs,
       ByteBuffer inputBuffer,
       int inputSize,
-      SimpleOutputBuffer outputBuffer,
+      SimpleDecoderOutputBuffer outputBuffer,
       int sampleRate,
       @Nullable CryptoConfig mediaCrypto,
       int inputMode,
