@@ -23,23 +23,21 @@ import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Random;
 
 /**
- * Fake data set emulating the data of an adaptive media source.
- * It provides chunk data for all {@link Format}s in the given {@link TrackGroup}.
+ * Fake data set emulating the data of an adaptive media source. It provides chunk data for all
+ * {@link Format}s in the given {@link TrackGroup}.
  */
 public final class FakeAdaptiveDataSet extends FakeDataSet {
 
-  /**
-   * Factory for {@link FakeAdaptiveDataSet}s.
-   */
+  /** Factory for {@link FakeAdaptiveDataSet}s. */
   public static final class Factory {
-
-    private static final Random random = new Random();
 
     private final long chunkDurationUs;
     private final double bitratePercentStdDev;
+    private final Random random;
 
     /**
      * Set up factory for {@link FakeAdaptiveDataSet}s with a chunk duration and the standard
@@ -49,10 +47,12 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
      * @param bitratePercentStdDev The standard deviation used to generate the chunk sizes centered
      *     around the average bitrate of the {@link Format}s. The standard deviation is given in
      *     percent (of the average size).
+     * @param random The random number generator used to generate the chunk size variation.
      */
-    public Factory(long chunkDurationUs, double bitratePercentStdDev) {
+    public Factory(long chunkDurationUs, double bitratePercentStdDev, Random random) {
       this.chunkDurationUs = chunkDurationUs;
       this.bitratePercentStdDev = bitratePercentStdDev;
+      this.random = random;
     }
 
     /**
@@ -62,10 +62,9 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
      * @param mediaDurationUs The total duration of the fake data set in microseconds.
      */
     public FakeAdaptiveDataSet createDataSet(TrackGroup trackGroup, long mediaDurationUs) {
-      return new FakeAdaptiveDataSet(trackGroup, mediaDurationUs, chunkDurationUs,
-          bitratePercentStdDev, random);
+      return new FakeAdaptiveDataSet(
+          trackGroup, mediaDurationUs, chunkDurationUs, bitratePercentStdDev, random);
     }
-
   }
 
   /** {@link MediaChunkIterator} for the chunks defined by a fake adaptive data set. */
@@ -92,9 +91,8 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
       checkInBounds();
       String uri = dataSet.getUri(trackGroupIndex);
       int chunkIndex = (int) getCurrentIndex();
-      Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
-      return new DataSpec(
-          Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length, /* key= */ null);
+      Segment fakeDataChunk = Util.castNonNull(dataSet.getData(uri)).getSegments().get(chunkIndex);
+      return new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length);
     }
 
     @Override
@@ -121,13 +119,17 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
    * @param trackGroup The {@link TrackGroup} for which the data set is to be created.
    * @param mediaDurationUs The total duration of the fake data set in microseconds.
    * @param chunkDurationUs The chunk duration to use in microseconds.
-   * @param bitratePercentStdDev  The standard deviation used to generate the chunk sizes centered
+   * @param bitratePercentStdDev The standard deviation used to generate the chunk sizes centered
    *     around the average bitrate of the {@link Format}s in the {@link TrackGroup}. The standard
    *     deviation is given in percent (of the average size).
    * @param random A {@link Random} instance used to generate random chunk sizes.
    */
-  /* package */ FakeAdaptiveDataSet(TrackGroup trackGroup, long mediaDurationUs,
-      long chunkDurationUs, double bitratePercentStdDev, Random random) {
+  /* package */ FakeAdaptiveDataSet(
+      TrackGroup trackGroup,
+      long mediaDurationUs,
+      long chunkDurationUs,
+      double bitratePercentStdDev,
+      Random random) {
     this.chunkDurationUs = chunkDurationUs;
     long lastChunkDurationUs = mediaDurationUs % chunkDurationUs;
     int fullChunks = (int) (mediaDurationUs / chunkDurationUs);
@@ -146,8 +148,12 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
         newData.appendReadData((int) (avgChunkLength * bitrateFactors[j]));
       }
       if (lastChunkDurationUs > 0) {
-        int lastChunkLength = (int) (format.bitrate * bitrateFactors[bitrateFactors.length - 1]
-            * (mediaDurationUs % chunkDurationUs) / (8 * C.MICROS_PER_SECOND));
+        int lastChunkLength =
+            (int)
+                (format.bitrate
+                    * bitrateFactors[bitrateFactors.length - 1]
+                    * (mediaDurationUs % chunkDurationUs)
+                    / (8 * C.MICROS_PER_SECOND));
         newData.appendReadData(lastChunkLength);
       }
     }

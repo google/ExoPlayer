@@ -15,11 +15,12 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,12 +28,12 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SsManifestParserTest {
 
-  private static final String SAMPLE_ISMC_1 = "sample_ismc_1";
-  private static final String SAMPLE_ISMC_2 = "sample_ismc_2";
+  private static final String SAMPLE_ISMC_1 = "media/smooth-streaming/sample_ismc_1";
+  private static final String SAMPLE_ISMC_2 = "media/smooth-streaming/sample_ismc_2";
 
   /** Simple test to ensure the sample manifests parse without any exceptions being thrown. */
   @Test
-  public void testParseSmoothStreamingManifest() throws IOException {
+  public void parseSmoothStreamingManifest() throws Exception {
     SsManifestParser parser = new SsManifestParser();
     parser.parse(
         Uri.parse("https://example.com/test.ismc"),
@@ -40,5 +41,16 @@ public final class SsManifestParserTest {
     parser.parse(
         Uri.parse("https://example.com/test.ismc"),
         TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_ISMC_2));
+  }
+
+  @Test
+  public void parse_populatesFormatLabelWithStreamIndexName() throws Exception {
+    SsManifestParser parser = new SsManifestParser();
+    SsManifest ssManifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.ismc"),
+            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_ISMC_1));
+
+    assertThat(ssManifest.streamElements[0].formats[0].label).isEqualTo("video");
   }
 }

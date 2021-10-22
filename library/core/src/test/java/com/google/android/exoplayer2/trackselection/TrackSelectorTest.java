@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -52,7 +53,7 @@ public class TrackSelectorTest {
           }
 
           @Override
-          public void onSelectionActivated(Object info) {}
+          public void onSelectionActivated(@Nullable Object info) {}
         };
   }
 

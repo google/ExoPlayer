@@ -1,24 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="exo_controls_previous_description">Ankstesnis takelis</string>
-  <string name="exo_controls_next_description">Kitas takelis</string>
+  <string name="exo_controls_show">Rodyti leistuvės valdiklius</string>
+  <string name="exo_controls_hide">Slėpti leistuvės valdiklius</string>
+  <string name="exo_controls_seek_bar_description">Atkūrimo eiga</string>
+  <string name="exo_controls_settings_description">Nustatymai</string>
+  <string name="exo_controls_overflow_hide_description">Slėpti papildomus nustatymus</string>
+  <string name="exo_controls_overflow_show_description">Rodyti papildomus nustatymus</string>
+  <string name="exo_controls_fullscreen_enter_description">Įjungti viso ekrano režimą</string>
+  <string name="exo_controls_fullscreen_exit_description">Išjungti viso ekrano režimą</string>
+  <string name="exo_controls_previous_description">Ankstesnės</string>
+  <string name="exo_controls_next_description">Kitas</string>
   <string name="exo_controls_pause_description">Pristabdyti</string>
   <string name="exo_controls_play_description">Leisti</string>
   <string name="exo_controls_stop_description">Sustabdyti</string>
   <string name="exo_controls_rewind_description">Sukti atgal</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Atsukti atgal %d sekundę</item>
+    <item quantity="few">Atsukti atgal %d sekundes</item>
+    <item quantity="many">Atsukti atgal %d sekundės</item>
+    <item quantity="other">Atsukti atgal %d sekundžių</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Sukti pirmyn</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Prasukti pirmyn %d sekundę</item>
+    <item quantity="few">Prasukti pirmyn %d sekundes</item>
+    <item quantity="many">Prasukti pirmyn %d sekundės</item>
+    <item quantity="other">Prasukti pirmyn %d sekundžių</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Nekartoti nieko</string>
   <string name="exo_controls_repeat_one_description">Kartoti vieną</string>
   <string name="exo_controls_repeat_all_description">Kartoti viską</string>
-  <string name="exo_controls_shuffle_description">Maišyti</string>
-  <string name="exo_controls_fullscreen_description">Viso ekrano režimas</string>
+  <string name="exo_controls_shuffle_on_description">Maišymas įjungtas</string>
+  <string name="exo_controls_shuffle_off_description">Maišymas išjungtas</string>
   <string name="exo_controls_vr_description">VR režimas</string>
-  <string name="exo_download_description">Atsisiųsti</string>
-  <string name="exo_download_notification_channel_name">Atsisiuntimai</string>
-  <string name="exo_download_downloading">Atsisiunčiama</string>
-  <string name="exo_download_completed">Atsisiuntimo procesas baigtas</string>
-  <string name="exo_download_failed">Nepavyko atsisiųsti</string>
-  <string name="exo_download_removing">Pašalinami atsisiuntimai</string>
+  <string name="exo_controls_cc_enabled_description">Išjungti subtitrus</string>
+  <string name="exo_controls_cc_disabled_description">Įgalinti subtitrus</string>
+  <string name="exo_controls_playback_speed">Sparta</string>
+  <string name="exo_controls_playback_speed_normal">Įprasta</string>
   <string name="exo_track_selection_title_video">Vaizdo įrašas</string>
   <string name="exo_track_selection_title_audio">Garso įrašas</string>
   <string name="exo_track_selection_title_text">Tekstas</string>

@@ -1,0 +1,224 @@
+containerMimeType = video/mp4
+format 0:
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 2
+  sampleRate = 12000
+  pcmEncoding = 2
+format 1:
+  id = 2
+  sampleMimeType = video/avc
+  codecs = avc1.64000D
+  maxInputSize = 5476
+  width = 320
+  height = 240
+  frameRate = 29.523811
+  metadata = entries=[mdta: key=com.android.capture.fps, smta: captureFrameRate=240.0, svcTemporalLayerCount=4, SlowMotion: segments=[Segment: startTimeMs=88, endTimeMs=879, speedDivisor=2, Segment: startTimeMs=1255, endTimeMs=1970, speedDivisor=8]]
+  initializationData:
+    data = length 33, hash D3FB879D
+    data = length 10, hash 7A0D0F2B
+sample:
+  trackIndex = 1
+  dataHashCode = -549003117
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 1
+  dataHashCode = 593600631
+  isKeyFrame = false
+  presentationTimeUs = 14000
+sample:
+  trackIndex = 1
+  dataHashCode = -961321612
+  isKeyFrame = false
+  presentationTimeUs = 47333
+sample:
+  trackIndex = 1
+  dataHashCode = -386347143
+  isKeyFrame = false
+  presentationTimeUs = 80667
+sample:
+  trackIndex = 1
+  dataHashCode = -1289764147
+  isKeyFrame = false
+  presentationTimeUs = 114000
+sample:
+  trackIndex = 1
+  dataHashCode = 1337088875
+  isKeyFrame = false
+  presentationTimeUs = 147333
+sample:
+  trackIndex = 1
+  dataHashCode = -322406979
+  isKeyFrame = false
+  presentationTimeUs = 180667
+sample:
+  trackIndex = 1
+  dataHashCode = -1688033783
+  isKeyFrame = false
+  presentationTimeUs = 228042
+sample:
+  trackIndex = 1
+  dataHashCode = -700344608
+  isKeyFrame = false
+  presentationTimeUs = 244708
+sample:
+  trackIndex = 1
+  dataHashCode = -1441653629
+  isKeyFrame = false
+  presentationTimeUs = 334083
+sample:
+  trackIndex = 1
+  dataHashCode = 1201357091
+  isKeyFrame = false
+  presentationTimeUs = 267416
+sample:
+  trackIndex = 1
+  dataHashCode = -668484307
+  isKeyFrame = false
+  presentationTimeUs = 234083
+sample:
+  trackIndex = 1
+  dataHashCode = 653508165
+  isKeyFrame = false
+  presentationTimeUs = 300750
+sample:
+  trackIndex = 1
+  dataHashCode = -816848987
+  isKeyFrame = false
+  presentationTimeUs = 467416
+sample:
+  trackIndex = 1
+  dataHashCode = 1842436292
+  isKeyFrame = false
+  presentationTimeUs = 400750
+sample:
+  trackIndex = 1
+  dataHashCode = -559603233
+  isKeyFrame = false
+  presentationTimeUs = 367416
+sample:
+  trackIndex = 1
+  dataHashCode = -666437886
+  isKeyFrame = false
+  presentationTimeUs = 434083
+sample:
+  trackIndex = 1
+  dataHashCode = 182521759
+  isKeyFrame = false
+  presentationTimeUs = 600750
+sample:
+  trackIndex = 0
+  dataHashCode = -212376212
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 0
+  dataHashCode = -833872563
+  isKeyFrame = true
+  presentationTimeUs = 416
+sample:
+  trackIndex = 0
+  dataHashCode = -135901925
+  isKeyFrame = true
+  presentationTimeUs = 36499
+sample:
+  trackIndex = 0
+  dataHashCode = 250093960
+  isKeyFrame = true
+  presentationTimeUs = 44415
+sample:
+  trackIndex = 0
+  dataHashCode = 1895536226
+  isKeyFrame = true
+  presentationTimeUs = 59998
+sample:
+  trackIndex = 0
+  dataHashCode = 1723596464
+  isKeyFrame = true
+  presentationTimeUs = 81748
+sample:
+  trackIndex = 0
+  dataHashCode = -978803114
+  isKeyFrame = true
+  presentationTimeUs = 101414
+sample:
+  trackIndex = 0
+  dataHashCode = 387377078
+  isKeyFrame = true
+  presentationTimeUs = 121080
+sample:
+  trackIndex = 0
+  dataHashCode = -132658698
+  isKeyFrame = true
+  presentationTimeUs = 140746
+sample:
+  trackIndex = 0
+  dataHashCode = 1495036471
+  isKeyFrame = true
+  presentationTimeUs = 159496
+sample:
+  trackIndex = 0
+  dataHashCode = 304440590
+  isKeyFrame = true
+  presentationTimeUs = 178162
+sample:
+  trackIndex = 1
+  dataHashCode = 2139021989
+  isKeyFrame = false
+  presentationTimeUs = 534083
+sample:
+  trackIndex = 1
+  dataHashCode = 2013165108
+  isKeyFrame = false
+  presentationTimeUs = 500750
+sample:
+  trackIndex = 1
+  dataHashCode = 405675195
+  isKeyFrame = false
+  presentationTimeUs = 567416
+sample:
+  trackIndex = 1
+  dataHashCode = -1893277090
+  isKeyFrame = false
+  presentationTimeUs = 734083
+sample:
+  trackIndex = 0
+  dataHashCode = -752661703
+  isKeyFrame = true
+  presentationTimeUs = 196412
+sample:
+  trackIndex = 1
+  dataHashCode = -1554795381
+  isKeyFrame = false
+  presentationTimeUs = 667416
+sample:
+  trackIndex = 1
+  dataHashCode = 1197099206
+  isKeyFrame = false
+  presentationTimeUs = 634083
+sample:
+  trackIndex = 1
+  dataHashCode = -674808173
+  isKeyFrame = false
+  presentationTimeUs = 700750
+sample:
+  trackIndex = 1
+  dataHashCode = -775517313
+  isKeyFrame = false
+  presentationTimeUs = 867416
+sample:
+  trackIndex = 1
+  dataHashCode = -2045106113
+  isKeyFrame = false
+  presentationTimeUs = 800750
+sample:
+  trackIndex = 1
+  dataHashCode = 305167697
+  isKeyFrame = false
+  presentationTimeUs = 767416
+sample:
+  trackIndex = 1
+  dataHashCode = 554021920
+  isKeyFrame = false
+  presentationTimeUs = 834083
+released = true

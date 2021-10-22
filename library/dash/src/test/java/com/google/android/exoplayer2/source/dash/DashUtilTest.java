@@ -23,12 +23,16 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
+import com.google.android.exoplayer2.source.dash.manifest.BaseUrl;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
+import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,60 +41,99 @@ import org.junit.runner.RunWith;
 public final class DashUtilTest {
 
   @Test
-  public void testLoadDrmInitDataFromManifest() throws Exception {
-    Period period = newPeriod(newAdaptationSets(newRepresentations(newDrmInitData())));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isEqualTo(newDrmInitData());
+  public void loadDrmInitDataFromManifest() throws Exception {
+    Period period = newPeriod(newAdaptationSet(newRepresentation(newDrmInitData())));
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format.drmInitData).isEqualTo(newDrmInitData());
   }
 
   @Test
-  public void testLoadDrmInitDataMissing() throws Exception {
-    Period period = newPeriod(newAdaptationSets(newRepresentations(null /* no init data */)));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isNull();
+  public void loadDrmInitDataMissing() throws Exception {
+    Period period = newPeriod(newAdaptationSet(newRepresentation(null /* no init data */)));
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format.drmInitData).isNull();
   }
 
   @Test
-  public void testLoadDrmInitDataNoRepresentations() throws Exception {
-    Period period = newPeriod(newAdaptationSets(/* no representation */ ));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isNull();
+  public void loadDrmInitDataNoRepresentations() throws Exception {
+    Period period = newPeriod(newAdaptationSet(/* no representation */ ));
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format).isNull();
   }
 
   @Test
-  public void testLoadDrmInitDataNoAdaptationSets() throws Exception {
+  public void loadDrmInitDataNoAdaptationSets() throws Exception {
     Period period = newPeriod(/* no adaptation set */ );
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isNull();
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format).isNull();
+  }
+
+  @Test
+  public void resolveCacheKey_representationCacheKeyIsNull_resolvesRangedUriWithFirstBaseUrl() {
+    ImmutableList<BaseUrl> baseUrls =
+        ImmutableList.of(new BaseUrl("http://www.google.com"), new BaseUrl("http://www.foo.com"));
+    Representation.SingleSegmentRepresentation representation =
+        new Representation.SingleSegmentRepresentation(
+            /* revisionId= */ 1L,
+            new Format.Builder().build(),
+            baseUrls,
+            new SingleSegmentBase(),
+            /* inbandEventStreams= */ null,
+            /* cacheKey= */ null,
+            /* contentLength= */ 1);
+    RangedUri rangedUri = new RangedUri("path/to/resource", /* start= */ 0, /* length= */ 1);
+
+    String cacheKey = DashUtil.resolveCacheKey(representation, rangedUri);
+
+    assertThat(cacheKey).isEqualTo("http://www.google.com/path/to/resource");
+  }
+
+  @Test
+  public void resolveCacheKey_representationCacheKeyDefined_usesRepresentationCacheKey() {
+    ImmutableList<BaseUrl> baseUrls =
+        ImmutableList.of(new BaseUrl("http://www.google.com"), new BaseUrl("http://www.foo.com"));
+    Representation.SingleSegmentRepresentation representation =
+        new Representation.SingleSegmentRepresentation(
+            /* revisionId= */ 1L,
+            new Format.Builder().build(),
+            baseUrls,
+            new SingleSegmentBase(),
+            /* inbandEventStreams= */ null,
+            "cacheKey",
+            /* contentLength= */ 1);
+    RangedUri rangedUri = new RangedUri("path/to/resource", /* start= */ 0, /* length= */ 1);
+
+    String cacheKey = DashUtil.resolveCacheKey(representation, rangedUri);
+
+    assertThat(cacheKey).isEqualTo("cacheKey");
   }
 
   private static Period newPeriod(AdaptationSet... adaptationSets) {
     return new Period("", 0, Arrays.asList(adaptationSets));
   }
 
-  private static AdaptationSet newAdaptationSets(Representation... representations) {
-    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null, null);
+  private static AdaptationSet newAdaptationSet(Representation... representations) {
+    return new AdaptationSet(
+        /* id= */ 0,
+        C.TRACK_TYPE_VIDEO,
+        Arrays.asList(representations),
+        /* accessibilityDescriptors= */ Collections.emptyList(),
+        /* essentialProperties= */ Collections.emptyList(),
+        /* supplementalProperties= */ Collections.emptyList());
   }
 
-  private static Representation newRepresentations(DrmInitData drmInitData) {
+  private static Representation newRepresentation(DrmInitData drmInitData) {
     Format format =
-        Format.createVideoContainerFormat(
-            "id",
-            "label",
-            MimeTypes.VIDEO_MP4,
-            MimeTypes.VIDEO_H264,
-            /* codecs= */ "",
-            Format.NO_VALUE,
-            /* width= */ 1024,
-            /* height= */ 768,
-            Format.NO_VALUE,
-            /* initializationData= */ null,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0);
-    if (drmInitData != null) {
-      format = format.copyWithDrmInitData(drmInitData);
-    }
-    return Representation.newInstance(0, format, "", new SingleSegmentBase());
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.VIDEO_MP4)
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setDrmInitData(drmInitData)
+            .build();
+    return Representation.newInstance(
+        /* revisionId= */ 0,
+        format,
+        /* baseUrls= */ ImmutableList.of(new BaseUrl("")),
+        new SingleSegmentBase());
   }
 
   private static DrmInitData newDrmInitData() {

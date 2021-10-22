@@ -26,9 +26,7 @@ import java.util.Random;
  */
 public interface ShuffleOrder {
 
-  /**
-   * The default {@link ShuffleOrder} implementation for random shuffle order.
-   */
+  /** The default {@link ShuffleOrder} implementation for random shuffle order. */
   class DefaultShuffleOrder implements ShuffleOrder {
 
     private final Random random;
@@ -164,12 +162,9 @@ public interface ShuffleOrder {
       }
       return shuffled;
     }
-
   }
 
-  /**
-   * A {@link ShuffleOrder} implementation which does not shuffle.
-   */
+  /** A {@link ShuffleOrder} implementation which does not shuffle. */
   final class UnshuffledShuffleOrder implements ShuffleOrder {
 
     private final int length;
@@ -224,9 +219,7 @@ public interface ShuffleOrder {
     }
   }
 
-  /**
-   * Returns length of shuffle order.
-   */
+  /** Returns length of shuffle order. */
   int getLength();
 
   /**

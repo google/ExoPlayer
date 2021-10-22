@@ -17,19 +17,20 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import java.util.List;
 
 /**
- * A fake {@link TrackSelection} that only returns 1 fixed track, and allows querying the number of
- * calls to its methods.
+ * A fake {@link ExoTrackSelection} that only returns 1 fixed track, and allows querying the number
+ * of calls to its methods.
  */
-public final class FakeTrackSelection implements TrackSelection {
+public final class FakeTrackSelection implements ExoTrackSelection {
 
   private final TrackGroup rendererTrackGroup;
 
@@ -41,20 +42,11 @@ public final class FakeTrackSelection implements TrackSelection {
     this.rendererTrackGroup = rendererTrackGroup;
   }
 
-  @Override
-  public void enable() {
-    // assert that track selection is in disabled state before this call.
-    assertThat(isEnabled).isFalse();
-    enableCount++;
-    isEnabled = true;
-  }
+  // TrackSelection implementation.
 
   @Override
-  public void disable() {
-    // assert that track selection is in enabled state before this call.
-    assertThat(isEnabled).isTrue();
-    releaseCount++;
-    isEnabled = false;
+  public int getType() {
+    return TYPE_UNSET;
   }
 
   @Override
@@ -88,6 +80,24 @@ public final class FakeTrackSelection implements TrackSelection {
     return 0;
   }
 
+  // ExoTrackSelection specific methods.
+
+  @Override
+  public void enable() {
+    // assert that track selection is in disabled state before this call.
+    assertThat(isEnabled).isFalse();
+    enableCount++;
+    isEnabled = true;
+  }
+
+  @Override
+  public void disable() {
+    // assert that track selection is in enabled state before this call.
+    assertThat(isEnabled).isTrue();
+    releaseCount++;
+    isEnabled = false;
+  }
+
   @Override
   public Format getSelectedFormat() {
     return rendererTrackGroup.getFormat(0);
@@ -109,12 +119,13 @@ public final class FakeTrackSelection implements TrackSelection {
   }
 
   @Override
+  @Nullable
   public Object getSelectionData() {
     return null;
   }
 
   @Override
-  public void onPlaybackSpeed(float speed) {
+  public void onPlaybackSpeed(float playbackSpeed) {
     // Do nothing.
   }
 
@@ -135,7 +146,13 @@ public final class FakeTrackSelection implements TrackSelection {
   }
 
   @Override
-  public boolean blacklist(int index, long blacklistDurationMs) {
+  public boolean blacklist(int index, long exclusionDurationMs) {
+    assertThat(isEnabled).isTrue();
+    return false;
+  }
+
+  @Override
+  public boolean isBlacklisted(int index, long nowMs) {
     assertThat(isEnabled).isTrue();
     return false;
   }

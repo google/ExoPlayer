@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** The projection mesh used with 360/VR videos. */
-public final class Projection {
+/* package */ final class Projection {
 
   /** Enforces allowed (sub) mesh draw modes. */
   @Documented

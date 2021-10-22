@@ -17,6 +17,7 @@
 #include <android/log.h>
 #include <jni.h>
 
+#include <array>
 #include <cstdlib>
 #include <cstring>
 
@@ -28,13 +29,13 @@
 #define ALOGV(...) \
   ((void)__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__))
 
-#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                               \
-  extern "C" {                                                             \
-  JNIEXPORT RETURN_TYPE                                                    \
+#define DECODER_FUNC(RETURN_TYPE, NAME, ...)                             \
+  extern "C" {                                                           \
+  JNIEXPORT RETURN_TYPE                                                  \
       Java_com_google_android_exoplayer2_ext_flac_FlacDecoderJni_##NAME( \
-          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                       \
-  }                                                                        \
-  JNIEXPORT RETURN_TYPE                                                    \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                     \
+  }                                                                      \
+  JNIEXPORT RETURN_TYPE                                                  \
       Java_com_google_android_exoplayer2_ext_flac_FlacDecoderJni_##NAME( \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
@@ -148,11 +149,11 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
       context->parser->getStreamInfo();
 
   jclass flacStreamMetadataClass = env->FindClass(
-      "com/google/android/exoplayer2/util/"
+      "com/google/android/exoplayer2/extractor/"
       "FlacStreamMetadata");
   jmethodID flacStreamMetadataConstructor =
       env->GetMethodID(flacStreamMetadataClass, "<init>",
-                       "(IIIIIIIJLjava/util/List;Ljava/util/List;)V");
+                       "(IIIIIIIJLjava/util/ArrayList;Ljava/util/ArrayList;)V");
 
   return env->NewObject(flacStreamMetadataClass, flacStreamMetadataConstructor,
                         streamInfo.min_blocksize, streamInfo.max_blocksize,
@@ -200,9 +201,15 @@ DECODER_FUNC(jlong, flacGetNextFrameFirstSampleIndex, jlong jContext) {
   return context->parser->getNextFrameFirstSampleIndex();
 }
 
-DECODER_FUNC(jlong, flacGetSeekPosition, jlong jContext, jlong timeUs) {
+DECODER_FUNC(jboolean, flacGetSeekPoints, jlong jContext, jlong timeUs,
+             jlongArray outSeekPoints) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  return context->parser->getSeekPosition(timeUs);
+  std::array<int64_t, 4> result;
+  bool success = context->parser->getSeekPositions(timeUs, result);
+  if (success) {
+    env->SetLongArrayRegion(outSeekPoints, 0, result.size(), result.data());
+  }
+  return success;
 }
 
 DECODER_FUNC(jstring, flacGetStateString, jlong jContext) {

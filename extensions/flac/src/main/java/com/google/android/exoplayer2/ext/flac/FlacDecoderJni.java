@@ -15,18 +15,20 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.util.FlacStreamMetadata;
+import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
+import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-/**
- * JNI wrapper for the libflac Flac decoder.
- */
+/** JNI wrapper for the libflac Flac decoder. */
 /* package */ final class FlacDecoderJni {
 
   /** Exception to be thrown if {@link #decodeSample(ByteBuffer)} fails to decode a frame. */
@@ -113,10 +115,10 @@ import java.nio.ByteBuffer;
    *     read from the source, then 0 is returned.
    */
   @SuppressWarnings("unused") // Called from native code.
-  public int read(ByteBuffer target) throws IOException, InterruptedException {
+  public int read(ByteBuffer target) throws IOException {
     int byteCount = target.remaining();
     if (byteBufferData != null) {
-      byteCount = Math.min(byteCount, byteBufferData.remaining());
+      byteCount = min(byteCount, byteBufferData.remaining());
       int originalLimit = byteBufferData.limit();
       byteBufferData.limit(byteBufferData.position() + byteCount);
       target.put(byteBufferData);
@@ -124,7 +126,7 @@ import java.nio.ByteBuffer;
     } else if (extractorInput != null) {
       ExtractorInput extractorInput = this.extractorInput;
       byte[] tempBuffer = Util.castNonNull(this.tempBuffer);
-      byteCount = Math.min(byteCount, TEMP_BUFFER_SIZE);
+      byteCount = min(byteCount, TEMP_BUFFER_SIZE);
       int read = readFromExtractorInput(extractorInput, tempBuffer, /* offset= */ 0, byteCount);
       if (read < 4) {
         // Reading less than 4 bytes, most of the time, happens because of getting the bytes left in
@@ -143,10 +145,11 @@ import java.nio.ByteBuffer;
   }
 
   /** Decodes and consumes the metadata from the FLAC stream. */
-  public FlacStreamMetadata decodeStreamMetadata() throws IOException, InterruptedException {
+  public FlacStreamMetadata decodeStreamMetadata() throws IOException {
     FlacStreamMetadata streamMetadata = flacDecodeMetadata(nativeDecoderContext);
     if (streamMetadata == null) {
-      throw new ParserException("Failed to decode stream metadata");
+      throw ParserException.createForMalformedContainer(
+          "Failed to decode stream metadata", /* cause= */ null);
     }
     return streamMetadata;
   }
@@ -159,7 +162,7 @@ import java.nio.ByteBuffer;
    * @param retryPosition If any error happens, the input will be rewound to {@code retryPosition}.
    */
   public void decodeSampleWithBacktrackPosition(ByteBuffer output, long retryPosition)
-      throws InterruptedException, IOException, FlacFrameDecodeException {
+      throws IOException, FlacFrameDecodeException {
     try {
       decodeSample(output);
     } catch (IOException e) {
@@ -175,8 +178,7 @@ import java.nio.ByteBuffer;
 
   /** Decodes and consumes the next sample from the FLAC stream into the given byte buffer. */
   @SuppressWarnings("ByteBufferBackingArray")
-  public void decodeSample(ByteBuffer output)
-      throws IOException, InterruptedException, FlacFrameDecodeException {
+  public void decodeSample(ByteBuffer output) throws IOException, FlacFrameDecodeException {
     output.clear();
     int frameSize =
         output.isDirect()
@@ -193,9 +195,7 @@ import java.nio.ByteBuffer;
     }
   }
 
-  /**
-   * Returns the position of the next data to be decoded, or -1 in case of error.
-   */
+  /** Returns the position of the next data to be decoded, or -1 in case of error. */
   public long getDecodePosition() {
     return flacGetDecodePosition(nativeDecoderContext);
   }
@@ -216,15 +216,25 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Maps a seek position in microseconds to a corresponding position (byte offset) in the flac
+   * Maps a seek position in microseconds to the corresponding {@link SeekMap.SeekPoints} in the
    * stream.
    *
    * @param timeUs A seek position in microseconds.
-   * @return The corresponding position (byte offset) in the flac stream or -1 if the stream doesn't
-   * have a seek table.
+   * @return The corresponding {@link SeekMap.SeekPoints} obtained from the seek table, or {@code
+   *     null} if the stream doesn't have a seek table.
    */
-  public long getSeekPosition(long timeUs) {
-    return flacGetSeekPosition(nativeDecoderContext, timeUs);
+  @Nullable
+  public SeekMap.SeekPoints getSeekPoints(long timeUs) {
+    long[] seekPoints = new long[4];
+    if (!flacGetSeekPoints(nativeDecoderContext, timeUs, seekPoints)) {
+      return null;
+    }
+    SeekPoint firstSeekPoint = new SeekPoint(seekPoints[0], seekPoints[1]);
+    SeekPoint secondSeekPoint =
+        seekPoints[2] == seekPoints[0]
+            ? firstSeekPoint
+            : new SeekPoint(seekPoints[2], seekPoints[3]);
+    return new SeekMap.SeekPoints(firstSeekPoint, secondSeekPoint);
   }
 
   public String getStateString() {
@@ -254,8 +264,7 @@ import java.nio.ByteBuffer;
   }
 
   private int readFromExtractorInput(
-      ExtractorInput extractorInput, byte[] tempBuffer, int offset, int length)
-      throws IOException, InterruptedException {
+      ExtractorInput extractorInput, byte[] tempBuffer, int offset, int length) throws IOException {
     int read = extractorInput.read(tempBuffer, offset, length);
     if (read == C.RESULT_END_OF_INPUT) {
       endOfExtractorInput = true;
@@ -266,14 +275,11 @@ import java.nio.ByteBuffer;
 
   private native long flacInit();
 
-  private native FlacStreamMetadata flacDecodeMetadata(long context)
-      throws IOException, InterruptedException;
+  private native FlacStreamMetadata flacDecodeMetadata(long context) throws IOException;
 
-  private native int flacDecodeToBuffer(long context, ByteBuffer outputBuffer)
-      throws IOException, InterruptedException;
+  private native int flacDecodeToBuffer(long context, ByteBuffer outputBuffer) throws IOException;
 
-  private native int flacDecodeToArray(long context, byte[] outputArray)
-      throws IOException, InterruptedException;
+  private native int flacDecodeToArray(long context, byte[] outputArray) throws IOException;
 
   private native long flacGetDecodePosition(long context);
 
@@ -283,7 +289,7 @@ import java.nio.ByteBuffer;
 
   private native long flacGetNextFrameFirstSampleIndex(long context);
 
-  private native long flacGetSeekPosition(long context, long timeUs);
+  private native boolean flacGetSeekPoints(long context, long timeUs, long[] outSeekPoints);
 
   private native String flacGetStateString(long context);
 
@@ -294,5 +300,4 @@ import java.nio.ByteBuffer;
   private native void flacReset(long context, long newPosition);
 
   private native void flacRelease(long context);
-
 }

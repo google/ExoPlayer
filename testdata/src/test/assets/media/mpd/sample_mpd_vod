@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:mpeg:dash:schema:mpd:2011"
+  xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011"
+  minBufferTime="PT1S"
+  profiles="urn:mpeg:dash:profile:isoff-main:2011"
+  type="static"
+  mediaPresentationDuration="PT904S">
+  <Period id="1" duration="PT904S" start="PT0S">
+    <AdaptationSet id="0" mimeType="video/mp4" contentType="video" segmentAlignment="true" startWithSAP="1">
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>
+      <SegmentTemplate presentationTimeOffset="0" media="video_$Time$_$Bandwidth$.m4s" timescale="1000" >
+        <SegmentTimeline>
+          <S d="4000" r="225"/>
+        </SegmentTimeline>
+      </SegmentTemplate>
+      <Representation id="0" codecs="avc1.4d401e" width="768" height="432" frameRate="25" bandwidth="1300000"/>
+      <Representation id="1" codecs="avc1.4d4015" width="512" height="288" frameRate="25" bandwidth="700000"/>
+      <Representation id="2" codecs="avc1.4d4015" width="512" height="288" frameRate="25" bandwidth="452000"/>
+      <Representation id="3" codecs="avc1.42c00c" width="400" height="224" frameRate="25/2" bandwidth="250000"/>
+      <Representation id="4" codecs="avc1.42c00b" width="400" height="224" frameRate="5" bandwidth="50000"/>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="fr" mimeType="audio/mp4" contentType="audio" codecs="mp4a.40.2" segmentAlignment="true" startWithSAP="1">
+      <AudioChannelConfiguration schemeIdUri="urn:mpeg:mpegB:cicp:ChannelConfiguration" value="2"/>
+      <SegmentTemplate presentationTimeOffset="0" media="audio_$Time$_$Bandwidth$.m4s" timescale="1000" >
+        <SegmentTimeline>
+          <S d="3200" r="281"/>
+          <S d="1600"/>
+        </SegmentTimeline>
+      </SegmentTemplate>
+      <Representation id="5" bandwidth="128000"/>
+    </AdaptationSet>
+  </Period>
+</MPD>

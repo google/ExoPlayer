@@ -1,0 +1,105 @@
+seekMap:
+  isSeekable = true
+  duration = 2013977
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(1006988) = [[timeUs=1006988, position=101524]]
+  getPosition(2013977) = [[timeUs=2013977, position=203237]]
+numberOfTracks = 1
+track 1900:
+  total output bytes = 56320
+  sample count = 22
+  format 0:
+    id = 1/1900
+    sampleMimeType = audio/eac3-joc
+    channelCount = 6
+    sampleRate = 48000
+  sample 0:
+    time = 1344000
+    flags = 1
+    data = length 2560, hash 9FE87594
+  sample 1:
+    time = 1376000
+    flags = 1
+    data = length 2560, hash 8E62CE19
+  sample 2:
+    time = 1408000
+    flags = 1
+    data = length 2560, hash 5FDC4084
+  sample 3:
+    time = 1440000
+    flags = 1
+    data = length 2560, hash C32DAEE1
+  sample 4:
+    time = 1472000
+    flags = 1
+    data = length 2560, hash BBEFB568
+  sample 5:
+    time = 1504000
+    flags = 1
+    data = length 2560, hash 20504279
+  sample 6:
+    time = 1536000
+    flags = 1
+    data = length 2560, hash 3B8192D2
+  sample 7:
+    time = 1568000
+    flags = 1
+    data = length 2560, hash 4206B48
+  sample 8:
+    time = 1600000
+    flags = 1
+    data = length 2560, hash B195AB53
+  sample 9:
+    time = 1632000
+    flags = 1
+    data = length 2560, hash 3AA8E25F
+  sample 10:
+    time = 1664000
+    flags = 1
+    data = length 2560, hash BC227D7B
+  sample 11:
+    time = 1696000
+    flags = 1
+    data = length 2560, hash 6A34F7EA
+  sample 12:
+    time = 1728000
+    flags = 1
+    data = length 2560, hash F1E731C4
+  sample 13:
+    time = 1760000
+    flags = 1
+    data = length 2560, hash 9CC406
+  sample 14:
+    time = 1792000
+    flags = 1
+    data = length 2560, hash A1532233
+  sample 15:
+    time = 1824000
+    flags = 1
+    data = length 2560, hash 98E49039
+  sample 16:
+    time = 1856000
+    flags = 1
+    data = length 2560, hash 3F8B6DC0
+  sample 17:
+    time = 1888000
+    flags = 1
+    data = length 2560, hash 4E7BF79F
+  sample 18:
+    time = 1920000
+    flags = 1
+    data = length 2560, hash 6DD6F2D7
+  sample 19:
+    time = 1952000
+    flags = 1
+    data = length 2560, hash A05C0EC2
+  sample 20:
+    time = 1984000
+    flags = 1
+    data = length 2560, hash 10C62F30
+  sample 21:
+    time = 2016000
+    flags = 1
+    data = length 2560, hash EE4F848A
+tracksEnded = true

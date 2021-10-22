@@ -1,24 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="exo_controls_previous_description">Poprzedni utwór</string>
-  <string name="exo_controls_next_description">Następny utwór</string>
+  <string name="exo_controls_show">Pokaż elementy sterujące odtwarzacza</string>
+  <string name="exo_controls_hide">Ukryj elementy sterujące odtwarzacza</string>
+  <string name="exo_controls_seek_bar_description">Postęp odtwarzania</string>
+  <string name="exo_controls_settings_description">Ustawienia</string>
+  <string name="exo_controls_overflow_hide_description">Ukryj ustawienia dodatkowe</string>
+  <string name="exo_controls_overflow_show_description">Pokaż ustawienia dodatkowe</string>
+  <string name="exo_controls_fullscreen_enter_description">Otwórz pełny ekran</string>
+  <string name="exo_controls_fullscreen_exit_description">Zamknij pełny ekran</string>
+  <string name="exo_controls_previous_description">Poprzedni</string>
+  <string name="exo_controls_next_description">Następny</string>
   <string name="exo_controls_pause_description">Wstrzymaj</string>
   <string name="exo_controls_play_description">Odtwórz</string>
   <string name="exo_controls_stop_description">Zatrzymaj</string>
   <string name="exo_controls_rewind_description">Przewiń do tyłu</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Przewiń do tyłu o %d sekundę</item>
+    <item quantity="few">Przewiń do tyłu o %d sekundy</item>
+    <item quantity="many">Przewiń do tyłu o %d sekund</item>
+    <item quantity="other">Przewiń do tyłu o %d sekundy</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Przewiń do przodu</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Przewiń do przodu o %d sekundę</item>
+    <item quantity="few">Przewiń do przodu o %d sekundy</item>
+    <item quantity="many">Przewiń do przodu o %d sekund</item>
+    <item quantity="other">Przewiń do przodu o %d sekundy</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Nie powtarzaj</string>
   <string name="exo_controls_repeat_one_description">Powtórz jeden</string>
   <string name="exo_controls_repeat_all_description">Powtórz wszystkie</string>
-  <string name="exo_controls_shuffle_description">Odtwarzanie losowe</string>
-  <string name="exo_controls_fullscreen_description">Tryb pełnoekranowy</string>
+  <string name="exo_controls_shuffle_on_description">Włącz odtwarzanie losowe</string>
+  <string name="exo_controls_shuffle_off_description">Wyłącz odtwarzanie losowe</string>
   <string name="exo_controls_vr_description">Tryb VR</string>
-  <string name="exo_download_description">Pobierz</string>
-  <string name="exo_download_notification_channel_name">Pobieranie</string>
-  <string name="exo_download_downloading">Pobieram</string>
-  <string name="exo_download_completed">Zakończono pobieranie</string>
-  <string name="exo_download_failed">Nie udało się pobrać</string>
-  <string name="exo_download_removing">Usuwam pobrane</string>
+  <string name="exo_controls_cc_enabled_description">Wyłącz napisy</string>
+  <string name="exo_controls_cc_disabled_description">Włącz napisy</string>
+  <string name="exo_controls_playback_speed">Szybkość</string>
+  <string name="exo_controls_playback_speed_normal">Normalna</string>
   <string name="exo_track_selection_title_video">Film</string>
   <string name="exo_track_selection_title_audio">Dźwięk</string>
   <string name="exo_track_selection_title_text">Tekst</string>

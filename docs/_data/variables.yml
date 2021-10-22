@@ -1,0 +1,64 @@
+default:
+  text_skin: default
+  highlight_theme: default
+  lang: en
+  paths:
+    root: /
+    home: /
+    archive:  /archive.html
+    rss:  /feed.xml
+  mathjax: false
+  mathjax_autoNumber: false
+  mermaid: false
+  chart: false
+  toc:
+    selectors: 'h1,h2,h3'
+  sources: bootcdn
+
+  page:
+    mode: normal
+    type: webpage
+    article_header:
+      align: left
+      theme: light
+    articles:
+      show_cover: true
+      show_excerpt: false
+      show_readmore: false
+      show_info: false
+    show_title: true
+    show_edit_on_github: false
+    show_date: true
+    show_tags: true
+    show_author_profile: false
+    show_subscribe: false
+    full_width: false
+    sharing: false
+    comment: true
+    license: false
+    pageview: false
+    search: default
+
+sources:
+  bootcdn:
+    font_awesome: 'https://use.fontawesome.com/releases/v5.0.13/css/all.css'
+    jquery: 'https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'
+    leancloud_js_sdk: '//cdn1.lncld.net/static/js/3.4.1/av-min.js'
+    chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'
+    gitalk:
+      js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js'
+      css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+    valine: 'https://unpkg.com/valine/dist/Valine.min.js' # bootcdn not available
+    mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'
+    mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+  unpkg:
+    font_awesome: 'https://use.fontawesome.com/releases/v5.0.13/css/all.css'
+    jquery: 'https://unpkg.com/jquery@3.3.1/dist/jquery.min.js'
+    leancloud_js_sdk: '//cdn1.lncld.net/static/js/3.4.1/av-min.js'
+    chart: 'https://unpkg.com/chart.js@2.7.2/dist/Chart.min.js'
+    gitalk:
+      js: 'https://unpkg.com/gitalk@1.2.2/dist/gitalk.min.js'
+      css: 'https://unpkg.com/gitalk@1.2.2/dist/gitalk.css'
+    valine: 'https//unpkg.com/valine/dist/Valine.min.js'
+    mathjax: 'https://unpkg.com/mathjax@2.7.4/unpacked/MathJax.js?config=TeX-MML-AM_CHTML'
+    mermaid: 'https://unpkg.com/mermaid@8.0.0-rc.8/dist/mermaid.min.js'

@@ -1,0 +1,104 @@
+<tt xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata"
+    xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
+    xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
+    xmlns="http://www.w3.org/ns/ttml">
+  <head>
+    <styling>
+      <style id="cont" tts:ruby="container" />
+      <style id="base" tts:ruby="base" />
+      <style id="text" tts:ruby="text" />
+      <style id="cont-with-pos-before" tts:ruby="container" tts:rubyPosition="before" />
+      <style id="text-with-pos-after" tts:ruby="text" tts:rubyPosition="after" />
+    </styling>
+  </head>
+  <body>
+    <div>
+      <!-- Base before and after text, one with explicit position -->
+      <p begin="10s" end="18s">
+        Cue with
+        <span tts:ruby="container" tts:rubyPosition="before">
+          <span tts:ruby="base">annotated</span>
+          <span tts:ruby="text">1st rubies</span>
+        </span>
+        <span tts:ruby="container">
+          <span tts:ruby="text">2nd rubies</span>
+          <span tts:ruby="base">text</span>.
+        </span>
+      </p>
+    </div>
+    <div>
+      <!-- Delimiter (parenthetical) text is stripped -->
+      <p begin="20s" end="28s">
+        Cue with
+        <span tts:ruby="container">
+          <span tts:ruby="text">rubies</span>
+          <span tts:ruby="base">annotated</span>
+          <span tts:ruby="delimiter">alt-text</span>
+        </span>
+        text.
+      </p>
+    </div>
+    <div>
+      <!-- ruby info in style block -->
+      <p begin="30s" end="38s">
+        Cue with
+        <span style="cont">
+          <span style="base">annotated</span>
+          <span style="text">rubies</span>
+          text.
+        </span>
+      </p>
+    </div>
+    <div>
+      <!-- No text section -> no span -->
+      <p begin="40s" end="48s">
+        Cue with
+        <span tts:ruby="container" tts:rubyPosition="before">
+          <span tts:ruby="base">annotated</span>
+        </span>
+        text.
+      </p>
+    </div>
+    <div>
+      <!-- No base section -> text still stripped-->
+      <p begin="50s" end="58s">
+        Cue with
+        <span tts:ruby="container" tts:rubyPosition="before">
+          <span tts:ruby="text">rubies</span>
+        </span>
+        text.
+      </p>
+    </div>
+    <div>
+      <!-- No container section -> text still stripped-->
+      <p begin="60s" end="68s">
+        Cue with
+        <span tts:ruby="text">rubies</span>
+        <span tts:ruby="base">annotated</span>
+        text.
+      </p>
+    </div>
+    <div>
+      <!-- ruby info in style block and ruby position in contpos -->
+      <p begin="70s" end="78s">
+        Cue with
+        <span style="cont-with-pos-before">
+          <span style="base">annotated</span>
+          <span style="text">rubies</span>
+          text.
+        </span>
+      </p>
+    </div>
+    <div>
+      <!-- ruby info and position in style block for base and text -->
+      <p begin="80s" end="88s">
+        Cue with
+        <span style="cont-with-pos-before">
+          <span style="base">annotated</span>
+          <span style="text-with-pos-after">rubies</span>
+          text.
+        </span>
+      </p>
+    </div>
+  </body>
+</tt>

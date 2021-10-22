@@ -1,0 +1,32 @@
+MediaCodecAdapter (exotest.audio.eac3):
+  buffers.length = 20
+  buffers[0] = length 512, hash E47547D4
+  buffers[1] = length 512, hash F6A537AC
+  buffers[2] = length 512, hash 97391682
+  buffers[3] = length 512, hash CFD3B665
+  buffers[4] = length 512, hash 2E79A3AF
+  buffers[5] = length 512, hash 2C24E2A3
+  buffers[6] = length 512, hash 5BCB9661
+  buffers[7] = length 512, hash 943ACBF2
+  buffers[8] = length 512, hash B248E943
+  buffers[9] = length 512, hash EC2DD86F
+  buffers[10] = length 512, hash A659332F
+  buffers[11] = length 512, hash CB641607
+  buffers[12] = length 512, hash 157489A0
+  buffers[13] = length 512, hash A37CB66E
+  buffers[14] = length 512, hash 932F07D4
+  buffers[15] = length 512, hash 91F50161
+  buffers[16] = length 512, hash 7F9D6CCB
+  buffers[17] = length 512, hash 3955F015
+  buffers[18] = length 512, hash A8E5C938
+  buffers[19] = length 0, hash 1
+MetadataOutput:
+  Metadata[0]:
+    entry[0] = Ait(controlCode=1,url=http://static-cdn.arte.tv/redbutton/index_fr.html)
+    entry[1] = Ait(controlCode=2,url=http://www.arte.tv/hbbtvv2/index.html?lang=fr_FR&page=PLUS7)
+  Metadata[1]:
+    entry[0] = Ait(controlCode=1,url=http://static-cdn.arte.tv/redbutton/index_fr.html)
+    entry[1] = Ait(controlCode=2,url=http://www.arte.tv/hbbtvv2/index.html?lang=fr_FR&page=PLUS7)
+  Metadata[2]:
+    entry[0] = Ait(controlCode=1,url=http://static-cdn.arte.tv/redbutton/index_fr.html)
+    entry[1] = Ait(controlCode=2,url=http://www.arte.tv/hbbtvv2/index.html?lang=fr_FR&page=PLUS7)

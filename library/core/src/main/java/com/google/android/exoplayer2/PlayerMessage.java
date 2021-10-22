@@ -16,8 +16,12 @@
 package com.google.android.exoplayer2;
 
 import android.os.Handler;
+import android.os.Looper;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Renderer.MessageType;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Defines a player message which can be sent with a {@link Sender} and received by a {@link
@@ -32,11 +36,12 @@ public final class PlayerMessage {
      * Handles a message delivered to the target.
      *
      * @param messageType The message type.
-     * @param payload The message payload.
+     * @param message The message payload.
      * @throws ExoPlaybackException If an error occurred whilst handling the message. Should only be
      *     thrown by targets that handle messages on the playback thread.
      */
-    void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException;
+    void handleMessage(@MessageType int messageType, @Nullable Object message)
+        throws ExoPlaybackException;
   }
 
   /** A sender for messages. */
@@ -52,11 +57,12 @@ public final class PlayerMessage {
 
   private final Target target;
   private final Sender sender;
+  private final Clock clock;
   private final Timeline timeline;
 
   private int type;
   @Nullable private Object payload;
-  private Handler handler;
+  private Looper looper;
   private int windowIndex;
   private long positionMs;
   private boolean deleteAfterDelivery;
@@ -74,7 +80,8 @@ public final class PlayerMessage {
    *     set to {@link Timeline#EMPTY}, any position can be specified.
    * @param defaultWindowIndex The default window index in the {@code timeline} when no other window
    *     index is specified.
-   * @param defaultHandler The default handler to send the message on when no other handler is
+   * @param clock The {@link Clock}.
+   * @param defaultLooper The default {@link Looper} to send the message on when no other looper is
    *     specified.
    */
   public PlayerMessage(
@@ -82,11 +89,13 @@ public final class PlayerMessage {
       Target target,
       Timeline timeline,
       int defaultWindowIndex,
-      Handler defaultHandler) {
+      Clock clock,
+      Looper defaultLooper) {
     this.sender = sender;
     this.target = target;
     this.timeline = timeline;
-    this.handler = defaultHandler;
+    this.looper = defaultLooper;
+    this.clock = clock;
     this.windowIndex = defaultWindowIndex;
     this.positionMs = C.TIME_UNSET;
     this.deleteAfterDelivery = true;
@@ -139,27 +148,35 @@ public final class PlayerMessage {
     return payload;
   }
 
+  /** @deprecated Use {@link #setLooper(Looper)} instead. */
+  @Deprecated
+  public PlayerMessage setHandler(Handler handler) {
+    return setLooper(handler.getLooper());
+  }
+
   /**
-   * Sets the handler the message is delivered on.
+   * Sets the {@link Looper} the message is delivered on.
    *
-   * @param handler A {@link Handler}.
+   * @param looper A {@link Looper}.
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
-  public PlayerMessage setHandler(Handler handler) {
+  public PlayerMessage setLooper(Looper looper) {
     Assertions.checkState(!isSent);
-    this.handler = handler;
+    this.looper = looper;
     return this;
   }
 
-  /** Returns the handler the message is delivered on. */
-  public Handler getHandler() {
-    return handler;
+  /** Returns the {@link Looper} the message is delivered on. */
+  public Looper getLooper() {
+    return looper;
   }
 
   /**
    * Returns position in window at {@link #getWindowIndex()} at which the message will be delivered,
-   * in milliseconds. If {@link C#TIME_UNSET}, the message will be delivered immediately.
+   * in milliseconds. If {@link C#TIME_UNSET}, the message will be delivered immediately. If {@link
+   * C#TIME_END_OF_SOURCE}, the message will be delivered at the end of the window at {@link
+   * #getWindowIndex()}.
    */
   public long getPositionMs() {
     return positionMs;
@@ -169,7 +186,8 @@ public final class PlayerMessage {
    * Sets a position in the current window at which the message will be delivered.
    *
    * @param positionMs The position in the current window at which the message will be sent, in
-   *     milliseconds.
+   *     milliseconds, or {@link C#TIME_END_OF_SOURCE} to deliver the message at the end of the
+   *     current window.
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
@@ -184,7 +202,8 @@ public final class PlayerMessage {
    *
    * @param windowIndex The index of the window at which the message will be sent.
    * @param positionMs The position in the window with index {@code windowIndex} at which the
-   *     message will be sent, in milliseconds.
+   *     message will be sent, in milliseconds, or {@link C#TIME_END_OF_SOURCE} to deliver the
+   *     message at the end of the window with index {@code windowIndex}.
    * @return This message.
    * @throws IllegalSeekPositionException If the timeline returned by {@link #getTimeline()} is not
    *     empty and the provided window index is not within the bounds of the timeline.
@@ -228,8 +247,7 @@ public final class PlayerMessage {
 
   /**
    * Sends the message. If the target throws an {@link ExoPlaybackException} then it is propagated
-   * out of the player as an error using {@link
-   * Player.EventListener#onPlayerError(ExoPlaybackException)}.
+   * out of the player as an error using {@link Player.Listener#onPlayerError(PlaybackException)}.
    *
    * @return This message.
    * @throws IllegalStateException If this message has already been sent.
@@ -263,29 +281,6 @@ public final class PlayerMessage {
   }
 
   /**
-   * Blocks until after the message has been delivered or the player is no longer able to deliver
-   * the message.
-   *
-   * <p>Note that this method can't be called if the current thread is the same thread used by the
-   * message handler set with {@link #setHandler(Handler)} as it would cause a deadlock.
-   *
-   * @return Whether the message was delivered successfully.
-   * @throws IllegalStateException If this method is called before {@link #send()}.
-   * @throws IllegalStateException If this method is called on the same thread used by the message
-   *     handler set with {@link #setHandler(Handler)}.
-   * @throws InterruptedException If the current thread is interrupted while waiting for the message
-   *     to be delivered.
-   */
-  public synchronized boolean blockUntilDelivered() throws InterruptedException {
-    Assertions.checkState(isSent);
-    Assertions.checkState(handler.getLooper().getThread() != Thread.currentThread());
-    while (!isProcessed) {
-      wait();
-    }
-    return isDelivered;
-  }
-
-  /**
    * Marks the message as processed. Should only be called by a {@link Sender} and may be called
    * multiple times.
    *
@@ -297,5 +292,63 @@ public final class PlayerMessage {
     this.isDelivered |= isDelivered;
     isProcessed = true;
     notifyAll();
+  }
+
+  /**
+   * Blocks until after the message has been delivered or the player is no longer able to deliver
+   * the message.
+   *
+   * <p>Note that this method must not be called if the current thread is the same thread used by
+   * the message {@link #getLooper() looper} as it would cause a deadlock.
+   *
+   * @return Whether the message was delivered successfully.
+   * @throws IllegalStateException If this method is called before {@link #send()}.
+   * @throws IllegalStateException If this method is called on the same thread used by the message
+   *     {@link #getLooper() looper}.
+   * @throws InterruptedException If the current thread is interrupted while waiting for the message
+   *     to be delivered.
+   */
+  public synchronized boolean blockUntilDelivered() throws InterruptedException {
+    Assertions.checkState(isSent);
+    Assertions.checkState(looper.getThread() != Thread.currentThread());
+    while (!isProcessed) {
+      wait();
+    }
+    return isDelivered;
+  }
+
+  /**
+   * Blocks until after the message has been delivered or the player is no longer able to deliver
+   * the message or the specified timeout elapsed.
+   *
+   * <p>Note that this method must not be called if the current thread is the same thread used by
+   * the message {@link #getLooper() looper} as it would cause a deadlock.
+   *
+   * @param timeoutMs The timeout in milliseconds.
+   * @return Whether the message was delivered successfully.
+   * @throws IllegalStateException If this method is called before {@link #send()}.
+   * @throws IllegalStateException If this method is called on the same thread used by the message
+   *     {@link #getLooper() looper}.
+   * @throws TimeoutException If the {@code timeoutMs} elapsed and this message has not been
+   *     delivered and the player is still able to deliver the message.
+   * @throws InterruptedException If the current thread is interrupted while waiting for the message
+   *     to be delivered.
+   */
+  public synchronized boolean blockUntilDelivered(long timeoutMs)
+      throws InterruptedException, TimeoutException {
+    Assertions.checkState(isSent);
+    Assertions.checkState(looper.getThread() != Thread.currentThread());
+
+    long deadlineMs = clock.elapsedRealtime() + timeoutMs;
+    long remainingMs = timeoutMs;
+    while (!isProcessed && remainingMs > 0) {
+      clock.onThreadBlocked();
+      wait(remainingMs);
+      remainingMs = deadlineMs - clock.elapsedRealtime();
+    }
+    if (!isProcessed) {
+      throw new TimeoutException("Message delivery timed out.");
+    }
+    return isDelivered;
   }
 }

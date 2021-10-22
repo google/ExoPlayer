@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public class UrlTemplateTest {
 
   @Test
-  public void testRealExamples() {
+  public void realExamples() {
     String template = "QualityLevels($Bandwidth$)/Fragments(video=$Time$,format=mpd-time-csf)";
     UrlTemplate urlTemplate = UrlTemplate.compile(template);
     String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
@@ -45,7 +45,7 @@ public class UrlTemplateTest {
   }
 
   @Test
-  public void testFull() {
+  public void full() {
     String template = "$Bandwidth$_a_$RepresentationID$_b_$Time$_c_$Number$";
     UrlTemplate urlTemplate = UrlTemplate.compile(template);
     String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
@@ -53,7 +53,7 @@ public class UrlTemplateTest {
   }
 
   @Test
-  public void testFullWithDollarEscaping() {
+  public void fullWithDollarEscaping() {
     String template = "$$$Bandwidth$$$_a$$_$RepresentationID$_b_$Time$_c_$Number$$$";
     UrlTemplate urlTemplate = UrlTemplate.compile(template);
     String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
@@ -61,7 +61,7 @@ public class UrlTemplateTest {
   }
 
   @Test
-  public void testInvalidSubstitution() {
+  public void invalidSubstitution() {
     String template = "$IllegalId$";
     try {
       UrlTemplate.compile(template);

@@ -16,12 +16,13 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import com.google.android.exoplayer2.util.Util;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** Helper class to simulate main/UI thread in tests. */
@@ -33,7 +34,7 @@ public final class DummyMainThread {
   }
 
   /** Default timeout value used for {@link #runOnMainThread(Runnable)}. */
-  public static final int TIMEOUT_MS = 10000;
+  public static final int TIMEOUT_MS = 10_000;
 
   private final HandlerThread thread;
   private final Handler handler;
@@ -90,7 +91,7 @@ public final class DummyMainThread {
         Util.sneakyThrow(e);
       }
     } else {
-      ConditionVariable finishedCondition = new ConditionVariable();
+      CountDownLatch finishedLatch = new CountDownLatch(1);
       AtomicReference<Throwable> thrown = new AtomicReference<>();
       handler.post(
           () -> {
@@ -99,9 +100,13 @@ public final class DummyMainThread {
             } catch (Throwable t) {
               thrown.set(t);
             }
-            finishedCondition.open();
+            finishedLatch.countDown();
           });
-      assertThat(finishedCondition.block(timeoutMs)).isTrue();
+      try {
+        assertThat(finishedLatch.await(timeoutMs, MILLISECONDS)).isTrue();
+      } catch (InterruptedException e) {
+        Util.sneakyThrow(e);
+      }
       if (thrown.get() != null) {
         Util.sneakyThrow(thrown.get());
       }

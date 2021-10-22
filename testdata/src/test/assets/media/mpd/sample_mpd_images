@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD type="static" duration="1s" mediaPresentationDuration="PT1000S">
+ <Period>
+  <AdaptationSet id="3" mimeType="image/jpeg" contentType="image">
+    <SegmentTemplate media="$RepresentationID$/tile_$Number$.jpg" duration="100" startNumber="1"/>
+    <Representation bandwidth="1234" id="images_320x180" width="320" height="180">
+      <EssentialProperty schemeIdUri="http://dashif.org/thumbnail_tile" value="title"/>
+    </Representation>
+  </AdaptationSet>
+ </Period>
+</MPD>

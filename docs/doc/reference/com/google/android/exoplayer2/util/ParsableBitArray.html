@@ -1,0 +1,804 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>ParsableBitArray (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="ParsableBitArray (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
+<h2 title="Class ParsableBitArray" class="title">Class ParsableBitArray</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.util.ParsableBitArray</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre>public final class <span class="typeNameLabel">ParsableBitArray</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Wraps a byte array, providing methods that allow it to be read as a bitstream.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">ParsableBitArray</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance that initially has no backing data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D)">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance that wraps an existing array.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,int)">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data,
+                int&nbsp;limit)</code></th>
+<td class="colLast">
+<div class="block">Creates a new instance that wraps an existing array.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bitsLeft()">bitsLeft</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the number of bits yet to be read.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#byteAlign()">byteAlign</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Aligns the position to the next byte boundary.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBytePosition()">getBytePosition</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the current byte offset.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the current bit offset.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#putInt(int,int)">putInt</a></span>&#8203;(int&nbsp;value,
+      int&nbsp;numBits)</code></th>
+<td class="colLast">
+<div class="block">Overwrites <code>numBits</code> from this array using the <code>numBits</code> least significant bits
+ from <code>value</code>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBit()">readBit</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Reads a single bit.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBits(byte%5B%5D,int,int)">readBits</a></span>&#8203;(byte[]&nbsp;buffer,
+        int&nbsp;offset,
+        int&nbsp;numBits)</code></th>
+<td class="colLast">
+<div class="block">Reads <code>numBits</code> bits into <code>buffer</code>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBits(int)">readBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
+<td class="colLast">
+<div class="block">Reads up to 32 bits.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBitsToLong(int)">readBitsToLong</a></span>&#8203;(int&nbsp;numBits)</code></th>
+<td class="colLast">
+<div class="block">Reads up to 64 bits.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytes(byte%5B%5D,int,int)">readBytes</a></span>&#8203;(byte[]&nbsp;buffer,
+         int&nbsp;offset,
+         int&nbsp;length)</code></th>
+<td class="colLast">
+<div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytesAsString(int)">readBytesAsString</a></span>&#8203;(int&nbsp;length)</code></th>
+<td class="colLast">
+<div class="block">Reads the next <code>length</code> bytes as a UTF-8 string.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytesAsString(int,java.nio.charset.Charset)">readBytesAsString</a></span>&#8203;(int&nbsp;length,
+                 <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</code></th>
+<td class="colLast">
+<div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a>.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D)">reset</a></span>&#8203;(byte[]&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D,int)">reset</a></span>&#8203;(byte[]&nbsp;data,
+     int&nbsp;limit)</code></th>
+<td class="colLast">
+<div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(com.google.android.exoplayer2.util.ParsableByteArray)">reset</a></span>&#8203;(<a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</code></th>
+<td class="colLast">
+<div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(int)">setPosition</a></span>&#8203;(int&nbsp;position)</code></th>
+<td class="colLast">
+<div class="block">Sets the current bit offset.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBit()">skipBit</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Skips a single bit.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBits(int)">skipBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
+<td class="colLast">
+<div class="block">Skips bits and moves current reading position forward.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBytes(int)">skipBytes</a></span>&#8203;(int&nbsp;length)</code></th>
+<td class="colLast">
+<div class="block">Skips the next <code>length</code> bytes.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="data">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>data</h4>
+<pre>public&nbsp;byte[] data</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ParsableBitArray</h4>
+<pre>public&nbsp;ParsableBitArray()</pre>
+<div class="block">Creates a new instance that initially has no backing data.</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ParsableBitArray</h4>
+<pre>public&nbsp;ParsableBitArray&#8203;(byte[]&nbsp;data)</pre>
+<div class="block">Creates a new instance that wraps an existing array.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to wrap.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ParsableBitArray</h4>
+<pre>public&nbsp;ParsableBitArray&#8203;(byte[]&nbsp;data,
+                        int&nbsp;limit)</pre>
+<div class="block">Creates a new instance that wraps an existing array.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to wrap.</dd>
+<dd><code>limit</code> - The limit in bytes.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="reset(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data)</pre>
+<div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The array to wrap.</dd>
+</dl>
+</li>
+</ul>
+<a id="reset(com.google.android.exoplayer2.util.ParsableByteArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(<a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</pre>
+<div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.
+ Any modifications to the underlying data array will be visible in both instances</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>parsableByteArray</code> - The <a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="reset(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data,
+                  int&nbsp;limit)</pre>
+<div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The array to wrap.</dd>
+<dd><code>limit</code> - The limit in bytes.</dd>
+</dl>
+</li>
+</ul>
+<a id="bitsLeft()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bitsLeft</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;bitsLeft()</pre>
+<div class="block">Returns the number of bits yet to be read.</div>
+</li>
+</ul>
+<a id="getPosition()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPosition</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getPosition()</pre>
+<div class="block">Returns the current bit offset.</div>
+</li>
+</ul>
+<a id="getBytePosition()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBytePosition</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getBytePosition()</pre>
+<div class="block">Returns the current byte offset. Must only be called when the position is byte aligned.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the position isn't byte aligned.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPosition(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPosition</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setPosition&#8203;(int&nbsp;position)</pre>
+<div class="block">Sets the current bit offset.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>position</code> - The position to set.</dd>
+</dl>
+</li>
+</ul>
+<a id="skipBit()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skipBit</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;skipBit()</pre>
+<div class="block">Skips a single bit.</div>
+</li>
+</ul>
+<a id="skipBits(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skipBits</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;skipBits&#8203;(int&nbsp;numBits)</pre>
+<div class="block">Skips bits and moves current reading position forward.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>numBits</code> - The number of bits to skip.</dd>
+</dl>
+</li>
+</ul>
+<a id="readBit()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBit</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;readBit()</pre>
+<div class="block">Reads a single bit.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the bit is set.</dd>
+</dl>
+</li>
+</ul>
+<a id="readBits(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBits</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;readBits&#8203;(int&nbsp;numBits)</pre>
+<div class="block">Reads up to 32 bits.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>numBits</code> - The number of bits to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>An integer whose bottom <code>numBits</code> bits hold the read data.</dd>
+</dl>
+</li>
+</ul>
+<a id="readBitsToLong(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBitsToLong</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;readBitsToLong&#8203;(int&nbsp;numBits)</pre>
+<div class="block">Reads up to 64 bits.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>numBits</code> - The number of bits to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A long whose bottom <code>numBits</code> bits hold the read data.</dd>
+</dl>
+</li>
+</ul>
+<a id="readBits(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBits</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;readBits&#8203;(byte[]&nbsp;buffer,
+                     int&nbsp;offset,
+                     int&nbsp;numBits)</pre>
+<div class="block">Reads <code>numBits</code> bits into <code>buffer</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>buffer</code> - The array into which the read data should be written. The trailing <code>numBits
+     % 8</code> bits are written into the most significant bits of the last modified <code>buffer</code>
+     byte. The remaining ones are unmodified.</dd>
+<dd><code>offset</code> - The offset in <code>buffer</code> at which the read data should be written.</dd>
+<dd><code>numBits</code> - The number of bits to read.</dd>
+</dl>
+</li>
+</ul>
+<a id="byteAlign()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>byteAlign</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;byteAlign()</pre>
+<div class="block">Aligns the position to the next byte boundary. Does nothing if the position is already aligned.</div>
+</li>
+</ul>
+<a id="readBytes(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBytes</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;readBytes&#8203;(byte[]&nbsp;buffer,
+                      int&nbsp;offset,
+                      int&nbsp;length)</pre>
+<div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>. Must only be called when the position
+ is byte aligned.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>buffer</code> - The array into which the read data should be written.</dd>
+<dd><code>offset</code> - The offset in <code>buffer</code> at which the read data should be written.</dd>
+<dd><code>length</code> - The number of bytes to read.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the position isn't byte aligned.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/java/lang/System.html#arraycopy(java.lang.Object,int,java.lang.Object,int,int)" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.arraycopy(Object, int, Object, int, int)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="skipBytes(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skipBytes</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;skipBytes&#8203;(int&nbsp;length)</pre>
+<div class="block">Skips the next <code>length</code> bytes. Must only be called when the position is byte aligned.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>length</code> - The number of bytes to read.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the position isn't byte aligned.</dd>
+</dl>
+</li>
+</ul>
+<a id="readBytesAsString(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBytesAsString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length)</pre>
+<div class="block">Reads the next <code>length</code> bytes as a UTF-8 string. Must only be called when the position is
+ byte aligned.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>length</code> - The number of bytes to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The string encoded by the bytes in UTF-8.</dd>
+</dl>
+</li>
+</ul>
+<a id="readBytesAsString(int,java.nio.charset.Charset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBytesAsString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length,
+                                <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</pre>
+<div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a>. Must only be called
+ when the position is byte aligned.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>length</code> - The number of bytes to read.</dd>
+<dd><code>charset</code> - The character set of the encoded characters.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The string encoded by the bytes in the specified character set.</dd>
+</dl>
+</li>
+</ul>
+<a id="putInt(int,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>putInt</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;putInt&#8203;(int&nbsp;value,
+                   int&nbsp;numBits)</pre>
+<div class="block">Overwrites <code>numBits</code> from this array using the <code>numBits</code> least significant bits
+ from <code>value</code>. Bits are written in order from most significant to least significant. The
+ read position is advanced by <code>numBits</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>value</code> - The integer whose <code>numBits</code> least significant bits are written into <a href="#data"><code>data</code></a>.</dd>
+<dd><code>numBits</code> - The number of bits to write.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

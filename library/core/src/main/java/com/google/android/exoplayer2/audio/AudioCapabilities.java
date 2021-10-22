@@ -16,35 +16,54 @@
 package com.google.android.exoplayer2.audio;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.net.Uri;
 import android.provider.Settings.Global;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import java.util.Arrays;
 
 /** Represents the set of audio formats that a device is capable of playing. */
-@TargetApi(21)
 public final class AudioCapabilities {
 
   private static final int DEFAULT_MAX_CHANNEL_COUNT = 8;
+  private static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
 
   /** The minimum audio capabilities supported by all devices. */
   public static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
 
   /** Audio capabilities when the device specifies external surround sound. */
+  @SuppressWarnings("InlinedApi")
   private static final AudioCapabilities EXTERNAL_SURROUND_SOUND_CAPABILITIES =
       new AudioCapabilities(
           new int[] {
             AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
           },
           DEFAULT_MAX_CHANNEL_COUNT);
+
+  /** Array of all surround sound encodings that a device may be capable of playing. */
+  @SuppressWarnings("InlinedApi")
+  private static final int[] ALL_SURROUND_ENCODINGS =
+      new int[] {
+        AudioFormat.ENCODING_AC3,
+        AudioFormat.ENCODING_E_AC3,
+        AudioFormat.ENCODING_E_AC3_JOC,
+        AudioFormat.ENCODING_AC4,
+        AudioFormat.ENCODING_DOLBY_TRUEHD,
+        AudioFormat.ENCODING_DTS,
+        AudioFormat.ENCODING_DTS_HD,
+      };
 
   /** Global settings key for devices that can specify external surround sound. */
   private static final String EXTERNAL_SURROUND_SOUND_KEY = "external_surround_sound_enabled";
@@ -68,6 +87,14 @@ public final class AudioCapabilities {
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+    }
+    // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
+    // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
+    // it on TV and automotive devices, which generally shouldn't support audio offload for surround
+    // encodings.
+    if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
+      return new AudioCapabilities(
+          Api29.getDirectPlaybackSupportedEncodings(), DEFAULT_MAX_CHANNEL_COUNT);
     }
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
       return DEFAULT_AUDIO_CAPABILITIES;
@@ -117,16 +144,14 @@ public final class AudioCapabilities {
   /**
    * Returns whether this device supports playback of the specified audio {@code encoding}.
    *
-   * @param encoding One of {@link android.media.AudioFormat}'s {@code ENCODING_*} constants.
+   * @param encoding One of {@link C.Encoding}'s {@code ENCODING_*} constants.
    * @return Whether this device supports playback the specified audio {@code encoding}.
    */
-  public boolean supportsEncoding(int encoding) {
+  public boolean supportsEncoding(@C.Encoding int encoding) {
     return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 
-  /**
-   * Returns the maximum number of channels the device can play at the same time.
-   */
+  /** Returns the maximum number of channels the device can play at the same time. */
   public int getMaxChannelCount() {
     return maxChannelCount;
   }
@@ -151,11 +176,40 @@ public final class AudioCapabilities {
 
   @Override
   public String toString() {
-    return "AudioCapabilities[maxChannelCount=" + maxChannelCount
-        + ", supportedEncodings=" + Arrays.toString(supportedEncodings) + "]";
+    return "AudioCapabilities[maxChannelCount="
+        + maxChannelCount
+        + ", supportedEncodings="
+        + Arrays.toString(supportedEncodings)
+        + "]";
   }
 
   private static boolean deviceMaySetExternalSurroundSoundGlobalSetting() {
-    return Util.SDK_INT >= 17 && "Amazon".equals(Util.MANUFACTURER);
+    return Util.SDK_INT >= 17
+        && ("Amazon".equals(Util.MANUFACTURER) || "Xiaomi".equals(Util.MANUFACTURER));
+  }
+
+  @RequiresApi(29)
+  private static final class Api29 {
+    @DoNotInline
+    public static int[] getDirectPlaybackSupportedEncodings() {
+      ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
+      for (int encoding : ALL_SURROUND_ENCODINGS) {
+        if (AudioTrack.isDirectPlaybackSupported(
+            new AudioFormat.Builder()
+                .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                .setEncoding(encoding)
+                .setSampleRate(DEFAULT_SAMPLE_RATE_HZ)
+                .build(),
+            new android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MOVIE)
+                .setFlags(0)
+                .build())) {
+          supportedEncodingsListBuilder.add(encoding);
+        }
+      }
+      supportedEncodingsListBuilder.add(AudioFormat.ENCODING_PCM_16BIT);
+      return Ints.toArray(supportedEncodingsListBuilder.build());
+    }
   }
 }

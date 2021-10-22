@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.offline;
 import static com.google.android.exoplayer2.offline.Download.STOP_REASON_NONE;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags;
 import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -34,6 +36,8 @@ import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A {@link Service} for downloading media. */
 public abstract class DownloadService extends Service {
@@ -166,28 +170,29 @@ public abstract class DownloadService extends Service {
 
   private static final String TAG = "DownloadService";
 
-  // Keep DownloadManagerListeners for each DownloadService as long as there are downloads (and the
-  // process is running). This allows DownloadService to restart when there's no scheduler.
+  // Keep a DownloadManagerHelper for each DownloadService as long as the process is running. The
+  // helper is needed to restart the DownloadService when there's no scheduler. Even when there is a
+  // scheduler, the DownloadManagerHelper is typically able to restart the DownloadService faster.
   private static final HashMap<Class<? extends DownloadService>, DownloadManagerHelper>
-      downloadManagerListeners = new HashMap<>();
+      downloadManagerHelpers = new HashMap<>();
 
   @Nullable private final ForegroundNotificationUpdater foregroundNotificationUpdater;
   @Nullable private final String channelId;
   @StringRes private final int channelNameResourceId;
   @StringRes private final int channelDescriptionResourceId;
 
-  @Nullable private DownloadManager downloadManager;
+  private @MonotonicNonNull DownloadManagerHelper downloadManagerHelper;
   private int lastStartId;
   private boolean startedInForeground;
   private boolean taskRemoved;
+  private boolean isStopped;
   private boolean isDestroyed;
 
   /**
    * Creates a DownloadService.
    *
    * <p>If {@code foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE} then the
-   * service will only ever run in the background. No foreground notification will be displayed and
-   * {@link #getScheduler()} will not be called.
+   * service will only ever run in the background, and no foreground notification will be displayed.
    *
    * <p>If {@code foregroundNotificationId} is not {@link #FOREGROUND_NOTIFICATION_ID_NONE} then the
    * service will run in the foreground. The foreground notification will be updated at least as
@@ -575,43 +580,52 @@ public abstract class DownloadService extends Service {
           NotificationUtil.IMPORTANCE_LOW);
     }
     Class<? extends DownloadService> clazz = getClass();
-    DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
+    @Nullable DownloadManagerHelper downloadManagerHelper = downloadManagerHelpers.get(clazz);
     if (downloadManagerHelper == null) {
+      boolean foregroundAllowed = foregroundNotificationUpdater != null;
+      // See https://developer.android.com/about/versions/12/foreground-services.
+      boolean canStartForegroundServiceFromBackground = Util.SDK_INT < 31;
+      @Nullable
+      Scheduler scheduler =
+          foregroundAllowed && canStartForegroundServiceFromBackground ? getScheduler() : null;
       DownloadManager downloadManager = getDownloadManager();
       downloadManager.resumeDownloads();
       downloadManagerHelper =
           new DownloadManagerHelper(
-              getApplicationContext(), downloadManager, getScheduler(), clazz);
-      downloadManagerListeners.put(clazz, downloadManagerHelper);
+              getApplicationContext(), downloadManager, foregroundAllowed, scheduler, clazz);
+      downloadManagerHelpers.put(clazz, downloadManagerHelper);
     }
-    downloadManager = downloadManagerHelper.downloadManager;
+    this.downloadManagerHelper = downloadManagerHelper;
     downloadManagerHelper.attachService(this);
   }
 
   @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
+  public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
     lastStartId = startId;
     taskRemoved = false;
     @Nullable String intentAction = null;
     @Nullable String contentId = null;
     if (intent != null) {
       intentAction = intent.getAction();
+      contentId = intent.getStringExtra(KEY_CONTENT_ID);
       startedInForeground |=
           intent.getBooleanExtra(KEY_FOREGROUND, false) || ACTION_RESTART.equals(intentAction);
-      contentId = intent.getStringExtra(KEY_CONTENT_ID);
     }
     // intentAction is null if the service is restarted or no action is specified.
     if (intentAction == null) {
       intentAction = ACTION_INIT;
     }
-    DownloadManager downloadManager = Assertions.checkNotNull(this.downloadManager);
+    DownloadManager downloadManager =
+        Assertions.checkNotNull(downloadManagerHelper).downloadManager;
     switch (intentAction) {
       case ACTION_INIT:
       case ACTION_RESTART:
         // Do nothing.
         break;
       case ACTION_ADD_DOWNLOAD:
-        @Nullable DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
+        @Nullable
+        DownloadRequest downloadRequest =
+            Assertions.checkNotNull(intent).getParcelableExtra(KEY_DOWNLOAD_REQUEST);
         if (downloadRequest == null) {
           Log.e(TAG, "Ignored ADD_DOWNLOAD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
         } else {
@@ -636,7 +650,7 @@ public abstract class DownloadService extends Service {
         downloadManager.pauseDownloads();
         break;
       case ACTION_SET_STOP_REASON:
-        if (!intent.hasExtra(KEY_STOP_REASON)) {
+        if (!Assertions.checkNotNull(intent).hasExtra(KEY_STOP_REASON)) {
           Log.e(TAG, "Ignored SET_STOP_REASON: Missing " + KEY_STOP_REASON + " extra");
         } else {
           int stopReason = intent.getIntExtra(KEY_STOP_REASON, /* defaultValue= */ 0);
@@ -644,7 +658,9 @@ public abstract class DownloadService extends Service {
         }
         break;
       case ACTION_SET_REQUIREMENTS:
-        @Nullable Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
+        @Nullable
+        Requirements requirements =
+            Assertions.checkNotNull(intent).getParcelableExtra(KEY_REQUIREMENTS);
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
@@ -656,8 +672,14 @@ public abstract class DownloadService extends Service {
         break;
     }
 
+    if (Util.SDK_INT >= 26 && startedInForeground && foregroundNotificationUpdater != null) {
+      // From API level 26, services started in the foreground are required to show a notification.
+      foregroundNotificationUpdater.showNotificationIfNotAlready();
+    }
+
+    isStopped = false;
     if (downloadManager.isIdle()) {
-      stop();
+      onIdle();
     }
     return START_STICKY;
   }
@@ -670,10 +692,7 @@ public abstract class DownloadService extends Service {
   @Override
   public void onDestroy() {
     isDestroyed = true;
-    DownloadManagerHelper downloadManagerHelper =
-        Assertions.checkNotNull(downloadManagerListeners.get(getClass()));
-    boolean unschedule = !downloadManagerHelper.downloadManager.isWaitingForRequirements();
-    downloadManagerHelper.detachService(this, unschedule);
+    Assertions.checkNotNull(downloadManagerHelper).detachService(this);
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.stopPeriodicUpdates();
     }
@@ -682,8 +701,8 @@ public abstract class DownloadService extends Service {
   /**
    * Throws {@link UnsupportedOperationException} because this service is not designed to be bound.
    */
-  @Nullable
   @Override
+  @Nullable
   public final IBinder onBind(Intent intent) {
     throw new UnsupportedOperationException();
   }
@@ -695,34 +714,57 @@ public abstract class DownloadService extends Service {
   protected abstract DownloadManager getDownloadManager();
 
   /**
-   * Returns a {@link Scheduler} to restart the service when requirements allowing downloads to take
-   * place are met. If {@code null}, the service will only be restarted if the process is still in
-   * memory when the requirements are met.
+   * Returns a {@link Scheduler} to restart the service when requirements for downloads to continue
+   * are met.
+   *
+   * <p>This method is not called on all devices or for all service configurations. When it is
+   * called, it's called only once in the life cycle of the process. If a service has unfinished
+   * downloads that cannot make progress due to unmet requirements, it will behave according to the
+   * first matching case below:
+   *
+   * <ul>
+   *   <li>If the service has {@code foregroundNotificationId} set to {@link
+   *       #FOREGROUND_NOTIFICATION_ID_NONE}, then this method will not be called. The service will
+   *       remain in the background until the downloads are able to continue to completion or the
+   *       service is killed by the platform.
+   *   <li>If the device API level is less than 31, a {@link Scheduler} is returned from this
+   *       method, and the returned {@link Scheduler} {@link Scheduler#getSupportedRequirements
+   *       supports} all of the requirements that have been specified for downloads to continue,
+   *       then the service will stop itself and the {@link Scheduler} will be used to restart it in
+   *       the foreground when the requirements are met.
+   *   <li>If the device API level is less than 31 and either {@code null} or a {@link Scheduler}
+   *       that does not {@link Scheduler#getSupportedRequirements support} all of the requirements
+   *       is returned from this method, then the service will remain in the foreground until the
+   *       downloads are able to continue to completion.
+   *   <li>If the device API level is 31 or above, then this method will not be called and the
+   *       service will remain in the foreground until the downloads are able to continue to
+   *       completion. A {@link Scheduler} cannot be used for this case due to <a
+   *       href="https://developer.android.com/about/versions/12/foreground-services">Android 12
+   *       foreground service launch restrictions</a>.
+   *   <li>
+   * </ul>
    */
-  protected abstract @Nullable Scheduler getScheduler();
+  @Nullable
+  protected abstract Scheduler getScheduler();
 
   /**
-   * Returns a notification to be displayed when this service running in the foreground. This method
-   * is called when there is a download state change and periodically while there are active
-   * downloads. The periodic update interval can be set using {@link #DownloadService(int, long)}.
-   *
-   * <p>On API level 26 and above, this method may also be called just before the service stops,
-   * with an empty {@code downloads} array. The returned notification is used to satisfy system
-   * requirements for foreground services.
+   * Returns a notification to be displayed when this service running in the foreground.
    *
    * <p>Download services that do not wish to run in the foreground should be created by setting the
    * {@code foregroundNotificationId} constructor argument to {@link
-   * #FOREGROUND_NOTIFICATION_ID_NONE}. This method will not be called in this case, meaning it can
+   * #FOREGROUND_NOTIFICATION_ID_NONE}. This method is not called for such services, meaning it can
    * be implemented to throw {@link UnsupportedOperationException}.
    *
    * @param downloads The current downloads.
+   * @param notMetRequirements Any requirements for downloads that are not currently met.
    * @return The foreground notification to display.
    */
-  protected abstract Notification getForegroundNotification(List<Download> downloads);
+  protected abstract Notification getForegroundNotification(
+      List<Download> downloads, @RequirementFlags int notMetRequirements);
 
   /**
    * Invalidates the current foreground notification and causes {@link
-   * #getForegroundNotification(List)} to be invoked again if the service isn't stopped.
+   * #getForegroundNotification(List, int)} to be invoked again if the service isn't stopped.
    */
   protected final void invalidateForegroundNotification() {
     if (foregroundNotificationUpdater != null && !isDestroyed) {
@@ -731,29 +773,29 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Called when the state of a download changes. The default implementation is a no-op.
+   * Called after the service is created, once the downloads are known.
    *
-   * @param download The new state of the download.
+   * @param downloads The current downloads.
    */
-  protected void onDownloadChanged(Download download) {
-    // Do nothing.
+  private void notifyDownloads(List<Download> downloads) {
+    if (foregroundNotificationUpdater != null) {
+      for (int i = 0; i < downloads.size(); i++) {
+        if (needsStartedService(downloads.get(i).state)) {
+          foregroundNotificationUpdater.startPeriodicUpdates();
+          break;
+        }
+      }
+    }
   }
 
   /**
-   * Called when a download is removed. The default implementation is a no-op.
+   * Called when the state of a download changes.
    *
-   * @param download The last state of the download before it was removed.
+   * @param download The state of the download.
    */
-  protected void onDownloadRemoved(Download download) {
-    // Do nothing.
-  }
-
   private void notifyDownloadChanged(Download download) {
-    onDownloadChanged(download);
     if (foregroundNotificationUpdater != null) {
-      if (download.state == Download.STATE_DOWNLOADING
-          || download.state == Download.STATE_REMOVING
-          || download.state == Download.STATE_RESTARTING) {
+      if (needsStartedService(download.state)) {
         foregroundNotificationUpdater.startPeriodicUpdates();
       } else {
         foregroundNotificationUpdater.invalidate();
@@ -761,26 +803,45 @@ public abstract class DownloadService extends Service {
     }
   }
 
-  private void notifyDownloadRemoved(Download download) {
-    onDownloadRemoved(download);
+  /** Called when a download is removed. */
+  private void notifyDownloadRemoved() {
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.invalidate();
     }
   }
 
-  private void stop() {
+  /** Returns whether the service is stopped. */
+  private boolean isStopped() {
+    return isStopped;
+  }
+
+  private void onIdle() {
     if (foregroundNotificationUpdater != null) {
+      // Whether the service remains started or not, we don't need periodic notification updates
+      // when the DownloadManager is idle.
       foregroundNotificationUpdater.stopPeriodicUpdates();
-      // Make sure startForeground is called before stopping. Workaround for [Internal: b/69424260].
-      if (startedInForeground && Util.SDK_INT >= 26) {
-        foregroundNotificationUpdater.showNotificationIfNotAlready();
-      }
     }
+
+    if (!Assertions.checkNotNull(downloadManagerHelper).updateScheduler()) {
+      // We failed to schedule the service to restart when requirements that the DownloadManager is
+      // waiting for are met, so remain started.
+      return;
+    }
+
+    // Stop the service, either because the DownloadManager is not waiting for requirements to be
+    // met, or because we've scheduled the service to be restarted when they are.
     if (Util.SDK_INT < 28 && taskRemoved) { // See [Internal: b/74248644].
       stopSelf();
+      isStopped = true;
     } else {
-      stopSelfResult(lastStartId);
+      isStopped |= stopSelfResult(lastStartId);
     }
+  }
+
+  private static boolean needsStartedService(@Download.State int state) {
+    return state == Download.STATE_DOWNLOADING
+        || state == Download.STATE_REMOVING
+        || state == Download.STATE_RESTARTING;
   }
 
   private static Intent getIntent(
@@ -839,9 +900,20 @@ public abstract class DownloadService extends Service {
     }
 
     private void update() {
-      List<Download> downloads = Assertions.checkNotNull(downloadManager).getCurrentDownloads();
-      startForeground(notificationId, getForegroundNotification(downloads));
-      notificationDisplayed = true;
+      DownloadManager downloadManager =
+          Assertions.checkNotNull(downloadManagerHelper).downloadManager;
+      List<Download> downloads = downloadManager.getCurrentDownloads();
+      @RequirementFlags int notMetRequirements = downloadManager.getNotMetRequirements();
+      Notification notification = getForegroundNotification(downloads, notMetRequirements);
+      if (!notificationDisplayed) {
+        startForeground(notificationId, notification);
+        notificationDisplayed = true;
+      } else {
+        // Update the notification via NotificationManager rather than by repeatedly calling
+        // startForeground, since the latter can cause ActivityManager log spam.
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
+            .notify(notificationId, notification);
+      }
       if (periodicUpdatesStarted) {
         handler.removeCallbacksAndMessages(null);
         handler.postDelayed(this::update, updateInterval);
@@ -853,58 +925,125 @@ public abstract class DownloadService extends Service {
 
     private final Context context;
     private final DownloadManager downloadManager;
+    private final boolean foregroundAllowed;
     @Nullable private final Scheduler scheduler;
     private final Class<? extends DownloadService> serviceClass;
+
     @Nullable private DownloadService downloadService;
+    private @MonotonicNonNull Requirements scheduledRequirements;
 
     private DownloadManagerHelper(
         Context context,
         DownloadManager downloadManager,
+        boolean foregroundAllowed,
         @Nullable Scheduler scheduler,
         Class<? extends DownloadService> serviceClass) {
       this.context = context;
       this.downloadManager = downloadManager;
+      this.foregroundAllowed = foregroundAllowed;
       this.scheduler = scheduler;
       this.serviceClass = serviceClass;
       downloadManager.addListener(this);
-      if (scheduler != null) {
-        Requirements requirements = downloadManager.getRequirements();
-        setSchedulerEnabled(
-            scheduler, /* enabled= */ !requirements.checkRequirements(context), requirements);
-      }
+      updateScheduler();
     }
 
     public void attachService(DownloadService downloadService) {
       Assertions.checkState(this.downloadService == null);
       this.downloadService = downloadService;
+      if (downloadManager.isInitialized()) {
+        // The call to DownloadService.notifyDownloads is posted to avoid it being called directly
+        // from DownloadService.onCreate. This is a good idea because it may in turn call
+        // DownloadService.getForegroundNotification, and concrete subclass implementations may
+        // not anticipate the possibility of this method being called before their onCreate
+        // implementation has finished executing.
+        Util.createHandlerForCurrentOrMainLooper()
+            .postAtFrontOfQueue(
+                () -> downloadService.notifyDownloads(downloadManager.getCurrentDownloads()));
+      }
     }
 
-    public void detachService(DownloadService downloadService, boolean unschedule) {
+    public void detachService(DownloadService downloadService) {
       Assertions.checkState(this.downloadService == downloadService);
       this.downloadService = null;
-      if (scheduler != null && unschedule) {
-        scheduler.cancel();
+    }
+
+    /**
+     * Schedules or cancels restarting the service, as needed for the current state.
+     *
+     * @return True if the DownloadManager is not waiting for requirements, or if it is waiting for
+     *     requirements and the service has been successfully scheduled to be restarted when they
+     *     are met. False if the DownloadManager is waiting for requirements and the service has not
+     *     been scheduled for restart.
+     */
+    public boolean updateScheduler() {
+      boolean waitingForRequirements = downloadManager.isWaitingForRequirements();
+      if (scheduler == null) {
+        return !waitingForRequirements;
+      }
+
+      if (!waitingForRequirements) {
+        cancelScheduler();
+        return true;
+      }
+
+      Requirements requirements = downloadManager.getRequirements();
+      Requirements supportedRequirements = scheduler.getSupportedRequirements(requirements);
+      if (!supportedRequirements.equals(requirements)) {
+        cancelScheduler();
+        return false;
+      }
+
+      if (!schedulerNeedsUpdate(requirements)) {
+        return true;
+      }
+
+      String servicePackage = context.getPackageName();
+      if (scheduler.schedule(requirements, servicePackage, ACTION_RESTART)) {
+        scheduledRequirements = requirements;
+        return true;
+      } else {
+        Log.w(TAG, "Failed to schedule restart");
+        cancelScheduler();
+        return false;
+      }
+    }
+
+    // DownloadManager.Listener implementation.
+
+    @Override
+    public void onInitialized(DownloadManager downloadManager) {
+      if (downloadService != null) {
+        downloadService.notifyDownloads(downloadManager.getCurrentDownloads());
       }
     }
 
     @Override
-    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    public void onDownloadChanged(
+        DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
       if (downloadService != null) {
         downloadService.notifyDownloadChanged(download);
+      }
+      if (serviceMayNeedRestart() && needsStartedService(download.state)) {
+        // This shouldn't happen unless (a) application code is changing the downloads by calling
+        // the DownloadManager directly rather than sending actions through the service, or (b) if
+        // the service is background only and a previous attempt to start it was prevented. Try and
+        // restart the service to robust against such cases.
+        Log.w(TAG, "DownloadService wasn't running. Restarting.");
+        restartService();
       }
     }
 
     @Override
     public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
       if (downloadService != null) {
-        downloadService.notifyDownloadRemoved(download);
+        downloadService.notifyDownloadRemoved();
       }
     }
 
     @Override
     public final void onIdle(DownloadManager downloadManager) {
       if (downloadService != null) {
-        downloadService.stop();
+        downloadService.onIdle();
       }
     }
 
@@ -912,31 +1051,69 @@ public abstract class DownloadService extends Service {
     public void onRequirementsStateChanged(
         DownloadManager downloadManager,
         Requirements requirements,
-        @Requirements.RequirementFlags int notMetRequirements) {
-      boolean requirementsMet = notMetRequirements == 0;
-      if (downloadService == null && requirementsMet) {
+        @RequirementFlags int notMetRequirements) {
+      updateScheduler();
+    }
+
+    @Override
+    public void onWaitingForRequirementsChanged(
+        DownloadManager downloadManager, boolean waitingForRequirements) {
+      if (!waitingForRequirements
+          && !downloadManager.getDownloadsPaused()
+          && serviceMayNeedRestart()) {
+        // We're no longer waiting for requirements and downloads aren't paused, meaning the manager
+        // will be able to resume downloads that are currently queued. If there exist queued
+        // downloads then we should ensure the service is started.
+        List<Download> downloads = downloadManager.getCurrentDownloads();
+        for (int i = 0; i < downloads.size(); i++) {
+          if (downloads.get(i).state == Download.STATE_QUEUED) {
+            restartService();
+            return;
+          }
+        }
+      }
+    }
+
+    // Internal methods.
+
+    private boolean schedulerNeedsUpdate(Requirements requirements) {
+      return !Util.areEqual(scheduledRequirements, requirements);
+    }
+
+    @RequiresNonNull("scheduler")
+    private void cancelScheduler() {
+      Requirements canceledRequirements = new Requirements(/* requirements= */ 0);
+      if (schedulerNeedsUpdate(canceledRequirements)) {
+        scheduler.cancel();
+        scheduledRequirements = canceledRequirements;
+      }
+    }
+
+    private boolean serviceMayNeedRestart() {
+      return downloadService == null || downloadService.isStopped();
+    }
+
+    private void restartService() {
+      if (foregroundAllowed) {
+        try {
+          Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_RESTART);
+          Util.startForegroundService(context, intent);
+        } catch (IllegalStateException e) {
+          // The process is running in the background, and is not allowed to start a foreground
+          // service due to foreground service launch restrictions
+          // (https://developer.android.com/about/versions/12/foreground-services).
+          Log.w(TAG, "Failed to restart (foreground launch restriction)");
+        }
+      } else {
+        // The service is background only. Use ACTION_INIT rather than ACTION_RESTART because
+        // ACTION_RESTART is handled as though KEY_FOREGROUND is set to true.
         try {
           Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_INIT);
           context.startService(intent);
         } catch (IllegalStateException e) {
-          /* startService fails if the app is in the background then don't stop the scheduler. */
-          return;
-        }
-      }
-      if (scheduler != null) {
-        setSchedulerEnabled(scheduler, /* enabled= */ !requirementsMet, requirements);
-      }
-    }
-
-    private void setSchedulerEnabled(
-        Scheduler scheduler, boolean enabled, Requirements requirements) {
-      if (!enabled) {
-        scheduler.cancel();
-      } else {
-        String servicePackage = context.getPackageName();
-        boolean success = scheduler.schedule(requirements, servicePackage, ACTION_RESTART);
-        if (!success) {
-          Log.e(TAG, "Scheduling downloads failed.");
+          // The process is classed as idle by the platform. Starting a background service is not
+          // allowed in this state.
+          Log.w(TAG, "Failed to restart (process is idle)");
         }
       }
     }

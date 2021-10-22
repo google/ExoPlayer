@@ -1,0 +1,13 @@
+WEBVTT
+X-TIMESTAMP-MAP=LOCAL:1:11:16.443,MPEGTS:384879885
+
+NOTE
+X-TIMESTAMP-MAP is defined in RFC 8216 section 3.5 (HLS spec).
+The cue times below are deliberately greater than 2^33 in 90kHz PTS clock,
+to test wraparound logic.
+
+266:18:35.679 --> 266:18:37.305
+  Cue text one
+
+266:18:37.433 --> 266:18:38.276
+  Cue text two

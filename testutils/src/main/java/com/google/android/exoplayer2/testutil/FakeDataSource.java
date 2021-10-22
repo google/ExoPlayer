@@ -15,8 +15,13 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
@@ -24,8 +29,10 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A fake {@link DataSource} capable of simulating various scenarios. It uses a {@link FakeDataSet}
@@ -33,12 +40,10 @@ import java.util.ArrayList;
  */
 public class FakeDataSource extends BaseDataSource {
 
-  /**
-   * Factory to create a {@link FakeDataSource}.
-   */
+  /** Factory to create a {@link FakeDataSource}. */
   public static class Factory implements DataSource.Factory {
 
-    protected FakeDataSet fakeDataSet;
+    protected @MonotonicNonNull FakeDataSet fakeDataSet;
     protected boolean isNetwork;
 
     public final Factory setFakeDataSet(FakeDataSet fakeDataSet) {
@@ -52,18 +57,18 @@ public class FakeDataSource extends BaseDataSource {
     }
 
     @Override
-    public DataSource createDataSource() {
-      return new FakeDataSource(fakeDataSet, isNetwork);
+    public FakeDataSource createDataSource() {
+      return new FakeDataSource(Assertions.checkStateNotNull(fakeDataSet), isNetwork);
     }
   }
 
   private final FakeDataSet fakeDataSet;
   private final ArrayList<DataSpec> openedDataSpecs;
 
-  private Uri uri;
+  @Nullable private Uri uri;
   private boolean openCalled;
   private boolean sourceOpened;
-  private FakeData fakeData;
+  @Nullable private FakeData fakeData;
   private int currentSegmentIndex;
   private long bytesRemaining;
 
@@ -96,10 +101,11 @@ public class FakeDataSource extends BaseDataSource {
     openedDataSpecs.add(dataSpec);
 
     transferInitializing(dataSpec);
-    fakeData = fakeDataSet.getData(uri.toString());
+    FakeData fakeData = fakeDataSet.getData(dataSpec.uri.toString());
     if (fakeData == null) {
       throw new IOException("Data not found: " + dataSpec.uri);
     }
+    this.fakeData = fakeData;
 
     long totalLength = 0;
     for (Segment segment : fakeData.getSegments()) {
@@ -110,21 +116,21 @@ public class FakeDataSource extends BaseDataSource {
       throw new IOException("Data is empty: " + dataSpec.uri);
     }
 
-    // If the source knows that the request is unsatisfiable then fail.
-    if (dataSpec.position >= totalLength || (dataSpec.length != C.LENGTH_UNSET
-        && (dataSpec.position + dataSpec.length > totalLength))) {
-      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+    if (dataSpec.position > totalLength) {
+      throw new DataSourceException(PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE);
     }
+
     // Scan through the segments, configuring them for the current read.
     boolean findingCurrentSegmentIndex = true;
     currentSegmentIndex = 0;
     int scannedLength = 0;
     for (Segment segment : fakeData.getSegments()) {
-      segment.bytesRead =
-          (int) Math.min(Math.max(0, dataSpec.position - scannedLength), segment.length);
+      segment.bytesRead = (int) min(max(0, dataSpec.position - scannedLength), segment.length);
       scannedLength += segment.length;
-      findingCurrentSegmentIndex &= segment.isErrorSegment() ? segment.exceptionCleared
-          : (!segment.isActionSegment() && segment.bytesRead == segment.length);
+      findingCurrentSegmentIndex &=
+          segment.isErrorSegment()
+              ? segment.exceptionCleared
+              : (!segment.isActionSegment() && segment.bytesRead == segment.length);
       if (findingCurrentSegmentIndex) {
         currentSegmentIndex++;
       }
@@ -142,9 +148,10 @@ public class FakeDataSource extends BaseDataSource {
   }
 
   @Override
-  public final int read(byte[] buffer, int offset, int readLength) throws IOException {
+  public final int read(byte[] buffer, int offset, int length) throws IOException {
     Assertions.checkState(sourceOpened);
     while (true) {
+      FakeData fakeData = Util.castNonNull(this.fakeData);
       if (currentSegmentIndex == fakeData.getSegments().size() || bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
       }
@@ -152,42 +159,43 @@ public class FakeDataSource extends BaseDataSource {
       if (current.isErrorSegment()) {
         if (!current.exceptionCleared) {
           current.exceptionThrown = true;
-          throw (IOException) current.exception.fillInStackTrace();
+          throw (IOException) Util.castNonNull(current.exception).fillInStackTrace();
         } else {
           currentSegmentIndex++;
         }
       } else if (current.isActionSegment()) {
         currentSegmentIndex++;
-        current.action.run();
+        Util.castNonNull(current.action).run();
       } else {
         // Read at most bytesRemaining.
-        readLength = (int) Math.min(readLength, bytesRemaining);
+        length = (int) min(length, bytesRemaining);
         // Do not allow crossing of the segment boundary.
-        readLength = Math.min(readLength, current.length - current.bytesRead);
+        length = min(length, current.length - current.bytesRead);
         // Perform the read and return.
-        Assertions.checkArgument(buffer.length - offset >= readLength);
+        Assertions.checkArgument(buffer.length - offset >= length);
         if (current.data != null) {
-          System.arraycopy(current.data, current.bytesRead, buffer, offset, readLength);
+          System.arraycopy(current.data, current.bytesRead, buffer, offset, length);
         }
-        onDataRead(readLength);
-        bytesTransferred(readLength);
-        bytesRemaining -= readLength;
-        current.bytesRead += readLength;
+        onDataRead(length);
+        bytesTransferred(length);
+        bytesRemaining -= length;
+        current.bytesRead += length;
         if (current.bytesRead == current.length) {
           currentSegmentIndex++;
         }
-        return readLength;
+        return length;
       }
     }
   }
 
   @Override
+  @Nullable
   public final Uri getUri() {
     return uri;
   }
 
   @Override
-  public final void close() throws IOException {
+  public final void close() {
     Assertions.checkState(openCalled);
     openCalled = false;
     uri = null;
@@ -202,6 +210,7 @@ public class FakeDataSource extends BaseDataSource {
       transferEnded();
     }
     fakeData = null;
+    onClosed();
   }
 
   /**
@@ -209,8 +218,7 @@ public class FakeDataSource extends BaseDataSource {
    * this method.
    */
   public final DataSpec[] getAndClearOpenedDataSpecs() {
-    DataSpec[] dataSpecs = new DataSpec[openedDataSpecs.size()];
-    openedDataSpecs.toArray(dataSpecs);
+    DataSpec[] dataSpecs = openedDataSpecs.toArray(new DataSpec[0]);
     openedDataSpecs.clear();
     return dataSpecs;
   }
@@ -220,8 +228,13 @@ public class FakeDataSource extends BaseDataSource {
     return sourceOpened;
   }
 
+  /** Called when data is being read. */
   protected void onDataRead(int bytesRead) throws IOException {
     // Do nothing. Can be overridden.
   }
 
+  /** Called when the source is closed. */
+  protected void onClosed() {
+    // Do nothing. Can be overridden.
+  }
 }

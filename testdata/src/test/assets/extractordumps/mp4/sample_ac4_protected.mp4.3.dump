@@ -1,0 +1,25 @@
+seekMap:
+  isSeekable = true
+  duration = 760000
+  getPosition(0) = [[timeUs=0, position=950]]
+  getPosition(1) = [[timeUs=0, position=950]]
+  getPosition(380000) = [[timeUs=0, position=950]]
+  getPosition(760000) = [[timeUs=0, position=950]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 410
+  sample count = 1
+  format 0:
+    id = 1
+    sampleMimeType = audio/ac4
+    channelCount = 2
+    sampleRate = 48000
+    language = und
+    drmInitData = -1683793742
+  sample 0:
+    time = 720000
+    flags = 1073741825
+    data = length 410, hash 63017D46
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+tracksEnded = true

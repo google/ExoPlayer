@@ -20,30 +20,23 @@ import com.google.android.exoplayer2.C;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Encapsulates media content components over a contiguous period of time.
- */
+/** Encapsulates media content components over a contiguous period of time. */
 public class Period {
 
-  /**
-   * The period identifier, if one exists.
-   */
+  /** The period identifier, if one exists. */
   @Nullable public final String id;
 
-  /**
-   * The start time of the period in milliseconds.
-   */
+  /** The start time of the period in milliseconds, relative to the start of the manifest. */
   public final long startMs;
 
-  /**
-   * The adaptation sets belonging to the period.
-   */
+  /** The adaptation sets belonging to the period. */
   public final List<AdaptationSet> adaptationSets;
 
-  /**
-   * The event stream belonging to the period.
-   */
+  /** The event stream belonging to the period. */
   public final List<EventStream> eventStreams;
+
+  /** The asset identifier for this period, if one exists */
+  @Nullable public final Descriptor assetIdentifier;
 
   /**
    * @param id The period identifier. May be null.
@@ -51,7 +44,7 @@ public class Period {
    * @param adaptationSets The adaptation sets belonging to the period.
    */
   public Period(@Nullable String id, long startMs, List<AdaptationSet> adaptationSets) {
-    this(id, startMs, adaptationSets, Collections.emptyList());
+    this(id, startMs, adaptationSets, Collections.emptyList(), /* assetIdentifier= */ null);
   }
 
   /**
@@ -60,12 +53,32 @@ public class Period {
    * @param adaptationSets The adaptation sets belonging to the period.
    * @param eventStreams The {@link EventStream}s belonging to the period.
    */
-  public Period(@Nullable String id, long startMs, List<AdaptationSet> adaptationSets,
+  public Period(
+      @Nullable String id,
+      long startMs,
+      List<AdaptationSet> adaptationSets,
       List<EventStream> eventStreams) {
+    this(id, startMs, adaptationSets, eventStreams, /* assetIdentifier= */ null);
+  }
+
+  /**
+   * @param id The period identifier. May be null.
+   * @param startMs The start time of the period in milliseconds.
+   * @param adaptationSets The adaptation sets belonging to the period.
+   * @param eventStreams The {@link EventStream}s belonging to the period.
+   * @param assetIdentifier The asset identifier for this period
+   */
+  public Period(
+      @Nullable String id,
+      long startMs,
+      List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams,
+      @Nullable Descriptor assetIdentifier) {
     this.id = id;
     this.startMs = startMs;
     this.adaptationSets = Collections.unmodifiableList(adaptationSets);
     this.eventStreams = Collections.unmodifiableList(eventStreams);
+    this.assetIdentifier = assetIdentifier;
   }
 
   /**
@@ -84,5 +97,4 @@ public class Period {
     }
     return C.INDEX_UNSET;
   }
-
 }

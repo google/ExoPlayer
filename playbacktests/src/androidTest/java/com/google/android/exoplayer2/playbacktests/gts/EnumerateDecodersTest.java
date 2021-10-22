@@ -15,17 +15,16 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-
 import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.testutil.MetricsLogger;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
@@ -44,30 +43,38 @@ public class EnumerateDecodersTest {
 
   @Before
   public void setUp() {
-    metricsLogger = MetricsLogger.Factory.createDefault(TAG);
+    metricsLogger =
+        MetricsLogger.DEFAULT_FACTORY.create(
+            InstrumentationRegistry.getInstrumentation(),
+            TAG,
+            /* streamName= */ "enumerate-decoders");
   }
 
   @Test
-  public void testEnumerateDecoders() throws Exception {
+  public void enumerateDecoders() throws Exception {
     enumerateDecoders(MimeTypes.VIDEO_H263);
     enumerateDecoders(MimeTypes.VIDEO_H264);
     enumerateDecoders(MimeTypes.VIDEO_H265);
     enumerateDecoders(MimeTypes.VIDEO_VP8);
     enumerateDecoders(MimeTypes.VIDEO_VP9);
+    enumerateDecoders(MimeTypes.VIDEO_AV1);
     enumerateDecoders(MimeTypes.VIDEO_MP4V);
     enumerateDecoders(MimeTypes.VIDEO_MPEG);
     enumerateDecoders(MimeTypes.VIDEO_MPEG2);
     enumerateDecoders(MimeTypes.VIDEO_VC1);
+    enumerateDecoders(MimeTypes.VIDEO_DIVX);
+    enumerateDecoders(MimeTypes.VIDEO_DOLBY_VISION);
     enumerateDecoders(MimeTypes.AUDIO_AAC);
+    enumerateDecoders(MimeTypes.AUDIO_MPEG);
     enumerateDecoders(MimeTypes.AUDIO_MPEG_L1);
     enumerateDecoders(MimeTypes.AUDIO_MPEG_L2);
-    enumerateDecoders(MimeTypes.AUDIO_MPEG);
     enumerateDecoders(MimeTypes.AUDIO_RAW);
     enumerateDecoders(MimeTypes.AUDIO_ALAW);
     enumerateDecoders(MimeTypes.AUDIO_MLAW);
     enumerateDecoders(MimeTypes.AUDIO_AC3);
     enumerateDecoders(MimeTypes.AUDIO_E_AC3);
     enumerateDecoders(MimeTypes.AUDIO_E_AC3_JOC);
+    enumerateDecoders(MimeTypes.AUDIO_AC4);
     enumerateDecoders(MimeTypes.AUDIO_TRUEHD);
     enumerateDecoders(MimeTypes.AUDIO_DTS);
     enumerateDecoders(MimeTypes.AUDIO_DTS_HD);

@@ -15,42 +15,76 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.content.Context;
 import android.os.Looper;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
+import com.google.android.exoplayer2.DeviceInfo;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.PriorityTaskManager;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import com.google.android.exoplayer2.video.VideoSize;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import java.util.List;
 
 /**
  * An abstract {@link ExoPlayer} implementation that throws {@link UnsupportedOperationException}
  * from every method.
  */
-public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
+public class StubExoPlayer extends BasePlayer implements ExoPlayer {
+
+  public StubExoPlayer(Context context) {
+    super();
+  }
 
   @Override
+  @Deprecated
   public AudioComponent getAudioComponent() {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  @Deprecated
   public VideoComponent getVideoComponent() {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  @Deprecated
   public TextComponent getTextComponent() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public MetadataComponent getMetadataComponent() {
+  @Deprecated
+  public DeviceComponent getDeviceComponent() {
     throw new UnsupportedOperationException();
   }
 
@@ -65,7 +99,22 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public Clock getClock() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addListener(Listener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeListener(Listener listener) {
     throw new UnsupportedOperationException();
   }
 
@@ -75,28 +124,161 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  @Player.State
+  public void addAudioOffloadListener(AudioOffloadListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeAudioOffloadListener(AudioOffloadListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public AnalyticsCollector getAnalyticsCollector() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addAnalyticsListener(AnalyticsListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeAnalyticsListener(AnalyticsListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  @State
   public int getPlaybackState() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ExoPlaybackException getPlaybackError() {
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public ExoPlaybackException getPlayerError() {
+    throw new UnsupportedOperationException();
+  }
+
+  /** @deprecated Use {@link #prepare()} instead. */
+  @Deprecated
   @Override
   public void retry() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link ExoPlayer#prepare()} instead.
+   */
+  @Deprecated
+  @Override
+  public void prepare() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link ExoPlayer#prepare()} instead.
+   */
+  @Deprecated
   @Override
   public void prepare(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource, boolean)} and {@link ExoPlayer#prepare()}
+   *     instead.
+   */
+  @Deprecated
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaItems(
+      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSource(MediaSource mediaSource) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSources(List<MediaSource> mediaSources) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSources(
+      List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaItems(int index, List<MediaItem> mediaItems) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSource(MediaSource mediaSource) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSource(int index, MediaSource mediaSource) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSources(List<MediaSource> mediaSources) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSources(int index, List<MediaSource> mediaSources) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeMediaItems(int fromIndex, int toIndex) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Commands getAvailableCommands() {
     throw new UnsupportedOperationException();
   }
 
@@ -121,6 +303,86 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void setShuffleOrder(ShuffleOrder shuffleOrder) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setAudioSessionId(int audioSessionId) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getAudioSessionId() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearAuxEffectInfo() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean getSkipSilenceEnabled() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoScalingMode(int videoScalingMode) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getVideoScalingMode() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoChangeFrameRateStrategy(int videoChangeFrameRateStrategy) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getVideoChangeFrameRateStrategy() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setCameraMotionListener(CameraMotionListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearCameraMotionListener(CameraMotionListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
     throw new UnsupportedOperationException();
   }
@@ -141,6 +403,21 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public long getSeekBackIncrement() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getSeekForwardIncrement() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getMaxSeekToPreviousPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }
@@ -151,7 +428,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setSeekParameters(SeekParameters seekParameters) {
+  public void setSeekParameters(@Nullable SeekParameters seekParameters) {
     throw new UnsupportedOperationException();
   }
 
@@ -161,7 +438,13 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void stop(boolean resetStateAndPosition) {
+  public void stop() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
+  @Override
+  public void stop(boolean reset) {
     throw new UnsupportedOperationException();
   }
 
@@ -186,12 +469,48 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  @Nullable
+  public TrackSelector getTrackSelector() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public TrackGroupArray getCurrentTrackGroups() {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TracksInfo getCurrentTracksInfo() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public MediaMetadata getMediaMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public MediaMetadata getPlaylistMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPlaylistMetadata(MediaMetadata mediaMetadata) {
     throw new UnsupportedOperationException();
   }
 
@@ -206,7 +525,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public int getCurrentWindowIndex() {
+  public int getCurrentMediaItemIndex() {
     throw new UnsupportedOperationException();
   }
 
@@ -256,7 +575,183 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public AudioAttributes getAudioAttributes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVolume(float volume) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public float getVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurface() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurface(@Nullable Surface surface) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoSurface(@Nullable Surface surface) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoTextureView(@Nullable TextureView textureView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearVideoTextureView(@Nullable TextureView textureView) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public VideoSize getVideoSize() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Cue> getCurrentCues() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DeviceInfo getDeviceInfo() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isDeviceMuted() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDeviceVolume(int volume) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void increaseDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void decreaseDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setForegroundMode(boolean foregroundMode) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean getPauseAtEndOfMediaItems() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public Format getAudioFormat() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public Format getVideoFormat() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public DecoderCounters getAudioDecoderCounters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public DecoderCounters getVideoDecoderCounters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
+  @Override
+  public void setHandleWakeLock(boolean handleWakeLock) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setWakeMode(int wakeMode) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
+  @Override
+  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean experimentalIsSleepingForOffload() {
     throw new UnsupportedOperationException();
   }
 }

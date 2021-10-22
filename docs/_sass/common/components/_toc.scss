@@ -1,0 +1,112 @@
+ul.toc {
+  display: block;
+  margin: 0;
+  color: $text-color;
+  list-style-type: none;
+  & > li {
+    margin: map-get($spacers, 1) 0;
+    &.active {
+      a {
+        color: $main-color-1;
+      }
+    }
+  }
+  a {
+    display: inline-block;
+    margin: map-get($spacers, 1) / 4 0;
+    text-decoration: none !important;
+    @include link-colors($text-color, $main-color-1);
+  }
+
+  .toc-h1 {
+    color: $text-color-d;
+    a {
+      @include link-colors($text-color-d);
+    }
+    &.active {
+      a {
+        color: $main-color-1;
+      }
+    }
+  }
+  .toc-h5, .toc-h6 {
+    color: $text-color-l;
+    a {
+      @include link-colors($text-color-l);
+    }
+    &.active {
+      a {
+        color: $main-color-1;
+      }
+    }
+  }
+
+  .toc-h1 {
+    @include split-line(bottom);
+    padding: map-get($spacers, 2) 0 map-get($spacers, 1) 0;
+    margin-bottom: map-get($spacers, 2);
+    font-size: map-get($base, font-size);
+    line-height: map-get($base, line-height);
+  }
+  .toc-h2 {
+    font-size: map-get($base, font-size-sm);
+    line-height: map-get($base, line-height-sm);
+  }
+  .toc-h1,
+  .toc-h2 {
+    font-weight: map-get($base, font-weight-bold);
+  }
+  .toc-h3,
+  .toc-h4,
+  .toc-h5,
+  .toc-h6 {
+    font-size: map-get($base, font-size-xs);
+    font-weight: map-get($base, font-weight);
+    line-height: map-get($base, line-height-xs);
+  }
+  .toc-h3 {
+    margin-left: map-get($spacers, 3);
+  }
+  .toc-h4 {
+    margin-left: map-get($spacers, 3) * 2;
+  }
+  .toc-h5, .toc-h6 {
+    margin-left: map-get($spacers, 3) * 3;
+  }
+}
+
+ul.toc--ellipsis {
+  & > li {
+    @include overflow(hidden);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+ul.toc--navigator {
+  & > li {
+    &.active {
+      a {
+        margin-left: -4px;
+        @include link-colors($main-color-1);
+        @include split-line(left, 4px, $main-color-1);
+      }
+    }
+  }
+  a {
+    padding-left: map-get($spacers, 2);
+    margin: map-get($spacers, 1) 0;
+    @include hover() {
+      background-color: transparent;
+    }
+  }
+
+  .toc-h2,
+  .toc-h3,
+  .toc-h4 {
+    color: $text-color-l;
+    a {
+      @include link-colors($text-color-l);
+    }
+  }
+}

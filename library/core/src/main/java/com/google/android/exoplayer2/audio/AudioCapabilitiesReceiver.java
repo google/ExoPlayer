@@ -34,9 +34,7 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class AudioCapabilitiesReceiver {
 
-  /**
-   * Listener notified when audio capabilities change.
-   */
+  /** Listener notified when audio capabilities change. */
   public interface Listener {
 
     /**
@@ -45,7 +43,6 @@ public final class AudioCapabilitiesReceiver {
      * @param audioCapabilities The current audio capabilities for the device.
      */
     void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities);
-
   }
 
   private final Context context;
@@ -54,7 +51,7 @@ public final class AudioCapabilitiesReceiver {
   @Nullable private final BroadcastReceiver receiver;
   @Nullable private final ExternalSurroundSoundSettingObserver externalSurroundSoundSettingObserver;
 
-  /* package */ @Nullable AudioCapabilities audioCapabilities;
+  @Nullable /* package */ AudioCapabilities audioCapabilities;
   private boolean registered;
 
   /**
@@ -65,7 +62,7 @@ public final class AudioCapabilitiesReceiver {
     context = context.getApplicationContext();
     this.context = context;
     this.listener = Assertions.checkNotNull(listener);
-    handler = new Handler(Util.getLooper());
+    handler = Util.createHandlerForCurrentOrMainLooper();
     receiver = Util.SDK_INT >= 21 ? new HdmiAudioPlugBroadcastReceiver() : null;
     Uri externalSurroundSoundUri = AudioCapabilities.getExternalSurroundSoundGlobalSettingUri();
     externalSurroundSoundSettingObserver =
@@ -77,8 +74,8 @@ public final class AudioCapabilitiesReceiver {
 
   /**
    * Registers the receiver, meaning it will notify the listener when audio capability changes
-   * occur. The current audio capabilities will be returned. It is important to call
-   * {@link #unregister} when the receiver is no longer required.
+   * occur. The current audio capabilities will be returned. It is important to call {@link
+   * #unregister} when the receiver is no longer required.
    *
    * @return The current audio capabilities for the device.
    */
@@ -162,5 +159,4 @@ public final class AudioCapabilitiesReceiver {
       onNewAudioCapabilities(AudioCapabilities.getCapabilities(context));
     }
   }
-
 }

@@ -14,9 +14,7 @@ Before filing a feature request:
 
 When filing a feature request:
 -----------------------
-Fill out the sections below, leaving the headers but replacing the content. If
-you're unable to provide certain information, please explain why in the relevant
-section. We may close issues if they do not include sufficient information.
+Replace the content in the sections below.
 
 ### [REQUIRED] Use case description
 Describe the use case or problem you are trying to solve in detail. If there are
@@ -28,8 +26,3 @@ A clear and concise description of your proposed solution, if you have one.
 ### Alternatives considered
 A clear and concise description of any alternative solutions you considered,
 if applicable.
-
-<!-- DO NOT DELETE
-validate_template=true
-template_path=.github/ISSUE_TEMPLATE/feature_request.md
--->

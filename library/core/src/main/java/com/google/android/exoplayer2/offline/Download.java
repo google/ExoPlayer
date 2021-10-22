@@ -44,13 +44,13 @@ public final class Download {
   public @interface State {}
   // Important: These constants are persisted into DownloadIndex. Do not change them.
   /**
-   * The download is waiting to be started. A download may be queued because the {@link
+   * The download is waiting to be started. A download may be queued because the {@code
    * DownloadManager}
    *
    * <ul>
-   *   <li>Is {@link DownloadManager#getDownloadsPaused() paused}
-   *   <li>Has {@link DownloadManager#getRequirements() Requirements} that are not met
-   *   <li>Has already started {@link DownloadManager#getMaxParallelDownloads()
+   *   <li>Is {@code DownloadManager#getDownloadsPaused() paused}
+   *   <li>Has {@code DownloadManager#getRequirements() Requirements} that are not met
+   *   <li>Has already started {@code DownloadManager#getMaxParallelDownloads()
    *       maxParallelDownloads}
    * </ul>
    */
@@ -130,9 +130,9 @@ public final class Download {
       @FailureReason int failureReason,
       DownloadProgress progress) {
     Assertions.checkNotNull(progress);
-    Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
+    Assertions.checkArgument((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
     if (stopReason != 0) {
-      Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
+      Assertions.checkArgument(state != STATE_DOWNLOADING && state != STATE_QUEUED);
     }
     this.request = request;
     this.state = state;

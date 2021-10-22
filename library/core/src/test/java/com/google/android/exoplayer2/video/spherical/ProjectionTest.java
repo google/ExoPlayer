@@ -37,7 +37,7 @@ public class ProjectionTest {
   private static final float HORIZONTAL_FOV_DEGREES = 360;
 
   @Test
-  public void testSphericalMesh() throws Exception {
+  public void sphericalMesh() throws Exception {
     // Only the first param is important in this test.
     Projection projection =
         Projection.createEquirectangular(
@@ -61,7 +61,7 @@ public class ProjectionTest {
   }
 
   @Test
-  public void testArgumentValidation() {
+  public void argumentValidation() {
     checkIllegalArgumentException(0, 1, 1, 1, 1);
     checkIllegalArgumentException(1, 0, 1, 1, 1);
     checkIllegalArgumentException(1, 1, 0, 1, 1);

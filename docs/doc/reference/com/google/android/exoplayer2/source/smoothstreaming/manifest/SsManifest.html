@@ -1,0 +1,581 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>SsManifest (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="SsManifest (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.smoothstreaming.manifest</a></div>
+<h2 title="Class SsManifest" class="title">Class SsManifest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</code></dd>
+</dl>
+<hr>
+<pre>public class <span class="typeNameLabel">SsManifest</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</pre>
+<div class="block">Represents a SmoothStreaming manifest.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
+     Streaming Client Manifest Format</a></dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a></span></code></th>
+<td class="colLast">
+<div class="block">Represents a protection element containing a single header.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a></span></code></th>
+<td class="colLast">
+<div class="block">Represents a StreamIndex element.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationUs">durationUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The overall presentation duration of the media in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
+ duration is unknown.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dvrWindowLengthUs">dvrWindowLengthUs</a></span></code></th>
+<td class="colLast">
+<div class="block">The length of the trailing window for a live broadcast in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+ if the stream is not live or if the window length is unspecified.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLive">isLive</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether the manifest describes a live presentation still in progress.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lookAheadCount">lookAheadCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of fragments in a lookahead, or <a href="#UNSET_LOOKAHEAD"><code>UNSET_LOOKAHEAD</code></a> if the lookahead is
+ unspecified.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#majorVersion">majorVersion</a></span></code></th>
+<td class="colLast">
+<div class="block">The client manifest major version.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minorVersion">minorVersion</a></span></code></th>
+<td class="colLast">
+<div class="block">The client manifest minor version.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#protectionElement">protectionElement</a></span></code></th>
+<td class="colLast">
+<div class="block">Content protection information, or null if the content is not protected.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#streamElements">streamElements</a></span></code></th>
+<td class="colLast">
+<div class="block">The contained stream elements.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNSET_LOOKAHEAD">UNSET_LOOKAHEAD</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,long,long,long,int,boolean,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement%5B%5D)">SsManifest</a></span>&#8203;(int&nbsp;majorVersion,
+          int&nbsp;minorVersion,
+          long&nbsp;timescale,
+          long&nbsp;duration,
+          long&nbsp;dvrWindowLength,
+          int&nbsp;lookAheadCount,
+          boolean&nbsp;isLive,
+          <a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a>&nbsp;protectionElement,
+          <a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[]&nbsp;streamElements)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(java.util.List)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="UNSET_LOOKAHEAD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>UNSET_LOOKAHEAD</h4>
+<pre>public static final&nbsp;int UNSET_LOOKAHEAD</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../../constant-values.html#com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.UNSET_LOOKAHEAD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="majorVersion">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>majorVersion</h4>
+<pre>public final&nbsp;int majorVersion</pre>
+<div class="block">The client manifest major version.</div>
+</li>
+</ul>
+<a id="minorVersion">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minorVersion</h4>
+<pre>public final&nbsp;int minorVersion</pre>
+<div class="block">The client manifest minor version.</div>
+</li>
+</ul>
+<a id="lookAheadCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lookAheadCount</h4>
+<pre>public final&nbsp;int lookAheadCount</pre>
+<div class="block">The number of fragments in a lookahead, or <a href="#UNSET_LOOKAHEAD"><code>UNSET_LOOKAHEAD</code></a> if the lookahead is
+ unspecified.</div>
+</li>
+</ul>
+<a id="isLive">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLive</h4>
+<pre>public final&nbsp;boolean isLive</pre>
+<div class="block">Whether the manifest describes a live presentation still in progress.</div>
+</li>
+</ul>
+<a id="protectionElement">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>protectionElement</h4>
+<pre>@Nullable
+public final&nbsp;<a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a> protectionElement</pre>
+<div class="block">Content protection information, or null if the content is not protected.</div>
+</li>
+</ul>
+<a id="streamElements">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>streamElements</h4>
+<pre>public final&nbsp;<a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[] streamElements</pre>
+<div class="block">The contained stream elements.</div>
+</li>
+</ul>
+<a id="durationUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>durationUs</h4>
+<pre>public final&nbsp;long durationUs</pre>
+<div class="block">The overall presentation duration of the media in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
+ duration is unknown.</div>
+</li>
+</ul>
+<a id="dvrWindowLengthUs">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>dvrWindowLengthUs</h4>
+<pre>public final&nbsp;long dvrWindowLengthUs</pre>
+<div class="block">The length of the trailing window for a live broadcast in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+ if the stream is not live or if the window length is unspecified.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(int,int,long,long,long,int,boolean,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SsManifest</h4>
+<pre>public&nbsp;SsManifest&#8203;(int&nbsp;majorVersion,
+                  int&nbsp;minorVersion,
+                  long&nbsp;timescale,
+                  long&nbsp;duration,
+                  long&nbsp;dvrWindowLength,
+                  int&nbsp;lookAheadCount,
+                  boolean&nbsp;isLive,
+                  @Nullable
+                  <a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a>&nbsp;protectionElement,
+                  <a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[]&nbsp;streamElements)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>majorVersion</code> - The client manifest major version.</dd>
+<dd><code>minorVersion</code> - The client manifest minor version.</dd>
+<dd><code>timescale</code> - The timescale of the media as the number of units that pass in one second.</dd>
+<dd><code>duration</code> - The overall presentation duration in units of the timescale attribute, or 0 if
+     the duration is unknown.</dd>
+<dd><code>dvrWindowLength</code> - The length of the trailing window in units of the timescale attribute,
+     or 0 if this attribute is unspecified or not applicable.</dd>
+<dd><code>lookAheadCount</code> - The number of fragments in a lookahead, or <a href="#UNSET_LOOKAHEAD"><code>UNSET_LOOKAHEAD</code></a> if
+     this attribute is unspecified or not applicable.</dd>
+<dd><code>isLive</code> - True if the manifest describes a live presentation still in progress. False
+     otherwise.</dd>
+<dd><code>protectionElement</code> - Content protection information, or null if the content is not
+     protected.</dd>
+<dd><code>streamElements</code> - The contained stream elements.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="copy(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>copy</h4>
+<pre class="methodSignature">public final&nbsp;<a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../offline/FilterableManifest.html#copy(java.util.List)">FilterableManifest</a></code></span></div>
+<div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
+ manifest is unchanged then the instance may return itself.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../offline/FilterableManifest.html#copy(java.util.List)">copy</a></code>&nbsp;in interface&nbsp;<code><a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>streamKeys</code> - A non-empty list of stream keys.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The filtered manifest.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

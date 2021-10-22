@@ -22,11 +22,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,19 +39,21 @@ public final class SsDownloaderTest {
 
   @Test
   public void createWithDefaultDownloaderFactory() throws Exception {
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
-    DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(Mockito.mock(Cache.class))
+            .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
+    DownloaderFactory factory =
+        new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadRequest(
-                "id",
-                DownloadRequest.TYPE_SS,
-                Uri.parse("https://www.test.com/download"),
-                Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
-                /* customCacheKey= */ null,
-                /* data= */ null));
+            new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download"))
+                .setMimeType(MimeTypes.APPLICATION_SS)
+                .setStreamKeys(
+                    Collections.singletonList(
+                        new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)))
+                .build());
     assertThat(downloader).isInstanceOf(SsDownloader.class);
   }
 }

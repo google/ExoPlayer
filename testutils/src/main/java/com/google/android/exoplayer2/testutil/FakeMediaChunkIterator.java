@@ -19,16 +19,17 @@ package com.google.android.exoplayer2.testutil;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
-/** Fake {@link com.google.android.exoplayer2.source.chunk.MediaChunkIterator}. */
+/** Fake {@link MediaChunkIterator}. */
 public final class FakeMediaChunkIterator extends BaseMediaChunkIterator {
 
   private final long[] chunkTimeBoundariesSec;
   private final long[] chunkLengths;
 
   /**
-   * Creates a fake {@link com.google.android.exoplayer2.source.chunk.MediaChunkIterator}.
+   * Creates a fake {@link MediaChunkIterator}.
    *
    * @param chunkTimeBoundariesSec An array containing the time boundaries where one chunk ends and
    *     the next one starts. The first value is the start time of the first chunk and the last
@@ -45,11 +46,7 @@ public final class FakeMediaChunkIterator extends BaseMediaChunkIterator {
   @Override
   public DataSpec getDataSpec() {
     checkInBounds();
-    return new DataSpec(
-        Uri.EMPTY,
-        /* absoluteStreamPosition= */ 0,
-        chunkLengths[(int) getCurrentIndex()],
-        /* key= */ null);
+    return new DataSpec(Uri.EMPTY, /* position= */ 0, chunkLengths[(int) getCurrentIndex()]);
   }
 
   @Override

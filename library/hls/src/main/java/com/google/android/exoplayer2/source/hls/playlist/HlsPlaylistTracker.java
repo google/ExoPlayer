@@ -32,7 +32,7 @@ import java.io.IOException;
  * media playlists while the master playlist is an optional kind of playlist defined by the HLS
  * specification (RFC 8216).
  *
- * <p>Playlist loads might encounter errors. The tracker may choose to blacklist them to ensure a
+ * <p>Playlist loads might encounter errors. The tracker may choose to exclude them to ensure a
  * primary playlist is always available.
  */
 public interface HlsPlaylistTracker {
@@ -67,20 +67,19 @@ public interface HlsPlaylistTracker {
   /** Called on playlist loading events. */
   interface PlaylistEventListener {
 
-    /**
-     * Called a playlist changes.
-     */
+    /** Called a playlist changes. */
     void onPlaylistChanged();
 
     /**
      * Called if an error is encountered while loading a playlist.
      *
      * @param url The loaded url that caused the error.
-     * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or
-     *     {@link C#TIME_UNSET} if the playlist should not be blacklisted.
-     * @return True if blacklisting did not encounter errors. False otherwise.
+     * @param loadErrorInfo The load error info.
+     * @param forceRetry Whether retry should be forced without considering exclusion.
+     * @return True if excluding did not encounter errors. False otherwise.
      */
-    boolean onPlaylistError(Uri url, long blacklistDurationMs);
+    boolean onPlaylistError(
+        Uri url, LoadErrorHandlingPolicy.LoadErrorInfo loadErrorInfo, boolean forceRetry);
   }
 
   /** Thrown when a playlist is considered to be stuck due to a server side error. */
@@ -124,10 +123,12 @@ public interface HlsPlaylistTracker {
    * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a master
    *     playlist.
    * @param eventDispatcher A dispatcher to notify of events.
-   * @param listener A callback for the primary playlist change events.
+   * @param primaryPlaylistListener A callback for the primary playlist change events.
    */
   void start(
-      Uri initialPlaylistUri, EventDispatcher eventDispatcher, PrimaryPlaylistListener listener);
+      Uri initialPlaylistUri,
+      EventDispatcher eventDispatcher,
+      PrimaryPlaylistListener primaryPlaylistListener);
 
   /**
    * Stops the playlist tracker and releases any acquired resources.
@@ -208,10 +209,19 @@ public interface HlsPlaylistTracker {
   void maybeThrowPlaylistRefreshError(Uri url) throws IOException;
 
   /**
-   * Requests a playlist refresh and whitelists it.
+   * Excludes the given media playlist for the given duration, in milliseconds.
    *
-   * <p>The playlist tracker may choose the delay the playlist refresh. The request is discarded if
-   * a refresh was already pending.
+   * @param playlistUrl The URL of the media playlist.
+   * @param exclusionDurationMs The duration for which to exclude the playlist.
+   * @return Whether exclusion was successful.
+   */
+  boolean excludeMediaPlaylist(Uri playlistUrl, long exclusionDurationMs);
+
+  /**
+   * Requests a playlist refresh and removes it from the exclusion list.
+   *
+   * <p>The playlist tracker may choose to delay the playlist refresh. The request is discarded if a
+   * refresh was already pending.
    *
    * @param url The {@link Uri} of the playlist to be refreshed.
    */

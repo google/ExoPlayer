@@ -11,31 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: '../../constants.gradle'
-apply plugin: 'com.android.library'
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-        consumerProguardFiles 'proguard-rules.txt'
-    }
-
-    testOptions.unitTests.includeAndroidResources = true
-}
+android.defaultConfig.minSdkVersion 21
 
 dependencies {
-    implementation project(modulePrefix + 'library-core')
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation project(modulePrefix + 'library-common')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
-    api 'com.squareup.okhttp3:okhttp:3.12.1'
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    api 'com.squareup.okhttp3:okhttp:' + okhttpVersion
 }
 
 ext {
@@ -44,7 +32,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-okhttp'
+    releaseArtifactId = 'extension-okhttp'
     releaseDescription = 'OkHttp extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'

@@ -1,0 +1,18 @@
+[Script Info]
+Title: SSA/ASS Test
+Original Script: Arnold Szabo
+Script Type: V4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name        ,Fontsize
+Style: FontSizeSmall,30
+Style: FontSizeBig  ,72.2
+
+
+
+[Events]
+Format: Start       ,End       ,Style        ,Text
+Dialogue: 0:00:00.95,0:00:03.11,FontSizeSmall,First line with font size 30.
+Dialogue: 0:00:08.50,0:00:11.50,FontSizeBig  ,Second line with font size 72.2.

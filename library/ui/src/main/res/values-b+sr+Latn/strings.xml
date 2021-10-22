@@ -1,24 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="exo_controls_previous_description">Prethodna pesma</string>
-  <string name="exo_controls_next_description">Sledeća pesma</string>
+  <string name="exo_controls_show">Prikaži kontrole plejera</string>
+  <string name="exo_controls_hide">Sakrij kontrole plejera</string>
+  <string name="exo_controls_seek_bar_description">Napredovanje reprodukcije</string>
+  <string name="exo_controls_settings_description">Podešavanja</string>
+  <string name="exo_controls_overflow_hide_description">Sakrij dodatna podešavanja</string>
+  <string name="exo_controls_overflow_show_description">Prikaži dodatna podešavanja</string>
+  <string name="exo_controls_fullscreen_enter_description">Pređi na ceo ekran</string>
+  <string name="exo_controls_fullscreen_exit_description">Izađi iz celog ekrana</string>
+  <string name="exo_controls_previous_description">Prethodna</string>
+  <string name="exo_controls_next_description">Sledeća</string>
   <string name="exo_controls_pause_description">Pauziraj</string>
   <string name="exo_controls_play_description">Pusti</string>
   <string name="exo_controls_stop_description">Zaustavi</string>
   <string name="exo_controls_rewind_description">Premotaj unazad</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Premotajte %d sekundu unazad</item>
+    <item quantity="few">Premotajte %d sekunde unazad</item>
+    <item quantity="other">Premotajte %d sekundi unazad</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Premotaj unapred</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Premotajte %d sekundu unapred</item>
+    <item quantity="few">Premotajte %d sekunde unapred</item>
+    <item quantity="other">Premotajte %d sekundi unapred</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Ne ponavljaj nijednu</string>
   <string name="exo_controls_repeat_one_description">Ponovi jednu</string>
   <string name="exo_controls_repeat_all_description">Ponovi sve</string>
-  <string name="exo_controls_shuffle_description">Pusti nasumično</string>
-  <string name="exo_controls_fullscreen_description">Režim celog ekrana</string>
+  <string name="exo_controls_shuffle_on_description">Nasumično puštanje je uključeno</string>
+  <string name="exo_controls_shuffle_off_description">Nasumično puštanje je isključeno</string>
   <string name="exo_controls_vr_description">VR režim</string>
-  <string name="exo_download_description">Preuzmi</string>
-  <string name="exo_download_notification_channel_name">Preuzimanja</string>
-  <string name="exo_download_downloading">Preuzima se</string>
-  <string name="exo_download_completed">Preuzimanje je završeno</string>
-  <string name="exo_download_failed">Preuzimanje nije uspelo</string>
-  <string name="exo_download_removing">Preuzimanja se uklanjaju</string>
+  <string name="exo_controls_cc_enabled_description">Onemogući titlove</string>
+  <string name="exo_controls_cc_disabled_description">Omogući titlove</string>
+  <string name="exo_controls_playback_speed">Brzina</string>
+  <string name="exo_controls_playback_speed_normal">Uobičajena</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Tekst</string>
@@ -28,9 +58,9 @@
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">Mono</string>
   <string name="exo_track_stereo">Stereo</string>
-  <string name="exo_track_surround">Zvučni sistem</string>
-  <string name="exo_track_surround_5_point_1">Zvučni sistem 5.1</string>
-  <string name="exo_track_surround_7_point_1">Zvučni sistem 7.1</string>
+  <string name="exo_track_surround">Prostorni zvuk</string>
+  <string name="exo_track_surround_5_point_1">Prostorni zvuk 5.1</string>
+  <string name="exo_track_surround_7_point_1">Prostorni zvuk 7.1</string>
   <string name="exo_track_role_alternate">Alternativno</string>
   <string name="exo_track_role_supplementary">Dodatno</string>
   <string name="exo_track_role_commentary">Komentar</string>

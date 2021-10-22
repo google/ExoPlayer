@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD type="static" duration="1s" mediaPresentationDuration="PT1S">
+ <Period>
+  <SegmentTemplate startNumber="0" timescale="1000" media="sq/$Number$">
+   <SegmentTimeline>
+    <S d="1000"/>
+   </SegmentTimeline>
+  </SegmentTemplate>
+  <AdaptationSet id="0" mimeType="video/mp4" subsegmentAlignment="true">
+   <Representation id="0" codecs="avc1.42c01f" bandwidth="128000">
+    <BaseURL>https://test.com/0</BaseURL>
+   </Representation>
+  </AdaptationSet>
+  <AdaptationSet id="1" mimeType="video/mp4" subsegmentAlignment="true">
+   <Representation id="0" codecs="avc1.42c01f" bandwidth="128000">
+    <BaseURL>https://test.com/0</BaseURL>
+   </Representation>
+  </AdaptationSet>
+  <AdaptationSet id="2" mimeType="video/mp4" subsegmentAlignment="true">
+   <EssentialProperty schemeIdUri="http://dashif.org/guidelines/trickmode" value="0"/>
+   <Representation id="0" codecs="avc1.42c01f" bandwidth="128000">
+    <BaseURL>https://test.com/0</BaseURL>
+   </Representation>
+  </AdaptationSet>
+  <AdaptationSet id="3" mimeType="video/mp4" subsegmentAlignment="true">
+   <SupplementalProperty schemeIdUri="http://dashif.org/guidelines/trickmode" value="1"/>
+   <Representation id="0" codecs="avc1.42c01f" bandwidth="128000">
+    <BaseURL>https://test.com/0</BaseURL>
+   </Representation>
+  </AdaptationSet>
+ </Period>
+</MPD>

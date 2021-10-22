@@ -17,22 +17,18 @@ package com.google.android.exoplayer2.ext.mediasession;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 /**
- * A {@link MediaSessionConnector.QueueEditor} implementation based on the {@link
- * ConcatenatingMediaSource}.
+ * A {@link MediaSessionConnector.QueueEditor} implementation.
  *
  * <p>This class implements the {@link MediaSessionConnector.CommandReceiver} interface and handles
  * the {@link #COMMAND_MOVE_QUEUE_ITEM} to move a queue item instead of removing and inserting it.
@@ -45,24 +41,23 @@ public final class TimelineQueueEditor
   public static final String EXTRA_FROM_INDEX = "from_index";
   public static final String EXTRA_TO_INDEX = "to_index";
 
-  /**
-   * Factory to create {@link MediaSource}s.
-   */
-  public interface MediaSourceFactory {
+  /** Converts a {@link MediaDescriptionCompat} to a {@link MediaItem}. */
+  public interface MediaDescriptionConverter {
     /**
-     * Creates a {@link MediaSource} for the given {@link MediaDescriptionCompat}.
+     * Returns a {@link MediaItem} for the given {@link MediaDescriptionCompat} or null if the
+     * description can't be converted.
      *
-     * @param description The {@link MediaDescriptionCompat} to create a media source for.
-     * @return A {@link MediaSource} or {@code null} if no source can be created for the given
-     *     description.
+     * <p>If not null, the media item that is returned will be used to call {@link
+     * Player#addMediaItem(MediaItem)}.
      */
-    @Nullable MediaSource createMediaSource(MediaDescriptionCompat description);
+    @Nullable
+    MediaItem convert(MediaDescriptionCompat description);
   }
 
   /**
    * Adapter to get {@link MediaDescriptionCompat} of items in the queue and to notify the
-   * application about changes in the queue to sync the data structure backing the
-   * {@link MediaSessionConnector}.
+   * application about changes in the queue to sync the data structure backing the {@link
+   * MediaSessionConnector}.
    */
   public interface QueueDataAdapter {
     /**
@@ -87,9 +82,7 @@ public final class TimelineQueueEditor
     void move(int from, int to);
   }
 
-  /**
-   * Used to evaluate whether two {@link MediaDescriptionCompat} are considered equal.
-   */
+  /** Used to evaluate whether two {@link MediaDescriptionCompat} are considered equal. */
   interface MediaDescriptionEqualityChecker {
     /**
      * Returns {@code true} whether the descriptions are considered equal.
@@ -111,51 +104,46 @@ public final class TimelineQueueEditor
     public boolean equals(MediaDescriptionCompat d1, MediaDescriptionCompat d2) {
       return Util.areEqual(d1.getMediaId(), d2.getMediaId());
     }
-
   }
 
   private final MediaControllerCompat mediaController;
   private final QueueDataAdapter queueDataAdapter;
-  private final MediaSourceFactory sourceFactory;
+  private final MediaDescriptionConverter mediaDescriptionConverter;
   private final MediaDescriptionEqualityChecker equalityChecker;
-  private final ConcatenatingMediaSource queueMediaSource;
 
   /**
    * Creates a new {@link TimelineQueueEditor} with a given mediaSourceFactory.
    *
    * @param mediaController A {@link MediaControllerCompat} to read the current queue.
-   * @param queueMediaSource The {@link ConcatenatingMediaSource} to manipulate.
    * @param queueDataAdapter A {@link QueueDataAdapter} to change the backing data.
-   * @param sourceFactory The {@link MediaSourceFactory} to build media sources.
+   * @param mediaDescriptionConverter The {@link MediaDescriptionConverter} for converting media
+   *     descriptions to {@link MediaItem MediaItems}.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory) {
-    this(mediaController, queueMediaSource, queueDataAdapter, sourceFactory,
-        new MediaIdEqualityChecker());
+      MediaControllerCompat mediaController,
+      QueueDataAdapter queueDataAdapter,
+      MediaDescriptionConverter mediaDescriptionConverter) {
+    this(
+        mediaController, queueDataAdapter, mediaDescriptionConverter, new MediaIdEqualityChecker());
   }
 
   /**
    * Creates a new {@link TimelineQueueEditor} with a given mediaSourceFactory.
    *
    * @param mediaController A {@link MediaControllerCompat} to read the current queue.
-   * @param queueMediaSource The {@link ConcatenatingMediaSource} to manipulate.
    * @param queueDataAdapter A {@link QueueDataAdapter} to change the backing data.
-   * @param sourceFactory The {@link MediaSourceFactory} to build media sources.
+   * @param mediaDescriptionConverter The {@link MediaDescriptionConverter} for converting media
+   *     descriptions to {@link MediaItem MediaItems}.
    * @param equalityChecker The {@link MediaDescriptionEqualityChecker} to match queue items.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory,
-      @NonNull MediaDescriptionEqualityChecker equalityChecker) {
+      MediaControllerCompat mediaController,
+      QueueDataAdapter queueDataAdapter,
+      MediaDescriptionConverter mediaDescriptionConverter,
+      MediaDescriptionEqualityChecker equalityChecker) {
     this.mediaController = mediaController;
-    this.queueMediaSource = queueMediaSource;
     this.queueDataAdapter = queueDataAdapter;
-    this.sourceFactory = sourceFactory;
+    this.mediaDescriptionConverter = mediaDescriptionConverter;
     this.equalityChecker = equalityChecker;
   }
 
@@ -166,10 +154,10 @@ public final class TimelineQueueEditor
 
   @Override
   public void onAddQueueItem(Player player, MediaDescriptionCompat description, int index) {
-    @Nullable MediaSource mediaSource = sourceFactory.createMediaSource(description);
-    if (mediaSource != null) {
+    @Nullable MediaItem mediaItem = mediaDescriptionConverter.convert(description);
+    if (mediaItem != null) {
       queueDataAdapter.add(index, description);
-      queueMediaSource.addMediaSource(index, mediaSource);
+      player.addMediaItem(index, mediaItem);
     }
   }
 
@@ -179,7 +167,7 @@ public final class TimelineQueueEditor
     for (int i = 0; i < queue.size(); i++) {
       if (equalityChecker.equals(queue.get(i).getDescription(), description)) {
         queueDataAdapter.remove(i);
-        queueMediaSource.removeMediaSource(i);
+        player.removeMediaItem(i);
         return;
       }
     }
@@ -189,21 +177,16 @@ public final class TimelineQueueEditor
 
   @Override
   public boolean onCommand(
-      Player player,
-      ControlDispatcher controlDispatcher,
-      String command,
-      Bundle extras,
-      ResultReceiver cb) {
-    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command)) {
+      Player player, String command, @Nullable Bundle extras, @Nullable ResultReceiver cb) {
+    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command) || extras == null) {
       return false;
     }
     int from = extras.getInt(EXTRA_FROM_INDEX, C.INDEX_UNSET);
     int to = extras.getInt(EXTRA_TO_INDEX, C.INDEX_UNSET);
     if (from != C.INDEX_UNSET && to != C.INDEX_UNSET) {
       queueDataAdapter.move(from, to);
-      queueMediaSource.moveMediaSource(from, to);
+      player.moveMediaItem(from, to);
     }
     return true;
   }
-
 }

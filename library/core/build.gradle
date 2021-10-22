@@ -11,73 +11,51 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
-apply from: '../../constants.gradle'
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-        consumerProguardFiles 'proguard-rules.txt'
-
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-
         // The following argument makes the Android Test Orchestrator run its
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.
         testInstrumentationRunnerArguments clearPackageData: 'true'
-    }
-
-    // Workaround to prevent circular dependency on project :testutils.
-    sourceSets {
-        androidTest {
-            java.srcDirs += '../../testutils/src/main/java/'
-        }
-        test {
-            java.srcDirs += '../../testutils/src/main/java/'
-        }
+        multiDexEnabled true
     }
 
     buildTypes {
-        // Re-enable test coverage when the following issue is fixed:
-        // https://issuetracker.google.com/issues/37019591
-        // debug {
-        //    testCoverageEnabled = true
-        // }
+        debug {
+            testCoverageEnabled = true
+        }
     }
 
-    testOptions.unitTests.includeAndroidResources = true
+    sourceSets {
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+        test.assets.srcDir '../../testdata/src/test/assets/'
+    }
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.1.0'
+    api project(modulePrefix + 'library-common')
+    // TODO(b/203754886): Revisit which modules are exported as API dependencies.
+    api project(modulePrefix + 'library-decoder')
+    api project(modulePrefix + 'library-extractor')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'androidx.core:core:' + androidxCoreVersion
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
-    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
-    // Uncomment to enable Kotlin non-null strict mode. See [internal: b/138703808].
-    // compileOnly "org.jetbrains.kotlin:kotlin-annotations-jvm:1.1.60"
-    androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
-    androidTestImplementation 'androidx.test.ext:junit:' + androidXTestVersion
-    androidTestImplementation 'com.google.truth:truth:' + truthVersion
-    androidTestImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
-    testImplementation 'androidx.test:core:' + androidXTestVersion
-    testImplementation 'androidx.test.ext:junit:' + androidXTestVersion
-    testImplementation 'com.google.truth:truth:' + truthVersion
-    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestImplementation(project(modulePrefix + 'testutils')) {
+        exclude module: modulePrefix.substring(1) + 'library-core'
+    }
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
-    testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
-    testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation project(modulePrefix + 'robolectricutils')
 }
 
 ext {
@@ -86,7 +64,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-core'
+    releaseArtifactId = 'exoplayer-core'
     releaseDescription = 'The ExoPlayer library core module.'
 }
 apply from: '../../publish.gradle'

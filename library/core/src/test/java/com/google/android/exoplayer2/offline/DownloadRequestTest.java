@@ -15,18 +15,14 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_DASH;
-import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_HLS;
-import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_PROGRESSIVE;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,23 +41,11 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withDifferentIds_fails() {
-    DownloadRequest request1 =
-        new DownloadRequest(
-            "id1",
-            TYPE_DASH,
-            uri1,
-            /* streamKeys= */ Collections.emptyList(),
-            /* customCacheKey= */ null,
-            /* data= */ null);
-    DownloadRequest request2 =
-        new DownloadRequest(
-            "id2",
-            TYPE_DASH,
-            uri2,
-            /* streamKeys= */ Collections.emptyList(),
-            /* customCacheKey= */ null,
-            /* data= */ null);
+  public void mergeRequests_withDifferentIds_fails() {
+
+    DownloadRequest request1 = new DownloadRequest.Builder(/* id= */ "id1", uri1).build();
+    DownloadRequest request2 = new DownloadRequest.Builder(/* id= */ "id2", uri2).build();
+
     try {
       request1.copyWithMergedRequest(request2);
       fail();
@@ -71,33 +55,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withDifferentTypes_fails() {
-    DownloadRequest request1 =
-        new DownloadRequest(
-            "id1",
-            TYPE_DASH,
-            uri1,
-            /* streamKeys= */ Collections.emptyList(),
-            /* customCacheKey= */ null,
-            /* data= */ null);
-    DownloadRequest request2 =
-        new DownloadRequest(
-            "id1",
-            TYPE_HLS,
-            uri1,
-            /* streamKeys= */ Collections.emptyList(),
-            /* customCacheKey= */ null,
-            /* data= */ null);
-    try {
-      request1.copyWithMergedRequest(request2);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected.
-    }
-  }
-
-  @Test
-  public void testMergeRequest_withSameRequest() {
+  public void mergeRequest_withSameRequest() {
     DownloadRequest request1 = createRequest(uri1, new StreamKey(0, 0, 0));
 
     DownloadRequest mergedRequest = request1.copyWithMergedRequest(request1);
@@ -105,7 +63,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withEmptyStreamKeys() {
+  public void mergeRequests_withEmptyStreamKeys() {
     DownloadRequest request1 = createRequest(uri1, new StreamKey(0, 0, 0));
     DownloadRequest request2 = createRequest(uri1);
 
@@ -118,7 +76,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withOverlappingStreamKeys() {
+  public void mergeRequests_withOverlappingStreamKeys() {
     StreamKey streamKey1 = new StreamKey(0, 1, 2);
     StreamKey streamKey2 = new StreamKey(3, 4, 5);
     StreamKey streamKey3 = new StreamKey(6, 7, 8);
@@ -134,51 +92,51 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withDifferentFields() {
-    byte[] data1 = new byte[] {0, 1, 2};
-    byte[] data2 = new byte[] {3, 4, 5};
-    DownloadRequest request1 =
-        new DownloadRequest(
-            "id1",
-            TYPE_PROGRESSIVE,
-            uri1,
-            /* streamKeys= */ Collections.emptyList(),
-            "key1",
-            /* data= */ data1);
-    DownloadRequest request2 =
-        new DownloadRequest(
-            "id1",
-            TYPE_PROGRESSIVE,
-            uri2,
-            /* streamKeys= */ Collections.emptyList(),
-            "key2",
-            /* data= */ data2);
+  public void mergeRequests_withDifferentFields() {
+    byte[] keySetId1 = new byte[] {0, 1, 2};
+    byte[] keySetId2 = new byte[] {3, 4, 5};
+    byte[] data1 = new byte[] {6, 7, 8};
+    byte[] data2 = new byte[] {9, 10, 11};
 
-    // uri, customCacheKey and data should be from the request being merged.
+    DownloadRequest request1 =
+        new DownloadRequest.Builder(/* id= */ "id1", uri1)
+            .setKeySetId(keySetId1)
+            .setCustomCacheKey("key1")
+            .setData(data1)
+            .build();
+    DownloadRequest request2 =
+        new DownloadRequest.Builder(/* id= */ "id1", uri2)
+            .setKeySetId(keySetId2)
+            .setCustomCacheKey("key2")
+            .setData(data2)
+            .build();
+
+    // uri, keySetId, customCacheKey and data should be from the request being merged.
     DownloadRequest mergedRequest = request1.copyWithMergedRequest(request2);
     assertThat(mergedRequest.uri).isEqualTo(uri2);
+    assertThat(mergedRequest.keySetId).isEqualTo(keySetId2);
     assertThat(mergedRequest.customCacheKey).isEqualTo("key2");
     assertThat(mergedRequest.data).isEqualTo(data2);
 
     mergedRequest = request2.copyWithMergedRequest(request1);
     assertThat(mergedRequest.uri).isEqualTo(uri1);
+    assertThat(mergedRequest.keySetId).isEqualTo(keySetId1);
     assertThat(mergedRequest.customCacheKey).isEqualTo("key1");
     assertThat(mergedRequest.data).isEqualTo(data1);
   }
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     ArrayList<StreamKey> streamKeys = new ArrayList<>();
     streamKeys.add(new StreamKey(1, 2, 3));
     streamKeys.add(new StreamKey(4, 5, 6));
     DownloadRequest requestToParcel =
-        new DownloadRequest(
-            "id",
-            "type",
-            Uri.parse("https://abc.def/ghi"),
-            streamKeys,
-            "key",
-            new byte[] {1, 2, 3, 4, 5});
+        new DownloadRequest.Builder("id", Uri.parse("https://abc.def/ghi"))
+            .setStreamKeys(streamKeys)
+            .setKeySetId(new byte[] {1, 2, 3, 4, 5})
+            .setCustomCacheKey("key")
+            .setData(new byte[] {1, 2, 3, 4, 5})
+            .build();
     Parcel parcel = Parcel.obtain();
     requestToParcel.writeToParcel(parcel, 0);
     parcel.setDataPosition(0);
@@ -191,7 +149,7 @@ public class DownloadRequestTest {
 
   @SuppressWarnings("EqualsWithItself")
   @Test
-  public void testEquals() {
+  public void equals() {
     DownloadRequest request1 = createRequest(uri1);
     assertThat(request1.equals(request1)).isTrue();
 
@@ -232,16 +190,10 @@ public class DownloadRequestTest {
   private static void assertEqual(DownloadRequest request1, DownloadRequest request2) {
     assertThat(request1).isEqualTo(request2);
     assertThat(request2).isEqualTo(request1);
+    assertThat(request1.hashCode()).isEqualTo(request2.hashCode());
   }
 
   private static DownloadRequest createRequest(Uri uri, StreamKey... keys) {
-    return new DownloadRequest(
-        uri.toString(), TYPE_DASH, uri, toList(keys), /* customCacheKey= */ null, /* data= */ null);
-  }
-
-  private static List<StreamKey> toList(StreamKey... keys) {
-    ArrayList<StreamKey> keysList = new ArrayList<>();
-    Collections.addAll(keysList, keys);
-    return keysList;
+    return new DownloadRequest.Builder(uri.toString(), uri).setStreamKeys(asList(keys)).build();
   }
 }

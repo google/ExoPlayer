@@ -15,30 +15,50 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.C.BUFFER_FLAG_ENCRYPTED;
+import static com.google.android.exoplayer2.C.BUFFER_FLAG_KEY_FRAME;
 import static com.google.android.exoplayer2.C.RESULT_BUFFER_READ;
 import static com.google.android.exoplayer2.C.RESULT_FORMAT_READ;
 import static com.google.android.exoplayer2.C.RESULT_NOTHING_READ;
-import static com.google.android.exoplayer2.source.SampleQueue.ADVANCE_FAILED;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_OMIT_SAMPLE_DATA;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_PEEK;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Long.MAX_VALUE;
 import static java.lang.Long.MIN_VALUE;
 import static java.util.Arrays.copyOfRange;
+import static org.junit.Assert.assertArrayEquals;
+import static org.mockito.Mockito.when;
 
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.testutil.FakeCryptoConfig;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.primitives.Bytes;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 /** Test for {@link SampleQueue}. */
 @RunWith(AndroidJUnit4.class)
@@ -46,10 +66,14 @@ public final class SampleQueueTest {
 
   private static final int ALLOCATION_SIZE = 16;
 
-  private static final Format FORMAT_1 = Format.createSampleFormat("1", "mimeType", 0);
-  private static final Format FORMAT_2 = Format.createSampleFormat("2", "mimeType", 0);
-  private static final Format FORMAT_1_COPY = Format.createSampleFormat("1", "mimeType", 0);
-  private static final Format FORMAT_SPLICED = Format.createSampleFormat("spliced", "mimeType", 0);
+  private static final Format FORMAT_1 = buildFormat(/* id= */ "1");
+  private static final Format FORMAT_2 = buildFormat(/* id= */ "2");
+  private static final Format FORMAT_1_COPY = buildFormat(/* id= */ "1");
+  private static final Format FORMAT_SPLICED = buildFormat(/* id= */ "spliced");
+  private static final Format FORMAT_ENCRYPTED =
+      new Format.Builder().setId(/* id= */ "encrypted").setDrmInitData(new DrmInitData()).build();
+  private static final Format FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE =
+      FORMAT_ENCRYPTED.copyWithCryptoType(FakeCryptoConfig.TYPE);
   private static final byte[] DATA = TestUtil.buildTestData(ALLOCATION_SIZE * 10);
 
   /*
@@ -91,24 +115,49 @@ public final class SampleQueueTest {
   private static final Format[] SAMPLE_FORMATS =
       new Format[] {FORMAT_1, FORMAT_1, FORMAT_1, FORMAT_1, FORMAT_2, FORMAT_2, FORMAT_2, FORMAT_2};
   private static final int DATA_SECOND_KEYFRAME_INDEX = 4;
-  private static final TrackOutput.CryptoData DUMMY_CRYPTO_DATA =
+
+  private static final int[] ENCRYPTED_SAMPLES_FLAGS =
+      new int[] {
+        C.BUFFER_FLAG_KEY_FRAME, C.BUFFER_FLAG_ENCRYPTED, 0, C.BUFFER_FLAG_ENCRYPTED,
+      };
+  private static final long[] ENCRYPTED_SAMPLE_TIMESTAMPS = new long[] {0, 1000, 2000, 3000};
+  private static final Format[] ENCRYPTED_SAMPLE_FORMATS =
+      new Format[] {FORMAT_ENCRYPTED, FORMAT_ENCRYPTED, FORMAT_1, FORMAT_ENCRYPTED};
+  /** Encrypted samples require the encryption preamble. */
+  private static final int[] ENCRYPTED_SAMPLE_SIZES = new int[] {1, 3, 1, 3};
+
+  private static final int[] ENCRYPTED_SAMPLE_OFFSETS = new int[] {7, 4, 3, 0};
+  private static final byte[] ENCRYPTED_SAMPLE_DATA = new byte[] {1, 1, 1, 1, 1, 1, 1, 1};
+
+  private static final TrackOutput.CryptoData CRYPTO_DATA =
       new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
 
   private Allocator allocator;
+  private MockDrmSessionManager mockDrmSessionManager;
+  private DrmSession mockDrmSession;
+  private DrmSessionEventListener.EventDispatcher eventDispatcher;
   private SampleQueue sampleQueue;
   private FormatHolder formatHolder;
   private DecoderInputBuffer inputBuffer;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     allocator = new DefaultAllocator(false, ALLOCATION_SIZE);
-    sampleQueue = new SampleQueue(allocator);
+    mockDrmSession = Mockito.mock(DrmSession.class);
+    mockDrmSessionManager = new MockDrmSessionManager(mockDrmSession);
+    eventDispatcher = new DrmSessionEventListener.EventDispatcher();
+    sampleQueue =
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            mockDrmSessionManager,
+            eventDispatcher);
     formatHolder = new FormatHolder();
     inputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     allocator = null;
     sampleQueue = null;
     formatHolder = null;
@@ -116,7 +165,36 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testResetReleasesAllocations() {
+  public void capacityIncreases() {
+    int numberOfSamplesToInput = 3 * SampleQueue.SAMPLE_CAPACITY_INCREMENT + 1;
+    sampleQueue.format(FORMAT_1);
+    sampleQueue.sampleData(
+        new ParsableByteArray(numberOfSamplesToInput), /* length= */ numberOfSamplesToInput);
+    for (int i = 0; i < numberOfSamplesToInput; i++) {
+      sampleQueue.sampleMetadata(
+          /* timeUs= */ i * 1000,
+          /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
+          /* size= */ 1,
+          /* offset= */ numberOfSamplesToInput - i - 1,
+          /* cryptoData= */ null);
+    }
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_1);
+    for (int i = 0; i < numberOfSamplesToInput; i++) {
+      assertReadSample(
+          /* timeUs= */ i * 1000,
+          /* isKeyFrame= */ true,
+          /* isDecodeOnly= */ false,
+          /* isEncrypted= */ false,
+          /* sampleData= */ new byte[1],
+          /* offset= */ 0,
+          /* length= */ 1);
+    }
+    assertReadNothing(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void resetReleasesAllocations() {
     writeTestData();
     assertAllocationCount(10);
     sampleQueue.reset();
@@ -124,12 +202,25 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadWithoutWrite() {
+  public void readWithoutWrite() {
     assertNoSamplesToRead(null);
   }
 
   @Test
-  public void testEqualFormatsDeduplicated() {
+  public void peekConsumesDownstreamFormat() {
+    sampleQueue.format(FORMAT_1);
+    clearFormatHolderAndInputBuffer();
+    int result =
+        sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    // formatHolder should be populated.
+    assertThat(formatHolder.format).isEqualTo(FORMAT_1);
+    result = sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_NOTHING_READ);
+  }
+
+  @Test
+  public void equalFormatsDeduplicated() {
     sampleQueue.format(FORMAT_1);
     assertReadFormat(false, FORMAT_1);
     // If the same format is written then it should not cause a format change on the read side.
@@ -141,7 +232,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testMultipleFormatsDeduplicated() {
+  public void multipleFormatsDeduplicated() {
     sampleQueue.format(FORMAT_1);
     sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
     sampleQueue.sampleMetadata(0, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
@@ -153,9 +244,23 @@ public final class SampleQueueTest {
     sampleQueue.sampleMetadata(1000, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
 
     assertReadFormat(false, FORMAT_1);
-    assertReadSample(0, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(
+        0,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        ALLOCATION_SIZE);
     // Assert the second sample is read without a format change.
-    assertReadSample(1000, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(
+        1000,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        ALLOCATION_SIZE);
 
     // The same applies if the queue is empty when the formats are written.
     sampleQueue.format(FORMAT_2);
@@ -164,11 +269,18 @@ public final class SampleQueueTest {
     sampleQueue.sampleMetadata(2000, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
 
     // Assert the third sample is read without a format change.
-    assertReadSample(2000, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(
+        2000,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        ALLOCATION_SIZE);
   }
 
   @Test
-  public void testReadSingleSamples() {
+  public void readSingleSamples() {
     sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
 
     assertAllocationCount(1);
@@ -187,7 +299,14 @@ public final class SampleQueueTest {
     // If formatRequired, should read the format rather than the sample.
     assertReadFormat(true, FORMAT_1);
     // Otherwise should read the sample.
-    assertReadSample(1000, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(
+        1000,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        ALLOCATION_SIZE);
     // Allocation should still be held.
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -204,7 +323,14 @@ public final class SampleQueueTest {
     // If formatRequired, should read the format rather than the sample.
     assertReadFormat(true, FORMAT_1);
     // Read the sample.
-    assertReadSample(2000, false, DATA, 0, ALLOCATION_SIZE - 1);
+    assertReadSample(
+        2000,
+        /* isKeyFrame= */ false,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        ALLOCATION_SIZE - 1);
     // Allocation should still be held.
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -218,7 +344,14 @@ public final class SampleQueueTest {
     // If formatRequired, should read the format rather than the sample.
     assertReadFormat(true, FORMAT_1);
     // Read the sample.
-    assertReadSample(3000, false, DATA, ALLOCATION_SIZE - 1, 1);
+    assertReadSample(
+        3000,
+        /* isKeyFrame= */ false,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        ALLOCATION_SIZE - 1,
+        1);
     // Allocation should still be held.
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -227,7 +360,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadMultiSamples() {
+  public void readMultiSamples() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
     assertAllocationCount(10);
@@ -238,7 +371,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadMultiSamplesTwice() {
+  public void readMultiSamplesTwice() {
     writeTestData();
     writeTestData();
     assertAllocationCount(20);
@@ -250,14 +383,14 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadMultiWithRewind() {
+  public void readMultiWithSeek() {
     writeTestData();
     assertReadTestData();
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(0);
     assertThat(sampleQueue.getReadIndex()).isEqualTo(8);
     assertAllocationCount(10);
-    // Rewind.
-    sampleQueue.rewind();
+
+    sampleQueue.seekTo(0);
     assertAllocationCount(10);
     // Read again.
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(0);
@@ -266,15 +399,204 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testRewindAfterDiscard() {
+  public void emptyQueueReturnsLoadingFinished() {
+    sampleQueue.sampleData(new ParsableByteArray(DATA), DATA.length);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isFalse();
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ true)).isTrue();
+  }
+
+  @Test
+  public void isReadyWithUpstreamFormatOnlyReturnsTrue() {
+    sampleQueue.format(FORMAT_ENCRYPTED);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
+  }
+
+  @Test
+  public void isReadyReturnsTrueForValidDrmSession() {
+    writeTestDataWithEncryptedSections();
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isFalse();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
+  }
+
+  @Test
+  public void isReadyReturnsTrueForClearSampleAndPlayClearSamplesWithoutKeysIsTrue() {
+    when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
+    // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
+    sampleQueue =
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            mockDrmSessionManager,
+            eventDispatcher);
+    writeTestDataWithEncryptedSections();
+    assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
+  }
+
+  @Test
+  public void readEncryptedSectionsWaitsForKeys() {
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeTestDataWithEncryptedSections();
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
+    assertReadNothing(/* formatRequired= */ false);
+    assertThat(inputBuffer.waitingForKeys).isTrue();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+    assertThat(inputBuffer.waitingForKeys).isFalse();
+  }
+
+  @Test
+  public void readEncryptedSectionsPopulatesDrmSession() {
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    writeTestDataWithEncryptedSections();
+
+    int result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+    assertReadEncryptedSample(/* sampleIndex= */ 1);
+    formatHolder.clear();
+    assertThat(formatHolder.drmSession).isNull();
+    result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isNull();
+    assertReadEncryptedSample(/* sampleIndex= */ 2);
+    result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+  }
+
+  @Test
+  public void allowPlaceholderSessionPopulatesDrmSession() {
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);
+    when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    mockDrmSessionManager.mockPlaceholderDrmSession = mockPlaceholderDrmSession;
+    writeTestDataWithEncryptedSections();
+
+    int result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+    assertReadEncryptedSample(/* sampleIndex= */ 1);
+    formatHolder.clear();
+    assertThat(formatHolder.drmSession).isNull();
+    result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockPlaceholderDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 2);
+    result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 3);
+  }
+
+  @Test
+  public void trailingCryptoInfoInitializationVectorBytesZeroed() {
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);
+    when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    mockDrmSessionManager.mockPlaceholderDrmSession = mockPlaceholderDrmSession;
+
+    writeFormat(ENCRYPTED_SAMPLE_FORMATS[0]);
+    byte[] sampleData = new byte[] {0, 1, 2};
+    byte[] initializationVector = new byte[] {7, 6, 5, 4, 3, 2, 1, 0};
+    byte[] encryptedSampleData =
+        Bytes.concat(
+            new byte[] {
+              0x08, // subsampleEncryption = false (1 bit), ivSize = 8 (7 bits).
+            },
+            initializationVector,
+            sampleData);
+    writeSample(
+        encryptedSampleData, /* timestampUs= */ 0, BUFFER_FLAG_KEY_FRAME | BUFFER_FLAG_ENCRYPTED);
+
+    int result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+
+    // Fill cryptoInfo.iv with non-zero data. When the 8 byte initialization vector is written into
+    // it, we expect the trailing 8 bytes to be zeroed.
+    inputBuffer.cryptoInfo.iv = new byte[16];
+    Arrays.fill(inputBuffer.cryptoInfo.iv, (byte) 1);
+
+    result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_BUFFER_READ);
+
+    // Assert cryptoInfo.iv contains the 8-byte initialization vector and that the trailing 8 bytes
+    // have been zeroed.
+    byte[] expectedInitializationVector = Arrays.copyOf(initializationVector, 16);
+    assertArrayEquals(expectedInitializationVector, inputBuffer.cryptoInfo.iv);
+  }
+
+  @Test
+  public void readWithErrorSessionReadsNothingAndThrows() throws IOException {
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeTestDataWithEncryptedSections();
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
+    assertReadNothing(/* formatRequired= */ false);
+    sampleQueue.maybeThrowError();
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_ERROR);
+    when(mockDrmSession.getError())
+        .thenReturn(
+            new DrmSession.DrmSessionException(
+                new Exception(), PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR));
+    assertReadNothing(/* formatRequired= */ false);
+    try {
+      sampleQueue.maybeThrowError();
+      Assert.fail();
+    } catch (IOException e) {
+      // Expected.
+    }
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+  }
+
+  @Test
+  public void allowPlayClearSamplesWithoutKeysReadsClearSamples() {
+    when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
+    // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
+    sampleQueue =
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            mockDrmSessionManager,
+            eventDispatcher);
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
+    writeTestDataWithEncryptedSections();
+
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
+    assertReadEncryptedSample(/* sampleIndex= */ 0);
+  }
+
+  @Test
+  public void seekAfterDiscard() {
     writeTestData();
     assertReadTestData();
     sampleQueue.discardToRead();
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(8);
     assertThat(sampleQueue.getReadIndex()).isEqualTo(8);
     assertAllocationCount(0);
-    // Rewind.
-    sampleQueue.rewind();
+
+    sampleQueue.seekTo(0);
     assertAllocationCount(0);
     // Can't read again.
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(8);
@@ -283,9 +605,10 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToEnd() {
+  public void skipToEnd() {
     writeTestData();
-    sampleQueue.advanceToEnd();
+    sampleQueue.skip(
+        sampleQueue.getSkipCount(/* timeUs= */ MAX_VALUE, /* allowEndOfQueue= */ true));
     assertAllocationCount(10);
     sampleQueue.discardToRead();
     assertAllocationCount(0);
@@ -297,10 +620,11 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToEndRetainsUnassignedData() {
+  public void skipToEndRetainsUnassignedData() {
     sampleQueue.format(FORMAT_1);
     sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
-    sampleQueue.advanceToEnd();
+    sampleQueue.skip(
+        sampleQueue.getSkipCount(/* timeUs= */ MAX_VALUE, /* allowEndOfQueue= */ true));
     assertAllocationCount(1);
     sampleQueue.discardToRead();
     // Skipping shouldn't discard data that may belong to a sample whose metadata has yet to be
@@ -313,7 +637,14 @@ public final class SampleQueueTest {
 
     sampleQueue.sampleMetadata(0, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
     // Once the metadata has been written, check the sample can be read as expected.
-    assertReadSample(0, true, DATA, 0, ALLOCATION_SIZE);
+    assertReadSample(
+        /* timeUs= */ 0,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        ALLOCATION_SIZE);
     assertNoSamplesToRead(FORMAT_1);
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -321,57 +652,180 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToBeforeBuffer() {
+  public void skipToBeforeBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0] - 1, true, false);
-    // Should fail and have no effect.
-    assertThat(skipCount).isEqualTo(ADVANCE_FAILED);
-    assertReadTestData();
-    assertNoSamplesToRead(FORMAT_2);
-  }
-
-  @Test
-  public void testAdvanceToStartOfBuffer() {
-    writeTestData();
-    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0], true, false);
-    // Should succeed but have no effect (we're already at the first frame).
+    int skipCount =
+        sampleQueue.getSkipCount(SAMPLE_TIMESTAMPS[0] - 1, /* allowEndOfQueue= */ false);
+    // Should have no effect (we're already at the first frame).
     assertThat(skipCount).isEqualTo(0);
+    sampleQueue.skip(skipCount);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void testAdvanceToEndOfBuffer() {
+  public void skipToStartOfBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP, true, false);
-    // Should succeed and skip to 2nd keyframe (the 4th frame).
-    assertThat(skipCount).isEqualTo(4);
-    assertReadTestData(null, DATA_SECOND_KEYFRAME_INDEX);
-    assertNoSamplesToRead(FORMAT_2);
-  }
-
-  @Test
-  public void testAdvanceToAfterBuffer() {
-    writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, false);
-    // Should fail and have no effect.
-    assertThat(skipCount).isEqualTo(ADVANCE_FAILED);
+    int skipCount = sampleQueue.getSkipCount(SAMPLE_TIMESTAMPS[0], /* allowEndOfQueue= */ false);
+    // Should have no effect (we're already at the first frame).
+    assertThat(skipCount).isEqualTo(0);
+    sampleQueue.skip(skipCount);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void testAdvanceToAfterBufferAllowed() {
+  public void skipToEndOfBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, true);
-    // Should succeed and skip to 2nd keyframe (the 4th frame).
+    int skipCount = sampleQueue.getSkipCount(LAST_SAMPLE_TIMESTAMP, /* allowEndOfQueue= */ false);
+    // Should advance to 2nd keyframe (the 4th frame).
     assertThat(skipCount).isEqualTo(4);
-    assertReadTestData(null, DATA_SECOND_KEYFRAME_INDEX);
+    sampleQueue.skip(skipCount);
+    assertReadTestData(/* startFormat= */ null, DATA_SECOND_KEYFRAME_INDEX);
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void testDiscardToEnd() {
+  public void skipToAfterBuffer() {
+    writeTestData();
+    int skipCount =
+        sampleQueue.getSkipCount(LAST_SAMPLE_TIMESTAMP + 1, /* allowEndOfQueue= */ false);
+    // Should advance to 2nd keyframe (the 4th frame).
+    assertThat(skipCount).isEqualTo(4);
+    sampleQueue.skip(skipCount);
+    assertReadTestData(/* startFormat= */ null, DATA_SECOND_KEYFRAME_INDEX);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void seekToBeforeBuffer() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0] - 1, false);
+    assertThat(success).isFalse();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData();
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void seekToStartOfBuffer() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData();
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void seekToEndOfBuffer() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertReadTestData(
+        /* startFormat= */ null,
+        DATA_SECOND_KEYFRAME_INDEX,
+        /* sampleCount= */ SAMPLE_TIMESTAMPS.length - DATA_SECOND_KEYFRAME_INDEX,
+        /* sampleOffsetUs= */ 0,
+        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void seekToAfterBuffer() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, false);
+    assertThat(success).isFalse();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData();
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void seekToAfterBufferAllowed() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, true);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertReadTestData(
+        /* startFormat= */ null,
+        DATA_SECOND_KEYFRAME_INDEX,
+        /* sampleCount= */ SAMPLE_TIMESTAMPS.length - DATA_SECOND_KEYFRAME_INDEX,
+        /* sampleOffsetUs= */ 0,
+        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP + 1);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void seekToEndAndBackToStart() {
+    writeTestData();
+    boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertReadTestData(
+        /* startFormat= */ null,
+        DATA_SECOND_KEYFRAME_INDEX,
+        /* sampleCount= */ SAMPLE_TIMESTAMPS.length - DATA_SECOND_KEYFRAME_INDEX,
+        /* sampleOffsetUs= */ 0,
+        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP);
+
+    assertNoSamplesToRead(FORMAT_2);
+    // Seek back to the start.
+    success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], false);
+    assertThat(success).isTrue();
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData();
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void setStartTimeUs_allSamplesAreSyncSamples_discardsOnWriteSide() {
+    // The format uses a MIME type for which MimeTypes.allSamplesAreSyncSamples() is true.
+    Format format = new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_RAW).build();
+    Format[] sampleFormats = new Format[SAMPLE_SIZES.length];
+    Arrays.fill(sampleFormats, format);
+    int[] sampleFlags = new int[SAMPLE_SIZES.length];
+    Arrays.fill(sampleFlags, BUFFER_FLAG_KEY_FRAME);
+
+    sampleQueue.setStartTimeUs(LAST_SAMPLE_TIMESTAMP);
+    writeTestData(
+        DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, SAMPLE_TIMESTAMPS, sampleFormats, sampleFlags);
+
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+
+    assertReadFormat(/* formatRequired= */ false, format);
+    assertReadSample(
+        SAMPLE_TIMESTAMPS[7],
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        DATA.length - SAMPLE_OFFSETS[7] - SAMPLE_SIZES[7],
+        SAMPLE_SIZES[7]);
+  }
+
+  @Test
+  public void setStartTimeUs_notAllSamplesAreSyncSamples_discardsOnReadSide() {
+    // The format uses a MIME type for which MimeTypes.allSamplesAreSyncSamples() is false.
+    Format format = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build();
+    Format[] sampleFormats = new Format[SAMPLE_SIZES.length];
+    Arrays.fill(sampleFormats, format);
+
+    sampleQueue.setStartTimeUs(LAST_SAMPLE_TIMESTAMP);
+    writeTestData();
+
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertReadTestData(
+        /* startFormat= */ null,
+        /* firstSampleIndex= */ 0,
+        /* sampleCount= */ SAMPLE_TIMESTAMPS.length,
+        /* sampleOffsetUs= */ 0,
+        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP);
+  }
+
+  @Test
+  public void discardToEnd() {
     writeTestData();
     // Should discard everything.
     sampleQueue.discardToEnd();
@@ -386,7 +840,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardToStopAtReadPosition() {
+  public void discardToStopAtReadPosition() {
     writeTestData();
     // Shouldn't discard anything.
     sampleQueue.discardTo(LAST_SAMPLE_TIMESTAMP, false, true);
@@ -394,7 +848,7 @@ public final class SampleQueueTest {
     assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
     assertAllocationCount(10);
     // Read the first sample.
-    assertReadTestData(null, 0, 1);
+    assertReadTestData(/* startFormat= */ null, 0, 1);
     // Shouldn't discard anything.
     sampleQueue.discardTo(SAMPLE_TIMESTAMPS[1] - 1, false, true);
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(0);
@@ -427,7 +881,54 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardToDontStopAtReadPosition() {
+  public void discardTo_withDuplicateTimestamps_discardsOnlyToFirstMatch() {
+    writeTestData(
+        DATA,
+        SAMPLE_SIZES,
+        SAMPLE_OFFSETS,
+        /* sampleTimestamps= */ new long[] {0, 1000, 1000, 1000, 2000, 2000, 2000, 2000},
+        SAMPLE_FORMATS,
+        /* sampleFlags= */ new int[] {
+          BUFFER_FLAG_KEY_FRAME,
+          0,
+          BUFFER_FLAG_KEY_FRAME,
+          BUFFER_FLAG_KEY_FRAME,
+          0,
+          0,
+          BUFFER_FLAG_KEY_FRAME,
+          BUFFER_FLAG_KEY_FRAME
+        });
+
+    // Discard to first keyframe exactly matching the specified time.
+    sampleQueue.discardTo(
+        /* timeUs= */ 1000, /* toKeyframe= */ true, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(2);
+
+    // Do nothing when trying again.
+    sampleQueue.discardTo(
+        /* timeUs= */ 1000, /* toKeyframe= */ true, /* stopAtReadPosition= */ false);
+    sampleQueue.discardTo(
+        /* timeUs= */ 1000, /* toKeyframe= */ false, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(2);
+
+    // Discard to first frame exactly matching the specified time.
+    sampleQueue.discardTo(
+        /* timeUs= */ 2000, /* toKeyframe= */ false, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(4);
+
+    // Do nothing when trying again.
+    sampleQueue.discardTo(
+        /* timeUs= */ 2000, /* toKeyframe= */ false, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(4);
+
+    // Discard to first keyframe at same timestamp.
+    sampleQueue.discardTo(
+        /* timeUs= */ 2000, /* toKeyframe= */ true, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(6);
+  }
+
+  @Test
+  public void discardToDontStopAtReadPosition() {
     writeTestData();
     // Shouldn't discard anything.
     sampleQueue.discardTo(SAMPLE_TIMESTAMPS[1] - 1, false, false);
@@ -444,7 +945,119 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardUpstream() {
+  public void discardUpstreamFrom() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(8000);
+    assertAllocationCount(10);
+    sampleQueue.discardUpstreamFrom(7000);
+    assertAllocationCount(9);
+    sampleQueue.discardUpstreamFrom(6000);
+    assertAllocationCount(7);
+    sampleQueue.discardUpstreamFrom(5000);
+    assertAllocationCount(5);
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(3000);
+    assertAllocationCount(3);
+    sampleQueue.discardUpstreamFrom(2000);
+    assertAllocationCount(2);
+    sampleQueue.discardUpstreamFrom(1000);
+    assertAllocationCount(1);
+    sampleQueue.discardUpstreamFrom(0);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromMulti() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(0);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromNonSampleTimestamps() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(3500);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(500);
+    assertAllocationCount(1);
+    sampleQueue.discardUpstreamFrom(0);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromBeforeRead() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(4);
+    assertReadTestData(null, 0, 4);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromAfterRead() {
+    writeTestData();
+    assertReadTestData(null, 0, 3);
+    sampleQueue.discardUpstreamFrom(8000);
+    assertAllocationCount(10);
+    sampleQueue.discardToRead();
+    assertAllocationCount(7);
+    sampleQueue.discardUpstreamFrom(7000);
+    assertAllocationCount(6);
+    sampleQueue.discardUpstreamFrom(6000);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(5000);
+    assertAllocationCount(2);
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(1);
+    sampleQueue.discardUpstreamFrom(3000);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void largestQueuedTimestampWithDiscardUpstreamFrom() {
+    writeTestData();
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
+    sampleQueue.discardUpstreamFrom(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 1]);
+    // Discarding from upstream should reduce the largest timestamp.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs())
+        .isEqualTo(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 2]);
+    sampleQueue.discardUpstreamFrom(0);
+    // Discarding everything from upstream without reading should unset the largest timestamp.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(MIN_VALUE);
+  }
+
+  @Test
+  public void largestQueuedTimestampWithDiscardUpstreamFromDecodeOrder() {
+    long[] decodeOrderTimestamps = new long[] {0, 3000, 2000, 1000, 4000, 7000, 6000, 5000};
+    writeTestData(
+        DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, decodeOrderTimestamps, SAMPLE_FORMATS, SAMPLE_FLAGS);
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(7000);
+    sampleQueue.discardUpstreamFrom(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 2]);
+    // Discarding the last two samples should not change the largest timestamp, due to the decode
+    // ordering of the timestamps.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(7000);
+    sampleQueue.discardUpstreamFrom(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 3]);
+    // Once a third sample is discarded, the largest timestamp should have changed.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(4000);
+    sampleQueue.discardUpstreamFrom(0);
+    // Discarding everything from upstream without reading should unset the largest timestamp.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(MIN_VALUE);
+  }
+
+  @Test
+  public void discardUpstream() {
     writeTestData();
     sampleQueue.discardUpstreamSamples(8);
     assertAllocationCount(10);
@@ -469,7 +1082,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardUpstreamMulti() {
+  public void discardUpstreamMulti() {
     writeTestData();
     sampleQueue.discardUpstreamSamples(4);
     assertAllocationCount(4);
@@ -480,19 +1093,19 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardUpstreamBeforeRead() {
+  public void discardUpstreamBeforeRead() {
     writeTestData();
     sampleQueue.discardUpstreamSamples(4);
     assertAllocationCount(4);
-    assertReadTestData(null, 0, 4);
+    assertReadTestData(/* startFormat= */ null, 0, 4);
     assertReadFormat(false, FORMAT_2);
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void testDiscardUpstreamAfterRead() {
+  public void discardUpstreamAfterRead() {
     writeTestData();
-    assertReadTestData(null, 0, 3);
+    assertReadTestData(/* startFormat= */ null, 0, 3);
     sampleQueue.discardUpstreamSamples(8);
     assertAllocationCount(10);
     sampleQueue.discardToRead();
@@ -512,7 +1125,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testLargestQueuedTimestampWithDiscardUpstream() {
+  public void largestQueuedTimestampWithDiscardUpstream() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
     sampleQueue.discardUpstreamSamples(SAMPLE_TIMESTAMPS.length - 1);
@@ -525,7 +1138,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testLargestQueuedTimestampWithDiscardUpstreamDecodeOrder() {
+  public void largestQueuedTimestampWithDiscardUpstreamDecodeOrder() {
     long[] decodeOrderTimestamps = new long[] {0, 3000, 2000, 1000, 4000, 7000, 6000, 5000};
     writeTestData(
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, decodeOrderTimestamps, SAMPLE_FORMATS, SAMPLE_FLAGS);
@@ -543,50 +1156,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAllowOnlyClearBuffers() {
-    int[] flags =
-        new int[] {
-          C.BUFFER_FLAG_KEY_FRAME,
-          C.BUFFER_FLAG_ENCRYPTED,
-          0,
-          0,
-          0,
-          C.BUFFER_FLAG_KEY_FRAME | C.BUFFER_FLAG_ENCRYPTED,
-          0,
-          0
-        };
-    int[] sampleSizes = new int[flags.length];
-    Arrays.fill(sampleSizes, /* val= */ 1);
-
-    // Two encryption preamble bytes per encrypted sample in the sample queue.
-    byte[] sampleData = new byte[flags.length + 2 + 2];
-    Arrays.fill(sampleData, /* val= */ (byte) 1);
-
-    writeTestData(
-        sampleData, sampleSizes, new int[flags.length], SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, flags);
-    assertReadFormat(/* formatRequired= */ false, FORMAT_1);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ false);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_FORMAT_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ false);
-
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_BUFFER_READ, /* allowOnlyClearBuffers= */ true);
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ true);
-
-    assertResult(RESULT_NOTHING_READ, /* allowOnlyClearBuffers= */ false);
-  }
-
-  @Test
-  public void testLargestQueuedTimestampWithRead() {
+  public void largestQueuedTimestampWithRead() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
     assertReadTestData();
@@ -595,80 +1165,244 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSetSampleOffset() {
-    long sampleOffsetUs = 1000;
-    sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+  public void largestReadTimestampWithReadAll() {
     writeTestData();
-    assertReadTestData(null, 0, 8, sampleOffsetUs);
-    assertReadEndOfStream(false);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+    assertReadTestData();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
   }
 
   @Test
-  public void testSplice() {
+  public void largestReadTimestampWithReads() {
+    writeTestData();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+
+    assertReadTestData(/* startFormat= */ null, 0, 2);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[1]);
+
+    assertReadTestData(SAMPLE_FORMATS[1], 2, 3);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[4]);
+  }
+
+  @Test
+  public void largestReadTimestampWithDiscard() {
+    // Discarding shouldn't change the read timestamp.
+    writeTestData();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+    sampleQueue.discardUpstreamSamples(5);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+
+    assertReadTestData(/* startFormat= */ null, 0, 3);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[2]);
+
+    sampleQueue.discardUpstreamSamples(3);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[2]);
+    sampleQueue.discardToRead();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[2]);
+  }
+
+  @Test
+  public void setSampleOffsetBeforeData() {
+    long sampleOffsetUs = 1000;
+    sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+    writeTestData();
+    assertReadTestData(
+        /* startFormat= */ null,
+        /* firstSampleIndex= */ 0,
+        /* sampleCount= */ 8,
+        sampleOffsetUs,
+        /* decodeOnlyUntilUs= */ 0);
+    assertReadEndOfStream(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void setSampleOffsetBetweenSamples() {
+    writeTestData();
+    long sampleOffsetUs = 1000;
+    sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+
+    // Write a final sample now the offset is set.
+    long unadjustedTimestampUs = LAST_SAMPLE_TIMESTAMP + 1234;
+    writeSample(DATA, unadjustedTimestampUs, /* sampleFlags= */ 0);
+
+    assertReadTestData();
+    // We expect to read the format adjusted to account for the sample offset, followed by the final
+    // sample and then the end of stream.
+    assertReadFormat(
+        /* formatRequired= */ false,
+        FORMAT_2.buildUpon().setSubsampleOffsetUs(sampleOffsetUs).build());
+    assertReadSample(
+        unadjustedTimestampUs + sampleOffsetUs,
+        /* isKeyFrame= */ false,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
+    assertReadEndOfStream(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void adjustUpstreamFormat() {
+    String label = "label";
+    sampleQueue =
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            mockDrmSessionManager,
+            eventDispatcher) {
+          @Override
+          public Format getAdjustedUpstreamFormat(Format format) {
+            return super.getAdjustedUpstreamFormat(copyWithLabel(format, label));
+          }
+        };
+
+    writeFormat(FORMAT_1);
+    assertReadFormat(/* formatRequired= */ false, copyWithLabel(FORMAT_1, label));
+    assertReadEndOfStream(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void invalidateUpstreamFormatAdjustment() {
+    AtomicReference<String> label = new AtomicReference<>("label1");
+    sampleQueue =
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            mockDrmSessionManager,
+            eventDispatcher) {
+          @Override
+          public Format getAdjustedUpstreamFormat(Format format) {
+            return super.getAdjustedUpstreamFormat(copyWithLabel(format, label.get()));
+          }
+        };
+
+    writeFormat(FORMAT_1);
+    writeSample(DATA, /* timestampUs= */ 0, BUFFER_FLAG_KEY_FRAME);
+
+    // Make a change that'll affect the SampleQueue's format adjustment, and invalidate it.
+    label.set("label2");
+    sampleQueue.invalidateUpstreamFormatAdjustment();
+
+    writeSample(DATA, /* timestampUs= */ 1, /* sampleFlags= */ 0);
+
+    assertReadFormat(/* formatRequired= */ false, copyWithLabel(FORMAT_1, "label1"));
+    assertReadSample(
+        /* timeUs= */ 0,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
+    assertReadFormat(/* formatRequired= */ false, copyWithLabel(FORMAT_1, "label2"));
+    assertReadSample(
+        /* timeUs= */ 1,
+        /* isKeyFrame= */ false,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
+    assertReadEndOfStream(/* formatRequired= */ false);
+  }
+
+  @Test
+  public void splice() {
     writeTestData();
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written.
     long spliceSampleTimeUs = SAMPLE_TIMESTAMPS[4];
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
-    assertReadTestData(null, 0, 4);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
+    assertReadTestData(/* startFormat= */ null, 0, 4);
     assertReadFormat(false, FORMAT_SPLICED);
-    assertReadSample(spliceSampleTimeUs, true, DATA, 0, DATA.length);
+    assertReadSample(
+        spliceSampleTimeUs,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
     assertReadEndOfStream(false);
   }
 
   @Test
-  public void testSpliceAfterRead() {
+  public void spliceAfterRead() {
     writeTestData();
-    assertReadTestData(null, 0, 4);
+    assertReadTestData(/* startFormat= */ null, 0, 4);
     sampleQueue.splice();
     // Splice should fail, leaving the last 4 samples unchanged.
     long spliceSampleTimeUs = SAMPLE_TIMESTAMPS[3];
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
     assertReadTestData(SAMPLE_FORMATS[3], 4, 4);
     assertReadEndOfStream(false);
 
-    sampleQueue.rewind();
-    assertReadTestData(null, 0, 4);
+    sampleQueue.seekTo(0);
+    assertReadTestData(/* startFormat= */ null, 0, 4);
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written
     spliceSampleTimeUs = SAMPLE_TIMESTAMPS[3] + 1;
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
     assertReadFormat(false, FORMAT_SPLICED);
-    assertReadSample(spliceSampleTimeUs, true, DATA, 0, DATA.length);
+    assertReadSample(
+        spliceSampleTimeUs,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
     assertReadEndOfStream(false);
   }
 
   @Test
-  public void testSpliceWithSampleOffset() {
+  public void spliceWithSampleOffset() {
     long sampleOffsetUs = 30000;
     sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     writeTestData();
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written.
     long spliceSampleTimeUs = SAMPLE_TIMESTAMPS[4];
-    writeSample(DATA, spliceSampleTimeUs, FORMAT_SPLICED, C.BUFFER_FLAG_KEY_FRAME);
-    assertReadTestData(null, 0, 4, sampleOffsetUs);
-    assertReadFormat(false, FORMAT_SPLICED.copyWithSubsampleOffsetUs(sampleOffsetUs));
-    assertReadSample(spliceSampleTimeUs + sampleOffsetUs, true, DATA, 0, DATA.length);
+    writeFormat(FORMAT_SPLICED);
+    writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
+    assertReadTestData(/* startFormat= */ null, 0, 4, sampleOffsetUs, /* decodeOnlyUntilUs= */ 0);
+    assertReadFormat(
+        false, FORMAT_SPLICED.buildUpon().setSubsampleOffsetUs(sampleOffsetUs).build());
+    assertReadSample(
+        spliceSampleTimeUs + sampleOffsetUs,
+        /* isKeyFrame= */ true,
+        /* isDecodeOnly= */ false,
+        /* isEncrypted= */ false,
+        DATA,
+        /* offset= */ 0,
+        DATA.length);
     assertReadEndOfStream(false);
   }
 
+  @Test
+  public void setStartTime() {}
+
   // Internal methods.
 
-  /**
-   * Writes standard test data to {@code sampleQueue}.
-   */
+  /** Writes standard test data to {@code sampleQueue}. */
   private void writeTestData() {
     writeTestData(
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, SAMPLE_TIMESTAMPS, SAMPLE_FORMATS, SAMPLE_FLAGS);
   }
 
-  /**
-   * Writes the specified test data to {@code sampleQueue}.
-   */
+  /** Writes the specified test data to {@code sampleQueue}. */
   @SuppressWarnings("ReferenceEquality")
-  private void writeTestData(byte[] data, int[] sampleSizes, int[] sampleOffsets,
-      long[] sampleTimestamps, Format[] sampleFormats, int[] sampleFlags) {
+  private void writeTestData(
+      byte[] data,
+      int[] sampleSizes,
+      int[] sampleOffsets,
+      long[] sampleTimestamps,
+      Format[] sampleFormats,
+      int[] sampleFlags) {
     sampleQueue.sampleData(new ParsableByteArray(data), data.length);
     Format format = null;
     for (int i = 0; i < sampleTimestamps.length; i++) {
@@ -681,22 +1415,39 @@ public final class SampleQueueTest {
           sampleFlags[i],
           sampleSizes[i],
           sampleOffsets[i],
-          (sampleFlags[i] & C.BUFFER_FLAG_ENCRYPTED) != 0 ? DUMMY_CRYPTO_DATA : null);
+          (sampleFlags[i] & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
     }
   }
 
-  /** Writes a single sample to {@code sampleQueue}. */
-  private void writeSample(byte[] data, long timestampUs, Format format, int sampleFlags) {
-    sampleQueue.format(format);
-    sampleQueue.sampleData(new ParsableByteArray(data), data.length);
-    sampleQueue.sampleMetadata(timestampUs, sampleFlags, data.length, 0, null);
+  private void writeTestDataWithEncryptedSections() {
+    writeTestData(
+        ENCRYPTED_SAMPLE_DATA,
+        ENCRYPTED_SAMPLE_SIZES,
+        ENCRYPTED_SAMPLE_OFFSETS,
+        ENCRYPTED_SAMPLE_TIMESTAMPS,
+        ENCRYPTED_SAMPLE_FORMATS,
+        ENCRYPTED_SAMPLES_FLAGS);
   }
 
-  /**
-   * Asserts correct reading of standard test data from {@code sampleQueue}.
-   */
+  /** Writes a {@link Format} to the {@code sampleQueue}. */
+  private void writeFormat(Format format) {
+    sampleQueue.format(format);
+  }
+
+  /** Writes a single sample to {@code sampleQueue}. */
+  private void writeSample(byte[] data, long timestampUs, int sampleFlags) {
+    sampleQueue.sampleData(new ParsableByteArray(data), data.length);
+    sampleQueue.sampleMetadata(
+        timestampUs,
+        sampleFlags,
+        data.length,
+        /* offset= */ 0,
+        (sampleFlags & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
+  }
+
+  /** Asserts correct reading of standard test data from {@code sampleQueue}. */
   private void assertReadTestData() {
-    assertReadTestData(null, 0);
+    assertReadTestData(/* startFormat= */ null, 0);
   }
 
   /**
@@ -726,7 +1477,12 @@ public final class SampleQueueTest {
    * @param sampleCount The number of samples to read.
    */
   private void assertReadTestData(Format startFormat, int firstSampleIndex, int sampleCount) {
-    assertReadTestData(startFormat, firstSampleIndex, sampleCount, 0);
+    assertReadTestData(
+        startFormat,
+        firstSampleIndex,
+        sampleCount,
+        /* sampleOffsetUs= */ 0,
+        /* decodeOnlyUntilUs= */ 0);
   }
 
   /**
@@ -738,7 +1494,11 @@ public final class SampleQueueTest {
    * @param sampleOffsetUs The expected sample offset.
    */
   private void assertReadTestData(
-      Format startFormat, int firstSampleIndex, int sampleCount, long sampleOffsetUs) {
+      Format startFormat,
+      int firstSampleIndex,
+      int sampleCount,
+      long sampleOffsetUs,
+      long decodeOnlyUntilUs) {
     Format format = adjustFormat(startFormat, sampleOffsetUs);
     for (int i = firstSampleIndex; i < firstSampleIndex + sampleCount; i++) {
       // Use equals() on the read side despite using referential equality on the write side, since
@@ -752,9 +1512,12 @@ public final class SampleQueueTest {
       // If we require the format, we should always read it.
       assertReadFormat(true, testSampleFormat);
       // Assert the sample is as expected.
+      long expectedTimeUs = SAMPLE_TIMESTAMPS[i] + sampleOffsetUs;
       assertReadSample(
-          SAMPLE_TIMESTAMPS[i] + sampleOffsetUs,
+          expectedTimeUs,
           (SAMPLE_FLAGS[i] & C.BUFFER_FLAG_KEY_FRAME) != 0,
+          /* isDecodeOnly= */ expectedTimeUs < decodeOnlyUntilUs,
+          /* isEncrypted= */ false,
           DATA,
           DATA.length - SAMPLE_OFFSETS[i] - SAMPLE_SIZES[i],
           SAMPLE_SIZES[i]);
@@ -800,10 +1563,8 @@ public final class SampleQueueTest {
         sampleQueue.read(
             formatHolder,
             inputBuffer,
-            formatRequired,
-            /* allowOnlyClearBuffers= */ false,
-            /* loadingFinished= */ false,
-            /* decodeOnlyUntilUs= */ 0);
+            formatRequired ? SampleStream.FLAG_REQUIRE_FORMAT : 0,
+            /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_NOTHING_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -824,10 +1585,8 @@ public final class SampleQueueTest {
         sampleQueue.read(
             formatHolder,
             inputBuffer,
-            formatRequired,
-            /* allowOnlyClearBuffers= */ false,
-            /* loadingFinished= */ true,
-            /* decodeOnlyUntilUs= */ 0);
+            formatRequired ? SampleStream.FLAG_REQUIRE_FORMAT : 0,
+            /* loadingFinished= */ true);
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
@@ -851,10 +1610,8 @@ public final class SampleQueueTest {
         sampleQueue.read(
             formatHolder,
             inputBuffer,
-            formatRequired,
-            /* allowOnlyClearBuffers= */ false,
-            /* loadingFinished= */ false,
-            /* decodeOnlyUntilUs= */ 0);
+            formatRequired ? SampleStream.FLAG_REQUIRE_FORMAT : 0,
+            /* loadingFinished= */ false);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     // formatHolder should be populated.
     assertThat(formatHolder.format).isEqualTo(format);
@@ -863,53 +1620,102 @@ public final class SampleQueueTest {
     assertInputBufferHasNoDefaultFlagsSet();
   }
 
+  private void assertReadEncryptedSample(int sampleIndex) {
+    byte[] sampleData = new byte[ENCRYPTED_SAMPLE_SIZES[sampleIndex]];
+    Arrays.fill(sampleData, (byte) 1);
+    boolean isKeyFrame = (ENCRYPTED_SAMPLES_FLAGS[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0;
+    boolean isEncrypted = (ENCRYPTED_SAMPLES_FLAGS[sampleIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0;
+    assertReadSample(
+        ENCRYPTED_SAMPLE_TIMESTAMPS[sampleIndex],
+        isKeyFrame,
+        /* isDecodeOnly= */ false,
+        isEncrypted,
+        sampleData,
+        /* offset= */ 0,
+        ENCRYPTED_SAMPLE_SIZES[sampleIndex] - (isEncrypted ? 2 : 0));
+  }
+
   /**
    * Asserts {@link SampleQueue#read} returns {@link C#RESULT_BUFFER_READ} and that the buffer is
    * filled with the specified sample data.
    *
    * @param timeUs The expected buffer timestamp.
-   * @param isKeyframe The expected keyframe flag.
+   * @param isKeyFrame The expected keyframe flag.
+   * @param isDecodeOnly The expected decodeOnly flag.
+   * @param isEncrypted The expected encrypted flag.
    * @param sampleData An array containing the expected sample data.
    * @param offset The offset in {@code sampleData} of the expected sample data.
    * @param length The length of the expected sample data.
    */
   private void assertReadSample(
-      long timeUs, boolean isKeyframe, byte[] sampleData, int offset, int length) {
-    clearFormatHolderAndInputBuffer();
+      long timeUs,
+      boolean isKeyFrame,
+      boolean isDecodeOnly,
+      boolean isEncrypted,
+      byte[] sampleData,
+      int offset,
+      int length) {
+    // Check that peek whilst omitting data yields the expected values.
+    formatHolder.format = null;
+    DecoderInputBuffer flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     int result =
         sampleQueue.read(
             formatHolder,
-            inputBuffer,
-            /* formatRequired= */ false,
-            /* allowOnlyClearBuffers= */ false,
-            /* loadingFinished= */ false,
-            /* decodeOnlyUntilUs= */ 0);
+            flagsOnlyBuffer,
+            FLAG_OMIT_SAMPLE_DATA | FLAG_PEEK,
+            /* loadingFinished= */ false);
+    assertSampleBufferReadResult(
+        flagsOnlyBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted);
+
+    // Check that peek yields the expected values.
+    clearFormatHolderAndInputBuffer();
+    result = sampleQueue.read(formatHolder, inputBuffer, FLAG_PEEK, /* loadingFinished= */ false);
+    assertSampleBufferReadResult(
+        result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
+
+    // Check that read yields the expected values.
+    clearFormatHolderAndInputBuffer();
+    result =
+        sampleQueue.read(
+            formatHolder, inputBuffer, /* readFlags= */ 0, /* loadingFinished= */ false);
+    assertSampleBufferReadResult(
+        result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
+  }
+
+  private void assertSampleBufferReadResult(
+      DecoderInputBuffer inputBuffer,
+      int result,
+      long timeUs,
+      boolean isKeyFrame,
+      boolean isDecodeOnly,
+      boolean isEncrypted) {
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();
-    // inputBuffer should be populated.
+    // inputBuffer should be populated with metadata.
     assertThat(inputBuffer.timeUs).isEqualTo(timeUs);
-    assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyframe);
-    assertThat(inputBuffer.isDecodeOnly()).isFalse();
-    assertThat(inputBuffer.isEncrypted()).isFalse();
+    assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyFrame);
+    assertThat(inputBuffer.isDecodeOnly()).isEqualTo(isDecodeOnly);
+    assertThat(inputBuffer.isEncrypted()).isEqualTo(isEncrypted);
+  }
+
+  private void assertSampleBufferReadResult(
+      int result,
+      long timeUs,
+      boolean isKeyFrame,
+      boolean isDecodeOnly,
+      boolean isEncrypted,
+      byte[] sampleData,
+      int offset,
+      int length) {
+    assertSampleBufferReadResult(
+        inputBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted);
+    // inputBuffer should be populated with data.
     inputBuffer.flip();
     assertThat(inputBuffer.data.limit()).isEqualTo(length);
     byte[] readData = new byte[length];
     inputBuffer.data.get(readData);
     assertThat(readData).isEqualTo(copyOfRange(sampleData, offset, offset + length));
-  }
-
-  /** Asserts {@link SampleQueue#read} returns the given result. */
-  private void assertResult(int expectedResult, boolean allowOnlyClearBuffers) {
-    int obtainedResult =
-        sampleQueue.read(
-            formatHolder,
-            inputBuffer,
-            /* formatRequired= */ false,
-            allowOnlyClearBuffers,
-            /* loadingFinished= */ false,
-            /* decodeOnlyUntilUs= */ 0);
-    assertThat(obtainedResult).isEqualTo(expectedResult);
   }
 
   /**
@@ -921,9 +1727,7 @@ public final class SampleQueueTest {
     assertThat(allocator.getTotalBytesAllocated()).isEqualTo(ALLOCATION_SIZE * count);
   }
 
-  /**
-   * Asserts {@code inputBuffer} does not contain any sample data.
-   */
+  /** Asserts {@code inputBuffer} does not contain any sample data. */
   private void assertInputBufferContainsNoSampleData() {
     if (inputBuffer.data == null) {
       return;
@@ -946,6 +1750,41 @@ public final class SampleQueueTest {
   private static Format adjustFormat(@Nullable Format format, long sampleOffsetUs) {
     return format == null || sampleOffsetUs == 0
         ? format
-        : format.copyWithSubsampleOffsetUs(sampleOffsetUs);
+        : format.buildUpon().setSubsampleOffsetUs(sampleOffsetUs).build();
+  }
+
+  private static Format buildFormat(String id) {
+    return new Format.Builder().setId(id).setSubsampleOffsetUs(0).build();
+  }
+
+  private static Format copyWithLabel(Format format, String label) {
+    return format.buildUpon().setLabel(label).build();
+  }
+
+  private static final class MockDrmSessionManager implements DrmSessionManager {
+
+    private final DrmSession mockDrmSession;
+    @Nullable private DrmSession mockPlaceholderDrmSession;
+
+    private MockDrmSessionManager(DrmSession mockDrmSession) {
+      this.mockDrmSession = mockDrmSession;
+    }
+
+    @Override
+    @Nullable
+    public DrmSession acquireSession(
+        Looper playbackLooper,
+        @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
+        Format format) {
+      return format.drmInitData != null ? mockDrmSession : mockPlaceholderDrmSession;
+    }
+
+    @Override
+    @C.CryptoType
+    public int getCryptoType(Format format) {
+      return mockPlaceholderDrmSession != null || format.drmInitData != null
+          ? FakeCryptoConfig.TYPE
+          : C.CRYPTO_TYPE_NONE;
+    }
   }
 }

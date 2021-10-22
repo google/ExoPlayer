@@ -1,0 +1,112 @@
+seekMap:
+  isSeekable = true
+  duration = 3042000
+  getPosition(0) = [[timeUs=0, position=788]]
+  getPosition(1) = [[timeUs=0, position=788], [timeUs=1000000, position=6537]]
+  getPosition(1521000) = [[timeUs=1000000, position=6537], [timeUs=2000000, position=17543]]
+  getPosition(3042000) = [[timeUs=2000000, position=17543]]
+numberOfTracks = 1
+track 9:
+  total output bytes = 12964
+  sample count = 23
+  format 0:
+    sampleMimeType = video/avc
+    codecs = avc1.64000C
+    width = 320
+    height = 180
+    initializationData:
+      data = length 30, hash 962338CC
+      data = length 10, hash 7A0D0F2B
+  sample 0:
+    time = 2084000
+    flags = 1
+    data = length 4380, hash 9221E054
+  sample 1:
+    time = 2167000
+    flags = 0
+    data = length 819, hash 46A722D6
+  sample 2:
+    time = 2125000
+    flags = 0
+    data = length 140, hash E9AA6D8B
+  sample 3:
+    time = 2250000
+    flags = 0
+    data = length 711, hash C49CB26
+  sample 4:
+    time = 2209000
+    flags = 0
+    data = length 111, hash A53830B7
+  sample 5:
+    time = 2417000
+    flags = 0
+    data = length 1062, hash B95BF284
+  sample 6:
+    time = 2334000
+    flags = 0
+    data = length 312, hash 1C667DA3
+  sample 7:
+    time = 2292000
+    flags = 0
+    data = length 132, hash 59C0F906
+  sample 8:
+    time = 2375000
+    flags = 0
+    data = length 149, hash B7F8F4A5
+  sample 9:
+    time = 2584000
+    flags = 0
+    data = length 1040, hash 82D4CCFD
+  sample 10:
+    time = 2500000
+    flags = 0
+    data = length 349, hash C1236BA4
+  sample 11:
+    time = 2459000
+    flags = 0
+    data = length 140, hash 67015D1B
+  sample 12:
+    time = 2542000
+    flags = 0
+    data = length 186, hash C0DF4AB0
+  sample 13:
+    time = 2750000
+    flags = 0
+    data = length 811, hash EEA6FBFF
+  sample 14:
+    time = 2667000
+    flags = 0
+    data = length 356, hash A9847C12
+  sample 15:
+    time = 2625000
+    flags = 0
+    data = length 156, hash 61E72801
+  sample 16:
+    time = 2709000
+    flags = 0
+    data = length 212, hash F1F7EBE8
+  sample 17:
+    time = 2917000
+    flags = 0
+    data = length 681, hash FA95355F
+  sample 18:
+    time = 2834000
+    flags = 0
+    data = length 351, hash F771D4DD
+  sample 19:
+    time = 2792000
+    flags = 0
+    data = length 174, hash 325A7512
+  sample 20:
+    time = 2875000
+    flags = 0
+    data = length 199, hash A22FAA40
+  sample 21:
+    time = 3000000
+    flags = 0
+    data = length 322, hash C494E5A7
+  sample 22:
+    time = 2959000
+    flags = 0
+    data = length 171, hash 2DA9ECEC
+tracksEnded = true

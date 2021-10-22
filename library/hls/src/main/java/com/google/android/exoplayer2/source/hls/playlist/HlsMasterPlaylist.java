@@ -102,16 +102,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      */
     public static Variant createMediaPlaylistVariantUrl(Uri url) {
       Format format =
-          Format.createContainerFormat(
-              "0",
-              /* label= */ null,
-              MimeTypes.APPLICATION_M3U8,
-              /* sampleMimeType= */ null,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              /* selectionFlags= */ 0,
-              /* roleFlags= */ 0,
-              /* language= */ null);
+          new Format.Builder().setId("0").setContainerMimeType(MimeTypes.APPLICATION_M3U8).build();
       return new Variant(
           url,
           format,
@@ -154,7 +145,6 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       this.groupId = groupId;
       this.name = name;
     }
-
   }
 
   /** All of the media playlist URLs referenced by the playlist. */
@@ -180,7 +170,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * explicitly declares no captions are available, or null if the playlist does not declare any
    * captions information.
    */
-  public final List<Format> muxedCaptionFormats;
+  @Nullable public final List<Format> muxedCaptionFormats;
   /** Contains variable definitions, as defined by the #EXT-X-DEFINE tag. */
   public final Map<String, String> variableDefinitions;
   /** DRM initialization data derived from #EXT-X-SESSION-KEY tags. */
@@ -209,7 +199,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       List<Rendition> subtitles,
       List<Rendition> closedCaptions,
       @Nullable Format muxedAudioFormat,
-      List<Format> muxedCaptionFormats,
+      @Nullable List<Format> muxedCaptionFormats,
       boolean hasIndependentSegments,
       Map<String, String> variableDefinitions,
       List<DrmInitData> sessionKeyDrmInitData) {
@@ -223,8 +213,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     this.subtitles = Collections.unmodifiableList(subtitles);
     this.closedCaptions = Collections.unmodifiableList(closedCaptions);
     this.muxedAudioFormat = muxedAudioFormat;
-    this.muxedCaptionFormats = muxedCaptionFormats != null
-        ? Collections.unmodifiableList(muxedCaptionFormats) : null;
+    this.muxedCaptionFormats =
+        muxedCaptionFormats != null ? Collections.unmodifiableList(muxedCaptionFormats) : null;
     this.variableDefinitions = Collections.unmodifiableMap(variableDefinitions);
     this.sessionKeyDrmInitData = Collections.unmodifiableList(sessionKeyDrmInitData);
   }
@@ -258,7 +248,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     List<Variant> variant =
         Collections.singletonList(Variant.createMediaPlaylistVariantUrl(Uri.parse(variantUrl)));
     return new HlsMasterPlaylist(
-        /* baseUri= */ null,
+        /* baseUri= */ "",
         /* tags= */ Collections.emptyList(),
         variant,
         /* videos= */ Collections.emptyList(),
@@ -318,7 +308,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       T stream = streams.get(i);
       for (int j = 0; j < streamKeys.size(); j++) {
         StreamKey streamKey = streamKeys.get(j);
-        if (streamKey.groupIndex == groupIndex && streamKey.trackIndex == i) {
+        if (streamKey.groupIndex == groupIndex && streamKey.streamIndex == i) {
           copiedStreams.add(stream);
           break;
         }
@@ -326,5 +316,4 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     }
     return copiedStreams;
   }
-
 }

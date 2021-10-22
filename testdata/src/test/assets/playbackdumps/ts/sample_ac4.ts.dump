@@ -1,0 +1,22 @@
+MediaCodecAdapter (exotest.audio.ac4):
+  buffers.length = 20
+  buffers[0] = length 366, hash B4277F9E
+  buffers[1] = length 366, hash E8E0A142
+  buffers[2] = length 366, hash 2E5073D0
+  buffers[3] = length 366, hash 850E71D8
+  buffers[4] = length 366, hash 69CD444E
+  buffers[5] = length 366, hash BD24F36D
+  buffers[6] = length 366, hash E24F2490
+  buffers[7] = length 366, hash EE6F1F06
+  buffers[8] = length 366, hash 2DAB000F
+  buffers[9] = length 366, hash 8102B7EC
+  buffers[10] = length 366, hash 55BF59AC
+  buffers[11] = length 494, hash CBC2E09F
+  buffers[12] = length 519, hash 9DAF56E9
+  buffers[13] = length 598, hash 8169EE2
+  buffers[14] = length 435, hash 28C21246
+  buffers[15] = length 365, hash FF14716D
+  buffers[16] = length 392, hash 4CC96B29
+  buffers[17] = length 373, hash D7AC6D4E
+  buffers[18] = length 392, hash 99F2511F
+  buffers[19] = length 0, hash 1

@@ -15,14 +15,18 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+import static java.lang.Math.min;
+
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import androidx.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -36,7 +40,6 @@ import java.util.Collections;
  */
 public abstract class TimelineQueueNavigator implements MediaSessionConnector.QueueNavigator {
 
-  public static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
   public static final int DEFAULT_MAX_QUEUE_SIZE = 10;
 
   private final MediaSessionCompat mediaSession;
@@ -47,8 +50,8 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   /**
    * Creates an instance for a given {@link MediaSessionCompat}.
-   * <p>
-   * Equivalent to {@code TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)}.
+   *
+   * <p>Equivalent to {@code TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)}.
    *
    * @param mediaSession The {@link MediaSessionCompat}.
    */
@@ -58,10 +61,10 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   /**
    * Creates an instance for a given {@link MediaSessionCompat} and maximum queue size.
-   * <p>
-   * If the number of windows in the {@link Player}'s {@link Timeline} exceeds {@code maxQueueSize},
-   * the media session queue will correspond to {@code maxQueueSize} windows centered on the one
-   * currently being played.
+   *
+   * <p>If the number of windows in the {@link Player}'s {@link Timeline} exceeds {@code
+   * maxQueueSize}, the media session queue will correspond to {@code maxQueueSize} windows centered
+   * on the one currently being played.
    *
    * @param mediaSession The {@link MediaSessionCompat}.
    * @param maxQueueSize The maximum queue size.
@@ -97,8 +100,13 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     if (!timeline.isEmpty() && !player.isPlayingAd()) {
       timeline.getWindow(player.getCurrentWindowIndex(), window);
       enableSkipTo = timeline.getWindowCount() > 1;
-      enablePrevious = window.isSeekable || !window.isDynamic || player.hasPrevious();
-      enableNext = window.isDynamic || player.hasNext();
+      enablePrevious =
+          player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+              || !window.isLive()
+              || player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+      enableNext =
+          (window.isLive() && window.isDynamic)
+              || player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     }
 
     long actions = 0;
@@ -135,59 +143,32 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onSkipToPrevious(Player player, ControlDispatcher controlDispatcher) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = player.getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET
-        && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-            || (window.isDynamic && !window.isSeekable))) {
-      controlDispatcher.dispatchSeekTo(player, previousWindowIndex, C.TIME_UNSET);
-    } else {
-      controlDispatcher.dispatchSeekTo(player, windowIndex, 0);
-    }
+  public void onSkipToPrevious(Player player) {
+    player.seekToPrevious();
   }
 
   @Override
-  public void onSkipToQueueItem(Player player, ControlDispatcher controlDispatcher, long id) {
+  public void onSkipToQueueItem(Player player, long id) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
     }
     int windowIndex = (int) id;
     if (0 <= windowIndex && windowIndex < timeline.getWindowCount()) {
-      controlDispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET);
+      player.seekToDefaultPosition(windowIndex);
     }
   }
 
   @Override
-  public void onSkipToNext(Player player, ControlDispatcher controlDispatcher) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    int nextWindowIndex = player.getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      controlDispatcher.dispatchSeekTo(player, nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window).isDynamic) {
-      controlDispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET);
-    }
+  public void onSkipToNext(Player player) {
+    player.seekToNext();
   }
 
   // CommandReceiver implementation.
 
   @Override
   public boolean onCommand(
-      Player player,
-      ControlDispatcher controlDispatcher,
-      String command,
-      Bundle extras,
-      ResultReceiver cb) {
+      Player player, String command, @Nullable Bundle extras, @Nullable ResultReceiver cb) {
     return false;
   }
 
@@ -201,7 +182,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       return;
     }
     ArrayDeque<MediaSessionCompat.QueueItem> queue = new ArrayDeque<>();
-    int queueSize = Math.min(maxQueueSize, timeline.getWindowCount());
+    int queueSize = min(maxQueueSize, timeline.getWindowCount());
 
     // Add the active queue item.
     int currentWindowIndex = player.getCurrentWindowIndex();

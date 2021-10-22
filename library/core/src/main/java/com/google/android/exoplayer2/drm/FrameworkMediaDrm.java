@@ -16,15 +16,18 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
+import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
-import androidx.annotation.Nullable;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
+import androidx.annotation.DoNotInline;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -33,32 +36,57 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}.
- */
-@TargetApi(23)
-public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
+/** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
+@RequiresApi(18)
+public final class FrameworkMediaDrm implements ExoMediaDrm {
+
+  private static final String TAG = "FrameworkMediaDrm";
+
+  /**
+   * {@link ExoMediaDrm.Provider} that returns a new {@link FrameworkMediaDrm} for the requested
+   * UUID. Returns a {@link DummyExoMediaDrm} if the protection scheme identified by the given UUID
+   * is not supported by the device.
+   */
+  public static final Provider DEFAULT_PROVIDER =
+      uuid -> {
+        try {
+          return newInstance(uuid);
+        } catch (UnsupportedDrmException e) {
+          Log.e(TAG, "Failed to instantiate a FrameworkMediaDrm for uuid: " + uuid + ".");
+          return new DummyExoMediaDrm();
+        }
+      };
 
   private static final String CENC_SCHEME_MIME_TYPE = "cenc";
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
   private static final int UTF_16_BYTES_PER_CHARACTER = 2;
-  private static final String TAG = "FrameworkMediaDrm";
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
+  private int referenceCount;
 
   /**
-   * Creates an instance for the specified scheme UUID.
+   * Returns whether the DRM scheme with the given UUID is supported on this device.
+   *
+   * @see MediaDrm#isCryptoSchemeSupported(UUID)
+   */
+  public static boolean isCryptoSchemeSupported(UUID uuid) {
+    return MediaDrm.isCryptoSchemeSupported(adjustUuid(uuid));
+  }
+
+  /**
+   * Creates an instance with an initial reference count of 1. {@link #release()} must be called on
+   * the instance when it's no longer required.
    *
    * @param uuid The scheme uuid.
    * @return The created instance.
@@ -79,14 +107,15 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
     this.mediaDrm = new MediaDrm(adjustUuid(uuid));
+    // Creators of an instance automatically acquire ownership of the created instance.
+    referenceCount = 1;
     if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
       forceWidevineL3(mediaDrm);
     }
   }
 
   @Override
-  public void setOnEventListener(
-      final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
+  public void setOnEventListener(@Nullable ExoMediaDrm.OnEventListener listener) {
     mediaDrm.setOnEventListener(
         listener == null
             ? null
@@ -94,9 +123,16 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
                 listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data));
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param listener The listener to receive events, or {@code null} to stop receiving events.
+   * @throws UnsupportedOperationException on API levels lower than 23.
+   */
   @Override
+  @RequiresApi(23)
   public void setOnKeyStatusChangeListener(
-      final ExoMediaDrm.OnKeyStatusChangeListener<? super FrameworkMediaCrypto> listener) {
+      @Nullable ExoMediaDrm.OnKeyStatusChangeListener listener) {
     if (Util.SDK_INT < 23) {
       throw new UnsupportedOperationException();
     }
@@ -112,7 +148,28 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
               listener.onKeyStatusChange(
                   FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
             },
-        null);
+        /* handler= */ null);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @param listener The listener to receive events, or {@code null} to stop receiving events.
+   * @throws UnsupportedOperationException on API levels lower than 23.
+   */
+  @Override
+  @RequiresApi(23)
+  public void setOnExpirationUpdateListener(@Nullable OnExpirationUpdateListener listener) {
+    if (Util.SDK_INT < 23) {
+      throw new UnsupportedOperationException();
+    }
+
+    mediaDrm.setOnExpirationUpdateListener(
+        listener == null
+            ? null
+            : (mediaDrm, sessionId, expirationTimeMs) ->
+                listener.onExpirationUpdate(FrameworkMediaDrm.this, sessionId, expirationTimeMs),
+        /* handler= */ null);
   }
 
   @Override
@@ -155,11 +212,15 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       licenseServerUrl = schemeData.licenseServerUrl;
     }
 
-    return new KeyRequest(requestData, licenseServerUrl);
+    @KeyRequest.RequestType
+    int requestType =
+        Util.SDK_INT >= 23 ? request.getRequestType() : KeyRequest.REQUEST_TYPE_UNKNOWN;
+
+    return new KeyRequest(requestData, licenseServerUrl, requestType);
   }
 
-  @Nullable
   @Override
+  @Nullable
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
     if (C.CLEARKEY_UUID.equals(uuid)) {
@@ -186,13 +247,50 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public void release() {
-    mediaDrm.release();
+  public boolean requiresSecureDecoder(byte[] sessionId, String mimeType) {
+    if (Util.SDK_INT >= 31) {
+      return Api31.requiresSecureDecoder(mediaDrm, mimeType);
+    }
+
+    MediaCrypto mediaCrypto;
+    try {
+      mediaCrypto = new MediaCrypto(uuid, sessionId);
+    } catch (MediaCryptoException e) {
+      // This shouldn't happen, but if it does then assume that a secure decoder may be required.
+      return true;
+    }
+    try {
+      return mediaCrypto.requiresSecureDecoderComponent(mimeType);
+    } finally {
+      mediaCrypto.release();
+    }
+  }
+
+  @Override
+  public synchronized void acquire() {
+    Assertions.checkState(referenceCount > 0);
+    referenceCount++;
+  }
+
+  @Override
+  public synchronized void release() {
+    if (--referenceCount == 0) {
+      mediaDrm.release();
+    }
   }
 
   @Override
   public void restoreKeys(byte[] sessionId, byte[] keySetId) {
     mediaDrm.restoreKeys(sessionId, keySetId);
+  }
+
+  @Override
+  @Nullable
+  public PersistableBundle getMetrics() {
+    if (Util.SDK_INT < 28) {
+      return null;
+    }
+    return mediaDrm.getMetrics();
   }
 
   @Override
@@ -216,18 +314,21 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public FrameworkMediaCrypto createMediaCrypto(byte[] initData) throws MediaCryptoException {
+  public FrameworkCryptoConfig createCryptoConfig(byte[] sessionId) throws MediaCryptoException {
     // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
     // indicate that it required secure video decoders [Internal ref: b/11428937].
-    boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21
-        && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
-    return new FrameworkMediaCrypto(
-        adjustUuid(uuid), initData, forceAllowInsecureDecoderComponents);
+    boolean forceAllowInsecureDecoderComponents =
+        Util.SDK_INT < 21
+            && C.WIDEVINE_UUID.equals(uuid)
+            && "L3".equals(getPropertyString("securityLevel"));
+    return new FrameworkCryptoConfig(
+        adjustUuid(uuid), sessionId, forceAllowInsecureDecoderComponents);
   }
 
   @Override
-  public Class<FrameworkMediaCrypto> getExoMediaCryptoType() {
-    return FrameworkMediaCrypto.class;
+  @C.CryptoType
+  public int getCryptoType() {
+    return C.CRYPTO_TYPE_FRAMEWORK;
   }
 
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {
@@ -243,7 +344,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       boolean canConcatenateData = true;
       for (int i = 0; i < schemeDatas.size(); i++) {
         SchemeData schemeData = schemeDatas.get(i);
-        byte[] schemeDataData = Util.castNonNull(schemeData.data);
+        byte[] schemeDataData = Assertions.checkNotNull(schemeData.data);
         if (Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
             && Util.areEqual(schemeData.licenseServerUrl, firstSchemeData.licenseServerUrl)
             && PsshAtomUtil.isPsshAtom(schemeDataData)) {
@@ -258,7 +359,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         int concatenatedDataPosition = 0;
         for (int i = 0; i < schemeDatas.size(); i++) {
           SchemeData schemeData = schemeDatas.get(i);
-          byte[] schemeDataData = Util.castNonNull(schemeData.data);
+          byte[] schemeDataData = Assertions.checkNotNull(schemeData.data);
           int schemeDataLength = schemeDataData.length;
           System.arraycopy(
               schemeDataData, 0, concatenatedData, concatenatedDataPosition, schemeDataLength);
@@ -272,7 +373,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     // the first V0 box.
     for (int i = 0; i < schemeDatas.size(); i++) {
       SchemeData schemeData = schemeDatas.get(i);
-      int version = PsshAtomUtil.parseVersion(Util.castNonNull(schemeData.data));
+      int version = PsshAtomUtil.parseVersion(Assertions.checkNotNull(schemeData.data));
       if (Util.SDK_INT < 23 && version == 0) {
         return schemeData;
       } else if (Util.SDK_INT >= 23 && version == 1) {
@@ -302,14 +403,20 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
               C.PLAYREADY_UUID, addLaUrlAttributeIfMissing(schemeSpecificData));
     }
 
-    // Prior to L the Widevine CDM required data to be extracted from the PSSH atom. Some Amazon
-    // devices also required data to be extracted from the PSSH atom for PlayReady.
-    if ((Util.SDK_INT < 21 && C.WIDEVINE_UUID.equals(uuid))
+    // Prior to API level 21, the Widevine CDM required scheme specific data to be extracted from
+    // the PSSH atom. We also extract the data on API levels 21 and 22 because these API levels
+    // don't handle V1 PSSH atoms, but do handle scheme specific data regardless of whether it's
+    // extracted from a V0 or a V1 PSSH atom. Hence extracting the data allows us to support content
+    // that only provides V1 PSSH atoms. API levels 23 and above understand V0 and V1 PSSH atoms,
+    // and so we do not extract the data.
+    // Some Amazon devices also require data to be extracted from the PSSH atom for PlayReady.
+    if ((Util.SDK_INT < 23 && C.WIDEVINE_UUID.equals(uuid))
         || (C.PLAYREADY_UUID.equals(uuid)
             && "Amazon".equals(Util.MANUFACTURER)
             && ("AFTB".equals(Util.MODEL) // Fire TV Gen 1
                 || "AFTS".equals(Util.MODEL) // Fire TV Gen 2
-                || "AFTM".equals(Util.MODEL)))) { // Fire TV Stick Gen 1
+                || "AFTM".equals(Util.MODEL) // Fire TV Stick Gen 1
+                || "AFTT".equals(Util.MODEL)))) { // Fire TV Stick Gen 2
       byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(initData, uuid);
       if (psshData != null) {
         // Extraction succeeded, so return the extracted data.
@@ -368,7 +475,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       return data;
     }
     int recordLength = byteArray.readLittleEndianShort();
-    String xml = byteArray.readString(recordLength, Charset.forName(C.UTF16LE_NAME));
+    String xml = byteArray.readString(recordLength, Charsets.UTF_16LE);
     if (xml.contains("<LA_URL>")) {
       // LA_URL already present. Do nothing.
       return data;
@@ -389,7 +496,15 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     newData.putShort((short) objectRecordCount);
     newData.putShort((short) recordType);
     newData.putShort((short) (xmlWithMockLaUrl.length() * UTF_16_BYTES_PER_CHARACTER));
-    newData.put(xmlWithMockLaUrl.getBytes(Charset.forName(C.UTF16LE_NAME)));
+    newData.put(xmlWithMockLaUrl.getBytes(Charsets.UTF_16LE));
     return newData.array();
+  }
+
+  @RequiresApi(31)
+  private static class Api31 {
+    @DoNotInline
+    public static boolean requiresSecureDecoder(MediaDrm mediaDrm, String mimeType) {
+      return mediaDrm.requiresSecureDecoder(mimeType);
+    }
   }
 }

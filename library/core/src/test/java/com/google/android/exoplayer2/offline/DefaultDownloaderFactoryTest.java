@@ -21,7 +21,7 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
-import java.util.Collections;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -32,19 +32,17 @@ public final class DefaultDownloaderFactoryTest {
 
   @Test
   public void createProgressiveDownloader() throws Exception {
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
-    DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(Mockito.mock(Cache.class))
+            .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
+    DownloaderFactory factory =
+        new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadRequest(
-                "id",
-                DownloadRequest.TYPE_PROGRESSIVE,
-                Uri.parse("https://www.test.com/download"),
-                /* streamKeys= */ Collections.emptyList(),
-                /* customCacheKey= */ null,
-                /* data= */ null));
+            new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download"))
+                .build());
     assertThat(downloader).isInstanceOf(ProgressiveDownloader.class);
   }
 }

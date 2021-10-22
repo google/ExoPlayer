@@ -20,9 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ext.cast.MediaItem.DrmConfiguration;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.MediaQueueItem;
-import java.util.Collections;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +35,8 @@ public class DefaultMediaItemConverterTest {
   @Test
   public void serialize_deserialize_minimal() {
     MediaItem.Builder builder = new MediaItem.Builder();
-    MediaItem item = builder.setUri(Uri.parse("http://example.com")).setMimeType("mime").build();
+    MediaItem item =
+        builder.setUri("http://example.com").setMimeType(MimeTypes.APPLICATION_MPD).build();
 
     DefaultMediaItemConverter converter = new DefaultMediaItemConverter();
     MediaQueueItem queueItem = converter.toMediaQueueItem(item);
@@ -48,13 +51,13 @@ public class DefaultMediaItemConverterTest {
     MediaItem item =
         builder
             .setUri(Uri.parse("http://example.com"))
-            .setTitle("title")
-            .setMimeType("mime")
+            .setMediaMetadata(MediaMetadata.EMPTY)
+            .setMimeType(MimeTypes.APPLICATION_MPD)
             .setDrmConfiguration(
-                new DrmConfiguration(
-                    C.WIDEVINE_UUID,
-                    Uri.parse("http://license.com"),
-                    Collections.singletonMap("key", "value")))
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri("http://license.com")
+                    .setLicenseRequestHeaders(ImmutableMap.of("key", "value"))
+                    .build())
             .build();
 
     DefaultMediaItemConverter converter = new DefaultMediaItemConverter();

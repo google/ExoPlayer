@@ -17,15 +17,16 @@ package com.google.android.exoplayer2.text;
 
 import java.util.List;
 
-/**
- * Receives text output.
- */
+/** Receives text output. */
 public interface TextOutput {
 
   /**
-   * Called when there is a change in the {@link Cue}s.
+   * Called when there is a change in the {@link Cue Cues}.
    *
-   * @param cues The {@link Cue}s. May be empty.
+   * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
+   * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+   *
+   * @param cues The {@link Cue Cues}. May be empty.
    */
   void onCues(List<Cue> cues);
 }

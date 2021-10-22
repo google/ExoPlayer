@@ -20,18 +20,19 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OpusPlaybackTest {
 
-  private static final String BEAR_OPUS_URI = "asset:///bear-opus.webm";
+  private static final String BEAR_OPUS_URI = "asset:///media/mka/bear-opus.mka";
+  private static final String BEAR_OPUS_NEGATIVE_GAIN_URI =
+      "asset:///media/mka/bear-opus-negative-gain.mka";
 
   @Before
   public void setUp() {
@@ -50,8 +53,13 @@ public class OpusPlaybackTest {
   }
 
   @Test
-  public void testBasicPlayback() throws Exception {
+  public void basicPlayback() throws Exception {
     playUri(BEAR_OPUS_URI);
+  }
+
+  @Test
+  public void basicPlaybackNegativeGain() throws Exception {
+    playUri(BEAR_OPUS_NEGATIVE_GAIN_URI);
   }
 
   private void playUri(String uri) throws Exception {
@@ -65,13 +73,13 @@ public class OpusPlaybackTest {
     }
   }
 
-  private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
+  private static class TestPlaybackRunnable implements Player.Listener, Runnable {
 
     private final Context context;
     private final Uri uri;
 
-    private ExoPlayer player;
-    private ExoPlaybackException playbackException;
+    @Nullable private ExoPlayer player;
+    @Nullable private PlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context) {
       this.uri = uri;
@@ -81,34 +89,37 @@ public class OpusPlaybackTest {
     @Override
     public void run() {
       Looper.prepare();
-      LibopusAudioRenderer audioRenderer = new LibopusAudioRenderer();
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
-      player = ExoPlayerFactory.newInstance(context, new Renderer[] {audioRenderer}, trackSelector);
+      RenderersFactory renderersFactory =
+          (eventHandler,
+              videoRendererEventListener,
+              audioRendererEventListener,
+              textRendererOutput,
+              metadataRendererOutput) ->
+              new Renderer[] {new LibopusAudioRenderer(eventHandler, audioRendererEventListener)};
+      player = new ExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"),
-                  MatroskaExtractor.FACTORY)
-              .createMediaSource(uri);
-      player.prepare(mediaSource);
-      player.setPlayWhenReady(true);
+                  new DefaultDataSource.Factory(context), MatroskaExtractor.FACTORY)
+              .createMediaSource(MediaItem.fromUri(uri));
+      player.setMediaSource(mediaSource);
+      player.prepare();
+      player.play();
       Looper.loop();
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       playbackException = error;
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED
           || (playbackState == Player.STATE_IDLE && playbackException != null)) {
         player.release();
         Looper.myLooper().quit();
       }
     }
-
   }
-
 }

@@ -15,32 +15,45 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import android.content.Context;
 import android.os.Looper;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import java.util.ArrayList;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ListenerSet;
 
 /** A fake player for testing content/ad playback. */
 /* package */ final class FakePlayer extends StubExoPlayer {
 
-  private final ArrayList<Player.EventListener> listeners;
+  private final ListenerSet<Listener> listeners;
   private final Timeline.Period period;
-  private final Timeline timeline;
+  private final Object windowUid = new Object();
+  private final Object periodUid = new Object();
+  private final MediaItem mediaItem = MediaItem.fromUri("http://google.com/0");
 
-  private boolean prepared;
+  private Timeline timeline;
   @Player.State private int state;
   private boolean playWhenReady;
-  private long position;
-  private long contentPosition;
+  private int periodIndex;
+  private long positionMs;
+  private long contentPositionMs;
   private boolean isPlayingAd;
   private int adGroupIndex;
   private int adIndexInAdGroup;
 
-  public FakePlayer() {
-    listeners = new ArrayList<>();
+  public FakePlayer(Context context) {
+    super(context);
+    listeners =
+        new ListenerSet<>(
+            Looper.getMainLooper(),
+            Clock.DEFAULT,
+            (listener, flags) -> listener.onEvents(/* player= */ this, new Events(flags)));
     period = new Timeline.Period();
     state = Player.STATE_IDLE;
     playWhenReady = true;
@@ -48,29 +61,52 @@ import java.util.ArrayList;
   }
 
   /** Sets the timeline on this fake player, which notifies listeners with the changed timeline. */
-  public void updateTimeline(Timeline timeline) {
-    for (Player.EventListener listener : listeners) {
-      listener.onTimelineChanged(
-          timeline, prepared ? TIMELINE_CHANGE_REASON_DYNAMIC : TIMELINE_CHANGE_REASON_PREPARED);
-    }
-    prepared = true;
+  public void updateTimeline(Timeline timeline, @TimelineChangeReason int reason) {
+    this.timeline = timeline;
+    listeners.sendEvent(
+        Player.EVENT_TIMELINE_CHANGED, listener -> listener.onTimelineChanged(timeline, reason));
   }
 
   /**
    * Sets the state of this player as if it were playing content at the given {@code position}. If
    * an ad is currently playing, this will trigger a position discontinuity.
    */
-  public void setPlayingContentPosition(long position) {
+  public void setPlayingContentPosition(int periodIndex, long positionMs) {
     boolean notify = isPlayingAd;
+    PositionInfo oldPosition =
+        new PositionInfo(
+            windowUid,
+            /* windowIndex= */ 0,
+            mediaItem,
+            periodUid,
+            /* periodIndex= */ 0,
+            this.positionMs,
+            this.contentPositionMs,
+            this.adGroupIndex,
+            this.adIndexInAdGroup);
     isPlayingAd = false;
     adGroupIndex = C.INDEX_UNSET;
     adIndexInAdGroup = C.INDEX_UNSET;
-    this.position = position;
-    contentPosition = position;
+    this.periodIndex = periodIndex;
+    this.positionMs = positionMs;
+    contentPositionMs = positionMs;
     if (notify) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION);
-      }
+      PositionInfo newPosition =
+          new PositionInfo(
+              windowUid,
+              /* windowIndex= */ 0,
+              mediaItem,
+              periodUid,
+              /* periodIndex= */ 0,
+              positionMs,
+              this.contentPositionMs,
+              this.adGroupIndex,
+              this.adIndexInAdGroup);
+      listeners.sendEvent(
+          Player.EVENT_POSITION_DISCONTINUITY,
+          listener ->
+              listener.onPositionDiscontinuity(
+                  oldPosition, newPosition, DISCONTINUITY_REASON_AUTO_TRANSITION));
     }
   }
 
@@ -80,29 +116,69 @@ import java.util.ArrayList;
    * position discontinuity.
    */
   public void setPlayingAdPosition(
-      int adGroupIndex, int adIndexInAdGroup, long position, long contentPosition) {
+      int periodIndex,
+      int adGroupIndex,
+      int adIndexInAdGroup,
+      long positionMs,
+      long contentPositionMs) {
     boolean notify = !isPlayingAd || this.adIndexInAdGroup != adIndexInAdGroup;
+    PositionInfo oldPosition =
+        new PositionInfo(
+            windowUid,
+            /* windowIndex= */ 0,
+            mediaItem,
+            periodUid,
+            /* periodIndex= */ 0,
+            this.positionMs,
+            this.contentPositionMs,
+            this.adGroupIndex,
+            this.adIndexInAdGroup);
     isPlayingAd = true;
+    this.periodIndex = periodIndex;
     this.adGroupIndex = adGroupIndex;
     this.adIndexInAdGroup = adIndexInAdGroup;
-    this.position = position;
-    this.contentPosition = contentPosition;
+    this.positionMs = positionMs;
+    this.contentPositionMs = contentPositionMs;
     if (notify) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION);
-      }
+      PositionInfo newPosition =
+          new PositionInfo(
+              windowUid,
+              /* windowIndex= */ 0,
+              mediaItem,
+              periodUid,
+              /* periodIndex= */ 0,
+              positionMs,
+              contentPositionMs,
+              adGroupIndex,
+              adIndexInAdGroup);
+      listeners.sendEvent(
+          EVENT_POSITION_DISCONTINUITY,
+          listener ->
+              listener.onPositionDiscontinuity(
+                  oldPosition, newPosition, DISCONTINUITY_REASON_AUTO_TRANSITION));
     }
   }
 
   /** Sets the {@link Player.State} of this player. */
+  @SuppressWarnings("deprecation")
   public void setState(@Player.State int state, boolean playWhenReady) {
-    boolean notify = this.state != state || this.playWhenReady != playWhenReady;
+    boolean playWhenReadyChanged = this.playWhenReady != playWhenReady;
+    boolean playbackStateChanged = this.state != state;
     this.state = state;
     this.playWhenReady = playWhenReady;
-    if (notify) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPlayerStateChanged(playWhenReady, state);
-      }
+    if (playbackStateChanged || playWhenReadyChanged) {
+      listeners.sendEvent(
+          Player.EVENT_PLAYBACK_STATE_CHANGED,
+          listener -> {
+            listener.onPlayerStateChanged(playWhenReady, state);
+            if (playbackStateChanged) {
+              listener.onPlaybackStateChanged(state);
+            }
+            if (playWhenReadyChanged) {
+              listener.onPlayWhenReadyChanged(
+                  playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+            }
+          });
     }
   }
 
@@ -119,13 +195,18 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void addListener(Player.EventListener listener) {
+  public void addListener(Player.Listener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeListener(Player.EventListener listener) {
+  public void removeListener(Player.Listener listener) {
     listeners.remove(listener);
+  }
+
+  @Override
+  public Commands getAvailableCommands() {
+    return Commands.EMPTY;
   }
 
   @Override
@@ -140,6 +221,17 @@ import java.util.ArrayList;
   }
 
   @Override
+  @RepeatMode
+  public int getRepeatMode() {
+    return REPEAT_MODE_OFF;
+  }
+
+  @Override
+  public boolean getShuffleModeEnabled() {
+    return false;
+  }
+
+  @Override
   public int getRendererCount() {
     return 0;
   }
@@ -150,17 +242,30 @@ import java.util.ArrayList;
   }
 
   @Override
+  public TracksInfo getCurrentTracksInfo() {
+    return TracksInfo.EMPTY;
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    return TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT;
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {}
+
+  @Override
   public Timeline getCurrentTimeline() {
     return timeline;
   }
 
   @Override
   public int getCurrentPeriodIndex() {
-    return 0;
+    return periodIndex;
   }
 
   @Override
-  public int getCurrentWindowIndex() {
+  public int getCurrentMediaItemIndex() {
     return 0;
   }
 
@@ -180,7 +285,7 @@ import java.util.ArrayList;
 
   @Override
   public long getCurrentPosition() {
-    return position;
+    return positionMs;
   }
 
   @Override
@@ -200,6 +305,6 @@ import java.util.ArrayList;
 
   @Override
   public long getContentPosition() {
-    return contentPosition;
+    return contentPositionMs;
   }
 }

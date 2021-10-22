@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Generated with https://github.com/google/shaka-packager version v2.4.1-c731217-release
+$ packager-linux \
+   in=../../mp4/sample.mp4,stream=audio,output=sample.audio.mp4 \
+   -\-mpd_output sample.mpd
+
+   Then EventStream section & second period added by hand (copy-pasting first period).
+-->
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 DASH-MPD.xsd" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" minBufferTime="PT2S" type="static" mediaPresentationDuration="PT2.044S">
+  <Period id="0" start="PT00.000S">
+    <AdaptationSet id="0" contentType="audio" subsegmentAlignment="true">
+      <Representation id="0" bandwidth="78099" codecs="mp4a.40.2" mimeType="audio/mp4" audioSamplingRate="44100">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="1"/>
+        <BaseURL>sample.audio.mp4</BaseURL>
+        <SegmentBase indexRange="757-800" timescale="44100" presentationTimeOffset="1940">
+          <Initialization range="0-756"/>
+        </SegmentBase>
+      </Representation>
+    </AdaptationSet>
+    <EventStream schemeIdUri="urn:mpeg:dash:event:callback:2015" timescale="1000" value="1">
+      <Event presentationTime="100" duration="1000" id="0" messageData="" />
+      <Event presentationTime="100" duration="1000" id="1" messageData="" />
+      <Event presentationTime="1000" duration="1000" id="2" messageData="" />
+    </EventStream>
+  </Period>
+  <Period id="1" start="PT1.022S">
+    <AdaptationSet id="0" contentType="audio" subsegmentAlignment="true">
+      <Representation id="0" bandwidth="78099" codecs="mp4a.40.2" mimeType="audio/mp4" audioSamplingRate="44100">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="1"/>
+        <BaseURL>sample.audio.mp4</BaseURL>
+        <SegmentBase indexRange="757-800" timescale="44100" presentationTimeOffset="1940">
+          <Initialization range="0-756"/>
+        </SegmentBase>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>

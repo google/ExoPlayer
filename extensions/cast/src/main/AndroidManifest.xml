@@ -13,4 +13,6 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="com.google.android.exoplayer2.ext.cast"/>
+<manifest package="com.google.android.exoplayer2.ext.cast">
+  <uses-sdk/>
+</manifest>

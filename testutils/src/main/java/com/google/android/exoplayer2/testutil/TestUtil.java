@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,8 +23,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaCodec;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
@@ -33,134 +34,143 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Random;
 
-/**
- * Utility methods for tests.
- */
+/** Utility methods for tests. */
 public class TestUtil {
 
   private TestUtil() {}
 
-  public static boolean sniffTestData(Extractor extractor, FakeExtractorInput input)
-      throws IOException, InterruptedException {
-    while (true) {
-      try {
-        return extractor.sniff(input);
-      } catch (SimulatedIOException e) {
-        // Ignore.
-      }
-    }
-  }
-
-  public static byte[] readToEnd(DataSource dataSource) throws IOException {
-    byte[] data = new byte[1024];
-    int position = 0;
-    int bytesRead = 0;
-    while (bytesRead != C.RESULT_END_OF_INPUT) {
-      if (position == data.length) {
-        data = Arrays.copyOf(data, data.length * 2);
-      }
-      bytesRead = dataSource.read(data, position, data.length - position);
-      if (bytesRead != C.RESULT_END_OF_INPUT) {
-        position += bytesRead;
-      }
-    }
-    return Arrays.copyOf(data, position);
-  }
-
-  public static byte[] readExactly(DataSource dataSource, int length) throws IOException {
-    byte[] data = new byte[length];
-    int position = 0;
-    while (position < length) {
-      int bytesRead = dataSource.read(data, position, data.length - position);
-      if (bytesRead == C.RESULT_END_OF_INPUT) {
-        fail("Not enough data could be read: " + position + " < " + length);
-      } else {
-        position += bytesRead;
-      }
-    }
-    return data;
-  }
-
+  /**
+   * Equivalent to {@code buildTestData(length, length)}.
+   *
+   * @param length The length of the array.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length) {
     return buildTestData(length, length);
   }
 
+  /**
+   * Generates an array of random bytes with the specified length.
+   *
+   * @param length The length of the array.
+   * @param seed A seed for an internally created {@link Random source of randomness}.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length, int seed) {
     return buildTestData(length, new Random(seed));
   }
 
+  /**
+   * Generates an array of random bytes with the specified length.
+   *
+   * @param length The length of the array.
+   * @param random A source of randomness.
+   * @return The generated array.
+   */
   public static byte[] buildTestData(int length, Random random) {
     byte[] source = new byte[length];
     random.nextBytes(source);
     return source;
   }
 
-  public static String buildTestString(int maxLength, Random random) {
-    int length = random.nextInt(maxLength);
-    StringBuilder builder = new StringBuilder(length);
+  /**
+   * Generates a random string with the specified length.
+   *
+   * @param length The length of the string.
+   * @param random A source of randomness.
+   * @return The generated string.
+   */
+  public static String buildTestString(int length, Random random) {
+    char[] chars = new char[length];
     for (int i = 0; i < length; i++) {
-      builder.append((char) random.nextInt());
+      chars[i] = (char) random.nextInt();
     }
-    return builder.toString();
+    return new String(chars);
   }
 
   /**
    * Converts an array of integers in the range [0, 255] into an equivalent byte array.
    *
-   * @param intArray An array of integers, all of which must be in the range [0, 255].
+   * @param bytes An array of integers, all of which must be in the range [0, 255].
    * @return The equivalent byte array.
    */
-  public static byte[] createByteArray(int... intArray) {
-    byte[] byteArray = new byte[intArray.length];
+  public static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
     for (int i = 0; i < byteArray.length; i++) {
-      Assertions.checkState(0x00 <= intArray[i] && intArray[i] <= 0xFF);
-      byteArray[i] = (byte) intArray[i];
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
     }
     return byteArray;
   }
 
-  public static byte[] joinByteArrays(byte[]... byteArrays) {
-    int length = 0;
-    for (byte[] byteArray : byteArrays) {
-      length += byteArray.length;
-    }
-    byte[] joined = new byte[length];
-    length = 0;
-    for (byte[] byteArray : byteArrays) {
-      System.arraycopy(byteArray, 0, joined, length, byteArray.length);
-      length += byteArray.length;
-    }
-    return joined;
+  /**
+   * Converts an array of integers in the range [0, 255] into an equivalent byte list.
+   *
+   * @param bytes An array of integers, all of which must be in the range [0, 255].
+   * @return The equivalent byte list.
+   */
+  public static ImmutableList<Byte> createByteList(int... bytes) {
+    return ImmutableList.copyOf(Bytes.asList(createByteArray(bytes)));
   }
 
+  /** Writes one byte long test data to the file and returns it. */
+  public static File createTestFile(File directory, String name) throws IOException {
+    return createTestFile(directory, name, /* length= */ 1);
+  }
+
+  /** Writes test data with the specified length to the file and returns it. */
+  public static File createTestFile(File directory, String name, long length) throws IOException {
+    return createTestFile(new File(directory, name), length);
+  }
+
+  /** Writes test data with the specified length to the file and returns it. */
+  public static File createTestFile(File file, long length) throws IOException {
+    FileOutputStream output = new FileOutputStream(file);
+    for (long i = 0; i < length; i++) {
+      output.write((int) i);
+    }
+    output.close();
+    return file;
+  }
+
+  /** Returns the bytes of an asset file. */
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
     return Util.toByteArray(getInputStream(context, fileName));
   }
 
+  /** Returns an {@link InputStream} for reading from an asset file. */
   public static InputStream getInputStream(Context context, String fileName) throws IOException {
     return context.getResources().getAssets().open(fileName);
   }
 
+  /** Returns a {@link String} read from an asset file. */
   public static String getString(Context context, String fileName) throws IOException {
     return Util.fromUtf8Bytes(getByteArray(context, fileName));
   }
 
-  public static Bitmap readBitmapFromFile(Context context, String fileName) throws IOException {
+  /** Returns a {@link Bitmap} read from an asset file. */
+  public static Bitmap getBitmap(Context context, String fileName) throws IOException {
     return BitmapFactory.decodeStream(getInputStream(context, fileName));
   }
 
-  public static DatabaseProvider getTestDatabaseProvider() {
-    // Provides an in-memory database.
+  /** Returns a {@link DatabaseProvider} that provides an in-memory database. */
+  public static DatabaseProvider getInMemoryDatabaseProvider() {
     return new DefaultDatabaseProvider(
         new SQLiteOpenHelper(
             /* context= */ null, /* name= */ null, /* factory= */ null, /* version= */ 1) {
@@ -174,6 +184,23 @@ public class TestUtil {
             // Do nothing.
           }
         });
+  }
+
+  /**
+   * Asserts that the actual timelines are the same to the expected timelines. This assert differs
+   * from testing equality by not comparing period ids which may be different due to id mapping of
+   * child source period ids.
+   *
+   * @param actualTimelines A list of actual {@link Timeline timelines}.
+   * @param expectedTimelines A list of expected {@link Timeline timelines}.
+   */
+  public static void assertTimelinesSame(
+      List<Timeline> actualTimelines, List<Timeline> expectedTimelines) {
+    assertThat(actualTimelines).hasSize(expectedTimelines.size());
+    for (int i = 0; i < actualTimelines.size(); i++) {
+      assertThat(new NoUidTimeline(actualTimelines.get(i)))
+          .isEqualTo(new NoUidTimeline(expectedTimelines.get(i)));
+    }
   }
 
   /**
@@ -192,11 +219,20 @@ public class TestUtil {
     try {
       long length = dataSource.open(dataSpec);
       assertThat(length).isEqualTo(expectKnownLength ? expectedData.length : C.LENGTH_UNSET);
-      byte[] readData = readToEnd(dataSource);
+      byte[] readData = DataSourceUtil.readToEnd(dataSource);
       assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
     }
+  }
+
+  /** Returns whether two {@link android.media.MediaCodec.BufferInfo BufferInfos} are equal. */
+  public static void assertBufferInfosEqual(
+      MediaCodec.BufferInfo expected, MediaCodec.BufferInfo actual) {
+    assertThat(actual.flags).isEqualTo(expected.flags);
+    assertThat(actual.offset).isEqualTo(expected.offset);
+    assertThat(actual.presentationTimeUs).isEqualTo(expected.presentationTimeUs);
+    assertThat(actual.size).isEqualTo(expected.size);
   }
 
   /**
@@ -257,7 +293,8 @@ public class TestUtil {
 
   /**
    * Reads from the given input using the given {@link Extractor}, until it can produce the {@link
-   * SeekMap} and all of the tracks have been identified, or until the extractor encounters EOF.
+   * SeekMap} and all of the track formats have been identified, or until the extractor encounters
+   * EOF.
    *
    * @param extractor The {@link Extractor} to extractor from input.
    * @param output The {@link FakeTrackOutput} to store the extracted {@link SeekMap} and track.
@@ -266,24 +303,30 @@ public class TestUtil {
    * @return The extracted {@link SeekMap}.
    * @throws IOException If an error occurred reading from the input, or if the extractor finishes
    *     reading from input without extracting any {@link SeekMap}.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public static SeekMap extractSeekMap(
       Extractor extractor, FakeExtractorOutput output, DataSource dataSource, Uri uri)
-      throws IOException, InterruptedException {
+      throws IOException {
     ExtractorInput input = getExtractorInputFromPosition(dataSource, /* position= */ 0, uri);
     extractor.init(output);
     PositionHolder positionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (true) {
       try {
-        // Keep reading until we can get the seek map
+        // Keep reading until we get the seek map and the track information.
         while (readResult == Extractor.RESULT_CONTINUE
             && (output.seekMap == null || !output.tracksEnded)) {
           readResult = extractor.read(input, positionHolder);
         }
+        for (int i = 0; i < output.trackOutputs.size(); i++) {
+          int trackId = output.trackOutputs.keyAt(i);
+          while (readResult == Extractor.RESULT_CONTINUE
+              && output.trackOutputs.get(trackId).lastFormat == null) {
+            readResult = extractor.read(input, positionHolder);
+          }
+        }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (readResult == Extractor.RESULT_SEEK) {
@@ -307,11 +350,9 @@ public class TestUtil {
    * @return The {@link FakeTrackOutput} containing the extracted samples.
    * @throws IOException If an error occurred reading from the input, or if the extractor finishes
    *     reading from input without extracting any {@link SeekMap}.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public static FakeExtractorOutput extractAllSamplesFromFile(
-      Extractor extractor, Context context, String fileName)
-      throws IOException, InterruptedException {
+      Extractor extractor, Context context, String fileName) throws IOException {
     byte[] data = TestUtil.getByteArray(context, fileName);
     FakeExtractorOutput expectedOutput = new FakeExtractorOutput();
     extractor.init(expectedOutput);
@@ -336,14 +377,15 @@ public class TestUtil {
    * input until we can extract at least one sample following the seek position, or until
    * end-of-input is reached.
    *
-   * @param extractor The {@link Extractor} to extractor from input.
+   * @param extractor The {@link Extractor} to extract from input.
    * @param seekMap The {@link SeekMap} of the stream from the given input.
    * @param seekTimeUs The seek time, in micro-seconds.
    * @param trackOutput The {@link FakeTrackOutput} to store the extracted samples.
    * @param dataSource The {@link DataSource} that will be used to read from the input.
    * @param uri The Uri of the input.
    * @return The index of the first extracted sample written to the given {@code trackOutput} after
-   *     the seek is completed, or -1 if the seek is completed without any extracted sample.
+   *     the seek is completed, or {@link C#INDEX_UNSET} if the seek is completed without any
+   *     extracted sample.
    */
   public static int seekToTimeUs(
       Extractor extractor,
@@ -352,7 +394,7 @@ public class TestUtil {
       DataSource dataSource,
       FakeTrackOutput trackOutput,
       Uri uri)
-      throws IOException, InterruptedException {
+      throws IOException {
     int numSampleBeforeSeek = trackOutput.getSampleCount();
     SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(seekTimeUs);
 
@@ -372,15 +414,16 @@ public class TestUtil {
           extractorReadResult = extractor.read(extractorInput, positionHolder);
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (extractorReadResult == Extractor.RESULT_SEEK) {
         extractorInput =
             TestUtil.getExtractorInputFromPosition(dataSource, positionHolder.position, uri);
         extractorReadResult = Extractor.RESULT_CONTINUE;
-      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT) {
-        return -1;
+      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT
+          && trackOutput.getSampleCount() == numSampleBeforeSeek) {
+        return C.INDEX_UNSET;
       } else if (trackOutput.getSampleCount() > numSampleBeforeSeek) {
         // First index after seek = num sample before seek.
         return numSampleBeforeSeek;
@@ -391,11 +434,22 @@ public class TestUtil {
   /** Returns an {@link ExtractorInput} to read from the given input at given position. */
   public static ExtractorInput getExtractorInputFromPosition(
       DataSource dataSource, long position, Uri uri) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET, /* key= */ null);
+    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET);
     long length = dataSource.open(dataSpec);
     if (length != C.LENGTH_UNSET) {
       length += position;
     }
     return new DefaultExtractorInput(dataSource, position, length);
+  }
+
+  /**
+   * Create a new {@link MetadataInputBuffer} and copy {@code data} into the backing {@link
+   * ByteBuffer}.
+   */
+  public static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
+    MetadataInputBuffer buffer = new MetadataInputBuffer();
+    buffer.data = ByteBuffer.allocate(data.length).put(data);
+    buffer.data.flip();
+    return buffer;
   }
 }
