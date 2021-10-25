@@ -16,7 +16,7 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 dependencies {
     implementation project(modulePrefix + 'library-common')
     implementation project(modulePrefix + 'library-datasource')
-    implementation 'net.butterflytv.utils:rtmp-client:3.1.0'
+    implementation 'io.antmedia:rtmp-client:3.2.0'
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'library-core')

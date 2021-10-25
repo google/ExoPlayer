@@ -24,6 +24,7 @@
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
     *   Fix `mediaMetadata` being reset when media is repeated
         ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
+    *   Remove final dependency on `jcenter()`.
 *   Video:
     *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
         released `Surface` when playing without an app-provided `Surface`
@@ -77,6 +78,9 @@
     *   Populate `Format.sampleMimeType`, `width` and `height` for image
         `AdaptationSet` elements
         ([#9500](https://github.com/google/ExoPlayer/issues/9500)).
+*   RTMP extension:
+    *   Upgrade to `io.antmedia:rtmp_client`, which does not rely on `jcenter()`
+        ([#9591](https://github.com/google/ExoPlayer/issues/9591)).
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.
