@@ -24,7 +24,11 @@ import static java.util.Collections.min;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.trackselection.C.TrackType;
+import com.google.android.exoplayer2.Bundleable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
@@ -40,13 +44,13 @@ import java.util.Map;
  * Forces the selection of the specified tracks in {@link TrackGroup TrackGroups}.
  *
  * <p>Each {@link TrackSelectionOverride override} only affects the selection of tracks of that
- * {@link TrackType type}. For example overriding the selection of an {@link C#TRACK_TYPE_AUDIO
+ * {@link C.TrackType type}. For example overriding the selection of an {@link C#TRACK_TYPE_AUDIO
  * audio} {@link TrackGroup} will not affect the selection of {@link C#TRACK_TYPE_VIDEO video} or
  * {@link C#TRACK_TYPE_TEXT text} tracks.
  *
- * <p>If multiple {@link TrackGroup TrackGroups} of the same {@link TrackType} are overridden, which
- * tracks will be selected depend on the player capabilities. For example, by default {@code
- * ExoPlayer} doesn't support selecting more than one {@link TrackGroup} per {@link TrackType}.
+ * <p>If multiple {@link TrackGroup TrackGroups} of the same {@link C.TrackType} are overridden,
+ * which tracks will be selected depend on the player capabilities. For example, by default {@code
+ * ExoPlayer} doesn't support selecting more than one {@link TrackGroup} per {@link C.TrackType}.
  *
  * <p>Overrides of {@link TrackGroup} that are not currently available are ignored. For example,
  * when the player transitions to the next {@link MediaItem} in a playlist, any overrides of the
@@ -92,7 +96,7 @@ public final class TrackSelectionOverrides implements Bundleable {
     /**
      * Remove any override associated with {@link TrackGroup TrackGroups} of type {@code trackType}.
      */
-    public Builder clearOverridesOfType(@TrackType int trackType) {
+    public Builder clearOverridesOfType(@C.TrackType int trackType) {
       for (Iterator<TrackSelectionOverride> it = overrides.values().iterator(); it.hasNext(); ) {
         TrackSelectionOverride trackSelectionOverride = it.next();
         if (trackSelectionOverride.getTrackType() == trackType) {
@@ -170,7 +174,7 @@ public final class TrackSelectionOverrides implements Bundleable {
       return trackGroup.hashCode() + 31 * trackIndexes.hashCode();
     }
 
-    private @TrackType int getTrackType() {
+    private @C.TrackType int getTrackType() {
       return MimeTypes.getTrackType(trackGroup.getFormat(0).sampleMimeType);
     }
 
