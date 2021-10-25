@@ -25,7 +25,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     if (it.hasProperty('externalBuildDir')) {
         if (!new File(externalBuildDir).isAbsolute()) {
