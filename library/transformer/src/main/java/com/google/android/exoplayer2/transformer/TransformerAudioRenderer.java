@@ -350,11 +350,15 @@ import java.nio.ByteBuffer;
         throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
       }
     }
+    String audioMimeType =
+        transformation.audioMimeType == null
+            ? checkNotNull(inputFormat).sampleMimeType
+            : transformation.audioMimeType;
     try {
       encoder =
           MediaCodecAdapterWrapper.createForAudioEncoding(
               new Format.Builder()
-                  .setSampleMimeType(checkNotNull(inputFormat).sampleMimeType)
+                  .setSampleMimeType(audioMimeType)
                   .setSampleRate(outputAudioFormat.sampleRate)
                   .setChannelCount(outputAudioFormat.channelCount)
                   .setAverageBitrate(DEFAULT_ENCODER_BITRATE)

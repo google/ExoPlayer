@@ -209,10 +209,8 @@ public final class Transformer {
     }
 
     /**
-     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. The
-     * output MIME type should be supported by the {@link
-     * Muxer.Factory#supportsOutputMimeType(String) muxer}. Values supported by the default {@link
-     * FrameworkMuxer} are:
+     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. Supported
+     * values are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_MP4}
@@ -301,7 +299,12 @@ public final class Transformer {
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
       Transformation transformation =
-          new Transformation(removeAudio, removeVideo, flattenForSlowMotion, outputMimeType);
+          new Transformation(
+              removeAudio,
+              removeVideo,
+              flattenForSlowMotion,
+              outputMimeType,
+              /* audioMimeType= */ null);
       return new Transformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
     }
@@ -464,7 +467,8 @@ public final class Transformer {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
 
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer);
+    MuxerWrapper muxerWrapper =
+        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(

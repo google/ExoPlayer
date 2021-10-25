@@ -52,7 +52,13 @@ import com.google.android.exoplayer2.util.MimeTypes;
     @Nullable String sampleMimeType = format.sampleMimeType;
     if (MimeTypes.getTrackType(sampleMimeType) != getTrackType()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
-    } else if (muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
+    } else if ((MimeTypes.isAudio(sampleMimeType)
+            && muxerWrapper.supportsSampleMimeType(
+                transformation.audioMimeType == null
+                    ? sampleMimeType
+                    : transformation.audioMimeType))
+        || (MimeTypes.isVideo(sampleMimeType)
+            && muxerWrapper.supportsSampleMimeType(sampleMimeType))) {
       return RendererCapabilities.create(C.FORMAT_HANDLED);
     } else {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);

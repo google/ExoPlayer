@@ -100,6 +100,7 @@ public final class TranscodingTransformer {
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
     private String outputMimeType;
+    @Nullable private String audioMimeType;
     private TranscodingTransformer.Listener listener;
     private Looper looper;
     private Clock clock;
@@ -122,6 +123,7 @@ public final class TranscodingTransformer {
       this.removeVideo = transcodingTransformer.transformation.removeVideo;
       this.flattenForSlowMotion = transcodingTransformer.transformation.flattenForSlowMotion;
       this.outputMimeType = transcodingTransformer.transformation.outputMimeType;
+      this.audioMimeType = transcodingTransformer.transformation.audioMimeType;
       this.listener = transcodingTransformer.listener;
       this.looper = transcodingTransformer.looper;
       this.clock = transcodingTransformer.clock;
@@ -212,10 +214,8 @@ public final class TranscodingTransformer {
     }
 
     /**
-     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. The
-     * output MIME type should be supported by the {@link
-     * Muxer.Factory#supportsOutputMimeType(String) muxer}. Values supported by the default {@link
-     * FrameworkMuxer} are:
+     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. Supported
+     * values are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_MP4}
@@ -227,6 +227,31 @@ public final class TranscodingTransformer {
      */
     public Builder setOutputMimeType(String outputMimeType) {
       this.outputMimeType = outputMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
+     * input. Supported values are:
+     *
+     * <ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
+     *       <ul>
+     *         <li>{@link MimeTypes#AUDIO_AAC}
+     *         <li>{@link MimeTypes#AUDIO_AMR_NB}
+     *         <li>{@link MimeTypes#AUDIO_AMR_WB}
+     *       </ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
+     *       <ul>
+     *         <li>{@link MimeTypes#AUDIO_VORBIS}
+     *       </ul>
+     * </ul>
+     *
+     * @param audioMimeType The MIME type of the audio samples in the output.
+     * @return This builder.
+     */
+    public Builder setAudioMimeType(String audioMimeType) {
+      this.audioMimeType = audioMimeType;
       return this;
     }
 
@@ -290,6 +315,7 @@ public final class TranscodingTransformer {
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
      * @throws IllegalStateException If the muxer doesn't support the requested output MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
      */
     public TranscodingTransformer build() {
       checkStateNotNull(context);
@@ -303,8 +329,17 @@ public final class TranscodingTransformer {
       checkState(
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
+      if (audioMimeType != null) {
+        checkState(
+            muxerFactory.supportsSampleMimeType(audioMimeType, outputMimeType),
+            "Unsupported sample MIME type "
+                + audioMimeType
+                + " for container MIME type "
+                + outputMimeType);
+      }
       Transformation transformation =
-          new Transformation(removeAudio, removeVideo, flattenForSlowMotion, outputMimeType);
+          new Transformation(
+              removeAudio, removeVideo, flattenForSlowMotion, outputMimeType, audioMimeType);
       return new TranscodingTransformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
     }
@@ -469,7 +504,8 @@ public final class TranscodingTransformer {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
 
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer);
+    MuxerWrapper muxerWrapper =
+        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(

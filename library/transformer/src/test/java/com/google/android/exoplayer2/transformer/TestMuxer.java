@@ -26,16 +26,18 @@ import java.util.List;
 
 /**
  * An implementation of {@link Muxer} that supports dumping information about all interactions (for
- * testing purposes) and delegates the actual muxing operations to a {@link FrameworkMuxer}.
+ * testing purposes) and delegates the actual muxing operations to another {@link Muxer} created
+ * using the factory provided.
  */
 public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
-  private final Muxer frameworkMuxer;
+  private final Muxer muxer;
   private final List<Dumper.Dumpable> dumpables;
 
   /** Creates a new test muxer. */
-  public TestMuxer(String path, String outputMimeType) throws IOException {
-    frameworkMuxer = new FrameworkMuxer.Factory().create(path, outputMimeType);
+  public TestMuxer(String path, String outputMimeType, Muxer.Factory muxerFactory)
+      throws IOException {
+    muxer = muxerFactory.create(path, outputMimeType);
     dumpables = new ArrayList<>();
     dumpables.add(dumper -> dumper.add("containerMimeType", outputMimeType));
   }
@@ -43,13 +45,8 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
   // Muxer implementation.
 
   @Override
-  public boolean supportsSampleMimeType(String mimeType) {
-    return frameworkMuxer.supportsSampleMimeType(mimeType);
-  }
-
-  @Override
   public int addTrack(Format format) {
-    int trackIndex = frameworkMuxer.addTrack(format);
+    int trackIndex = muxer.addTrack(format);
     dumpables.add(new DumpableFormat(format, trackIndex));
     return trackIndex;
   }
@@ -58,13 +55,13 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
   public void writeSampleData(
       int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
     dumpables.add(new DumpableSample(trackIndex, data, isKeyFrame, presentationTimeUs));
-    frameworkMuxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
+    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
   }
 
   @Override
   public void release(boolean forCancellation) {
     dumpables.add(dumper -> dumper.add("released", true));
-    frameworkMuxer.release(forCancellation);
+    muxer.release(forCancellation);
   }
 
   // Dumper.Dumpable implementation.
