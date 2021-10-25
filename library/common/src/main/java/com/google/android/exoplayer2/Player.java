@@ -2065,7 +2065,9 @@ public interface Player {
    *
    * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
    * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
-   * formats} and {@link Listener#onMetadata(Metadata)}.
+   * formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in the {@link
+   * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
+   * dynamic metadata.
    */
   MediaMetadata getMediaMetadata();
 

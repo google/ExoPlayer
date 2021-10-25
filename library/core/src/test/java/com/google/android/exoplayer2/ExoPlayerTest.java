@@ -11181,6 +11181,46 @@ public final class ExoPlayerTest {
     assertThat(videoRenderer.get().positionResetCount).isEqualTo(1);
   }
 
+  @Test
+  public void setMediaItem_withMediaMetadata_updatesMediaMetadata() {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("the title").build();
+
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaItem(
+        new MediaItem.Builder()
+            .setMediaId("id")
+            .setUri(Uri.EMPTY)
+            .setMediaMetadata(mediaMetadata)
+            .build());
+
+    assertThat(player.getMediaMetadata()).isEqualTo(mediaMetadata);
+  }
+
+  @Test
+  public void playingMedia_withNoMetadata_doesNotUpdateMediaMetadata() throws Exception {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("the title").build();
+
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setMediaId("id")
+            .setUri(Uri.parse("asset://android_asset/media/mp4/sample.mp4"))
+            .setMediaMetadata(mediaMetadata)
+            .build();
+    player.setMediaItem(mediaItem);
+
+    assertThat(player.getMediaMetadata()).isEqualTo(mediaMetadata);
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 0, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    player.stop();
+
+    shadowOf(Looper.getMainLooper()).idle();
+
+    assertThat(player.getMediaMetadata()).isEqualTo(mediaMetadata);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {

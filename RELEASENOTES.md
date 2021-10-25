@@ -25,6 +25,9 @@
     *   Fix `mediaMetadata` being reset when media is repeated
         ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
     *   Remove final dependency on `jcenter()`.
+    *   Adjust `ExoPlayer` `MediaMetadata` update priority, such that values
+        input through the `MediaItem.MediaMetadata` are used above media
+        derived values.
 *   Video:
     *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
         released `Surface` when playing without an app-provided `Surface`

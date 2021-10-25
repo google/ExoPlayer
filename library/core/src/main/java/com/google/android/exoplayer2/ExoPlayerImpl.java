@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
+import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
@@ -110,6 +111,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private Commands availableCommands;
   private MediaMetadata mediaMetadata;
   private MediaMetadata playlistMetadata;
+
+  // MediaMetadata built from static (TrackGroup Format) and dynamic (onMetadata(Metadata)) metadata
+  // sources.
+  private MediaMetadata staticAndDynamicMediaMetadata;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -229,6 +234,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             .build();
     mediaMetadata = MediaMetadata.EMPTY;
     playlistMetadata = MediaMetadata.EMPTY;
+    staticAndDynamicMediaMetadata = MediaMetadata.EMPTY;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -986,8 +992,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   public void onMetadata(Metadata metadata) {
-    MediaMetadata newMediaMetadata =
-        mediaMetadata.buildUpon().populateFromMetadata(metadata).build();
+    staticAndDynamicMediaMetadata =
+        staticAndDynamicMediaMetadata.buildUpon().populateFromMetadata(metadata).build();
+
+    MediaMetadata newMediaMetadata = buildUpdatedMediaMetadata();
+
     if (newMediaMetadata.equals(mediaMetadata)) {
       return;
     }
@@ -1235,12 +1244,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 .windowIndex;
         mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
       }
-      newMediaMetadata = mediaItem != null ? mediaItem.mediaMetadata : MediaMetadata.EMPTY;
+      staticAndDynamicMediaMetadata = MediaMetadata.EMPTY;
     }
     if (mediaItemTransitioned
         || !previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
-      newMediaMetadata =
-          newMediaMetadata.buildUpon().populateFromMetadata(newPlaybackInfo.staticMetadata).build();
+      staticAndDynamicMediaMetadata =
+          staticAndDynamicMediaMetadata
+              .buildUpon()
+              .populateFromMetadata(newPlaybackInfo.staticMetadata)
+              .build();
+
+      newMediaMetadata = buildUpdatedMediaMetadata();
     }
     boolean metadataChanged = !newMediaMetadata.equals(mediaMetadata);
     mediaMetadata = newMediaMetadata;
@@ -1792,6 +1806,24 @@ import java.util.concurrent.CopyOnWriteArraySet;
     timeline.getPeriodByUid(periodId.periodUid, period);
     positionUs += period.getPositionInWindowUs();
     return positionUs;
+  }
+
+  /**
+   * Builds a {@link MediaMetadata} from the main sources.
+   *
+   * <p>{@link MediaItem} {@link MediaMetadata} is prioritized, with any gaps/missing fields
+   * populated by metadata from static ({@link TrackGroup} {@link Format}) and dynamic ({@link
+   * #onMetadata(Metadata)}) sources.
+   */
+  private MediaMetadata buildUpdatedMediaMetadata() {
+    @Nullable MediaItem mediaItem = getCurrentMediaItem();
+
+    if (mediaItem == null) {
+      return staticAndDynamicMediaMetadata;
+    }
+
+    // MediaItem metadata is prioritized over metadata within the media.
+    return staticAndDynamicMediaMetadata.buildUpon().populate(mediaItem.mediaMetadata).build();
   }
 
   private static boolean isPlaying(PlaybackInfo playbackInfo) {
