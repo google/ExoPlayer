@@ -97,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /**
    * Creates an RTSP media period.
-   *  @param allocator An {@link Allocator} from which to obtain media buffer allocations.
+   * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param rtpDataChannelFactory A {@link RtpDataChannel.Factory} for {@link RtpDataChannel}.
    * @param uri The RTSP playback {@link Uri}.
    * @param listener A {@link Listener} to receive session information updates.

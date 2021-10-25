@@ -157,7 +157,7 @@ public final class RtspPlaybackTest {
             rtpDataChannelFactory,
             "ExoPlayer:PlaybackTest",
             /* debugLoggingEnabled= */ false,
-            null),
+            /* socketFactory */ null),
         false);
     return player;
   }
