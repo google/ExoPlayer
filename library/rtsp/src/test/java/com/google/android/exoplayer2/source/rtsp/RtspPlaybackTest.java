@@ -156,7 +156,8 @@ public final class RtspPlaybackTest {
             MediaItem.fromUri(RtspTestUtils.getTestUri(serverRtspPortNumber)),
             rtpDataChannelFactory,
             "ExoPlayer:PlaybackTest",
-            /* debugLoggingEnabled= */ false),
+            /* debugLoggingEnabled= */ false,
+            null),
         false);
     return player;
   }

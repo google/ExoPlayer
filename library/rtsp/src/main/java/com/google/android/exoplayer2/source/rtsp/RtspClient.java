@@ -124,6 +124,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final PlaybackEventListener playbackEventListener;
   private final String userAgent;
   private final boolean debugLoggingEnabled;
+  @Nullable private final SocketFactory socketFactory;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
   private final SparseArray<RtspRequest> pendingRequests;
@@ -161,11 +162,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       PlaybackEventListener playbackEventListener,
       String userAgent,
       Uri uri,
-      boolean debugLoggingEnabled) {
+      boolean debugLoggingEnabled,
+      @Nullable SocketFactory socketFactory) {
     this.sessionInfoListener = sessionInfoListener;
     this.playbackEventListener = playbackEventListener;
     this.userAgent = userAgent;
     this.debugLoggingEnabled = debugLoggingEnabled;
+    this.socketFactory = socketFactory;
     this.pendingSetupRtpLoadInfos = new ArrayDeque<>();
     this.pendingRequests = new SparseArray<>();
     this.messageSender = new MessageSender();
@@ -286,10 +289,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Returns a {@link Socket} that is connected to the {@code uri}. */
-  private static Socket getSocket(Uri uri) throws IOException {
+  private Socket getSocket(Uri uri) throws IOException {
     checkArgument(uri.getHost() != null);
     int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
-    return SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
+
+    SocketFactory socketFactory =
+        this.socketFactory != null ? this.socketFactory : SocketFactory.getDefault();
+
+    return socketFactory.createSocket(checkNotNull(uri.getHost()), rtspPort);
   }
 
   private void dispatchRtspError(Throwable error) {
