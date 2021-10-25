@@ -305,7 +305,7 @@ import java.nio.ByteBuffer;
 
     if (!isDecoderSurfacePopulated) {
       if (!waitingForPopulatedDecoderSurface) {
-        if (decoder.getOutputBuffer() != null) {
+        if (decoder.getOutputBufferInfo() != null) {
           decoder.releaseOutputBuffer(/* render= */ true);
           waitingForPopulatedDecoderSurface = true;
         }
