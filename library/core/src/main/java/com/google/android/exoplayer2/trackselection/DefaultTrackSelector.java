@@ -39,7 +39,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -611,7 +611,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Override
     public ParametersBuilder setTrackSelectionOverrides(
-        Map<TrackGroup, TrackSelectionOverride> trackSelectionOverrides) {
+        TrackSelectionOverrides trackSelectionOverrides) {
       super.setTrackSelectionOverrides(trackSelectionOverrides);
       return this;
     }
@@ -710,7 +710,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param groups The {@link TrackGroupArray} for which the override should be applied.
      * @param override The override.
      * @return This builder.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
      */
+    @Deprecated
     public final ParametersBuilder setSelectionOverride(
         int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
@@ -733,7 +735,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param rendererIndex The renderer index.
      * @param groups The {@link TrackGroupArray} for which the override should be cleared.
      * @return This builder.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
      */
+    @Deprecated
     public final ParametersBuilder clearSelectionOverride(
         int rendererIndex, TrackGroupArray groups) {
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
@@ -754,7 +758,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *
      * @param rendererIndex The renderer index.
      * @return This builder.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
      */
+    @Deprecated
     public final ParametersBuilder clearSelectionOverrides(int rendererIndex) {
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
           selectionOverrides.get(rendererIndex);
@@ -770,7 +776,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Clears all track selection overrides for all renderers.
      *
      * @return This builder.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
      */
+    @Deprecated
     public final ParametersBuilder clearSelectionOverrides() {
       if (selectionOverrides.size() == 0) {
         // Nothing to clear.
@@ -1560,9 +1568,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     for (int j = 0; j < rendererTrackGroups.length; j++) {
       TrackGroup trackGroup = rendererTrackGroups.get(j);
       @Nullable
-      TrackSelectionOverride overrideTracks = params.trackSelectionOverrides.get(trackGroup);
+      TrackSelectionOverride overrideTracks =
+          params.trackSelectionOverrides.getOverride(trackGroup);
       if (overrideTracks != null) {
-        return new ExoTrackSelection.Definition(trackGroup, Ints.toArray(overrideTracks.tracks));
+        return new ExoTrackSelection.Definition(
+            trackGroup, Ints.toArray(overrideTracks.trackIndexes));
       }
     }
     return currentDefinition; // No override

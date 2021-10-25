@@ -23,16 +23,16 @@ import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link TrackSelectionParameters}. */
 @RunWith(AndroidJUnit4.class)
-public class TrackSelectionParametersTest {
+public final class TrackSelectionParametersTest {
 
   @Test
   public void defaultValue_withoutChange_isAsExpected() {
@@ -64,16 +64,22 @@ public class TrackSelectionParametersTest {
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isFalse();
-    assertThat(parameters.trackSelectionOverrides).isEmpty();
+    assertThat(parameters.trackSelectionOverrides.asList()).isEmpty();
     assertThat(parameters.disabledTrackTypes).isEmpty();
   }
 
   @Test
   public void parametersSet_fromDefault_isAsExpected() {
-    ImmutableMap<TrackGroup, TrackSelectionOverride> trackSelectionOverrides =
-        ImmutableMap.of(
-            new TrackGroup(new Format.Builder().build()),
-            new TrackSelectionOverride(/* tracks= */ ImmutableSet.of(2, 3)));
+    TrackSelectionOverrides trackSelectionOverrides =
+        new TrackSelectionOverrides.Builder()
+            .addOverride(new TrackSelectionOverride(new TrackGroup(new Format.Builder().build())))
+            .addOverride(
+                new TrackSelectionOverride(
+                    new TrackGroup(
+                        new Format.Builder().setId(4).build(),
+                        new Format.Builder().setId(5).build()),
+                    /* trackIndexes= */ ImmutableList.of(1)))
+            .build();
     TrackSelectionParameters parameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT
             .buildUpon()
