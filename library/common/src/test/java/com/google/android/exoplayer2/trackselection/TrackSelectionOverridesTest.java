@@ -19,15 +19,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-// packages.bara.sky: import com.google.android.exoplayer2.util.MimeTypes;
-// packages.bara.sky: import com.google.android.exoplayer2.Bundleable;
-// packages.bara.sky: import com.google.android.exoplayer2.C;
-// packages.bara.sky: import com.google.android.exoplayer2.Format;
 
 /** Unit tests for {@link TrackSelectionOverrides}. */
 @RunWith(AndroidJUnit4.class)
