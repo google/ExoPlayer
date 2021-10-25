@@ -19,6 +19,7 @@ import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -29,6 +30,10 @@ import java.util.Map;
 
 /** Defines a region of data in a resource. */
 public final class DataSpec {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.datasource");
+  }
 
   /**
    * Builds {@link DataSpec} instances.
