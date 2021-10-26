@@ -367,8 +367,8 @@ public interface ExoPlayer extends Player {
 
     /* package */ Clock clock;
     /* package */ long foregroundModeTimeoutMs;
-    /* package */ TrackSelector trackSelector;
     /* package */ MediaSourceFactory mediaSourceFactory;
+    /* package */ TrackSelector trackSelector;
     /* package */ LoadControl loadControl;
     /* package */ BandwidthMeter bandwidthMeter;
     /* package */ AnalyticsCollector analyticsCollector;
@@ -395,10 +395,11 @@ public interface ExoPlayer extends Player {
      * Creates a builder.
      *
      * <p>Use {@link #Builder(Context, RenderersFactory)}, {@link #Builder(Context,
-     * RenderersFactory)} or {@link #Builder(Context, RenderersFactory, ExtractorsFactory)} instead,
-     * if you intend to provide a custom {@link RenderersFactory} or a custom {@link
-     * ExtractorsFactory}. This is to ensure that ProGuard or R8 can remove ExoPlayer's {@link
-     * DefaultRenderersFactory} and {@link DefaultExtractorsFactory} from the APK.
+     * MediaSourceFactory)} or {@link #Builder(Context, RenderersFactory, MediaSourceFactory)}
+     * instead, if you intend to provide a custom {@link RenderersFactory}, {@link
+     * ExtractorsFactory} or {@link DefaultMediaSourceFactory}. This is to ensure that ProGuard or
+     * R8 can remove ExoPlayer's {@link DefaultRenderersFactory}, {@link DefaultExtractorsFactory}
+     * and {@link DefaultMediaSourceFactory} from the APK.
      *
      * <p>The builder uses the following default values:
      *
@@ -434,7 +435,10 @@ public interface ExoPlayer extends Player {
      * @param context A {@link Context}.
      */
     public Builder(Context context) {
-      this(context, new DefaultRenderersFactory(context), new DefaultExtractorsFactory());
+      this(
+          context,
+          new DefaultRenderersFactory(context),
+          new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
     }
 
     /**
@@ -447,40 +451,23 @@ public interface ExoPlayer extends Player {
      *     player.
      */
     public Builder(Context context, RenderersFactory renderersFactory) {
-      this(context, renderersFactory, new DefaultExtractorsFactory());
-    }
-
-    /**
-     * Creates a builder with a custom {@link ExtractorsFactory}.
-     *
-     * <p>See {@link #Builder(Context)} for a list of default values.
-     *
-     * @param context A {@link Context}.
-     * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
-     *     its container.
-     */
-    public Builder(Context context, ExtractorsFactory extractorsFactory) {
-      this(context, new DefaultRenderersFactory(context), extractorsFactory);
-    }
-
-    /**
-     * Creates a builder with a custom {@link RenderersFactory} and {@link ExtractorsFactory}.
-     *
-     * <p>See {@link #Builder(Context)} for a list of default values.
-     *
-     * @param context A {@link Context}.
-     * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
-     *     player.
-     * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
-     *     its container.
-     */
-    public Builder(
-        Context context, RenderersFactory renderersFactory, ExtractorsFactory extractorsFactory) {
       this(
           context,
           renderersFactory,
+          new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
+    }
+
+    public Builder(Context context, MediaSourceFactory mediaSourceFactory) {
+      this(context, new DefaultRenderersFactory(context), mediaSourceFactory);
+    }
+
+    public Builder(
+        Context context, RenderersFactory renderersFactory, MediaSourceFactory mediaSourceFactory) {
+      this(
+          context,
+          renderersFactory,
+          mediaSourceFactory,
           new DefaultTrackSelector(context),
-          new DefaultMediaSourceFactory(context, extractorsFactory),
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context),
           new AnalyticsCollector(Clock.DEFAULT));
@@ -495,8 +482,8 @@ public interface ExoPlayer extends Player {
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
      *     player.
-     * @param trackSelector A {@link TrackSelector}.
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
+     * @param trackSelector A {@link TrackSelector}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
      * @param analyticsCollector An {@link AnalyticsCollector}.
@@ -504,15 +491,15 @@ public interface ExoPlayer extends Player {
     public Builder(
         Context context,
         RenderersFactory renderersFactory,
-        TrackSelector trackSelector,
         MediaSourceFactory mediaSourceFactory,
+        TrackSelector trackSelector,
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         AnalyticsCollector analyticsCollector) {
       this.context = context;
       this.renderersFactory = renderersFactory;
-      this.trackSelector = trackSelector;
       this.mediaSourceFactory = mediaSourceFactory;
+      this.trackSelector = trackSelector;
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
       this.analyticsCollector = analyticsCollector;
@@ -547,19 +534,6 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Sets the {@link TrackSelector} that will be used by the player.
-     *
-     * @param trackSelector A {@link TrackSelector}.
-     * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
-     */
-    public Builder setTrackSelector(TrackSelector trackSelector) {
-      checkState(!buildCalled);
-      this.trackSelector = trackSelector;
-      return this;
-    }
-
-    /**
      * Sets the {@link MediaSourceFactory} that will be used by the player.
      *
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
@@ -569,6 +543,19 @@ public interface ExoPlayer extends Player {
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
       checkState(!buildCalled);
       this.mediaSourceFactory = mediaSourceFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link TrackSelector} that will be used by the player.
+     *
+     * @param trackSelector A {@link TrackSelector}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setTrackSelector(TrackSelector trackSelector) {
+      checkState(!buildCalled);
+      this.trackSelector = trackSelector;
       return this;
     }
 

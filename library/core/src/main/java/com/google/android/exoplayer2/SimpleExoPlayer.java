@@ -55,6 +55,7 @@ import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
@@ -111,25 +112,33 @@ public class SimpleExoPlayer extends BasePlayer
       wrappedBuilder = new ExoPlayer.Builder(context, renderersFactory);
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#Builder(Context, ExtractorsFactory)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, MediaSourceFactory)} and {@link
+     *     DefaultMediaSourceFactory#DefaultMediaSourceFactory(Context, ExtractorsFactory)} instead.
+     */
     @Deprecated
     public Builder(Context context, ExtractorsFactory extractorsFactory) {
-      wrappedBuilder = new ExoPlayer.Builder(context, extractorsFactory);
+      wrappedBuilder =
+          new ExoPlayer.Builder(context, new DefaultMediaSourceFactory(context, extractorsFactory));
     }
 
     /**
      * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory,
-     *     ExtractorsFactory)} instead.
+     *     MediaSourceFactory)} and {@link
+     *     DefaultMediaSourceFactory#DefaultMediaSourceFactory(Context, ExtractorsFactory)} instead.
      */
     @Deprecated
     public Builder(
         Context context, RenderersFactory renderersFactory, ExtractorsFactory extractorsFactory) {
-      wrappedBuilder = new ExoPlayer.Builder(context, renderersFactory, extractorsFactory);
+      wrappedBuilder =
+          new ExoPlayer.Builder(
+              context, renderersFactory, new DefaultMediaSourceFactory(context, extractorsFactory));
     }
 
     /**
-     * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory, TrackSelector,
-     *     MediaSourceFactory, LoadControl, BandwidthMeter, AnalyticsCollector)} instead.
+     * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory,
+     *     MediaSourceFactory, TrackSelector, LoadControl, BandwidthMeter, AnalyticsCollector)}
+     *     instead.
      */
     @Deprecated
     public Builder(
@@ -144,8 +153,8 @@ public class SimpleExoPlayer extends BasePlayer
           new ExoPlayer.Builder(
               context,
               renderersFactory,
-              trackSelector,
               mediaSourceFactory,
+              trackSelector,
               loadControl,
               bandwidthMeter,
               analyticsCollector);
