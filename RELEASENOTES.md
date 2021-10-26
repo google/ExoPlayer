@@ -73,8 +73,8 @@
 *   RTSP:
     *   Support RFC4566 SDP attribute field grammar
         ([#9430](https://github.com/google/ExoPlayer/issues/9430)).
-    *	Provide a client API to override the `SocketFactory` used for any server
-	connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
+    *   Provide a client API to override the `SocketFactory` used for any server
+        connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
 *   DASH:
     *   Populate `Format.sampleMimeType`, `width` and `height` for image
         `AdaptationSet` elements
