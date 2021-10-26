@@ -14,9 +14,9 @@ Before filing a question:
 
 - Ask general Android development questions on Stack Overflow
 - Search existing issues, including issues that are closed
+  https://github.com/androidx/media/issues?q=is%3Aissue
+- For ExoPlayer-related questions, please also check the ExoPlayer tracker:
   https://github.com/google/ExoPlayer/issues?q=is%3Aissue
-- Consult our developer website (https://exoplayer.dev/) and Javadoc
-  (https://exoplayer.dev/doc/reference/)
 
 When filing a question:
 -------------------------
@@ -34,7 +34,7 @@ In case your question is related to a piece of media:
   - DRM scheme and license server URL
   - Authentication HTTP headers
 
-Don't forget to check supported formats and devices
+Don't forget to check ExoPlayer's supported formats and devices, if applicable
 (https://exoplayer.dev/supported-formats.html).
 
 If there's something you don't want to post publicly, please submit the issue,

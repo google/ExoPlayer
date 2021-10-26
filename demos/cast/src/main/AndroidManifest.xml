@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.castdemo">
+    package="androidx.media3.demo.cast">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -26,7 +26,7 @@
       android:largeHeap="true" android:allowBackup="false">
 
     <meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-        android:value="com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider"/>
+        android:value="androidx.media3.cast.DefaultCastOptionsProvider"/>
 
     <activity android:name=".MainActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"

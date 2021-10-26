@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="default_notification_channel_name" msgid="7213672915724563695">"Està sonant"</string>
+    <string name="play_button_content_description" msgid="963503759453979404">"Reprodueix"</string>
+    <string name="pause_button_content_description" msgid="3510124037191104584">"Posa en pausa"</string>
+    <string name="skip_to_previous_item_button_content_description" msgid="4352480799561670760">"Ves a l\'element anterior"</string>
+    <string name="skip_to_next_item_button_content_description" msgid="6034072145387511457">"Ves a l\'element següent"</string>
+</resources>

@@ -1,0 +1,42 @@
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
+
+android {
+    sourceSets {
+        main {
+            jniLibs.srcDir 'src/main/libs'
+            jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
+        }
+        androidTest.assets.srcDir '../test_data/src/test/assets'
+    }
+}
+
+dependencies {
+    implementation project(modulePrefix + 'lib-decoder')
+    // TODO(b/203752526): Remove this dependency.
+    implementation project(modulePrefix + 'lib-exoplayer')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    testImplementation project(modulePrefix + 'test-utils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
+    androidTestImplementation 'com.google.truth:truth:' + truthVersion
+}
+
+ext {
+    javadocTitle = 'VP9 extension'
+}
+apply from: '../../javadoc_library.gradle'

@@ -1,7 +1,0 @@
-{%- include snippets/get-lang.html -%}
-{%- assign _lang = __return -%}
-{%- if include.locale[_lang] -%}
-  {%- assign __return = include.locale[_lang] -%}
-{%- else -%}
-  {%- assign __return = include.locale.en -%}
-{%- endif -%}

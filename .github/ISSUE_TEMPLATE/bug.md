@@ -13,16 +13,14 @@ Before filing a bug:
 -------------------------
 
 - Search existing issues, including issues that are closed:
+  https://github.com/androidx/media/issues?q=is%3Aissue
+- For ExoPlayer-related bugs, please also check the ExoPlayer tracker:
   https://github.com/google/ExoPlayer/issues?q=is%3Aissue
-- Consult our developer website: https://exoplayer.dev/
-- Check the supported formats: https://exoplayer.dev/supported-formats.html
-- Try playing problematic media in the demo app:
-  http://exoplayer.dev/demo-application.html
 
 When reporting a bug:
 -------------------------
 
-Describe how the issue can be reproduced, ideally using the ExoPlayer demo app
+Describe how the issue can be reproduced, ideally using one of the demo apps
 or a small sample app that you’re able to share as source code on GitHub. To
 increase the chance of your issue getting attention, please also include:
 
@@ -34,7 +32,7 @@ increase the chance of your issue getting attention, please also include:
   - DRM scheme and license server URL
   - Authentication HTTP headers
 
-- ExoPlayer version number
+- AndroidX Media version number
 - Android version
 - Android device
 

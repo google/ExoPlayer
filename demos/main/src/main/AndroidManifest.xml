@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.google.android.exoplayer2.demo">
+    package="androidx.media3.demo.main">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -69,7 +69,7 @@
         android:theme="@style/PlayerTheme"
         android:exported="true">
       <intent-filter>
-        <action android:name="com.google.android.exoplayer.demo.action.VIEW"/>
+        <action android:name="androidx.media3.demo.main.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <data android:scheme="http"/>
         <data android:scheme="https"/>
@@ -78,7 +78,7 @@
         <data android:scheme="file"/>
       </intent-filter>
       <intent-filter>
-        <action android:name="com.google.android.exoplayer.demo.action.VIEW_LIST"/>
+        <action android:name="androidx.media3.demo.main.action.VIEW_LIST"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>
@@ -86,12 +86,12 @@
     <service android:name=".DemoDownloadService"
         android:exported="false">
       <intent-filter>
-        <action android:name="com.google.android.exoplayer.downloadService.action.RESTART"/>
+        <action android:name="androidx.media3.exoplayer.downloadService.action.RESTART"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </service>
 
-    <service android:name="com.google.android.exoplayer2.scheduler.PlatformScheduler$PlatformSchedulerService"
+    <service android:name="androidx.media3.exoplayer.scheduler.PlatformScheduler$PlatformSchedulerService"
         android:permission="android.permission.BIND_JOB_SERVICE"
         android:exported="true"/>
 

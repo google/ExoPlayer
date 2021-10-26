@@ -71,20 +71,20 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation 'com.google.android.material:material:' + androidxMaterialVersion
-    implementation project(modulePrefix + 'library-core')
-    implementation project(modulePrefix + 'library-dash')
-    implementation project(modulePrefix + 'library-hls')
-    implementation project(modulePrefix + 'library-rtsp')
-    implementation project(modulePrefix + 'library-smoothstreaming')
-    implementation project(modulePrefix + 'library-ui')
-    implementation project(modulePrefix + 'extension-cronet')
-    implementation project(modulePrefix + 'extension-ima')
-    withDecoderExtensionsImplementation project(modulePrefix + 'extension-av1')
-    withDecoderExtensionsImplementation project(modulePrefix + 'extension-ffmpeg')
-    withDecoderExtensionsImplementation project(modulePrefix + 'extension-flac')
-    withDecoderExtensionsImplementation project(modulePrefix + 'extension-opus')
-    withDecoderExtensionsImplementation project(modulePrefix + 'extension-vp9')
-    withDecoderExtensionsImplementation project(modulePrefix + 'extension-rtmp')
+    implementation project(modulePrefix + 'lib-exoplayer')
+    implementation project(modulePrefix + 'lib-exoplayer-dash')
+    implementation project(modulePrefix + 'lib-exoplayer-hls')
+    implementation project(modulePrefix + 'lib-exoplayer-rtsp')
+    implementation project(modulePrefix + 'lib-exoplayer-smoothstreaming')
+    implementation project(modulePrefix + 'lib-ui')
+    implementation project(modulePrefix + 'lib-datasource-cronet')
+    implementation project(modulePrefix + 'lib-exoplayer-ima')
+    withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-av1')
+    withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-ffmpeg')
+    withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-flac')
+    withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-opus')
+    withDecoderExtensionsImplementation project(modulePrefix + 'lib-decoder-vp9')
+    withDecoderExtensionsImplementation project(modulePrefix + 'lib-datasource-rtmp')
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

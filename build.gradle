@@ -19,6 +19,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.0.0'
         classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.2'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21'
     }
 }
 allprojects {
@@ -32,7 +33,7 @@ allprojects {
         }
         buildDir = "${externalBuildDir}/${project.name}"
     }
-    group = 'com.google.android.exoplayer'
+    group = 'androidx.media3'
 }
 
 apply from: 'javadoc_combined.gradle'

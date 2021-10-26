@@ -12,82 +12,78 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 def rootDir = file(".")
-if (!gradle.ext.has('exoplayerSettingsDir')) {
-    gradle.ext.exoplayerSettingsDir = rootDir.getCanonicalPath()
+if (!gradle.ext.has('androidxMediaSettingsDir')) {
+    gradle.ext.androidxMediaSettingsDir = rootDir.getCanonicalPath()
 }
 
 def modulePrefix = ':'
-if (gradle.ext.has('exoplayerModulePrefix')) {
-    modulePrefix += gradle.ext.exoplayerModulePrefix
+if (gradle.ext.has('androidxMediaModulePrefix')) {
+    modulePrefix += gradle.ext.androidxMediaModulePrefix
 }
 
-include modulePrefix + 'library-common'
-project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')
+include modulePrefix + 'lib-common'
+project(modulePrefix + 'lib-common').projectDir = new File(rootDir, 'libraries/common')
 
-include modulePrefix + 'extension-mediasession'
-project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
-include modulePrefix + 'extension-media2'
-project(modulePrefix + 'extension-media2').projectDir = new File(rootDir, 'extensions/media2')
+include modulePrefix + 'lib-session'
+project(modulePrefix + 'lib-session').projectDir = new File(rootDir, 'libraries/session')
 
-include modulePrefix + 'library-core'
-project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
-include modulePrefix + 'library'
-project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
-include modulePrefix + 'library-dash'
-project(modulePrefix + 'library-dash').projectDir = new File(rootDir, 'library/dash')
-include modulePrefix + 'library-hls'
-project(modulePrefix + 'library-hls').projectDir = new File(rootDir, 'library/hls')
-include modulePrefix + 'library-rtsp'
-project(modulePrefix + 'library-rtsp').projectDir = new File(rootDir, 'library/rtsp')
-include modulePrefix + 'library-smoothstreaming'
-project(modulePrefix + 'library-smoothstreaming').projectDir = new File(rootDir, 'library/smoothstreaming')
-include modulePrefix + 'extension-ima'
-project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensions/ima')
-include modulePrefix + 'extension-workmanager'
-project(modulePrefix + 'extension-workmanager').projectDir = new File(rootDir, 'extensions/workmanager')
+include modulePrefix + 'lib-exoplayer'
+project(modulePrefix + 'lib-exoplayer').projectDir = new File(rootDir, 'libraries/exoplayer')
+include modulePrefix + 'lib-exoplayer-dash'
+project(modulePrefix + 'lib-exoplayer-dash').projectDir = new File(rootDir, 'libraries/exoplayer_dash')
+include modulePrefix + 'lib-exoplayer-hls'
+project(modulePrefix + 'lib-exoplayer-hls').projectDir = new File(rootDir, 'libraries/exoplayer_hls')
+include modulePrefix + 'lib-exoplayer-rtsp'
+project(modulePrefix + 'lib-exoplayer-rtsp').projectDir = new File(rootDir, 'libraries/exoplayer_rtsp')
+include modulePrefix + 'lib-exoplayer-smoothstreaming'
+project(modulePrefix + 'lib-exoplayer-smoothstreaming').projectDir = new File(rootDir, 'libraries/exoplayer_smoothstreaming')
+include modulePrefix + 'lib-exoplayer-ima'
+project(modulePrefix + 'lib-exoplayer-ima').projectDir = new File(rootDir, 'libraries/exoplayer_ima')
+include modulePrefix + 'lib-exoplayer-workmanager'
+project(modulePrefix + 'lib-exoplayer-workmanager').projectDir = new File(rootDir, 'libraries/exoplayer_workmanager')
 
-include modulePrefix + 'library-ui'
-project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
-include modulePrefix + 'extension-leanback'
-project(modulePrefix + 'extension-leanback').projectDir = new File(rootDir, 'extensions/leanback')
+include modulePrefix + 'lib-ui'
+project(modulePrefix + 'lib-ui').projectDir = new File(rootDir, 'libraries/ui')
+include modulePrefix + 'lib-ui-leanback'
+project(modulePrefix + 'lib-ui-leanback').projectDir = new File(rootDir, 'libraries/ui_leanback')
 
-include modulePrefix + 'library-database'
-project(modulePrefix + 'library-database').projectDir = new File(rootDir, 'library/database')
+include modulePrefix + 'lib-database'
+project(modulePrefix + 'lib-database').projectDir = new File(rootDir, 'libraries/database')
 
-include modulePrefix + 'library-datasource'
-project(modulePrefix + 'library-datasource').projectDir = new File(rootDir, 'library/datasource')
-include modulePrefix + 'extension-cronet'
-project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
-include modulePrefix + 'extension-rtmp'
-project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
-include modulePrefix + 'extension-okhttp'
-project(modulePrefix + 'extension-okhttp').projectDir = new File(rootDir, 'extensions/okhttp')
+include modulePrefix + 'lib-datasource'
+project(modulePrefix + 'lib-datasource').projectDir = new File(rootDir, 'libraries/datasource')
+include modulePrefix + 'lib-datasource-cronet'
+project(modulePrefix + 'lib-datasource-cronet').projectDir = new File(rootDir, 'libraries/datasource_cronet')
+include modulePrefix + 'lib-datasource-rtmp'
+project(modulePrefix + 'lib-datasource-rtmp').projectDir = new File(rootDir, 'libraries/datasource_rtmp')
+include modulePrefix + 'lib-datasource-okhttp'
+project(modulePrefix + 'lib-datasource-okhttp').projectDir = new File(rootDir, 'libraries/datasource_okhttp')
 
-include modulePrefix + 'library-decoder'
-project(modulePrefix + 'library-decoder').projectDir = new File(rootDir, 'library/decoder')
-include modulePrefix + 'extension-av1'
-project(modulePrefix + 'extension-av1').projectDir = new File(rootDir, 'extensions/av1')
-include modulePrefix + 'extension-ffmpeg'
-project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'extensions/ffmpeg')
-include modulePrefix + 'extension-flac'
-project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')
-include modulePrefix + 'extension-opus'
-project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensions/opus')
-include modulePrefix + 'extension-vp9'
-project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')
+include modulePrefix + 'lib-decoder'
+project(modulePrefix + 'lib-decoder').projectDir = new File(rootDir, 'libraries/decoder')
+include modulePrefix + 'lib-decoder-av1'
+project(modulePrefix + 'lib-decoder-av1').projectDir = new File(rootDir, 'libraries/decoder_av1')
+include modulePrefix + 'lib-decoder-ffmpeg'
+project(modulePrefix + 'lib-decoder-ffmpeg').projectDir = new File(rootDir, 'libraries/decoder_ffmpeg')
+include modulePrefix + 'lib-decoder-flac'
+project(modulePrefix + 'lib-decoder-flac').projectDir = new File(rootDir, 'libraries/decoder_flac')
+include modulePrefix + 'lib-decoder-opus'
+project(modulePrefix + 'lib-decoder-opus').projectDir = new File(rootDir, 'libraries/decoder_opus')
+include modulePrefix + 'lib-decoder-vp9'
+project(modulePrefix + 'lib-decoder-vp9').projectDir = new File(rootDir, 'libraries/decoder_vp9')
 
-include modulePrefix + 'library-extractor'
-project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'library/extractor')
+include modulePrefix + 'lib-extractor'
+project(modulePrefix + 'lib-extractor').projectDir = new File(rootDir, 'libraries/extractor')
 
-include modulePrefix + 'extension-cast'
-project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensions/cast')
+include modulePrefix + 'lib-cast'
+project(modulePrefix + 'lib-cast').projectDir = new File(rootDir, 'libraries/cast')
 
-include modulePrefix + 'library-transformer'
-project(modulePrefix + 'library-transformer').projectDir = new File(rootDir, 'library/transformer')
+include modulePrefix + 'lib-transformer'
+project(modulePrefix + 'lib-transformer').projectDir = new File(rootDir, 'libraries/transformer')
 
-include modulePrefix + 'robolectricutils'
-project(modulePrefix + 'robolectricutils').projectDir = new File(rootDir, 'robolectricutils')
-include modulePrefix + 'testdata'
-project(modulePrefix + 'testdata').projectDir = new File(rootDir, 'testdata')
-include modulePrefix + 'testutils'
-project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')
+include modulePrefix + 'test-utils-robolectric'
+project(modulePrefix + 'test-utils-robolectric').projectDir = new File(rootDir, 'libraries/test_utils_robolectric')
+include modulePrefix + 'test-data'
+project(modulePrefix + 'test-data').projectDir = new File(rootDir, 'libraries/test_data')
+include modulePrefix + 'test-utils'
+project(modulePrefix + 'test-utils').projectDir = new File(rootDir, 'libraries/test_utils')

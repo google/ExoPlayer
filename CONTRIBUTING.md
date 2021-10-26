@@ -1,11 +1,14 @@
-# How to contribute #
+# How to contribute
 
-## Reporting issues ##
+## Reporting issues
 
-We use the [GitHub issue tracker](https://github.com/google/ExoPlayer/issues)
-to track bugs, feature requests and questions.
+We use the [AndroidX Media issue tracker][] to track bugs, feature requests and
+questions.
 
-Before filing a new issue, please search the tracker to check if it's already
+We are still handling ExoPlayer issues on the [ExoPlayer GitHub issue tracker][]
+while the ExoPlayer and AndroidX Media projects coexist.
+
+Before filing a new issue, please search the trackers to check if it's already
 covered by an existing report. Avoiding duplicates helps us maximize the time we
 can spend fixing bugs and adding new features.
 
@@ -13,13 +16,16 @@ When filing an issue, be sure to provide enough information for us to
 efficiently diagnose and reproduce the problem. In particular, please include
 all of the information requested in the issue template.
 
-## Pull requests ##
+[AndroidX Media issue tracker]: https://github.com/androidx/media/issues
+[ExoPlayer GitHub issue tracker]: https://github.com/google/ExoPlayer/issues
+
+## Pull requests
 
 We will also consider high quality pull requests. These should normally merge
-into the `dev-v2` branch. Before a pull request can be accepted you must submit
+into the `main` branch. Before a pull request can be accepted you must submit
 a Contributor License Agreement, as described below.
 
-## Contributor license agreement ##
+## Contributor license agreement
 
 Contributions to any Google project must be accompanied by a Contributor
 License Agreement. This is not a copyright **assignment**, it simply gives

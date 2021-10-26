@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/local_player_view"
+  <androidx.media3.ui.PlayerView android:id="@+id/local_player_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1"
@@ -50,7 +50,7 @@
 
   </RelativeLayout>
 
-  <com.google.android.exoplayer2.ui.PlayerControlView android:id="@+id/cast_control_view"
+  <androidx.media3.ui.PlayerControlView android:id="@+id/cast_control_view"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:visibility="gone"

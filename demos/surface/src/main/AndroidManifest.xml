@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.surfacedemo">
+    package="androidx.media3.demo.surface">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -33,7 +33,7 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
       <intent-filter>
-        <action android:name="com.google.android.exoplayer.surfacedemo.action.VIEW"/>
+        <action android:name="androidx.media3.demo.surface.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <data android:scheme="http"/>
         <data android:scheme="https"/>

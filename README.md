@@ -1,86 +1,73 @@
-# ExoPlayer <img src="https://img.shields.io/github/v/release/google/ExoPlayer.svg?label=latest"/>
+# AndroidX Media
 
-ExoPlayer is an application level media player for Android. It provides an
-alternative to Android’s MediaPlayer API for playing audio and video both
-locally and over the Internet. ExoPlayer supports features not currently
-supported by Android’s MediaPlayer API, including DASH and SmoothStreaming
-adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to customize
-and extend, and can be updated through Play Store application updates.
+AndroidX Media is a collection of libraries for implementing media use cases on
+Android, including local playback (via ExoPlayer) and media sessions.
 
-## Documentation
+## Current status
 
-* The [developer guide][] provides a wealth of information.
-* The [class reference][] documents ExoPlayer classes.
-* The [release notes][] document the major changes in each release.
-* Follow our [developer blog][] to keep up to date with the latest ExoPlayer
-  developments!
+AndroidX Media is in currently in alpha and we welcome your feedback via the
+[issue tracker][]. Please consult the [release notes][] for more details about
+the alpha release.
 
-[developer guide]: https://exoplayer.dev/guide.html
-[class reference]: https://exoplayer.dev/doc/reference
-[release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
-[developer blog]: https://medium.com/google-exoplayer
+ExoPlayer's new home will be in AndroidX Media, but for now we are publishing it
+both in AndroidX Media and via the existing [ExoPlayer project][]. While
+AndroidX Media is in alpha we recommend that production apps using ExoPlayer
+continue to depend on the existing ExoPlayer project. We are still handling
+ExoPlayer issues on the [ExoPlayer issue tracker][].
 
-## Using ExoPlayer
+Updated documentation, including information on migration and a developer guide,
+is coming soon.
 
-ExoPlayer modules can be obtained from [the Google Maven repository][]. It's
-also possible to clone the repository and depend on the modules locally.
+For a high level overview of the initial version of AndroidX Media please see
+the Android Dev Summit talk [What's next for AndroidX Media and ExoPlayer][].
+
+[release notes]: RELEASENOTES.md
+[issue tracker]: https://github.com/androidx/media/issues/new
+[ExoPlayer project]: https://github.com/google/ExoPlayer
+[ExoPlayer issue tracker]: https://github.com/google/ExoPlayer/issues
+[What's next for AndroidX Media and ExoPlayer]: https://developer.android.com/events/dev-summit/technical-talks
+
+## Using the libraries
+
+You can get the libraries from [the Google Maven repository][]. It's
+also possible to clone this GitHub repository and depend on the modules locally.
 
 [the Google Maven repository]: https://developer.android.com/studio/build/dependencies#google-maven
 
 ### From the Google Maven repository
 
-#### 1. Add ExoPlayer module dependencies
+#### 1. Add module dependencies
 
-The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency in the `build.gradle` file of your app module. The following will add
-a dependency to the full library:
+The easiest way to get started using AndroidX Media is to add gradle
+dependencies on the libraries you need in the `build.gradle` file of your app
+module.
 
-```gradle
-implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
-```
-
-where `2.X.X` is your preferred version.
-
-As an alternative to the full library, you can depend on only the library
-modules that you actually need. For example the following will add dependencies
-on the Core, DASH and UI library modules, as might be required for an app that
-only plays DASH content:
+For example, to depend on ExoPlayer with DASH playback support and UI components
+you can add dependencies on the modules like this:
 
 ```gradle
-implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
-implementation 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
-implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
+implementation 'androidx.media3:media3-exoplayer:1.X.X'
+implementation 'androidx.media3:media3-exoplayer-dash:1.X.X'
+implementation 'androidx.media3:media3-ui:1.X.X'
 ```
 
-When depending on individual modules they must all be the same version.
+where `1.X.X` is your preferred version. All modules must be the same version.
 
-The available library modules are listed below. Adding a dependency to the full
-ExoPlayer library is equivalent to adding dependencies on all of the library
-modules individually.
+Please see the [AndroidX Media3 developer.android.com page][] for more
+information, including a full list of library modules.
 
-* `exoplayer-core`: Core functionality (required).
-* `exoplayer-dash`: Support for DASH content.
-* `exoplayer-hls`: Support for HLS content.
-* `exoplayer-rtsp`: Support for RTSP content.
-* `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
-* `exoplayer-transformer`: Media transformation functionality.
-* `exoplayer-ui`: UI components and resources for use with ExoPlayer.
+This repository includes some modules that depend on external libraries that
+need to be built manually, and are not available from the Maven repository.
+Please see the individual READMEs under the [libraries directory][] for more
+details.
 
-In addition to library modules, ExoPlayer has extension modules that depend on
-external libraries to provide additional functionality. Some extensions are
-available from the Maven repository, whereas others must be built manually.
-Browse the [extensions directory][] and their individual READMEs for details.
-
-More information on the library and extension modules that are available can be
-found on the [Google Maven ExoPlayer page][].
-
-[extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
-[Google Maven ExoPlayer page]: https://maven.google.com/web/index.html#com.google.android.exoplayer
+[AndroidX Media3 developer.android.com page]: https://developer.android.com/jetpack/androidx/releases/media3#declaring_dependencies
+[libraries directory]: libraries
 
 #### 2. Turn on Java 8 support
 
 If not enabled already, you also need to turn on Java 8 support in all
-`build.gradle` files depending on ExoPlayer, by adding the following to the
+`build.gradle` files depending on AndroidX Media, by adding the following to the
 `android` section:
 
 ```gradle
@@ -98,45 +85,45 @@ to prevent build errors.
 ### Locally
 
 Cloning the repository and depending on the modules locally is required when
-using some ExoPlayer extension modules. It's also a suitable approach if you
-want to make local changes to ExoPlayer, or if you want to use a development
-branch.
+using some libraries. It's also a suitable approach if you want to make local
+changes, or if you want to use the main branch.
 
 First, clone the repository into a local directory and checkout the desired
 branch:
 
 ```sh
-git clone https://github.com/google/ExoPlayer.git
-cd ExoPlayer
-git checkout release-v2
+git clone https://github.com/androidx/media.git
+cd media
+git checkout main
 ```
 
 Next, add the following to your project's `settings.gradle` file, replacing
-`path/to/exoplayer` with the path to your local copy:
+`path/to/media` with the path to your local copy:
 
 ```gradle
-gradle.ext.exoplayerModulePrefix = 'exoplayer-'
-apply from: file("path/to/exoplayer/core_settings.gradle")
+gradle.ext.androidxMediaModulePrefix = 'media-'
+apply from: file("path/to/media/core_settings.gradle")
 ```
 
-You should now see the ExoPlayer modules appear as part of your project. You can
-depend on them as you would on any other local module, for example:
+You should now see the AndroidX Media modules appear as part of your project.
+You can depend on them as you would on any other local module, for example:
 
 ```gradle
-implementation project(':exoplayer-library-core')
-implementation project(':exoplayer-library-dash')
-implementation project(':exoplayer-library-ui')
+implementation project(':media-lib-exoplayer')
+implementation project(':media-lib-exoplayer-dash')
+implementation project(':media-lib-ui')
 ```
 
-## Developing ExoPlayer
+## Developing AndroidX Media
 
 #### Project branches
 
-* Development work happens on the `dev-v2` branch. Pull requests should
-  normally be made to this branch.
-* The `release-v2` branch holds the most recent release.
+Development work happens on the `main` branch. Pull requests should normally be
+made to this branch.
+
+We plan to add a release branch soon.
 
 #### Using Android Studio
 
-To develop ExoPlayer using Android Studio, simply open the ExoPlayer project in
-the root directory of the repository.
+To develop AndroidX Media using Android Studio, simply open the project in the
+root directory of this repository.

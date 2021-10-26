@@ -32,7 +32,7 @@
       android:layout_weight="1"
       android:columnCount="3"/>
 
-    <com.google.android.exoplayer2.ui.PlayerControlView
+    <androidx.media3.ui.PlayerControlView
       android:id="@+id/player_control_view"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
