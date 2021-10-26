@@ -27,8 +27,12 @@ import com.google.android.exoplayer2.source.rtsp.RtspClient.SessionInfoListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackException;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.net.SocketFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,6 +79,79 @@ public final class RtspClientTest {
   public void tearDown() {
     Util.closeQuietly(rtspServer);
     Util.closeQuietly(rtspClient);
+  }
+
+  @Test
+  public void connectServerAndClient_usesCustomSocketFactory() throws Exception {
+    class ResponseProvider implements RtspServer.ResponseProvider {
+      @Override
+      public RtspResponse getOptionsResponse() {
+        return new RtspResponse(
+            /* status= */ 200,
+            new RtspHeaders.Builder().add(RtspHeaders.PUBLIC, "OPTIONS, DESCRIBE").build());
+      }
+
+      @Override
+      public RtspResponse getDescribeResponse(Uri requestedUri) {
+        return RtspTestUtils.newDescribeResponseWithSdpMessage(
+            SESSION_DESCRIPTION, rtpPacketStreamDumps, requestedUri);
+      }
+    }
+    rtspServer = new RtspServer(new ResponseProvider());
+
+    final AtomicReference<Boolean> didCallCreateSocket = new AtomicReference<>();
+
+    final SocketFactory socketFactory =
+        new SocketFactory() {
+
+          @Override
+          public Socket createSocket(String host, int port) throws IOException {
+            didCallCreateSocket.set(true);
+
+            return SocketFactory.getDefault().createSocket(host, port);
+          }
+
+          @Override
+          public Socket createSocket(String s, int i, InetAddress inetAddress, int i1)
+              throws IOException {
+            return SocketFactory.getDefault().createSocket(s, i, inetAddress, i1);
+          }
+
+          @Override
+          public Socket createSocket(InetAddress inetAddress, int i) throws IOException {
+            return SocketFactory.getDefault().createSocket(inetAddress, i);
+          }
+
+          @Override
+          public Socket createSocket(
+              InetAddress inetAddress, int i, InetAddress inetAddress1, int i1) throws IOException {
+            return SocketFactory.getDefault().createSocket(inetAddress, i, inetAddress1, i1);
+          }
+        };
+
+    AtomicReference<ImmutableList<RtspMediaTrack>> tracksInSession = new AtomicReference<>();
+    rtspClient =
+        new RtspClient(
+            new SessionInfoListener() {
+              @Override
+              public void onSessionTimelineUpdated(
+                  RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {
+                tracksInSession.set(tracks);
+              }
+
+              @Override
+              public void onSessionTimelineRequestFailed(
+                  String message, @Nullable Throwable cause) {}
+            },
+            EMPTY_PLAYBACK_LISTENER,
+            /* userAgent= */ "ExoPlayer:RtspClientTest",
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            /* debugLoggingEnabled= */ false,
+            socketFactory);
+    rtspClient.start();
+    RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);
+
+    assertThat(didCallCreateSocket.get()).isTrue();
   }
 
   @Test
