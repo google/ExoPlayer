@@ -51,7 +51,6 @@ new DefaultDataSourceFactory(
 
 ## Links
 
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.okhttp.*`
-  belong to this module.
+* [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

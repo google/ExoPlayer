@@ -106,7 +106,6 @@ To try out playback using the module in the [demo application][], see
 
 ## Links
 
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.flac.*`
-  belong to this module.
+* [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

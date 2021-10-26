@@ -30,9 +30,8 @@ instances and pass them directly to the player.
 
 ## Links
 
-*   [Developer Guide][].
-*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.source.rtsp.*` belong to
-    this module.
+*   [Developer Guide][]
+*   [Javadoc][]
 
 [Developer Guide]: https://exoplayer.dev/dash.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

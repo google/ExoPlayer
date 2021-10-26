@@ -48,7 +48,6 @@ doesn't need to handle any other protocols, you can update any
 
 ## Links
 
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.rtmp.*`
-  belong to this module.
+* [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

@@ -128,8 +128,7 @@ To try out playback using the module in the [demo application][], see
 ## Links
 
 * [Troubleshooting using extensions][]
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ffmpeg.*`
-  belong to this module.
+* [Javadoc][]
 
 [Troubleshooting using extensions]: https://exoplayer.dev/troubleshooting.html#how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

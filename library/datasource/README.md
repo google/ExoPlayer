@@ -6,7 +6,6 @@ depend on this module directly.
 
 ## Links
 
-*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.upstream.*` belong to this
-    module.
+*   [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html
