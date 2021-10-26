@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Android Open Source Project
+// Copyright (C) 2021 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,53 +14,31 @@
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-
     buildTypes {
         debug {
             testCoverageEnabled = true
         }
     }
-
-    sourceSets {
-        androidTest.assets.srcDir '../../testdata/src/test/assets/'
-        test.assets.srcDir '../../testdata/src/test/assets/'
-    }
 }
 
 dependencies {
     implementation project(modulePrefix + 'library-common')
-    implementation project(modulePrefix + 'library-database')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
-    compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
-    compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
-    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
-    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
-    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
-    androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation(project(modulePrefix + 'testutils')) {
-        exclude module: modulePrefix.substring(1) + 'library-core'
-    }
-    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'androidx.test:core:' + androidxTestCoreVersion
     testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
-    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {
-    javadocTitle = 'DataSource module'
+    javadocTitle = 'Database module'
 }
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifactId = 'exoplayer-datasource'
-    releaseDescription = 'The ExoPlayer library DataSource module.'
+    releaseArtifactId = 'exoplayer-database'
+    releaseDescription = 'The ExoPlayer database module.'
 }
 apply from: '../../publish.gradle'

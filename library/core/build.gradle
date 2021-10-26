@@ -40,6 +40,7 @@ dependencies {
     api project(modulePrefix + 'library-datasource')
     api project(modulePrefix + 'library-decoder')
     api project(modulePrefix + 'library-extractor')
+    api project(modulePrefix + 'library-database')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'androidx.core:core:' + androidxCoreVersion
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version

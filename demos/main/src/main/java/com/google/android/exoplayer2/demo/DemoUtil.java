@@ -19,7 +19,7 @@ import android.content.Context;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
 import com.google.android.exoplayer2.ext.cronet.CronetDataSource;
 import com.google.android.exoplayer2.ext.cronet.CronetUtil;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
@@ -194,7 +194,7 @@ public final class DemoUtil {
 
   private static synchronized DatabaseProvider getDatabaseProvider(Context context) {
     if (databaseProvider == null) {
-      databaseProvider = new ExoDatabaseProvider(context);
+      databaseProvider = new StandaloneDatabaseProvider(context);
     }
     return databaseProvider;
   }
