@@ -52,7 +52,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A Truth {@link Subject} for assertions on {@link Spanned} instances containing text styling. */
-// TODO: add support for more Spans i.e. all those used in androidx.media3.common.text.
 public final class SpannedSubject extends Subject {
 
   @Nullable private final Spanned actual;
