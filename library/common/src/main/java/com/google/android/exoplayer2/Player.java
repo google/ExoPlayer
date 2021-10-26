@@ -141,7 +141,11 @@ public interface Player {
      *
      * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
      * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
-     * selections' formats} and {@link Listener#onMetadata(Metadata)}.
+     * selections' formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in
+     * the {@link MediaItem#mediaMetadata}, it will be prioritised above the same field coming from
+     * static or dynamic metadata.
+     *
+     * <p>This method may be called multiple times in quick succession.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
