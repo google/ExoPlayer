@@ -38,7 +38,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -339,7 +338,12 @@ public final class TranscodingTransformer {
       }
       Transformation transformation =
           new Transformation(
-              removeAudio, removeVideo, flattenForSlowMotion, outputMimeType, audioMimeType);
+              removeAudio,
+              removeVideo,
+              flattenForSlowMotion,
+              outputMimeType,
+              audioMimeType,
+              /* videoMimeType= */ null);
       return new TranscodingTransformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
     }
@@ -639,17 +643,9 @@ public final class TranscodingTransformer {
         index++;
       }
       if (!transformation.removeVideo) {
-        Format encoderOutputFormat =
-            new Format.Builder()
-                .setSampleMimeType(MimeTypes.VIDEO_H264)
-                .setWidth(480)
-                .setHeight(360)
-                .setAverageBitrate(413_000)
-                .setFrameRate(30)
-                .build();
         renderers[index] =
             new TransformerTranscodingVideoRenderer(
-                context, muxerWrapper, mediaClock, transformation, encoderOutputFormat);
+                context, muxerWrapper, mediaClock, transformation);
         index++;
       }
       return renderers;

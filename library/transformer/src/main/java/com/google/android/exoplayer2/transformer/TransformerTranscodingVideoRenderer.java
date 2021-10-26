@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 @RequiresApi(18)
 /* package */ final class TransformerTranscodingVideoRenderer extends TransformerBaseRenderer {
@@ -53,11 +54,11 @@ import java.nio.ByteBuffer;
   private static final String TAG = "TransformerTranscodingVideoRenderer";
 
   private final Context context;
-  /** The format the encoder is configured to output, may differ from the actual output format. */
-  private final Format encoderConfigurationOutputFormat;
 
   private final DecoderInputBuffer decoderInputBuffer;
   private final float[] decoderTextureTransformMatrix;
+
+  private @MonotonicNonNull Format decoderInputFormat;
 
   @Nullable private EGLDisplay eglDisplay;
   @Nullable private EGLContext eglContext;
@@ -81,11 +82,9 @@ import java.nio.ByteBuffer;
       Context context,
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
-      Transformation transformation,
-      Format encoderConfigurationOutputFormat) {
+      Transformation transformation) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformation);
     this.context = context;
-    this.encoderConfigurationOutputFormat = encoderConfigurationOutputFormat;
     decoderInputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     decoderTextureTransformMatrix = new float[16];
     decoderTextureId = GlUtil.TEXTURE_ID_UNSET;
@@ -97,15 +96,13 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  protected void onStarted() throws ExoPlaybackException {
-    super.onStarted();
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    if (!isRendererStarted || isEnded() || !ensureInputFormatRead()) {
+      return;
+    }
     ensureEncoderConfigured();
     ensureOpenGlConfigured();
-  }
-
-  @Override
-  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (!isRendererStarted || isEnded() || !ensureDecoderConfigured()) {
+    if (!ensureDecoderConfigured()) {
       return;
     }
 
@@ -153,6 +150,22 @@ import java.nio.ByteBuffer;
     muxerWrapperTrackEnded = false;
   }
 
+  private boolean ensureInputFormatRead() {
+    if (decoderInputFormat != null) {
+      return true;
+    }
+    FormatHolder formatHolder = getFormatHolder();
+    @SampleStream.ReadDataResult
+    int result =
+        readSource(
+            formatHolder, decoderInputBuffer, /* readFlags= */ SampleStream.FLAG_REQUIRE_FORMAT);
+    if (result != C.RESULT_FORMAT_READ) {
+      return false;
+    }
+    decoderInputFormat = checkNotNull(formatHolder.format);
+    return true;
+  }
+
   private void ensureEncoderConfigured() throws ExoPlaybackException {
     if (encoder != null) {
       return;
@@ -161,7 +174,15 @@ import java.nio.ByteBuffer;
     try {
       encoder =
           MediaCodecAdapterWrapper.createForVideoEncoding(
-              encoderConfigurationOutputFormat, ImmutableMap.of());
+              new Format.Builder()
+                  .setWidth(checkNotNull(decoderInputFormat).width)
+                  .setHeight(decoderInputFormat.height)
+                  .setSampleMimeType(
+                      transformation.videoMimeType != null
+                          ? transformation.videoMimeType
+                          : decoderInputFormat.sampleMimeType)
+                  .build(),
+              ImmutableMap.of());
     } catch (IOException e) {
       throw createRendererException(
           // TODO(claincly): should be "ENCODER_INIT_FAILED"
@@ -190,8 +211,8 @@ import java.nio.ByteBuffer;
         eglDisplay,
         eglContext,
         eglSurface,
-        encoderConfigurationOutputFormat.width,
-        encoderConfigurationOutputFormat.height);
+        checkNotNull(decoderInputFormat).width,
+        decoderInputFormat.height);
     decoderTextureId = GlUtil.createExternalTexture();
     String vertexShaderCode;
     String fragmentShaderCode;
@@ -248,26 +269,18 @@ import java.nio.ByteBuffer;
       return true;
     }
 
-    FormatHolder formatHolder = getFormatHolder();
-    @SampleStream.ReadDataResult
-    int result =
-        readSource(
-            formatHolder, decoderInputBuffer, /* readFlags= */ SampleStream.FLAG_REQUIRE_FORMAT);
-    if (result != C.RESULT_FORMAT_READ) {
-      return false;
-    }
-
-    Format inputFormat = checkNotNull(formatHolder.format);
     checkState(decoderTextureId != GlUtil.TEXTURE_ID_UNSET);
     decoderSurfaceTexture = new SurfaceTexture(decoderTextureId);
     decoderSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> isDecoderSurfacePopulated = true);
     decoderSurface = new Surface(decoderSurfaceTexture);
     try {
-      decoder = MediaCodecAdapterWrapper.createForVideoDecoding(inputFormat, decoderSurface);
+      decoder =
+          MediaCodecAdapterWrapper.createForVideoDecoding(
+              checkNotNull(decoderInputFormat), decoderSurface);
     } catch (IOException e) {
       throw createRendererException(
-          e, formatHolder.format, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
+          e, decoderInputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     }
     return true;
   }

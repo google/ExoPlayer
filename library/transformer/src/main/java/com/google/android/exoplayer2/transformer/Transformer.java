@@ -304,7 +304,8 @@ public final class Transformer {
               removeVideo,
               flattenForSlowMotion,
               outputMimeType,
-              /* audioMimeType= */ null);
+              /* audioMimeType= */ null,
+              /* videoMimeType= */ null);
       return new Transformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
     }

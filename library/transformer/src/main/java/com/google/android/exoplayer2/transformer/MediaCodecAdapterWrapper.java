@@ -19,7 +19,6 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static java.lang.Math.ceil;
 
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
@@ -202,9 +201,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * MediaCodecAdapter} video encoder.
    *
    * @param format The {@link Format} (of the output data) used to determine the underlying {@link
-   *     MediaCodec} and its configuration values. {@link Format#width}, {@link Format#height},
-   *     {@link Format#frameRate} and {@link Format#averageBitrate} must be set to those of the
-   *     desired output video format.
+   *     MediaCodec} and its configuration values. {@link Format#sampleMimeType}, {@link
+   *     Format#width} and {@link Format#height} must be set to those of the desired output video
+   *     format.
    * @param additionalEncoderConfig A map of {@link MediaFormat}'s integer settings, where the keys
    *     are from {@code MediaFormat.KEY_*} constants. Its values will override those in {@code
    *     format}.
@@ -215,8 +214,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Format format, Map<String, Integer> additionalEncoderConfig) throws IOException {
     checkArgument(format.width != Format.NO_VALUE);
     checkArgument(format.height != Format.NO_VALUE);
-    checkArgument(format.frameRate != Format.NO_VALUE);
-    checkArgument(format.averageBitrate != Format.NO_VALUE);
 
     @Nullable MediaCodecAdapter adapter = null;
     try {
@@ -224,9 +221,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           MediaFormat.createVideoFormat(
               checkNotNull(format.sampleMimeType), format.width, format.height);
       mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, CodecCapabilities.COLOR_FormatSurface);
-      mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, (int) ceil(format.frameRate));
+      mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
       mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
-      mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.averageBitrate);
+      mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 413_000);
 
       for (Map.Entry<String, Integer> encoderSetting : additionalEncoderConfig.entrySet()) {
         mediaFormat.setInteger(encoderSetting.getKey(), encoderSetting.getValue());

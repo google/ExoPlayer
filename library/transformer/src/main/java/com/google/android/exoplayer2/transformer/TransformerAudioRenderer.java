@@ -51,7 +51,7 @@ import java.nio.ByteBuffer;
   @Nullable private MediaCodecAdapterWrapper decoder;
   @Nullable private MediaCodecAdapterWrapper encoder;
   @Nullable private SpeedProvider speedProvider;
-  @Nullable private Format inputFormat;
+  @Nullable private Format decoderInputFormat;
   @Nullable private AudioFormat encoderInputAudioFormat;
 
   private ByteBuffer sonicOutputBuffer;
@@ -100,7 +100,7 @@ import java.nio.ByteBuffer;
       encoder = null;
     }
     speedProvider = null;
-    inputFormat = null;
+    decoderInputFormat = null;
     encoderInputAudioFormat = null;
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
     nextEncoderInputBufferTimeUs = 0;
@@ -352,7 +352,7 @@ import java.nio.ByteBuffer;
     }
     String audioMimeType =
         transformation.audioMimeType == null
-            ? checkNotNull(inputFormat).sampleMimeType
+            ? checkNotNull(decoderInputFormat).sampleMimeType
             : transformation.audioMimeType;
     try {
       encoder =
@@ -385,14 +385,14 @@ import java.nio.ByteBuffer;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    inputFormat = checkNotNull(formatHolder.format);
+    decoderInputFormat = checkNotNull(formatHolder.format);
     try {
-      decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
+      decoder = MediaCodecAdapterWrapper.createForAudioDecoding(decoderInputFormat);
     } catch (IOException e) {
       // TODO (internal b/184262323): Assign an adequate error code.
       throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
-    speedProvider = new SegmentSpeedProvider(inputFormat);
+    speedProvider = new SegmentSpeedProvider(decoderInputFormat);
     currentSpeed = speedProvider.getSpeed(0);
     return true;
   }
@@ -418,7 +418,7 @@ import java.nio.ByteBuffer;
         cause,
         TAG,
         getIndex(),
-        inputFormat,
+        decoderInputFormat,
         /* rendererFormatSupport= */ C.FORMAT_HANDLED,
         /* isRecoverable= */ false,
         errorCode);
