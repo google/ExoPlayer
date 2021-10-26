@@ -1435,7 +1435,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         int esdsAtomPosition =
             childAtomType == Atom.TYPE_esds
                 ? childPosition
-                : findEsdsPosition(parent, childPosition, childAtomSize);
+                : findBoxPosition(parent, Atom.TYPE_esds, childPosition, childAtomSize);
         if (esdsAtomPosition != C.POSITION_UNSET) {
           Pair<@NullableType String, byte @NullableType []> mimeTypeAndInitializationData =
               parseEsdsFromParent(parent, esdsAtomPosition);
@@ -1537,18 +1537,28 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Returns the position of the esds box within a parent, or {@link C#POSITION_UNSET} if no esds
-   * box is found
+   * Returns the position of the first box with the given {@code boxType} within {@code parent}, or
+   * {@link C#POSITION_UNSET} if no such box is found.
+   *
+   * @param parent The {@link ParsableByteArray} to search. The search will start from the {@link
+   *     ParsableByteArray#getPosition() current position}.
+   * @param boxType The box type to search for.
+   * @param parentBoxPosition The position in {@code parent} of the box we are searching.
+   * @param parentBoxSize The size of the parent box we are searching in bytes.
+   * @return The position of the first box with the given {@code boxType} within {@code parent}, or
+   *     {@link C#POSITION_UNSET} if no such box is found.
    */
-  private static int findEsdsPosition(ParsableByteArray parent, int position, int size)
+  private static int findBoxPosition(
+      ParsableByteArray parent, int boxType, int parentBoxPosition, int parentBoxSize)
       throws ParserException {
     int childAtomPosition = parent.getPosition();
-    while (childAtomPosition - position < size) {
+    ExtractorUtil.checkContainerInput(childAtomPosition >= parentBoxPosition, /* message= */ null);
+    while (childAtomPosition - parentBoxPosition < parentBoxSize) {
       parent.setPosition(childAtomPosition);
       int childAtomSize = parent.readInt();
       ExtractorUtil.checkContainerInput(childAtomSize > 0, "childAtomSize must be positive");
       int childType = parent.readInt();
-      if (childType == Atom.TYPE_esds) {
+      if (childType == boxType) {
         return childAtomPosition;
       }
       childAtomPosition += childAtomSize;
