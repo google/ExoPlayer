@@ -58,7 +58,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
                     ? sampleMimeType
                     : transformation.audioMimeType))
         || (MimeTypes.isVideo(sampleMimeType)
-            && muxerWrapper.supportsSampleMimeType(sampleMimeType))) {
+            && muxerWrapper.supportsSampleMimeType(
+                transformation.videoMimeType == null
+                    ? sampleMimeType
+                    : transformation.videoMimeType))) {
       return RendererCapabilities.create(C.FORMAT_HANDLED);
     } else {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);

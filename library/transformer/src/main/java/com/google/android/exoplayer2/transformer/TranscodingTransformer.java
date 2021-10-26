@@ -100,6 +100,7 @@ public final class TranscodingTransformer {
     private boolean flattenForSlowMotion;
     private String outputMimeType;
     @Nullable private String audioMimeType;
+    @Nullable private String videoMimeType;
     private TranscodingTransformer.Listener listener;
     private Looper looper;
     private Clock clock;
@@ -123,6 +124,7 @@ public final class TranscodingTransformer {
       this.flattenForSlowMotion = transcodingTransformer.transformation.flattenForSlowMotion;
       this.outputMimeType = transcodingTransformer.transformation.outputMimeType;
       this.audioMimeType = transcodingTransformer.transformation.audioMimeType;
+      this.videoMimeType = transcodingTransformer.transformation.videoMimeType;
       this.listener = transcodingTransformer.listener;
       this.looper = transcodingTransformer.looper;
       this.clock = transcodingTransformer.clock;
@@ -230,6 +232,33 @@ public final class TranscodingTransformer {
     }
 
     /**
+     * Sets the video MIME type of the output. The default value is to use the same MIME type as the
+     * input. Supported values are:
+     *
+     * <ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
+     *       <ul>
+     *         <li>{@link MimeTypes#VIDEO_H263}
+     *         <li>{@link MimeTypes#VIDEO_H264}
+     *         <li>{@link MimeTypes#VIDEO_H265} from API level 24
+     *         <li>{@link MimeTypes#VIDEO_MP4V}
+     *       </ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
+     *       <ul>
+     *         <li>{@link MimeTypes#VIDEO_VP8}
+     *         <li>{@link MimeTypes#VIDEO_VP9} from API level 24
+     *       </ul>
+     * </ul>
+     *
+     * @param videoMimeType The MIME type of the video samples in the output.
+     * @return This builder.
+     */
+    public Builder setVideoMimeType(String videoMimeType) {
+      this.videoMimeType = videoMimeType;
+      return this;
+    }
+
+    /**
      * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
      * input. Supported values are:
      *
@@ -329,12 +358,10 @@ public final class TranscodingTransformer {
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
       if (audioMimeType != null) {
-        checkState(
-            muxerFactory.supportsSampleMimeType(audioMimeType, outputMimeType),
-            "Unsupported sample MIME type "
-                + audioMimeType
-                + " for container MIME type "
-                + outputMimeType);
+        checkSampleMimeType(audioMimeType);
+      }
+      if (videoMimeType != null) {
+        checkSampleMimeType(videoMimeType);
       }
       Transformation transformation =
           new Transformation(
@@ -343,9 +370,18 @@ public final class TranscodingTransformer {
               flattenForSlowMotion,
               outputMimeType,
               audioMimeType,
-              /* videoMimeType= */ null);
+              videoMimeType);
       return new TranscodingTransformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
+    }
+
+    private void checkSampleMimeType(String sampleMimeType) {
+      checkState(
+          muxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType),
+          "Unsupported sample MIME type "
+              + sampleMimeType
+              + " for container MIME type "
+              + outputMimeType);
     }
   }
 
