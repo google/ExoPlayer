@@ -103,6 +103,17 @@ public final class Mp4ExtractorTest {
         Mp4Extractor::new, "media/mp4/sample_with_color_info.mp4", simulationConfig);
   }
 
+  /**
+   * Test case for https://github.com/google/ExoPlayer/issues/9332. The file contains a colr box
+   * with size=18 and type=nclx. This is not valid according to the spec (size must be 19), but
+   * files like this exist in the wild.
+   */
+  @Test
+  public void mp4Sample18ByteNclxColr() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_18byte_nclx_colr.mp4", simulationConfig);
+  }
+
   @Test
   public void mp4SampleWithDolbyTrueHDTrack() throws Exception {
     ExtractorAsserts.assertBehavior(

@@ -24,8 +24,8 @@
         ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
     *   Remove final dependency on `jcenter()`.
     *   Adjust `ExoPlayer` `MediaMetadata` update priority, such that values
-        input through the `MediaItem.MediaMetadata` are used above media
-        derived values.
+        input through the `MediaItem.MediaMetadata` are used above media derived
+        values.
 *   Video:
     *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
         released `Surface` when playing without an app-provided `Surface`
@@ -61,6 +61,9 @@
     *   MP4: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
     *   MP4: Add support for Dolby TrueHD (only for unfragmented streams)
         ([#9496](https://github.com/google/ExoPlayer/issues/9496)).
+    *   MP4: Avoid throwing `ArrayIndexOutOfBoundsException` when parsing
+        invalid `colr` boxes produced by some device cameras
+        ([#9332](https://github.com/google/ExoPlayer/issues/9332)).
     *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
     *   TS: Map stream type 0x80 to H262
         ([#9472](https://github.com/google/ExoPlayer/issues/9472)).
