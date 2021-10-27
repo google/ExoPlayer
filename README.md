@@ -15,8 +15,15 @@ AndroidX Media is in alpha we recommend that production apps using ExoPlayer
 continue to depend on the existing ExoPlayer project. We are still handling
 ExoPlayer issues on the [ExoPlayer issue tracker][].
 
-Updated documentation, including information on migration and a developer guide,
-is coming soon.
+Updated documentation, including more information on migration and a developer
+guide, is coming soon. For existing ExoPlayer users, the most important change
+is that all classes have been moved to new packages under `androidx.media3`.
+
+AndroidX Media alpha releases provide no guarantees about API stability, but the
+codebase includes API stability marking for non-alpha releases. If you see lint
+errors from using the unstable API surface, you can opt-in by annotating the
+relevant code or disabling the lint check entirely. For more information see the
+[UnstableApi][] documentation.
 
 For a high level overview of the initial version of AndroidX Media please see
 the Android Dev Summit talk [What's next for AndroidX Media and ExoPlayer][].
@@ -25,6 +32,7 @@ the Android Dev Summit talk [What's next for AndroidX Media and ExoPlayer][].
 [issue tracker]: https://github.com/androidx/media/issues/new
 [ExoPlayer project]: https://github.com/google/ExoPlayer
 [ExoPlayer issue tracker]: https://github.com/google/ExoPlayer/issues
+[UnstableApi]: https://github.com/androidx/media/blob/main/libraries/common/src/main/java/androidx/media3/common/util/UnstableApi.java
 [What's next for AndroidX Media and ExoPlayer]: https://youtu.be/sTIBDcyCmCg
 
 ## Using the libraries
