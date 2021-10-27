@@ -18,9 +18,9 @@ package androidx.media3.transformer;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
+import androidx.media3.common.util.Util;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData.Segment;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
@@ -60,17 +60,17 @@ public class SegmentSpeedProviderTest {
                 .setMetadata(new Metadata(new SlowMotionData(segments), SMTA_SPEED_8))
                 .build());
 
-    assertThat(provider.getSpeed(C.msToUs(0))).isEqualTo(8);
-    assertThat(provider.getSpeed(C.msToUs(500))).isEqualTo(1);
-    assertThat(provider.getSpeed(C.msToUs(800))).isEqualTo(1);
-    assertThat(provider.getSpeed(C.msToUs(1000))).isEqualTo(8);
-    assertThat(provider.getSpeed(C.msToUs(1250))).isEqualTo(8);
-    assertThat(provider.getSpeed(C.msToUs(1500))).isEqualTo(2);
-    assertThat(provider.getSpeed(C.msToUs(1650))).isEqualTo(2);
-    assertThat(provider.getSpeed(C.msToUs(2000))).isEqualTo(4);
-    assertThat(provider.getSpeed(C.msToUs(2400))).isEqualTo(4);
-    assertThat(provider.getSpeed(C.msToUs(2500))).isEqualTo(8);
-    assertThat(provider.getSpeed(C.msToUs(3000))).isEqualTo(8);
+    assertThat(provider.getSpeed(Util.msToUs(0))).isEqualTo(8);
+    assertThat(provider.getSpeed(Util.msToUs(500))).isEqualTo(1);
+    assertThat(provider.getSpeed(Util.msToUs(800))).isEqualTo(1);
+    assertThat(provider.getSpeed(Util.msToUs(1000))).isEqualTo(8);
+    assertThat(provider.getSpeed(Util.msToUs(1250))).isEqualTo(8);
+    assertThat(provider.getSpeed(Util.msToUs(1500))).isEqualTo(2);
+    assertThat(provider.getSpeed(Util.msToUs(1650))).isEqualTo(2);
+    assertThat(provider.getSpeed(Util.msToUs(2000))).isEqualTo(4);
+    assertThat(provider.getSpeed(Util.msToUs(2400))).isEqualTo(4);
+    assertThat(provider.getSpeed(Util.msToUs(2500))).isEqualTo(8);
+    assertThat(provider.getSpeed(Util.msToUs(3000))).isEqualTo(8);
   }
 
   @Test
