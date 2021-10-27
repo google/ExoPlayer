@@ -1198,14 +1198,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         }
       } else if (childAtomType == Atom.TYPE_colr) {
         int colorType = parent.readInt();
-        boolean isNclx = colorType == TYPE_nclx;
-        if (isNclx || colorType == TYPE_nclc) {
+        if (colorType == TYPE_nclx || colorType == TYPE_nclc) {
           // For more info on syntax, see Section 8.5.2.2 in ISO/IEC 14496-12:2012(E) and
           // https://developer.apple.com/library/archive/documentation/QuickTime/QTFF/QTFFChap3/qtff3.html.
           int colorPrimaries = parent.readUnsignedShort();
           int transferCharacteristics = parent.readUnsignedShort();
           parent.skipBytes(2); // matrix_coefficients.
-          boolean fullRangeFlag = isNclx && (parent.readUnsignedByte() & 0b10000000) != 0;
+
+          // Only try and read full_range_flag if the box is long enough. It should be present in
+          // all colr boxes with type=nclx (Section 8.5.2.2 in ISO/IEC 14496-12:2012(E)) but some
+          // device cameras record videos with type=nclx without this final flag (and therefore
+          // size=18): https://github.com/google/ExoPlayer/issues/9332
+          boolean fullRangeFlag =
+              childAtomSize == 19 && (parent.readUnsignedByte() & 0b10000000) != 0;
           colorInfo =
               new ColorInfo(
                   ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries),
