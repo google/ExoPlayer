@@ -324,10 +324,9 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
     setMediaItemsInternal(
-        toMediaQueueItems(mediaItems), startWindowIndex, startPositionMs, repeatMode.value);
+        toMediaQueueItems(mediaItems), startIndex, startPositionMs, repeatMode.value);
   }
 
   @Override
@@ -438,23 +437,23 @@ public final class CastPlayer extends BasePlayer {
   // don't implement onPositionDiscontinuity().
   @SuppressWarnings("deprecation")
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
+  public void seekTo(int mediaItemIndex, long positionMs) {
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
     // in RemoteMediaClient.
     positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
     if (mediaStatus != null) {
-      if (getCurrentWindowIndex() != windowIndex) {
+      if (getCurrentWindowIndex() != mediaItemIndex) {
         remoteMediaClient
             .queueJumpToItem(
-                (int) currentTimeline.getPeriod(windowIndex, period).uid, positionMs, null)
+                (int) currentTimeline.getPeriod(mediaItemIndex, period).uid, positionMs, null)
             .setResultCallback(seekResultCallback);
       } else {
         remoteMediaClient.seek(positionMs).setResultCallback(seekResultCallback);
       }
       PositionInfo oldPosition = getCurrentPositionInfo();
       pendingSeekCount++;
-      pendingSeekWindowIndex = windowIndex;
+      pendingSeekWindowIndex = mediaItemIndex;
       pendingSeekPositionMs = positionMs;
       PositionInfo newPosition = getCurrentPositionInfo();
       listeners.queueEvent(
@@ -466,7 +465,7 @@ public final class CastPlayer extends BasePlayer {
       if (oldPosition.mediaItemIndex != newPosition.mediaItemIndex) {
         // TODO(internal b/182261884): queue `onMediaItemTransition` event when the media item is
         // repeated.
-        MediaItem mediaItem = getCurrentTimeline().getWindow(windowIndex, window).mediaItem;
+        MediaItem mediaItem = getCurrentTimeline().getWindow(mediaItemIndex, window).mediaItem;
         listeners.queueEvent(
             Player.EVENT_MEDIA_ITEM_TRANSITION,
             listener ->

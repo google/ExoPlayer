@@ -408,9 +408,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
-    setMediaSources(createMediaSources(mediaItems), startWindowIndex, startPositionMs);
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+    setMediaSources(createMediaSources(mediaItems), startIndex, startPositionMs);
   }
 
   public void setMediaSource(MediaSource mediaSource) {
@@ -642,10 +641,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
+  public void seekTo(int mediaItemIndex, long positionMs) {
     Timeline timeline = playbackInfo.timeline;
-    if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
+    if (mediaItemIndex < 0
+        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
+      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
     }
     pendingOperationAcks++;
     if (isPlayingAd()) {
@@ -668,8 +668,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         maskTimelineAndPosition(
             newPlaybackInfo,
             timeline,
-            getPeriodPositionOrMaskWindowPosition(timeline, windowIndex, positionMs));
-    internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
+            getPeriodPositionOrMaskWindowPosition(timeline, mediaItemIndex, positionMs));
+    internalPlayer.seekTo(timeline, mediaItemIndex, C.msToUs(positionMs));
     updatePlaybackInfo(
         newPlaybackInfo,
         /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
