@@ -5,7 +5,7 @@ Android, including local playback (via ExoPlayer) and media sessions.
 
 ## Current status
 
-AndroidX Media is in currently in alpha and we welcome your feedback via the
+AndroidX Media is currently in alpha and we welcome your feedback via the
 [issue tracker][]. Please consult the [release notes][] for more details about
 the alpha release.
 
