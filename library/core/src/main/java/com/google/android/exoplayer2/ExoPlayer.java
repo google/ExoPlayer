@@ -457,10 +457,30 @@ public interface ExoPlayer extends Player {
           new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
     }
 
+    /**
+     * Creates a builder with a custom {@link MediaSourceFactory}.
+     *
+     * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * @param context A {@link Context}.
+     * @param mediaSourceFactory A factory for creating a {@link MediaSource} from a {@link
+     *     MediaItem}.
+     */
     public Builder(Context context, MediaSourceFactory mediaSourceFactory) {
       this(context, new DefaultRenderersFactory(context), mediaSourceFactory);
     }
 
+    /**
+     * Creates a builder with a custom {@link RenderersFactory} and {@link MediaSourceFactory}.
+     *
+     * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * @param context A {@link Context}.
+     * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
+     *     player.
+     * @param mediaSourceFactory A factory for creating a {@link MediaSource} from a {@link
+     *     MediaItem}.
+     */
     public Builder(
         Context context, RenderersFactory renderersFactory, MediaSourceFactory mediaSourceFactory) {
       this(
