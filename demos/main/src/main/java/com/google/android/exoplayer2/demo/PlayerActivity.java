@@ -28,7 +28,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
@@ -185,7 +184,7 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      int requestCode, String[] permissions, int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (grantResults.length == 0) {
       // Empty results are triggered if a permission is requested while another request was already
@@ -201,7 +200,7 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
+  public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     updateTrackSelectorParameters();
     updateStartPosition();
@@ -424,7 +423,7 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPlayerError(@NonNull PlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       if (error.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
         player.seekToDefaultPosition();
         player.prepare();
@@ -454,8 +453,7 @@ public class PlayerActivity extends AppCompatActivity
   private class PlayerErrorMessageProvider implements ErrorMessageProvider<PlaybackException> {
 
     @Override
-    @NonNull
-    public Pair<Integer, String> getErrorMessage(@NonNull PlaybackException e) {
+    public Pair<Integer, String> getErrorMessage(PlaybackException e) {
       String errorString = getString(R.string.error_generic);
       Throwable cause = e.getCause();
       if (cause instanceof DecoderInitializationException) {

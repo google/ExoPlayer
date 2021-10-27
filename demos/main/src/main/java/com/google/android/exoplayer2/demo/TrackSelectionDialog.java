@@ -24,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.fragment.app.DialogFragment;
@@ -213,7 +212,6 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   @Override
-  @NonNull
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     // We need to own the view to let tab layout work correctly on all API levels. We can't use
     // AlertDialog because it owns the view itself, so we use AppCompatDialog instead, themed using
@@ -225,7 +223,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   @Override
-  public void onDismiss(@NonNull DialogInterface dialog) {
+  public void onDismiss(DialogInterface dialog) {
     super.onDismiss(dialog);
     onDismissListener.onDismiss(dialog);
   }
@@ -290,7 +288,6 @@ public final class TrackSelectionDialog extends DialogFragment {
     }
 
     @Override
-    @NonNull
     public Fragment getItem(int position) {
       return tabFragments.valueAt(position);
     }
@@ -364,8 +361,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     }
 
     @Override
-    public void onTrackSelectionChanged(
-        boolean isDisabled, @NonNull List<SelectionOverride> overrides) {
+    public void onTrackSelectionChanged(boolean isDisabled, List<SelectionOverride> overrides) {
       this.isDisabled = isDisabled;
       this.overrides = overrides;
     }

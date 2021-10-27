@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.castdemo;
 import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
-import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -226,7 +225,7 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void onTimelineChanged(@NonNull Timeline timeline, @TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
   }
 

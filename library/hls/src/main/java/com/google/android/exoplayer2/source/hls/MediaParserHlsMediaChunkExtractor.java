@@ -31,7 +31,6 @@ import android.media.MediaParser;
 import android.media.MediaParser.OutputConsumer;
 import android.media.MediaParser.SeekPoint;
 import android.text.TextUtils;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
@@ -262,7 +261,7 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
     }
 
     @Override
-    public int read(@NonNull byte[] buffer, int offset, int readLength) throws IOException {
+    public int read(byte[] buffer, int offset, int readLength) throws IOException {
       int peekedBytes = extractorInput.peek(buffer, offset, readLength);
       totalPeekedBytes += peekedBytes;
       return peekedBytes;

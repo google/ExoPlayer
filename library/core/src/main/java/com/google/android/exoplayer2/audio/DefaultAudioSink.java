@@ -27,7 +27,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -1829,7 +1828,7 @@ public final class DefaultAudioSink implements AudioSink {
             }
 
             @Override
-            public void onTearDown(@NonNull AudioTrack track) {
+            public void onTearDown(AudioTrack track) {
               Assertions.checkState(track == audioTrack);
               if (listener != null && playing) {
                 // The audio track was destroyed while in use. Thus a new AudioTrack needs to be
