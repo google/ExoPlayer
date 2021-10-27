@@ -35,6 +35,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.FloatRange;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.AudioAttributes;
@@ -676,6 +677,7 @@ public class MediaController implements Player {
   }
 
   @Override
+  @IntRange(from = 0, to = 100)
   public int getBufferedPercentage() {
     verifyApplicationThread();
     return isConnected() ? impl.getBufferedPercentage() : 0;
@@ -1627,6 +1629,7 @@ public class MediaController implements Player {
   }
 
   @Override
+  @IntRange(from = 0)
   public int getDeviceVolume() {
     verifyApplicationThread();
     if (!isConnected()) {
@@ -1645,7 +1648,7 @@ public class MediaController implements Player {
   }
 
   @Override
-  public void setDeviceVolume(int volume) {
+  public void setDeviceVolume(@IntRange(from = 0) int volume) {
     verifyApplicationThread();
     if (!isConnected()) {
       Log.w(TAG, "The controller is not connected. Ignoring setDeviceVolume().");

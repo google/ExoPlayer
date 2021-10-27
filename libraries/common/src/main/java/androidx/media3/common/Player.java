@@ -2175,7 +2175,7 @@ public interface Player {
   int getMediaItemCount();
 
   /** Returns the {@link MediaItem} at the given index. */
-  MediaItem getMediaItemAt(@IntRange(from = 0) int index);
+  MediaItem getMediaItemAt(int index);
 
   /**
    * Returns the duration of the current content or ad in milliseconds, or {@link C#TIME_UNSET} if
