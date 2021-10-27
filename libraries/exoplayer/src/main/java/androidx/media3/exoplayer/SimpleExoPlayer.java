@@ -1097,10 +1097,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
     verifyApplicationThread();
-    player.setMediaItems(mediaItems, startWindowIndex, startPositionMs);
+    player.setMediaItems(mediaItems, startIndex, startPositionMs);
   }
 
   @Override
@@ -1246,10 +1245,10 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
+  public void seekTo(int mediaItemIndex, long positionMs) {
     verifyApplicationThread();
     analyticsCollector.notifySeekStarted();
-    player.seekTo(windowIndex, positionMs);
+    player.seekTo(mediaItemIndex, positionMs);
   }
 
   @Override

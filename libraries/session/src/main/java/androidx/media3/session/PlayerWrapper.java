@@ -106,9 +106,9 @@ import java.util.List;
   }
 
   @Override
-  public void seekToDefaultPosition(int windowIndex) {
+  public void seekToDefaultPosition(int mediaItemIndex) {
     verifyApplicationThread();
-    super.seekToDefaultPosition(windowIndex);
+    super.seekToDefaultPosition(mediaItemIndex);
   }
 
   @Override
@@ -118,9 +118,9 @@ import java.util.List;
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
+  public void seekTo(int mediaItemIndex, long positionMs) {
     verifyApplicationThread();
-    super.seekTo(windowIndex, positionMs);
+    super.seekTo(mediaItemIndex, positionMs);
   }
 
   @Override
@@ -334,10 +334,9 @@ import java.util.List;
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
     verifyApplicationThread();
-    super.setMediaItems(mediaItems, startWindowIndex, startPositionMs);
+    super.setMediaItems(mediaItems, startIndex, startPositionMs);
   }
 
   @Override

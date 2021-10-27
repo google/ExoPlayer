@@ -270,9 +270,9 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public void seekToDefaultPosition(int windowIndex) {
+  public void seekToDefaultPosition(int mediaItemIndex) {
     seekToDefaultPositionWithWindowIndexCalled = true;
-    seekWindowIndex = windowIndex;
+    seekWindowIndex = mediaItemIndex;
     countDownLatch.countDown();
   }
 
@@ -284,9 +284,9 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
+  public void seekTo(int mediaItemIndex, long positionMs) {
     seekToWithWindowIndexCalled = true;
-    seekWindowIndex = windowIndex;
+    seekWindowIndex = mediaItemIndex;
     seekPositionMs = positionMs;
     countDownLatch.countDown();
   }
@@ -665,11 +665,10 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
     setMediaItemsWithStartWindowIndexCalled = true;
     this.mediaItems = mediaItems;
-    this.startWindowIndex = startWindowIndex;
+    this.startWindowIndex = startIndex;
     this.startPositionMs = startPositionMs;
     countDownLatch.countDown();
   }

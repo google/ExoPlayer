@@ -124,8 +124,8 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public final void seekToDefaultPosition(int windowIndex) {
-    seekTo(windowIndex, /* positionMs= */ C.TIME_UNSET);
+  public final void seekToDefaultPosition(int mediaItemIndex) {
+    seekTo(mediaItemIndex, /* positionMs= */ C.TIME_UNSET);
   }
 
   @Override

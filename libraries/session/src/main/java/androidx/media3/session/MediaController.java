@@ -520,13 +520,13 @@ public class MediaController implements Player {
   }
 
   @Override
-  public void seekToDefaultPosition(int windowIndex) {
+  public void seekToDefaultPosition(int mediaItemIndex) {
     verifyApplicationThread();
     if (!isConnected()) {
       Log.w(TAG, "The controller is not connected. Ignoring seekTo().");
       return;
     }
-    impl.seekToDefaultPosition(windowIndex);
+    impl.seekToDefaultPosition(mediaItemIndex);
   }
 
   @Override
@@ -540,13 +540,13 @@ public class MediaController implements Player {
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
+  public void seekTo(int mediaItemIndex, long positionMs) {
     verifyApplicationThread();
     if (!isConnected()) {
       Log.w(TAG, "The controller is not connected. Ignoring seekTo().");
       return;
     }
-    impl.seekTo(windowIndex, positionMs);
+    impl.seekTo(mediaItemIndex, positionMs);
   }
 
   /**
@@ -946,8 +946,7 @@ public class MediaController implements Player {
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
     verifyApplicationThread();
     checkNotNull(mediaItems, "mediaItems must not be null");
     for (int i = 0; i < mediaItems.size(); i++) {
@@ -957,7 +956,7 @@ public class MediaController implements Player {
       Log.w(TAG, "The controller is not connected. Ignoring setMediaItems().");
       return;
     }
-    impl.setMediaItems(mediaItems, startWindowIndex, startPositionMs);
+    impl.setMediaItems(mediaItems, startIndex, startPositionMs);
   }
 
   /**
@@ -1287,7 +1286,7 @@ public class MediaController implements Player {
    *
    * <p>Interoperability: When connected to {@link
    * android.support.v4.media.session.MediaSessionCompat}, this will always return {@link
-   * C#INDEX_UNSET} even when {@link #hasPreviousWindow()} is {@code true}.
+   * C#INDEX_UNSET} even when {@link #hasPreviousMediaItem()} is {@code true}.
    */
   @Override
   public int getPreviousMediaItemIndex() {
@@ -1308,7 +1307,7 @@ public class MediaController implements Player {
    *
    * <p>Interoperability: When connected to {@link
    * android.support.v4.media.session.MediaSessionCompat}, this will always return {@link
-   * C#INDEX_UNSET} even when {@link #hasNextWindow()} is {@code true}.
+   * C#INDEX_UNSET} even when {@link #hasNextMediaItem()} is {@code true}.
    */
   @Override
   public int getNextMediaItemIndex() {
@@ -1424,8 +1423,8 @@ public class MediaController implements Player {
    * {@inheritDoc}
    *
    * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, it wouldn't update current window index
-   * immediately because previous window index is unknown.
+   * android.support.v4.media.session.MediaSessionCompat}, it won't update the current media item
+   * index immediately because the previous media item index is unknown.
    */
   @Override
   public void seekToPrevious() {
@@ -1453,8 +1452,8 @@ public class MediaController implements Player {
    * {@inheritDoc}
    *
    * <p>Interoperability: When connected to {@link
-   * android.support.v4.media.session.MediaSessionCompat}, it wouldn't update current window index
-   * immediately because previous window index is unknown.
+   * android.support.v4.media.session.MediaSessionCompat}, it won't update the current media item
+   * index immediately because the previous media item index is unknown.
    */
   @Override
   public void seekToNext() {
