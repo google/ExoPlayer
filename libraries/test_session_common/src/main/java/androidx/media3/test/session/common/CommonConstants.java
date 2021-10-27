@@ -68,7 +68,7 @@ public class CommonConstants {
   public static final String KEY_PLAYER_ERROR = "playerError";
   public static final String KEY_AUDIO_ATTRIBUTES = "audioAttributes";
   public static final String KEY_TIMELINE = "timeline";
-  public static final String KEY_CURRENT_WINDOW_INDEX = "currentWindowIndex";
+  public static final String KEY_CURRENT_MEDIA_ITEM_INDEX = "currentMediaItemIndex";
   public static final String KEY_CURRENT_PERIOD_INDEX = "currentPeriodIndex";
   public static final String KEY_DURATION = "duration";
   public static final String KEY_CURRENT_POSITION = "currentPosition";

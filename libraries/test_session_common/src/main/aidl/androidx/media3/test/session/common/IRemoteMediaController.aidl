@@ -34,9 +34,9 @@ interface IRemoteMediaController {
   void setPlayWhenReady(String controllerId, boolean playWhenReady);
   void prepare(String controllerId);
   void seekToDefaultPosition(String controllerId);
-  void seekToDefaultPositionWithWindowIndex(String controllerId, int windowIndex);
+  void seekToDefaultPositionWithMediaItemIndex(String controllerId, int mediaItemIndex);
   void seekTo(String controllerId, long positionMs);
-  void seekToWithWindowIndex(String controllerId, int windowIndex, long positionMs);
+  void seekToWithMediaItemIndex(String controllerId, int mediaItemIndex, long positionMs);
   void seekBack(String controllerId);
   void seekForward(String controllerId);
   void setPlaybackParameters(String controllerId, in Bundle playbackParametersBundle);
@@ -49,8 +49,8 @@ interface IRemoteMediaController {
   void setMediaItems(String controllerId, in List<Bundle> mediaItems);
   void setMediaItemsWithResetPosition(
       String controllerId, in List<Bundle> mediaItems, boolean resetPosition);
-  void setMediaItemsWithStartWindowIndex(
-      String controllerId, in List<Bundle> mediaItems, int startWindowIndex, long startPositionMs);
+  void setMediaItemsWithStartIndex(
+      String controllerId, in List<Bundle> mediaItems, int startIndex, long startPositionMs);
   void createAndSetFakeMediaItems(String controllerId, int size);
   void setMediaUri(String controllerId,  in Uri uri, in Bundle extras);
   void setPlaylistMetadata(String controllerId, in Bundle playlistMetadata);
@@ -63,8 +63,8 @@ interface IRemoteMediaController {
   void clearMediaItems(String controllerId);
   void moveMediaItem(String controllerId, int currentIndex, int newIndex);
   void moveMediaItems(String controllerId, int fromIndex, int toIndex, int newIndex);
-  void seekToPreviousWindow(String controllerId);
-  void seekToNextWindow(String controllerId);
+  void seekToPreviousMediaItem(String controllerId);
+  void seekToNextMediaItem(String controllerId);
   void seekToPrevious(String controllerId);
   void seekToNext(String controllerId);
   void setShuffleModeEnabled(String controllerId, boolean shuffleModeEnabled);

@@ -455,7 +455,7 @@ public class MediaControllerListenerTest {
             .setIsPlayingAd(testIsPlayingAd)
             .setCurrentAdGroupIndex(testCurrentAdGroupIndex)
             .setCurrentAdIndexInAdGroup(testCurrentAdIndexInAdGroup)
-            .setCurrentWindowIndex(testWindowIndex)
+            .setCurrentMediaItemIndex(testWindowIndex)
             .setCurrentPeriodIndex(testPeriodIndex)
             .build();
     remoteSession.setPlayer(playerConfig);
@@ -485,7 +485,7 @@ public class MediaControllerListenerTest {
     remoteSession
         .getMockPlayer()
         .notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
-    remoteSession.getMockPlayer().setCurrentWindowIndex(currentIndex);
+    remoteSession.getMockPlayer().setCurrentMediaItemIndex(currentIndex);
     remoteSession
         .getMockPlayer()
         .notifyMediaItemTransition(
@@ -514,7 +514,7 @@ public class MediaControllerListenerTest {
                     }));
     int testIndex = 3;
     int testReason = Player.MEDIA_ITEM_TRANSITION_REASON_SEEK;
-    remoteSession.getMockPlayer().setCurrentWindowIndex(testIndex);
+    remoteSession.getMockPlayer().setCurrentMediaItemIndex(testIndex);
     remoteSession.getMockPlayer().notifyMediaItemTransition(testIndex, testReason);
     Timeline.Window window = new Timeline.Window();
     MediaItem currentMediaItem = timeline.getWindow(testIndex, window).mediaItem;
@@ -529,7 +529,7 @@ public class MediaControllerListenerTest {
   public void onMediaItemTransition_withNullMediaItem() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 1);
     remoteSession.getMockPlayer().setTimeline(timeline);
-    remoteSession.getMockPlayer().setCurrentWindowIndex(0);
+    remoteSession.getMockPlayer().setCurrentMediaItemIndex(0);
     remoteSession
         .getMockPlayer()
         .notifyMediaItemTransition(0, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
@@ -820,7 +820,7 @@ public class MediaControllerListenerTest {
             /* shuffledIndices= */ new int[] {0, 2, 1});
     player.setTimeline(timeline);
     player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
-    player.setCurrentWindowIndex(2);
+    player.setCurrentMediaItemIndex(2);
     player.setShuffleModeEnabled(false);
     player.notifyShuffleModeEnabledChanged();
 
@@ -860,7 +860,7 @@ public class MediaControllerListenerTest {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     player.setTimeline(timeline);
     player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
-    player.setCurrentWindowIndex(2);
+    player.setCurrentMediaItemIndex(2);
     player.setRepeatMode(Player.REPEAT_MODE_OFF);
     player.notifyRepeatModeChanged();
 

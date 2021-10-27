@@ -26,9 +26,9 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD_INDEX_IN_AD_GROUP;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_CUES;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_LIVE_OFFSET;
+import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_MEDIA_ITEM_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_PERIOD_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_POSITION;
-import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_WINDOW_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_INFO;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_MUTED;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_VOLUME;
@@ -287,7 +287,7 @@ public class MediaSessionProviderService extends Service {
           BundleableUtil.fromNullableBundle(
               Timeline.CREATOR, config.getBundle(KEY_TIMELINE), player.timeline);
       player.currentMediaItemIndex =
-          config.getInt(KEY_CURRENT_WINDOW_INDEX, player.currentMediaItemIndex);
+          config.getInt(KEY_CURRENT_MEDIA_ITEM_INDEX, player.currentMediaItemIndex);
       player.currentPeriodIndex =
           config.getInt(KEY_CURRENT_PERIOD_INDEX, player.currentPeriodIndex);
       player.playlistMetadata =
@@ -749,7 +749,7 @@ public class MediaSessionProviderService extends Service {
     }
 
     @Override
-    public void setCurrentWindowIndex(String sessionId, int index) throws RemoteException {
+    public void setCurrentMediaItemIndex(String sessionId, int index) throws RemoteException {
       runOnHandler(
           () -> {
             MediaSession session = sessionMap.get(sessionId);

@@ -126,7 +126,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
             .setPlaybackParameters(new PlaybackParameters(testSpeed))
             .setTimeline(testTimeline)
             .setPlaylistMetadata(testPlaylistMetadata)
-            .setCurrentWindowIndex(testItemIndex)
+            .setCurrentMediaItemIndex(testItemIndex)
             .setShuffleModeEnabled(testShuffleModeEnabled)
             .setRepeatMode(testRepeatMode)
             .build();
@@ -370,7 +370,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
             .setPlaybackParameters(playbackParameters)
             .setTimeline(testTimeline)
             .setPlaylistMetadata(testPlaylistMetadata)
-            .setCurrentWindowIndex(testItemIndex)
+            .setCurrentMediaItemIndex(testItemIndex)
             .setShuffleModeEnabled(testShuffleModeEnabled)
             .setRepeatMode(testRepeatMode)
             .build();
@@ -802,7 +802,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
         };
     controllerCompat.registerCallback(callback, handler);
 
-    session.getMockPlayer().setCurrentWindowIndex(testItemIndex);
+    session.getMockPlayer().setCurrentMediaItemIndex(testItemIndex);
     session.getMockPlayer().setCurrentPosition(testPosition);
     session
         .getMockPlayer()

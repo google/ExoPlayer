@@ -216,12 +216,12 @@ public class MediaControllerProviderService extends Service {
     }
 
     @Override
-    public void seekToDefaultPositionWithWindowIndex(String controllerId, int windowIndex)
+    public void seekToDefaultPositionWithMediaItemIndex(String controllerId, int mediaItemIndex)
         throws RemoteException {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.seekToDefaultPosition(windowIndex);
+            controller.seekToDefaultPosition(mediaItemIndex);
           });
     }
 
@@ -235,12 +235,12 @@ public class MediaControllerProviderService extends Service {
     }
 
     @Override
-    public void seekToWithWindowIndex(String controllerId, int windowIndex, long positionMs)
+    public void seekToWithMediaItemIndex(String controllerId, int mediaItemIndex, long positionMs)
         throws RemoteException {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.seekTo(windowIndex, positionMs);
+            controller.seekTo(mediaItemIndex, positionMs);
           });
     }
 
@@ -336,18 +336,15 @@ public class MediaControllerProviderService extends Service {
     }
 
     @Override
-    public void setMediaItemsWithStartWindowIndex(
-        String controllerId,
-        List<Bundle> mediaItemBundles,
-        int startWindowIndex,
-        long startPositionMs)
+    public void setMediaItemsWithStartIndex(
+        String controllerId, List<Bundle> mediaItemBundles, int startIndex, long startPositionMs)
         throws RemoteException {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
             controller.setMediaItems(
                 BundleableUtil.fromBundleList(MediaItem.CREATOR, mediaItemBundles),
-                startWindowIndex,
+                startIndex,
                 startPositionMs);
           });
     }
@@ -478,20 +475,20 @@ public class MediaControllerProviderService extends Service {
     }
 
     @Override
-    public void seekToPreviousWindow(String controllerId) throws RemoteException {
+    public void seekToPreviousMediaItem(String controllerId) throws RemoteException {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.seekToPreviousWindow();
+            controller.seekToPreviousMediaItem();
           });
     }
 
     @Override
-    public void seekToNextWindow(String controllerId) throws RemoteException {
+    public void seekToNextMediaItem(String controllerId) throws RemoteException {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.seekToNextWindow();
+            controller.seekToNextMediaItem();
           });
     }
 

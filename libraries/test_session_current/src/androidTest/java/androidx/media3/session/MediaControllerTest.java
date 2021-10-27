@@ -246,9 +246,9 @@ public class MediaControllerTest {
     TrackSelectionParameters trackSelectionParameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT.buildUpon().setMaxVideoSizeSd().build();
     Timeline timeline = MediaTestUtils.createTimeline(5);
-    int currentWindowIndex = 3;
+    int currentMediaItemIndex = 3;
     MediaItem currentMediaItem =
-        timeline.getWindow(currentWindowIndex, new Timeline.Window()).mediaItem;
+        timeline.getWindow(currentMediaItemIndex, new Timeline.Window()).mediaItem;
 
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
@@ -277,7 +277,7 @@ public class MediaControllerTest {
             .setMaxSeekToPreviousPositionMs(maxSeekToPreviousPositionMs)
             .setTrackSelectionParameters(trackSelectionParameters)
             .setTimeline(timeline)
-            .setCurrentWindowIndex(currentWindowIndex)
+            .setCurrentMediaItemIndex(currentMediaItemIndex)
             .build();
     remoteSession.setPlayer(playerConfig);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
@@ -309,7 +309,7 @@ public class MediaControllerTest {
     AtomicLong maxSeekToPreviousPositionMsRef = new AtomicLong();
     AtomicReference<TrackSelectionParameters> trackSelectionParametersRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineRef = new AtomicReference<>();
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
     threadTestRule
         .getHandler()
@@ -341,7 +341,7 @@ public class MediaControllerTest {
               maxSeekToPreviousPositionMsRef.set(controller.getMaxSeekToPreviousPosition());
               trackSelectionParametersRef.set(controller.getTrackSelectionParameters());
               timelineRef.set(controller.getCurrentTimeline());
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               currentMediaItemRef.set(controller.getCurrentMediaItem());
             });
 
@@ -370,7 +370,7 @@ public class MediaControllerTest {
     assertThat(maxSeekToPreviousPositionMsRef.get()).isEqualTo(maxSeekToPreviousPositionMs);
     assertThat(trackSelectionParametersRef.get()).isEqualTo(trackSelectionParameters);
     assertTimelineMediaItemsEquals(timelineRef.get(), timeline);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(currentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(currentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(currentMediaItem);
   }
 
@@ -509,19 +509,19 @@ public class MediaControllerTest {
   }
 
   @Test
-  public void getCurrentWindowIndex() throws Exception {
-    int testWindowIndex = 1;
+  public void getCurrentMediaItemIndex() throws Exception {
+    int testMediaItemIndex = 1;
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
-            .setCurrentWindowIndex(testWindowIndex)
+            .setCurrentMediaItemIndex(testMediaItemIndex)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int currentWindowIndex =
-        threadTestRule.getHandler().postAndSync(controller::getCurrentWindowIndex);
+    int currentMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
 
-    assertThat(currentWindowIndex).isEqualTo(testWindowIndex);
+    assertThat(currentMediaItemIndex).isEqualTo(testMediaItemIndex);
   }
 
   @Test
@@ -541,83 +541,83 @@ public class MediaControllerTest {
   }
 
   @Test
-  public void getPreviousWindowIndex() throws Exception {
+  public void getPreviousMediaItemIndex() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(1)
+            .setCurrentMediaItemIndex(1)
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int previousWindowIndex =
-        threadTestRule.getHandler().postAndSync(controller::getPreviousWindowIndex);
+    int previousMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getPreviousMediaItemIndex);
 
-    assertThat(previousWindowIndex).isEqualTo(0);
+    assertThat(previousMediaItemIndex).isEqualTo(0);
   }
 
   @Test
-  public void getPreviousWindowIndex_withRepeatModeOne() throws Exception {
+  public void getPreviousMediaItemIndex_withRepeatModeOne() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(1)
+            .setCurrentMediaItemIndex(1)
             .setRepeatMode(Player.REPEAT_MODE_ONE)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int previousWindowIndex =
-        threadTestRule.getHandler().postAndSync(controller::getPreviousWindowIndex);
+    int previousMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getPreviousMediaItemIndex);
 
-    assertThat(previousWindowIndex).isEqualTo(0);
+    assertThat(previousMediaItemIndex).isEqualTo(0);
   }
 
   @Test
-  public void getPreviousWindowIndex_atTheFirstWindow() throws Exception {
+  public void getPreviousMediaItemIndex_atTheFirstMediaItem() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(0)
+            .setCurrentMediaItemIndex(0)
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int previousWindowIndex =
-        threadTestRule.getHandler().postAndSync(controller::getPreviousWindowIndex);
+    int previousMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getPreviousMediaItemIndex);
 
-    assertThat(previousWindowIndex).isEqualTo(C.INDEX_UNSET);
+    assertThat(previousMediaItemIndex).isEqualTo(C.INDEX_UNSET);
   }
 
   @Test
-  public void getPreviousWindowIndex_atTheFirstWindowWithRepeatModeAll() throws Exception {
+  public void getPreviousMediaItemIndex_atTheFirstMediaItemWithRepeatModeAll() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(0)
+            .setCurrentMediaItemIndex(0)
             .setRepeatMode(Player.REPEAT_MODE_ALL)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int previousWindowIndex =
-        threadTestRule.getHandler().postAndSync(controller::getPreviousWindowIndex);
+    int previousMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getPreviousMediaItemIndex);
 
-    assertThat(previousWindowIndex).isEqualTo(2);
+    assertThat(previousMediaItemIndex).isEqualTo(2);
   }
 
   @Test
-  public void getPreviousWindowIndex_withShuffleModeEnabled() throws Exception {
+  public void getPreviousMediaItemIndex_withShuffleModeEnabled() throws Exception {
     Timeline timeline =
         new PlaylistTimeline(
             MediaTestUtils.createMediaItems(/* size= */ 3),
@@ -625,93 +625,97 @@ public class MediaControllerTest {
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(2)
+            .setCurrentMediaItemIndex(2)
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .setShuffleModeEnabled(true)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int previousWindowIndex =
-        threadTestRule.getHandler().postAndSync(controller::getPreviousWindowIndex);
+    int previousMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getPreviousMediaItemIndex);
 
-    assertThat(previousWindowIndex).isEqualTo(0);
+    assertThat(previousMediaItemIndex).isEqualTo(0);
   }
 
   @Test
-  public void getNextWindowIndex() throws Exception {
+  public void getNextMediaItemIndex() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(1)
+            .setCurrentMediaItemIndex(1)
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int nextWindowIndex = threadTestRule.getHandler().postAndSync(controller::getNextWindowIndex);
+    int nextMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getNextMediaItemIndex);
 
-    assertThat(nextWindowIndex).isEqualTo(2);
+    assertThat(nextMediaItemIndex).isEqualTo(2);
   }
 
   @Test
-  public void getNextWindowIndex_withRepeatModeOne() throws Exception {
+  public void getNextMediaItemIndex_withRepeatModeOne() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(1)
+            .setCurrentMediaItemIndex(1)
             .setRepeatMode(Player.REPEAT_MODE_ONE)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int nextWindowIndex = threadTestRule.getHandler().postAndSync(controller::getNextWindowIndex);
+    int nextMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getNextMediaItemIndex);
 
-    assertThat(nextWindowIndex).isEqualTo(2);
+    assertThat(nextMediaItemIndex).isEqualTo(2);
   }
 
   @Test
-  public void getNextWindowIndex_atTheLastWindow() throws Exception {
+  public void getNextMediaItemIndex_atTheLastMediaItem() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(2)
+            .setCurrentMediaItemIndex(2)
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int nextWindowIndex = threadTestRule.getHandler().postAndSync(controller::getNextWindowIndex);
+    int nextMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getNextMediaItemIndex);
 
-    assertThat(nextWindowIndex).isEqualTo(C.INDEX_UNSET);
+    assertThat(nextMediaItemIndex).isEqualTo(C.INDEX_UNSET);
   }
 
   @Test
-  public void getNextWindowIndex_atTheLastWindowWithRepeatModeAll() throws Exception {
+  public void getNextMediaItemIndex_atTheLastMediaItemWithRepeatModeAll() throws Exception {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(2)
+            .setCurrentMediaItemIndex(2)
             .setRepeatMode(Player.REPEAT_MODE_ALL)
             .setShuffleModeEnabled(false)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int nextWindowIndex = threadTestRule.getHandler().postAndSync(controller::getNextWindowIndex);
+    int nextMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getNextMediaItemIndex);
 
-    assertThat(nextWindowIndex).isEqualTo(0);
+    assertThat(nextMediaItemIndex).isEqualTo(0);
   }
 
   @Test
-  public void getNextWindowIndex_withShuffleModeEnabled() throws Exception {
+  public void getNextMediaItemIndex_withShuffleModeEnabled() throws Exception {
     Timeline timeline =
         new PlaylistTimeline(
             MediaTestUtils.createMediaItems(/* size= */ 3),
@@ -719,16 +723,17 @@ public class MediaControllerTest {
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(timeline)
-            .setCurrentWindowIndex(2)
+            .setCurrentMediaItemIndex(2)
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .setShuffleModeEnabled(true)
             .build();
     remoteSession.setPlayer(playerConfig);
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    int nextWindowIndex = threadTestRule.getHandler().postAndSync(controller::getNextWindowIndex);
+    int nextMediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getNextMediaItemIndex);
 
-    assertThat(nextWindowIndex).isEqualTo(1);
+    assertThat(nextMediaItemIndex).isEqualTo(1);
   }
 
   @Test
@@ -748,7 +753,7 @@ public class MediaControllerTest {
   @Test
   public void getMediaItemAt() throws Exception {
     int windowCount = 3;
-    int windowIndex = 1;
+    int mediaItemIndex = 1;
     Timeline timeline = MediaTestUtils.createTimeline(windowCount);
     Bundle playerConfig =
         new RemoteMediaSession.MockPlayerConfigBuilder().setTimeline(timeline).build();
@@ -756,10 +761,10 @@ public class MediaControllerTest {
 
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     MediaItem mediaItem =
-        threadTestRule.getHandler().postAndSync(() -> controller.getMediaItemAt(windowIndex));
+        threadTestRule.getHandler().postAndSync(() -> controller.getMediaItemAt(mediaItemIndex));
 
     assertThat(mediaItem)
-        .isEqualTo(timeline.getWindow(windowIndex, new Timeline.Window()).mediaItem);
+        .isEqualTo(timeline.getWindow(mediaItemIndex, new Timeline.Window()).mediaItem);
   }
 
   private RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras)

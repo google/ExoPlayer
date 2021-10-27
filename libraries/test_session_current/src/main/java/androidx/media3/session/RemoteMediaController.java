@@ -112,16 +112,16 @@ public class RemoteMediaController {
     binder.seekToDefaultPosition(controllerId);
   }
 
-  public void seekToDefaultPosition(int windowIndex) throws RemoteException {
-    binder.seekToDefaultPositionWithWindowIndex(controllerId, windowIndex);
+  public void seekToDefaultPosition(int mediaItemIndex) throws RemoteException {
+    binder.seekToDefaultPositionWithMediaItemIndex(controllerId, mediaItemIndex);
   }
 
   public void seekTo(long positionMs) throws RemoteException {
     binder.seekTo(controllerId, positionMs);
   }
 
-  public void seekTo(int windowIndex, long positionMs) throws RemoteException {
-    binder.seekToWithWindowIndex(controllerId, windowIndex, positionMs);
+  public void seekTo(int mediaItemIndex, long positionMs) throws RemoteException {
+    binder.seekToWithMediaItemIndex(controllerId, mediaItemIndex, positionMs);
   }
 
   public void seekBack() throws RemoteException {
@@ -162,10 +162,10 @@ public class RemoteMediaController {
         controllerId, BundleableUtil.toBundleList(mediaItems), resetPosition);
   }
 
-  public void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs)
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs)
       throws RemoteException {
-    binder.setMediaItemsWithStartWindowIndex(
-        controllerId, BundleableUtil.toBundleList(mediaItems), startWindowIndex, startPositionMs);
+    binder.setMediaItemsWithStartIndex(
+        controllerId, BundleableUtil.toBundleList(mediaItems), startIndex, startPositionMs);
   }
 
   /**
@@ -222,12 +222,12 @@ public class RemoteMediaController {
     binder.moveMediaItems(controllerId, fromIndex, toIndex, newIndex);
   }
 
-  public void seekToPreviousWindow() throws RemoteException {
-    binder.seekToPreviousWindow(controllerId);
+  public void seekToPreviousMediaItem() throws RemoteException {
+    binder.seekToPreviousMediaItem(controllerId);
   }
 
-  public void seekToNextWindow() throws RemoteException {
-    binder.seekToNextWindow(controllerId);
+  public void seekToNextMediaItem() throws RemoteException {
+    binder.seekToNextMediaItem(controllerId);
   }
 
   public void seekToPrevious() throws RemoteException {

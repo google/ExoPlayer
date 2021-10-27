@@ -26,9 +26,9 @@ import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_AD_INDEX_IN_AD_GROUP;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_CUES;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_LIVE_OFFSET;
+import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_MEDIA_ITEM_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_PERIOD_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_POSITION;
-import static androidx.media3.test.session.common.CommonConstants.KEY_CURRENT_WINDOW_INDEX;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_INFO;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_MUTED;
 import static androidx.media3.test.session.common.CommonConstants.KEY_DEVICE_VOLUME;
@@ -343,8 +343,8 @@ public class RemoteMediaSession {
       binder.setShuffleModeEnabled(sessionId, shuffleModeEnabled);
     }
 
-    public void setCurrentWindowIndex(int index) throws RemoteException {
-      binder.setCurrentWindowIndex(sessionId, index);
+    public void setCurrentMediaItemIndex(int index) throws RemoteException {
+      binder.setCurrentMediaItemIndex(sessionId, index);
     }
 
     public void setTrackSelectionParameters(TrackSelectionParameters parameters)
@@ -571,8 +571,8 @@ public class RemoteMediaSession {
       return this;
     }
 
-    public MockPlayerConfigBuilder setCurrentWindowIndex(int index) {
-      bundle.putInt(KEY_CURRENT_WINDOW_INDEX, index);
+    public MockPlayerConfigBuilder setCurrentMediaItemIndex(int index) {
+      bundle.putInt(KEY_CURRENT_MEDIA_ITEM_INDEX, index);
       return this;
     }
 

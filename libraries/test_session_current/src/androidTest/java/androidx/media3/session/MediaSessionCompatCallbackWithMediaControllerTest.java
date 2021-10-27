@@ -172,8 +172,8 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   }
 
   @Test
-  public void seekToDefaultPosition_withWindowIndex() throws Exception {
-    int testWindowIndex = 1;
+  public void seekToDefaultPosition_withMediaItemIndex() throws Exception {
+    int testMediaItemIndex = 1;
     List<QueueItem> testQueue = MediaTestUtils.createQueueItems(/* size= */ 3);
 
     session.setQueue(testQueue);
@@ -182,16 +182,17 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
 
     sessionCallback.reset(2);
 
-    controller.seekToDefaultPosition(testWindowIndex);
+    controller.seekToDefaultPosition(testMediaItemIndex);
     assertThat(sessionCallback.await(TIMEOUT_MS)).isTrue();
     assertThat(sessionCallback.onSkipToQueueItemCalled).isTrue();
-    assertThat(sessionCallback.queueItemId).isEqualTo(testQueue.get(testWindowIndex).getQueueId());
+    assertThat(sessionCallback.queueItemId)
+        .isEqualTo(testQueue.get(testMediaItemIndex).getQueueId());
     assertThat(sessionCallback.onSeekToCalled).isTrue();
     assertThat(sessionCallback.seekPosition).isEqualTo(/* pos= */ 0);
   }
 
   @Test
-  public void seekToDefaultPosition_withFakeWindowIndex_seeksWithPosition() throws Exception {
+  public void seekToDefaultPosition_withFakeMediaItemIndex_seeksWithPosition() throws Exception {
     List<QueueItem> testQueue = MediaTestUtils.createQueueItems(/* size= */ 3);
     int fakeItemIndex = testQueue.size();
     MediaMetadataCompat testMetadata =
@@ -226,8 +227,8 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   }
 
   @Test
-  public void seekTo_withWindowIndex() throws Exception {
-    int testWindowIndex = 1;
+  public void seekTo_withMediaItemIndex() throws Exception {
+    int testMediaItemIndex = 1;
     long testPositionMs = 12L;
 
     List<QueueItem> testQueue = MediaTestUtils.createQueueItems(/* size= */ 3);
@@ -238,10 +239,11 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
 
     sessionCallback.reset(2);
 
-    controller.seekTo(testWindowIndex, testPositionMs);
+    controller.seekTo(testMediaItemIndex, testPositionMs);
     assertThat(sessionCallback.await(TIMEOUT_MS)).isTrue();
     assertThat(sessionCallback.onSkipToQueueItemCalled).isTrue();
-    assertThat(sessionCallback.queueItemId).isEqualTo(testQueue.get(testWindowIndex).getQueueId());
+    assertThat(sessionCallback.queueItemId)
+        .isEqualTo(testQueue.get(testMediaItemIndex).getQueueId());
     assertThat(sessionCallback.onSeekToCalled).isTrue();
     assertThat(sessionCallback.seekPosition).isEqualTo(testPositionMs);
   }
@@ -350,21 +352,21 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   }
 
   @Test
-  public void seekToPreviousWindow() throws Exception {
+  public void seekToPreviousMediaItem() throws Exception {
     RemoteMediaController controller = createControllerAndWaitConnection();
     sessionCallback.reset(1);
 
-    controller.seekToPreviousWindow();
+    controller.seekToPreviousMediaItem();
     assertThat(sessionCallback.await(TIMEOUT_MS)).isTrue();
     assertThat(sessionCallback.onSkipToPreviousCalled).isTrue();
   }
 
   @Test
-  public void seekToNextWindow() throws Exception {
+  public void seekToNextMediaItem() throws Exception {
     RemoteMediaController controller = createControllerAndWaitConnection();
     sessionCallback.reset(1);
 
-    controller.seekToNextWindow();
+    controller.seekToNextMediaItem();
     assertThat(sessionCallback.await(TIMEOUT_MS)).isTrue();
     assertThat(sessionCallback.onSkipToNextCalled).isTrue();
   }

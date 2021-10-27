@@ -166,8 +166,8 @@ public class MockPlayerTest {
     int startWindowIndex = 3;
     long startPositionMs = 132L;
     player.setMediaItems(list, startWindowIndex, startPositionMs);
-    assertThat(player.setMediaItemsWithStartWindowIndexCalled).isTrue();
-    assertThat(player.startWindowIndex).isEqualTo(startWindowIndex);
+    assertThat(player.setMediaItemsWithStartIndexCalled).isTrue();
+    assertThat(player.startMediaItemIndex).isEqualTo(startWindowIndex);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
     assertThat(player.mediaItems).isSameInstanceAs(list);
   }

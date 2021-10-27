@@ -247,7 +247,7 @@ public class MediaSessionTest {
               Log.d(TAG, "7) Time spent on API call(ms): " + (endTime - startTime));
 
               startTime = endTime;
-              controller.seekToNextWindow();
+              controller.seekToNextMediaItem();
               endTime = SystemClock.elapsedRealtime();
               Log.d(TAG, "8) Time spent on API call(ms): " + (endTime - startTime));
 
@@ -257,7 +257,7 @@ public class MediaSessionTest {
               Log.d(TAG, "9) Time spent on API call(ms): " + (endTime - startTime));
 
               startTime = endTime;
-              controller.seekToPreviousWindow();
+              controller.seekToPreviousMediaItem();
               endTime = SystemClock.elapsedRealtime();
               Log.d(TAG, "10) Time spent on API call(ms): " + (endTime - startTime));
             }

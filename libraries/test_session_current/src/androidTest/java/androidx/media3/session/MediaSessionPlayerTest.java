@@ -138,12 +138,12 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
-  public void seekToDefaultPosition_withWindowIndex() throws Exception {
-    int windowIndex = 3;
-    controller.seekToDefaultPosition(windowIndex);
+  public void seekToDefaultPosition_withMediaItemIndex() throws Exception {
+    int mediaItemIndex = 3;
+    controller.seekToDefaultPosition(mediaItemIndex);
     assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToDefaultPositionWithWindowIndexCalled).isTrue();
-    assertThat(player.seekWindowIndex).isEqualTo(windowIndex);
+    assertThat(player.seekToDefaultPositionWithMediaItemIndexCalled).isTrue();
+    assertThat(player.seekMediaItemIndex).isEqualTo(mediaItemIndex);
   }
 
   @Test
@@ -156,13 +156,13 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
-  public void seekTo_withWindowIndex() throws Exception {
-    int windowIndex = 3;
+  public void seekTo_withMediaItemIndex() throws Exception {
+    int mediaItemIndex = 3;
     long seekPositionMs = 12125L;
-    controller.seekTo(windowIndex, seekPositionMs);
+    controller.seekTo(mediaItemIndex, seekPositionMs);
     assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToWithWindowIndexCalled).isTrue();
-    assertThat(player.seekWindowIndex).isEqualTo(windowIndex);
+    assertThat(player.seekToWithMediaItemIndexCalled).isTrue();
+    assertThat(player.seekMediaItemIndex).isEqualTo(mediaItemIndex);
     assertThat(player.seekPositionMs).isEqualTo(seekPositionMs);
   }
 
@@ -260,17 +260,17 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
-  public void setMediaItems_withStartWindowIndex() throws Exception {
+  public void setMediaItems_withStartMediaItemIndex() throws Exception {
     List<MediaItem> items = MediaTestUtils.createMediaItems(/* size= */ 2);
-    int startWindowIndex = 1;
+    int startMediaItemIndex = 1;
     long startPositionMs = 1234;
 
-    controller.setMediaItems(items, startWindowIndex, startPositionMs);
+    controller.setMediaItems(items, startMediaItemIndex, startPositionMs);
 
     assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.setMediaItemsWithStartWindowIndexCalled).isTrue();
+    assertThat(player.setMediaItemsWithStartIndexCalled).isTrue();
     assertThat(player.mediaItems).isEqualTo(items);
-    assertThat(player.startWindowIndex).isEqualTo(startWindowIndex);
+    assertThat(player.startMediaItemIndex).isEqualTo(startMediaItemIndex);
     assertThat(player.startPositionMs).isEqualTo(startPositionMs);
   }
 
@@ -426,15 +426,15 @@ public class MediaSessionPlayerTest {
   }
 
   @Test
-  public void seekToPreviousWindow() throws Exception {
-    controller.seekToPreviousWindow();
+  public void seekToPreviousMediaItem() throws Exception {
+    controller.seekToPreviousMediaItem();
     assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(player.seekToPreviousMediaItemCalled).isTrue();
   }
 
   @Test
-  public void seekToNextWindow() throws Exception {
-    controller.seekToNextWindow();
+  public void seekToNextMediaItem() throws Exception {
+    controller.seekToNextMediaItem();
     assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(player.seekToNextMediaItemCalled).isTrue();
   }

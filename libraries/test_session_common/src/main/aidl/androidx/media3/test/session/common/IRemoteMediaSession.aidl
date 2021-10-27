@@ -69,7 +69,7 @@ interface IRemoteMediaSession {
   void setPlaylistMetadata(String sessionId, in Bundle metadata);
   void setShuffleModeEnabled(String sessionId, boolean shuffleMode);
   void setRepeatMode(String sessionId, int repeatMode);
-  void setCurrentWindowIndex(String sessionId, int index);
+  void setCurrentMediaItemIndex(String sessionId, int index);
   void setTrackSelectionParameters(String sessionId, in Bundle parameters);
   void notifyTimelineChanged(String sessionId, int reason);
   void notifyPlaylistMetadataChanged(String sessionId);

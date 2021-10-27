@@ -1270,7 +1270,7 @@ public class MediaController implements Player {
   @Override
   public int getCurrentMediaItemIndex() {
     verifyApplicationThread();
-    return isConnected() ? impl.getCurrentWindowIndex() : C.INDEX_UNSET;
+    return isConnected() ? impl.getCurrentMediaItemIndex() : C.INDEX_UNSET;
   }
 
   @UnstableApi
@@ -1291,7 +1291,7 @@ public class MediaController implements Player {
   @Override
   public int getPreviousMediaItemIndex() {
     verifyApplicationThread();
-    return isConnected() ? impl.getPreviousWindowIndex() : C.INDEX_UNSET;
+    return isConnected() ? impl.getPreviousMediaItemIndex() : C.INDEX_UNSET;
   }
 
   @UnstableApi
@@ -1312,7 +1312,7 @@ public class MediaController implements Player {
   @Override
   public int getNextMediaItemIndex() {
     verifyApplicationThread();
-    return isConnected() ? impl.getNextWindowIndex() : C.INDEX_UNSET;
+    return isConnected() ? impl.getNextMediaItemIndex() : C.INDEX_UNSET;
   }
 
   @UnstableApi
@@ -1348,13 +1348,13 @@ public class MediaController implements Player {
   @Override
   public boolean hasPreviousMediaItem() {
     verifyApplicationThread();
-    return isConnected() && impl.hasPreviousWindow();
+    return isConnected() && impl.hasPreviousMediaItem();
   }
 
   @Override
   public boolean hasNextMediaItem() {
     verifyApplicationThread();
-    return isConnected() && impl.hasNextWindow();
+    return isConnected() && impl.hasNextMediaItem();
   }
 
   @UnstableApi
@@ -1392,7 +1392,7 @@ public class MediaController implements Player {
       Log.w(TAG, "The controller is not connected. Ignoring seekToPreviousMediaItem().");
       return;
     }
-    impl.seekToPreviousWindow();
+    impl.seekToPreviousMediaItem();
   }
 
   @UnstableApi
@@ -1416,7 +1416,7 @@ public class MediaController implements Player {
       Log.w(TAG, "The controller is not connected. Ignoring seekToNextMediaItem().");
       return;
     }
-    impl.seekToNextWindow();
+    impl.seekToNextMediaItem();
   }
 
   /**
@@ -1824,7 +1824,6 @@ public class MediaController implements Player {
     checkState(Looper.myLooper() == getApplicationLooper(), WRONG_THREAD_ERROR_MESSAGE);
   }
 
-  // TODO(b/202157117): Rename Window references to MediaItem.
   interface MediaControllerImpl {
 
     void addListener(Player.Listener listener);
@@ -1850,11 +1849,11 @@ public class MediaController implements Player {
 
     void seekToDefaultPosition();
 
-    void seekToDefaultPosition(int windowIndex);
+    void seekToDefaultPosition(int mediaItemIndex);
 
     void seekTo(long positionMs);
 
-    void seekTo(int windowIndex, long positionMs);
+    void seekTo(int mediaItemIndex, long positionMs);
 
     long getSeekBackIncrement();
 
@@ -1920,7 +1919,7 @@ public class MediaController implements Player {
 
     void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition);
 
-    void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs);
+    void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs);
 
     ListenableFuture<SessionResult> setMediaUri(Uri uri, Bundle extras);
 
@@ -1948,19 +1947,19 @@ public class MediaController implements Player {
 
     int getCurrentPeriodIndex();
 
-    int getCurrentWindowIndex();
+    int getCurrentMediaItemIndex();
 
-    int getPreviousWindowIndex();
+    int getPreviousMediaItemIndex();
 
-    int getNextWindowIndex();
+    int getNextMediaItemIndex();
 
-    boolean hasPreviousWindow();
+    boolean hasPreviousMediaItem();
 
-    boolean hasNextWindow();
+    boolean hasNextMediaItem();
 
-    void seekToPreviousWindow();
+    void seekToPreviousMediaItem();
 
-    void seekToNextWindow();
+    void seekToNextMediaItem();
 
     void seekToPrevious();
 

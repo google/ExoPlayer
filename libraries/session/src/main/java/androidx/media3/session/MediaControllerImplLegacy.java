@@ -352,48 +352,49 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void seekToDefaultPosition() {
-    seekToInternal(getCurrentWindowIndex(), /* positionMs= */ 0);
+    seekToInternal(getCurrentMediaItemIndex(), /* positionMs= */ 0);
   }
 
   @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    seekToInternal(windowIndex, /* positionMs= */ 0);
+  public void seekToDefaultPosition(int mediaItemIndex) {
+    seekToInternal(mediaItemIndex, /* positionMs= */ 0);
   }
 
   @Override
   public void seekTo(long positionMs) {
-    seekToInternal(getCurrentWindowIndex(), positionMs);
+    seekToInternal(getCurrentMediaItemIndex(), positionMs);
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
-    seekToInternal(windowIndex, positionMs);
+  public void seekTo(int mediaItemIndex, long positionMs) {
+    seekToInternal(mediaItemIndex, positionMs);
   }
 
-  private void seekToInternal(int windowIndex, long positionMs) {
-    int currentWindowIndex = getCurrentWindowIndex();
+  private void seekToInternal(int mediaItemIndex, long positionMs) {
+    int currentMediaItemIndex = getCurrentMediaItemIndex();
     Timeline currentTimeline = controllerInfo.playerInfo.timeline;
-    if (currentWindowIndex != windowIndex
-        && (windowIndex < 0 || windowIndex >= currentTimeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(currentTimeline, windowIndex, positionMs);
+    if (currentMediaItemIndex != mediaItemIndex
+        && (mediaItemIndex < 0 || mediaItemIndex >= currentTimeline.getWindowCount())) {
+      throw new IllegalSeekPositionException(currentTimeline, mediaItemIndex, positionMs);
     }
     if (isPlayingAd()) {
       return;
     }
-    int newWindowIndex = currentWindowIndex;
+    int newMediaItemIndex = currentMediaItemIndex;
     @MediaItemTransitionReason int mediaItemTransitionReason = C.INDEX_UNSET;
-    if (windowIndex != currentWindowIndex) {
+    if (mediaItemIndex != currentMediaItemIndex) {
       QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
-      long queueId = queueTimeline.getQueueId(windowIndex);
+      long queueId = queueTimeline.getQueueId(mediaItemIndex);
       if (queueId != QueueItem.UNKNOWN_ID) {
         controllerCompat.getTransportControls().skipToQueueItem(queueId);
-        newWindowIndex = windowIndex;
+        newMediaItemIndex = mediaItemIndex;
         mediaItemTransitionReason = MEDIA_ITEM_TRANSITION_REASON_SEEK;
       } else {
         Log.w(
             TAG,
-            "Cannot seek to new window due to the missing queue Id at window, windowIndex="
-                + windowIndex);
+            "Cannot seek to new media item due to the missing queue Id at media item,"
+                + " mediaItemIndex="
+                + mediaItemIndex);
       }
     }
     @DiscontinuityReason int discontinuityReason;
@@ -433,9 +434,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     PositionInfo positionInfo =
         createPositionInfo(
-            newWindowIndex,
+            newMediaItemIndex,
             !currentTimeline.isEmpty()
-                ? currentTimeline.getWindow(newWindowIndex, new Window()).mediaItem
+                ? currentTimeline.getWindow(newMediaItemIndex, new Window()).mediaItem
                 : null,
             newPositionMs);
     PlayerInfo maskedPlayerInfo =
@@ -522,7 +523,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long getCurrentLiveOffset() {
-    // We can't know whether it's live window or not.
+    // We can't know whether the content is live or not.
     return C.TIME_UNSET;
   }
 
@@ -675,7 +676,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void setMediaItems(
-      List<MediaItem> unusedMediaItems, int unusedStartWindowIndex, long unusedStartPositionMs) {
+      List<MediaItem> unusedMediaItems, int unusedStartIndex, long unusedStartPositionMs) {
     Log.w(TAG, "Session doesn't support setting media items");
   }
 
@@ -742,11 +743,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
     QueueTimeline newQueueTimeline = queueTimeline.copyWithNewMediaItems(index, mediaItems);
-    int currentWindowIndex = getCurrentWindowIndex();
-    int newCurrentWindowIndex =
-        calculateCurrentItemIndexAfterAddItems(currentWindowIndex, index, mediaItems.size());
+    int currentMediaItemIndex = getCurrentMediaItemIndex();
+    int newCurrentMediaItemIndex =
+        calculateCurrentItemIndexAfterAddItems(currentMediaItemIndex, index, mediaItems.size());
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentWindowIndex);
+        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
             maskedPlayerInfo,
@@ -780,21 +781,21 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
     QueueTimeline newQueueTimeline = queueTimeline.copyWithRemovedMediaItems(fromIndex, toIndex);
-    int currentWindowIndex = getCurrentWindowIndex();
-    int newCurrentWindowIndex =
-        calculateCurrentItemIndexAfterRemoveItems(currentWindowIndex, fromIndex, toIndex);
-    if (newCurrentWindowIndex == C.INDEX_UNSET) {
-      newCurrentWindowIndex =
+    int currentMediaItemIndex = getCurrentMediaItemIndex();
+    int newCurrentMediaItemIndex =
+        calculateCurrentItemIndexAfterRemoveItems(currentMediaItemIndex, fromIndex, toIndex);
+    if (newCurrentMediaItemIndex == C.INDEX_UNSET) {
+      newCurrentMediaItemIndex =
           Util.constrainValue(fromIndex, /* min= */ 0, newQueueTimeline.getWindowCount() - 1);
       Log.w(
           TAG,
           "Currently playing item is removed. Assumes item at "
-              + newCurrentWindowIndex
+              + newCurrentMediaItemIndex
               + " is the"
               + " new current item");
     }
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentWindowIndex);
+        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -834,27 +835,27 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int lastItemIndexAfterRemove = size - moveItemsSize - 1;
     newIndex = min(newIndex, lastItemIndexAfterRemove);
 
-    int currentWindowIndex = getCurrentWindowIndex();
-    int currentWindowIndexAfterRemove =
-        calculateCurrentItemIndexAfterRemoveItems(currentWindowIndex, fromIndex, toIndex);
-    if (currentWindowIndexAfterRemove == C.INDEX_UNSET) {
-      currentWindowIndexAfterRemove =
+    int currentMediaItemIndex = getCurrentMediaItemIndex();
+    int currentMediaItemIndexAfterRemove =
+        calculateCurrentItemIndexAfterRemoveItems(currentMediaItemIndex, fromIndex, toIndex);
+    if (currentMediaItemIndexAfterRemove == C.INDEX_UNSET) {
+      currentMediaItemIndexAfterRemove =
           Util.constrainValue(fromIndex, /* min= */ 0, /* toIndex= */ lastItemIndexAfterRemove);
       Log.w(
           TAG,
           "Currently playing item will be removed and added back to mimic move."
               + " Assumes item at "
-              + currentWindowIndexAfterRemove
+              + currentMediaItemIndexAfterRemove
               + " would be the new current item");
     }
-    int newCurrentWindowIndex =
+    int newCurrentMediaItemIndex =
         calculateCurrentItemIndexAfterAddItems(
-            currentWindowIndexAfterRemove, newIndex, moveItemsSize);
+            currentMediaItemIndexAfterRemove, newIndex, moveItemsSize);
 
     QueueTimeline newQueueTimeline =
         queueTimeline.copyWithMovedMediaItems(fromIndex, toIndex, newIndex);
     PlayerInfo maskedPlayerInfo =
-        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentWindowIndex);
+        controllerInfo.playerInfo.copyWithTimeline(newQueueTimeline, newCurrentMediaItemIndex);
 
     ControllerInfo maskedControllerInfo =
         new ControllerInfo(
@@ -880,55 +881,55 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public int getCurrentPeriodIndex() {
-    return getCurrentWindowIndex();
+    return getCurrentMediaItemIndex();
   }
 
   @Override
-  public int getCurrentWindowIndex() {
+  public int getCurrentMediaItemIndex() {
     return controllerInfo.playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex;
   }
 
   @Override
-  public int getPreviousWindowIndex() {
+  public int getPreviousMediaItemIndex() {
     return C.INDEX_UNSET;
   }
 
   @Override
-  public int getNextWindowIndex() {
+  public int getNextMediaItemIndex() {
     return C.INDEX_UNSET;
   }
 
   @Override
-  public boolean hasPreviousWindow() {
+  public boolean hasPreviousMediaItem() {
     return connected;
   }
 
   @Override
-  public boolean hasNextWindow() {
+  public boolean hasNextMediaItem() {
     return connected;
   }
 
   @Override
-  public void seekToPreviousWindow() {
-    // Intentionally don't do state masking when current window index is uncertain.
+  public void seekToPreviousMediaItem() {
+    // Intentionally don't do state masking when current media item index is uncertain.
     controllerCompat.getTransportControls().skipToPrevious();
   }
 
   @Override
-  public void seekToNextWindow() {
-    // Intentionally don't do state masking when current window index is uncertain.
+  public void seekToNextMediaItem() {
+    // Intentionally don't do state masking when current media item index is uncertain.
     controllerCompat.getTransportControls().skipToNext();
   }
 
   @Override
   public void seekToPrevious() {
-    // Intentionally don't do state masking when current window index is uncertain.
+    // Intentionally don't do state masking when current media item index is uncertain.
     controllerCompat.getTransportControls().skipToPrevious();
   }
 
   @Override
   public void seekToNext() {
-    // Intentionally don't do state masking when current window index is uncertain.
+    // Intentionally don't do state masking when current media item index is uncertain.
     controllerCompat.getTransportControls().skipToNext();
   }
 
@@ -1712,9 +1713,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           currentMediaItemIndex = currentTimeline.getWindowCount() - 1;
         } else {
           currentTimeline = currentTimeline.copyWithFakeMediaItem(/* fakeMediaItem= */ null);
-          // Shouldn't be C.INDEX_UNSET to make getCurrentWindowIndex() return masked index.
-          // In other words, this index is either the currently playing window index or the would-be
-          // playing index when playing.
+          // Shouldn't be C.INDEX_UNSET to make getCurrentMediaItemIndex() return masked index.
+          // In other words, this index is either the currently playing media item index or the
+          // would-be playing index when playing.
           currentMediaItemIndex = 0;
         }
       } else if (currentMediaItemIndex != C.INDEX_UNSET) {
@@ -2044,13 +2045,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static PositionInfo createPositionInfo(
-      int windowIndex, @Nullable MediaItem mediaItem, long currentPositionMs) {
+      int mediaItemIndex, @Nullable MediaItem mediaItem, long currentPositionMs) {
     return new PositionInfo(
         /* windowUid= */ null,
-        /* windowIndex= */ windowIndex,
+        /* mediaItemIndex= */ mediaItemIndex,
         mediaItem,
         /* periodUid= */ null,
-        /* periodIndex= */ windowIndex,
+        /* periodIndex= */ mediaItemIndex,
         /* positionMs= */ currentPositionMs,
         /* contentPositionMs= */ currentPositionMs,
         /* adGroupIndex= */ C.INDEX_UNSET,

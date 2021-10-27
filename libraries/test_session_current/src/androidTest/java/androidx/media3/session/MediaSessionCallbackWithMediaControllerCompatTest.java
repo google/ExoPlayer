@@ -435,8 +435,8 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     controller.getTransportControls().skipToQueueItem(queue.get(targetIndex).getQueueId());
 
     assertThat(player.countDownLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(player.seekToDefaultPositionWithWindowIndexCalled).isTrue();
-    assertThat(player.seekWindowIndex).isEqualTo(targetIndex);
+    assertThat(player.seekToDefaultPositionWithMediaItemIndexCalled).isTrue();
+    assertThat(player.seekMediaItemIndex).isEqualTo(targetIndex);
   }
 
   @Test

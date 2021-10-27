@@ -164,14 +164,15 @@ public class MediaSessionPermissionTest {
   }
 
   @Test
-  public void seekToNextWindow() throws Exception {
-    testOnCommandRequest(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, RemoteMediaController::seekToNextWindow);
+  public void seekToNextMediaItem() throws Exception {
+    testOnCommandRequest(
+        COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, RemoteMediaController::seekToNextMediaItem);
   }
 
   @Test
-  public void seekToPreviousWindow() throws Exception {
+  public void seekToPreviousMediaItem() throws Exception {
     testOnCommandRequest(
-        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, RemoteMediaController::seekToPreviousWindow);
+        COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, RemoteMediaController::seekToPreviousMediaItem);
   }
 
   @Test

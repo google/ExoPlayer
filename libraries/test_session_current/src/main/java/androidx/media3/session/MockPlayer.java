@@ -55,7 +55,7 @@ public class MockPlayer implements Player {
   @Nullable PlaybackException playerError;
   public AudioAttributes audioAttributes;
   public long seekPositionMs;
-  public int seekWindowIndex;
+  public int seekMediaItemIndex;
   public long currentPosition;
   public long bufferedPosition;
   public long duration;
@@ -73,7 +73,7 @@ public class MockPlayer implements Player {
   public MediaItem mediaItem;
   public List<MediaItem> mediaItems;
   public boolean resetPosition;
-  public int startWindowIndex;
+  public int startMediaItemIndex;
   public long startPositionMs;
   public MediaMetadata playlistMetadata;
   public int index;
@@ -112,9 +112,9 @@ public class MockPlayer implements Player {
   public boolean stopCalled;
   public boolean releaseCalled;
   public boolean seekToDefaultPositionCalled;
-  public boolean seekToDefaultPositionWithWindowIndexCalled;
+  public boolean seekToDefaultPositionWithMediaItemIndexCalled;
   public boolean seekToCalled;
-  public boolean seekToWithWindowIndexCalled;
+  public boolean seekToWithMediaItemIndexCalled;
   public boolean setPlaybackSpeedCalled;
   public boolean setPlaybackParametersCalled;
   public boolean setMediaItemCalled;
@@ -122,7 +122,7 @@ public class MockPlayer implements Player {
   public boolean setMediaItemWithResetPositionCalled;
   public boolean setMediaItemsCalled;
   public boolean setMediaItemsWithResetPositionCalled;
-  public boolean setMediaItemsWithStartWindowIndexCalled;
+  public boolean setMediaItemsWithStartIndexCalled;
   public boolean setPlaylistMetadataCalled;
   public boolean addMediaItemCalled;
   public boolean addMediaItemWithIndexCalled;
@@ -180,7 +180,7 @@ public class MockPlayer implements Player {
     cues = ImmutableList.of();
     deviceInfo = DeviceInfo.UNKNOWN;
     seekPositionMs = C.TIME_UNSET;
-    seekWindowIndex = C.INDEX_UNSET;
+    seekMediaItemIndex = C.INDEX_UNSET;
     mediaMetadata = MediaMetadata.EMPTY;
 
     currentPosition = 0;
@@ -271,8 +271,8 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekToDefaultPosition(int mediaItemIndex) {
-    seekToDefaultPositionWithWindowIndexCalled = true;
-    seekWindowIndex = mediaItemIndex;
+    seekToDefaultPositionWithMediaItemIndexCalled = true;
+    seekMediaItemIndex = mediaItemIndex;
     countDownLatch.countDown();
   }
 
@@ -285,8 +285,8 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekTo(int mediaItemIndex, long positionMs) {
-    seekToWithWindowIndexCalled = true;
-    seekWindowIndex = mediaItemIndex;
+    seekToWithMediaItemIndexCalled = true;
+    seekMediaItemIndex = mediaItemIndex;
     seekPositionMs = positionMs;
     countDownLatch.countDown();
   }
@@ -666,9 +666,9 @@ public class MockPlayer implements Player {
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    setMediaItemsWithStartWindowIndexCalled = true;
+    setMediaItemsWithStartIndexCalled = true;
     this.mediaItems = mediaItems;
-    this.startWindowIndex = startIndex;
+    this.startMediaItemIndex = startIndex;
     this.startPositionMs = startPositionMs;
     countDownLatch.countDown();
   }
