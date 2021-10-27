@@ -374,10 +374,10 @@ public interface ExoPlayer extends Player {
   final class Builder {
 
     /* package */ final Context context;
-    /* package */ final RenderersFactory renderersFactory;
 
     /* package */ Clock clock;
     /* package */ long foregroundModeTimeoutMs;
+    /* package */ RenderersFactory renderersFactory;
     /* package */ MediaSourceFactory mediaSourceFactory;
     /* package */ TrackSelector trackSelector;
     /* package */ LoadControl loadControl;
@@ -457,6 +457,9 @@ public interface ExoPlayer extends Player {
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
      *
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+     * DefaultRenderersFactory} can be removed by ProGuard or R8.
+     *
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
      *     player.
@@ -474,6 +477,10 @@ public interface ExoPlayer extends Player {
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
      *
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+     * DefaultMediaSourceFactory} (and therefore {@link DefaultExtractorsFactory}) can be removed by
+     * ProGuard or R8.
+     *
      * @param context A {@link Context}.
      * @param mediaSourceFactory A factory for creating a {@link MediaSource} from a {@link
      *     MediaItem}.
@@ -487,6 +494,10 @@ public interface ExoPlayer extends Player {
      * Creates a builder with a custom {@link RenderersFactory} and {@link MediaSourceFactory}.
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+     * DefaultRenderersFactory}, {@link DefaultMediaSourceFactory} (and therefore {@link
+     * DefaultExtractorsFactory}) can be removed by ProGuard or R8.
      *
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
@@ -566,6 +577,20 @@ public interface ExoPlayer extends Player {
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
       checkState(!buildCalled);
       foregroundModeTimeoutMs = timeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets the {@link RenderersFactory} that will be used by the player.
+     *
+     * @param renderersFactory A {@link RenderersFactory}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @UnstableApi
+    public Builder setRenderersFactory(RenderersFactory renderersFactory) {
+      checkState(!buildCalled);
+      this.renderersFactory = renderersFactory;
       return this;
     }
 
