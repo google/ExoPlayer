@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.media3.common.Player;
@@ -27,6 +26,7 @@ import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * Manager that holds {@link ControllerInfo} of connected {@link MediaController controllers}.
@@ -37,7 +37,7 @@ import java.util.Deque;
  *
  * <p>This class is thread-safe.
  */
-/* package */ final class ConnectedControllersManager<T> {
+/* package */ final class ConnectedControllersManager<T extends @NonNull Object> {
 
   private final Object lock;
 
@@ -59,7 +59,7 @@ import java.util.Deque;
   }
 
   public void addController(
-      @NonNull T controllerKey,
+      T controllerKey,
       ControllerInfo controllerInfo,
       SessionCommands sessionCommands,
       Player.Commands playerCommands) {
@@ -104,7 +104,7 @@ import java.util.Deque;
     return null;
   }
 
-  public void removeController(@NonNull T controllerKey) {
+  public void removeController(T controllerKey) {
     @Nullable ControllerInfo controllerInfo = getController(controllerKey);
     if (controllerInfo != null) {
       removeController(controllerInfo);
@@ -112,7 +112,7 @@ import java.util.Deque;
   }
 
   public void removeController(ControllerInfo controllerInfo) {
-    @Nullable ConnectedControllerRecord<T> record;
+    @Nullable /*Type*/ ConnectedControllerRecord<T> record;
     synchronized (lock) {
       record = controllerRecords.remove(controllerInfo);
       if (record == null) {
@@ -168,7 +168,7 @@ import java.util.Deque;
    *     disconnected.
    */
   @Nullable
-  public SequencedFutureManager getSequencedFutureManager(@NonNull T controllerKey) {
+  public SequencedFutureManager getSequencedFutureManager(T controllerKey) {
     @Nullable ConnectedControllerRecord<T> info;
     synchronized (lock) {
       @Nullable ControllerInfo controllerInfo = getController(controllerKey);
@@ -206,7 +206,7 @@ import java.util.Deque;
   }
 
   @Nullable
-  public ControllerInfo getController(@NonNull T controllerKey) {
+  public ControllerInfo getController(T controllerKey) {
     synchronized (lock) {
       return controllerInfoMap.get(controllerKey);
     }
@@ -236,14 +236,14 @@ import java.util.Deque;
 
   private static final class ConnectedControllerRecord<T> {
 
-    @NonNull public final T controllerKey;
+    public final T controllerKey;
     public final SequencedFutureManager sequencedFutureManager;
     public SessionCommands sessionCommands;
     public Player.Commands playerCommands;
     public Deque<Runnable> commandQueue;
 
     public ConnectedControllerRecord(
-        @NonNull T controllerKey,
+        T controllerKey,
         SequencedFutureManager sequencedFutureManager,
         SessionCommands sessionCommands,
         Player.Commands playerCommands) {

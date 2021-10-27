@@ -18,7 +18,6 @@ package androidx.media3.demo.cast;
 import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
-import androidx.annotation.NonNull;
 import androidx.media3.cast.CastPlayer;
 import androidx.media3.cast.SessionAvailabilityListener;
 import androidx.media3.common.C;
@@ -226,7 +225,7 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void onTimelineChanged(@NonNull Timeline timeline, @TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
   }
 

@@ -19,7 +19,6 @@ import static androidx.media3.demo.main.DemoUtil.DOWNLOAD_NOTIFICATION_CHANNEL_I
 
 import android.app.Notification;
 import android.content.Context;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.NotificationUtil;
 import androidx.media3.common.util.Util;
@@ -48,7 +47,6 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  @NonNull
   protected DownloadManager getDownloadManager() {
     // This will only happen once, because getDownloadManager is guaranteed to be called only once
     // in the life cycle of the process.
@@ -67,9 +65,8 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  @NonNull
   protected Notification getForegroundNotification(
-      @NonNull List<Download> downloads, @Requirements.RequirementFlags int notMetRequirements) {
+      List<Download> downloads, @Requirements.RequirementFlags int notMetRequirements) {
     return DemoUtil.getDownloadNotificationHelper(/* context= */ this)
         .buildProgressNotification(
             /* context= */ this,

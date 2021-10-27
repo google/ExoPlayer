@@ -23,7 +23,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.FlagSet;
 import java.util.ArrayDeque;
 import java.util.concurrent.CopyOnWriteArraySet;
-import javax.annotation.Nonnull;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * A set of listeners.
@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
  * @param <T> The listener type.
  */
 @UnstableApi
-public final class ListenerSet<T> {
+public final class ListenerSet<T extends @NonNull Object> {
 
   /**
    * An event sent to a listener.
@@ -234,15 +234,15 @@ public final class ListenerSet<T> {
     return true;
   }
 
-  private static final class ListenerHolder<T> {
+  private static final class ListenerHolder<T extends @NonNull Object> {
 
-    @Nonnull public final T listener;
+    public final T listener;
 
     private FlagSet.Builder flagsBuilder;
     private boolean needsIterationFinishedEvent;
     private boolean released;
 
-    public ListenerHolder(@Nonnull T listener) {
+    public ListenerHolder(T listener) {
       this.listener = listener;
       this.flagsBuilder = new FlagSet.Builder();
     }
