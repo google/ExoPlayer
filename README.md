@@ -25,7 +25,7 @@ the Android Dev Summit talk [What's next for AndroidX Media and ExoPlayer][].
 [issue tracker]: https://github.com/androidx/media/issues/new
 [ExoPlayer project]: https://github.com/google/ExoPlayer
 [ExoPlayer issue tracker]: https://github.com/google/ExoPlayer/issues
-[What's next for AndroidX Media and ExoPlayer]: https://developer.android.com/events/dev-summit/technical-talks
+[What's next for AndroidX Media and ExoPlayer]: https://youtu.be/sTIBDcyCmCg
 
 ## Using the libraries
 
