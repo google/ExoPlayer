@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer.video;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -31,6 +33,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * GLSurfaceView implementing {@link VideoDecoderOutputBufferRenderer} for rendering {@link
@@ -143,7 +146,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     // glDrawArrays uses it.
     private final FloatBuffer[] textureCoords;
 
-    private int program;
+    private GlUtil.@MonotonicNonNull Program program;
     private int colorMatrixLocation;
 
     // Accessed only from the GL thread.
@@ -164,9 +167,9 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-      program = GlUtil.compileProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-      GLES20.glUseProgram(program);
-      int posLocation = GLES20.glGetAttribLocation(program, "in_pos");
+      program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
+      program.use();
+      int posLocation = program.getAttribLocation("in_pos");
       GLES20.glEnableVertexAttribArray(posLocation);
       GLES20.glVertexAttribPointer(
           posLocation,
@@ -175,14 +178,14 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
           /* normalized= */ false,
           /* stride= */ 0,
           TEXTURE_VERTICES);
-      texLocations[0] = GLES20.glGetAttribLocation(program, "in_tc_y");
+      texLocations[0] = program.getAttribLocation("in_tc_y");
       GLES20.glEnableVertexAttribArray(texLocations[0]);
-      texLocations[1] = GLES20.glGetAttribLocation(program, "in_tc_u");
+      texLocations[1] = program.getAttribLocation("in_tc_u");
       GLES20.glEnableVertexAttribArray(texLocations[1]);
-      texLocations[2] = GLES20.glGetAttribLocation(program, "in_tc_v");
+      texLocations[2] = program.getAttribLocation("in_tc_v");
       GLES20.glEnableVertexAttribArray(texLocations[2]);
       GlUtil.checkGlError();
-      colorMatrixLocation = GLES20.glGetUniformLocation(program, "mColorConversion");
+      colorMatrixLocation = program.getUniformLocation("mColorConversion");
       GlUtil.checkGlError();
       setupTextures();
       GlUtil.checkGlError();
@@ -209,7 +212,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
         renderedOutputBuffer = pendingOutputBuffer;
       }
 
-      VideoDecoderOutputBuffer outputBuffer = Assertions.checkNotNull(renderedOutputBuffer);
+      VideoDecoderOutputBuffer outputBuffer = checkNotNull(renderedOutputBuffer);
 
       // Set color matrix. Assume BT709 if the color space is unknown.
       float[] colorConversion = kColorConversion709;
@@ -232,8 +235,8 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
           colorConversion,
           /* offset= */ 0);
 
-      int[] yuvStrides = Assertions.checkNotNull(outputBuffer.yuvStrides);
-      ByteBuffer[] yuvPlanes = Assertions.checkNotNull(outputBuffer.yuvPlanes);
+      int[] yuvStrides = checkNotNull(outputBuffer.yuvStrides);
+      ByteBuffer[] yuvPlanes = checkNotNull(outputBuffer.yuvPlanes);
 
       for (int i = 0; i < 3; i++) {
         int h = (i == 0) ? outputBuffer.height : (outputBuffer.height + 1) / 2;
@@ -296,10 +299,11 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
       surfaceView.requestRender();
     }
 
+    @RequiresNonNull("program")
     private void setupTextures() {
       GLES20.glGenTextures(3, yuvTextures, /* offset= */ 0);
       for (int i = 0; i < 3; i++) {
-        GLES20.glUniform1i(GLES20.glGetUniformLocation(program, TEXTURE_UNIFORMS[i]), i);
+        GLES20.glUniform1i(program.getUniformLocation(TEXTURE_UNIFORMS[i]), i);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
         GLES20.glTexParameterf(
