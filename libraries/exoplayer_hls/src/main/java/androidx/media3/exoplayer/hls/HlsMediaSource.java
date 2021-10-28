@@ -510,7 +510,7 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist mediaPlaylist) {
     long windowStartTimeMs =
-        mediaPlaylist.hasProgramDateTime ? C.usToMs(mediaPlaylist.startTimeUs) : C.TIME_UNSET;
+        mediaPlaylist.hasProgramDateTime ? Util.usToMs(mediaPlaylist.startTimeUs) : C.TIME_UNSET;
     // For playlist types EVENT and VOD we know segments are never removed, so the presentation
     // started at the same time as the window. Otherwise, we don't know the presentation start time.
     long presentationStartTimeMs =
@@ -543,7 +543,7 @@ public final class HlsMediaSource extends BaseMediaSource
     long targetLiveOffsetUs;
     if (liveConfiguration.targetOffsetMs != C.TIME_UNSET) {
       // Media item has a defined target offset.
-      targetLiveOffsetUs = C.msToUs(liveConfiguration.targetOffsetMs);
+      targetLiveOffsetUs = Util.msToUs(liveConfiguration.targetOffsetMs);
     } else {
       // Decide target offset from playlist.
       targetLiveOffsetUs = getTargetLiveOffsetUs(playlist, liveEdgeOffsetUs);
@@ -609,7 +609,7 @@ public final class HlsMediaSource extends BaseMediaSource
 
   private long getLiveEdgeOffsetUs(HlsMediaPlaylist playlist) {
     return playlist.hasProgramDateTime
-        ? C.msToUs(Util.getNowUnixTimeMs(elapsedRealTimeOffsetMs)) - playlist.getEndTimeUs()
+        ? Util.msToUs(Util.getNowUnixTimeMs(elapsedRealTimeOffsetMs)) - playlist.getEndTimeUs()
         : 0;
   }
 
@@ -618,7 +618,9 @@ public final class HlsMediaSource extends BaseMediaSource
     long startPositionUs =
         playlist.startOffsetUs != C.TIME_UNSET
             ? playlist.startOffsetUs
-            : playlist.durationUs + liveEdgeOffsetUs - C.msToUs(liveConfiguration.targetOffsetMs);
+            : playlist.durationUs
+                + liveEdgeOffsetUs
+                - Util.msToUs(liveConfiguration.targetOffsetMs);
     if (playlist.preciseStart) {
       return startPositionUs;
     }
@@ -641,7 +643,7 @@ public final class HlsMediaSource extends BaseMediaSource
   }
 
   private void maybeUpdateLiveConfiguration(long targetLiveOffsetUs) {
-    long targetLiveOffsetMs = C.usToMs(targetLiveOffsetUs);
+    long targetLiveOffsetMs = Util.usToMs(targetLiveOffsetUs);
     if (targetLiveOffsetMs != liveConfiguration.targetOffsetMs) {
       liveConfiguration =
           liveConfiguration.buildUpon().setTargetOffsetMs(targetLiveOffsetMs).build();

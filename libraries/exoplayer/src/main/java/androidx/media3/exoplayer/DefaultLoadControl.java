@@ -302,17 +302,17 @@ public class DefaultLoadControl implements LoadControl {
     assertGreaterOrEqual(backBufferDurationMs, 0, "backBufferDurationMs", "0");
 
     this.allocator = allocator;
-    this.minBufferUs = C.msToUs(minBufferMs);
-    this.maxBufferUs = C.msToUs(maxBufferMs);
-    this.bufferForPlaybackUs = C.msToUs(bufferForPlaybackMs);
-    this.bufferForPlaybackAfterRebufferUs = C.msToUs(bufferForPlaybackAfterRebufferMs);
+    this.minBufferUs = Util.msToUs(minBufferMs);
+    this.maxBufferUs = Util.msToUs(maxBufferMs);
+    this.bufferForPlaybackUs = Util.msToUs(bufferForPlaybackMs);
+    this.bufferForPlaybackAfterRebufferUs = Util.msToUs(bufferForPlaybackAfterRebufferMs);
     this.targetBufferBytesOverwrite = targetBufferBytes;
     this.targetBufferBytes =
         targetBufferBytesOverwrite != C.LENGTH_UNSET
             ? targetBufferBytesOverwrite
             : DEFAULT_MIN_BUFFER_SIZE;
     this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
-    this.backBufferDurationUs = C.msToUs(backBufferDurationMs);
+    this.backBufferDurationUs = Util.msToUs(backBufferDurationMs);
     this.retainBackBufferFromKeyframe = retainBackBufferFromKeyframe;
   }
 

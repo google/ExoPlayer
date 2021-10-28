@@ -28,6 +28,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
@@ -276,7 +277,7 @@ public final class RtspMediaSource extends BaseMediaSource {
         rtpDataChannelFactory,
         uri,
         /* listener= */ timing -> {
-          timelineDurationUs = C.msToUs(timing.getDurationMs());
+          timelineDurationUs = Util.msToUs(timing.getDurationMs());
           timelineIsSeekable = !timing.isLive();
           timelineIsLive = timing.isLive();
           timelineIsPlaceholder = false;

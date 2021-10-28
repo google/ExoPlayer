@@ -37,6 +37,7 @@ import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.RendererCapabilities;
@@ -280,7 +281,7 @@ public class EventLogger implements AnalyticsListener {
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
             String formatSupport =
-                C.getFormatSupportString(
+                Util.getFormatSupportString(
                     mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex));
             logd(
                 "      "
@@ -318,7 +319,7 @@ public class EventLogger implements AnalyticsListener {
         TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           String status = getTrackStatusString(false);
-          String formatSupport = C.getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE);
+          String formatSupport = Util.getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE);
           logd(
               "      "
                   + status

@@ -23,7 +23,6 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.media3.common.C;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -124,7 +123,7 @@ public final class DrmUtil {
       @Nullable
       String diagnosticsInfo = ((MediaDrm.MediaDrmStateException) throwable).getDiagnosticInfo();
       int drmErrorCode = Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);
-      return C.getErrorCodeForMediaDrmErrorCode(drmErrorCode);
+      return Util.getErrorCodeForMediaDrmErrorCode(drmErrorCode);
     }
   }
 

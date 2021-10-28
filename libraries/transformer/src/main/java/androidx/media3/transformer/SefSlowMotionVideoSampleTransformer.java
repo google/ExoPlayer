@@ -28,6 +28,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
@@ -366,8 +367,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     public final int maxLayer;
 
     public SegmentInfo(SlowMotionData.Segment segment, int inputMaxLayer, int normalSpeedLayer) {
-      this.startTimeUs = C.msToUs(segment.startTimeMs);
-      this.endTimeUs = C.msToUs(segment.endTimeMs);
+      this.startTimeUs = Util.msToUs(segment.startTimeMs);
+      this.endTimeUs = Util.msToUs(segment.endTimeMs);
       this.speedDivisor = segment.speedDivisor;
       this.maxLayer = getSlowMotionMaxLayer(speedDivisor, inputMaxLayer, normalSpeedLayer);
     }

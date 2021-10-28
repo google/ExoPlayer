@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
 import androidx.media3.common.TrackGroupArray;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DefaultLoadControl.Builder;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
@@ -32,7 +33,7 @@ import org.junit.runner.RunWith;
 public class DefaultLoadControlTest {
 
   private static final float SPEED = 1f;
-  private static final long MAX_BUFFER_US = C.msToUs(DefaultLoadControl.DEFAULT_MAX_BUFFER_MS);
+  private static final long MAX_BUFFER_US = Util.msToUs(DefaultLoadControl.DEFAULT_MAX_BUFFER_MS);
   private static final long MIN_BUFFER_US = MAX_BUFFER_US / 2;
   private static final int TARGET_BUFFER_BYTES = C.DEFAULT_BUFFER_SEGMENT_SIZE * 2;
 
@@ -65,8 +66,8 @@ public class DefaultLoadControlTest {
   @Test
   public void shouldNotContinueLoadingOnceBufferingStopped_untilBelowMinBuffer() {
     builder.setBufferDurationsMs(
-        /* minBufferMs= */ (int) C.usToMs(MIN_BUFFER_US),
-        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* minBufferMs= */ (int) Util.usToMs(MIN_BUFFER_US),
+        /* maxBufferMs= */ (int) Util.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
     build();
@@ -89,7 +90,7 @@ public class DefaultLoadControlTest {
   public void continueLoadingOnceBufferingStopped_andBufferAlmostEmpty_evenIfMinBufferNotReached() {
     builder.setBufferDurationsMs(
         /* minBufferMs= */ 0,
-        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* maxBufferMs= */ (int) Util.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
     build();
@@ -108,8 +109,8 @@ public class DefaultLoadControlTest {
   public void shouldContinueLoadingWithTargetBufferBytesReached_untilMinBufferReached() {
     builder.setPrioritizeTimeOverSizeThresholds(true);
     builder.setBufferDurationsMs(
-        /* minBufferMs= */ (int) C.usToMs(MIN_BUFFER_US),
-        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* minBufferMs= */ (int) Util.usToMs(MIN_BUFFER_US),
+        /* maxBufferMs= */ (int) Util.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
     build();
@@ -159,8 +160,8 @@ public class DefaultLoadControlTest {
   @Test
   public void shouldContinueLoadingWithMinBufferReached_inFastPlayback() {
     builder.setBufferDurationsMs(
-        /* minBufferMs= */ (int) C.usToMs(MIN_BUFFER_US),
-        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* minBufferMs= */ (int) Util.usToMs(MIN_BUFFER_US),
+        /* maxBufferMs= */ (int) Util.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
     build();

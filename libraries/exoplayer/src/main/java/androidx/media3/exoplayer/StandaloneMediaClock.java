@@ -15,10 +15,10 @@
  */
 package androidx.media3.exoplayer;
 
-import androidx.media3.common.C;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 
 /**
  * A {@link MediaClock} whose position advances with real time based on the playback parameters when
@@ -78,7 +78,7 @@ public final class StandaloneMediaClock implements MediaClock {
     if (started) {
       long elapsedSinceBaseMs = clock.elapsedRealtime() - baseElapsedMs;
       if (playbackParameters.speed == 1f) {
-        positionUs += C.msToUs(elapsedSinceBaseMs);
+        positionUs += Util.msToUs(elapsedSinceBaseMs);
       } else {
         // Add the media time in microseconds that will elapse in elapsedSinceBaseMs milliseconds of
         // wallclock time

@@ -18,6 +18,7 @@ package androidx.media3.cast;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaTrack;
@@ -42,7 +43,7 @@ import com.google.android.gms.cast.MediaTrack;
     }
     long durationMs = mediaInfo.getStreamDuration();
     return durationMs != MediaInfo.UNKNOWN_DURATION && durationMs != LIVE_STREAM_DURATION
-        ? C.msToUs(durationMs)
+        ? Util.msToUs(durationMs)
         : C.TIME_UNSET;
   }
 

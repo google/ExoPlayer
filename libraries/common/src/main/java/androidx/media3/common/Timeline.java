@@ -301,7 +301,7 @@ public abstract class Timeline implements Bundleable {
      * whilst remaining within the bounds of the window.
      */
     public long getDefaultPositionMs() {
-      return C.usToMs(defaultPositionUs);
+      return Util.usToMs(defaultPositionUs);
     }
 
     /**
@@ -316,7 +316,7 @@ public abstract class Timeline implements Bundleable {
 
     /** Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
-      return C.usToMs(durationUs);
+      return Util.usToMs(durationUs);
     }
 
     /** Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown. */
@@ -329,7 +329,7 @@ public abstract class Timeline implements Bundleable {
      * belonging to it, in milliseconds.
      */
     public long getPositionInFirstPeriodMs() {
-      return C.usToMs(positionInFirstPeriodUs);
+      return Util.usToMs(positionInFirstPeriodUs);
     }
 
     /**
@@ -675,7 +675,7 @@ public abstract class Timeline implements Bundleable {
 
     /** Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
-      return C.usToMs(durationUs);
+      return Util.usToMs(durationUs);
     }
 
     /** Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown. */
@@ -689,7 +689,7 @@ public abstract class Timeline implements Bundleable {
      * window.
      */
     public long getPositionInWindowMs() {
-      return C.usToMs(positionInWindowUs);
+      return Util.usToMs(positionInWindowUs);
     }
 
     /**

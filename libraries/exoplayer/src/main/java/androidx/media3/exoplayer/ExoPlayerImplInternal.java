@@ -1090,7 +1090,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (window.windowStartTimeMs == C.TIME_UNSET || !window.isLive() || !window.isDynamic) {
       return C.TIME_UNSET;
     }
-    return C.msToUs(window.getCurrentUnixTimeMs() - window.windowStartTimeMs)
+    return Util.msToUs(window.getCurrentUnixTimeMs() - window.windowStartTimeMs)
         - (periodPositionUs + period.getPositionInWindowUs());
   }
 
@@ -1192,7 +1192,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 playingPeriodHolder.mediaPeriod.getAdjustedSeekPositionUs(
                     newPeriodPositionUs, seekParameters);
           }
-          if (C.usToMs(newPeriodPositionUs) == C.usToMs(playbackInfo.positionUs)
+          if (Util.usToMs(newPeriodPositionUs) == Util.usToMs(playbackInfo.positionUs)
               && (playbackInfo.playbackState == Player.STATE_BUFFERING
                   || playbackInfo.playbackState == Player.STATE_READY)) {
             // Seek will be performed to the current position. Do nothing.
@@ -2718,7 +2718,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       long requestPositionUs =
           pendingMessageInfo.message.getPositionMs() == C.TIME_END_OF_SOURCE
               ? C.TIME_UNSET
-              : C.msToUs(pendingMessageInfo.message.getPositionMs());
+              : Util.msToUs(pendingMessageInfo.message.getPositionMs());
       @Nullable
       Pair<Object, Long> periodPosition =
           resolveSeekPosition(

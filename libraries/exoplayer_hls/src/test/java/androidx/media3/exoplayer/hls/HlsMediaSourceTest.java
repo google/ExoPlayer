@@ -21,7 +21,6 @@ import static org.mockito.Mockito.mock;
 
 import android.net.Uri;
 import android.os.SystemClock;
-import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.StreamKey;
@@ -525,7 +524,7 @@ public class HlsMediaSourceTest {
 
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     assertThat(mediaItem.liveConfiguration.targetOffsetMs)
-        .isGreaterThan(C.usToMs(window.durationUs));
+        .isGreaterThan(Util.usToMs(window.durationUs));
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(9000);
   }
 

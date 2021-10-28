@@ -23,6 +23,7 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceUtil;
 import androidx.media3.datasource.DataSpec;
@@ -284,7 +285,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             C.SELECTION_REASON_UNKNOWN,
             /* trackSelectionData= */ null,
             /* mediaStartTimeMs= */ 0,
-            C.usToMs(durationUs));
+            Util.usToMs(durationUs));
     long retryDelay =
         loadErrorHandlingPolicy.getRetryDelayMsFor(
             new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount));

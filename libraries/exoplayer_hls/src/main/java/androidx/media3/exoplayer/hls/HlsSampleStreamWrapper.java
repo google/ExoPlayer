@@ -916,8 +916,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             loadable.trackFormat,
             loadable.trackSelectionReason,
             loadable.trackSelectionData,
-            C.usToMs(loadable.startTimeUs),
-            C.usToMs(loadable.endTimeUs));
+            Util.usToMs(loadable.startTimeUs),
+            Util.usToMs(loadable.endTimeUs));
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
     LoadErrorAction loadErrorAction;

@@ -18,10 +18,10 @@ package androidx.media3.exoplayer.dash.offline;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import androidx.annotation.Nullable;
-import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.RunnableFutureTask;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.cache.CacheDataSource;
@@ -130,7 +130,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
     ArrayList<Segment> segments = new ArrayList<>();
     for (int i = 0; i < manifest.getPeriodCount(); i++) {
       Period period = manifest.getPeriod(i);
-      long periodStartUs = C.msToUs(period.startMs);
+      long periodStartUs = Util.msToUs(period.startMs);
       long periodDurationUs = manifest.getPeriodDurationUs(i);
       List<AdaptationSet> adaptationSets = period.adaptationSets;
       for (int j = 0; j < adaptationSets.size(); j++) {

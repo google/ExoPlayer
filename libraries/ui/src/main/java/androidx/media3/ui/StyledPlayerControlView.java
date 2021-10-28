@@ -1276,7 +1276,7 @@ public class StyledPlayerControlView extends FrameLayout {
       int lastWindowIndex = multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
       for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
         if (i == currentWindowIndex) {
-          currentWindowOffset = C.usToMs(durationUs);
+          currentWindowOffset = Util.usToMs(durationUs);
         }
         timeline.getWindow(i, window);
         if (window.durationUs == C.TIME_UNSET) {
@@ -1303,7 +1303,7 @@ public class StyledPlayerControlView extends FrameLayout {
                 adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);
                 playedAdGroups = Arrays.copyOf(playedAdGroups, newLength);
               }
-              adGroupTimesMs[adGroupCount] = C.usToMs(durationUs + adGroupTimeInWindowUs);
+              adGroupTimesMs[adGroupCount] = Util.usToMs(durationUs + adGroupTimeInWindowUs);
               playedAdGroups[adGroupCount] = period.hasPlayedAdGroup(adGroupIndex);
               adGroupCount++;
             }
@@ -1312,7 +1312,7 @@ public class StyledPlayerControlView extends FrameLayout {
         durationUs += window.durationUs;
       }
     }
-    long durationMs = C.usToMs(durationUs);
+    long durationMs = Util.usToMs(durationUs);
     if (durationView != null) {
       durationView.setText(Util.getStringForTime(formatBuilder, formatter, durationMs));
     }

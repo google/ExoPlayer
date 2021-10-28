@@ -62,7 +62,7 @@ import androidx.media3.extractor.metadata.id3.MlltFrame;
     this.durationUs =
         durationUs != C.TIME_UNSET
             ? durationUs
-            : C.msToUs(referenceTimesMs[referenceTimesMs.length - 1]);
+            : Util.msToUs(referenceTimesMs[referenceTimesMs.length - 1]);
   }
 
   @Override
@@ -74,8 +74,8 @@ import androidx.media3.extractor.metadata.id3.MlltFrame;
   public SeekPoints getSeekPoints(long timeUs) {
     timeUs = Util.constrainValue(timeUs, 0, durationUs);
     Pair<Long, Long> timeMsAndPosition =
-        linearlyInterpolate(C.usToMs(timeUs), referenceTimesMs, referencePositions);
-    timeUs = C.msToUs(timeMsAndPosition.first);
+        linearlyInterpolate(Util.usToMs(timeUs), referenceTimesMs, referencePositions);
+    timeUs = Util.msToUs(timeMsAndPosition.first);
     long position = timeMsAndPosition.second;
     return new SeekPoints(new SeekPoint(timeUs, position));
   }
@@ -84,7 +84,7 @@ import androidx.media3.extractor.metadata.id3.MlltFrame;
   public long getTimeUs(long position) {
     Pair<Long, Long> positionAndTimeMs =
         linearlyInterpolate(position, referencePositions, referenceTimesMs);
-    return C.msToUs(positionAndTimeMs.second);
+    return Util.msToUs(positionAndTimeMs.second);
   }
 
   @Override

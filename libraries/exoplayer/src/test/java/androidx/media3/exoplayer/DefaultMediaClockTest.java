@@ -23,6 +23,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import androidx.media3.common.C;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DefaultMediaClock.PlaybackParametersListener;
 import androidx.media3.test.utils.FakeClock;
 import androidx.media3.test.utils.FakeMediaClockRenderer;
@@ -265,7 +266,7 @@ public class DefaultMediaClockTest {
     mediaClock.onRendererDisabled(mediaClockRenderer);
     fakeClock.advanceTime(SLEEP_TIME_MS);
     assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
-        .isEqualTo(TEST_POSITION_US + C.msToUs(SLEEP_TIME_MS));
+        .isEqualTo(TEST_POSITION_US + Util.msToUs(SLEEP_TIME_MS));
     assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
@@ -331,7 +332,7 @@ public class DefaultMediaClockTest {
     mediaClockRenderer.positionUs = TEST_POSITION_US;
     mediaClock.onRendererDisabled(mediaClockRenderer);
     assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
-        .isEqualTo(C.msToUs(fakeClock.elapsedRealtime()));
+        .isEqualTo(Util.msToUs(fakeClock.elapsedRealtime()));
   }
 
   @Test

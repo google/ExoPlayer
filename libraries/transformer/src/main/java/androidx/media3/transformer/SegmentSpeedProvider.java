@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
+import androidx.media3.common.util.Util;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData.Segment;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
@@ -72,7 +73,7 @@ import java.util.TreeMap;
     for (int i = 0; i < segments.size(); i++) {
       Segment currentSegment = segments.get(i);
       speedsByStartTimeUs.put(
-          C.msToUs(currentSegment.startTimeMs), baseSpeed / currentSegment.speedDivisor);
+          Util.msToUs(currentSegment.startTimeMs), baseSpeed / currentSegment.speedDivisor);
     }
 
     // If the map has an entry at endTime, this is the next segments start time. If no such entry
@@ -80,8 +81,8 @@ import java.util.TreeMap;
     // segment.
     for (int i = 0; i < segments.size(); i++) {
       Segment currentSegment = segments.get(i);
-      if (!speedsByStartTimeUs.containsKey(C.msToUs(currentSegment.endTimeMs))) {
-        speedsByStartTimeUs.put(C.msToUs(currentSegment.endTimeMs), baseSpeed);
+      if (!speedsByStartTimeUs.containsKey(Util.msToUs(currentSegment.endTimeMs))) {
+        speedsByStartTimeUs.put(Util.msToUs(currentSegment.endTimeMs), baseSpeed);
       }
     }
 

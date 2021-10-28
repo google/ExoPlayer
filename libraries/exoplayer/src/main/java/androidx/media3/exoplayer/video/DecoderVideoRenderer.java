@@ -37,6 +37,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.TimedValueQueue;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoConfig;
 import androidx.media3.decoder.Decoder;
 import androidx.media3.decoder.DecoderException;
@@ -561,7 +562,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       frameMetadataListener.onVideoFrameAboutToBeRendered(
           presentationTimeUs, System.nanoTime(), outputFormat, /* mediaFormat= */ null);
     }
-    lastRenderTimeUs = C.msToUs(SystemClock.elapsedRealtime() * 1000);
+    lastRenderTimeUs = Util.msToUs(SystemClock.elapsedRealtime() * 1000);
     int bufferMode = outputBuffer.mode;
     boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && outputSurface != null;
     boolean renderYuv = bufferMode == C.VIDEO_OUTPUT_MODE_YUV && outputBufferRenderer != null;

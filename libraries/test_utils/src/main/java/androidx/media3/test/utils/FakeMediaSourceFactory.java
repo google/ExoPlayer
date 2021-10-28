@@ -20,6 +20,7 @@ import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
@@ -83,7 +84,7 @@ public class FakeMediaSourceFactory implements MediaSourceFactory {
             /* isPlaceholder= */ false,
             /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
             /* defaultPositionUs= */ 2 * C.MICROS_PER_SECOND,
-            /* windowOffsetInFirstPeriodUs= */ C.msToUs(123456789),
+            /* windowOffsetInFirstPeriodUs= */ Util.msToUs(123456789),
             AdPlaybackState.NONE,
             mediaItem);
     return new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));

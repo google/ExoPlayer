@@ -22,6 +22,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +69,7 @@ public class PlaylistTimeline extends Timeline {
         /* isDynamic= */ false,
         /* liveConfiguration= */ null,
         /* defaultPositionUs= */ 0,
-        /* durationUs= */ C.msToUs(DEFAULT_DURATION_MS),
+        /* durationUs= */ Util.msToUs(DEFAULT_DURATION_MS),
         /* firstPeriodIndex= */ windowIndex,
         /* lastPeriodIndex= */ windowIndex,
         /* positionInFirstPeriodUs= */ 0);
@@ -135,7 +136,7 @@ public class PlaylistTimeline extends Timeline {
         /* id= */ null,
         /* uid= */ null,
         periodIndex,
-        C.msToUs(DEFAULT_DURATION_MS),
+        Util.msToUs(DEFAULT_DURATION_MS),
         /* positionInWindowUs= */ 0);
     return period;
   }

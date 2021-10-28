@@ -26,6 +26,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
+import androidx.media3.common.util.Util;
 import androidx.media3.test.utils.StubExoPlayer;
 
 /** A fake player for testing content/ad playback. */
@@ -277,7 +278,7 @@ import androidx.media3.test.utils.StubExoPlayer;
     if (isPlayingAd()) {
       long adDurationUs =
           timeline.getPeriod(0, period).getAdDurationUs(adGroupIndex, adIndexInAdGroup);
-      return C.usToMs(adDurationUs);
+      return Util.usToMs(adDurationUs);
     } else {
       return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
     }

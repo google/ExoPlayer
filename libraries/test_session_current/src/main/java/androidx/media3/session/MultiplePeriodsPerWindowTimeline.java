@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import java.util.List;
 
 /** A {@link PlaylistTimeline} implementation that allows setting multiple periods per window. */
@@ -61,7 +62,7 @@ public class MultiplePeriodsPerWindowTimeline extends PlaylistTimeline {
         /* isDynamic= */ false,
         /* liveConfiguration= */ null,
         /* defaultPositionUs= */ 0,
-        /* durationUs= */ C.msToUs(defaultPeriodDurationMs * periodSizesPerWindow[windowIndex]),
+        /* durationUs= */ Util.msToUs(defaultPeriodDurationMs * periodSizesPerWindow[windowIndex]),
         firstPeriodIndex,
         firstPeriodIndex + periodSizesPerWindow[windowIndex] - 1,
         /* positionInFirstPeriodUs= */ 0);
@@ -85,9 +86,9 @@ public class MultiplePeriodsPerWindowTimeline extends PlaylistTimeline {
         /* id= */ null,
         /* uid= */ null,
         windowIndex,
-        /* durationUs= */ C.msToUs(defaultPeriodDurationMs),
+        /* durationUs= */ Util.msToUs(defaultPeriodDurationMs),
         /* positionInWindowUs= */ (periodIndex - getFirstPeriodIndex(windowIndex))
-            * C.msToUs(defaultPeriodDurationMs));
+            * Util.msToUs(defaultPeriodDurationMs));
     return period;
   }
 

@@ -2610,7 +2610,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     timeline.getPeriod(newPeriodIndex, newPeriod);
     boolean playingPeriodChanged = oldPeriodIndex != newPeriodIndex;
     long newPositionUs = periodInfo.periodPositionUs;
-    long oldPositionUs = C.msToUs(getCurrentPosition()) - oldPeriod.getPositionInWindowUs();
+    long oldPositionUs = Util.msToUs(getCurrentPosition()) - oldPeriod.getPositionInWindowUs();
 
     if (!playingPeriodChanged && newPositionUs == oldPositionUs) {
       // Period position remains unchanged.
@@ -2673,7 +2673,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       long maskedTotalBufferedDurationUs =
           max(
               0,
-              C.msToUs(playerInfo.sessionPositionInfo.totalBufferedDurationMs)
+              Util.msToUs(playerInfo.sessionPositionInfo.totalBufferedDurationMs)
                   - (newPositionUs - oldPositionUs));
       long maskedBufferedPositionUs = newPositionUs + maskedTotalBufferedDurationUs;
 
@@ -2708,7 +2708,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       windowIndex = timeline.getFirstWindowIndex(getShuffleModeEnabled());
       windowPositionMs = timeline.getWindow(windowIndex, window).getDefaultPositionMs();
     }
-    return getPeriodInfo(timeline, window, period, windowIndex, C.msToUs(windowPositionMs));
+    return getPeriodInfo(timeline, window, period, windowIndex, Util.msToUs(windowPositionMs));
   }
 
   private boolean isAd(Period period, long periodPosition) {

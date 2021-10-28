@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.StreamKey;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.offline.FilterableManifest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,7 +135,7 @@ public class DashManifest implements FilterableManifest<DashManifest> {
   }
 
   public final long getPeriodDurationUs(int index) {
-    return C.msToUs(getPeriodDurationMs(index));
+    return Util.msToUs(getPeriodDurationMs(index));
   }
 
   @Override

@@ -307,8 +307,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long presentationPositionUs =
-        C.msToUs(manifest.availabilityStartTimeMs)
-            + C.msToUs(manifest.getPeriod(periodIndex).startMs)
+        Util.msToUs(manifest.availabilityStartTimeMs)
+            + Util.msToUs(manifest.getPeriod(periodIndex).startMs)
             + loadPositionUs;
 
     if (playerTrackEmsgHandler != null
@@ -317,7 +317,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
+    long nowUnixTimeUs = Util.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
     long nowPeriodTimeUs = getNowPeriodTimeUs(nowUnixTimeUs);
     MediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
@@ -602,7 +602,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     return manifest.availabilityStartTimeMs == C.TIME_UNSET
         ? C.TIME_UNSET
         : nowUnixTimeUs
-            - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
+            - Util.msToUs(
+                manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
   }
 
   protected Chunk newInitializationChunk(

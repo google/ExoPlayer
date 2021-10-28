@@ -26,6 +26,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.dash.manifest.DashManifest;
@@ -96,7 +97,7 @@ public class DefaultDashChunkSourceTest {
             /* closedCaptionFormats */ ImmutableList.of(),
             /* playerTrackEmsgHandler= */ null);
 
-    long nowInPeriodUs = C.msToUs(nowMs - manifest.availabilityStartTimeMs);
+    long nowInPeriodUs = Util.msToUs(nowMs - manifest.availabilityStartTimeMs);
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(

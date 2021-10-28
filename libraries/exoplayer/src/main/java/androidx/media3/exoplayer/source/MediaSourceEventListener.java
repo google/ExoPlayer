@@ -26,6 +26,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -474,7 +475,7 @@ public interface MediaSourceEventListener {
     }
 
     private long adjustMediaTime(long mediaTimeUs) {
-      long mediaTimeMs = C.usToMs(mediaTimeUs);
+      long mediaTimeMs = Util.usToMs(mediaTimeUs);
       return mediaTimeMs == C.TIME_UNSET ? C.TIME_UNSET : mediaTimeOffsetMs + mediaTimeMs;
     }
 

@@ -1159,7 +1159,7 @@ public class AnalyticsCollector
               : playerTimeline
                   .getPeriod(playerPeriodIndex, period)
                   .getAdGroupIndexAfterPositionUs(
-                      C.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs());
+                      Util.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs());
       for (int i = 0; i < mediaPeriodQueue.size(); i++) {
         MediaPeriodId mediaPeriodId = mediaPeriodQueue.get(i);
         if (isMatchingMediaPeriod(
