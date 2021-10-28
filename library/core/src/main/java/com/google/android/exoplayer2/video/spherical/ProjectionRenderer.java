@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video.spherical;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
 import android.opengl.GLES11Ext;
@@ -92,9 +93,9 @@ import java.nio.FloatBuffer;
   private int stereoMode;
   @Nullable private MeshData leftMeshData;
   @Nullable private MeshData rightMeshData;
+  @Nullable private GlUtil.Program program;
 
-  // Program related GL items. These are only valid if program != 0.
-  private int program;
+  // Program related GL items. These are only valid if program is non-null.
   private int mvpMatrixHandle;
   private int uTexMatrixHandle;
   private int positionHandle;
@@ -119,12 +120,12 @@ import java.nio.FloatBuffer;
 
   /** Initializes of the GL components. */
   /* package */ void init() {
-    program = GlUtil.compileProgram(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
-    mvpMatrixHandle = GLES20.glGetUniformLocation(program, "uMvpMatrix");
-    uTexMatrixHandle = GLES20.glGetUniformLocation(program, "uTexMatrix");
-    positionHandle = GLES20.glGetAttribLocation(program, "aPosition");
-    texCoordsHandle = GLES20.glGetAttribLocation(program, "aTexCoords");
-    textureHandle = GLES20.glGetUniformLocation(program, "uTexture");
+    program = new GlUtil.Program(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+    mvpMatrixHandle = program.getUniformLocation("uMvpMatrix");
+    uTexMatrixHandle = program.getUniformLocation("uTexMatrix");
+    positionHandle = program.getAttribLocation("aPosition");
+    texCoordsHandle = program.getAttribLocation("aTexCoords");
+    textureHandle = program.getUniformLocation("uTexture");
   }
 
   /**
@@ -143,7 +144,7 @@ import java.nio.FloatBuffer;
     }
 
     // Configure shader.
-    GLES20.glUseProgram(program);
+    checkNotNull(program).use();
     checkGlError();
 
     GLES20.glEnableVertexAttribArray(positionHandle);
@@ -196,8 +197,9 @@ import java.nio.FloatBuffer;
 
   /** Cleans up the GL resources. */
   /* package */ void shutdown() {
-    if (program != 0) {
-      GLES20.glDeleteProgram(program);
+    if (program != null) {
+      program.delete();
+      program = null;
     }
   }
 

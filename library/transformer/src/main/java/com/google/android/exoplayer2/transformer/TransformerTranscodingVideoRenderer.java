@@ -229,17 +229,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     GlUtil.focusSurface(
         eglDisplay, eglContext, eglSurface, decoderInputFormat.width, decoderInputFormat.height);
     decoderTextureId = GlUtil.createExternalTexture();
-    String vertexShaderCode;
-    String fragmentShaderCode;
+    GlUtil.Program copyProgram;
     try {
-      vertexShaderCode = GlUtil.loadAsset(context, "shaders/blit_vertex_shader.glsl");
-      fragmentShaderCode = GlUtil.loadAsset(context, "shaders/copy_external_fragment_shader.glsl");
+      copyProgram =
+          new GlUtil.Program(
+              context,
+              /* vertexShaderFilePath= */ "shaders/blit_vertex_shader.glsl",
+              /* fragmentShaderFilePath= */ "shaders/copy_external_fragment_shader.glsl");
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-    int copyProgram = GlUtil.compileProgram(vertexShaderCode, fragmentShaderCode);
-    GLES20.glUseProgram(copyProgram);
-    GlUtil.Attribute[] copyAttributes = GlUtil.getAttributes(copyProgram);
+
+    copyProgram.use();
+    GlUtil.Attribute[] copyAttributes = copyProgram.getAttributes();
     checkState(copyAttributes.length == 2, "Expected program to have two vertex attributes.");
     for (GlUtil.Attribute copyAttribute : copyAttributes) {
       if (copyAttribute.name.equals("a_position")) {
@@ -265,7 +267,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       copyAttribute.bind();
     }
-    GlUtil.Uniform[] copyUniforms = GlUtil.getUniforms(copyProgram);
+    GlUtil.Uniform[] copyUniforms = copyProgram.getUniforms();
     checkState(copyUniforms.length == 2, "Expected program to have two uniforms.");
     for (GlUtil.Uniform copyUniform : copyUniforms) {
       if (copyUniform.name.equals("tex_sampler")) {
