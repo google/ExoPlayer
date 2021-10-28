@@ -157,8 +157,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
        * @param browser The browser information.
        * @param params The optional parameters passed by the browser.
        * @return A pending result that will be resolved with a root media item.
-       * @throws AssertionError if {@link LibraryResult#value} is {@code null} while {@link
-       *     LibraryResult#resultCode} is {@link LibraryResult#RESULT_SUCCESS}.
        * @see SessionCommand#COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT
        */
       default ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(
@@ -211,9 +209,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
        * @param pageSize The page size to get the paginated result. Will be greater than {@code 0}.
        * @param params The optional parameters passed by the browser.
        * @return A pending result that will be resolved with a list of media items.
-       * @throws AssertionError if {@link LibraryResult#value} is {@code null} or has size greater
-       *     than the {@code pageSize} while {@link LibraryResult#resultCode} is {@link
-       *     LibraryResult#RESULT_SUCCESS}.
        * @see SessionCommand#COMMAND_CODE_LIBRARY_GET_CHILDREN
        */
       default ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetChildren(
@@ -341,9 +336,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
        * @param pageSize The page size to get the paginated result. Will be greater than {@code 0}.
        * @param params The optional parameters passed by the browser.
        * @return A pending result that will be resolved with a list of media items.
-       * @throws AssertionError if {@link LibraryResult#value} is {@code null} or has size greater
-       *     than the {@code pageSize} while {@link LibraryResult#resultCode} is {@link
-       *     LibraryResult#RESULT_SUCCESS}.
        * @see SessionCommand#COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT
        */
       default ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetSearchResult(
