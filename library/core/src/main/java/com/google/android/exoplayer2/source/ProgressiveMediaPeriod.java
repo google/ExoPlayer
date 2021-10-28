@@ -641,8 +641,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* trackFormat= */ null,
             C.SELECTION_REASON_UNKNOWN,
             /* trackSelectionData= */ null,
-            /* mediaStartTimeMs= */ C.usToMs(loadable.seekTimeUs),
-            C.usToMs(durationUs));
+            /* mediaStartTimeMs= */ Util.usToMs(loadable.seekTimeUs),
+            Util.usToMs(durationUs));
     LoadErrorAction loadErrorAction;
     long retryDelayMs =
         loadErrorHandlingPolicy.getRetryDelayMsFor(

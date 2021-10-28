@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 
 /**
@@ -42,7 +43,7 @@ import java.nio.ByteBuffer;
    * <p>The value of this constant has been chosen based on the interleaving observed in a few media
    * files, where continuous chunks of the same track were about 0.5 seconds long.
    */
-  private static final long MAX_TRACK_WRITE_AHEAD_US = C.msToUs(500);
+  private static final long MAX_TRACK_WRITE_AHEAD_US = Util.msToUs(500);
 
   private final Muxer muxer;
   private final Muxer.Factory muxerFactory;

@@ -359,7 +359,7 @@ public final class ExoPlaybackException extends PlaybackException {
                 + ", format="
                 + rendererFormat
                 + ", format_supported="
-                + C.getFormatSupportString(rendererFormatSupport);
+                + Util.getFormatSupportString(rendererFormatSupport);
         break;
       case TYPE_REMOTE:
         message = "Remote error";

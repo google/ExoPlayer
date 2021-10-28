@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -558,7 +559,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       frameMetadataListener.onVideoFrameAboutToBeRendered(
           presentationTimeUs, System.nanoTime(), outputFormat, /* mediaFormat= */ null);
     }
-    lastRenderTimeUs = C.msToUs(SystemClock.elapsedRealtime() * 1000);
+    lastRenderTimeUs = Util.msToUs(SystemClock.elapsedRealtime() * 1000);
     int bufferMode = outputBuffer.mode;
     boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && outputSurface != null;
     boolean renderYuv = bufferMode == C.VIDEO_OUTPUT_MODE_YUV && outputBufferRenderer != null;

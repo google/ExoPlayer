@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.dash.offline;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.offline.DownloadException;
@@ -38,6 +37,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.RunnableFutureTask;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +128,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
     ArrayList<Segment> segments = new ArrayList<>();
     for (int i = 0; i < manifest.getPeriodCount(); i++) {
       Period period = manifest.getPeriod(i);
-      long periodStartUs = C.msToUs(period.startMs);
+      long periodStartUs = Util.msToUs(period.startMs);
       long periodDurationUs = manifest.getPeriodDurationUs(i);
       List<AdaptationSet> adaptationSets = period.adaptationSets;
       for (int j = 0; j < adaptationSets.size(); j++) {

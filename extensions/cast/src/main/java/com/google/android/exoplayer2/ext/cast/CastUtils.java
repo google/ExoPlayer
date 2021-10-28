@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.cast;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaTrack;
@@ -42,7 +43,7 @@ import com.google.android.gms.cast.MediaTrack;
     }
     long durationMs = mediaInfo.getStreamDuration();
     return durationMs != MediaInfo.UNKNOWN_DURATION && durationMs != LIVE_STREAM_DURATION
-        ? C.msToUs(durationMs)
+        ? Util.msToUs(durationMs)
         : C.TIME_UNSET;
   }
 

@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
+import com.google.android.exoplayer2.util.Util;
 
 /** A fake player for testing content/ad playback. */
 /* package */ final class FakePlayer extends StubExoPlayer {
@@ -277,7 +278,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
     if (isPlayingAd()) {
       long adDurationUs =
           timeline.getPeriod(0, period).getAdDurationUs(adGroupIndex, adIndexInAdGroup);
-      return C.usToMs(adDurationUs);
+      return Util.usToMs(adDurationUs);
     } else {
       return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
     }

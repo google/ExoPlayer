@@ -455,7 +455,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (Util.SDK_INT < 21) {
         audioSessionId = initializeKeepSessionIdAudioTrack(C.AUDIO_SESSION_ID_UNSET);
       } else {
-        audioSessionId = C.generateAudioSessionIdV21(applicationContext);
+        audioSessionId = Util.generateAudioSessionIdV21(applicationContext);
       }
       currentCues = Collections.emptyList();
       throwsWhenUsingWrongThread = true;
@@ -770,7 +770,7 @@ public class SimpleExoPlayer extends BasePlayer
       if (Util.SDK_INT < 21) {
         audioSessionId = initializeKeepSessionIdAudioTrack(C.AUDIO_SESSION_ID_UNSET);
       } else {
-        audioSessionId = C.generateAudioSessionIdV21(applicationContext);
+        audioSessionId = Util.generateAudioSessionIdV21(applicationContext);
       }
     } else if (Util.SDK_INT < 21) {
       // We need to re-initialize keepSessionIdAudioTrack to make sure the session is kept alive for

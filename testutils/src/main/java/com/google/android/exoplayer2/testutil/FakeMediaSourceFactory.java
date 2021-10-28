@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.util.Util;
 
 /** Fake {@link MediaSourceFactory} that creates a {@link FakeMediaSource}. */
 public class FakeMediaSourceFactory implements MediaSourceFactory {
@@ -81,7 +82,7 @@ public class FakeMediaSourceFactory implements MediaSourceFactory {
             /* isPlaceholder= */ false,
             /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
             /* defaultPositionUs= */ 2 * C.MICROS_PER_SECOND,
-            /* windowOffsetInFirstPeriodUs= */ C.msToUs(123456789),
+            /* windowOffsetInFirstPeriodUs= */ Util.msToUs(123456789),
             AdPlaybackState.NONE,
             mediaItem);
     return new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));

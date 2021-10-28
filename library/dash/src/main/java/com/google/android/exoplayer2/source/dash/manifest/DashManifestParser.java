@@ -967,8 +967,8 @@ public class DashManifestParser extends DefaultHandler
         timeline,
         availabilityTimeOffsetUs,
         segments,
-        C.msToUs(timeShiftBufferDepthMs),
-        C.msToUs(periodStartUnixTimeMs));
+        Util.msToUs(timeShiftBufferDepthMs),
+        Util.msToUs(periodStartUnixTimeMs));
   }
 
   protected SegmentTemplate parseSegmentTemplate(
@@ -1057,8 +1057,8 @@ public class DashManifestParser extends DefaultHandler
         availabilityTimeOffsetUs,
         initializationTemplate,
         mediaTemplate,
-        C.msToUs(timeShiftBufferDepthMs),
-        C.msToUs(periodStartUnixTimeMs));
+        Util.msToUs(timeShiftBufferDepthMs),
+        Util.msToUs(periodStartUnixTimeMs));
   }
 
   /**

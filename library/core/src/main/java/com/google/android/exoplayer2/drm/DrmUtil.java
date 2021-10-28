@@ -23,7 +23,6 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
@@ -122,7 +121,7 @@ public final class DrmUtil {
       @Nullable
       String diagnosticsInfo = ((MediaDrm.MediaDrmStateException) throwable).getDiagnosticInfo();
       int drmErrorCode = Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);
-      return C.getErrorCodeForMediaDrmErrorCode(drmErrorCode);
+      return Util.getErrorCodeForMediaDrmErrorCode(drmErrorCode);
     }
   }
 

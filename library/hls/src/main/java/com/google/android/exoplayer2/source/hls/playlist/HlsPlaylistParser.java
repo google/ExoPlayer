@@ -844,7 +844,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_PROGRAM_DATE_TIME)) {
         if (playlistStartTimeUs == 0) {
           long programDatetimeUs =
-              C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
+              Util.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
           playlistStartTimeUs = programDatetimeUs - segmentStartTimeUs;
         }
       } else if (line.equals(TAG_GAP)) {

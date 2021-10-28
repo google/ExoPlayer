@@ -302,12 +302,12 @@ import java.lang.reflect.Method;
 
     if (!notifiedPositionIncreasing && positionUs > lastPositionUs) {
       notifiedPositionIncreasing = true;
-      long mediaDurationSinceLastPositionUs = C.usToMs(positionUs - lastPositionUs);
+      long mediaDurationSinceLastPositionUs = Util.usToMs(positionUs - lastPositionUs);
       long playoutDurationSinceLastPositionUs =
           Util.getPlayoutDurationForMediaDuration(
               mediaDurationSinceLastPositionUs, audioTrackPlaybackSpeed);
       long playoutStartSystemTimeMs =
-          System.currentTimeMillis() - C.usToMs(playoutDurationSinceLastPositionUs);
+          System.currentTimeMillis() - Util.usToMs(playoutDurationSinceLastPositionUs);
       listener.onPositionAdvancing(playoutStartSystemTimeMs);
     }
 
@@ -357,7 +357,7 @@ import java.lang.reflect.Method;
     boolean hadData = hasData;
     hasData = hasPendingData(writtenFrames);
     if (hadData && !hasData && playState != PLAYSTATE_STOPPED) {
-      listener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs));
+      listener.onUnderrun(bufferSize, Util.usToMs(bufferSizeUs));
     }
 
     return true;
@@ -379,7 +379,7 @@ import java.lang.reflect.Method;
 
   /** Returns the duration of audio that is buffered but unplayed. */
   public long getPendingBufferDurationMs(long writtenFrames) {
-    return C.usToMs(framesToDurationUs(writtenFrames - getPlaybackHeadPosition()));
+    return Util.usToMs(framesToDurationUs(writtenFrames - getPlaybackHeadPosition()));
   }
 
   /** Returns whether the track is in an invalid state and must be recreated. */

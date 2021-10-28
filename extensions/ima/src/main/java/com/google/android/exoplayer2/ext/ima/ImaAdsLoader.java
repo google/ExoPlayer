@@ -703,7 +703,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
         timeline.getPeriodPosition(
                 window, period, period.windowIndex, /* windowPositionUs= */ C.TIME_UNSET)
             .second;
-    nextAdTagLoader.maybePreloadAds(C.usToMs(periodPositionUs), C.usToMs(period.durationUs));
+    nextAdTagLoader.maybePreloadAds(Util.usToMs(periodPositionUs), Util.usToMs(period.durationUs));
   }
 
   /**
