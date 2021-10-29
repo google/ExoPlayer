@@ -49,7 +49,6 @@ import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RenderersFactory;
-import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
@@ -575,8 +574,7 @@ public final class TranscodingTransformer {
             .setClock(clock)
             .build();
     player.setMediaItem(mediaItem);
-    player.addAnalyticsListener(
-        new TranscodingTransformerAnalyticsListener(mediaItem, muxerWrapper));
+    player.addListener(new TranscodingTransformerPlayerListener(mediaItem, muxerWrapper));
     player.prepare();
 
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
@@ -690,30 +688,30 @@ public final class TranscodingTransformer {
     }
   }
 
-  private final class TranscodingTransformerAnalyticsListener implements AnalyticsListener {
+  private final class TranscodingTransformerPlayerListener implements Player.Listener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
 
-    public TranscodingTransformerAnalyticsListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
+    public TranscodingTransformerPlayerListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
       this.mediaItem = mediaItem;
       this.muxerWrapper = muxerWrapper;
     }
 
     @Override
-    public void onPlaybackStateChanged(EventTime eventTime, int state) {
+    public void onPlaybackStateChanged(int state) {
       if (state == Player.STATE_ENDED) {
         handleTransformationEnded(/* exception= */ null);
       }
     }
 
     @Override
-    public void onTimelineChanged(EventTime eventTime, int reason) {
+    public void onTimelineChanged(Timeline timeline, int reason) {
       if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
         return;
       }
       Timeline.Window window = new Timeline.Window();
-      eventTime.timeline.getWindow(/* windowIndex= */ 0, window);
+      timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
         long durationUs = window.durationUs;
         // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
@@ -728,7 +726,7 @@ public final class TranscodingTransformer {
     }
 
     @Override
-    public void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
       if (muxerWrapper.getTrackCount() == 0) {
         handleTransformationEnded(
             new IllegalStateException(
@@ -738,7 +736,7 @@ public final class TranscodingTransformer {
     }
 
     @Override
-    public void onPlayerError(EventTime eventTime, PlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       handleTransformationEnded(error);
     }
 
