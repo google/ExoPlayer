@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
 import java.nio.FloatBuffer;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Utility class to render spherical meshes for video or images. Call {@link #init()} on the GL
@@ -93,9 +94,9 @@ import java.nio.FloatBuffer;
   private int stereoMode;
   @Nullable private MeshData leftMeshData;
   @Nullable private MeshData rightMeshData;
-  @Nullable private GlUtil.Program program;
+  private GlUtil.@MonotonicNonNull Program program;
 
-  // Program related GL items. These are only valid if program is non-null.
+  // Program related GL items. These are only valid if Program is valid.
   private int mvpMatrixHandle;
   private int uTexMatrixHandle;
   private int positionHandle;
@@ -195,11 +196,10 @@ import java.nio.FloatBuffer;
     GLES20.glDisableVertexAttribArray(texCoordsHandle);
   }
 
-  /** Cleans up the GL resources. */
+  /** Cleans up GL resources. */
   /* package */ void shutdown() {
     if (program != null) {
       program.delete();
-      program = null;
     }
   }
 

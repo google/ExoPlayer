@@ -299,11 +299,13 @@ public final class Transformer {
       checkState(
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
+      int outputHeight = 0; // TODO(ME): How do we get the input height here?
       Transformation transformation =
           new Transformation(
               removeAudio,
               removeVideo,
               flattenForSlowMotion,
+              outputHeight,
               outputMimeType,
               /* audioMimeType= */ null,
               /* videoMimeType= */ null);

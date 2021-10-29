@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     projectionRenderer.draw(textureId, tempMatrix, rightEye);
   }
 
-  /** Cleans up the GL resources. */
+  /** Cleans up GL resources. */
   public void shutdown() {
     projectionRenderer.shutdown();
   }
