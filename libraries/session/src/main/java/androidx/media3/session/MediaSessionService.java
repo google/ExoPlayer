@@ -274,7 +274,7 @@ public abstract class MediaSessionService extends Service {
   }
 
   /** A notification for media playback returned by {@link #onUpdateNotification(MediaSession)}. */
-  public static class MediaNotification {
+  public static final class MediaNotification {
 
     /** The notification id. */
     @IntRange(from = 1)
