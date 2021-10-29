@@ -647,7 +647,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     List<Segment> segments = new ArrayList<>();
     List<Part> trailingParts = new ArrayList<>();
     @Nullable Part preloadPart = null;
-    Map<Uri, RenditionReport> renditionReports = new HashMap<>();
+    List<RenditionReport> renditionReports = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
     long segmentDurationUs = 0;
@@ -856,17 +856,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.equals(TAG_ENDLIST)) {
         hasEndTag = true;
       } else if (line.startsWith(TAG_RENDITION_REPORT)) {
-        long defaultValue = mediaSequence + segments.size() - (trailingParts.isEmpty() ? 1 : 0);
-        long lastMediaSequence = parseOptionalLongAttr(line, REGEX_LAST_MSN, defaultValue);
-        List<Part> lastParts =
-            trailingParts.isEmpty() ? Iterables.getLast(segments).parts : trailingParts;
-        int defaultPartIndex =
-            partTargetDurationUs != C.TIME_UNSET ? lastParts.size() - 1 : C.INDEX_UNSET;
-        int lastPartIndex = parseOptionalIntAttr(line, REGEX_LAST_PART, defaultPartIndex);
+        long lastMediaSequence = parseOptionalLongAttr(line, REGEX_LAST_MSN, C.INDEX_UNSET);
+        int lastPartIndex = parseOptionalIntAttr(line, REGEX_LAST_PART, C.INDEX_UNSET);
         String uri = parseStringAttr(line, REGEX_URI, variableDefinitions);
         Uri playlistUri = Uri.parse(UriUtil.resolve(baseUri, uri));
-        renditionReports.put(
-            playlistUri, new RenditionReport(playlistUri, lastMediaSequence, lastPartIndex));
+        renditionReports.add(new RenditionReport(playlistUri, lastMediaSequence, lastPartIndex));
       } else if (line.startsWith(TAG_PRELOAD_HINT)) {
         if (preloadPart != null) {
           continue;
@@ -1024,6 +1018,24 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       }
     }
 
+    Map<Uri, RenditionReport> renditionReportMap = new HashMap<>();
+    for (int i = 0; i < renditionReports.size(); i++) {
+      RenditionReport renditionReport = renditionReports.get(i);
+      long lastMediaSequence = renditionReport.lastMediaSequence;
+      if (lastMediaSequence == C.INDEX_UNSET) {
+        lastMediaSequence = mediaSequence + segments.size() - (trailingParts.isEmpty() ? 1 : 0);
+      }
+      int lastPartIndex = renditionReport.lastPartIndex;
+      if (lastPartIndex == C.INDEX_UNSET && partTargetDurationUs != C.TIME_UNSET) {
+        List<Part> lastParts =
+            trailingParts.isEmpty() ? Iterables.getLast(segments).parts : trailingParts;
+        lastPartIndex = lastParts.size() - 1;
+      }
+      renditionReportMap.put(
+          renditionReport.playlistUri,
+          new RenditionReport(renditionReport.playlistUri, lastMediaSequence, lastPartIndex));
+    }
+
     if (preloadPart != null) {
       trailingParts.add(preloadPart);
     }
@@ -1048,7 +1060,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         segments,
         trailingParts,
         serverControl,
-        renditionReports);
+        renditionReportMap);
   }
 
   private static DrmInitData getPlaylistProtectionSchemes(
