@@ -20,7 +20,7 @@ import static androidx.media3.common.MimeTypes.VIDEO_MP4;
 import static androidx.media3.common.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.media3.extractor.metadata.id3.TextInformationFrame;
+import androidx.media3.test.utils.FakeMetadataEntry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,10 +61,7 @@ public final class FormatTest {
 
     byte[] projectionData = new byte[] {1, 2, 3};
 
-    Metadata metadata =
-        new Metadata(
-            new TextInformationFrame("id1", "description1", "value1"),
-            new TextInformationFrame("id2", "description2", "value2"));
+    Metadata metadata = new Metadata(new FakeMetadataEntry("id1"), new FakeMetadataEntry("id2"));
 
     ColorInfo colorInfo =
         new ColorInfo(

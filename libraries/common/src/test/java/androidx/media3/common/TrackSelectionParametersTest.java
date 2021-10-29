@@ -19,8 +19,6 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.TrackSelectionOverrides.TrackSelectionOverride;
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.SelectionOverride;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -179,18 +177,5 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.viewportWidth).isEqualTo(Integer.MAX_VALUE);
     assertThat(parameters.viewportHeight).isEqualTo(Integer.MAX_VALUE);
     assertThat(parameters.viewportOrientationMayChange).isTrue();
-  }
-
-  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
-  @Test
-  public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
-    SelectionOverride selectionOverrideToBundle =
-        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
-
-    SelectionOverride selectionOverrideFromBundle =
-        DefaultTrackSelector.SelectionOverride.CREATOR.fromBundle(
-            selectionOverrideToBundle.toBundle());
-
-    assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
   }
 }

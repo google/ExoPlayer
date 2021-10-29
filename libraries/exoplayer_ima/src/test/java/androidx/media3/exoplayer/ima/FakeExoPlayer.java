@@ -15,7 +15,6 @@
  */
 package androidx.media3.exoplayer.ima;
 
-import android.content.Context;
 import android.os.Looper;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -27,10 +26,11 @@ import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ListenerSet;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.test.utils.StubExoPlayer;
 
-/** A fake player for testing content/ad playback. */
-/* package */ final class FakePlayer extends StubExoPlayer {
+/** A fake {@link ExoPlayer} for testing content/ad playback. */
+/* package */ final class FakeExoPlayer extends StubExoPlayer {
 
   private final ListenerSet<Listener> listeners;
   private final Timeline.Period period;
@@ -48,8 +48,7 @@ import androidx.media3.test.utils.StubExoPlayer;
   private int adGroupIndex;
   private int adIndexInAdGroup;
 
-  public FakePlayer(Context context) {
-    super(context);
+  public FakeExoPlayer() {
     listeners =
         new ListenerSet<>(
             Looper.getMainLooper(),

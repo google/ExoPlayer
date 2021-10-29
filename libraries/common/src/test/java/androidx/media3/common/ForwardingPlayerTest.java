@@ -24,9 +24,7 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.content.Context;
-import androidx.media3.test.utils.StubExoPlayer;
-import androidx.test.core.app.ApplicationProvider;
+import androidx.media3.test.utils.StubPlayer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -47,7 +45,7 @@ public class ForwardingPlayerTest {
 
   @Test
   public void addListener_addsForwardingListener() {
-    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
+    FakePlayer player = new FakePlayer();
     Player.Listener listener1 = mock(Player.Listener.class);
     Player.Listener listener2 = mock(Player.Listener.class);
 
@@ -62,7 +60,7 @@ public class ForwardingPlayerTest {
 
   @Test
   public void removeListener_removesForwardingListener() {
-    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
+    FakePlayer player = new FakePlayer();
     Player.Listener listener1 = mock(Player.Listener.class);
     Player.Listener listener2 = mock(Player.Listener.class);
     ForwardingPlayer forwardingPlayer = new ForwardingPlayer(player);
@@ -80,7 +78,7 @@ public class ForwardingPlayerTest {
 
   @Test
   public void onEvents_passesForwardingPlayerAsArgument() {
-    FakePlayer player = new FakePlayer(ApplicationProvider.getApplicationContext());
+    FakePlayer player = new FakePlayer();
     Player.Listener listener = mock(Player.Listener.class);
     ForwardingPlayer forwardingPlayer = new ForwardingPlayer(player);
     forwardingPlayer.addListener(listener);
@@ -179,13 +177,9 @@ public class ForwardingPlayerTest {
     throw new IllegalStateException();
   }
 
-  private static class FakePlayer extends StubExoPlayer {
+  private static class FakePlayer extends StubPlayer {
 
     private final Set<Listener> listeners = new HashSet<>();
-
-    public FakePlayer(Context context) {
-      super(context);
-    }
 
     @Override
     public void addListener(Listener listener) {
