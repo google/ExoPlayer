@@ -108,7 +108,7 @@ import java.io.IOException;
    * @throws ParserException If an error occurs parsing chunks.
    * @throws IOException If reading from the input fails.
    */
-  public static Pair<Long, Long> skipToData(ExtractorInput input) throws IOException {
+  public static Pair<Long, Long> skipToSampleData(ExtractorInput input) throws IOException {
     Assertions.checkNotNull(input);
 
     // Make sure the peek position is set to the read position before we peek the first header.
@@ -118,14 +118,8 @@ import java.io.IOException;
     // Skip all chunks until we find the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
     while (chunkHeader.id != WavUtil.DATA_FOURCC) {
-      if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC) {
-        Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
-      }
+      Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
-      // Override size of RIFF chunk, since it describes its size as the entire file.
-      if (chunkHeader.id == WavUtil.RIFF_FOURCC) {
-        bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
-      }
       if (bytesToSkip > Integer.MAX_VALUE) {
         throw ParserException.createForUnsupportedContainerFeature(
             "Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
