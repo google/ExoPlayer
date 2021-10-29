@@ -139,13 +139,13 @@ public final class ImaAdsLoaderTest {
   private ContentProgressProvider contentProgressProvider;
   private VideoAdPlayer videoAdPlayer;
   private TestAdsLoaderListener adsLoaderListener;
-  private FakePlayer fakePlayer;
+  private FakeExoPlayer fakePlayer;
   private ImaAdsLoader imaAdsLoader;
 
   @Before
   public void setUp() {
     setupMocks();
-    fakePlayer = new FakePlayer(getApplicationContext());
+    fakePlayer = new FakeExoPlayer();
     adViewGroup = new FrameLayout(getApplicationContext());
     View adOverlayView = new View(getApplicationContext());
     adViewProvider =

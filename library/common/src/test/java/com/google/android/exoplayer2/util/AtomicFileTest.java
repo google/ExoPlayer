@@ -39,7 +39,7 @@ public final class AtomicFileTest {
   @Before
   public void setUp() throws Exception {
     tempFolder =
-        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "AtomicFileTest");
     file = new File(tempFolder, "atomicFile");
     atomicFile = new AtomicFile(file);
   }

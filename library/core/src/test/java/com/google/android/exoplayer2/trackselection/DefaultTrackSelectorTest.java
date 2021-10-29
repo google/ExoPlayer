@@ -1750,6 +1750,19 @@ public final class DefaultTrackSelectorTest {
     assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
   }
 
+  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
+  @Test
+  public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
+    SelectionOverride selectionOverrideToBundle =
+        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
+
+    SelectionOverride selectionOverrideFromBundle =
+        DefaultTrackSelector.SelectionOverride.CREATOR.fromBundle(
+            selectionOverrideToBundle.toBundle());
+
+    assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
+  }
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
