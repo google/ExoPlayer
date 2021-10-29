@@ -28,6 +28,7 @@ import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLE
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VIDEO_OUTPUT;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_VOLUME;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -66,7 +67,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
@@ -409,12 +409,14 @@ public class SimpleExoPlayer extends BasePlayer
       Clock clock,
       Looper applicationLooper) {
     this(
-        new ExoPlayer.Builder(context, renderersFactory)
-            .setTrackSelector(trackSelector)
-            .setMediaSourceFactory(mediaSourceFactory)
-            .setLoadControl(loadControl)
-            .setBandwidthMeter(bandwidthMeter)
-            .setAnalyticsCollector(analyticsCollector)
+        new ExoPlayer.Builder(
+                context,
+                renderersFactory,
+                mediaSourceFactory,
+                trackSelector,
+                loadControl,
+                bandwidthMeter,
+                analyticsCollector)
             .setUseLazyPreparation(useLazyPreparation)
             .setClock(clock)
             .setLooper(applicationLooper));
@@ -431,7 +433,7 @@ public class SimpleExoPlayer extends BasePlayer
     constructorFinished = new ConditionVariable();
     try {
       applicationContext = builder.context.getApplicationContext();
-      analyticsCollector = builder.analyticsCollector;
+      analyticsCollector = builder.analyticsCollectorSupplier.get();
       priorityTaskManager = builder.priorityTaskManager;
       audioAttributes = builder.audioAttributes;
       videoScalingMode = builder.videoScalingMode;
@@ -443,12 +445,15 @@ public class SimpleExoPlayer extends BasePlayer
       listeners = new CopyOnWriteArraySet<>();
       Handler eventHandler = new Handler(builder.looper);
       renderers =
-          builder.renderersFactory.createRenderers(
-              eventHandler,
-              componentListener,
-              componentListener,
-              componentListener,
-              componentListener);
+          builder
+              .renderersFactorySupplier
+              .get()
+              .createRenderers(
+                  eventHandler,
+                  componentListener,
+                  componentListener,
+                  componentListener,
+                  componentListener);
 
       // Set initial values.
       volume = 1;
@@ -476,10 +481,10 @@ public class SimpleExoPlayer extends BasePlayer
       player =
           new ExoPlayerImpl(
               renderers,
-              builder.trackSelector,
-              builder.mediaSourceFactory,
-              builder.loadControl,
-              builder.bandwidthMeter,
+              builder.trackSelectorSupplier.get(),
+              builder.mediaSourceFactorySupplier.get(),
+              builder.loadControlSupplier.get(),
+              builder.bandwidthMeterSupplier.get(),
               analyticsCollector,
               builder.useLazyPreparation,
               builder.seekParameters,
@@ -848,7 +853,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     analyticsCollector.addListener(listener);
   }
 
@@ -874,7 +879,7 @@ public class SimpleExoPlayer extends BasePlayer
       return;
     }
     if (isPriorityTaskManagerRegistered) {
-      Assertions.checkNotNull(this.priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
+      checkNotNull(this.priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
     }
     if (priorityTaskManager != null && isLoading()) {
       priorityTaskManager.add(C.PRIORITY_PLAYBACK);
@@ -982,7 +987,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void addListener(Listener listener) {
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     listeners.add(listener);
     EventListener eventListener = listener;
     addListener(eventListener);
@@ -992,13 +997,13 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     player.addEventListener(listener);
   }
 
   @Override
   public void removeListener(Listener listener) {
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     listeners.remove(listener);
     EventListener eventListener = listener;
     removeListener(eventListener);
@@ -1322,7 +1327,7 @@ public class SimpleExoPlayer extends BasePlayer
       ownedSurface = null;
     }
     if (isPriorityTaskManagerRegistered) {
-      Assertions.checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
+      checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
       isPriorityTaskManagerRegistered = false;
     }
     currentCues = Collections.emptyList();

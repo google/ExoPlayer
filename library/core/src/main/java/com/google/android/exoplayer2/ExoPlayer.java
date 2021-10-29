@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
@@ -59,6 +60,7 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import com.google.common.base.Supplier;
 import java.util.List;
 
 /**
@@ -366,12 +368,12 @@ public interface ExoPlayer extends Player {
 
     /* package */ Clock clock;
     /* package */ long foregroundModeTimeoutMs;
-    /* package */ RenderersFactory renderersFactory;
-    /* package */ MediaSourceFactory mediaSourceFactory;
-    /* package */ TrackSelector trackSelector;
-    /* package */ LoadControl loadControl;
-    /* package */ BandwidthMeter bandwidthMeter;
-    /* package */ AnalyticsCollector analyticsCollector;
+    /* package */ Supplier<RenderersFactory> renderersFactorySupplier;
+    /* package */ Supplier<MediaSourceFactory> mediaSourceFactorySupplier;
+    /* package */ Supplier<TrackSelector> trackSelectorSupplier;
+    /* package */ Supplier<LoadControl> loadControlSupplier;
+    /* package */ Supplier<BandwidthMeter> bandwidthMeterSupplier;
+    /* package */ Supplier<AnalyticsCollector> analyticsCollectorSupplier;
     /* package */ Looper looper;
     @Nullable /* package */ PriorityTaskManager priorityTaskManager;
     /* package */ AudioAttributes audioAttributes;
@@ -437,8 +439,8 @@ public interface ExoPlayer extends Player {
     public Builder(Context context) {
       this(
           context,
-          new DefaultRenderersFactory(context),
-          new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
+          () -> new DefaultRenderersFactory(context),
+          () -> new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
     }
 
     /**
@@ -456,8 +458,8 @@ public interface ExoPlayer extends Player {
     public Builder(Context context, RenderersFactory renderersFactory) {
       this(
           context,
-          renderersFactory,
-          new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
+          () -> renderersFactory,
+          () -> new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
     }
 
     /**
@@ -474,7 +476,7 @@ public interface ExoPlayer extends Player {
      *     MediaItem}.
      */
     public Builder(Context context, MediaSourceFactory mediaSourceFactory) {
-      this(context, new DefaultRenderersFactory(context), mediaSourceFactory);
+      this(context, () -> new DefaultRenderersFactory(context), () -> mediaSourceFactory);
     }
 
     /**
@@ -494,14 +496,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder(
         Context context, RenderersFactory renderersFactory, MediaSourceFactory mediaSourceFactory) {
-      this(
-          context,
-          renderersFactory,
-          mediaSourceFactory,
-          new DefaultTrackSelector(context),
-          new DefaultLoadControl(),
-          DefaultBandwidthMeter.getSingletonInstance(context),
-          new AnalyticsCollector(Clock.DEFAULT));
+      this(context, () -> renderersFactory, () -> mediaSourceFactory);
     }
 
     /**
@@ -527,13 +522,48 @@ public interface ExoPlayer extends Player {
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         AnalyticsCollector analyticsCollector) {
+      this(
+          context,
+          () -> renderersFactory,
+          () -> mediaSourceFactory,
+          () -> trackSelector,
+          () -> loadControl,
+          () -> bandwidthMeter,
+          () -> analyticsCollector);
+    }
+
+    private Builder(
+        Context context,
+        Supplier<RenderersFactory> renderersFactorySupplier,
+        Supplier<MediaSourceFactory> mediaSourceFactorySupplier) {
+      this(
+          context,
+          renderersFactorySupplier,
+          mediaSourceFactorySupplier,
+          () -> new DefaultTrackSelector(context),
+          DefaultLoadControl::new,
+          () -> DefaultBandwidthMeter.getSingletonInstance(context),
+          /* analyticsCollectorSupplier= */ null);
+    }
+
+    private Builder(
+        Context context,
+        Supplier<RenderersFactory> renderersFactorySupplier,
+        Supplier<MediaSourceFactory> mediaSourceFactorySupplier,
+        Supplier<TrackSelector> trackSelectorSupplier,
+        Supplier<LoadControl> loadControlSupplier,
+        Supplier<BandwidthMeter> bandwidthMeterSupplier,
+        @Nullable Supplier<AnalyticsCollector> analyticsCollectorSupplier) {
       this.context = context;
-      this.renderersFactory = renderersFactory;
-      this.mediaSourceFactory = mediaSourceFactory;
-      this.trackSelector = trackSelector;
-      this.loadControl = loadControl;
-      this.bandwidthMeter = bandwidthMeter;
-      this.analyticsCollector = analyticsCollector;
+      this.renderersFactorySupplier = renderersFactorySupplier;
+      this.mediaSourceFactorySupplier = mediaSourceFactorySupplier;
+      this.trackSelectorSupplier = trackSelectorSupplier;
+      this.loadControlSupplier = loadControlSupplier;
+      this.bandwidthMeterSupplier = bandwidthMeterSupplier;
+      this.analyticsCollectorSupplier =
+          analyticsCollectorSupplier != null
+              ? analyticsCollectorSupplier
+              : () -> new AnalyticsCollector(checkNotNull(clock));
       looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
@@ -573,7 +603,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setRenderersFactory(RenderersFactory renderersFactory) {
       checkState(!buildCalled);
-      this.renderersFactory = renderersFactory;
+      this.renderersFactorySupplier = () -> renderersFactory;
       return this;
     }
 
@@ -586,7 +616,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
       checkState(!buildCalled);
-      this.mediaSourceFactory = mediaSourceFactory;
+      this.mediaSourceFactorySupplier = () -> mediaSourceFactory;
       return this;
     }
 
@@ -599,7 +629,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setTrackSelector(TrackSelector trackSelector) {
       checkState(!buildCalled);
-      this.trackSelector = trackSelector;
+      this.trackSelectorSupplier = () -> trackSelector;
       return this;
     }
 
@@ -612,7 +642,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setLoadControl(LoadControl loadControl) {
       checkState(!buildCalled);
-      this.loadControl = loadControl;
+      this.loadControlSupplier = () -> loadControl;
       return this;
     }
 
@@ -625,7 +655,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       checkState(!buildCalled);
-      this.bandwidthMeter = bandwidthMeter;
+      this.bandwidthMeterSupplier = () -> bandwidthMeter;
       return this;
     }
 
@@ -652,7 +682,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       checkState(!buildCalled);
-      this.analyticsCollector = analyticsCollector;
+      this.analyticsCollectorSupplier = () -> analyticsCollector;
       return this;
     }
 
