@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.audio;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -1643,6 +1644,8 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @RequiresApi(29)
+  // Return values of AudioManager.getPlaybackOffloadSupport are equal to C.AudioManagerOffloadMode.
+  @SuppressLint("WrongConstant")
   @C.AudioManagerOffloadMode
   private int getOffloadedPlaybackSupport(
       AudioFormat audioFormat, android.media.AudioAttributes audioAttributes) {
