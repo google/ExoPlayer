@@ -38,6 +38,26 @@ import com.google.common.collect.ImmutableList;
 /* package */ final class MediaPeriodQueue {
 
   /**
+   * Initial renderer position offset used for the first item in the queue, in microseconds.
+   *
+   * <p>Choosing a positive value, larger than any reasonable single media duration, ensures three
+   * things:
+   *
+   * <ul>
+   *   <li>Media that accidentally or intentionally starts with small negative timestamps doesn't
+   *       send samples with negative timestamps to decoders. This makes rendering more robust as
+   *       many decoders are known to have problems with negative timestamps.
+   *   <li>Enqueueing media after the initial item with a non-zero start offset (e.g. content after
+   *       ad breaks or live streams) is virtually guaranteed to stay in the positive timestamp
+   *       range even when seeking back. This prevents renderer resets that are required if the
+   *       allowed timestamp range may become negative.
+   *   <li>Choosing a large value with zeros at all relevant digits simplifies debugging as the
+   *       original timestamp of the media is still visible.
+   * </ul>
+   */
+  public static final long INITIAL_RENDERER_POSITION_OFFSET_US = 1_000_000_000_000L;
+
+  /**
    * Limits the maximum number of periods to buffer ahead of the current playing period. The
    * buffering policy normally prevents buffering too far ahead, but the policy could allow too many
    * small periods to be buffered if the period count were not limited.
@@ -163,9 +183,7 @@ import com.google.common.collect.ImmutableList;
       TrackSelectorResult emptyTrackSelectorResult) {
     long rendererPositionOffsetUs =
         loading == null
-            ? (info.id.isAd() && info.requestedContentPositionUs != C.TIME_UNSET
-                ? info.requestedContentPositionUs
-                : 0)
+            ? INITIAL_RENDERER_POSITION_OFFSET_US
             : (loading.getRendererOffset() + loading.info.durationUs - info.startPositionUs);
     MediaPeriodHolder newPeriodHolder =
         new MediaPeriodHolder(
