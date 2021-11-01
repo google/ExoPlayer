@@ -428,9 +428,7 @@ public class PlaybackException extends Exception implements Bundleable {
   @UnstableApi protected static final int FIELD_CUSTOM_ID_BASE = 1000;
 
   /** Object that can create a {@link PlaybackException} from a {@link Bundle}. */
-  @UnstableApi
-  @SuppressWarnings("unchecked")
-  public static final Creator<PlaybackException> CREATOR = PlaybackException::new;
+  @UnstableApi public static final Creator<PlaybackException> CREATOR = PlaybackException::new;
 
   @UnstableApi
   @CallSuper
