@@ -276,6 +276,11 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       clippingTimeline = new ClippingTimeline(timeline, windowStartUs, windowEndUs);
     } catch (IllegalClippingException e) {
       clippingError = e;
+      // The clipping error won't be propagated while we have existing MediaPeriods. Setting the
+      // error at the MediaPeriods ensures it will be thrown as soon as possible.
+      for (int i = 0; i < mediaPeriods.size(); i++) {
+        mediaPeriods.get(i).setClippingError(clippingError);
+      }
       return;
     }
     refreshSourceInfo(clippingTimeline);
