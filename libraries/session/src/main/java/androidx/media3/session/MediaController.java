@@ -631,8 +631,7 @@ public class MediaController implements Player {
   }
 
   @Override
-  @PlaybackSuppressionReason
-  public int getPlaybackSuppressionReason() {
+  public @PlaybackSuppressionReason int getPlaybackSuppressionReason() {
     verifyApplicationThread();
     return isConnected()
         ? impl.getPlaybackSuppressionReason()
@@ -640,8 +639,7 @@ public class MediaController implements Player {
   }
 
   @Override
-  @State
-  public int getPlaybackState() {
+  public @State int getPlaybackState() {
     verifyApplicationThread();
     return isConnected() ? impl.getPlaybackState() : Player.STATE_IDLE;
   }
@@ -1466,8 +1464,7 @@ public class MediaController implements Player {
   }
 
   @Override
-  @RepeatMode
-  public int getRepeatMode() {
+  public @RepeatMode int getRepeatMode() {
     verifyApplicationThread();
     return isConnected() ? impl.getRepeatMode() : Player.REPEAT_MODE_OFF;
   }

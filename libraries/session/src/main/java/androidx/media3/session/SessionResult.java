@@ -137,7 +137,7 @@ public final class SessionResult implements Bundleable {
   public static final int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108;
 
   /** The {@link Code} of this result. */
-  @Code public final int resultCode;
+  public final @Code int resultCode;
 
   /** The extra {@link Bundle} for the result. */
   public final Bundle extras;

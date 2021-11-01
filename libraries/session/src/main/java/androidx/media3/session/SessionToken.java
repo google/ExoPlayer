@@ -223,8 +223,7 @@ public final class SessionToken implements Bundleable {
    * Returns the type of this token. One of {@link #TYPE_SESSION}, {@link #TYPE_SESSION_SERVICE}, or
    * {@link #TYPE_LIBRARY_SERVICE}.
    */
-  @TokenType
-  public int getType() {
+  public @TokenType int getType() {
     return impl.getType();
   }
 

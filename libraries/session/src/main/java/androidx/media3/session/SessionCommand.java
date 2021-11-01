@@ -119,7 +119,7 @@ public final class SessionCommand implements Bundleable {
    * The command code of a predefined command. It will be {@link #COMMAND_CODE_CUSTOM} for a custom
    * command.
    */
-  @CommandCode public final int commandCode;
+  public final @CommandCode int commandCode;
 
   /** The action of a custom command. It will be an empty string for a predefined command. */
   public final String customAction;

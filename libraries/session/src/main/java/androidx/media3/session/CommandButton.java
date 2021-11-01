@@ -44,7 +44,7 @@ public final class CommandButton implements Bundleable {
   public static final class Builder {
 
     @Nullable private SessionCommand sessionCommand;
-    @Player.Command private int playerCommand;
+    private @Player.Command int playerCommand;
     @DrawableRes private int iconResId;
     private CharSequence displayName;
     private Bundle extras;
@@ -153,7 +153,7 @@ public final class CommandButton implements Bundleable {
    * The {@link Player.Command} command of the button. Can be {@link Player#COMMAND_INVALID} if the
    * button is a placeholder.
    */
-  @Player.Command public final int playerCommand;
+  public final @Player.Command int playerCommand;
 
   /**
    * The icon resource id of the button. Can be {@code 0} if the command is predefined and a custom

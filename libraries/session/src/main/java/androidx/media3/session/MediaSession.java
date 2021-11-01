@@ -870,8 +870,7 @@ public class MediaSession {
      * @see Player.Command#COMMAND_SET_TRACK_SELECTION_PARAMETERS
      * @see Player.Command#COMMAND_GET_TRACK_INFOS
      */
-    @SessionResult.Code
-    default int onPlayerCommandRequest(
+    default @SessionResult.Code int onPlayerCommandRequest(
         MediaSession session, ControllerInfo controller, @Player.Command int playerCommand) {
       return RESULT_SUCCESS;
     }
@@ -976,8 +975,7 @@ public class MediaSession {
      * @param extras An extra {@link Bundle}. May be empty.
      * @return A result code.
      */
-    @SessionResult.Code
-    default int onSetMediaUri(
+    default @SessionResult.Code int onSetMediaUri(
         MediaSession session, ControllerInfo controller, Uri uri, Bundle extras) {
       return RESULT_ERROR_NOT_SUPPORTED;
     }

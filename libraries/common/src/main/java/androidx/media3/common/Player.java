@@ -450,8 +450,7 @@ public interface Player {
      * @return The {@link Event} at the given index.
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
-    @Event
-    public int get(int index) {
+    public @Event int get(int index) {
       return flags.get(index);
     }
 
@@ -871,8 +870,7 @@ public interface Player {
      * @return The {@link Command} at the given index.
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
-    @Command
-    public int get(int index) {
+    public @Command int get(int index) {
       return flags.get(index);
     }
 

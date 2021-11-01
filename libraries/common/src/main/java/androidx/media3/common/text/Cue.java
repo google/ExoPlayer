@@ -563,16 +563,16 @@ public final class Cue implements Bundleable {
     @Nullable private Alignment multiRowAlignment;
     private float line;
     @LineType private int lineType;
-    @AnchorType private int lineAnchor;
+    private @AnchorType int lineAnchor;
     private float position;
-    @AnchorType private int positionAnchor;
-    @TextSizeType private int textSizeType;
+    private @AnchorType int positionAnchor;
+    private @TextSizeType int textSizeType;
     private float textSize;
     private float size;
     private float bitmapHeight;
     private boolean windowColorSet;
     @ColorInt private int windowColor;
-    @VerticalType private int verticalType;
+    private @VerticalType int verticalType;
     private float shearDegrees;
 
     public Builder() {
