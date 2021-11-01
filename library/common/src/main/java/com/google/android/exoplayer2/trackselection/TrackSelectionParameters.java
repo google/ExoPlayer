@@ -82,13 +82,13 @@ public class TrackSelectionParameters implements Bundleable {
     private ImmutableList<String> preferredVideoMimeTypes;
     // Audio
     private ImmutableList<String> preferredAudioLanguages;
-    @C.RoleFlags private int preferredAudioRoleFlags;
+    private @C.RoleFlags int preferredAudioRoleFlags;
     private int maxAudioChannelCount;
     private int maxAudioBitrate;
     private ImmutableList<String> preferredAudioMimeTypes;
     // Text
     private ImmutableList<String> preferredTextLanguages;
-    @C.RoleFlags private int preferredTextRoleFlags;
+    private @C.RoleFlags int preferredTextRoleFlags;
     private boolean selectUndeterminedTextLanguage;
     // General
     private boolean forceLowestBitrate;
@@ -781,7 +781,7 @@ public class TrackSelectionParameters implements Bundleable {
    * The preferred {@link C.RoleFlags} for audio tracks. {@code 0} selects the default track if
    * there is one, or the first track if there's no default. The default value is {@code 0}.
    */
-  @C.RoleFlags public final int preferredAudioRoleFlags;
+  public final @C.RoleFlags int preferredAudioRoleFlags;
   /**
    * Maximum allowed audio channel count. The default value is {@link Integer#MAX_VALUE} (i.e. no
    * constraint).
@@ -811,7 +811,7 @@ public class TrackSelectionParameters implements Bundleable {
    * | {@link C#ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND} if the accessibility {@link CaptioningManager}
    * is enabled.
    */
-  @C.RoleFlags public final int preferredTextRoleFlags;
+  public final @C.RoleFlags int preferredTextRoleFlags;
   /**
    * Whether a text track with undetermined language should be selected if no track with {@link
    * #preferredTextLanguages} is available, or if {@link #preferredTextLanguages} is unset. The

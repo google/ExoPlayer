@@ -37,7 +37,7 @@ public class MediaFormatUtilTest {
     // Assert that no invalid keys are accidentally being populated.
     assertThat(mediaFormat.getKeys())
         .containsExactly(
-            MediaFormatUtil.KEY_EXO_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT,
+            MediaFormatUtil.KEY_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT,
             MediaFormat.KEY_ENCODER_DELAY,
             MediaFormat.KEY_ENCODER_PADDING,
             MediaFormat.KEY_PIXEL_ASPECT_RATIO_WIDTH,
@@ -46,7 +46,7 @@ public class MediaFormatUtilTest {
             MediaFormat.KEY_IS_FORCED_SUBTITLE,
             MediaFormat.KEY_IS_AUTOSELECT,
             MediaFormat.KEY_ROTATION);
-    assertThat(mediaFormat.getFloat(MediaFormatUtil.KEY_EXO_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT))
+    assertThat(mediaFormat.getFloat(MediaFormatUtil.KEY_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT))
         .isEqualTo(1.f);
     assertThat(mediaFormat.getInteger(MediaFormat.KEY_ENCODER_DELAY)).isEqualTo(0);
     assertThat(mediaFormat.getInteger(MediaFormat.KEY_ENCODER_PADDING)).isEqualTo(0);
@@ -116,7 +116,7 @@ public class MediaFormatUtilTest {
         .isEqualTo(format.initializationData.get(1));
 
     assertThat(mediaFormat.getInteger(MediaFormat.KEY_PCM_ENCODING)).isEqualTo(format.pcmEncoding);
-    assertThat(mediaFormat.getInteger(MediaFormatUtil.KEY_EXO_PCM_ENCODING))
+    assertThat(mediaFormat.getInteger(MediaFormatUtil.KEY_PCM_ENCODING_EXTENDED))
         .isEqualTo(format.pcmEncoding);
 
     assertThat(mediaFormat.getString(MediaFormat.KEY_LANGUAGE)).isEqualTo(format.language);
@@ -140,7 +140,7 @@ public class MediaFormatUtilTest {
         (float) mediaFormat.getInteger(MediaFormat.KEY_PIXEL_ASPECT_RATIO_WIDTH)
             / mediaFormat.getInteger(MediaFormat.KEY_PIXEL_ASPECT_RATIO_HEIGHT);
     assertThat(calculatedPixelAspectRatio).isWithin(.0001f).of(format.pixelWidthHeightRatio);
-    assertThat(mediaFormat.getFloat(MediaFormatUtil.KEY_EXO_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT))
+    assertThat(mediaFormat.getFloat(MediaFormatUtil.KEY_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT))
         .isEqualTo(format.pixelWidthHeightRatio);
   }
 
@@ -148,7 +148,7 @@ public class MediaFormatUtilTest {
   public void createMediaFormatFromFormat_withPcmEncoding_setsCustomPcmEncodingEntry() {
     Format format = new Format.Builder().setPcmEncoding(C.ENCODING_PCM_32BIT).build();
     MediaFormat mediaFormat = MediaFormatUtil.createMediaFormatFromFormat(format);
-    assertThat(mediaFormat.getInteger(MediaFormatUtil.KEY_EXO_PCM_ENCODING))
+    assertThat(mediaFormat.getInteger(MediaFormatUtil.KEY_PCM_ENCODING_EXTENDED))
         .isEqualTo(C.ENCODING_PCM_32BIT);
     assertThat(mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)).isFalse();
   }

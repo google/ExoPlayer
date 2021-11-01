@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import android.annotation.SuppressLint;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.SessionPlayer;
 import com.google.android.exoplayer2.Player;
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 /* package */ final class Utils {
 
   /** Returns ExoPlayer audio attributes for the given audio attributes. */
+  @SuppressLint("WrongConstant") // AudioAttributesCompat.AttributeUsage is equal to C.AudioUsage
   public static AudioAttributes getAudioAttributes(AudioAttributesCompat audioAttributesCompat) {
     return new AudioAttributes.Builder()
         .setContentType(audioAttributesCompat.getContentType())
