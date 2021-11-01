@@ -623,7 +623,7 @@ public final class MediaMetadata implements Bundleable {
   /** Optional artwork data as a compressed byte array. */
   @Nullable public final byte[] artworkData;
   /** Optional {@link PictureType} of the artwork data. */
-  @Nullable @PictureType public final Integer artworkDataType;
+  @Nullable public final @PictureType Integer artworkDataType;
   /** Optional artwork {@link Uri}. */
   @Nullable public final Uri artworkUri;
   /** Optional track number. */
@@ -631,7 +631,7 @@ public final class MediaMetadata implements Bundleable {
   /** Optional total number of tracks. */
   @Nullable public final Integer totalTrackCount;
   /** Optional {@link FolderType}. */
-  @Nullable @FolderType public final Integer folderType;
+  @Nullable public final @FolderType Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
   /** @deprecated Use {@link #recordingYear} instead. */

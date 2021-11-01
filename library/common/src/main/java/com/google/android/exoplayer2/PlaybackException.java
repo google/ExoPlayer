@@ -320,7 +320,7 @@ public class PlaybackException extends Exception implements Bundleable {
   }
 
   /** An error code which identifies the cause of the playback failure. */
-  @ErrorCode public final int errorCode;
+  public final @ErrorCode int errorCode;
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
