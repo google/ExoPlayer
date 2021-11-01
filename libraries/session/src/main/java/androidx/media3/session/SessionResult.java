@@ -15,6 +15,8 @@
  */
 package androidx.media3.session;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -27,6 +29,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * A result to be used with {@link ListenableFuture} for asynchronous calls between {@link
@@ -51,6 +54,8 @@ public final class SessionResult implements Bundleable {
    * </ul>
    */
   @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     RESULT_SUCCESS,
     RESULT_ERROR_UNKNOWN,
@@ -69,7 +74,6 @@ public final class SessionResult implements Bundleable {
     RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED,
     RESULT_ERROR_SESSION_SETUP_REQUIRED
   })
-  @Retention(RetentionPolicy.SOURCE)
   public @interface Code {}
 
   /**

@@ -15,6 +15,12 @@
  */
 package androidx.media3.common;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -29,6 +35,7 @@ import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Thrown when a non locally recoverable playback failure occurs. */
 public class PlaybackException extends Exception implements Bundleable {
@@ -41,6 +48,7 @@ public class PlaybackException extends Exception implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       open = true,
       value = {
