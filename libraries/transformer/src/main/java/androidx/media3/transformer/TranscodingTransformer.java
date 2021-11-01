@@ -43,7 +43,6 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Clock;
-import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DefaultLoadControl;
@@ -94,16 +93,12 @@ public final class TranscodingTransformer {
   /** A builder for {@link TranscodingTransformer} instances. */
   public static final class Builder {
 
-    // Mandatory field.
     private @MonotonicNonNull Context context;
-
-    // Optional fields.
     private @MonotonicNonNull MediaSourceFactory mediaSourceFactory;
     private Muxer.Factory muxerFactory;
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
-    private int outputHeight;
     private String outputMimeType;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
@@ -128,7 +123,6 @@ public final class TranscodingTransformer {
       this.removeAudio = transcodingTransformer.transformation.removeAudio;
       this.removeVideo = transcodingTransformer.transformation.removeVideo;
       this.flattenForSlowMotion = transcodingTransformer.transformation.flattenForSlowMotion;
-      this.outputHeight = transcodingTransformer.transformation.outputHeight;
       this.outputMimeType = transcodingTransformer.transformation.outputMimeType;
       this.audioMimeType = transcodingTransformer.transformation.audioMimeType;
       this.videoMimeType = transcodingTransformer.transformation.videoMimeType;
@@ -218,21 +212,6 @@ public final class TranscodingTransformer {
      */
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
       this.flattenForSlowMotion = flattenForSlowMotion;
-      return this;
-    }
-
-    /**
-     * Sets the output resolution for the video, using the output height. The default value is to
-     * use the same height as the input. Output width will scale to preserve the input video's
-     * aspect ratio.
-     *
-     * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
-     *
-     * @param outputHeight The output height for the video, in pixels.
-     * @return This builder.
-     */
-    public Builder setResolution(int outputHeight) {
-      this.outputHeight = outputHeight;
       return this;
     }
 
@@ -379,12 +358,6 @@ public final class TranscodingTransformer {
       checkState(
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
-      // TODO(ME): Test with values of 10, 100, 1000).
-      Log.e("TranscodingTransformer", "outputHeight = " + outputHeight);
-      if (outputHeight == 0) {
-        // TODO(ME): get output height from input video.
-        outputHeight = 480;
-      }
       if (audioMimeType != null) {
         checkSampleMimeType(audioMimeType);
       }
@@ -396,7 +369,6 @@ public final class TranscodingTransformer {
               removeAudio,
               removeVideo,
               flattenForSlowMotion,
-              outputHeight,
               outputMimeType,
               audioMimeType,
               videoMimeType);
