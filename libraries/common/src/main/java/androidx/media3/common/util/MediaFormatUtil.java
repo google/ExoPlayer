@@ -33,17 +33,19 @@ public final class MediaFormatUtil {
    * Custom {@link MediaFormat} key associated with a float representing the ratio between a pixel's
    * width and height.
    */
-  public static final String KEY_EXO_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT =
+  // The constant value must not be changed, because it's also set by the framework MediaParser API.
+  public static final String KEY_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT =
       "exo-pixel-width-height-ratio-float";
 
   /**
    * Custom {@link MediaFormat} key associated with an integer representing the PCM encoding.
    *
-   * <p>Equivalent to {@link MediaFormat#KEY_PCM_ENCODING}, except it allows additional
-   * ExoPlayer-specific values including {@link C#ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link
+   * <p>Equivalent to {@link MediaFormat#KEY_PCM_ENCODING}, except it allows additional values
+   * defined by {@link C.PcmEncoding}, including {@link C#ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link
    * C#ENCODING_PCM_24BIT}, and {@link C#ENCODING_PCM_32BIT}.
    */
-  public static final String KEY_EXO_PCM_ENCODING = "exo-pcm-encoding-int";
+  // The constant value must not be changed, because it's also set by the framework MediaParser API.
+  public static final String KEY_PCM_ENCODING_EXTENDED = "exo-pcm-encoding-int";
 
   private static final int MAX_POWER_OF_TWO_INT = 1 << 30;
 
@@ -53,8 +55,8 @@ public final class MediaFormatUtil {
    * <p>May include the following custom keys:
    *
    * <ul>
-   *   <li>{@link #KEY_EXO_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT}.
-   *   <li>{@link #KEY_EXO_PCM_ENCODING}.
+   *   <li>{@link #KEY_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT}.
+   *   <li>{@link #KEY_PCM_ENCODING_EXTENDED}.
    * </ul>
    */
   @SuppressLint("InlinedApi") // Inlined MediaFormat keys.
@@ -185,7 +187,7 @@ public final class MediaFormatUtil {
   @SuppressLint("InlinedApi")
   private static void maybeSetPixelAspectRatio(
       MediaFormat mediaFormat, float pixelWidthHeightRatio) {
-    mediaFormat.setFloat(KEY_EXO_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT, pixelWidthHeightRatio);
+    mediaFormat.setFloat(KEY_PIXEL_WIDTH_HEIGHT_RATIO_FLOAT, pixelWidthHeightRatio);
     int pixelAspectRatioWidth = 1;
     int pixelAspectRatioHeight = 1;
     // ExoPlayer extractors output the pixel aspect ratio as a float. Do our best to recreate the
@@ -208,7 +210,7 @@ public final class MediaFormatUtil {
       return;
     }
     int mediaFormatPcmEncoding;
-    maybeSetInteger(mediaFormat, KEY_EXO_PCM_ENCODING, exoPcmEncoding);
+    maybeSetInteger(mediaFormat, KEY_PCM_ENCODING_EXTENDED, exoPcmEncoding);
     switch (exoPcmEncoding) {
       case C.ENCODING_PCM_8BIT:
         mediaFormatPcmEncoding = AudioFormat.ENCODING_PCM_8BIT;
