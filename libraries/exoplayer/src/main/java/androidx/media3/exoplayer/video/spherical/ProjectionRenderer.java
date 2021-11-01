@@ -207,7 +207,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final int vertexCount;
     private final FloatBuffer vertexBuffer;
     private final FloatBuffer textureBuffer;
-    @Projection.DrawMode private final int drawMode;
+    private final int drawMode;
 
     public MeshData(Projection.SubMesh subMesh) {
       vertexCount = subMesh.getVertexCount();
