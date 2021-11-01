@@ -483,7 +483,6 @@ public final class TranscodingTransformer {
     checkState(
         !transformation.removeAudio || !transformation.removeVideo,
         "Audio and video cannot both be removed.");
-    checkState(!(transformation.removeVideo));
     this.context = context;
     this.mediaSourceFactory = mediaSourceFactory;
     this.muxerFactory = muxerFactory;
