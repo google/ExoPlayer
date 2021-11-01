@@ -2022,7 +2022,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             /* videoSize= */ VideoSize.UNKNOWN,
             /* timeline= */ currentTimeline,
             /* playlistMetadata= */ playlistMetadata,
-            /* volume= */ deviceVolume,
+            /* volume= */ 1.0f,
             /* audioAttributes= */ audioAttributes,
             /* cues= */ Collections.emptyList(),
             /* deviceInfo= */ deviceInfo,
