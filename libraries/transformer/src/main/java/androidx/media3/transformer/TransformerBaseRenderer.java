@@ -34,6 +34,7 @@ import androidx.media3.exoplayer.RendererCapabilities;
   protected final Transformation transformation;
 
   protected boolean isRendererStarted;
+  protected long streamOffsetUs;
 
   public TransformerBaseRenderer(
       int trackType,
@@ -44,6 +45,12 @@ import androidx.media3.exoplayer.RendererCapabilities;
     this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
     this.transformation = transformation;
+  }
+
+  @Override
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+      throws ExoPlaybackException {
+    this.streamOffsetUs = offsetUs;
   }
 
   @Override

@@ -1274,7 +1274,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
           queue.advancePlayingPeriod();
         }
         queue.removeAfter(newPlayingPeriodHolder);
-        newPlayingPeriodHolder.setRendererOffset(/* rendererPositionOffsetUs= */ 0);
+        newPlayingPeriodHolder.setRendererOffset(
+            MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US);
         enableRenderers();
       }
     }
@@ -1307,7 +1308,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     MediaPeriodHolder playingMediaPeriod = queue.getPlayingPeriod();
     rendererPositionUs =
         playingMediaPeriod == null
-            ? periodPositionUs
+            ? MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US + periodPositionUs
             : playingMediaPeriod.toRendererTime(periodPositionUs);
     mediaClock.resetPosition(rendererPositionUs);
     for (Renderer renderer : renderers) {
@@ -1383,7 +1384,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     pendingRecoverableRendererError = null;
     isRebuffering = false;
     mediaClock.stop();
-    rendererPositionUs = 0;
+    rendererPositionUs = MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US;
     for (Renderer renderer : renderers) {
       try {
         disableRenderer(renderer);
@@ -1971,7 +1972,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 emptyTrackSelectorResult);
         mediaPeriodHolder.mediaPeriod.prepare(this, info.startPositionUs);
         if (queue.getPlayingPeriod() == mediaPeriodHolder) {
-          resetRendererPosition(mediaPeriodHolder.getStartPositionRendererTime());
+          resetRendererPosition(info.startPositionUs);
         }
         handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
       }

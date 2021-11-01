@@ -279,6 +279,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int result = readSource(getFormatHolder(), decoderInputBuffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
+        decoderInputBuffer.timeUs -= streamOffsetUs;
         mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
         decoderInputBuffer.flip();
         decoder.queueInputBuffer(decoderInputBuffer);
