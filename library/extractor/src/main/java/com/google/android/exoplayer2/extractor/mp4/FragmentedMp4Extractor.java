@@ -999,21 +999,18 @@ public class FragmentedMp4Extractor implements Extractor {
 
     // Offset to the entire video timeline. In the presence of B-frames this is usually used to
     // ensure that the first frame's presentation timestamp is zero.
-    long edtsOffsetUs = 0;
+    long edtsOffset = 0;
 
     // Currently we only support a single edit that moves the entire media timeline (indicated by
     // duration == 0). Other uses of edit lists are uncommon and unsupported.
     if (track.editListDurations != null
         && track.editListDurations.length == 1
         && track.editListDurations[0] == 0) {
-      edtsOffsetUs =
-          Util.scaleLargeTimestamp(
-              castNonNull(track.editListMediaTimes)[0], C.MICROS_PER_SECOND, track.timescale);
+      edtsOffset = castNonNull(track.editListMediaTimes)[0];
     }
 
     int[] sampleSizeTable = fragment.sampleSizeTable;
-    int[] sampleCompositionTimeOffsetUsTable = fragment.sampleCompositionTimeOffsetUsTable;
-    long[] sampleDecodingTimeUsTable = fragment.sampleDecodingTimeUsTable;
+    long[] samplePresentationTimesUs = fragment.samplePresentationTimesUs;
     boolean[] sampleIsSyncFrameTable = fragment.sampleIsSyncFrameTable;
 
     boolean workaroundEveryVideoFrameIsSyncFrame =
@@ -1033,22 +1030,20 @@ public class FragmentedMp4Extractor implements Extractor {
           sampleFlagsPresent
               ? trun.readInt()
               : (i == 0 && firstSampleFlagsPresent) ? firstSampleFlags : defaultSampleValues.flags;
+      int sampleCompositionTimeOffset = 0;
       if (sampleCompositionTimeOffsetsPresent) {
         // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
         // version 0 trun boxes, however a significant number of streams violate the spec and use
         // signed integers instead. It's safe to always decode sample offsets as signed integers
         // here, because unsigned integers will still be parsed correctly (unless their top bit is
         // set, which is never true in practice because sample offsets are always small).
-        int sampleOffset = trun.readInt();
-        sampleCompositionTimeOffsetUsTable[i] =
-            (int) ((sampleOffset * C.MICROS_PER_SECOND) / timescale);
-      } else {
-        sampleCompositionTimeOffsetUsTable[i] = 0;
+        sampleCompositionTimeOffset = trun.readInt();
       }
-      sampleDecodingTimeUsTable[i] =
-          Util.scaleLargeTimestamp(cumulativeTime, C.MICROS_PER_SECOND, timescale) - edtsOffsetUs;
+      long samplePresentationTime = cumulativeTime + sampleCompositionTimeOffset - edtsOffset;
+      samplePresentationTimesUs[i] =
+          Util.scaleLargeTimestamp(samplePresentationTime, C.MICROS_PER_SECOND, timescale);
       if (!fragment.nextFragmentDecodeTimeIncludesMoov) {
-        sampleDecodingTimeUsTable[i] += trackBundle.moovSampleTable.durationUs;
+        samplePresentationTimesUs[i] += trackBundle.moovSampleTable.durationUs;
       }
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] =
