@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
-import android.content.Context;
 import android.os.Looper;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
 
-/** A fake player for testing content/ad playback. */
-/* package */ final class FakePlayer extends StubExoPlayer {
+/** A fake {@link ExoPlayer} for testing content/ad playback. */
+/* package */ final class FakeExoPlayer extends StubExoPlayer {
 
   private final ListenerSet<Listener> listeners;
   private final Timeline.Period period;
@@ -48,8 +48,7 @@ import com.google.android.exoplayer2.util.Util;
   private int adGroupIndex;
   private int adIndexInAdGroup;
 
-  public FakePlayer(Context context) {
-    super(context);
+  public FakeExoPlayer() {
     listeners =
         new ListenerSet<>(
             Looper.getMainLooper(),

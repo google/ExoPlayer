@@ -89,7 +89,7 @@ components to support additional modes when playing live streams.
 
 By default, ExoPlayer uses live playback parameters defined by the media. If you
 want to configure the live playback parameters yourself, you can set them on a
-per `MediaItem` basis by calling `MediaItem.Builder.setLiveXXX` methods. If
+per `MediaItem` basis by calling `MediaItem.Builder.setLiveConfiguration`. If
 you'd like to set these values globally for all items, you can set them on the
 `DefaultMediaSourceFactory` provided to the player. In both cases, the provided
 values will override parameters defined by the media.

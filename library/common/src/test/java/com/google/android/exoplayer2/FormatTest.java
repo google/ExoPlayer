@@ -23,7 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.testutil.FakeMetadataEntry;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
@@ -65,10 +65,7 @@ public final class FormatTest {
 
     byte[] projectionData = new byte[] {1, 2, 3};
 
-    Metadata metadata =
-        new Metadata(
-            new TextInformationFrame("id1", "description1", "value1"),
-            new TextInformationFrame("id2", "description2", "value2"));
+    Metadata metadata = new Metadata(new FakeMetadataEntry("id1"), new FakeMetadataEntry("id2"));
 
     ColorInfo colorInfo =
         new ColorInfo(

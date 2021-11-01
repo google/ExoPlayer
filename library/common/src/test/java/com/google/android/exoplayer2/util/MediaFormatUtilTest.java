@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 public class MediaFormatUtilTest {
 
   @Test
-  public void createMediaFormatFromEmptyExoPlayerFormat_generatesExpectedEntries() {
+  public void createMediaFormatFromFormat_withEmptyFormat_generatesExpectedEntries() {
     MediaFormat mediaFormat =
         MediaFormatUtil.createMediaFormatFromFormat(new Format.Builder().build());
     // Assert that no invalid keys are accidentally being populated.
@@ -59,7 +59,7 @@ public class MediaFormatUtilTest {
   }
 
   @Test
-  public void createMediaFormatFromPopulatedExoPlayerFormat_generatesExpectedMediaFormatEntries() {
+  public void createMediaFormatFromFormat_withPopulatedFormat_generatesExpectedEntries() {
     Format format =
         new Format.Builder()
             .setAverageBitrate(1)
@@ -145,7 +145,7 @@ public class MediaFormatUtilTest {
   }
 
   @Test
-  public void createMediaFormatWithExoPlayerPcmEncoding_containsExoPlayerSpecificEncoding() {
+  public void createMediaFormatFromFormat_withPcmEncoding_setsCustomPcmEncodingEntry() {
     Format format = new Format.Builder().setPcmEncoding(C.ENCODING_PCM_32BIT).build();
     MediaFormat mediaFormat = MediaFormatUtil.createMediaFormatFromFormat(format);
     assertThat(mediaFormat.getInteger(MediaFormatUtil.KEY_EXO_PCM_ENCODING))

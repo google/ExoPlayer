@@ -19,6 +19,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.util.Pair;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -34,8 +35,14 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** Extracts data from WAV byte streams. */
 public final class WavExtractor implements Extractor {
@@ -50,13 +57,26 @@ public final class WavExtractor implements Extractor {
   /** Factory for {@link WavExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new WavExtractor()};
 
+  /** Parser state. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({ElementType.TYPE_USE})
+  @IntDef({STATE_READING_HEADER, STATE_SKIPPING_TO_SAMPLE_DATA, STATE_READING_SAMPLE_DATA})
+  private @interface State {}
+
+  private static final int STATE_READING_HEADER = 0;
+  private static final int STATE_SKIPPING_TO_SAMPLE_DATA = 1;
+  private static final int STATE_READING_SAMPLE_DATA = 2;
+
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @MonotonicNonNull TrackOutput trackOutput;
+  private @State int state;
   private @MonotonicNonNull OutputWriter outputWriter;
   private int dataStartPosition;
   private long dataEndPosition;
 
   public WavExtractor() {
+    state = STATE_READING_HEADER;
     dataStartPosition = C.POSITION_UNSET;
     dataEndPosition = C.POSITION_UNSET;
   }
@@ -75,6 +95,7 @@ public final class WavExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
+    state = position == 0 ? STATE_READING_HEADER : STATE_READING_SAMPLE_DATA;
     if (outputWriter != null) {
       outputWriter.reset(timeUs);
     }
@@ -86,65 +107,92 @@ public final class WavExtractor implements Extractor {
   }
 
   @Override
+  @ReadResult
   public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     assertInitialized();
-    if (outputWriter == null) {
-      WavHeader header = WavHeaderReader.peek(input);
-      if (header == null) {
-        // Should only happen if the media wasn't sniffed.
-        throw ParserException.createForMalformedContainer(
-            "Unsupported or unrecognized wav header.", /* cause= */ null);
-      }
-
-      if (header.formatType == WavUtil.TYPE_IMA_ADPCM) {
-        outputWriter = new ImaAdPcmOutputWriter(extractorOutput, trackOutput, header);
-      } else if (header.formatType == WavUtil.TYPE_ALAW) {
-        outputWriter =
-            new PassthroughOutputWriter(
-                extractorOutput,
-                trackOutput,
-                header,
-                MimeTypes.AUDIO_ALAW,
-                /* pcmEncoding= */ Format.NO_VALUE);
-      } else if (header.formatType == WavUtil.TYPE_MLAW) {
-        outputWriter =
-            new PassthroughOutputWriter(
-                extractorOutput,
-                trackOutput,
-                header,
-                MimeTypes.AUDIO_MLAW,
-                /* pcmEncoding= */ Format.NO_VALUE);
-      } else {
-        @C.PcmEncoding
-        int pcmEncoding = WavUtil.getPcmEncodingForType(header.formatType, header.bitsPerSample);
-        if (pcmEncoding == C.ENCODING_INVALID) {
-          throw ParserException.createForUnsupportedContainerFeature(
-              "Unsupported WAV format type: " + header.formatType);
-        }
-        outputWriter =
-            new PassthroughOutputWriter(
-                extractorOutput, trackOutput, header, MimeTypes.AUDIO_RAW, pcmEncoding);
-      }
+    switch (state) {
+      case STATE_READING_HEADER:
+        readHeader(input);
+        return Extractor.RESULT_CONTINUE;
+      case STATE_SKIPPING_TO_SAMPLE_DATA:
+        skipToSampleData(input);
+        return Extractor.RESULT_CONTINUE;
+      case STATE_READING_SAMPLE_DATA:
+        return readSampleData(input);
+      default:
+        throw new IllegalStateException();
     }
-
-    if (dataStartPosition == C.POSITION_UNSET) {
-      Pair<Long, Long> dataBounds = WavHeaderReader.skipToData(input);
-      dataStartPosition = dataBounds.first.intValue();
-      dataEndPosition = dataBounds.second;
-      outputWriter.init(dataStartPosition, dataEndPosition);
-    } else if (input.getPosition() == 0) {
-      input.skipFully(dataStartPosition);
-    }
-
-    Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
-    long bytesLeft = dataEndPosition - input.getPosition();
-    return outputWriter.sampleData(input, bytesLeft) ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }
 
   @EnsuresNonNull({"extractorOutput", "trackOutput"})
   private void assertInitialized() {
     Assertions.checkStateNotNull(trackOutput);
     Util.castNonNull(extractorOutput);
+  }
+
+  @RequiresNonNull({"extractorOutput", "trackOutput"})
+  private void readHeader(ExtractorInput input) throws IOException {
+    Assertions.checkState(input.getPosition() == 0);
+    if (dataStartPosition != C.POSITION_UNSET) {
+      input.skipFully(dataStartPosition);
+      state = STATE_READING_SAMPLE_DATA;
+      return;
+    }
+    WavHeader header = WavHeaderReader.peek(input);
+    if (header == null) {
+      // Should only happen if the media wasn't sniffed.
+      throw ParserException.createForMalformedContainer(
+          "Unsupported or unrecognized wav header.", /* cause= */ null);
+    }
+    input.skipFully((int) (input.getPeekPosition() - input.getPosition()));
+
+    if (header.formatType == WavUtil.TYPE_IMA_ADPCM) {
+      outputWriter = new ImaAdPcmOutputWriter(extractorOutput, trackOutput, header);
+    } else if (header.formatType == WavUtil.TYPE_ALAW) {
+      outputWriter =
+          new PassthroughOutputWriter(
+              extractorOutput,
+              trackOutput,
+              header,
+              MimeTypes.AUDIO_ALAW,
+              /* pcmEncoding= */ Format.NO_VALUE);
+    } else if (header.formatType == WavUtil.TYPE_MLAW) {
+      outputWriter =
+          new PassthroughOutputWriter(
+              extractorOutput,
+              trackOutput,
+              header,
+              MimeTypes.AUDIO_MLAW,
+              /* pcmEncoding= */ Format.NO_VALUE);
+    } else {
+      @C.PcmEncoding
+      int pcmEncoding = WavUtil.getPcmEncodingForType(header.formatType, header.bitsPerSample);
+      if (pcmEncoding == C.ENCODING_INVALID) {
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Unsupported WAV format type: " + header.formatType);
+      }
+      outputWriter =
+          new PassthroughOutputWriter(
+              extractorOutput, trackOutput, header, MimeTypes.AUDIO_RAW, pcmEncoding);
+    }
+    state = STATE_SKIPPING_TO_SAMPLE_DATA;
+  }
+
+  private void skipToSampleData(ExtractorInput input) throws IOException {
+    Pair<Long, Long> dataBounds = WavHeaderReader.skipToSampleData(input);
+    dataStartPosition = dataBounds.first.intValue();
+    dataEndPosition = dataBounds.second;
+    Assertions.checkNotNull(outputWriter).init(dataStartPosition, dataEndPosition);
+    state = STATE_READING_SAMPLE_DATA;
+  }
+
+  @ReadResult
+  private int readSampleData(ExtractorInput input) throws IOException {
+    Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
+    long bytesLeft = dataEndPosition - input.getPosition();
+    return Assertions.checkNotNull(outputWriter).sampleData(input, bytesLeft)
+        ? RESULT_END_OF_INPUT
+        : RESULT_CONTINUE;
   }
 
   /** Writes to the extractor's output. */

@@ -178,7 +178,10 @@ MediaItem preRollAd = MediaItem.fromUri(preRollAdUri);
 MediaItem contentStart =
     new MediaItem.Builder()
         .setUri(contentUri)
-        .setClipEndPositionMs(120_000)
+        .setClippingConfiguration(
+            new ClippingConfiguration.Builder()
+                .setEndPositionMs(120_000)
+                .build())
         .build();
 // A mid-roll ad.
 MediaItem midRollAd = MediaItem.fromUri(midRollAdUri);
@@ -186,7 +189,10 @@ MediaItem midRollAd = MediaItem.fromUri(midRollAdUri);
 MediaItem contentEnd =
     new MediaItem.Builder()
         .setUri(contentUri)
-        .setClipStartPositionMs(120_000)
+        .setClippingConfiguration(
+            new ClippingConfiguration.Builder()
+                .setStartPositionMs(120_000)
+                .build())
         .build();
 
 // Build the playlist.
