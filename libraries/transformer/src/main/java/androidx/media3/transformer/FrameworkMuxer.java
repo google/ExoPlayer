@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.common.util.Util.castNonNull;
 
+import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
@@ -122,6 +123,7 @@ import java.nio.ByteBuffer;
     return mediaMuxer.addTrack(mediaFormat);
   }
 
+  @SuppressLint("WrongConstant") // C.BUFFER_FLAG_KEY_FRAME equals MediaCodec.BUFFER_FLAG_KEY_FRAME.
   @Override
   public void writeSampleData(
       int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
