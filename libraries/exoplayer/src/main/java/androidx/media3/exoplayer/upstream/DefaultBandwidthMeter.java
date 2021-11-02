@@ -30,10 +30,8 @@ import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.upstream.BandwidthMeter.EventListener.EventDispatcher;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,13 +44,6 @@ import java.util.Map;
  */
 @UnstableApi
 public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
-
-  /**
-   * Country groups used to determine the default initial bitrate estimate. The group assignment for
-   * each country is a list for [Wifi, 2G, 3G, 4G, 5G_NSA, 5G_SA].
-   */
-  public static final ImmutableListMultimap<String, Integer>
-      DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS = createInitialBitrateCountryGroupAssignment();
 
   /** Default initial Wifi bitrate estimate in bits per second. */
   public static final ImmutableList<Long> DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI =
@@ -87,17 +78,35 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   /** Default maximum weight for the sliding window. */
   public static final int DEFAULT_SLIDING_WINDOW_MAX_WEIGHT = 2000;
 
-  /** Index for the Wifi group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  /**
+   * Index for the Wifi group index in the array returned by {@link
+   * #getInitialBitrateCountryGroupAssignment}.
+   */
   private static final int COUNTRY_GROUP_INDEX_WIFI = 0;
-  /** Index for the 2G group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  /**
+   * Index for the 2G group index in the array returned by {@link
+   * #getInitialBitrateCountryGroupAssignment}.
+   */
   private static final int COUNTRY_GROUP_INDEX_2G = 1;
-  /** Index for the 3G group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  /**
+   * Index for the 3G group index in the array returned by {@link
+   * #getInitialBitrateCountryGroupAssignment}.
+   */
   private static final int COUNTRY_GROUP_INDEX_3G = 2;
-  /** Index for the 4G group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  /**
+   * Index for the 4G group index in the array returned by {@link
+   * #getInitialBitrateCountryGroupAssignment}.
+   */
   private static final int COUNTRY_GROUP_INDEX_4G = 3;
-  /** Index for the 5G-NSA group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  /**
+   * Index for the 5G-NSA group index in the array returned by {@link
+   * #getInitialBitrateCountryGroupAssignment}.
+   */
   private static final int COUNTRY_GROUP_INDEX_5G_NSA = 4;
-  /** Index for the 5G-SA group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  /**
+   * Index for the 5G-SA group index in the array returned by {@link
+   * #getInitialBitrateCountryGroupAssignment}.
+   */
   private static final int COUNTRY_GROUP_INDEX_5G_SA = 5;
 
   @Nullable private static DefaultBandwidthMeter singletonInstance;
@@ -217,39 +226,32 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     }
 
     private static Map<Integer, Long> getInitialBitrateEstimatesForCountry(String countryCode) {
-      List<Integer> groupIndices = getCountryGroupIndices(countryCode);
+      int[] groupIndices = getInitialBitrateCountryGroupAssignment(countryCode);
       Map<Integer, Long> result = new HashMap<>(/* initialCapacity= */ 8);
       result.put(C.NETWORK_TYPE_UNKNOWN, DEFAULT_INITIAL_BITRATE_ESTIMATE);
       result.put(
           C.NETWORK_TYPE_WIFI,
-          DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI.get(groupIndices.get(COUNTRY_GROUP_INDEX_WIFI)));
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI.get(groupIndices[COUNTRY_GROUP_INDEX_WIFI]));
       result.put(
           C.NETWORK_TYPE_2G,
-          DEFAULT_INITIAL_BITRATE_ESTIMATES_2G.get(groupIndices.get(COUNTRY_GROUP_INDEX_2G)));
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_2G.get(groupIndices[COUNTRY_GROUP_INDEX_2G]));
       result.put(
           C.NETWORK_TYPE_3G,
-          DEFAULT_INITIAL_BITRATE_ESTIMATES_3G.get(groupIndices.get(COUNTRY_GROUP_INDEX_3G)));
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_3G.get(groupIndices[COUNTRY_GROUP_INDEX_3G]));
       result.put(
           C.NETWORK_TYPE_4G,
-          DEFAULT_INITIAL_BITRATE_ESTIMATES_4G.get(groupIndices.get(COUNTRY_GROUP_INDEX_4G)));
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_4G.get(groupIndices[COUNTRY_GROUP_INDEX_4G]));
       result.put(
           C.NETWORK_TYPE_5G_NSA,
-          DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA.get(
-              groupIndices.get(COUNTRY_GROUP_INDEX_5G_NSA)));
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA.get(groupIndices[COUNTRY_GROUP_INDEX_5G_NSA]));
       result.put(
           C.NETWORK_TYPE_5G_SA,
-          DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA.get(groupIndices.get(COUNTRY_GROUP_INDEX_5G_SA)));
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA.get(groupIndices[COUNTRY_GROUP_INDEX_5G_SA]));
       // Assume default Wifi speed for Ethernet to prevent using the slower fallback.
       result.put(
           C.NETWORK_TYPE_ETHERNET,
-          DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI.get(groupIndices.get(COUNTRY_GROUP_INDEX_WIFI)));
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI.get(groupIndices[COUNTRY_GROUP_INDEX_WIFI]));
       return result;
-    }
-
-    private static ImmutableList<Integer> getCountryGroupIndices(String countryCode) {
-      ImmutableList<Integer> groupIndices = DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS.get(countryCode);
-      // Assume median group if not found.
-      return groupIndices.isEmpty() ? ImmutableList.of(2, 2, 2, 2, 2, 2) : groupIndices;
     }
   }
 
@@ -466,250 +468,411 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     return isNetwork && !dataSpec.isFlagSet(DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED);
   }
 
-  private static ImmutableListMultimap<String, Integer>
-      createInitialBitrateCountryGroupAssignment() {
-    return ImmutableListMultimap.<String, Integer>builder()
-        .putAll("AD", 1, 2, 0, 0, 2, 2)
-        .putAll("AE", 1, 4, 4, 4, 3, 2)
-        .putAll("AF", 4, 4, 4, 4, 2, 2)
-        .putAll("AG", 2, 3, 1, 2, 2, 2)
-        .putAll("AI", 1, 2, 2, 2, 2, 2)
-        .putAll("AL", 1, 2, 0, 1, 2, 2)
-        .putAll("AM", 2, 3, 2, 4, 2, 2)
-        .putAll("AO", 3, 4, 3, 2, 2, 2)
-        .putAll("AQ", 4, 2, 2, 2, 2, 2)
-        .putAll("AR", 2, 4, 1, 1, 2, 2)
-        .putAll("AS", 2, 2, 2, 3, 2, 2)
-        .putAll("AT", 0, 0, 0, 0, 0, 2)
-        .putAll("AU", 0, 1, 0, 1, 2, 2)
-        .putAll("AW", 1, 2, 4, 4, 2, 2)
-        .putAll("AX", 0, 2, 2, 2, 2, 2)
-        .putAll("AZ", 3, 2, 4, 4, 2, 2)
-        .putAll("BA", 1, 2, 0, 1, 2, 2)
-        .putAll("BB", 0, 2, 0, 0, 2, 2)
-        .putAll("BD", 2, 1, 3, 3, 2, 2)
-        .putAll("BE", 0, 0, 3, 3, 2, 2)
-        .putAll("BF", 4, 3, 4, 3, 2, 2)
-        .putAll("BG", 0, 0, 0, 0, 1, 2)
-        .putAll("BH", 1, 2, 2, 4, 4, 2)
-        .putAll("BI", 4, 3, 4, 4, 2, 2)
-        .putAll("BJ", 4, 4, 3, 4, 2, 2)
-        .putAll("BL", 1, 2, 2, 2, 2, 2)
-        .putAll("BM", 1, 2, 0, 0, 2, 2)
-        .putAll("BN", 3, 2, 1, 1, 2, 2)
-        .putAll("BO", 1, 3, 3, 2, 2, 2)
-        .putAll("BQ", 1, 2, 2, 0, 2, 2)
-        .putAll("BR", 2, 3, 2, 2, 2, 2)
-        .putAll("BS", 4, 2, 2, 3, 2, 2)
-        .putAll("BT", 3, 1, 3, 2, 2, 2)
-        .putAll("BW", 3, 4, 1, 0, 2, 2)
-        .putAll("BY", 0, 1, 1, 3, 2, 2)
-        .putAll("BZ", 2, 4, 2, 2, 2, 2)
-        .putAll("CA", 0, 2, 1, 2, 4, 1)
-        .putAll("CD", 4, 2, 3, 1, 2, 2)
-        .putAll("CF", 4, 2, 3, 2, 2, 2)
-        .putAll("CG", 2, 4, 3, 4, 2, 2)
-        .putAll("CH", 0, 0, 0, 0, 0, 2)
-        .putAll("CI", 3, 3, 3, 4, 2, 2)
-        .putAll("CK", 2, 2, 2, 1, 2, 2)
-        .putAll("CL", 1, 1, 2, 2, 3, 2)
-        .putAll("CM", 3, 4, 3, 2, 2, 2)
-        .putAll("CN", 2, 0, 2, 2, 3, 1)
-        .putAll("CO", 2, 2, 4, 2, 2, 2)
-        .putAll("CR", 2, 2, 4, 4, 2, 2)
-        .putAll("CU", 4, 4, 3, 2, 2, 2)
-        .putAll("CV", 2, 3, 1, 0, 2, 2)
-        .putAll("CW", 2, 2, 0, 0, 2, 2)
-        .putAll("CX", 1, 2, 2, 2, 2, 2)
-        .putAll("CY", 1, 0, 0, 0, 1, 2)
-        .putAll("CZ", 0, 0, 0, 0, 1, 2)
-        .putAll("DE", 0, 0, 2, 2, 1, 2)
-        .putAll("DJ", 4, 1, 4, 4, 2, 2)
-        .putAll("DK", 0, 0, 1, 0, 0, 2)
-        .putAll("DM", 1, 2, 2, 2, 2, 2)
-        .putAll("DO", 3, 4, 4, 4, 2, 2)
-        .putAll("DZ", 4, 3, 4, 4, 2, 2)
-        .putAll("EC", 2, 4, 2, 1, 2, 2)
-        .putAll("EE", 0, 0, 0, 0, 2, 2)
-        .putAll("EG", 3, 4, 2, 3, 2, 2)
-        .putAll("EH", 2, 2, 2, 2, 2, 2)
-        .putAll("ER", 4, 2, 2, 2, 2, 2)
-        .putAll("ES", 0, 1, 1, 1, 2, 2)
-        .putAll("ET", 4, 4, 3, 1, 2, 2)
-        .putAll("FI", 0, 0, 0, 1, 0, 2)
-        .putAll("FJ", 3, 1, 3, 3, 2, 2)
-        .putAll("FK", 3, 2, 2, 2, 2, 2)
-        .putAll("FM", 3, 2, 4, 2, 2, 2)
-        .putAll("FO", 0, 2, 0, 0, 2, 2)
-        .putAll("FR", 1, 1, 2, 1, 1, 1)
-        .putAll("GA", 2, 3, 1, 1, 2, 2)
-        .putAll("GB", 0, 0, 1, 1, 2, 3)
-        .putAll("GD", 1, 2, 2, 2, 2, 2)
-        .putAll("GE", 1, 1, 1, 3, 2, 2)
-        .putAll("GF", 2, 1, 2, 3, 2, 2)
-        .putAll("GG", 0, 2, 0, 0, 2, 2)
-        .putAll("GH", 3, 2, 3, 2, 2, 2)
-        .putAll("GI", 0, 2, 2, 2, 2, 2)
-        .putAll("GL", 1, 2, 0, 0, 2, 2)
-        .putAll("GM", 4, 2, 2, 4, 2, 2)
-        .putAll("GN", 4, 3, 4, 2, 2, 2)
-        .putAll("GP", 2, 1, 2, 3, 2, 2)
-        .putAll("GQ", 4, 2, 3, 4, 2, 2)
-        .putAll("GR", 1, 0, 0, 0, 2, 2)
-        .putAll("GT", 2, 3, 2, 1, 2, 2)
-        .putAll("GU", 1, 2, 4, 4, 2, 2)
-        .putAll("GW", 3, 4, 3, 3, 2, 2)
-        .putAll("GY", 3, 4, 1, 0, 2, 2)
-        .putAll("HK", 0, 1, 2, 3, 2, 0)
-        .putAll("HN", 3, 2, 3, 3, 2, 2)
-        .putAll("HR", 1, 0, 0, 0, 2, 2)
-        .putAll("HT", 4, 4, 4, 4, 2, 2)
-        .putAll("HU", 0, 0, 0, 1, 3, 2)
-        .putAll("ID", 3, 2, 3, 3, 3, 2)
-        .putAll("IE", 0, 1, 1, 1, 2, 2)
-        .putAll("IL", 1, 1, 2, 3, 4, 2)
-        .putAll("IM", 0, 2, 0, 1, 2, 2)
-        .putAll("IN", 1, 1, 3, 2, 4, 3)
-        .putAll("IO", 4, 2, 2, 2, 2, 2)
-        .putAll("IQ", 3, 3, 3, 3, 2, 2)
-        .putAll("IR", 3, 0, 1, 1, 3, 0)
-        .putAll("IS", 0, 0, 0, 0, 0, 2)
-        .putAll("IT", 0, 1, 0, 1, 1, 2)
-        .putAll("JE", 3, 2, 1, 2, 2, 2)
-        .putAll("JM", 3, 4, 4, 4, 2, 2)
-        .putAll("JO", 1, 0, 0, 1, 2, 2)
-        .putAll("JP", 0, 1, 0, 1, 1, 1)
-        .putAll("KE", 3, 3, 2, 2, 2, 2)
-        .putAll("KG", 2, 1, 1, 1, 2, 2)
-        .putAll("KH", 1, 1, 4, 2, 2, 2)
-        .putAll("KI", 4, 2, 4, 3, 2, 2)
-        .putAll("KM", 4, 2, 4, 3, 2, 2)
-        .putAll("KN", 2, 2, 2, 2, 2, 2)
-        .putAll("KP", 3, 2, 2, 2, 2, 2)
-        .putAll("KR", 0, 0, 1, 3, 4, 4)
-        .putAll("KW", 1, 1, 0, 0, 0, 2)
-        .putAll("KY", 1, 2, 0, 1, 2, 2)
-        .putAll("KZ", 1, 1, 2, 2, 2, 2)
-        .putAll("LA", 2, 2, 1, 2, 2, 2)
-        .putAll("LB", 3, 2, 1, 4, 2, 2)
-        .putAll("LC", 1, 2, 0, 0, 2, 2)
-        .putAll("LI", 0, 2, 2, 2, 2, 2)
-        .putAll("LK", 3, 1, 3, 4, 4, 2)
-        .putAll("LR", 3, 4, 4, 3, 2, 2)
-        .putAll("LS", 3, 3, 4, 3, 2, 2)
-        .putAll("LT", 0, 0, 0, 0, 2, 2)
-        .putAll("LU", 1, 0, 2, 2, 2, 2)
-        .putAll("LV", 0, 0, 0, 0, 2, 2)
-        .putAll("LY", 4, 2, 4, 3, 2, 2)
-        .putAll("MA", 3, 2, 2, 2, 2, 2)
-        .putAll("MC", 0, 2, 2, 0, 2, 2)
-        .putAll("MD", 1, 0, 0, 0, 2, 2)
-        .putAll("ME", 1, 0, 0, 1, 2, 2)
-        .putAll("MF", 1, 2, 1, 0, 2, 2)
-        .putAll("MG", 3, 4, 2, 2, 2, 2)
-        .putAll("MH", 3, 2, 2, 4, 2, 2)
-        .putAll("MK", 1, 0, 0, 0, 2, 2)
-        .putAll("ML", 4, 3, 3, 1, 2, 2)
-        .putAll("MM", 2, 4, 3, 3, 2, 2)
-        .putAll("MN", 2, 0, 1, 2, 2, 2)
-        .putAll("MO", 0, 2, 4, 4, 2, 2)
-        .putAll("MP", 0, 2, 2, 2, 2, 2)
-        .putAll("MQ", 2, 1, 2, 3, 2, 2)
-        .putAll("MR", 4, 1, 3, 4, 2, 2)
-        .putAll("MS", 1, 2, 2, 2, 2, 2)
-        .putAll("MT", 0, 0, 0, 0, 2, 2)
-        .putAll("MU", 3, 1, 1, 2, 2, 2)
-        .putAll("MV", 3, 4, 1, 4, 2, 2)
-        .putAll("MW", 4, 2, 1, 0, 2, 2)
-        .putAll("MX", 2, 4, 3, 4, 2, 2)
-        .putAll("MY", 2, 1, 3, 3, 2, 2)
-        .putAll("MZ", 3, 2, 2, 2, 2, 2)
-        .putAll("NA", 4, 3, 2, 2, 2, 2)
-        .putAll("NC", 3, 2, 4, 4, 2, 2)
-        .putAll("NE", 4, 4, 4, 4, 2, 2)
-        .putAll("NF", 2, 2, 2, 2, 2, 2)
-        .putAll("NG", 3, 4, 1, 1, 2, 2)
-        .putAll("NI", 2, 3, 4, 3, 2, 2)
-        .putAll("NL", 0, 0, 3, 2, 0, 4)
-        .putAll("NO", 0, 0, 2, 0, 0, 2)
-        .putAll("NP", 2, 1, 4, 3, 2, 2)
-        .putAll("NR", 3, 2, 2, 0, 2, 2)
-        .putAll("NU", 4, 2, 2, 2, 2, 2)
-        .putAll("NZ", 1, 0, 1, 2, 4, 2)
-        .putAll("OM", 2, 3, 1, 3, 4, 2)
-        .putAll("PA", 1, 3, 3, 3, 2, 2)
-        .putAll("PE", 2, 3, 4, 4, 4, 2)
-        .putAll("PF", 2, 3, 3, 1, 2, 2)
-        .putAll("PG", 4, 4, 3, 2, 2, 2)
-        .putAll("PH", 2, 2, 3, 3, 3, 2)
-        .putAll("PK", 3, 2, 3, 3, 2, 2)
-        .putAll("PL", 1, 1, 2, 2, 3, 2)
-        .putAll("PM", 0, 2, 2, 2, 2, 2)
-        .putAll("PR", 2, 3, 2, 2, 3, 3)
-        .putAll("PS", 3, 4, 1, 2, 2, 2)
-        .putAll("PT", 0, 1, 0, 0, 2, 2)
-        .putAll("PW", 2, 2, 4, 1, 2, 2)
-        .putAll("PY", 2, 2, 3, 2, 2, 2)
-        .putAll("QA", 2, 4, 2, 4, 4, 2)
-        .putAll("RE", 1, 1, 1, 2, 2, 2)
-        .putAll("RO", 0, 0, 1, 1, 1, 2)
-        .putAll("RS", 1, 0, 0, 0, 2, 2)
-        .putAll("RU", 0, 0, 0, 1, 2, 2)
-        .putAll("RW", 3, 4, 3, 0, 2, 2)
-        .putAll("SA", 2, 2, 1, 1, 2, 2)
-        .putAll("SB", 4, 2, 4, 3, 2, 2)
-        .putAll("SC", 4, 3, 0, 2, 2, 2)
-        .putAll("SD", 4, 4, 4, 4, 2, 2)
-        .putAll("SE", 0, 0, 0, 0, 0, 2)
-        .putAll("SG", 1, 1, 2, 3, 1, 4)
-        .putAll("SH", 4, 2, 2, 2, 2, 2)
-        .putAll("SI", 0, 0, 0, 0, 1, 2)
-        .putAll("SJ", 0, 2, 2, 2, 2, 2)
-        .putAll("SK", 0, 0, 0, 0, 0, 2)
-        .putAll("SL", 4, 3, 4, 1, 2, 2)
-        .putAll("SM", 0, 2, 2, 2, 2, 2)
-        .putAll("SN", 4, 4, 4, 4, 2, 2)
-        .putAll("SO", 3, 2, 3, 3, 2, 2)
-        .putAll("SR", 2, 3, 2, 2, 2, 2)
-        .putAll("SS", 4, 2, 2, 2, 2, 2)
-        .putAll("ST", 3, 2, 2, 2, 2, 2)
-        .putAll("SV", 2, 2, 3, 3, 2, 2)
-        .putAll("SX", 2, 2, 1, 0, 2, 2)
-        .putAll("SY", 4, 3, 4, 4, 2, 2)
-        .putAll("SZ", 4, 3, 2, 4, 2, 2)
-        .putAll("TC", 2, 2, 1, 0, 2, 2)
-        .putAll("TD", 4, 4, 4, 4, 2, 2)
-        .putAll("TG", 3, 3, 2, 0, 2, 2)
-        .putAll("TH", 0, 3, 2, 3, 3, 0)
-        .putAll("TJ", 4, 2, 4, 4, 2, 2)
-        .putAll("TL", 4, 3, 4, 4, 2, 2)
-        .putAll("TM", 4, 2, 4, 2, 2, 2)
-        .putAll("TN", 2, 2, 1, 1, 2, 2)
-        .putAll("TO", 4, 2, 3, 3, 2, 2)
-        .putAll("TR", 1, 1, 0, 1, 2, 2)
-        .putAll("TT", 1, 4, 1, 1, 2, 2)
-        .putAll("TV", 4, 2, 2, 2, 2, 2)
-        .putAll("TW", 0, 0, 0, 0, 0, 0)
-        .putAll("TZ", 3, 4, 3, 3, 2, 2)
-        .putAll("UA", 0, 3, 1, 1, 2, 2)
-        .putAll("UG", 3, 3, 3, 3, 2, 2)
-        .putAll("US", 1, 1, 2, 2, 3, 2)
-        .putAll("UY", 2, 2, 1, 2, 2, 2)
-        .putAll("UZ", 2, 2, 3, 4, 2, 2)
-        .putAll("VC", 1, 2, 2, 2, 2, 2)
-        .putAll("VE", 4, 4, 4, 4, 2, 2)
-        .putAll("VG", 2, 2, 1, 1, 2, 2)
-        .putAll("VI", 1, 2, 1, 3, 2, 2)
-        .putAll("VN", 0, 3, 3, 4, 2, 2)
-        .putAll("VU", 4, 2, 2, 1, 2, 2)
-        .putAll("WF", 4, 2, 2, 4, 2, 2)
-        .putAll("WS", 3, 1, 2, 1, 2, 2)
-        .putAll("XK", 1, 1, 1, 1, 2, 2)
-        .putAll("YE", 4, 4, 4, 4, 2, 2)
-        .putAll("YT", 4, 1, 1, 1, 2, 2)
-        .putAll("ZA", 3, 3, 1, 1, 1, 2)
-        .putAll("ZM", 3, 3, 4, 2, 2, 2)
-        .putAll("ZW", 3, 2, 4, 3, 2, 2)
-        .build();
+  /**
+   * Returns initial bitrate group assignments for a {@code country}. The initial bitrate is a list
+   * of indexes for [Wifi, 2G, 3G, 4G, 5G_NSA, 5G_SA].
+   */
+  private static int[] getInitialBitrateCountryGroupAssignment(String country) {
+    switch (country) {
+      case "AE":
+        return new int[] {1, 4, 4, 4, 3, 2};
+      case "AG":
+        return new int[] {2, 3, 1, 2, 2, 2};
+      case "AM":
+        return new int[] {2, 3, 2, 4, 2, 2};
+      case "AR":
+        return new int[] {2, 4, 1, 1, 2, 2};
+      case "AS":
+        return new int[] {2, 2, 2, 3, 2, 2};
+      case "AU":
+        return new int[] {0, 1, 0, 1, 2, 2};
+      case "BE":
+        return new int[] {0, 0, 3, 3, 2, 2};
+      case "BF":
+        return new int[] {4, 3, 4, 3, 2, 2};
+      case "BH":
+        return new int[] {1, 2, 2, 4, 4, 2};
+      case "BJ":
+        return new int[] {4, 4, 3, 4, 2, 2};
+      case "BN":
+        return new int[] {3, 2, 1, 1, 2, 2};
+      case "BO":
+        return new int[] {1, 3, 3, 2, 2, 2};
+      case "BQ":
+        return new int[] {1, 2, 2, 0, 2, 2};
+      case "BS":
+        return new int[] {4, 2, 2, 3, 2, 2};
+      case "BT":
+        return new int[] {3, 1, 3, 2, 2, 2};
+      case "BY":
+        return new int[] {0, 1, 1, 3, 2, 2};
+      case "BZ":
+        return new int[] {2, 4, 2, 2, 2, 2};
+      case "CA":
+        return new int[] {0, 2, 1, 2, 4, 1};
+      case "CD":
+        return new int[] {4, 2, 3, 1, 2, 2};
+      case "CF":
+        return new int[] {4, 2, 3, 2, 2, 2};
+      case "CI":
+        return new int[] {3, 3, 3, 4, 2, 2};
+      case "CK":
+        return new int[] {2, 2, 2, 1, 2, 2};
+      case "AO":
+      case "CM":
+        return new int[] {3, 4, 3, 2, 2, 2};
+      case "CN":
+        return new int[] {2, 0, 2, 2, 3, 1};
+      case "CO":
+        return new int[] {2, 2, 4, 2, 2, 2};
+      case "CR":
+        return new int[] {2, 2, 4, 4, 2, 2};
+      case "CV":
+        return new int[] {2, 3, 1, 0, 2, 2};
+      case "CW":
+        return new int[] {2, 2, 0, 0, 2, 2};
+      case "CY":
+        return new int[] {1, 0, 0, 0, 1, 2};
+      case "DE":
+        return new int[] {0, 0, 2, 2, 1, 2};
+      case "DJ":
+        return new int[] {4, 1, 4, 4, 2, 2};
+      case "DK":
+        return new int[] {0, 0, 1, 0, 0, 2};
+      case "EC":
+        return new int[] {2, 4, 2, 1, 2, 2};
+      case "EG":
+        return new int[] {3, 4, 2, 3, 2, 2};
+      case "ET":
+        return new int[] {4, 4, 3, 1, 2, 2};
+      case "FI":
+        return new int[] {0, 0, 0, 1, 0, 2};
+      case "FJ":
+        return new int[] {3, 1, 3, 3, 2, 2};
+      case "FM":
+        return new int[] {3, 2, 4, 2, 2, 2};
+      case "FR":
+        return new int[] {1, 1, 2, 1, 1, 1};
+      case "GA":
+        return new int[] {2, 3, 1, 1, 2, 2};
+      case "GB":
+        return new int[] {0, 0, 1, 1, 2, 3};
+      case "GE":
+        return new int[] {1, 1, 1, 3, 2, 2};
+      case "BB":
+      case "FO":
+      case "GG":
+        return new int[] {0, 2, 0, 0, 2, 2};
+      case "GH":
+        return new int[] {3, 2, 3, 2, 2, 2};
+      case "GN":
+        return new int[] {4, 3, 4, 2, 2, 2};
+      case "GQ":
+        return new int[] {4, 2, 3, 4, 2, 2};
+      case "GT":
+        return new int[] {2, 3, 2, 1, 2, 2};
+      case "AW":
+      case "GU":
+        return new int[] {1, 2, 4, 4, 2, 2};
+      case "BW":
+      case "GY":
+        return new int[] {3, 4, 1, 0, 2, 2};
+      case "HK":
+        return new int[] {0, 1, 2, 3, 2, 0};
+      case "HU":
+        return new int[] {0, 0, 0, 1, 3, 2};
+      case "ID":
+        return new int[] {3, 2, 3, 3, 3, 2};
+      case "ES":
+      case "IE":
+        return new int[] {0, 1, 1, 1, 2, 2};
+      case "IL":
+        return new int[] {1, 1, 2, 3, 4, 2};
+      case "IM":
+        return new int[] {0, 2, 0, 1, 2, 2};
+      case "IN":
+        return new int[] {1, 1, 3, 2, 4, 3};
+      case "IR":
+        return new int[] {3, 0, 1, 1, 3, 0};
+      case "IT":
+        return new int[] {0, 1, 0, 1, 1, 2};
+      case "JE":
+        return new int[] {3, 2, 1, 2, 2, 2};
+      case "DO":
+      case "JM":
+        return new int[] {3, 4, 4, 4, 2, 2};
+      case "JP":
+        return new int[] {0, 1, 0, 1, 1, 1};
+      case "KE":
+        return new int[] {3, 3, 2, 2, 2, 2};
+      case "KG":
+        return new int[] {2, 1, 1, 1, 2, 2};
+      case "KH":
+        return new int[] {1, 1, 4, 2, 2, 2};
+      case "KR":
+        return new int[] {0, 0, 1, 3, 4, 4};
+      case "KW":
+        return new int[] {1, 1, 0, 0, 0, 2};
+      case "AL":
+      case "BA":
+      case "KY":
+        return new int[] {1, 2, 0, 1, 2, 2};
+      case "KZ":
+        return new int[] {1, 1, 2, 2, 2, 2};
+      case "LB":
+        return new int[] {3, 2, 1, 4, 2, 2};
+      case "AD":
+      case "BM":
+      case "GL":
+      case "LC":
+        return new int[] {1, 2, 0, 0, 2, 2};
+      case "LK":
+        return new int[] {3, 1, 3, 4, 4, 2};
+      case "LR":
+        return new int[] {3, 4, 4, 3, 2, 2};
+      case "LS":
+        return new int[] {3, 3, 4, 3, 2, 2};
+      case "LU":
+        return new int[] {1, 0, 2, 2, 2, 2};
+      case "MC":
+        return new int[] {0, 2, 2, 0, 2, 2};
+      case "JO":
+      case "ME":
+        return new int[] {1, 0, 0, 1, 2, 2};
+      case "MF":
+        return new int[] {1, 2, 1, 0, 2, 2};
+      case "MG":
+        return new int[] {3, 4, 2, 2, 2, 2};
+      case "MH":
+        return new int[] {3, 2, 2, 4, 2, 2};
+      case "ML":
+        return new int[] {4, 3, 3, 1, 2, 2};
+      case "MM":
+        return new int[] {2, 4, 3, 3, 2, 2};
+      case "MN":
+        return new int[] {2, 0, 1, 2, 2, 2};
+      case "MO":
+        return new int[] {0, 2, 4, 4, 2, 2};
+      case "GF":
+      case "GP":
+      case "MQ":
+        return new int[] {2, 1, 2, 3, 2, 2};
+      case "MR":
+        return new int[] {4, 1, 3, 4, 2, 2};
+      case "EE":
+      case "LT":
+      case "LV":
+      case "MT":
+        return new int[] {0, 0, 0, 0, 2, 2};
+      case "MU":
+        return new int[] {3, 1, 1, 2, 2, 2};
+      case "MV":
+        return new int[] {3, 4, 1, 4, 2, 2};
+      case "MW":
+        return new int[] {4, 2, 1, 0, 2, 2};
+      case "CG":
+      case "MX":
+        return new int[] {2, 4, 3, 4, 2, 2};
+      case "BD":
+      case "MY":
+        return new int[] {2, 1, 3, 3, 2, 2};
+      case "NA":
+        return new int[] {4, 3, 2, 2, 2, 2};
+      case "AZ":
+      case "NC":
+        return new int[] {3, 2, 4, 4, 2, 2};
+      case "NG":
+        return new int[] {3, 4, 1, 1, 2, 2};
+      case "NI":
+        return new int[] {2, 3, 4, 3, 2, 2};
+      case "NL":
+        return new int[] {0, 0, 3, 2, 0, 4};
+      case "NO":
+        return new int[] {0, 0, 2, 0, 0, 2};
+      case "NP":
+        return new int[] {2, 1, 4, 3, 2, 2};
+      case "NR":
+        return new int[] {3, 2, 2, 0, 2, 2};
+      case "NZ":
+        return new int[] {1, 0, 1, 2, 4, 2};
+      case "OM":
+        return new int[] {2, 3, 1, 3, 4, 2};
+      case "PA":
+        return new int[] {1, 3, 3, 3, 2, 2};
+      case "PE":
+        return new int[] {2, 3, 4, 4, 4, 2};
+      case "PF":
+        return new int[] {2, 3, 3, 1, 2, 2};
+      case "CU":
+      case "PG":
+        return new int[] {4, 4, 3, 2, 2, 2};
+      case "PH":
+        return new int[] {2, 2, 3, 3, 3, 2};
+      case "PR":
+        return new int[] {2, 3, 2, 2, 3, 3};
+      case "PS":
+        return new int[] {3, 4, 1, 2, 2, 2};
+      case "PT":
+        return new int[] {0, 1, 0, 0, 2, 2};
+      case "PW":
+        return new int[] {2, 2, 4, 1, 2, 2};
+      case "PY":
+        return new int[] {2, 2, 3, 2, 2, 2};
+      case "QA":
+        return new int[] {2, 4, 2, 4, 4, 2};
+      case "RE":
+        return new int[] {1, 1, 1, 2, 2, 2};
+      case "RO":
+        return new int[] {0, 0, 1, 1, 1, 2};
+      case "GR":
+      case "HR":
+      case "MD":
+      case "MK":
+      case "RS":
+        return new int[] {1, 0, 0, 0, 2, 2};
+      case "RU":
+        return new int[] {0, 0, 0, 1, 2, 2};
+      case "RW":
+        return new int[] {3, 4, 3, 0, 2, 2};
+      case "KI":
+      case "KM":
+      case "LY":
+      case "SB":
+        return new int[] {4, 2, 4, 3, 2, 2};
+      case "SC":
+        return new int[] {4, 3, 0, 2, 2, 2};
+      case "SG":
+        return new int[] {1, 1, 2, 3, 1, 4};
+      case "BG":
+      case "CZ":
+      case "SI":
+        return new int[] {0, 0, 0, 0, 1, 2};
+      case "AT":
+      case "CH":
+      case "IS":
+      case "SE":
+      case "SK":
+        return new int[] {0, 0, 0, 0, 0, 2};
+      case "SL":
+        return new int[] {4, 3, 4, 1, 2, 2};
+      case "AX":
+      case "GI":
+      case "LI":
+      case "MP":
+      case "PM":
+      case "SJ":
+      case "SM":
+        return new int[] {0, 2, 2, 2, 2, 2};
+      case "HN":
+      case "PK":
+      case "SO":
+        return new int[] {3, 2, 3, 3, 2, 2};
+      case "BR":
+      case "SR":
+        return new int[] {2, 3, 2, 2, 2, 2};
+      case "FK":
+      case "KP":
+      case "MA":
+      case "MZ":
+      case "ST":
+        return new int[] {3, 2, 2, 2, 2, 2};
+      case "SV":
+        return new int[] {2, 2, 3, 3, 2, 2};
+      case "SZ":
+        return new int[] {4, 3, 2, 4, 2, 2};
+      case "SX":
+      case "TC":
+        return new int[] {2, 2, 1, 0, 2, 2};
+      case "TG":
+        return new int[] {3, 3, 2, 0, 2, 2};
+      case "TH":
+        return new int[] {0, 3, 2, 3, 3, 0};
+      case "TJ":
+        return new int[] {4, 2, 4, 4, 2, 2};
+      case "BI":
+      case "DZ":
+      case "SY":
+      case "TL":
+        return new int[] {4, 3, 4, 4, 2, 2};
+      case "TM":
+        return new int[] {4, 2, 4, 2, 2, 2};
+      case "TO":
+        return new int[] {4, 2, 3, 3, 2, 2};
+      case "TR":
+        return new int[] {1, 1, 0, 1, 2, 2};
+      case "TT":
+        return new int[] {1, 4, 1, 1, 2, 2};
+      case "AQ":
+      case "ER":
+      case "IO":
+      case "NU":
+      case "SH":
+      case "SS":
+      case "TV":
+        return new int[] {4, 2, 2, 2, 2, 2};
+      case "TW":
+        return new int[] {0, 0, 0, 0, 0, 0};
+      case "GW":
+      case "TZ":
+        return new int[] {3, 4, 3, 3, 2, 2};
+      case "UA":
+        return new int[] {0, 3, 1, 1, 2, 2};
+      case "IQ":
+      case "UG":
+        return new int[] {3, 3, 3, 3, 2, 2};
+      case "CL":
+      case "PL":
+      case "US":
+        return new int[] {1, 1, 2, 2, 3, 2};
+      case "LA":
+      case "UY":
+        return new int[] {2, 2, 1, 2, 2, 2};
+      case "UZ":
+        return new int[] {2, 2, 3, 4, 2, 2};
+      case "AI":
+      case "BL":
+      case "CX":
+      case "DM":
+      case "GD":
+      case "MS":
+      case "VC":
+        return new int[] {1, 2, 2, 2, 2, 2};
+      case "SA":
+      case "TN":
+      case "VG":
+        return new int[] {2, 2, 1, 1, 2, 2};
+      case "VI":
+        return new int[] {1, 2, 1, 3, 2, 2};
+      case "VN":
+        return new int[] {0, 3, 3, 4, 2, 2};
+      case "VU":
+        return new int[] {4, 2, 2, 1, 2, 2};
+      case "GM":
+      case "WF":
+        return new int[] {4, 2, 2, 4, 2, 2};
+      case "WS":
+        return new int[] {3, 1, 2, 1, 2, 2};
+      case "XK":
+        return new int[] {1, 1, 1, 1, 2, 2};
+      case "AF":
+      case "HT":
+      case "NE":
+      case "SD":
+      case "SN":
+      case "TD":
+      case "VE":
+      case "YE":
+        return new int[] {4, 4, 4, 4, 2, 2};
+      case "YT":
+        return new int[] {4, 1, 1, 1, 2, 2};
+      case "ZA":
+        return new int[] {3, 3, 1, 1, 1, 2};
+      case "ZM":
+        return new int[] {3, 3, 4, 2, 2, 2};
+      case "ZW":
+        return new int[] {3, 2, 4, 3, 2, 2};
+      default:
+        return new int[] {2, 2, 2, 2, 2, 2};
+    }
   }
 }
