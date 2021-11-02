@@ -69,9 +69,9 @@ public final class RtspMediaSource extends BaseMediaSource {
 
     private long timeoutMs;
     private String userAgent;
+    @Nullable private SocketFactory socketFactory;
     private boolean forceUseRtpTcp;
     private boolean debugLoggingEnabled;
-    private SocketFactory socketFactory;
 
     public Factory() {
       timeoutMs = DEFAULT_TIMEOUT_MS;
@@ -120,9 +120,8 @@ public final class RtspMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Configures a socket factory to be used for client connections.
-     *
-     * When unspecified, {@link SocketFactory#getDefault()} is used.
+     * Sets a socket factory for {@link RtspClient}'s connection, the default value is {@link
+     * SocketFactory#getDefault()}.
      *
      * @param socketFactory A socket factory.
      * @return This Factory, for convenience.
@@ -217,8 +216,8 @@ public final class RtspMediaSource extends BaseMediaSource {
               ? new TransferRtpDataChannelFactory(timeoutMs)
               : new UdpDataSourceRtpDataChannelFactory(timeoutMs),
           userAgent,
-          debugLoggingEnabled,
-          socketFactory);
+          socketFactory == null ? SocketFactory.getDefault() : socketFactory,
+          debugLoggingEnabled);
     }
   }
 
@@ -241,10 +240,8 @@ public final class RtspMediaSource extends BaseMediaSource {
   private final RtpDataChannel.Factory rtpDataChannelFactory;
   private final String userAgent;
   private final Uri uri;
-  private final boolean debugLoggingEnabled;
-
-  @Nullable
   private final SocketFactory socketFactory;
+  private final boolean debugLoggingEnabled;
 
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
@@ -256,8 +253,8 @@ public final class RtspMediaSource extends BaseMediaSource {
       MediaItem mediaItem,
       RtpDataChannel.Factory rtpDataChannelFactory,
       String userAgent,
-      boolean debugLoggingEnabled,
-      @Nullable SocketFactory socketFactory) {
+      SocketFactory socketFactory,
+      boolean debugLoggingEnabled) {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.userAgent = userAgent;
@@ -302,8 +299,8 @@ public final class RtspMediaSource extends BaseMediaSource {
           notifySourceInfoRefreshed();
         },
         userAgent,
-        debugLoggingEnabled,
-        socketFactory);
+        socketFactory,
+        debugLoggingEnabled);
   }
 
   @Override

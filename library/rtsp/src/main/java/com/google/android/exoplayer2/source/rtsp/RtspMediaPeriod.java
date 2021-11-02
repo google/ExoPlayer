@@ -103,7 +103,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param listener A {@link Listener} to receive session information updates.
    * @param userAgent The user agent.
    * @param debugLoggingEnabled Whether to log RTSP messages.
-   * @param socketFactory A socket factory.
+   * @param socketFactory A socket factory for {@link RtspClient}'s connection.
    */
   public RtspMediaPeriod(
       Allocator allocator,
@@ -111,8 +111,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Uri uri,
       Listener listener,
       String userAgent,
-      boolean debugLoggingEnabled,
-      @Nullable SocketFactory socketFactory) {
+      SocketFactory socketFactory,
+      boolean debugLoggingEnabled) {
     this.allocator = allocator;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.listener = listener;
@@ -125,8 +125,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* playbackEventListener= */ internalListener,
             /* userAgent= */ userAgent,
             /* uri= */ uri,
-            debugLoggingEnabled,
-            socketFactory);
+            socketFactory,
+            debugLoggingEnabled);
     rtspLoaderWrappers = new ArrayList<>();
     selectedLoadInfos = new ArrayList<>();
 

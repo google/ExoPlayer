@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.net.SocketFactory;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,8 +85,8 @@ public final class RtspMediaPeriodTest {
             RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
             /* listener= */ timing -> refreshedSourceDurationMs.set(timing.getDurationMs()),
             /* userAgent= */ "ExoPlayer:RtspPeriodTest",
-            /* debugLoggingEnabled= */ false,
-            /* socketFactory */ null);
+            /* socketFactory */ SocketFactory.getDefault(),
+            /* debugLoggingEnabled= */ false);
 
     mediaPeriod.prepare(
         new MediaPeriod.Callback() {
