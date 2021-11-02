@@ -263,12 +263,13 @@ public final class MediaSessionConnector {
      * @param player The player connected to the media session.
      */
     void onTimelineChanged(Player player);
+
     /**
-     * Called when the current window index changed.
+     * Called when the current media item index changed.
      *
      * @param player The player connected to the media session.
      */
-    void onCurrentWindowIndexChanged(Player player);
+    default void onCurrentMediaItemIndexChanged(Player player) {}
     /**
      * Gets the id of the currently active queue item, or {@link
      * MediaSessionCompat.QueueItem#UNKNOWN_ID} if the active item is unknown.
@@ -969,8 +970,8 @@ public final class MediaSessionConnector {
     return player != null && mediaButtonEventHandler != null;
   }
 
-  private void seekTo(Player player, int windowIndex, long positionMs) {
-    player.seekTo(windowIndex, positionMs);
+  private void seekTo(Player player, int mediaItemIndex, long positionMs) {
+    player.seekTo(mediaItemIndex, positionMs);
   }
 
   private static int getMediaSessionPlaybackState(
@@ -1023,7 +1024,7 @@ public final class MediaSessionConnector {
       }
       builder.putLong(
           MediaMetadataCompat.METADATA_KEY_DURATION,
-          player.isCurrentWindowDynamic() || player.getDuration() == C.TIME_UNSET
+          player.isCurrentMediaItemDynamic() || player.getDuration() == C.TIME_UNSET
               ? -1
               : player.getDuration());
       long activeQueueItemId = mediaController.getPlaybackState().getActiveQueueItemId();
@@ -1097,7 +1098,7 @@ public final class MediaSessionConnector {
 
   private class ComponentListener extends MediaSessionCompat.Callback implements Player.Listener {
 
-    private int currentWindowIndex;
+    private int currentMediaItemIndex;
     private int currentWindowCount;
 
     // Player.Listener implementation.
@@ -1107,9 +1108,9 @@ public final class MediaSessionConnector {
       boolean invalidatePlaybackState = false;
       boolean invalidateMetadata = false;
       if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
-        if (currentWindowIndex != player.getCurrentWindowIndex()) {
+        if (currentMediaItemIndex != player.getCurrentMediaItemIndex()) {
           if (queueNavigator != null) {
-            queueNavigator.onCurrentWindowIndexChanged(player);
+            queueNavigator.onCurrentMediaItemIndexChanged(player);
           }
           invalidateMetadata = true;
         }
@@ -1118,11 +1119,11 @@ public final class MediaSessionConnector {
 
       if (events.contains(Player.EVENT_TIMELINE_CHANGED)) {
         int windowCount = player.getCurrentTimeline().getWindowCount();
-        int windowIndex = player.getCurrentWindowIndex();
+        int mediaItemIndex = player.getCurrentMediaItemIndex();
         if (queueNavigator != null) {
           queueNavigator.onTimelineChanged(player);
           invalidatePlaybackState = true;
-        } else if (currentWindowCount != windowCount || currentWindowIndex != windowIndex) {
+        } else if (currentWindowCount != windowCount || currentMediaItemIndex != mediaItemIndex) {
           // active queue item and queue navigation actions may need to be updated
           invalidatePlaybackState = true;
         }
@@ -1130,8 +1131,8 @@ public final class MediaSessionConnector {
         invalidateMetadata = true;
       }
 
-      // Update currentWindowIndex after comparisons above.
-      currentWindowIndex = player.getCurrentWindowIndex();
+      // Update currentMediaItemIndex after comparisons above.
+      currentMediaItemIndex = player.getCurrentMediaItemIndex();
 
       if (events.containsAny(
           EVENT_PLAYBACK_STATE_CHANGED,
@@ -1170,7 +1171,7 @@ public final class MediaSessionConnector {
             player.prepare();
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          seekTo(player, player.getCurrentMediaItemIndex(), C.TIME_UNSET);
         }
         Assertions.checkNotNull(player).play();
       }
@@ -1186,7 +1187,7 @@ public final class MediaSessionConnector {
     @Override
     public void onSeekTo(long positionMs) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SEEK_TO)) {
-        seekTo(player, player.getCurrentWindowIndex(), positionMs);
+        seekTo(player, player.getCurrentMediaItemIndex(), positionMs);
       }
     }
 

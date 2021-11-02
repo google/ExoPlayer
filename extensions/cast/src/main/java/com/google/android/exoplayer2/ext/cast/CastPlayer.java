@@ -318,9 +318,9 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    int windowIndex = resetPosition ? 0 : getCurrentWindowIndex();
+    int mediaItemIndex = resetPosition ? 0 : getCurrentMediaItemIndex();
     long startPositionMs = resetPosition ? C.TIME_UNSET : getContentPosition();
-    setMediaItems(mediaItems, windowIndex, startPositionMs);
+    setMediaItems(mediaItems, mediaItemIndex, startPositionMs);
   }
 
   @Override
@@ -443,7 +443,7 @@ public final class CastPlayer extends BasePlayer {
     // in RemoteMediaClient.
     positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
     if (mediaStatus != null) {
-      if (getCurrentWindowIndex() != mediaItemIndex) {
+      if (getCurrentMediaItemIndex() != mediaItemIndex) {
         remoteMediaClient
             .queueJumpToItem(
                 (int) currentTimeline.getPeriod(mediaItemIndex, period).uid, positionMs, null)
@@ -636,7 +636,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public int getCurrentPeriodIndex() {
-    return getCurrentWindowIndex();
+    return getCurrentMediaItemIndex();
   }
 
   @Override
@@ -1103,15 +1103,15 @@ public final class CastPlayer extends BasePlayer {
   @Nullable
   private PendingResult<MediaChannelResult> setMediaItemsInternal(
       MediaQueueItem[] mediaQueueItems,
-      int startWindowIndex,
+      int startIndex,
       long startPositionMs,
       @RepeatMode int repeatMode) {
     if (remoteMediaClient == null || mediaQueueItems.length == 0) {
       return null;
     }
     startPositionMs = startPositionMs == C.TIME_UNSET ? 0 : startPositionMs;
-    if (startWindowIndex == C.INDEX_UNSET) {
-      startWindowIndex = getCurrentWindowIndex();
+    if (startIndex == C.INDEX_UNSET) {
+      startIndex = getCurrentMediaItemIndex();
       startPositionMs = getCurrentPosition();
     }
     Timeline currentTimeline = getCurrentTimeline();
@@ -1120,7 +1120,7 @@ public final class CastPlayer extends BasePlayer {
     }
     return remoteMediaClient.queueLoad(
         mediaQueueItems,
-        min(startWindowIndex, mediaQueueItems.length - 1),
+        min(startIndex, mediaQueueItems.length - 1),
         getCastRepeatMode(repeatMode),
         startPositionMs,
         /* customData= */ null);
@@ -1180,7 +1180,7 @@ public final class CastPlayer extends BasePlayer {
     }
     return new PositionInfo(
         newWindowUid,
-        getCurrentWindowIndex(),
+        getCurrentMediaItemIndex(),
         newMediaItem,
         newPeriodUid,
         getCurrentPeriodIndex(),

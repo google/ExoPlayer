@@ -1540,8 +1540,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         if (lastPeriodIndexWithTracks != C.INDEX_UNSET) {
           int lastWindowIndexWithTracks =
               timeline.getPeriod(lastPeriodIndexWithTracks, period).windowIndex;
-          if (player.getCurrentWindowIndex() == lastWindowIndexWithTracks) {
-            // We're in the same window. Suppress the update.
+          if (player.getCurrentMediaItemIndex() == lastWindowIndexWithTracks) {
+            // We're in the same media item. Suppress the update.
             return;
           }
         }

@@ -284,12 +284,12 @@ public class TestPlayerRunHelper {
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
    *
    * @param player The {@link Player}.
-   * @param windowIndex The window.
-   * @param positionMs The position within the window, in milliseconds.
+   * @param mediaItemIndex The index of the media item.
+   * @param positionMs The position within the media item, in milliseconds.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void playUntilPosition(ExoPlayer player, int windowIndex, long positionMs)
+  public static void playUntilPosition(ExoPlayer player, int mediaItemIndex, long positionMs)
       throws TimeoutException {
     verifyMainTestThread(player);
     Looper applicationLooper = Util.getCurrentOrMainLooper();
@@ -315,7 +315,7 @@ public class TestPlayerRunHelper {
                 // Ignore.
               }
             })
-        .setPosition(windowIndex, positionMs)
+        .setPosition(mediaItemIndex, positionMs)
         .send();
     player.play();
     runMainLooperUntil(() -> messageHandled.get() || player.getPlayerError() != null);
@@ -326,18 +326,19 @@ public class TestPlayerRunHelper {
 
   /**
    * Calls {@link Player#play()}, runs tasks of the main {@link Looper} until the {@code player}
-   * reaches the specified window or a playback error occurs, and then pauses the {@code player}.
+   * reaches the specified media item or a playback error occurs, and then pauses the {@code
+   * player}.
    *
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
    *
    * @param player The {@link Player}.
-   * @param windowIndex The window.
+   * @param mediaItemIndex The index of the media item.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void playUntilStartOfWindow(ExoPlayer player, int windowIndex)
+  public static void playUntilStartOfMediaItem(ExoPlayer player, int mediaItemIndex)
       throws TimeoutException {
-    playUntilPosition(player, windowIndex, /* positionMs= */ 0);
+    playUntilPosition(player, mediaItemIndex, /* positionMs= */ 0);
   }
 
   /**

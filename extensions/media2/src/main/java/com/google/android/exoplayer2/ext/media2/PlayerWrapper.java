@@ -253,8 +253,8 @@ import java.util.List;
     // checkIndex() throws IndexOutOfBoundsException which maps the RESULT_ERROR_BAD_VALUE
     // but RESULT_ERROR_INVALID_STATE with IllegalStateException is expected here.
     Assertions.checkState(0 <= index && index < timeline.getWindowCount());
-    int windowIndex = player.getCurrentWindowIndex();
-    if (windowIndex == index || !player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
+    int currentIndex = player.getCurrentMediaItemIndex();
+    if (currentIndex == index || !player.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)) {
       return false;
     }
     player.seekToDefaultPosition(index);
@@ -301,7 +301,7 @@ import java.util.List;
   }
 
   public int getCurrentMediaItemIndex() {
-    return media2Playlist.isEmpty() ? C.INDEX_UNSET : player.getCurrentWindowIndex();
+    return media2Playlist.isEmpty() ? C.INDEX_UNSET : player.getCurrentMediaItemIndex();
   }
 
   public int getPreviousMediaItemIndex() {
@@ -331,7 +331,7 @@ import java.util.List;
       if (!player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
         return false;
       }
-      player.seekTo(player.getCurrentWindowIndex(), /* positionMs= */ 0);
+      player.seekTo(player.getCurrentMediaItemIndex(), /* positionMs= */ 0);
     }
     boolean playWhenReady = player.getPlayWhenReady();
     int suppressReason = player.getPlaybackSuppressionReason();
@@ -358,7 +358,7 @@ import java.util.List;
     if (!player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
       return false;
     }
-    player.seekTo(player.getCurrentWindowIndex(), position);
+    player.seekTo(player.getCurrentMediaItemIndex(), position);
     return true;
   }
 
@@ -493,7 +493,7 @@ import java.util.List;
   public boolean isCurrentMediaItemSeekable() {
     return getCurrentMediaItem() != null
         && !player.isPlayingAd()
-        && player.isCurrentWindowSeekable();
+        && player.isCurrentMediaItemSeekable();
   }
 
   public boolean canSkipToPlaylistItem() {
@@ -502,11 +502,11 @@ import java.util.List;
   }
 
   public boolean canSkipToPreviousPlaylistItem() {
-    return player.hasPreviousWindow();
+    return player.hasPreviousMediaItem();
   }
 
   public boolean canSkipToNextPlaylistItem() {
-    return player.hasNextWindow();
+    return player.hasNextMediaItem();
   }
 
   public boolean hasError() {
