@@ -64,6 +64,7 @@
     *   MP4: Avoid throwing `ArrayIndexOutOfBoundsException` when parsing
         invalid `colr` boxes produced by some device cameras
         ([#9332](https://github.com/google/ExoPlayer/issues/9332)).
+    *   MP4: Parse HDR static metadata from the `clli` and `mdcv` boxes.
     *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
     *   TS: Map stream type 0x80 to H262
         ([#9472](https://github.com/google/ExoPlayer/issues/9472)).

@@ -45,6 +45,8 @@ import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1061,6 +1063,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .build();
   }
 
+  // hdrStaticInfo is allocated using allocate() in allocateHdrStaticInfo().
+  @SuppressWarnings("ByteBufferBackingArray")
   private static void parseVideoSampleEntry(
       ParsableByteArray parent,
       int atomType,
@@ -1112,7 +1116,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Nullable String codecs = null;
     @Nullable byte[] projectionData = null;
     @C.StereoMode int stereoMode = Format.NO_VALUE;
-    @Nullable ColorInfo colorInfo = null;
+
+    // HDR related metadata.
+    @C.ColorSpace int colorSpace = Format.NO_VALUE;
+    @C.ColorRange int colorRange = Format.NO_VALUE;
+    @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
+    // The format of HDR static info is defined in CTA-861-G:2017, Table 45.
+    @Nullable ByteBuffer hdrStaticInfo = null;
+
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childStartPosition = parent.getPosition();
@@ -1157,6 +1168,43 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (childAtomType == Atom.TYPE_av1C) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
+      } else if (childAtomType == Atom.TYPE_clli) {
+        if (hdrStaticInfo == null) {
+          hdrStaticInfo = allocateHdrStaticInfo();
+        }
+        // The contents of the clli box occupy the last 4 bytes of the HDR static info array. Note
+        // that each field is read in big endian and written in little endian.
+        hdrStaticInfo.position(21);
+        hdrStaticInfo.putShort(parent.readShort()); // max_content_light_level.
+        hdrStaticInfo.putShort(parent.readShort()); // max_pic_average_light_level.
+      } else if (childAtomType == Atom.TYPE_mdcv) {
+        if (hdrStaticInfo == null) {
+          hdrStaticInfo = allocateHdrStaticInfo();
+        }
+        // The contents of the mdcv box occupy 20 bytes after the first byte of the HDR static info
+        // array. Note that each field is read in big endian and written in little endian.
+        short displayPrimariesGX = parent.readShort();
+        short displayPrimariesGY = parent.readShort();
+        short displayPrimariesBX = parent.readShort();
+        short displayPrimariesBY = parent.readShort();
+        short displayPrimariesRX = parent.readShort();
+        short displayPrimariesRY = parent.readShort();
+        short whitePointX = parent.readShort();
+        short whitePointY = parent.readShort();
+        long maxDisplayMasteringLuminance = parent.readUnsignedInt();
+        long minDisplayMasteringLuminance = parent.readUnsignedInt();
+
+        hdrStaticInfo.position(1);
+        hdrStaticInfo.putShort(displayPrimariesRX);
+        hdrStaticInfo.putShort(displayPrimariesRY);
+        hdrStaticInfo.putShort(displayPrimariesGX);
+        hdrStaticInfo.putShort(displayPrimariesGY);
+        hdrStaticInfo.putShort(displayPrimariesBX);
+        hdrStaticInfo.putShort(displayPrimariesBY);
+        hdrStaticInfo.putShort(whitePointX);
+        hdrStaticInfo.putShort(whitePointY);
+        hdrStaticInfo.putShort((short) (maxDisplayMasteringLuminance / 10000));
+        hdrStaticInfo.putShort((short) (minDisplayMasteringLuminance / 10000));
       } else if (childAtomType == Atom.TYPE_d263) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H263;
@@ -1211,12 +1259,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           // size=18): https://github.com/google/ExoPlayer/issues/9332
           boolean fullRangeFlag =
               childAtomSize == 19 && (parent.readUnsignedByte() & 0b10000000) != 0;
-          colorInfo =
-              new ColorInfo(
-                  ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries),
-                  fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED,
-                  ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics),
-                  /* hdrStaticInfo= */ null);
+          colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
+          colorRange = fullRangeFlag ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
+          colorTransfer =
+              ColorInfo.isoTransferCharacteristicsToColorTransfer(transferCharacteristics);
         } else {
           Log.w(TAG, "Unsupported color type: " + Atom.getAtomTypeString(colorType));
         }
@@ -1229,7 +1275,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return;
     }
 
-    out.format =
+    Format.Builder formatBuilder =
         new Format.Builder()
             .setId(trackId)
             .setSampleMimeType(mimeType)
@@ -1241,9 +1287,28 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .setProjectionData(projectionData)
             .setStereoMode(stereoMode)
             .setInitializationData(initializationData)
-            .setDrmInitData(drmInitData)
-            .setColorInfo(colorInfo)
-            .build();
+            .setDrmInitData(drmInitData);
+    if (colorSpace != Format.NO_VALUE
+        || colorRange != Format.NO_VALUE
+        || colorTransfer != Format.NO_VALUE
+        || hdrStaticInfo != null) {
+      // Note that if either mdcv or clli are missing, we leave the corresponding HDR static
+      // metadata bytes with value zero. See [Internal ref: b/194535665].
+      formatBuilder.setColorInfo(
+          new ColorInfo(
+              colorSpace,
+              colorRange,
+              colorTransfer,
+              hdrStaticInfo != null ? hdrStaticInfo.array() : null));
+    }
+    out.format = formatBuilder.build();
+  }
+
+  private static ByteBuffer allocateHdrStaticInfo() {
+    // For HDR static info, Android decoders expect a 25-byte array. The first byte is zero to
+    // represent Static Metadata Type 1, as per CTA-861-G:2017, Table 44. The following 24 bytes
+    // follow CTA-861-G:2017, Table 45.
+    return ByteBuffer.allocate(25).order(ByteOrder.LITTLE_ENDIAN);
   }
 
   private static void parseMetaDataSampleEntry(
