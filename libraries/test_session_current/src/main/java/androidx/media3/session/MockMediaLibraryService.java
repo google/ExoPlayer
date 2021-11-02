@@ -52,6 +52,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.util.BundleableUtil;
@@ -183,7 +184,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
     @Override
     public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(
-        MediaLibrarySession session, ControllerInfo browser, LibraryParams params) {
+        MediaLibrarySession session, ControllerInfo browser, @Nullable LibraryParams params) {
       assertLibraryParams(params);
       return Futures.immediateFuture(LibraryResult.ofItem(ROOT_ITEM, ROOT_PARAMS));
     }
@@ -218,30 +219,32 @@ public class MockMediaLibraryService extends MediaLibraryService {
         String parentId,
         int page,
         int pageSize,
-        LibraryParams params) {
+        @Nullable LibraryParams params) {
       assertLibraryParams(params);
       if (PARENT_ID.equals(parentId)) {
         return Futures.immediateFuture(
             LibraryResult.ofItemList(
-                getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize), /* params= */ null));
+                getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize), params));
       } else if (PARENT_ID_LONG_LIST.equals(parentId)) {
         List<MediaItem> list = new ArrayList<>(LONG_LIST_COUNT);
         for (int i = 0; i < LONG_LIST_COUNT; i++) {
           list.add(createPlayableMediaItem(TestUtils.getMediaIdInFakeTimeline(i)));
         }
-        return Futures.immediateFuture(LibraryResult.ofItemList(list, /* params= */ null));
+        return Futures.immediateFuture(LibraryResult.ofItemList(list, params));
       } else if (PARENT_ID_ERROR.equals(parentId)) {
         return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
       }
       // Includes the case of PARENT_ID_NO_CHILDREN.
-      return Futures.immediateFuture(
-          LibraryResult.ofItemList(ImmutableList.of(), /* params= */ null));
+      return Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params));
     }
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public ListenableFuture<LibraryResult<Void>> onSearch(
-        MediaLibrarySession session, ControllerInfo browser, String query, LibraryParams params) {
+        MediaLibrarySession session,
+        ControllerInfo browser,
+        String query,
+        @Nullable LibraryParams params) {
       assertLibraryParams(params);
       if (SEARCH_QUERY.equals(query)) {
         MockMediaLibraryService.this.session.notifySearchResultChanged(
@@ -266,7 +269,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
         // SEARCH_QUERY_EMPTY_RESULT and SEARCH_QUERY_ERROR will be handled here.
         MockMediaLibraryService.this.session.notifySearchResultChanged(browser, query, 0, params);
       }
-      return Futures.immediateFuture(LibraryResult.ofVoid());
+      return Futures.immediateFuture(LibraryResult.ofVoid(params));
     }
 
     @Override
@@ -276,21 +279,19 @@ public class MockMediaLibraryService extends MediaLibraryService {
         String query,
         int page,
         int pageSize,
-        LibraryParams params) {
+        @Nullable LibraryParams params) {
       assertLibraryParams(params);
       if (SEARCH_QUERY.equals(query)) {
         return Futures.immediateFuture(
-            LibraryResult.ofItemList(
-                getPaginatedResult(SEARCH_RESULT, page, pageSize), /* params= */ null));
+            LibraryResult.ofItemList(getPaginatedResult(SEARCH_RESULT, page, pageSize), params));
       } else if (SEARCH_QUERY_LONG_LIST.equals(query)) {
         List<MediaItem> list = new ArrayList<>(LONG_LIST_COUNT);
         for (int i = 0; i < LONG_LIST_COUNT; i++) {
           list.add(createPlayableMediaItem(TestUtils.getMediaIdInFakeTimeline(i)));
         }
-        return Futures.immediateFuture(LibraryResult.ofItemList(list, /* params= */ null));
+        return Futures.immediateFuture(LibraryResult.ofItemList(list, params));
       } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
-        return Futures.immediateFuture(
-            LibraryResult.ofItemList(ImmutableList.of(), /* params= */ null));
+        return Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params));
       } else {
         // SEARCH_QUERY_ERROR will be handled here.
         return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
@@ -309,25 +310,25 @@ public class MockMediaLibraryService extends MediaLibraryService {
         case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL:
           MockMediaLibraryService.this.session.notifyChildrenChanged(
               parentId, NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid());
+          return Futures.immediateFuture(LibraryResult.ofVoid(params));
         case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE:
           MockMediaLibraryService.this.session.notifyChildrenChanged(
               MediaTestUtils.getTestControllerInfo(MockMediaLibraryService.this.session),
               parentId,
               NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
               NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid());
+          return Futures.immediateFuture(LibraryResult.ofVoid(params));
         case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID:
           MockMediaLibraryService.this.session.notifyChildrenChanged(
               unsubscribedId, NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid());
+          return Futures.immediateFuture(LibraryResult.ofVoid(params));
         case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID:
           MockMediaLibraryService.this.session.notifyChildrenChanged(
               MediaTestUtils.getTestControllerInfo(MockMediaLibraryService.this.session),
               unsubscribedId,
               NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
               NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid());
+          return Futures.immediateFuture(LibraryResult.ofVoid(params));
         default: // fall out
       }
       return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
@@ -354,7 +355,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
       return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_ERROR_BAD_VALUE));
     }
 
-    private void assertLibraryParams(LibraryParams params) {
+    private void assertLibraryParams(@Nullable LibraryParams params) {
       synchronized (MockMediaLibraryService.class) {
         if (assertLibraryParams) {
           assertLibraryParamsEquals(expectedParams, params);

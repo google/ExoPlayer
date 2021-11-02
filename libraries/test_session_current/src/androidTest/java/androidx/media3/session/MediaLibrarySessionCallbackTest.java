@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
+import androidx.annotation.Nullable;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerInfo;
@@ -82,11 +83,11 @@ public class MediaLibrarySessionCallbackTest {
               MediaLibrarySession session,
               ControllerInfo browser,
               String parentId,
-              LibraryParams params) {
+              @Nullable LibraryParams params) {
             assertThat(parentId).isEqualTo(testParentId);
             MediaTestUtils.assertLibraryParamsEquals(testParams, params);
             latch.countDown();
-            return Futures.immediateFuture(LibraryResult.ofVoid());
+            return Futures.immediateFuture(LibraryResult.ofVoid(params));
           }
         };
 

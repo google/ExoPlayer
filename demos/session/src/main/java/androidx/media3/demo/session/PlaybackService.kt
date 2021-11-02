@@ -50,9 +50,7 @@ class PlaybackService : MediaLibraryService() {
       browser: MediaSession.ControllerInfo,
       params: LibraryParams?
     ): ListenableFuture<LibraryResult<MediaItem>> {
-      return Futures.immediateFuture(
-        LibraryResult.ofItem(MediaItemTree.getRootItem(), /* params= */ null)
-      )
+      return Futures.immediateFuture(LibraryResult.ofItem(MediaItemTree.getRootItem(), params))
     }
 
     override fun onGetItem(

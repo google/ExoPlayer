@@ -153,7 +153,7 @@ public final class LibraryResult<V> implements Bundleable {
   /** The optional parameters. */
   @Nullable public final MediaLibraryService.LibraryParams params;
 
-  /** Constructs a new instance with {@link #resultCode}{@code ==}{@link #RESULT_SUCCESS}. */
+  /** Creates an instance with {@link #resultCode}{@code ==}{@link #RESULT_SUCCESS}. */
   public static LibraryResult<Void> ofVoid() {
     return new LibraryResult<>(
         RESULT_SUCCESS,
@@ -161,6 +161,15 @@ public final class LibraryResult<V> implements Bundleable {
         /* params= */ null,
         /* value= */ null,
         VALUE_TYPE_VOID);
+  }
+
+  /**
+   * Creates an instance with {@link #resultCode}{@code ==}{@link #RESULT_SUCCESS} and optional
+   * {@link LibraryParams params}.
+   */
+  public static LibraryResult<Void> ofVoid(@Nullable LibraryParams params) {
+    return new LibraryResult<>(
+        RESULT_SUCCESS, SystemClock.elapsedRealtime(), params, /* value= */ null, VALUE_TYPE_VOID);
   }
 
   /**

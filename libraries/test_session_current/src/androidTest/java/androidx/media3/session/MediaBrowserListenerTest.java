@@ -183,7 +183,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
             .postAndSync(() -> browser.getChildren(parentId, page, pageSize, params))
             .get(TIMEOUT_MS, MILLISECONDS);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
-    assertThat(result.params).isNull();
+    MediaTestUtils.assertLibraryParamsEquals(params, result.params);
 
     MediaTestUtils.assertPaginatedListHasIds(
         result.value, MediaBrowserConstants.GET_CHILDREN_RESULT, page, pageSize);
@@ -205,7 +205,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
             .postAndSync(() -> browser.getChildren(parentId, page, pageSize, params))
             .get(LONG_TIMEOUT_MS, MILLISECONDS);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
-    assertThat(result.params).isNull();
+    MediaTestUtils.assertLibraryParamsEquals(params, result.params);
 
     assertThat(result.value).hasSize(LONG_LIST_COUNT);
     for (int i = 0; i < result.value.size(); i++) {
