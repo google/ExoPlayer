@@ -117,8 +117,8 @@ import java.nio.ByteBuffer;
       muxerWrapper.endTrack(getTrackType());
       return false;
     }
-    buffer.timeUs -= streamOffsetUs;
     mediaClock.updateTimeForTrackType(getTrackType(), buffer.timeUs);
+    buffer.timeUs -= streamOffsetUs;
     ByteBuffer data = checkNotNull(buffer.data);
     data.flip();
     if (sampleTransformer != null) {
