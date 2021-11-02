@@ -48,8 +48,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
-      throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.streamOffsetUs = offsetUs;
   }
 
