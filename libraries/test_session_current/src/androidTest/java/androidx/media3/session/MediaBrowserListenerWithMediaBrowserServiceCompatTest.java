@@ -115,7 +115,7 @@ public class MediaBrowserListenerWithMediaBrowserServiceCompatTest {
     remoteService.setProxyForTest(TEST_ON_CHILDREN_CHANGED_SUBSCRIBE_AND_UNSUBSCRIBE);
     MediaBrowser browser = createBrowser(listener);
 
-    LibraryResult resultForSubscribe =
+    LibraryResult<Void> resultForSubscribe =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.subscribe(testParentId, null))
@@ -124,7 +124,7 @@ public class MediaBrowserListenerWithMediaBrowserServiceCompatTest {
     remoteService.notifyChildrenChanged(testParentId);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
 
-    LibraryResult resultForUnsubscribe =
+    LibraryResult<Void> resultForUnsubscribe =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.unsubscribe(testParentId))

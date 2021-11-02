@@ -156,7 +156,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
     //           SIG_KILL until the user's explicit action.
     try {
       MediaBrowser browser = createBrowser();
-      LibraryResult result =
+      LibraryResult<MediaItem> result =
           threadTestRule
               .getHandler()
               .postAndSync(() -> browser.getItem(mediaId))
@@ -363,7 +363,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
 
     MediaBrowser browser = createBrowser(null, listener);
     setExpectedLibraryParam(browser, testParams);
-    LibraryResult result =
+    LibraryResult<Void> result =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.search(query, testParams))
@@ -398,7 +398,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
 
     MediaBrowser browser = createBrowser(null, listener);
     setExpectedLibraryParam(browser, testParams);
-    LibraryResult result =
+    LibraryResult<Void> result =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.search(query, testParams))
@@ -432,7 +432,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
         };
 
     MediaBrowser browser = createBrowser(null, browserListenerProxy);
-    LibraryResult result =
+    LibraryResult<Void> result =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.subscribe(expectedParentId, null))
@@ -469,7 +469,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
         };
 
     MediaBrowser browser = createBrowser(null, browserListenerProxy);
-    LibraryResult result =
+    LibraryResult<Void> result =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.subscribe(expectedParentId, null))
@@ -500,7 +500,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
         };
 
     MediaBrowser browser = createBrowser(null, browserListenerProxy);
-    LibraryResult result =
+    LibraryResult<Void> result =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.subscribe(subscribedMediaId, null))
@@ -529,7 +529,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
         };
 
     MediaBrowser browser = createBrowser(null, browserListenerProxy);
-    LibraryResult result =
+    LibraryResult<Void> result =
         threadTestRule
             .getHandler()
             .postAndSync(() -> browser.subscribe(subscribedMediaId, null))
