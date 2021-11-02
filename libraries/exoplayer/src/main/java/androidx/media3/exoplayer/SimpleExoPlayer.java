@@ -1121,9 +1121,9 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void setMediaSources(
-      List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
+      List<MediaSource> mediaSources, int startMediaItemIndex, long startPositionMs) {
     verifyApplicationThread();
-    player.setMediaSources(mediaSources, startWindowIndex, startPositionMs);
+    player.setMediaSources(mediaSources, startMediaItemIndex, startPositionMs);
   }
 
   @Override
@@ -1430,7 +1430,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public int getCurrentMediaItemIndex() {
     verifyApplicationThread();
-    return player.getCurrentWindowIndex();
+    return player.getCurrentMediaItemIndex();
   }
 
   @Override

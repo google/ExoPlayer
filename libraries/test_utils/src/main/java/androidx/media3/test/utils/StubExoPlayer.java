@@ -164,7 +164,7 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public void setMediaSources(
-      List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
+      List<MediaSource> mediaSources, int startMediaItemIndex, long startPositionMs) {
     throw new UnsupportedOperationException();
   }
 

@@ -384,7 +384,7 @@ public interface AnalyticsListener {
     /**
      * The current window index in {@link #currentTimeline} at the time of the event, or the
      * prospective window index if the timeline is not yet known and empty (equivalent to {@link
-     * Player#getCurrentWindowIndex()}).
+     * Player#getCurrentMediaItemIndex()}).
      */
     public final int currentWindowIndex;
 
@@ -421,7 +421,7 @@ public interface AnalyticsListener {
      *     {@link Player#getCurrentTimeline()}).
      * @param currentWindowIndex The current window index in {@code currentTimeline} at the time of
      *     the event, or the prospective window index if the timeline is not yet known and empty
-     *     (equivalent to {@link Player#getCurrentWindowIndex()}).
+     *     (equivalent to {@link Player#getCurrentMediaItemIndex()}).
      * @param currentMediaPeriodId {@link MediaPeriodId Media period identifier} for the currently
      *     playing media period at the time of the event, or {@code null} if no current media period
      *     identifier is available.
@@ -1206,9 +1206,9 @@ public interface AnalyticsListener {
    *       {@link Player#seekTo(long)} after a {@link
    *       AnalyticsListener#onMediaItemTransition(EventTime, MediaItem, int)}).
    *   <li>They intend to use multiple state values together or in combination with {@link Player}
-   *       getter methods. For example using {@link Player#getCurrentWindowIndex()} with the {@code
-   *       timeline} provided in {@link #onTimelineChanged(EventTime, int)} is only safe from within
-   *       this method.
+   *       getter methods. For example using {@link Player#getCurrentMediaItemIndex()} with the
+   *       {@code timeline} provided in {@link #onTimelineChanged(EventTime, int)} is only safe from
+   *       within this method.
    *   <li>They are interested in events that logically happened together (e.g {@link
    *       #onPlaybackStateChanged(EventTime, int)} to {@link Player#STATE_BUFFERING} because of
    *       {@link #onMediaItemTransition(EventTime, MediaItem, int)}).

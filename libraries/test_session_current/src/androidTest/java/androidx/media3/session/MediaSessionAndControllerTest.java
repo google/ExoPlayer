@@ -93,9 +93,9 @@ public class MediaSessionAndControllerTest {
                 MainLooperTestRule.runOnMainSync(() -> player.notifyPlaybackStateChanged(state));
                 controller.seekTo(0);
                 MainLooperTestRule.runOnMainSync(() -> player.notifyPlaybackStateChanged(state));
-                controller.seekToNextWindow();
+                controller.seekToNextMediaItem();
                 MainLooperTestRule.runOnMainSync(() -> player.notifyPlaybackStateChanged(state));
-                controller.seekToPreviousWindow();
+                controller.seekToPreviousMediaItem();
               }
             });
   }

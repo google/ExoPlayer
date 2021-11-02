@@ -295,14 +295,14 @@ public class MockPlayerTest {
   }
 
   @Test
-  public void seekToPreviousWindow() {
-    player.seekToPreviousWindow();
+  public void seekToPreviousMediaItem() {
+    player.seekToPreviousMediaItem();
     assertThat(player.seekToPreviousMediaItemCalled).isTrue();
   }
 
   @Test
-  public void seekToNextWindow() {
-    player.seekToNextWindow();
+  public void seekToNextMediaItem() {
+    player.seekToNextMediaItem();
     assertThat(player.seekToNextMediaItemCalled).isTrue();
   }
 

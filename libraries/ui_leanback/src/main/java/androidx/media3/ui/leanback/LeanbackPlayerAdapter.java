@@ -143,7 +143,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     if (player.getPlaybackState() == Player.STATE_IDLE) {
       player.prepare();
     } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-      player.seekToDefaultPosition(player.getCurrentWindowIndex());
+      player.seekToDefaultPosition(player.getCurrentMediaItemIndex());
     }
     if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
       player.play();

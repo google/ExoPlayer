@@ -624,76 +624,77 @@ public class MediaControllerWithMediaSessionCompatTest {
   }
 
   @Test
-  public void seekToDefaultPosition_withWindowIndex_updatesExpectedWindowIndex() throws Exception {
+  public void seekToDefaultPosition_withMediaItemIndex_updatesExpectedMediaItemIndex()
+      throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
     List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
     session.setQueue(testQueue);
     session.setPlaybackState(/* state= */ null);
-    int testWindowIndex = 2;
+    int testMediaItemIndex = 2;
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
 
     CountDownLatch latch = new CountDownLatch(1);
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     Player.Listener listener =
         new Player.Listener() {
           @Override
           public void onPositionDiscontinuity(
               PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {
-            currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+            currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
             latch.countDown();
           }
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
     threadTestRule
         .getHandler()
-        .postAndSync(() -> controller.seekToDefaultPosition(testWindowIndex));
+        .postAndSync(() -> controller.seekToDefaultPosition(testMediaItemIndex));
 
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
-            .setActiveQueueItemId(testQueue.get(testWindowIndex).getQueueId())
+            .setActiveQueueItemId(testQueue.get(testMediaItemIndex).getQueueId())
             .build());
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
   }
 
   @Test
-  public void seekTo_withWindowIndex_updatesExpectedWindowIndex() throws Exception {
+  public void seekTo_withMediaItemIndex_updatesExpectedMediaItemIndex() throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
     List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
     session.setQueue(testQueue);
     session.setPlaybackState(/* state= */ null);
     long testPositionMs = 23L;
-    int testWindowIndex = 2;
+    int testMediaItemIndex = 2;
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
 
     CountDownLatch latch = new CountDownLatch(1);
-    AtomicInteger windowIndexFromParamRef = new AtomicInteger();
-    AtomicInteger windowIndexFromGetterRef = new AtomicInteger();
+    AtomicInteger mediaItemIndexFromParamRef = new AtomicInteger();
+    AtomicInteger mediaItemIndexFromGetterRef = new AtomicInteger();
     Player.Listener listener =
         new Player.Listener() {
           @Override
           public void onPositionDiscontinuity(
               PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {
-            windowIndexFromParamRef.set(newPosition.mediaItemIndex);
-            windowIndexFromGetterRef.set(controller.getCurrentWindowIndex());
+            mediaItemIndexFromParamRef.set(newPosition.mediaItemIndex);
+            mediaItemIndexFromGetterRef.set(controller.getCurrentMediaItemIndex());
             latch.countDown();
           }
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
     threadTestRule
         .getHandler()
-        .postAndSync(() -> controller.seekTo(testWindowIndex, testPositionMs));
+        .postAndSync(() -> controller.seekTo(testMediaItemIndex, testPositionMs));
 
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
-            .setActiveQueueItemId(testQueue.get(testWindowIndex).getQueueId())
+            .setActiveQueueItemId(testQueue.get(testMediaItemIndex).getQueueId())
             .build());
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
 
-    assertThat(windowIndexFromParamRef.get()).isEqualTo(testWindowIndex);
-    assertThat(windowIndexFromGetterRef.get()).isEqualTo(testWindowIndex);
+    assertThat(mediaItemIndexFromParamRef.get()).isEqualTo(testMediaItemIndex);
+    assertThat(mediaItemIndexFromGetterRef.get()).isEqualTo(testMediaItemIndex);
   }
 
   @Test
@@ -790,7 +791,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   }
 
   @Test
-  public void getCurrentWindowIndex_withInvalidQueueIdWithMetadata_returnsEndOfList()
+  public void getCurrentMediaItemIndex_withInvalidQueueIdWithMetadata_returnsEndOfList()
       throws Exception {
     List<MediaItem> testList = MediaTestUtils.createMediaItems(3);
     List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
@@ -801,8 +802,9 @@ public class MediaControllerWithMediaSessionCompatTest {
     session.setMetadata(testMetadataCompat);
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
 
-    int windowIndex = threadTestRule.getHandler().postAndSync(controller::getCurrentWindowIndex);
-    assertThat(windowIndex).isEqualTo(testList.size());
+    int mediaItemIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
+    assertThat(mediaItemIndex).isEqualTo(testList.size());
   }
 
   @Test
@@ -942,7 +944,8 @@ public class MediaControllerWithMediaSessionCompatTest {
     session.setPlaybackState(builder.build());
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    int currentIndex = threadTestRule.getHandler().postAndSync(controller::getCurrentWindowIndex);
+    int currentIndex =
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
     assertThat(currentIndex).isEqualTo(newItemIndex);
     MediaTestUtils.assertMediaIdEquals(testList.get(newItemIndex), itemRef.get());
     assertThat(mediaItemTransitionReasonRef.get()).isEqualTo(MEDIA_ITEM_TRANSITION_REASON_AUTO);

@@ -728,7 +728,7 @@ import java.util.List;
             | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
             | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
             | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
-    long queueItemId = MediaUtils.convertToQueueItemId(getCurrentWindowIndex());
+    long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
     PlaybackStateCompat.Builder builder =
         new PlaybackStateCompat.Builder()
             .setState(
@@ -807,7 +807,7 @@ import java.util.List;
   public PositionInfo createPositionInfoForBundling() {
     return new PositionInfo(
         /* windowUid= */ null,
-        getCurrentWindowIndex(),
+        getCurrentMediaItemIndex(),
         /* periodUid= */ null,
         getCurrentMediaItem(),
         getCurrentPeriodIndex(),

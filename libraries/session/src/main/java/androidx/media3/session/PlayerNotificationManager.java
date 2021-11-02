@@ -607,9 +607,9 @@ public class PlayerNotificationManager {
   public static final String ACTION_PLAY = "androidx.media3.ui.notification.play";
   /** The action which pauses playback. */
   public static final String ACTION_PAUSE = "androidx.media3.ui.notification.pause";
-  /** The action which skips to the previous window. */
+  /** The action which skips to the previous media item. */
   public static final String ACTION_PREVIOUS = "androidx.media3.ui.notification.prev";
-  /** The action which skips to the next window. */
+  /** The action which skips to the next media item. */
   public static final String ACTION_NEXT = "androidx.media3.ui.notification.next";
   /** The action which fast forwards. */
   public static final String ACTION_FAST_FORWARD = "androidx.media3.ui.notification.ffwd";
@@ -1097,7 +1097,7 @@ public class PlayerNotificationManager {
    *
    * <ul>
    *   <li>The media is {@link Player#isPlaying() actively playing}.
-   *   <li>The media is not {@link Player#isCurrentWindowDynamic() dynamically changing its
+   *   <li>The media is not {@link Player#isCurrentMediaItemDynamic() dynamically changing its
    *       duration} (like for example a live stream).
    *   <li>The media is not {@link Player#isPlayingAd() interrupted by an ad}.
    *   <li>The media is played at {@link Player#getPlaybackParameters() regular speed}.
@@ -1255,7 +1255,7 @@ public class PlayerNotificationManager {
         && useChronometer
         && player.isPlaying()
         && !player.isPlayingAd()
-        && !player.isCurrentWindowDynamic()
+        && !player.isCurrentMediaItemDynamic()
         && player.getPlaybackParameters().speed == 1f) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
@@ -1533,7 +1533,7 @@ public class PlayerNotificationManager {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
           player.prepare();
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          player.seekToDefaultPosition(player.getCurrentWindowIndex());
+          player.seekToDefaultPosition(player.getCurrentMediaItemIndex());
         }
         player.play();
       } else if (ACTION_PAUSE.equals(action)) {

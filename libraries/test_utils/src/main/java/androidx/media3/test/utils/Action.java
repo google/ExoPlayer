@@ -123,7 +123,7 @@ public abstract class Action {
   /** Calls {@link Player#seekTo(long)} or {@link Player#seekTo(int, long)}. */
   public static final class Seek extends Action {
 
-    @Nullable private final Integer windowIndex;
+    @Nullable private final Integer mediaItemIndex;
     private final long positionMs;
     private final boolean catchIllegalSeekException;
 
@@ -135,7 +135,7 @@ public abstract class Action {
      */
     public Seek(String tag, long positionMs) {
       super(tag, "Seek:" + positionMs);
-      this.windowIndex = null;
+      this.mediaItemIndex = null;
       this.positionMs = positionMs;
       catchIllegalSeekException = false;
     }
@@ -144,14 +144,15 @@ public abstract class Action {
      * Action calls {@link Player#seekTo(int, long)}.
      *
      * @param tag A tag to use for logging.
-     * @param windowIndex The window to seek to.
+     * @param mediaItemIndex The media item to seek to.
      * @param positionMs The seek position.
      * @param catchIllegalSeekException Whether {@link IllegalSeekPositionException} should be
      *     silently caught or not.
      */
-    public Seek(String tag, int windowIndex, long positionMs, boolean catchIllegalSeekException) {
+    public Seek(
+        String tag, int mediaItemIndex, long positionMs, boolean catchIllegalSeekException) {
       super(tag, "Seek:" + positionMs);
-      this.windowIndex = windowIndex;
+      this.mediaItemIndex = mediaItemIndex;
       this.positionMs = positionMs;
       this.catchIllegalSeekException = catchIllegalSeekException;
     }
@@ -160,10 +161,10 @@ public abstract class Action {
     protected void doActionImpl(
         ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
       try {
-        if (windowIndex == null) {
+        if (mediaItemIndex == null) {
           player.seekTo(positionMs);
         } else {
-          player.seekTo(windowIndex, positionMs);
+          player.seekTo(mediaItemIndex, positionMs);
         }
       } catch (IllegalSeekPositionException e) {
         if (!catchIllegalSeekException) {
@@ -176,20 +177,20 @@ public abstract class Action {
   /** Calls {@link ExoPlayer#setMediaSources(List, int, long)}. */
   public static final class SetMediaItems extends Action {
 
-    private final int windowIndex;
+    private final int mediaItemIndex;
     private final long positionMs;
     private final MediaSource[] mediaSources;
 
     /**
      * @param tag A tag to use for logging.
-     * @param windowIndex The window index to start playback from.
+     * @param mediaItemIndex The media item index to start playback from.
      * @param positionMs The position in milliseconds to start playback from.
      * @param mediaSources The media sources to populate the playlist with.
      */
     public SetMediaItems(
-        String tag, int windowIndex, long positionMs, MediaSource... mediaSources) {
+        String tag, int mediaItemIndex, long positionMs, MediaSource... mediaSources) {
       super(tag, "SetMediaItems");
-      this.windowIndex = windowIndex;
+      this.mediaItemIndex = mediaItemIndex;
       this.positionMs = positionMs;
       this.mediaSources = mediaSources;
     }
@@ -197,7 +198,7 @@ public abstract class Action {
     @Override
     protected void doActionImpl(
         ExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      player.setMediaSources(Arrays.asList(mediaSources), windowIndex, positionMs);
+      player.setMediaSources(Arrays.asList(mediaSources), mediaItemIndex, positionMs);
     }
   }
 
@@ -555,7 +556,7 @@ public abstract class Action {
   public static final class SendMessages extends Action {
 
     private final Target target;
-    private final int windowIndex;
+    private final int mediaItemIndex;
     private final long positionMs;
     private final boolean deleteAfterDelivery;
 
@@ -568,7 +569,7 @@ public abstract class Action {
       this(
           tag,
           target,
-          /* windowIndex= */ C.INDEX_UNSET,
+          /* mediaItemIndex= */ C.INDEX_UNSET,
           positionMs,
           /* deleteAfterDelivery= */ true);
     }
@@ -576,16 +577,20 @@ public abstract class Action {
     /**
      * @param tag A tag to use for logging.
      * @param target A message target.
-     * @param windowIndex The window index at which the message should be sent, or {@link
-     *     C#INDEX_UNSET} for the current window.
+     * @param mediaItemIndex The media item index at which the message should be sent, or {@link
+     *     C#INDEX_UNSET} for the current media item.
      * @param positionMs The position at which the message should be sent, in milliseconds.
      * @param deleteAfterDelivery Whether the message will be deleted after delivery.
      */
     public SendMessages(
-        String tag, Target target, int windowIndex, long positionMs, boolean deleteAfterDelivery) {
+        String tag,
+        Target target,
+        int mediaItemIndex,
+        long positionMs,
+        boolean deleteAfterDelivery) {
       super(tag, "SendMessages");
       this.target = target;
-      this.windowIndex = windowIndex;
+      this.mediaItemIndex = mediaItemIndex;
       this.positionMs = positionMs;
       this.deleteAfterDelivery = deleteAfterDelivery;
     }
@@ -597,8 +602,8 @@ public abstract class Action {
         ((PlayerTarget) target).setPlayer(player);
       }
       PlayerMessage message = player.createMessage(target);
-      if (windowIndex != C.INDEX_UNSET) {
-        message.setPosition(windowIndex, positionMs);
+      if (mediaItemIndex != C.INDEX_UNSET) {
+        message.setPosition(mediaItemIndex, positionMs);
       } else {
         message.setPosition(positionMs);
       }
@@ -663,17 +668,17 @@ public abstract class Action {
    */
   public static final class PlayUntilPosition extends Action {
 
-    private final int windowIndex;
+    private final int mediaItemIndex;
     private final long positionMs;
 
     /**
      * @param tag A tag to use for logging.
-     * @param windowIndex The window index at which the player should be paused again.
-     * @param positionMs The position in that window at which the player should be paused again.
+     * @param mediaItemIndex The media item index at which the player should be paused again.
+     * @param positionMs The position in that media item at which the player should be paused again.
      */
-    public PlayUntilPosition(String tag, int windowIndex, long positionMs) {
-      super(tag, "PlayUntilPosition:" + windowIndex + ":" + positionMs);
-      this.windowIndex = windowIndex;
+    public PlayUntilPosition(String tag, int mediaItemIndex, long positionMs) {
+      super(tag, "PlayUntilPosition:" + mediaItemIndex + ":" + positionMs);
+      this.mediaItemIndex = mediaItemIndex;
       this.positionMs = positionMs;
     }
 
@@ -706,7 +711,7 @@ public abstract class Action {
                   // Ignore.
                 }
               })
-          .setPosition(windowIndex, positionMs)
+          .setPosition(mediaItemIndex, positionMs)
           .send();
       if (nextAction != null) {
         // Schedule another message on this test thread to continue action schedule.
@@ -714,7 +719,7 @@ public abstract class Action {
             .createMessage(
                 (messageType, payload) ->
                     nextAction.schedule(player, trackSelector, surface, handler))
-            .setPosition(windowIndex, positionMs)
+            .setPosition(mediaItemIndex, positionMs)
             .setLooper(applicationLooper)
             .send();
       }

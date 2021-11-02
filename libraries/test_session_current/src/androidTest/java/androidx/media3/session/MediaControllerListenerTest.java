@@ -392,7 +392,7 @@ public class MediaControllerListenerTest {
     boolean testIsPlayingAd = true;
     int testCurrentAdGroupIndex = 2;
     int testCurrentAdIndexInAdGroup = 6;
-    int testWindowIndex = 1;
+    int testMediaItemIndex = 1;
     int testPeriodIndex = 2;
 
     controller = controllerTestRule.createController(remoteSession.getToken());
@@ -410,7 +410,7 @@ public class MediaControllerListenerTest {
     AtomicBoolean isPlayingAdRef = new AtomicBoolean();
     AtomicInteger currentAdGroupIndexRef = new AtomicInteger();
     AtomicInteger currentAdIndexInAdGroupRef = new AtomicInteger();
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicInteger currentPeriodIndexRef = new AtomicInteger();
     threadTestRule
         .getHandler()
@@ -435,7 +435,7 @@ public class MediaControllerListenerTest {
                         isPlayingAdRef.set(controller.isPlayingAd());
                         currentAdGroupIndexRef.set(controller.getCurrentAdGroupIndex());
                         currentAdIndexInAdGroupRef.set(controller.getCurrentAdIndexInAdGroup());
-                        currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+                        currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
                         currentPeriodIndexRef.set(controller.getCurrentPeriodIndex());
                         latch.countDown();
                       }
@@ -455,7 +455,7 @@ public class MediaControllerListenerTest {
             .setIsPlayingAd(testIsPlayingAd)
             .setCurrentAdGroupIndex(testCurrentAdGroupIndex)
             .setCurrentAdIndexInAdGroup(testCurrentAdIndexInAdGroup)
-            .setCurrentMediaItemIndex(testWindowIndex)
+            .setCurrentMediaItemIndex(testMediaItemIndex)
             .setCurrentPeriodIndex(testPeriodIndex)
             .build();
     remoteSession.setPlayer(playerConfig);
@@ -473,7 +473,7 @@ public class MediaControllerListenerTest {
     assertThat(isPlayingAdRef.get()).isEqualTo(testIsPlayingAd);
     assertThat(currentAdGroupIndexRef.get()).isEqualTo(testCurrentAdGroupIndex);
     assertThat(currentAdIndexInAdGroupRef.get()).isEqualTo(testCurrentAdIndexInAdGroup);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testMediaItemIndex);
     assertThat(currentPeriodIndexRef.get()).isEqualTo(testPeriodIndex);
   }
 
@@ -836,8 +836,8 @@ public class MediaControllerListenerTest {
           public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
             shuffleModeEnabledFromParamRef.set(shuffleModeEnabled);
             shuffleModeEnabledFromGetterRef.set(controller.getShuffleModeEnabled());
-            previousIndexRef.set(controller.getPreviousWindowIndex());
-            nextIndexRef.set(controller.getNextWindowIndex());
+            previousIndexRef.set(controller.getPreviousMediaItemIndex());
+            nextIndexRef.set(controller.getNextMediaItemIndex());
             latch.countDown();
           }
         };
@@ -876,8 +876,8 @@ public class MediaControllerListenerTest {
           public void onRepeatModeChanged(@RepeatMode int repeatMode) {
             repeatModeFromParamRef.set(repeatMode);
             repeatModeFromGetterRef.set(controller.getRepeatMode());
-            previousIndexRef.set(controller.getPreviousWindowIndex());
-            nextIndexRef.set(controller.getNextWindowIndex());
+            previousIndexRef.set(controller.getPreviousMediaItemIndex());
+            nextIndexRef.set(controller.getNextMediaItemIndex());
             latch.countDown();
           }
         };
@@ -1352,7 +1352,7 @@ public class MediaControllerListenerTest {
     PositionInfo testOldPosition =
         new PositionInfo(
             /* windowUid= */ null,
-            /* windowIndex= */ 2,
+            /* mediaItemIndex= */ 2,
             new MediaItem.Builder().setMediaId("media-id-2").build(),
             /* periodUid= */ null,
             /* periodIndex= */ C.INDEX_UNSET,
@@ -1363,7 +1363,7 @@ public class MediaControllerListenerTest {
     PositionInfo testNewPosition =
         new PositionInfo(
             /* windowUid= */ null,
-            /* windowIndex= */ 3,
+            /* mediaItemIndex= */ 3,
             new MediaItem.Builder().setMediaId("media-id-3").build(),
             /* periodUid= */ null,
             /* periodIndex= */ C.INDEX_UNSET,
@@ -1418,7 +1418,7 @@ public class MediaControllerListenerTest {
     PositionInfo newPositionInfo =
         new PositionInfo(
             /* windowUid= */ null,
-            /* windowIndex= */ C.INDEX_UNSET,
+            /* mediaItemIndex= */ C.INDEX_UNSET,
             /* mediaItem= */ null,
             /* periodUid= */ null,
             /* periodIndex= */ C.INDEX_UNSET,

@@ -279,7 +279,7 @@ import androidx.media3.test.utils.StubExoPlayer;
           timeline.getPeriod(0, period).getAdDurationUs(adGroupIndex, adIndexInAdGroup);
       return Util.usToMs(adDurationUs);
     } else {
-      return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+      return timeline.getWindow(getCurrentMediaItemIndex(), window).getDurationMs();
     }
   }
 

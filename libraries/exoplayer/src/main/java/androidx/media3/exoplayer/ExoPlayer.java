@@ -1182,7 +1182,7 @@ public interface ExoPlayer extends Player {
    * @param mediaSources The new {@link MediaSource MediaSources}.
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
-   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   *     by {@link #getCurrentMediaItemIndex()} and {@link #getCurrentPosition()}.
    */
   @UnstableApi
   void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition);
@@ -1191,15 +1191,16 @@ public interface ExoPlayer extends Player {
    * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
    *
    * @param mediaSources The new {@link MediaSource MediaSources}.
-   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
-   *     passed, the current position is not reset.
+   * @param startMediaItemIndex The media item index to start playback from. If {@link
+   *     C#INDEX_UNSET} is passed, the current position is not reset.
    * @param startPositionMs The position in milliseconds to start playback from. If {@link
-   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
-   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
-   *     position is not reset at all.
+   *     C#TIME_UNSET} is passed, the default position of the given media item is used. In any case,
+   *     if {@code startMediaItemIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored
+   *     and the position is not reset at all.
    */
   @UnstableApi
-  void setMediaSources(List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs);
+  void setMediaSources(
+      List<MediaSource> mediaSources, int startMediaItemIndex, long startPositionMs);
 
   /**
    * Clears the playlist, adds the specified {@link MediaSource} and resets the position to the
@@ -1224,7 +1225,7 @@ public interface ExoPlayer extends Player {
    *
    * @param mediaSource The new {@link MediaSource}.
    * @param resetPosition Whether the playback position should be reset to the default position. If
-   *     false, playback will start from the position defined by {@link #getCurrentWindowIndex()}
+   *     false, playback will start from the position defined by {@link #getCurrentMediaItemIndex()}
    *     and {@link #getCurrentPosition()}.
    */
   @UnstableApi
@@ -1411,9 +1412,9 @@ public interface ExoPlayer extends Player {
    * will be delivered immediately without blocking on the playback thread. The default {@link
    * PlayerMessage#getType()} is 0 and the default {@link PlayerMessage#getPayload()} is null. If a
    * position is specified with {@link PlayerMessage#setPosition(long)}, the message will be
-   * delivered at this position in the current window defined by {@link #getCurrentWindowIndex()}.
-   * Alternatively, the message can be sent at a specific window using {@link
-   * PlayerMessage#setPosition(int, long)}.
+   * delivered at this position in the current media item defined by {@link
+   * #getCurrentMediaItemIndex()}. Alternatively, the message can be sent at a specific mediaItem
+   * using {@link PlayerMessage#setPosition(int, long)}.
    */
   @UnstableApi
   PlayerMessage createMessage(PlayerMessage.Target target);

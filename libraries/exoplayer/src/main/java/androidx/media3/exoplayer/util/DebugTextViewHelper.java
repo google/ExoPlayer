@@ -141,8 +141,8 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
         break;
     }
     return String.format(
-        "playWhenReady:%s playbackState:%s window:%s",
-        player.getPlayWhenReady(), playbackStateString, player.getCurrentWindowIndex());
+        "playWhenReady:%s playbackState:%s item:%s",
+        player.getPlayWhenReady(), playbackStateString, player.getCurrentMediaItemIndex());
   }
 
   /** Returns a string containing video debugging information. */

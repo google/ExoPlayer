@@ -416,7 +416,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   }
 
   @Test
-  public void seekTo_withNewWindowIndex() throws Exception {
+  public void seekTo_withNewMediaItemIndex() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(3);
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long initialPosition = 8_000;
@@ -543,7 +543,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   }
 
   @Test
-  public void seekTo_seekBackwardWithinSameWindow_resetsBufferedPosition() throws Exception {
+  public void seekTo_seekBackwardWithinSameMediaItem_resetsBufferedPosition() throws Exception {
     long initialPosition = 8_000L;
     long initialBufferedPosition = 9_200L;
     int initialIndex = 0;
@@ -621,7 +621,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
   }
 
   @Test
-  public void seekTo_seekForwardWithinSameWindow_keepsTheBufferedPosition() throws Exception {
+  public void seekTo_seekForwardWithinSameMediaItem_keepsTheBufferedPosition() throws Exception {
     long initialPosition = 8_000L;
     long initialBufferedPosition = 9_200L;
     int initialIndex = 0;
@@ -703,12 +703,12 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long testPosition = 200L;
-    int testCurrentWindowIndex = 1;
-    MediaItem testCurrentMediaItem = mediaItems.get(testCurrentWindowIndex);
+    int testCurrentMediaItemIndex = 1;
+    MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
             .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
-            .setActiveQueueItemId(queue.get(testCurrentWindowIndex).getQueueId())
+            .setActiveQueueItemId(queue.get(testCurrentMediaItemIndex).getQueueId())
             .build());
     session.setQueue(queue);
     List<MediaItem> newMediaItems = MediaTestUtils.createMediaItems("A", "B");
@@ -741,7 +741,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         };
 
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
     threadTestRule
@@ -749,7 +749,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         .postAndSync(
             () -> {
               controller.addMediaItems(testAddIndex, newMediaItems);
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               currentMediaItemRef.set(controller.getCurrentMediaItem());
               timelineFromGetterRef.set(controller.getCurrentTimeline());
             });
@@ -758,22 +758,23 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
     assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testCurrentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
   }
 
   @Test
-  public void addMediaItems_beforeCurrentWindowIndex_shiftsCurrentWindowIndex() throws Exception {
+  public void addMediaItems_beforeCurrentMediaItemIndex_shiftsCurrentMediaItemIndex()
+      throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems("a", "b", "c");
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long testPosition = 200L;
-    int initialWindowIndex = 2;
-    MediaItem testCurrentMediaItem = mediaItems.get(initialWindowIndex);
+    int initialMediaItemIndex = 2;
+    MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
             .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
-            .setActiveQueueItemId(queue.get(initialWindowIndex).getQueueId())
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
             .build());
     session.setQueue(queue);
     List<MediaItem> newMediaItems = MediaTestUtils.createMediaItems("A", "B");
@@ -781,7 +782,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     List<MediaItem> testMediaItems = new ArrayList<>();
     testMediaItems.addAll(mediaItems);
     testMediaItems.addAll(testAddIndex, newMediaItems);
-    int testCurrentWindowIndex = testMediaItems.indexOf(testCurrentMediaItem);
+    int testCurrentMediaItemIndex = testMediaItems.indexOf(testCurrentMediaItem);
     Events testEvents = new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -807,7 +808,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         };
 
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
     threadTestRule
@@ -815,7 +816,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         .postAndSync(
             () -> {
               controller.addMediaItems(testAddIndex, newMediaItems);
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               currentMediaItemRef.set(controller.getCurrentMediaItem());
               timelineFromGetterRef.set(controller.getCurrentTimeline());
             });
@@ -824,7 +825,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
     assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testCurrentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
   }
@@ -834,12 +835,12 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long testPosition = 200L;
-    int testCurrentWindowIndex = 0;
-    MediaItem testCurrentMediaItem = mediaItems.get(testCurrentWindowIndex);
+    int testCurrentMediaItemIndex = 0;
+    MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
             .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
-            .setActiveQueueItemId(queue.get(testCurrentWindowIndex).getQueueId())
+            .setActiveQueueItemId(queue.get(testCurrentMediaItemIndex).getQueueId())
             .build());
     session.setQueue(queue);
     int fromIndex = 1;
@@ -871,7 +872,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         };
 
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
     threadTestRule
@@ -879,7 +880,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         .postAndSync(
             () -> {
               controller.removeMediaItems(fromIndex, toIndex);
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               currentMediaItemRef.set(controller.getCurrentMediaItem());
               timelineFromGetterRef.set(controller.getCurrentTimeline());
             });
@@ -888,30 +889,30 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
     assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testCurrentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
   }
 
   @Test
-  public void removeMediaItems_beforeCurrentWindowIndex_shiftsCurrentWindowIndex()
+  public void removeMediaItems_beforeCurrentMediaItemIndex_shiftsCurrentMediaItemIndex()
       throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long testPosition = 200L;
-    int initialWindowIndex = 4;
-    MediaItem testCurrentMediaItem = mediaItems.get(initialWindowIndex);
+    int initialMediaItemIndex = 4;
+    MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
             .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
-            .setActiveQueueItemId(queue.get(initialWindowIndex).getQueueId())
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
             .build());
     session.setQueue(queue);
     int testFromIndex = 1;
     int testToIndex = 3;
     List<MediaItem> testMediaItems = new ArrayList<>(mediaItems.subList(0, testFromIndex));
     testMediaItems.addAll(mediaItems.subList(testToIndex, mediaItems.size()));
-    int testCurrentWindowIndex = testMediaItems.indexOf(testCurrentMediaItem);
+    int testCurrentMediaItemIndex = testMediaItems.indexOf(testCurrentMediaItem);
     Events testEvents = new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -937,7 +938,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         };
 
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
     threadTestRule
@@ -945,7 +946,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         .postAndSync(
             () -> {
               controller.removeMediaItems(testFromIndex, testToIndex);
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               currentMediaItemRef.set(controller.getCurrentMediaItem());
               timelineFromGetterRef.set(controller.getCurrentTimeline());
             });
@@ -954,7 +955,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
     assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testCurrentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
   }
@@ -964,19 +965,19 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long testPosition = 200L;
-    int initialWindowIndex = 2;
-    MediaItem testCurrentMediaItem = mediaItems.get(initialWindowIndex);
+    int initialMediaItemIndex = 2;
+    MediaItem testCurrentMediaItem = mediaItems.get(initialMediaItemIndex);
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
             .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
-            .setActiveQueueItemId(queue.get(initialWindowIndex).getQueueId())
+            .setActiveQueueItemId(queue.get(initialMediaItemIndex).getQueueId())
             .build());
     session.setQueue(queue);
     int testFromIndex = 1;
     int testToIndex = 3;
     List<MediaItem> testMediaItems = new ArrayList<>(mediaItems.subList(0, testFromIndex));
     testMediaItems.addAll(mediaItems.subList(testToIndex, mediaItems.size()));
-    int testCurrentWindowIndex = testFromIndex;
+    int testCurrentMediaItemIndex = testFromIndex;
     Events testEvents = new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
@@ -1002,14 +1003,14 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         };
 
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
     threadTestRule
         .getHandler()
         .postAndSync(
             () -> {
               controller.removeMediaItems(testFromIndex, testToIndex);
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               timelineFromGetterRef.set(controller.getCurrentTimeline());
             });
 
@@ -1017,7 +1018,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
     assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testCurrentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
   }
 
@@ -1026,12 +1027,12 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long testPosition = 200L;
-    int testCurrentWindowIndex = 0;
-    MediaItem testCurrentMediaItem = mediaItems.get(testCurrentWindowIndex);
+    int testCurrentMediaItemIndex = 0;
+    MediaItem testCurrentMediaItem = mediaItems.get(testCurrentMediaItemIndex);
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
             .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
-            .setActiveQueueItemId(queue.get(testCurrentWindowIndex).getQueueId())
+            .setActiveQueueItemId(queue.get(testCurrentMediaItemIndex).getQueueId())
             .build());
     session.setQueue(queue);
     int testFromIndex = 1;
@@ -1064,7 +1065,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         };
 
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<MediaItem> currentMediaItemRef = new AtomicReference<>();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
     threadTestRule
@@ -1072,7 +1073,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         .postAndSync(
             () -> {
               controller.moveMediaItems(testFromIndex, testToIndex, testNewIndex);
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               currentMediaItemRef.set(controller.getCurrentMediaItem());
               timelineFromGetterRef.set(controller.getCurrentTimeline());
             });
@@ -1081,7 +1082,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
     assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testCurrentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     assertThat(currentMediaItemRef.get()).isEqualTo(testCurrentMediaItem);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
   }
@@ -1091,11 +1092,11 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(5);
     List<QueueItem> queue = MediaUtils.convertToQueueItemList(mediaItems);
     long testPosition = 200L;
-    int initialCurrentWindowIndex = 1;
+    int initialCurrentMediaItemIndex = 1;
     session.setPlaybackState(
         new PlaybackStateCompat.Builder()
             .setState(PlaybackStateCompat.STATE_PAUSED, testPosition, /* playbackSpeed= */ 1.0f)
-            .setActiveQueueItemId(queue.get(initialCurrentWindowIndex).getQueueId())
+            .setActiveQueueItemId(queue.get(initialCurrentMediaItemIndex).getQueueId())
             .build());
     session.setQueue(queue);
     int testFromIndex = 1;
@@ -1106,7 +1107,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     Events testEvents = new Events(new FlagSet.Builder().addAll(EVENT_TIMELINE_CHANGED).build());
     // The item at testToIndex becomes current media item after removed,
     // and it remains as current media item when removed items are inserted back.
-    int testCurrentWindowIndex = testMediaItems.indexOf(mediaItems.get(testToIndex));
+    int testCurrentMediaItemIndex = testMediaItems.indexOf(mediaItems.get(testToIndex));
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(2);
@@ -1131,14 +1132,14 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
         };
 
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
-    AtomicInteger currentWindowIndexRef = new AtomicInteger();
+    AtomicInteger currentMediaItemIndexRef = new AtomicInteger();
     AtomicReference<Timeline> timelineFromGetterRef = new AtomicReference<>();
     threadTestRule
         .getHandler()
         .postAndSync(
             () -> {
               controller.moveMediaItems(testFromIndex, testToIndex, testNewIndex);
-              currentWindowIndexRef.set(controller.getCurrentWindowIndex());
+              currentMediaItemIndexRef.set(controller.getCurrentMediaItemIndex());
               timelineFromGetterRef.set(controller.getCurrentTimeline());
             });
 
@@ -1146,7 +1147,7 @@ public class MediaControllerStateMaskingWithMediaSessionCompatTest {
     MediaTestUtils.assertTimelineContains(timelineFromParamRef.get(), testMediaItems);
     assertThat(timelineChangedReasonRef.get()).isEqualTo(TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     assertThat(onEventsRef.get()).isEqualTo(testEvents);
-    assertThat(currentWindowIndexRef.get()).isEqualTo(testCurrentWindowIndex);
+    assertThat(currentMediaItemIndexRef.get()).isEqualTo(testCurrentMediaItemIndex);
     MediaTestUtils.assertTimelineContains(timelineFromGetterRef.get(), testMediaItems);
   }
 }

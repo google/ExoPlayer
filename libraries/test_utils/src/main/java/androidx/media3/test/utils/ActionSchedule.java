@@ -163,24 +163,25 @@ public final class ActionSchedule {
     /**
      * Schedules a seek action.
      *
-     * @param windowIndex The window to seek to.
+     * @param mediaItemIndex The media item to seek to.
      * @param positionMs The seek position.
      * @return The builder, for convenience.
      */
-    public Builder seek(int windowIndex, long positionMs) {
-      return apply(new Seek(tag, windowIndex, positionMs, /* catchIllegalSeekException= */ false));
+    public Builder seek(int mediaItemIndex, long positionMs) {
+      return apply(
+          new Seek(tag, mediaItemIndex, positionMs, /* catchIllegalSeekException= */ false));
     }
 
     /**
      * Schedules a seek action to be executed.
      *
-     * @param windowIndex The window to seek to.
+     * @param mediaItemIndex The media item to seek to.
      * @param positionMs The seek position.
      * @param catchIllegalSeekException Whether an illegal seek position should be caught or not.
      * @return The builder, for convenience.
      */
-    public Builder seek(int windowIndex, long positionMs, boolean catchIllegalSeekException) {
-      return apply(new Seek(tag, windowIndex, positionMs, catchIllegalSeekException));
+    public Builder seek(int mediaItemIndex, long positionMs, boolean catchIllegalSeekException) {
+      return apply(new Seek(tag, mediaItemIndex, positionMs, catchIllegalSeekException));
     }
 
     /**
@@ -249,23 +250,23 @@ public final class ActionSchedule {
      * Schedules a play action, waits until the player reaches the specified position, and pauses
      * the player again.
      *
-     * @param windowIndex The window index at which the player should be paused again.
-     * @param positionMs The position in that window at which the player should be paused again.
+     * @param mediaItemIndex The media item index at which the player should be paused again.
+     * @param positionMs The position in that media item at which the player should be paused again.
      * @return The builder, for convenience.
      */
-    public Builder playUntilPosition(int windowIndex, long positionMs) {
-      return apply(new PlayUntilPosition(tag, windowIndex, positionMs));
+    public Builder playUntilPosition(int mediaItemIndex, long positionMs) {
+      return apply(new PlayUntilPosition(tag, mediaItemIndex, positionMs));
     }
 
     /**
-     * Schedules a play action, waits until the player reaches the start of the specified window,
-     * and pauses the player again.
+     * Schedules a play action, waits until the player reaches the start of the specified media
+     * item, and pauses the player again.
      *
-     * @param windowIndex The window index at which the player should be paused again.
+     * @param mediaItemIndex The media item index at which the player should be paused again.
      * @return The builder, for convenience.
      */
-    public Builder playUntilStartOfWindow(int windowIndex) {
-      return apply(new PlayUntilPosition(tag, windowIndex, /* positionMs= */ 0));
+    public Builder playUntilStartOfMediaItem(int mediaItemIndex) {
+      return apply(new PlayUntilPosition(tag, mediaItemIndex, /* positionMs= */ 0));
     }
 
     /**
@@ -325,16 +326,16 @@ public final class ActionSchedule {
     /**
      * Schedules a set media items action to be executed.
      *
-     * @param windowIndex The window index to start playback from or {@link C#INDEX_UNSET} if the
-     *     playback position should not be reset.
+     * @param mediaItemIndex The media item index to start playback from or {@link C#INDEX_UNSET} if
+     *     the playback position should not be reset.
      * @param positionMs The position in milliseconds from where playback should start. If {@link
-     *     C#TIME_UNSET} is passed the default position is used. In any case, if {@code windowIndex}
-     *     is set to {@link C#INDEX_UNSET} the position is not reset at all and this parameter is
-     *     ignored.
+     *     C#TIME_UNSET} is passed the default position is used. In any case, if {@code
+     *     mediaItemIndex} is set to {@link C#INDEX_UNSET} the position is not reset at all and this
+     *     parameter is ignored.
      * @return The builder, for convenience.
      */
-    public Builder setMediaSources(int windowIndex, long positionMs, MediaSource... sources) {
-      return apply(new Action.SetMediaItems(tag, windowIndex, positionMs, sources));
+    public Builder setMediaSources(int mediaItemIndex, long positionMs, MediaSource... sources) {
+      return apply(new Action.SetMediaItems(tag, mediaItemIndex, positionMs, sources));
     }
 
     /**
@@ -356,7 +357,10 @@ public final class ActionSchedule {
     public Builder setMediaSources(MediaSource... mediaSources) {
       return apply(
           new Action.SetMediaItems(
-              tag, /* windowIndex= */ C.INDEX_UNSET, /* positionMs= */ C.TIME_UNSET, mediaSources));
+              tag,
+              /* mediaItemIndex= */ C.INDEX_UNSET,
+              /* positionMs= */ C.TIME_UNSET,
+              mediaSources));
     }
     /**
      * Schedules a add media items action to be executed.
@@ -449,8 +453,8 @@ public final class ActionSchedule {
     /**
      * Schedules sending a {@link PlayerMessage}.
      *
-     * @param positionMs The position in the current window at which the message should be sent, in
-     *     milliseconds.
+     * @param positionMs The position in the current media item at which the message should be sent,
+     *     in milliseconds.
      * @return The builder, for convenience.
      */
     public Builder sendMessage(Target target, long positionMs) {
@@ -461,27 +465,28 @@ public final class ActionSchedule {
      * Schedules sending a {@link PlayerMessage}.
      *
      * @param target A message target.
-     * @param windowIndex The window index at which the message should be sent.
+     * @param mediaItemIndex The media item index at which the message should be sent.
      * @param positionMs The position at which the message should be sent, in milliseconds.
      * @return The builder, for convenience.
      */
-    public Builder sendMessage(Target target, int windowIndex, long positionMs) {
+    public Builder sendMessage(Target target, int mediaItemIndex, long positionMs) {
       return apply(
-          new SendMessages(tag, target, windowIndex, positionMs, /* deleteAfterDelivery= */ true));
+          new SendMessages(
+              tag, target, mediaItemIndex, positionMs, /* deleteAfterDelivery= */ true));
     }
 
     /**
      * Schedules to send a {@link PlayerMessage}.
      *
      * @param target A message target.
-     * @param windowIndex The window index at which the message should be sent.
+     * @param mediaItemIndex The media item index at which the message should be sent.
      * @param positionMs The position at which the message should be sent, in milliseconds.
      * @param deleteAfterDelivery Whether the message will be deleted after delivery.
      * @return The builder, for convenience.
      */
     public Builder sendMessage(
-        Target target, int windowIndex, long positionMs, boolean deleteAfterDelivery) {
-      return apply(new SendMessages(tag, target, windowIndex, positionMs, deleteAfterDelivery));
+        Target target, int mediaItemIndex, long positionMs, boolean deleteAfterDelivery) {
+      return apply(new SendMessages(tag, target, mediaItemIndex, positionMs, deleteAfterDelivery));
     }
 
     /**

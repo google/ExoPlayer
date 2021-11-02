@@ -120,7 +120,7 @@ public abstract class BasePlayer implements Player {
 
   @Override
   public final void seekToDefaultPosition() {
-    seekToDefaultPosition(getCurrentWindowIndex());
+    seekToDefaultPosition(getCurrentMediaItemIndex());
   }
 
   @Override
@@ -130,7 +130,7 @@ public abstract class BasePlayer implements Player {
 
   @Override
   public final void seekTo(long positionMs) {
-    seekTo(getCurrentWindowIndex(), positionMs);
+    seekTo(getCurrentMediaItemIndex(), positionMs);
   }
 
   @Override
@@ -186,13 +186,13 @@ public abstract class BasePlayer implements Player {
     if (timeline.isEmpty() || isPlayingAd()) {
       return;
     }
-    boolean hasPreviousWindow = hasPreviousWindow();
-    if (isCurrentWindowLive() && !isCurrentWindowSeekable()) {
-      if (hasPreviousWindow) {
-        seekToPreviousWindow();
+    boolean hasPreviousMediaItem = hasPreviousMediaItem();
+    if (isCurrentMediaItemLive() && !isCurrentMediaItemSeekable()) {
+      if (hasPreviousMediaItem) {
+        seekToPreviousMediaItem();
       }
-    } else if (hasPreviousWindow && getCurrentPosition() <= getMaxSeekToPreviousPosition()) {
-      seekToPreviousWindow();
+    } else if (hasPreviousMediaItem && getCurrentPosition() <= getMaxSeekToPreviousPosition()) {
+      seekToPreviousMediaItem();
     } else {
       seekTo(/* positionMs= */ 0);
     }
@@ -241,9 +241,9 @@ public abstract class BasePlayer implements Player {
     if (timeline.isEmpty() || isPlayingAd()) {
       return;
     }
-    if (hasNextWindow()) {
-      seekToNextWindow();
-    } else if (isCurrentWindowLive() && isCurrentWindowDynamic()) {
+    if (hasNextMediaItem()) {
+      seekToNextMediaItem();
+    } else if (isCurrentMediaItemLive() && isCurrentMediaItemDynamic()) {
       seekToDefaultPosition();
     }
   }
@@ -295,7 +295,7 @@ public abstract class BasePlayer implements Player {
     Timeline timeline = getCurrentTimeline();
     return timeline.isEmpty()
         ? null
-        : timeline.getWindow(getCurrentWindowIndex(), window).mediaItem;
+        : timeline.getWindow(getCurrentMediaItemIndex(), window).mediaItem;
   }
 
   @Override
@@ -312,7 +312,9 @@ public abstract class BasePlayer implements Player {
   @Nullable
   public final Object getCurrentManifest() {
     Timeline timeline = getCurrentTimeline();
-    return timeline.isEmpty() ? null : timeline.getWindow(getCurrentWindowIndex(), window).manifest;
+    return timeline.isEmpty()
+        ? null
+        : timeline.getWindow(getCurrentMediaItemIndex(), window).manifest;
   }
 
   @Override
@@ -354,7 +356,8 @@ public abstract class BasePlayer implements Player {
     if (timeline.isEmpty()) {
       return C.TIME_UNSET;
     }
-    long windowStartTimeMs = timeline.getWindow(getCurrentWindowIndex(), window).windowStartTimeMs;
+    long windowStartTimeMs =
+        timeline.getWindow(getCurrentMediaItemIndex(), window).windowStartTimeMs;
     if (windowStartTimeMs == C.TIME_UNSET) {
       return C.TIME_UNSET;
     }
@@ -378,7 +381,7 @@ public abstract class BasePlayer implements Player {
     Timeline timeline = getCurrentTimeline();
     return timeline.isEmpty()
         ? C.TIME_UNSET
-        : timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+        : timeline.getWindow(getCurrentMediaItemIndex(), window).getDurationMs();
   }
 
   /**
@@ -391,22 +394,24 @@ public abstract class BasePlayer implements Player {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
         .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd())
-        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentWindowSeekable() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPreviousWindow() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentMediaItemSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPreviousMediaItem() && !isPlayingAd())
         .addIf(
             COMMAND_SEEK_TO_PREVIOUS,
             !getCurrentTimeline().isEmpty()
-                && (hasPreviousWindow() || !isCurrentWindowLive() || isCurrentWindowSeekable())
+                && (hasPreviousMediaItem()
+                    || !isCurrentMediaItemLive()
+                    || isCurrentMediaItemSeekable())
                 && !isPlayingAd())
-        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNextWindow() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNextMediaItem() && !isPlayingAd())
         .addIf(
             COMMAND_SEEK_TO_NEXT,
             !getCurrentTimeline().isEmpty()
-                && (hasNextWindow() || (isCurrentWindowLive() && isCurrentWindowDynamic()))
+                && (hasNextMediaItem() || (isCurrentMediaItemLive() && isCurrentMediaItemDynamic()))
                 && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd())
-        .addIf(COMMAND_SEEK_BACK, isCurrentWindowSeekable() && !isPlayingAd())
-        .addIf(COMMAND_SEEK_FORWARD, isCurrentWindowSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_BACK, isCurrentMediaItemSeekable() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_FORWARD, isCurrentMediaItemSeekable() && !isPlayingAd())
         .build();
   }
 

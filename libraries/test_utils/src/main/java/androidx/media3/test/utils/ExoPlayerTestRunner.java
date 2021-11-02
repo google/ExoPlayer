@@ -87,7 +87,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     private AnalyticsListener analyticsListener;
     private Integer expectedPlayerEndedCount;
     private boolean pauseAtEndOfMediaItems;
-    private int initialWindowIndex;
+    private int initialMediaItemIndex;
     private long initialPositionMs;
     private boolean skipSettingMediaSources;
 
@@ -95,7 +95,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
       testPlayerBuilder = new TestExoPlayerBuilder(context);
       mediaSources = new ArrayList<>();
       supportedFormats = new Format[] {VIDEO_FORMAT};
-      initialWindowIndex = C.INDEX_UNSET;
+      initialMediaItemIndex = C.INDEX_UNSET;
       initialPositionMs = C.TIME_UNSET;
     }
 
@@ -135,12 +135,12 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     /**
      * Seeks before setting the media sources and preparing the player.
      *
-     * @param windowIndex The window index to seek to.
+     * @param mediaItemIndex The media item index to seek to.
      * @param positionMs The position in milliseconds to seek to.
      * @return This builder.
      */
-    public Builder initialSeek(int windowIndex, long positionMs) {
-      this.initialWindowIndex = windowIndex;
+    public Builder initialSeek(int mediaItemIndex, long positionMs) {
+      this.initialMediaItemIndex = mediaItemIndex;
       this.initialPositionMs = positionMs;
       return this;
     }
@@ -345,7 +345,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
           testPlayerBuilder,
           mediaSources,
           skipSettingMediaSources,
-          initialWindowIndex,
+          initialMediaItemIndex,
           initialPositionMs,
           surface,
           actionSchedule,
@@ -359,7 +359,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   private final TestExoPlayerBuilder playerBuilder;
   private final List<MediaSource> mediaSources;
   private final boolean skipSettingMediaSources;
-  private final int initialWindowIndex;
+  private final int initialMediaItemIndex;
   private final long initialPositionMs;
   @Nullable private final Surface surface;
   @Nullable private final ActionSchedule actionSchedule;
@@ -388,7 +388,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
       TestExoPlayerBuilder playerBuilder,
       List<MediaSource> mediaSources,
       boolean skipSettingMediaSources,
-      int initialWindowIndex,
+      int initialMediaItemIndex,
       long initialPositionMs,
       @Nullable Surface surface,
       @Nullable ActionSchedule actionSchedule,
@@ -399,7 +399,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     this.playerBuilder = playerBuilder;
     this.mediaSources = mediaSources;
     this.skipSettingMediaSources = skipSettingMediaSources;
-    this.initialWindowIndex = initialWindowIndex;
+    this.initialMediaItemIndex = initialMediaItemIndex;
     this.initialPositionMs = initialPositionMs;
     this.surface = surface;
     this.actionSchedule = actionSchedule;
@@ -468,8 +468,8 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
                   handler,
                   /* callback= */ ExoPlayerTestRunner.this);
             }
-            if (initialWindowIndex != C.INDEX_UNSET) {
-              player.seekTo(initialWindowIndex, initialPositionMs);
+            if (initialMediaItemIndex != C.INDEX_UNSET) {
+              player.seekTo(initialMediaItemIndex, initialPositionMs);
             }
             if (!skipSettingMediaSources) {
               player.setMediaSources(mediaSources, /* resetPosition= */ false);

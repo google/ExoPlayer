@@ -261,7 +261,7 @@ import java.util.ArrayList;
     int playbackState = currentPlayer.getPlaybackState();
     maybeSetCurrentItemAndNotify(
         playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED
-            ? currentPlayer.getCurrentWindowIndex()
+            ? currentPlayer.getCurrentMediaItemIndex()
             : C.INDEX_UNSET);
   }
 
@@ -281,7 +281,7 @@ import java.util.ArrayList;
 
     // Player state management.
     long playbackPositionMs = C.TIME_UNSET;
-    int windowIndex = C.INDEX_UNSET;
+    int currentItemIndex = C.INDEX_UNSET;
     boolean playWhenReady = false;
 
     Player previousPlayer = this.currentPlayer;
@@ -291,10 +291,10 @@ import java.util.ArrayList;
       if (playbackState != Player.STATE_ENDED) {
         playbackPositionMs = previousPlayer.getCurrentPosition();
         playWhenReady = previousPlayer.getPlayWhenReady();
-        windowIndex = previousPlayer.getCurrentWindowIndex();
-        if (windowIndex != currentItemIndex) {
+        currentItemIndex = previousPlayer.getCurrentMediaItemIndex();
+        if (currentItemIndex != this.currentItemIndex) {
           playbackPositionMs = C.TIME_UNSET;
-          windowIndex = currentItemIndex;
+          currentItemIndex = this.currentItemIndex;
         }
       }
       previousPlayer.stop();
@@ -304,7 +304,7 @@ import java.util.ArrayList;
     this.currentPlayer = currentPlayer;
 
     // Media queue management.
-    currentPlayer.setMediaItems(mediaQueue, windowIndex, playbackPositionMs);
+    currentPlayer.setMediaItems(mediaQueue, currentItemIndex, playbackPositionMs);
     currentPlayer.setPlayWhenReady(playWhenReady);
     currentPlayer.prepare();
   }

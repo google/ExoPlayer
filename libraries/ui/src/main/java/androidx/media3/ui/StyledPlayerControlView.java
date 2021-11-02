@@ -1271,7 +1271,7 @@ public class StyledPlayerControlView extends FrameLayout {
     int adGroupCount = 0;
     Timeline timeline = player.getCurrentTimeline();
     if (!timeline.isEmpty()) {
-      int currentWindowIndex = player.getCurrentWindowIndex();
+      int currentWindowIndex = player.getCurrentMediaItemIndex();
       int firstWindowIndex = multiWindowTimeBar ? 0 : currentWindowIndex;
       int lastWindowIndex = multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
       for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
@@ -1455,7 +1455,7 @@ public class StyledPlayerControlView extends FrameLayout {
         windowIndex++;
       }
     } else {
-      windowIndex = player.getCurrentWindowIndex();
+      windowIndex = player.getCurrentMediaItemIndex();
     }
     seekTo(player, windowIndex, positionMs);
     updateProgress();
@@ -1618,13 +1618,12 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
     if (state == Player.STATE_IDLE) {
       player.prepare();
     } else if (state == Player.STATE_ENDED) {
-      seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+      seekTo(player, player.getCurrentMediaItemIndex(), C.TIME_UNSET);
     }
     player.play();
   }

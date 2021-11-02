@@ -73,7 +73,7 @@ public class PlayerWrapperTest {
     when(player.getContentDuration()).thenReturn(testContentDurationMs);
     when(player.getContentPosition()).thenReturn(testContentPositionMs);
     when(player.getContentBufferedPosition()).thenReturn(testContentBufferedPositionMs);
-    when(player.getCurrentWindowIndex()).thenReturn(testmediaItemIndex);
+    when(player.getCurrentMediaItemIndex()).thenReturn(testmediaItemIndex);
     when(player.getCurrentPeriodIndex()).thenReturn(testPeriodIndex);
 
     SessionPositionInfo sessionPositionInfo = playerWrapper.createSessionPositionInfoForBundling();

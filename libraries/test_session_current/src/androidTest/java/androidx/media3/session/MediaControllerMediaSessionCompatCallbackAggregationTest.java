@@ -188,7 +188,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
         threadTestRule.getHandler().postAndSync(controller::getCurrentTimeline);
     assertThat(currentTimeline).isEqualTo(timelineRef.get());
     int currentMediaItemIndex =
-        threadTestRule.getHandler().postAndSync(controller::getCurrentWindowIndex);
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
     assertThat(currentMediaItemIndex).isEqualTo(testMediaItemIndex);
     MediaItem currentMediaItem =
         threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItem);
@@ -292,7 +292,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
         threadTestRule.getHandler().postAndSync(controller::getCurrentTimeline);
     assertThat(currentTimeline).isEqualTo(timelineRef.get());
     int currentMediaItemIndex =
-        threadTestRule.getHandler().postAndSync(controller::getCurrentWindowIndex);
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
     assertThat(currentMediaItemIndex).isEqualTo(testMediaItemIndex);
     MediaItem currentMediaItem =
         threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItem);
@@ -384,7 +384,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
         threadTestRule.getHandler().postAndSync(controller::getCurrentTimeline);
     assertThat(currentTimeline).isEqualTo(timelineRef.get());
     int currentMediaItemIndex =
-        threadTestRule.getHandler().postAndSync(controller::getCurrentWindowIndex);
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
     assertThat(currentMediaItemIndex).isEqualTo(testMediaItemIndex);
     MediaItem currentMediaItem =
         threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItem);
@@ -483,7 +483,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
         threadTestRule.getHandler().postAndSync(controller::getCurrentTimeline);
     assertThat(currentTimeline).isEqualTo(timelineRef.get());
     int currentMediaItemIndex =
-        threadTestRule.getHandler().postAndSync(controller::getCurrentWindowIndex);
+        threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItemIndex);
     assertThat(currentMediaItemIndex).isEqualTo(testMediaItemIndex);
     MediaItem currentMediaItem =
         threadTestRule.getHandler().postAndSync(controller::getCurrentMediaItem);

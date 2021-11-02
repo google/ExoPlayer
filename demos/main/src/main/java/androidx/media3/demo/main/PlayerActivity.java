@@ -65,7 +65,7 @@ public class PlayerActivity extends AppCompatActivity
   // Saved instance state keys.
 
   private static final String KEY_TRACK_SELECTION_PARAMETERS = "track_selection_parameters";
-  private static final String KEY_WINDOW = "window";
+  private static final String KEY_ITEM_INDEX = "item_index";
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
 
@@ -83,7 +83,7 @@ public class PlayerActivity extends AppCompatActivity
   private DebugTextViewHelper debugViewHelper;
   private TracksInfo lastSeenTracksInfo;
   private boolean startAutoPlay;
-  private int startWindow;
+  private int startItemIndex;
   private long startPosition;
 
   // For ad playback only.
@@ -114,7 +114,7 @@ public class PlayerActivity extends AppCompatActivity
           DefaultTrackSelector.Parameters.CREATOR.fromBundle(
               savedInstanceState.getBundle(KEY_TRACK_SELECTION_PARAMETERS));
       startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
-      startWindow = savedInstanceState.getInt(KEY_WINDOW);
+      startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
       startPosition = savedInstanceState.getLong(KEY_POSITION);
     } else {
       trackSelectionParameters =
@@ -206,7 +206,7 @@ public class PlayerActivity extends AppCompatActivity
     updateStartPosition();
     outState.putBundle(KEY_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle());
     outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
-    outState.putInt(KEY_WINDOW, startWindow);
+    outState.putInt(KEY_ITEM_INDEX, startItemIndex);
     outState.putLong(KEY_POSITION, startPosition);
   }
 
@@ -282,9 +282,9 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
-    boolean haveStartPosition = startWindow != C.INDEX_UNSET;
+    boolean haveStartPosition = startItemIndex != C.INDEX_UNSET;
     if (haveStartPosition) {
-      player.seekTo(startWindow, startPosition);
+      player.seekTo(startItemIndex, startPosition);
     }
     player.setMediaItems(mediaItems, /* resetPosition= */ !haveStartPosition);
     player.prepare();
@@ -382,14 +382,14 @@ public class PlayerActivity extends AppCompatActivity
   private void updateStartPosition() {
     if (player != null) {
       startAutoPlay = player.getPlayWhenReady();
-      startWindow = player.getCurrentWindowIndex();
+      startItemIndex = player.getCurrentMediaItemIndex();
       startPosition = Math.max(0, player.getContentPosition());
     }
   }
 
   protected void clearStartPosition() {
     startAutoPlay = true;
-    startWindow = C.INDEX_UNSET;
+    startItemIndex = C.INDEX_UNSET;
     startPosition = C.TIME_UNSET;
   }
 

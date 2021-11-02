@@ -2726,7 +2726,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
               newTimeline,
               new SeekPosition(
                   pendingMessageInfo.message.getTimeline(),
-                  pendingMessageInfo.message.getWindowIndex(),
+                  pendingMessageInfo.message.getMediaItemIndex(),
                   requestPositionUs),
               /* trySubsequentPeriods= */ false,
               repeatMode,

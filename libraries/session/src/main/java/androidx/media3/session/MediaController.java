@@ -1238,7 +1238,7 @@ public class MediaController implements Player {
     Timeline timeline = getCurrentTimeline();
     return timeline.isEmpty()
         ? null
-        : timeline.getWindow(getCurrentWindowIndex(), window).mediaItem;
+        : timeline.getWindow(getCurrentMediaItemIndex(), window).mediaItem;
   }
 
   @Override

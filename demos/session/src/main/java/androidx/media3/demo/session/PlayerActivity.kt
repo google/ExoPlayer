@@ -204,7 +204,7 @@ class PlayerActivity : AppCompatActivity() {
 
       returnConvertView.findViewById<TextView>(R.id.media_item).text = mediaItem.mediaMetadata.title
 
-      if (position == controller?.currentWindowIndex) {
+      if (position == controller?.currentMediaItemIndex) {
         returnConvertView.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
         returnConvertView
           .findViewById<TextView>(R.id.media_item)
