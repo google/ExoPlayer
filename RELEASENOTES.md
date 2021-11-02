@@ -85,6 +85,10 @@
 *   RTMP extension:
     *   Upgrade to `io.antmedia:rtmp_client`, which does not rely on `jcenter()`
         ([#9591](https://github.com/google/ExoPlayer/issues/9591)).
+*   MediaSession extension:
+    *   Rename
+        `MediaSessionConnector.QueueNavigator#onCurrentWindowIndexChanged` to
+        `onCurrentMediaItemIndexChanged`.
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.
