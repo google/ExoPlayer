@@ -182,6 +182,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     mediaDrm.closeSession(sessionId);
   }
 
+  // Return values of MediaDrm.KeyRequest.getRequestType are equal to KeyRequest.RequestType.
+  @SuppressLint("WrongConstant")
   @Override
   public KeyRequest getKeyRequest(
       byte[] scope,
