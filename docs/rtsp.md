@@ -51,6 +51,30 @@ player.prepare();
 ~~~
 {: .language-java}
 
+### Passing a custom SocketFactory
+
+By default, `RtspMediaSource` will use Java's standard socket factory (`SocketFactory.getDefault()`)
+to create connections to the remote endpoints. This behavior can be overridden using 
+`.setSocketFactory()`.
+
+~~~
+// Create an RTSP media source pointing to an RTSP uri and override the socket factory.
+MediaSource mediaSource =
+    new RtspMediaSource.Factory()
+        .setSocketFactory(...)
+        .createMediaSource(MediaItem.fromUri(rtspUri));
+// Create a player instance.
+ExoPlayer player = new ExoPlayer.Builder(context).build();
+// Set the media source to be played.
+player.setMediaSource(mediaSource);
+// Prepare the player.
+player.prepare();
+~~~
+{: .language-java}
+
+Custom `SocketFactory` instances can be useful when particular routing is required (e.g. when RTSP
+traffic needs to pass a specific interface, or the socket needs additional connectivity flags).
+
 ## Using RTSP behind a NAT (RTP/TCP support) ##
 
 ExoPlayer uses UDP as the default protocol for RTP transport.
