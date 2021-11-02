@@ -320,8 +320,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
       case C.RESULT_BUFFER_READ:
-        decoderInputBuffer.timeUs -= streamOffsetUs;
         mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
+        decoderInputBuffer.timeUs -= streamOffsetUs;
         ByteBuffer data = checkNotNull(decoderInputBuffer.data);
         data.flip();
         decoder.queueInputBuffer(decoderInputBuffer);

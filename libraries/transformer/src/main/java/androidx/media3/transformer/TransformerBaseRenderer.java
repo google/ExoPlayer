@@ -48,8 +48,7 @@ import androidx.media3.exoplayer.RendererCapabilities;
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
-      throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.streamOffsetUs = offsetUs;
   }
 
