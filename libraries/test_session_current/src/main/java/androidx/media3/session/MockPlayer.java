@@ -892,15 +892,13 @@ public class MockPlayer implements Player {
   @Deprecated
   @Override
   public void seekToPreviousWindow() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    seekToPreviousMediaItem();
+    throw new UnsupportedOperationException();
   }
 
   @Deprecated
   @Override
   public void seekToNextWindow() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    seekToNextMediaItem();
+    throw new UnsupportedOperationException();
   }
 
   @Override

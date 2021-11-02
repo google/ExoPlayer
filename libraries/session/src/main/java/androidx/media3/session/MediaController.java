@@ -1181,8 +1181,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return isCurrentMediaItemDynamic();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -1196,8 +1195,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowLive() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return isCurrentMediaItemLive();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -1211,8 +1209,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return isCurrentMediaItemSeekable();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -1261,8 +1258,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getCurrentWindowIndex() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return getCurrentMediaItemIndex();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -1275,8 +1271,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getPreviousWindowIndex() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return getPreviousMediaItemIndex();
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -1296,8 +1291,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public int getNextWindowIndex() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return getNextMediaItemIndex();
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -1331,16 +1325,14 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public boolean hasPreviousWindow() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return hasPreviousMediaItem();
+    throw new UnsupportedOperationException();
   }
 
   @UnstableApi
   @Deprecated
   @Override
   public boolean hasNextWindow() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    return hasNextMediaItem();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -1373,8 +1365,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void seekToPreviousWindow() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    seekToPreviousMediaItem();
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -1397,8 +1388,7 @@ public class MediaController implements Player {
   @Deprecated
   @Override
   public void seekToNextWindow() {
-    // TODO(b/202157117): Throw UnsupportedOperationException when all callers are migrated.
-    seekToNextMediaItem();
+    throw new UnsupportedOperationException();
   }
 
   /**
