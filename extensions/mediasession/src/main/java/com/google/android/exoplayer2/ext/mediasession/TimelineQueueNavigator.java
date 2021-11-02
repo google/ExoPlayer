@@ -98,7 +98,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     boolean enableNext = false;
     Timeline timeline = player.getCurrentTimeline();
     if (!timeline.isEmpty() && !player.isPlayingAd()) {
-      timeline.getWindow(player.getCurrentWindowIndex(), window);
+      timeline.getWindow(player.getCurrentMediaItemIndex(), window);
       enableSkipTo = timeline.getWindowCount() > 1;
       enablePrevious =
           player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
@@ -128,12 +128,12 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public final void onCurrentWindowIndexChanged(Player player) {
+  public final void onCurrentMediaItemIndexChanged(Player player) {
     if (activeQueueItemId == MediaSessionCompat.QueueItem.UNKNOWN_ID
         || player.getCurrentTimeline().getWindowCount() > maxQueueSize) {
       publishFloatingQueueWindow(player);
     } else if (!player.getCurrentTimeline().isEmpty()) {
-      activeQueueItemId = player.getCurrentWindowIndex();
+      activeQueueItemId = player.getCurrentMediaItemIndex();
     }
   }
 
@@ -185,40 +185,40 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     int queueSize = min(maxQueueSize, timeline.getWindowCount());
 
     // Add the active queue item.
-    int currentWindowIndex = player.getCurrentWindowIndex();
+    int currentMediaItemIndex = player.getCurrentMediaItemIndex();
     queue.add(
         new MediaSessionCompat.QueueItem(
-            getMediaDescription(player, currentWindowIndex), currentWindowIndex));
+            getMediaDescription(player, currentMediaItemIndex), currentMediaItemIndex));
 
     // Fill queue alternating with next and/or previous queue items.
-    int firstWindowIndex = currentWindowIndex;
-    int lastWindowIndex = currentWindowIndex;
+    int firstMediaItemIndex = currentMediaItemIndex;
+    int lastMediaItemIndex = currentMediaItemIndex;
     boolean shuffleModeEnabled = player.getShuffleModeEnabled();
-    while ((firstWindowIndex != C.INDEX_UNSET || lastWindowIndex != C.INDEX_UNSET)
+    while ((firstMediaItemIndex != C.INDEX_UNSET || lastMediaItemIndex != C.INDEX_UNSET)
         && queue.size() < queueSize) {
       // Begin with next to have a longer tail than head if an even sized queue needs to be trimmed.
-      if (lastWindowIndex != C.INDEX_UNSET) {
-        lastWindowIndex =
+      if (lastMediaItemIndex != C.INDEX_UNSET) {
+        lastMediaItemIndex =
             timeline.getNextWindowIndex(
-                lastWindowIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled);
-        if (lastWindowIndex != C.INDEX_UNSET) {
+                lastMediaItemIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled);
+        if (lastMediaItemIndex != C.INDEX_UNSET) {
           queue.add(
               new MediaSessionCompat.QueueItem(
-                  getMediaDescription(player, lastWindowIndex), lastWindowIndex));
+                  getMediaDescription(player, lastMediaItemIndex), lastMediaItemIndex));
         }
       }
-      if (firstWindowIndex != C.INDEX_UNSET && queue.size() < queueSize) {
-        firstWindowIndex =
+      if (firstMediaItemIndex != C.INDEX_UNSET && queue.size() < queueSize) {
+        firstMediaItemIndex =
             timeline.getPreviousWindowIndex(
-                firstWindowIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled);
-        if (firstWindowIndex != C.INDEX_UNSET) {
+                firstMediaItemIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled);
+        if (firstMediaItemIndex != C.INDEX_UNSET) {
           queue.addFirst(
               new MediaSessionCompat.QueueItem(
-                  getMediaDescription(player, firstWindowIndex), firstWindowIndex));
+                  getMediaDescription(player, firstMediaItemIndex), firstMediaItemIndex));
         }
       }
     }
     mediaSession.setQueue(new ArrayList<>(queue));
-    activeQueueItemId = currentWindowIndex;
+    activeQueueItemId = currentMediaItemIndex;
   }
 }
