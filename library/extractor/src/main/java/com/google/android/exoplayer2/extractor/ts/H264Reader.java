@@ -166,6 +166,16 @@ public final class H264Reader implements ElementaryStreamReader {
   }
 
   @Override
+  public void endOfStream() {
+    if (sampleReader != null) {
+      if (sampleReader.endOfStream(hasOutputFormat, randomAccessIndicator, totalBytesWritten)) {
+        randomAccessIndicator = false;
+        hasOutputFormat = false;  // don't write again till after next AUD read
+      }
+    }
+  }
+
+  @Override
   public void packetFinished() {
     // Do nothing.
   }
@@ -487,6 +497,29 @@ public final class H264Reader implements ElementaryStreamReader {
           nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_IDR
               || (treatIFrameAsKeyframe && nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_NON_IDR);
       return sampleIsKeyframe;
+    }
+
+    /**
+     *
+     * @param hasOutputFormat
+     * @param randomAccessIndicator
+     * @param totalBytesWritten
+     * @return
+     */
+    public boolean endOfStream(boolean hasOutputFormat, boolean randomAccessIndicator, long totalBytesWritten) {
+      boolean writeSample = hasOutputFormat
+          && readingSample                                // we are in an access unit
+          && nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_IDR // current NALU is an IDR
+          && randomAccessIndicator;                       // It is the first IDR after ramdom_access_indicator (2.4.3.5 ISO/IEC 13818-1)
+      if (writeSample) {
+        // Because of the way SampleQueue computes the absolute offset it must have at least one
+        // zero_byte ((ISO/IEC 13818-1 Annex B.1.2) after the NALU (which is not included in this sample)
+        // Add this manually
+        output.sampleData(new ParsableByteArray(new byte[] {0x00}), 1);   // zero_byte
+        totalBytesWritten++;
+        output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, (int) totalBytesWritten - 1, (int) 0, null);
+      }
+      return writeSample;
     }
 
     private void outputSample(int offset) {

@@ -53,4 +53,14 @@ public interface ElementaryStreamReader {
 
   /** Called when a packet ends. */
   void packetFinished();
+
+  /**
+   * Called when end of the input stream is reached after the last TS packet was
+   * presented to consume().
+   *
+   * The allows for HLS segments that do not follow the sample NALU (IDR) with
+   * any other NALU.  This is allowed specifically in DRAFT ITU-T Rec. H.264 Annex B
+   * which defines the Byte stream semantics for NAL processing.
+   */
+  default void endOfStream() {}
 }
