@@ -204,8 +204,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerInfo.customLayout);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
-        /* discontinuityReason= */ C.INDEX_UNSET,
-        /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+        /* discontinuityReason= */ null,
+        /* mediaItemTransitionReason= */ null);
 
     controllerCompat.getTransportControls().stop();
   }
@@ -254,8 +254,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerInfo.customLayout);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
-        /* discontinuityReason= */ C.INDEX_UNSET,
-        /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+        /* discontinuityReason= */ null,
+        /* mediaItemTransitionReason= */ null);
 
     if (pendingSetMediaUriRequest == null) {
       controllerCompat.getTransportControls().play();
@@ -298,8 +298,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerInfo.customLayout);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
-        /* discontinuityReason= */ C.INDEX_UNSET,
-        /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+        /* discontinuityReason= */ null,
+        /* mediaItemTransitionReason= */ null);
 
     controllerCompat.getTransportControls().pause();
   }
@@ -318,8 +318,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerInfo.customLayout);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
-        /* discontinuityReason= */ C.INDEX_UNSET,
-        /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+        /* discontinuityReason= */ null,
+        /* mediaItemTransitionReason= */ null);
 
     if (pendingSetMediaUriRequest == null) {
       controllerCompat.getTransportControls().prepare();
@@ -381,7 +381,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return;
     }
     int newMediaItemIndex = currentMediaItemIndex;
-    @MediaItemTransitionReason int mediaItemTransitionReason = C.INDEX_UNSET;
+    @Nullable
+    @MediaItemTransitionReason
+    Integer mediaItemTransitionReason = null;
     if (mediaItemIndex != currentMediaItemIndex) {
       QueueTimeline queueTimeline = (QueueTimeline) controllerInfo.playerInfo.timeline;
       long queueId = queueTimeline.getQueueId(mediaItemIndex);
@@ -397,12 +399,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 + mediaItemIndex);
       }
     }
-    @DiscontinuityReason int discontinuityReason;
+    @Nullable
+    @DiscontinuityReason
+    Integer discontinuityReason;
     long currentPositionMs = getCurrentPosition();
     long newPositionMs;
     if (positionMs == C.TIME_UNSET) {
       newPositionMs = currentPositionMs;
-      discontinuityReason = C.INDEX_UNSET;
+      discontinuityReason = null;
     } else {
       controllerCompat.getTransportControls().seekTo(positionMs);
       newPositionMs = positionMs;
@@ -413,7 +417,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     long newBufferedPositionMs;
     int newBufferedPercentage;
     long newTotalBufferedDurationMs;
-    if (mediaItemTransitionReason == C.INDEX_UNSET) {
+    if (mediaItemTransitionReason == null) {
       // Follows the ExoPlayerImpl's state masking for seek within the current item.
       long oldBufferedPositionMs = getBufferedPosition();
       newDurationMs = getDuration();
@@ -598,8 +602,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
 
     controllerCompat.getTransportControls().setPlaybackSpeed(playbackParameters.speed);
@@ -617,8 +621,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
 
     controllerCompat.getTransportControls().setPlaybackSpeed(speed);
@@ -756,8 +760,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerInfo.customLayout);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
-        /* discontinuityReason= */ C.INDEX_UNSET,
-        /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+        /* discontinuityReason= */ null,
+        /* mediaItemTransitionReason= */ null);
 
     for (int i = 0; i < mediaItems.size(); i++) {
       MediaItem mediaItem = mediaItems.get(i);
@@ -805,8 +809,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerInfo.customLayout);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
-        /* discontinuityReason= */ C.INDEX_UNSET,
-        /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+        /* discontinuityReason= */ null,
+        /* mediaItemTransitionReason= */ null);
 
     for (int i = fromIndex; i < toIndex && i < legacyPlayerInfo.queue.size(); i++) {
       controllerCompat.removeQueueItem(legacyPlayerInfo.queue.get(i).getDescription());
@@ -865,8 +869,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerInfo.customLayout);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
-        /* discontinuityReason= */ C.INDEX_UNSET,
-        /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+        /* discontinuityReason= */ null,
+        /* mediaItemTransitionReason= */ null);
 
     ArrayList<QueueItem> moveItems = new ArrayList<>();
     for (int i = 0; i < (toIndex - fromIndex); i++) {
@@ -956,8 +960,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
 
     controllerCompat
@@ -982,8 +986,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
 
     controllerCompat
@@ -1088,8 +1092,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
 
     controllerCompat.setVolumeTo(volume, VOLUME_FLAGS);
@@ -1110,8 +1114,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
     controllerCompat.adjustVolume(AudioManager.ADJUST_RAISE, VOLUME_FLAGS);
   }
@@ -1131,8 +1135,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
     controllerCompat.adjustVolume(AudioManager.ADJUST_LOWER, VOLUME_FLAGS);
   }
@@ -1155,8 +1159,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               controllerInfo.customLayout);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
-          /* discontinuityReason= */ C.INDEX_UNSET,
-          /* mediaItemTransitionReason= */ C.INDEX_UNSET);
+          /* discontinuityReason= */ null,
+          /* mediaItemTransitionReason= */ null);
     }
 
     int direction = muted ? AudioManager.ADJUST_MUTE : AudioManager.ADJUST_UNMUTE;
@@ -1302,7 +1306,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerCompat.isSessionReady(),
             controllerCompat.getRatingType(),
             instance.timeDiffMs);
-    Pair<Integer, Integer> reasons =
+    Pair<@NullableType Integer, @NullableType Integer> reasons =
         calculateDiscontinuityAndTransitionReason(
             legacyPlayerInfo,
             controllerInfo,
@@ -1319,8 +1323,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private void updateStateMaskedControllerInfo(
       ControllerInfo newControllerInfo,
-      @Player.DiscontinuityReason int discontinuityReason,
-      @Player.MediaItemTransitionReason int mediaItemTransitionReason) {
+      @Nullable @Player.DiscontinuityReason Integer discontinuityReason,
+      @Nullable @Player.MediaItemTransitionReason Integer mediaItemTransitionReason) {
     // Safe to pass legacyPlayerInfo without updating.
     // updateControllerInfo() takes LegacyPlayerInfo just to easily detect some changes in the
     // controller info, and LegacyPlayerInfo isn't used for values that state-masking may be
@@ -1337,8 +1341,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       boolean notifyConnected,
       LegacyPlayerInfo newLegacyPlayerInfo,
       ControllerInfo newControllerInfo,
-      @Player.DiscontinuityReason int discontinuityReason,
-      @Player.MediaItemTransitionReason int mediaItemTransitionReason) {
+      @Nullable @Player.DiscontinuityReason Integer discontinuityReason,
+      @Nullable @Player.MediaItemTransitionReason Integer mediaItemTransitionReason) {
     LegacyPlayerInfo oldLegacyPlayerInfo = legacyPlayerInfo;
     ControllerInfo oldControllerInfo = controllerInfo;
     if (legacyPlayerInfo != newLegacyPlayerInfo) {
@@ -1370,7 +1374,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           (listener) ->
               listener.onPlaylistMetadataChanged(newControllerInfo.playerInfo.playlistMetadata));
     }
-    if (discontinuityReason != C.INDEX_UNSET) {
+    if (discontinuityReason != null) {
       listeners.queueEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
           (listener) ->
@@ -1379,7 +1383,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   newControllerInfo.playerInfo.sessionPositionInfo.positionInfo,
                   discontinuityReason));
     }
-    if (mediaItemTransitionReason != C.INDEX_UNSET) {
+    if (mediaItemTransitionReason != null) {
       listeners.queueEvent(
           EVENT_MEDIA_ITEM_TRANSITION,
           (listener) ->
@@ -1837,24 +1841,33 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         seekForwardIncrementMs);
   }
 
-  // Calculate position discontinuity reason and media item transition reason outside of the state
-  // masking.
-  private static Pair<Integer, Integer> calculateDiscontinuityAndTransitionReason(
-      LegacyPlayerInfo oldLegacyPlayerInfo,
-      ControllerInfo oldControllerInfo,
-      LegacyPlayerInfo newLegacyPlayerInfo,
-      ControllerInfo newControllerInfo,
-      long timeDiffMs) {
-    @Player.DiscontinuityReason int discontinuityReason;
-    @Player.MediaItemTransitionReason int mediaItemTransitionReason;
+  /**
+   * Calculate position discontinuity reason and media item transition reason outside of the state
+   * masking.
+   *
+   * <p>The returned reasons may be null if they can't be determined.
+   */
+  private static Pair<@NullableType Integer, @NullableType Integer>
+      calculateDiscontinuityAndTransitionReason(
+          LegacyPlayerInfo oldLegacyPlayerInfo,
+          ControllerInfo oldControllerInfo,
+          LegacyPlayerInfo newLegacyPlayerInfo,
+          ControllerInfo newControllerInfo,
+          long timeDiffMs) {
+    @Nullable
+    @Player.DiscontinuityReason
+    Integer discontinuityReason;
+    @Nullable
+    @Player.MediaItemTransitionReason
+    Integer mediaItemTransitionReason;
     boolean isOldTimelineEmpty = oldControllerInfo.playerInfo.timeline.isEmpty();
     boolean isNewTimelineEmpty = newControllerInfo.playerInfo.timeline.isEmpty();
     int newCurrentMediaItemIndex =
         newControllerInfo.playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex;
     if (isOldTimelineEmpty && isNewTimelineEmpty) {
       // Still empty Timelines.
-      discontinuityReason = C.INDEX_UNSET;
-      mediaItemTransitionReason = C.INDEX_UNSET;
+      discontinuityReason = null;
+      mediaItemTransitionReason = null;
     } else if (isOldTimelineEmpty && !isNewTimelineEmpty) {
       // A new timeline has been set.
       discontinuityReason = Player.DISCONTINUITY_REASON_AUTO_TRANSITION;
@@ -1888,10 +1901,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         } else if (Math.abs(oldCurrentPosition - newCurrentPosition) > POSITION_DIFF_TOLERANCE_MS) {
           // Unexpected position discontinuity within the same media item.
           discontinuityReason = Player.DISCONTINUITY_REASON_INTERNAL;
-          mediaItemTransitionReason = C.INDEX_UNSET;
+          mediaItemTransitionReason = null;
         } else {
-          discontinuityReason = C.INDEX_UNSET;
-          mediaItemTransitionReason = C.INDEX_UNSET;
+          discontinuityReason = null;
+          mediaItemTransitionReason = null;
         }
       } else {
         // Old current item still exists, but it's not the new current media item anymore.
