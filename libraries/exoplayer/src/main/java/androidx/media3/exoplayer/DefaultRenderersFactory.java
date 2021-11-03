@@ -31,6 +31,7 @@ import androidx.media3.exoplayer.audio.DefaultAudioSink;
 import androidx.media3.exoplayer.audio.DefaultAudioSink.DefaultAudioProcessorChain;
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer;
 import androidx.media3.exoplayer.mediacodec.DefaultMediaCodecAdapterFactory;
+import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter;
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
 import androidx.media3.exoplayer.metadata.MetadataRenderer;
@@ -370,7 +371,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     MediaCodecVideoRenderer videoRenderer =
         new MediaCodecVideoRenderer(
             context,
-            codecAdapterFactory,
+            getCodecAdapterFactory(),
             mediaCodecSelector,
             allowedVideoJoiningTimeMs,
             enableDecoderFallback,
@@ -489,7 +490,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     MediaCodecAudioRenderer audioRenderer =
         new MediaCodecAudioRenderer(
             context,
-            codecAdapterFactory,
+            getCodecAdapterFactory(),
             mediaCodecSelector,
             enableDecoderFallback,
             eventHandler,
@@ -654,5 +655,13 @@ public class DefaultRenderersFactory implements RenderersFactory {
         enableOffload
             ? DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
             : DefaultAudioSink.OFFLOAD_MODE_DISABLED);
+  }
+
+  /**
+   * Returns the {@link MediaCodecAdapter.Factory} that will be used when creating {@link
+   * androidx.media3.exoplayer.mediacodec.MediaCodecRenderer} instances.
+   */
+  protected MediaCodecAdapter.Factory getCodecAdapterFactory() {
+    return codecAdapterFactory;
   }
 }
