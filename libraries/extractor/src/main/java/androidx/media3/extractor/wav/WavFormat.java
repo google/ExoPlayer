@@ -15,8 +15,8 @@
  */
 package androidx.media3.extractor.wav;
 
-/** Header for a WAV file. */
-/* package */ final class WavHeader {
+/** Format information for a WAV file. */
+/* package */ final class WavFormat {
 
   /**
    * The format type. Standard format types are the "WAVE form Registration Number" constants
@@ -33,10 +33,10 @@ package androidx.media3.extractor.wav;
   public final int blockSize;
   /** Bits per sample for a single channel. */
   public final int bitsPerSample;
-  /** Extra data appended to the format chunk of the header. */
+  /** Extra data appended to the format chunk. */
   public final byte[] extraData;
 
-  public WavHeader(
+  public WavFormat(
       int formatType,
       int numChannels,
       int frameRateHz,

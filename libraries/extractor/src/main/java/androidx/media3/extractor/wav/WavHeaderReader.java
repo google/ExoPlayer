@@ -16,7 +16,6 @@
 package androidx.media3.extractor.wav;
 
 import android.util.Pair;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Assertions;
@@ -27,45 +26,56 @@ import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.WavUtil;
 import java.io.IOException;
 
-/** Reads a {@code WavHeader} from an input stream; supports resuming from input failures. */
+/** Reads a WAV header from an input stream; supports resuming from input failures. */
 /* package */ final class WavHeaderReader {
 
   private static final String TAG = "WavHeaderReader";
 
   /**
-   * Peeks and returns a {@code WavHeader}.
+   * Returns whether the given {@code input} starts with a RIFF chunk header, followed by a WAVE
+   * tag.
    *
-   * @param input Input stream to peek the WAV header from.
-   * @throws ParserException If the input file is an incorrect RIFF WAV.
+   * @param input The input stream to peek from. The position should point to the start of the
+   *     stream.
+   * @return Whether the given {@code input} starts with a RIFF chunk header, followed by a WAVE
+   *     tag.
    * @throws IOException If peeking from the input fails.
-   * @return A new {@code WavHeader} peeked from {@code input}, or null if the input is not a
-   *     supported WAV format.
    */
-  @Nullable
-  public static WavHeader peek(ExtractorInput input) throws IOException {
-    Assertions.checkNotNull(input);
-
-    // Allocate a scratch buffer large enough to store the format chunk.
-    ParsableByteArray scratch = new ParsableByteArray(16);
-
+  public static boolean checkFileType(ExtractorInput input) throws IOException {
+    ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Attempt to read the RIFF chunk.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
     if (chunkHeader.id != WavUtil.RIFF_FOURCC) {
-      return null;
+      return false;
     }
 
     input.peekFully(scratch.getData(), 0, 4);
     scratch.setPosition(0);
-    int riffFormat = scratch.readInt();
-    if (riffFormat != WavUtil.WAVE_FOURCC) {
-      Log.e(TAG, "Unsupported RIFF format: " + riffFormat);
-      return null;
+    int formType = scratch.readInt();
+    if (formType != WavUtil.WAVE_FOURCC) {
+      Log.e(TAG, "Unsupported form type: " + formType);
+      return false;
     }
 
+    return true;
+  }
+
+  /**
+   * Reads and returns a {@code WavFormat}.
+   *
+   * @param input Input stream to read the WAV format from. The position should point to the byte
+   *     following the WAVE tag.
+   * @throws IOException If reading from the input fails.
+   * @return A new {@code WavFormat} read from {@code input}.
+   */
+  public static WavFormat readFormat(ExtractorInput input) throws IOException {
+    // Allocate a scratch buffer large enough to store the format chunk.
+    ParsableByteArray scratch = new ParsableByteArray(16);
+
     // Skip chunks until we find the format chunk.
-    chunkHeader = ChunkHeader.peek(input, scratch);
+    ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
     while (chunkHeader.id != WavUtil.FMT_FOURCC) {
-      input.advancePeekPosition((int) chunkHeader.size);
+      input.skipFully(ChunkHeader.SIZE_IN_BYTES + (int) chunkHeader.size);
       chunkHeader = ChunkHeader.peek(input, scratch);
     }
 
@@ -88,7 +98,8 @@ import java.io.IOException;
       extraData = Util.EMPTY_BYTE_ARRAY;
     }
 
-    return new WavHeader(
+    input.skipFully((int) (input.getPeekPosition() - input.getPosition()));
+    return new WavFormat(
         audioFormatType,
         numChannels,
         frameRateHz,
@@ -109,8 +120,6 @@ import java.io.IOException;
    * @throws IOException If reading from the input fails.
    */
   public static Pair<Long, Long> skipToSampleData(ExtractorInput input) throws IOException {
-    Assertions.checkNotNull(input);
-
     // Make sure the peek position is set to the read position before we peek the first header.
     input.resetPeekPosition();
 
