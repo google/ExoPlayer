@@ -2,38 +2,34 @@
 
 ### dev-v2 (not yet released)
 
+### 2.16.0 (2021-11-04)
+
 *   Core Library:
+    *   Deprecate `SimpleExoPlayer`. All functionality has been moved to
+        `ExoPlayer` instead. `ExoPlayer.Builder` can be used instead of
+        `SimpleExoPlayer.Builder`.
+    *   Add track selection methods to the `Player` interface, for example,
+        `Player.getCurrentTracksInfo` and `Player.setTrackSelectionParameters`.
+        These methods can be used instead of directly accessing the track
+        selector.
     *   Enable MediaCodec asynchronous queueing by default on devices with API
         level >= 31. Add methods in `DefaultMediaCodecRendererFactory` and
         `DefaultRenderersFactory` to force enable or force disable asynchronous
         queueing ([6348](https://github.com/google/ExoPlayer/issues/6348)).
-    *   Add 12 public method headers to `ExoPlayer` that exist in
-        `SimpleExoPlayer`, such that all public methods in `SimpleExoPlayer` are
-        overrides.
+    *   Remove final dependency on `jcenter()`.
+    *   Fix `mediaMetadata` being reset when media is repeated
+        ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
+    *   Adjust `ExoPlayer` `MediaMetadata` update priority, such that values
+        input through the `MediaItem.MediaMetadata` are used above media derived
+        values.
     *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
         `com.google.android.exoplayer2.DeviceInfo`.
     *   Move `com.google.android.exoplayer2.drm.DecryptionException` to
         `com.google.android.exoplayer2.decoder.CryptoException`.
     *   Move `com.google.android.exoplayer2.upstream.cache.CachedRegionTracker`
         to `com.google.android.exoplayer2.upstream.CachedRegionTracker`.
-    *   Remove `ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED`. Use
-        `GlUtil.glAssertionsEnabled` instead.
     *   Move `Player.addListener(EventListener)` and
         `Player.removeListener(EventListener)` out of `Player` into subclasses.
-    *   Fix `mediaMetadata` being reset when media is repeated
-        ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
-    *   Remove final dependency on `jcenter()`.
-    *   Adjust `ExoPlayer` `MediaMetadata` update priority, such that values
-        input through the `MediaItem.MediaMetadata` are used above media derived
-        values.
-*   Video:
-    *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
-        released `Surface` when playing without an app-provided `Surface`
-        ([#9476](https://github.com/google/ExoPlayer/issues/9476)).
-*   DRM:
-    *   Log an error (instead of throwing `IllegalStateException`) when calling
-        `DefaultDrmSession#release()` on a fully released session
-        ([#9392](https://github.com/google/ExoPlayer/issues/9392)).
 *   Android 12 compatibility:
     *   Keep `DownloadService` started and in the foreground whilst waiting for
         requirements to be met on Android 12. This is necessary due to new
@@ -49,6 +45,14 @@
         are not compatible with apps targeting Android 12, and will crash with
         an `IllegalArgumentException` when creating `PendingIntent`s
         ([#9181](https://github.com/google/ExoPlayer/issues/9181)).
+*   Video:
+    *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
+        released `Surface` when playing without an app-provided `Surface`
+        ([#9476](https://github.com/google/ExoPlayer/issues/9476)).
+*   DRM:
+    *   Log an error (instead of throwing `IllegalStateException`) when calling
+        `DefaultDrmSession#release()` on a fully released session
+        ([#9392](https://github.com/google/ExoPlayer/issues/9392)).
 *   UI:
     *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
         implements `Player.Listener`, so can be registered to a player with
@@ -64,6 +68,7 @@
     *   MP4: Avoid throwing `ArrayIndexOutOfBoundsException` when parsing
         invalid `colr` boxes produced by some device cameras
         ([#9332](https://github.com/google/ExoPlayer/issues/9332)).
+    *   MP4: Parse HDR static metadata from the `clli` and `mdcv` boxes.
     *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
     *   TS: Map stream type 0x80 to H262
         ([#9472](https://github.com/google/ExoPlayer/issues/9472)).
@@ -73,7 +78,7 @@
         requirements for downloads to continue. In both cases, `DownloadService`
         will now remain started and in the foreground whilst waiting for
         requirements to be met.
-    *   Modify `DownlaodService` behavior when running on Android 12 and above.
+    *   Modify `DownloadService` behavior when running on Android 12 and above.
         See the "Android 12 compatibility" section above.
 *   RTSP:
     *   Support RFC4566 SDP attribute field grammar
@@ -82,6 +87,12 @@
     *   Populate `Format.sampleMimeType`, `width` and `height` for image
         `AdaptationSet` elements
         ([#9500](https://github.com/google/ExoPlayer/issues/9500)).
+*   HLS:
+    *   Fix rounding error in HLS playlists
+        ([#9575](https://github.com/google/ExoPlayer/issues/9575)).
+    *   Fix `NoSuchElementException` thrown when an HLS manifest declares
+        `#EXT-X-RENDITION-REPORT` at the beginning of the playlist
+        ([#9592](https://github.com/google/ExoPlayer/issues/9592)).
 *   RTMP extension:
     *   Upgrade to `io.antmedia:rtmp_client`, which does not rely on `jcenter()`
         ([#9591](https://github.com/google/ExoPlayer/issues/9591)).
@@ -89,6 +100,9 @@
     *   Rename
         `MediaSessionConnector.QueueNavigator#onCurrentWindowIndexChanged` to
         `onCurrentMediaItemIndexChanged`.
+*   Transformer:
+    *   Avoid sending a duplicate timestamp to the encoder with the end of
+        stream buffer.
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.

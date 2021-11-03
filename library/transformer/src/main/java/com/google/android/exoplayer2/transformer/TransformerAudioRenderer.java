@@ -279,8 +279,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int result = readSource(getFormatHolder(), decoderInputBuffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
-        decoderInputBuffer.timeUs -= streamOffsetUs;
         mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
+        decoderInputBuffer.timeUs -= streamOffsetUs;
         decoderInputBuffer.flip();
         decoder.queueInputBuffer(decoderInputBuffer);
         return !decoderInputBuffer.isEndOfStream();
@@ -316,6 +316,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void queueEndOfStreamToEncoder(MediaCodecAdapterWrapper encoder) {
     checkState(checkNotNull(encoderInputBuffer.data).position() == 0);
+    encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
     encoderInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     encoderInputBuffer.flip();
     // Queuing EOS should only occur with an empty buffer.

@@ -119,4 +119,10 @@ public final class Mp4ExtractorTest {
     ExtractorAsserts.assertBehavior(
         Mp4Extractor::new, "media/mp4/sample_dthd.mp4", simulationConfig);
   }
+
+  @Test
+  public void mp4SampleWithColrMdcvAndClli() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_with_colr_mdcv_and_clli.mp4", simulationConfig);
+  }
 }
