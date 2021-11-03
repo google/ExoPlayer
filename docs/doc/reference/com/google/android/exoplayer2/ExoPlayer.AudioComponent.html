@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":38,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":38,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,8 +129,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dd>
 </dl>
 <hr>
-<pre>public static interface <span class="typeNameLabel">ExoPlayer.AudioComponent</span></pre>
-<div class="block">The audio component of an <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static interface <span class="typeNameLabel">ExoPlayer.AudioComponent</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a>, as the <a href="ExoPlayer.AudioComponent.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer.AudioComponent</code></a> methods are defined by that
+     interface.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -153,91 +157,93 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addAudioListener(com.google.android.exoplayer2.audio.AudioListener)">addAudioListener</a></span>&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearAuxEffectInfo()">clearAuxEffectInfo</a></span>()</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#clearAuxEffectInfo()"><code>ExoPlayer.clearAuxEffectInfo()</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearAuxEffectInfo()">clearAuxEffectInfo</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Detaches any previously attached auxiliary audio effect from the underlying audio track.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioAttributes()">getAudioAttributes</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the attributes for audio playback.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getAudioAttributes()"><code>Player.getAudioAttributes()</code></a> instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioSessionId()">getAudioSessionId</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the audio session identifier, or <a href="C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if not set.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getAudioSessionId()"><code>ExoPlayer.getAudioSessionId()</code></a> instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSkipSilenceEnabled()">getSkipSilenceEnabled</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns whether skipping silences in the audio stream is enabled.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getSkipSilenceEnabled()"><code>ExoPlayer.getSkipSilenceEnabled()</code></a> instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVolume()">getVolume</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getVolume()"><code>Player.getVolume()</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">setAudioAttributes</a></span>&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+                  boolean&nbsp;handleAudioFocus)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)"><code>ExoPlayer.setAudioAttributes(AudioAttributes, boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAudioListener(com.google.android.exoplayer2.audio.AudioListener)">removeAudioListener</a></span>&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioSessionId(int)">setAudioSessionId</a></span>&#8203;(int&nbsp;audioSessionId)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setAudioSessionId(int)"><code>ExoPlayer.setAudioSessionId(int)</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">setAudioAttributes</a></span>&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
-                  boolean&nbsp;handleAudioFocus)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">setAuxEffectInfo</a></span>&#8203;(<a href="audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code></th>
 <td class="colLast">
-<div class="block">Sets the attributes for audio playback, used by the underlying audio track.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)"><code>ExoPlayer.setAuxEffectInfo(AuxEffectInfo)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioSessionId(int)">setAudioSessionId</a></span>&#8203;(int&nbsp;audioSessionId)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
-<div class="block">Sets the ID of the audio session to attach to the underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setSkipSilenceEnabled(boolean)"><code>ExoPlayer.setSkipSilenceEnabled(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">setAuxEffectInfo</a></span>&#8203;(<a href="audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code></th>
-<td class="colLast">
-<div class="block">Sets information on an auxiliary audio effect to attach to the underlying audio track.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
-<td class="colLast">
-<div class="block">Sets whether skipping silences in the audio stream is enabled.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVolume(float)">setVolume</a></span>&#8203;(float&nbsp;audioVolume)</code></th>
 <td class="colLast">
-<div class="block">Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVolume(float)"><code>Player.setVolume(float)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -257,69 +263,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="addAudioListener(com.google.android.exoplayer2.audio.AudioListener)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>addAudioListener</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-void&nbsp;addAudioListener&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
-</div>
-<div class="block">Adds a listener to receive audio events.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener to register.</dd>
-</dl>
-</li>
-</ul>
-<a id="removeAudioListener(com.google.android.exoplayer2.audio.AudioListener)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>removeAudioListener</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
-</div>
-<div class="block">Removes a listener of audio events.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener to unregister.</dd>
-</dl>
-</li>
-</ul>
 <a id="setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioAttributes</h4>
-<pre class="methodSignature">void&nbsp;setAudioAttributes&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setAudioAttributes&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
                         boolean&nbsp;handleAudioFocus)</pre>
-<div class="block">Sets the attributes for audio playback, used by the underlying audio track. If not set, the
- default audio attributes will be used. They are suitable for general media playback.
-
- <p>Setting the audio attributes during playback may introduce a short gap in audio output as
- the audio track is recreated. A new audio session id will also be generated.
-
- <p>If tunneling is enabled by the track selector, the specified audio attributes will be
- ignored, but they will take effect if audio is later played without tunneling.
-
- <p>If the device is running a build before platform API version 21, audio attributes cannot
- be set directly on the underlying audio track. In this case, the usage will be mapped onto an
- equivalent stream type using <a href="util/Util.html#getStreamTypeForAudioUsage(int)"><code>Util.getStreamTypeForAudioUsage(int)</code></a>.
-
- <p>If audio focus should be handled, the <a href="audio/AudioAttributes.html#usage"><code>AudioAttributes.usage</code></a> must be <a href="C.html#USAGE_MEDIA"><code>C.USAGE_MEDIA</code></a> or <a href="C.html#USAGE_GAME"><code>C.USAGE_GAME</code></a>. Other usages will throw an <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>audioAttributes</code> - The attributes to use for audio playback.</dd>
-<dd><code>handleAudioFocus</code> - True if the player should handle audio focus, false otherwise.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)"><code>ExoPlayer.setAudioAttributes(AudioAttributes, boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="getAudioAttributes()">
@@ -328,8 +283,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getAudioAttributes</h4>
-<pre class="methodSignature"><a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;getAudioAttributes()</pre>
-<div class="block">Returns the attributes for audio playback.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;getAudioAttributes()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getAudioAttributes()"><code>Player.getAudioAttributes()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setAudioSessionId(int)">
@@ -338,16 +296,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioSessionId</h4>
-<pre class="methodSignature">void&nbsp;setAudioSessionId&#8203;(int&nbsp;audioSessionId)</pre>
-<div class="block">Sets the ID of the audio session to attach to the underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.
-
- <p>The audio session ID can be generated using <a href="C.html#generateAudioSessionIdV21(android.content.Context)"><code>C.generateAudioSessionIdV21(Context)</code></a>
- for API 21+.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>audioSessionId</code> - The audio session ID, or <a href="C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if it should
-     be generated by the framework.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setAudioSessionId&#8203;(int&nbsp;audioSessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setAudioSessionId(int)"><code>ExoPlayer.setAudioSessionId(int)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="getAudioSessionId()">
@@ -356,8 +309,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getAudioSessionId</h4>
-<pre class="methodSignature">int&nbsp;getAudioSessionId()</pre>
-<div class="block">Returns the audio session identifier, or <a href="C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if not set.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+int&nbsp;getAudioSessionId()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getAudioSessionId()"><code>ExoPlayer.getAudioSessionId()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">
@@ -366,8 +322,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>setAuxEffectInfo</h4>
-<pre class="methodSignature">void&nbsp;setAuxEffectInfo&#8203;(<a href="audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</pre>
-<div class="block">Sets information on an auxiliary audio effect to attach to the underlying audio track.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setAuxEffectInfo&#8203;(<a href="audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)"><code>ExoPlayer.setAuxEffectInfo(AuxEffectInfo)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="clearAuxEffectInfo()">
@@ -376,8 +335,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>clearAuxEffectInfo</h4>
-<pre class="methodSignature">void&nbsp;clearAuxEffectInfo()</pre>
-<div class="block">Detaches any previously attached auxiliary audio effect from the underlying audio track.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearAuxEffectInfo()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#clearAuxEffectInfo()"><code>ExoPlayer.clearAuxEffectInfo()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setVolume(float)">
@@ -386,12 +348,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>setVolume</h4>
-<pre class="methodSignature">void&nbsp;setVolume&#8203;(float&nbsp;audioVolume)</pre>
-<div class="block">Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>audioVolume</code> - Linear output gain to apply to all audio channels.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVolume&#8203;(float&nbsp;audioVolume)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVolume(float)"><code>Player.setVolume(float)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="getVolume()">
@@ -400,12 +361,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getVolume</h4>
-<pre class="methodSignature">float&nbsp;getVolume()</pre>
-<div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The linear gain applied to all audio channels.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+float&nbsp;getVolume()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getVolume()"><code>Player.getVolume()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setSkipSilenceEnabled(boolean)">
@@ -414,12 +374,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>setSkipSilenceEnabled</h4>
-<pre class="methodSignature">void&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
-<div class="block">Sets whether skipping silences in the audio stream is enabled.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>skipSilenceEnabled</code> - Whether skipping silences in the audio stream is enabled.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setSkipSilenceEnabled(boolean)"><code>ExoPlayer.setSkipSilenceEnabled(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="getSkipSilenceEnabled()">
@@ -428,8 +387,11 @@ void&nbsp;removeAudioListener&#8203;(<a href="audio/AudioListener.html" title="i
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getSkipSilenceEnabled</h4>
-<pre class="methodSignature">boolean&nbsp;getSkipSilenceEnabled()</pre>
-<div class="block">Returns whether skipping silences in the audio stream is enabled.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+boolean&nbsp;getSkipSilenceEnabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getSkipSilenceEnabled()"><code>ExoPlayer.getSkipSilenceEnabled()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </li>

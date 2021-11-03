@@ -156,7 +156,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a>, <a href="Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">Renderer.VideoScalingMode</a>, <a href="Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2">Renderer.WakeupListener</a></code></li>
+<code><a href="Renderer.MessageType.html" title="annotation in com.google.android.exoplayer2">Renderer.MessageType</a>, <a href="Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a>, <a href="Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2">Renderer.WakeupListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -180,7 +180,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="Renderer.html#STATE_STARTED">STATE_STARTED</a>, <a href="Renderer.html#VIDEO_SCALING_MODE_DEFAULT">VIDEO_SCALING_MODE_DEFAULT</a>, <a href="Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT">VIDEO_SCALING_MODE_SCALE_TO_FIT</a>, <a href="Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</a></code></li>
+<code><a href="Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -300,7 +300,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackType()">getTrackType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the track type that the renderer handles.</div>
@@ -532,7 +532,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackType</h4>
-<pre class="methodSignature">public final&nbsp;int&nbsp;getTrackType()</pre>
+<pre class="methodSignature">public final&nbsp;@com.google.android.exoplayer2.C.TrackType int&nbsp;getTrackType()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getTrackType()">Renderer</a></code></span></div>
 <div class="block">Returns the track type that the renderer handles.</div>
 <dl>
@@ -541,7 +541,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="RendererCapabilities.html#getTrackType()">getTrackType</a></code>&nbsp;in interface&nbsp;<code><a href="RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of the <code>TRACK_TYPE_*</code> constants defined in <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a>.</dd>
+<dd>The <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track type</code></a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="ExoPlayer.html#getRendererType(int)"><code>ExoPlayer.getRendererType(int)</code></a></dd>
 </dl>
@@ -987,7 +987,8 @@ public&nbsp;int&nbsp;supportsMixedMimeTypeAdaptation()
 <ul class="blockList">
 <li class="blockList">
 <h4>handleMessage</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;handleMessage&#8203;(int&nbsp;messageType,
+<pre class="methodSignature">public&nbsp;void&nbsp;handleMessage&#8203;(<a href="Renderer.MessageType.html" title="annotation in com.google.android.exoplayer2">@MessageType</a>
+                          int&nbsp;messageType,
                           @Nullable
                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)
                    throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>

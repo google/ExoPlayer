@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -188,17 +188,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnforceValidKeyResponses(boolean)">setEnforceValidKeyResponses</a></span>&#8203;(boolean&nbsp;enforceValidKeyResponses)</code></th>
+<td class="colLast">
+<div class="block">Sets whether key responses passed to <a href="FakeExoMediaDrm.html#provideKeyResponse(byte%5B%5D,byte%5B%5D)"><code>FakeExoMediaDrm.provideKeyResponse(byte[], byte[])</code></a> should be
+ checked for validity (i.e.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxConcurrentSessions(int)">setMaxConcurrentSessions</a></span>&#8203;(int&nbsp;maxConcurrentSessions)</code></th>
 <td class="colLast">
 <div class="block">Sets the maximum number of concurrent sessions the <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a> will support.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProvisionsRequired(int)">setProvisionsRequired</a></span>&#8203;(int&nbsp;provisionsRequired)</code></th>
 <td class="colLast">
 <div class="block">Sets how many successful provisioning round trips are needed for the <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a>
  to be provisioned.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#throwNotProvisionedExceptionFromGetKeyRequest()">throwNotProvisionedExceptionFromGetKeyRequest</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Configures the <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a> to throw any <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top"><code>NotProvisionedException</code></a> from
+ <a href="FakeExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>FakeExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a> instead of the default behaviour of
+ throwing from <a href="FakeExoMediaDrm.html#openSession()"><code>FakeExoMediaDrm.openSession()</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -245,6 +262,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setEnforceValidKeyResponses(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEnforceValidKeyResponses</h4>
+<pre class="methodSignature">public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;setEnforceValidKeyResponses&#8203;(boolean&nbsp;enforceValidKeyResponses)</pre>
+<div class="block">Sets whether key responses passed to <a href="FakeExoMediaDrm.html#provideKeyResponse(byte%5B%5D,byte%5B%5D)"><code>FakeExoMediaDrm.provideKeyResponse(byte[], byte[])</code></a> should be
+ checked for validity (i.e. that they came from a <a href="FakeExoMediaDrm.LicenseServer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm.LicenseServer</code></a>).
+
+ <p>Defaults to true.</div>
+</li>
+</ul>
 <a id="setProvisionsRequired(int)">
 <!--   -->
 </a>
@@ -259,6 +289,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  methods that declare it until enough valid provisioning responses are passed to <a href="FakeExoMediaDrm.html#provideProvisionResponse(byte%5B%5D)"><code>FakeExoMediaDrm.provideProvisionResponse(byte[])</code></a>.
 
  <p>Defaults to 0 (i.e. device is already provisioned).</div>
+</li>
+</ul>
+<a id="throwNotProvisionedExceptionFromGetKeyRequest()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>throwNotProvisionedExceptionFromGetKeyRequest</h4>
+<pre class="methodSignature">public&nbsp;<a href="FakeExoMediaDrm.Builder.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.Builder</a>&nbsp;throwNotProvisionedExceptionFromGetKeyRequest()</pre>
+<div class="block">Configures the <a href="FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a> to throw any <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top"><code>NotProvisionedException</code></a> from
+ <a href="FakeExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>FakeExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a> instead of the default behaviour of
+ throwing from <a href="FakeExoMediaDrm.html#openSession()"><code>FakeExoMediaDrm.openSession()</code></a>.</div>
 </li>
 </ul>
 <a id="setMaxConcurrentSessions(int)">

@@ -153,8 +153,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#track(int,int)">track</a></span>&#8203;(int&nbsp;id,
-     int&nbsp;type)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#track(int,@com.google.android.exoplayer2.C.TrackTypeint)">track</a></span>&#8203;(int&nbsp;id,
+     @com.google.android.exoplayer2.C.TrackType int&nbsp;type)</code></th>
 <td class="colLast">
 <div class="block">Called to get the <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for a specific track.</div>
 </td>
@@ -176,14 +176,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="track(int,int)">
+<a id="track(int,@com.google.android.exoplayer2.C.TrackTypeint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>track</h4>
 <pre class="methodSignature"><a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;track&#8203;(int&nbsp;id,
-                  int&nbsp;type)</pre>
+                  @com.google.android.exoplayer2.C.TrackType int&nbsp;type)</pre>
 <div class="block">Called to get the <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for a specific track.
 
  <p>The same <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> is returned if multiple calls are made with the same <code>
@@ -191,8 +191,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - A track identifier.</dd>
-<dd><code>type</code> - The type of the track. Typically one of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code>
-     constants.</dd>
+<dd><code>type</code> - The <a href="../../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of the track.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for the given track identifier.</dd>
 </dl>

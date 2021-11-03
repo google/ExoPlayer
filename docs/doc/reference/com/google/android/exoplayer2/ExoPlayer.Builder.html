@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,15 +133,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dd>
 </dl>
 <hr>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public static final class <span class="typeNameLabel">ExoPlayer.Builder</span>
+<pre>public static final class <span class="typeNameLabel">ExoPlayer.Builder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</div>
-</div>
 <div class="block">A builder for <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instances.
 
- <p>See <a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.Renderer...)"><code>Builder(Context, Renderer...)</code></a> for the list of default values.</div>
+ <p>See <a href="#%3Cinit%3E(android.content.Context)"><code>Builder(Context)</code></a> for the list of default values.</div>
 </li>
 </ul>
 </div>
@@ -162,22 +158,43 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.Renderer...)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-       <a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>...&nbsp;renderers)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Creates a builder with a list of <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderers</code></a>.</div>
+<div class="block">Creates a builder.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.trackselection.TrackSelector,com.google.android.exoplayer2.source.MediaSourceFactory,com.google.android.exoplayer2.LoadControl,com.google.android.exoplayer2.upstream.BandwidthMeter)">Builder</a></span>&#8203;(<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
-       <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-       <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory,
-       <a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-       <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.RenderersFactory)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+       <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates a builder with a custom <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.source.MediaSourceFactory)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+       <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+       <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</code></th>
+<td class="colLast">
+<div class="block">Creates a builder with a custom <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> and <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.source.MediaSourceFactory,com.google.android.exoplayer2.trackselection.TrackSelector,com.google.android.exoplayer2.LoadControl,com.google.android.exoplayer2.upstream.BandwidthMeter,com.google.android.exoplayer2.analytics.AnalyticsCollector)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+       <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+       <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory,
+       <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
+       <a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+       <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+       <a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</code></th>
+<td class="colLast">
 <div class="block">Creates a builder with the specified custom components.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.source.MediaSourceFactory)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+       <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</code></th>
+<td class="colLast">
+<div class="block">Creates a builder with a custom <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -192,7 +209,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -202,7 +219,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance.</div>
 </td>
 </tr>
@@ -210,106 +226,174 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetForegroundModeTimeoutMs(long)">experimentalSetForegroundModeTimeoutMs</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Set a limit on the time a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> can spend.</div>
+<div class="block">Sets a limit on the time a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> can spend.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAnalyticsCollector(com.google.android.exoplayer2.analytics.AnalyticsCollector)">setAnalyticsCollector</a></span>&#8203;(<a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> that will collect and forward all player events.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBandwidthMeter(com.google.android.exoplayer2.upstream.BandwidthMeter)">setBandwidthMeter</a></span>&#8203;(<a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">setAudioAttributes</a></span>&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+                  boolean&nbsp;handleAudioFocus)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> that will be used by the player.</div>
+<div class="block">Sets <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> that will be used by the player and whether to handle audio
+ focus.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClock(com.google.android.exoplayer2.util.Clock)">setClock</a></span>&#8203;(<a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBandwidthMeter(com.google.android.exoplayer2.upstream.BandwidthMeter)">setBandwidthMeter</a></span>&#8203;(<a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> that will be used by the player.</div>
+<div class="block">Sets the <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> that will be used by the player.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLivePlaybackSpeedControl(com.google.android.exoplayer2.LivePlaybackSpeedControl)">setLivePlaybackSpeedControl</a></span>&#8203;(<a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2">LivePlaybackSpeedControl</a>&nbsp;livePlaybackSpeedControl)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClock(com.google.android.exoplayer2.util.Clock)">setClock</a></span>&#8203;(<a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2"><code>LivePlaybackSpeedControl</code></a> that will control the playback speed when playing
- live streams, in order to maintain a steady target offset from the live stream edge.</div>
+<div class="block">Sets the <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> that will be used by the player.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadControl(com.google.android.exoplayer2.LoadControl)">setLoadControl</a></span>&#8203;(<a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDetachSurfaceTimeoutMs(long)">setDetachSurfaceTimeoutMs</a></span>&#8203;(long&nbsp;detachSurfaceTimeoutMs)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that will be used by the player.</div>
+<div class="block">Sets a timeout for detaching a surface from the player.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLooper(android.os.Looper)">setLooper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setHandleAudioBecomingNoisy(boolean)">setHandleAudioBecomingNoisy</a></span>&#8203;(boolean&nbsp;handleAudioBecomingNoisy)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> that must be used for all calls to the player and that is used to
- call listeners on.</div>
+<div class="block">Sets whether the player should pause automatically when audio is rerouted from a headset to
+ device speakers.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSourceFactory)">setMediaSourceFactory</a></span>&#8203;(<a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLivePlaybackSpeedControl(com.google.android.exoplayer2.LivePlaybackSpeedControl)">setLivePlaybackSpeedControl</a></span>&#8203;(<a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2">LivePlaybackSpeedControl</a>&nbsp;livePlaybackSpeedControl)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> that will be used by the player.</div>
+<div class="block">Sets the <a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2"><code>LivePlaybackSpeedControl</code></a> that will control the playback speed when playing
+ live streams, in order to maintain a steady target offset from the live stream edge.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPauseAtEndOfMediaItems(boolean)">setPauseAtEndOfMediaItems</a></span>&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadControl(com.google.android.exoplayer2.LoadControl)">setLoadControl</a></span>&#8203;(<a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets whether to pause playback at the end of each media item.</div>
+<div class="block">Sets the <a href="LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that will be used by the player.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReleaseTimeoutMs(long)">setReleaseTimeoutMs</a></span>&#8203;(long&nbsp;releaseTimeoutMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLooper(android.os.Looper)">setLooper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets a timeout for calls to <a href="Player.html#release()"><code>Player.release()</code></a> and <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a>.</div>
+<div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> that must be used for all calls to the player and that is used to
+ call listeners on.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekParameters(com.google.android.exoplayer2.SeekParameters)">setSeekParameters</a></span>&#8203;(<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSourceFactory)">setMediaSourceFactory</a></span>&#8203;(<a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the parameters that control how seek operations are performed.</div>
+<div class="block">Sets the <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> that will be used by the player.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackSelector(com.google.android.exoplayer2.trackselection.TrackSelector)">setTrackSelector</a></span>&#8203;(<a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPauseAtEndOfMediaItems(boolean)">setPauseAtEndOfMediaItems</a></span>&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the player.</div>
+<div class="block">Sets whether to pause playback at the end of each media item.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPriorityTaskManager(com.google.android.exoplayer2.util.PriorityTaskManager)">setPriorityTaskManager</a></span>&#8203;(<a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</code></th>
+<td class="colLast">
+<div class="block">Sets an <a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> that will be used by the player.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReleaseTimeoutMs(long)">setReleaseTimeoutMs</a></span>&#8203;(long&nbsp;releaseTimeoutMs)</code></th>
+<td class="colLast">
+<div class="block">Sets a timeout for calls to <a href="Player.html#release()"><code>Player.release()</code></a> and <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a>.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRenderersFactory(com.google.android.exoplayer2.RenderersFactory)">setRenderersFactory</a></span>&#8203;(<a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> that will be used by the player.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekBackIncrementMs(long)">setSeekBackIncrementMs</a></span>&#8203;(long&nbsp;seekBackIncrementMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekForwardIncrementMs(long)">setSeekForwardIncrementMs</a></span>&#8203;(long&nbsp;seekForwardIncrementMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSeekParameters(com.google.android.exoplayer2.SeekParameters)">setSeekParameters</a></span>&#8203;(<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
+<td class="colLast">
+<div class="block">Sets the parameters that control how seek operations are performed.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
+<td class="colLast">
+<div class="block">Sets whether silences silences in the audio stream is enabled.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackSelector(com.google.android.exoplayer2.trackselection.TrackSelector)">setTrackSelector</a></span>&#8203;(<a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the player.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseLazyPreparation(boolean)">setUseLazyPreparation</a></span>&#8203;(boolean&nbsp;useLazyPreparation)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether media sources should be initialized lazily.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoChangeFrameRateStrategy(int)">setVideoChangeFrameRateStrategy</a></span>&#8203;(int&nbsp;videoChangeFrameRateStrategy)</code></th>
+<td class="colLast">
+<div class="block">Sets a <a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> that will be used by the player when provided
+ with a video output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(int)">setVideoScalingMode</a></span>&#8203;(int&nbsp;videoScalingMode)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a> that will be used by the player.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
+<td class="colFirst"><code><a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWakeMode(@com.google.android.exoplayer2.C.WakeModeint)">setWakeMode</a></span>&#8203;(@com.google.android.exoplayer2.C.WakeMode int&nbsp;wakeMode)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2"><code>C.WakeMode</code></a> that will be used by the player.</div>
 </td>
 </tr>
 </table>
@@ -336,20 +420,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.Renderer...)">
+<a id="&lt;init&gt;(android.content.Context)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>Builder</h4>
-<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-               <a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>...&nbsp;renderers)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Creates a builder with a list of <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderers</code></a>.
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="block">Creates a builder.
+
+ <p>Use <a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.RenderersFactory)"><code>Builder(Context, RenderersFactory)</code></a>, <a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.source.MediaSourceFactory)"><code>Builder(Context,
+ MediaSourceFactory)</code></a> or <a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.source.MediaSourceFactory)"><code>Builder(Context, RenderersFactory, MediaSourceFactory)</code></a>
+ instead, if you intend to provide a custom <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a>, <a href="extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorsFactory</code></a> or <a href="source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory</code></a>. This is to ensure that ProGuard or
+ R8 can remove ExoPlayer's <a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2"><code>DefaultRenderersFactory</code></a>, <a href="extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><code>DefaultExtractorsFactory</code></a>
+ and <a href="source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory</code></a> from the APK.
 
  <p>The builder uses the following default values:
 
  <ul>
+   <li><a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a>: <a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2"><code>DefaultRenderersFactory</code></a>
    <li><a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>: <a href="trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>
    <li><a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a>: <a href="source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory</code></a>
    <li><a href="LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a>: <a href="DefaultLoadControl.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl</code></a>
@@ -357,42 +446,120 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
    <li><a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2"><code>LivePlaybackSpeedControl</code></a>: <a href="DefaultLivePlaybackSpeedControl.html" title="class in com.google.android.exoplayer2"><code>DefaultLivePlaybackSpeedControl</code></a>
    <li><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a>: The <a href="https://developer.android.com/reference/android/os/Looper.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> associated with the current thread, or the <a href="https://developer.android.com/reference/android/os/Looper.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> of the application's main thread if the current thread doesn't have a <a href="https://developer.android.com/reference/android/os/Looper.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a>
    <li><a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a>: <a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> with <a href="util/Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>
+   <li><a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a>: <code>null</code> (not used)
+   <li><a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>: <a href="audio/AudioAttributes.html#DEFAULT"><code>AudioAttributes.DEFAULT</code></a>, not handling audio focus
+   <li><a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2"><code>C.WakeMode</code></a>: <a href="C.html#WAKE_MODE_NONE"><code>C.WAKE_MODE_NONE</code></a>
+   <li><code>handleAudioBecomingNoisy</code>: <code>false</code>
+   <li><code>skipSilenceEnabled</code>: <code>false</code>
+   <li><a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>: <a href="C.html#VIDEO_SCALING_MODE_DEFAULT"><code>C.VIDEO_SCALING_MODE_DEFAULT</code></a>
+   <li><a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a>: <a href="C.html#VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS"><code>C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS</code></a>
    <li><code>useLazyPreparation</code>: <code>true</code>
    <li><a href="SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>: <a href="SeekParameters.html#DEFAULT"><code>SeekParameters.DEFAULT</code></a>
+   <li><code>seekBackIncrementMs</code>: <a href="C.html#DEFAULT_SEEK_BACK_INCREMENT_MS"><code>C.DEFAULT_SEEK_BACK_INCREMENT_MS</code></a>
+   <li><code>seekForwardIncrementMs</code>: <a href="C.html#DEFAULT_SEEK_FORWARD_INCREMENT_MS"><code>C.DEFAULT_SEEK_FORWARD_INCREMENT_MS</code></a>
    <li><code>releaseTimeoutMs</code>: <a href="ExoPlayer.html#DEFAULT_RELEASE_TIMEOUT_MS"><code>ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS</code></a>
+   <li><code>detachSurfaceTimeoutMs</code>: <a href="ExoPlayer.html#DEFAULT_DETACH_SURFACE_TIMEOUT_MS"><code>ExoPlayer.DEFAULT_DETACH_SURFACE_TIMEOUT_MS</code></a>
    <li><code>pauseAtEndOfMediaItems</code>: <code>false</code>
    <li><a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>: <a href="util/Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>
  </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
-<dd><code>renderers</code> - The <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderers</code></a> to be used by the player.</dd>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.Renderer[],com.google.android.exoplayer2.trackselection.TrackSelector,com.google.android.exoplayer2.source.MediaSourceFactory,com.google.android.exoplayer2.LoadControl,com.google.android.exoplayer2.upstream.BandwidthMeter)">
+<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.RenderersFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+               <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<div class="block">Creates a builder with a custom <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a>.
+
+ <p>See <a href="#%3Cinit%3E(android.content.Context)"><code>Builder(Context)</code></a> for a list of default values.
+
+ <p>Note that this constructor is only useful to try and ensure that ExoPlayer's <a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2"><code>DefaultRenderersFactory</code></a> can be removed by ProGuard or R8.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
+<dd><code>renderersFactory</code> - A factory for creating <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderers</code></a> to be used by the
+     player.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.source.MediaSourceFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+               <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</pre>
+<div class="block">Creates a builder with a custom <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a>.
+
+ <p>See <a href="#%3Cinit%3E(android.content.Context)"><code>Builder(Context)</code></a> for a list of default values.
+
+ <p>Note that this constructor is only useful to try and ensure that ExoPlayer's <a href="source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory</code></a> (and therefore <a href="extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><code>DefaultExtractorsFactory</code></a>) can be removed by
+ ProGuard or R8.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
+<dd><code>mediaSourceFactory</code> - A factory for creating a <a href="source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> from a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.source.MediaSourceFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+               <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+               <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</pre>
+<div class="block">Creates a builder with a custom <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> and <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a>.
+
+ <p>See <a href="#%3Cinit%3E(android.content.Context)"><code>Builder(Context)</code></a> for a list of default values.
+
+ <p>Note that this constructor is only useful to try and ensure that ExoPlayer's <a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2"><code>DefaultRenderersFactory</code></a>, <a href="source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory</code></a> (and therefore <a href="extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor"><code>DefaultExtractorsFactory</code></a>) can be removed by ProGuard or R8.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
+<dd><code>renderersFactory</code> - A factory for creating <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderers</code></a> to be used by the
+     player.</dd>
+<dd><code>mediaSourceFactory</code> - A factory for creating a <a href="source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> from a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context,com.google.android.exoplayer2.RenderersFactory,com.google.android.exoplayer2.source.MediaSourceFactory,com.google.android.exoplayer2.trackselection.TrackSelector,com.google.android.exoplayer2.LoadControl,com.google.android.exoplayer2.upstream.BandwidthMeter,com.google.android.exoplayer2.analytics.AnalyticsCollector)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
-<pre>public&nbsp;Builder&#8203;(<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
-               <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+               <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory,
+               <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                <a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-               <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+               <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+               <a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</pre>
 <div class="block">Creates a builder with the specified custom components.
 
  <p>Note that this constructor is only useful to try and ensure that ExoPlayer's default
  components can be removed by ProGuard or R8.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>renderers</code> - The <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderers</code></a> to be used by the player.</dd>
-<dd><code>trackSelector</code> - A <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>.</dd>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
+<dd><code>renderersFactory</code> - A factory for creating <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderers</code></a> to be used by the
+     player.</dd>
 <dd><code>mediaSourceFactory</code> - A <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a>.</dd>
+<dd><code>trackSelector</code> - A <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>.</dd>
 <dd><code>loadControl</code> - A <a href="LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a>.</dd>
 <dd><code>bandwidthMeter</code> - A <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a>.</dd>
+<dd><code>analyticsCollector</code> - An <a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -413,10 +580,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>experimentalSetForegroundModeTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;experimentalSetForegroundModeTimeoutMs&#8203;(long&nbsp;timeoutMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Set a limit on the time a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> can spend. If a call to
- <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>timeoutMs</code> milliseconds to
- complete, the player will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.
+<div class="block">Sets a limit on the time a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> can spend. If a call to <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>timeoutMs</code> milliseconds to complete, the player
+ will raise an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
@@ -425,18 +590,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="setTrackSelector(com.google.android.exoplayer2.trackselection.TrackSelector)">
+<a id="setRenderersFactory(com.google.android.exoplayer2.RenderersFactory)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setTrackSelector</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setTrackSelector&#8203;(<a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the player.</div>
+<h4>setRenderersFactory</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setRenderersFactory&#8203;(<a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
+<div class="block">Sets the <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>trackSelector</code> - A <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>.</dd>
+<dd><code>renderersFactory</code> - A <a href="RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -451,11 +615,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setMediaSourceFactory</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;mediaSourceFactory)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSourceFactory</code> - A <a href="source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceFactory</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTrackSelector(com.google.android.exoplayer2.trackselection.TrackSelector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTrackSelector</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setTrackSelector&#8203;(<a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</pre>
+<div class="block">Sets the <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the player.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackSelector</code> - A <a href="trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -470,7 +651,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setLoadControl</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLoadControl&#8203;(<a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -489,7 +669,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setBandwidthMeter</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setBandwidthMeter&#8203;(<a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> that will be used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -508,7 +687,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setLooper</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLooper&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> that must be used for all calls to the player and that is used to
  call listeners on.</div>
 <dl>
@@ -528,11 +706,167 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setAnalyticsCollector</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setAnalyticsCollector&#8203;(<a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> that will collect and forward all player events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>analyticsCollector</code> - An <a href="analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPriorityTaskManager(com.google.android.exoplayer2.util.PriorityTaskManager)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPriorityTaskManager</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setPriorityTaskManager&#8203;(@Nullable
+                                                <a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
+<div class="block">Sets an <a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> that will be used by the player.
+
+ <p>The priority <a href="C.html#PRIORITY_PLAYBACK"><code>C.PRIORITY_PLAYBACK</code></a> will be set while the player is loading.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>priorityTaskManager</code> - A <a href="util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a>, or null to not use one.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioAttributes</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setAudioAttributes&#8203;(<a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
+                                            boolean&nbsp;handleAudioFocus)</pre>
+<div class="block">Sets <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> that will be used by the player and whether to handle audio
+ focus.
+
+ <p>If audio focus should be handled, the <a href="audio/AudioAttributes.html#usage"><code>AudioAttributes.usage</code></a> must be <a href="C.html#USAGE_MEDIA"><code>C.USAGE_MEDIA</code></a> or <a href="C.html#USAGE_GAME"><code>C.USAGE_GAME</code></a>. Other usages will throw an <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioAttributes</code> - <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</dd>
+<dd><code>handleAudioFocus</code> - Whether the player should handle audio focus.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setWakeMode(@com.google.android.exoplayer2.C.WakeModeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setWakeMode</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setWakeMode&#8203;(<a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2">@WakeMode</a>
+                                     @com.google.android.exoplayer2.C.WakeMode int&nbsp;wakeMode)</pre>
+<div class="block">Sets the <a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2"><code>C.WakeMode</code></a> that will be used by the player.
+
+ <p>Enabling this feature requires the <a href="https://developer.android.com/reference/android/Manifest.permission.html#WAKE_LOCK" title="class or interface in android" class="externalLink" target="_top"><code>Manifest.permission.WAKE_LOCK</code></a>
+ permission. It should be used together with a foreground <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink" target="_top"><code>Service</code></a> for use
+ cases where playback occurs and the screen is off (e.g. background audio playback). It is not
+ useful when the screen will be kept on during playback (e.g. foreground video playback).
+
+ <p>When enabled, the locks (<a href="https://developer.android.com/reference/android/os/PowerManager.WakeLock.html" title="class or interface in android.os" class="externalLink"><code>PowerManager.WakeLock</code></a> / <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock.html?is-external=true" title="class or interface in android.net.wifi" class="externalLink"><code>WifiManager.WifiLock</code></a>) will be held whenever the player is in the <a href="Player.html#STATE_READY"><code>Player.STATE_READY</code></a> or <a href="Player.html#STATE_BUFFERING" target="_top"><code>Player.STATE_BUFFERING</code></a> states with <code>playWhenReady = true</code>. The locks
+ held depend on the specified <a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2"><code>C.WakeMode</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>wakeMode</code> - A <a href="C.WakeMode.html" title="annotation in com.google.android.exoplayer2"><code>C.WakeMode</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setHandleAudioBecomingNoisy(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setHandleAudioBecomingNoisy</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setHandleAudioBecomingNoisy&#8203;(boolean&nbsp;handleAudioBecomingNoisy)</pre>
+<div class="block">Sets whether the player should pause automatically when audio is rerouted from a headset to
+ device speakers. See the <a href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">
+ audio becoming noisy</a> documentation for more information.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>handleAudioBecomingNoisy</code> - Whether the player should pause automatically when audio is
+     rerouted from a headset to device speakers.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSkipSilenceEnabled(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSkipSilenceEnabled</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Sets whether silences silences in the audio stream is enabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences is enabled.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setVideoScalingMode(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoScalingMode</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setVideoScalingMode&#8203;(<a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
+                                             int&nbsp;videoScalingMode)</pre>
+<div class="block">Sets the <a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a> that will be used by the player.
+
+ <p>The scaling mode only applies if a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a>-based video <a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Renderer</code></a> is
+ enabled and if the output surface is owned by a <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>SurfaceView</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>videoScalingMode</code> - A <a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setVideoChangeFrameRateStrategy(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoChangeFrameRateStrategy</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setVideoChangeFrameRateStrategy&#8203;(<a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2">@VideoChangeFrameRateStrategy</a>
+                                                         int&nbsp;videoChangeFrameRateStrategy)</pre>
+<div class="block">Sets a <a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> that will be used by the player when provided
+ with a video output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.
+
+ <p>The strategy only applies if a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a>-based video <a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Renderer</code></a> is enabled.
+ Applications wishing to use <a href="https://developer.android.com/reference/android/view/Surface.html#CHANGE_FRAME_RATE_ALWAYS" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface.CHANGE_FRAME_RATE_ALWAYS</code></a> should set the mode to
+ <a href="C.html#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF"><code>C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF</code></a> to disable calls to <a href="https://developer.android.com/reference/android/view/Surface.html#setFrameRate(float,int,int)" title="class or interface in android.view" class="externalLink"><code>Surface.setFrameRate(float, int, int)</code></a> from ExoPlayer, and should then call <a href="https://developer.android.com/reference/android/view/Surface.html?is-external=true#setFrameRate(float,int,int)" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface.setFrameRate(float, int, int)</code></a>
+ directly from application code.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>videoChangeFrameRateStrategy</code> - A <a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -547,7 +881,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setUseLazyPreparation</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setUseLazyPreparation&#8203;(boolean&nbsp;useLazyPreparation)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether media sources should be initialized lazily.
 
  <p>If false, all initial preparation steps (e.g., manifest loads) happen immediately. If
@@ -570,7 +903,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setSeekParameters</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekParameters&#8203;(<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -582,6 +914,46 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a id="setSeekBackIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSeekBackIncrementMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekBackIncrementMs&#8203;(@IntRange(from=1L)
+                                                long&nbsp;seekBackIncrementMs)</pre>
+<div class="block">Sets the <a href="Player.html#seekBack()"><code>Player.seekBack()</code></a> increment.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>seekBackIncrementMs</code> - The seek back increment, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If <code>seekBackIncrementMs</code> is non-positive.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a id="setSeekForwardIncrementMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSeekForwardIncrementMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setSeekForwardIncrementMs&#8203;(@IntRange(from=1L)
+                                                   long&nbsp;seekForwardIncrementMs)</pre>
+<div class="block">Sets the <a href="Player.html#seekForward()"><code>Player.seekForward()</code></a> increment.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>seekForwardIncrementMs</code> - The seek forward increment, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If <code>seekForwardIncrementMs</code> is non-positive.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
 <a id="setReleaseTimeoutMs(long)">
 <!--   -->
 </a>
@@ -589,7 +961,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setReleaseTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setReleaseTimeoutMs&#8203;(long&nbsp;releaseTimeoutMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a timeout for calls to <a href="Player.html#release()"><code>Player.release()</code></a> and <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a>.
 
  <p>If a call to <a href="Player.html#release()"><code>Player.release()</code></a> or <a href="ExoPlayer.html#setForegroundMode(boolean)"><code>ExoPlayer.setForegroundMode(boolean)</code></a> takes more than <code>
@@ -604,6 +975,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a id="setDetachSurfaceTimeoutMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDetachSurfaceTimeoutMs</h4>
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setDetachSurfaceTimeoutMs&#8203;(long&nbsp;detachSurfaceTimeoutMs)</pre>
+<div class="block">Sets a timeout for detaching a surface from the player.
+
+ <p>If detaching a surface or replacing a surface takes more than <code>
+ detachSurfaceTimeoutMs</code> to complete, the player will report an error via <a href="Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>detachSurfaceTimeoutMs</code> - The timeout for detaching a surface, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
+</dl>
+</li>
+</ul>
 <a id="setPauseAtEndOfMediaItems(boolean)">
 <!--   -->
 </a>
@@ -611,10 +1003,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setPauseAtEndOfMediaItems</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setPauseAtEndOfMediaItems&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether to pause playback at the end of each media item.
 
- <p>This means the player will pause at the end of each window in the current <a href="Player.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="Player.Listener.html#onPlayWhenReadyChanged(boolean,int)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
+ <p>This means the player will pause at the end of each window in the current <a href="Player.html#getCurrentTimeline()"><code>timeline</code></a>. Listeners will be informed by a call to <a href="Player.Listener.html#onPlayWhenReadyChanged(boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)"><code>Player.Listener.onPlayWhenReadyChanged(boolean, int)</code></a> with the reason <a href="Player.html#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM"><code>Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</code></a> when this happens.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pauseAtEndOfMediaItems</code> - Whether to pause playback at the end of each media item.</dd>
@@ -632,7 +1023,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setLivePlaybackSpeedControl</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setLivePlaybackSpeedControl&#8203;(<a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2">LivePlaybackSpeedControl</a>&nbsp;livePlaybackSpeedControl)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2"><code>LivePlaybackSpeedControl</code></a> that will control the playback speed when playing
  live streams, in order to maintain a steady target offset from the live stream edge.</div>
 <dl>
@@ -652,7 +1042,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setClock</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2">ExoPlayer.Builder</a>&nbsp;setClock&#8203;(<a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> that will be used by the player. Should only be set for testing
  purposes.</div>
 <dl>
@@ -672,11 +1061,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>build</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;build()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If <code>build</code> has already been called.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If this method has already been called.</dd>
 </dl>
 </li>
 </ul>

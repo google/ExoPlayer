@@ -223,8 +223,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCustomAction(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle)">onCustomAction</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-              <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCustomAction(com.google.android.exoplayer2.Player,java.lang.String,android.os.Bundle)">onCustomAction</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;action,
               <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras)</code></th>
 <td class="colLast">
@@ -323,29 +322,23 @@ public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="onCustomAction(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle)">
+<a id="onCustomAction(com.google.android.exoplayer2.Player,java.lang.String,android.os.Bundle)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onCustomAction</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onCustomAction&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                           <a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-                           <a href="../../ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;action,
                            @Nullable
                            <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.CustomActionProvider.html#onCustomAction(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle)">MediaSessionConnector.CustomActionProvider</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.CustomActionProvider.html#onCustomAction(com.google.android.exoplayer2.Player,java.lang.String,android.os.Bundle)">MediaSessionConnector.CustomActionProvider</a></code></span></div>
 <div class="block">Called when a custom action provided by this provider is sent to the media session.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="MediaSessionConnector.CustomActionProvider.html#onCustomAction(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ControlDispatcher,java.lang.String,android.os.Bundle)">onCustomAction</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></code></dd>
+<dd><code><a href="MediaSessionConnector.CustomActionProvider.html#onCustomAction(com.google.android.exoplayer2.Player,java.lang.String,android.os.Bundle)">onCustomAction</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>
-<dd><code>controlDispatcher</code> - This parameter is deprecated. Use <code>player</code> instead. Operations
-     can be customized by passing a <a href="../../ForwardingPlayer.html" title="class in com.google.android.exoplayer2"><code>ForwardingPlayer</code></a> to <a href="MediaSessionConnector.html#setPlayer(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.setPlayer(Player)</code></a>, or
-     when configuring the player (for example by using <code>
-     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)</code>).</dd>
 <dd><code>action</code> - The name of the action which was sent by a media controller.</dd>
 <dd><code>extras</code> - Optional extras sent by a media controller, may be null.</dd>
 </dl>

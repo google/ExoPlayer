@@ -198,7 +198,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,com.google.android.exoplayer2.Format,java.util.List)">MediaParserChunkExtractor</a></span>&#8203;(int&nbsp;primaryTrackType,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,java.util.List)">MediaParserChunkExtractor</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                          <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat,
                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</code></th>
 <td class="colLast">
@@ -304,20 +304,19 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,com.google.android.exoplayer2.Format,java.util.List)">
+<a id="&lt;init&gt;(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,java.util.List)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MediaParserChunkExtractor</h4>
-<pre>public&nbsp;MediaParserChunkExtractor&#8203;(int&nbsp;primaryTrackType,
+<pre>public&nbsp;MediaParserChunkExtractor&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                                  <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</pre>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>primaryTrackType</code> - The type of the primary track, or <a href="../../C.html#TRACK_TYPE_NONE"><code>C.TRACK_TYPE_NONE</code></a> if there is
-     no primary track. Must be one of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C.TRACK_TYPE_*</code></a> constants.</dd>
+<dd><code>primaryTrackType</code> - The <a href="../../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of the primary track. <a href="../../C.html#TRACK_TYPE_NONE"><code>C.TRACK_TYPE_NONE</code></a> if there is no primary track.</dd>
 <dd><code>manifestFormat</code> - The chunks <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> as obtained from the manifest.</dd>
 <dd><code>closedCaptionFormats</code> - A list containing the <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of the closed-caption
      tracks in the chunks.</dd>

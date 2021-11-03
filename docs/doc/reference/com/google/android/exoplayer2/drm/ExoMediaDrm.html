@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -310,17 +310,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMediaCrypto(byte%5B%5D)">createMediaCrypto</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
+<td class="colFirst"><code><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createCryptoConfig(byte%5B%5D)">createCryptoConfig</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
 <td class="colLast">
-<div class="block">Creates an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for a given session.</div>
+<div class="block">Creates a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> that can be passed to a compatible decoder to allow decryption
+ of protected content using the specified session.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getExoMediaCryptoType()">getExoMediaCryptoType</a></span>()</code></th>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.CryptoType int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoType()">getCryptoType</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type created by <a href="#createMediaCrypto(byte%5B%5D)"><code>createMediaCrypto(byte[])</code></a>.</div>
+<div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> instances returned by <a href="#createCryptoConfig(byte%5B%5D)"><code>createCryptoConfig(byte[])</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -398,6 +399,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i14" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requiresSecureDecoder(byte%5B%5D,java.lang.String)">requiresSecureDecoder</a></span>&#8203;(byte[]&nbsp;sessionId,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the given session requires use of a secure decoder for the given MIME type.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#restoreKeys(byte%5B%5D,byte%5B%5D)">restoreKeys</a></span>&#8203;(byte[]&nbsp;sessionId,
            byte[]&nbsp;keySetId)</code></th>
@@ -405,28 +414,28 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Restores persisted offline keys into a session.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnEventListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener)">setOnEventListener</a></span>&#8203;(<a href="ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the listener for DRM events.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnExpirationUpdateListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnExpirationUpdateListener)">setOnExpirationUpdateListener</a></span>&#8203;(<a href="ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the listener for session expiration events.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnKeyStatusChangeListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener)">setOnKeyStatusChangeListener</a></span>&#8203;(<a href="ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the listener for key status change events.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyByteArray(java.lang.String,byte%5B%5D)">setPropertyByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                     byte[]&nbsp;value)</code></th>
@@ -434,7 +443,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Sets the value of a byte array property.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyString(java.lang.String,java.lang.String)">setPropertyString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
@@ -764,6 +773,23 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 </dl>
 </li>
 </ul>
+<a id="requiresSecureDecoder(byte[],java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>requiresSecureDecoder</h4>
+<pre class="methodSignature">boolean&nbsp;requiresSecureDecoder&#8203;(byte[]&nbsp;sessionId,
+                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns whether the given session requires use of a secure decoder for the given MIME type.
+ Assumes a license policy that requires the highest level of security supported by the session.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sessionId</code> - The ID of the session.</dd>
+<dd><code>mimeType</code> - The content MIME type to query.</dd>
+</dl>
+</li>
+</ul>
 <a id="acquire()">
 <!--   -->
 </a>
@@ -888,33 +914,34 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 </dl>
 </li>
 </ul>
-<a id="createMediaCrypto(byte[])">
+<a id="createCryptoConfig(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>createMediaCrypto</h4>
-<pre class="methodSignature"><a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;createMediaCrypto&#8203;(byte[]&nbsp;sessionId)
-                          throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCryptoException</a></pre>
-<div class="block">Creates an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for a given session.</div>
+<h4>createCryptoConfig</h4>
+<pre class="methodSignature"><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;createCryptoConfig&#8203;(byte[]&nbsp;sessionId)
+                         throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCryptoException</a></pre>
+<div class="block">Creates a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> that can be passed to a compatible decoder to allow decryption
+ of protected content using the specified session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>sessionId</code> - The ID of the session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>An <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the given session.</dd>
+<dd>A <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for the given session.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink">MediaCryptoException</a></code> - If an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top"><code>ExoMediaCrypto</code></a> could not be created.</dd>
+<dd><code><a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink">MediaCryptoException</a></code> - If a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder" target="_top"><code>CryptoConfig</code></a> could not be created.</dd>
 </dl>
 </li>
 </ul>
-<a id="getExoMediaCryptoType()">
+<a id="getCryptoType()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getExoMediaCryptoType</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;&nbsp;getExoMediaCryptoType()</pre>
-<div class="block">Returns the <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type created by <a href="#createMediaCrypto(byte%5B%5D)"><code>createMediaCrypto(byte[])</code></a>.</div>
+<h4>getCryptoType</h4>
+<pre class="methodSignature">@com.google.android.exoplayer2.C.CryptoType int&nbsp;getCryptoType()</pre>
+<div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> instances returned by <a href="#createCryptoConfig(byte%5B%5D)"><code>createCryptoConfig(byte[])</code></a>.</div>
 </li>
 </ul>
 </li>

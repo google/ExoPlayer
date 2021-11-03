@@ -1,0 +1,535 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>AssetContentProvider (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="AssetContentProvider (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.testutil</a></div>
+<h2 title="Class AssetContentProvider" class="title">Class AssetContentProvider</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/android/content/ContentProvider.html" title="class or interface in android.content" class="externalLink" target="_top">android.content.ContentProvider</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.testutil.AssetContentProvider</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ComponentCallbacks.html" title="class or interface in android.content" class="externalLink">ComponentCallbacks</a></code>, <code><a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true" title="class or interface in android.content" class="externalLink">ComponentCallbacks2</a></code>, <code><a href="https://developer.android.com/reference/android/content/ContentProvider.PipeDataWriter.html?is-external=true" title="class or interface in android.content" class="externalLink">ContentProvider.PipeDataWriter</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</code></dd>
+</dl>
+<hr>
+<pre>public final class <span class="typeNameLabel">AssetContentProvider</span>
+extends <a href="https://developer.android.com/reference/android/content/ContentProvider.html" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a>
+implements <a href="https://developer.android.com/reference/android/content/ContentProvider.PipeDataWriter.html" title="class or interface in android.content" class="externalLink">ContentProvider.PipeDataWriter</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</pre>
+<div class="block">A <a href="https://developer.android.com/reference/android/content/ContentProvider.html" title="class or interface in android.content" class="externalLink" target="_top"><code>ContentProvider</code></a> for reading asset data.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.android.content.ContentProvider">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;android.content.<a href="https://developer.android.com/reference/android/content/ContentProvider.html" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></h3>
+<code><a href="https://developer.android.com/reference/android/content/ContentProvider.CallingIdentity.html" title="class or interface in android.content" class="externalLink">ContentProvider.CallingIdentity</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.PipeDataWriter.html?is-external=true" title="class or interface in android.content" class="externalLink">ContentProvider.PipeDataWriter</a>&lt;<a href="https://developer.android.com/reference/android/content/ContentProvider.PipeDataWriter.html?is-external=true" title="class or interface in android.content" class="externalLink">T</a> extends <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.android.content.ComponentCallbacks2">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;android.content.<a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html" title="class or interface in android.content" class="externalLink" target="_top">ComponentCallbacks2</a></h3>
+<code><a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html#TRIM_MEMORY_BACKGROUND" title="class or interface in android.content" class="externalLink">TRIM_MEMORY_BACKGROUND</a>, <a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true#TRIM_MEMORY_COMPLETE" title="class or interface in android.content" class="externalLink">TRIM_MEMORY_COMPLETE</a>, <a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true#TRIM_MEMORY_MODERATE" title="class or interface in android.content" class="externalLink">TRIM_MEMORY_MODERATE</a>, <a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true#TRIM_MEMORY_RUNNING_CRITICAL" title="class or interface in android.content" class="externalLink">TRIM_MEMORY_RUNNING_CRITICAL</a>, <a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true#TRIM_MEMORY_RUNNING_LOW" title="class or interface in android.content" class="externalLink">TRIM_MEMORY_RUNNING_LOW</a>, <a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true#TRIM_MEMORY_RUNNING_MODERATE" title="class or interface in android.content" class="externalLink">TRIM_MEMORY_RUNNING_MODERATE</a>, <a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true#TRIM_MEMORY_UI_HIDDEN" title="class or interface in android.content" class="externalLink" target="_top">TRIM_MEMORY_UI_HIDDEN</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">AssetContentProvider</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUri(java.lang.String,boolean)">buildUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;filePath,
+        boolean&nbsp;pipeMode)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#delete(android.net.Uri,java.lang.String,java.lang.String%5B%5D)">delete</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;selection,
+      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;selectionArgs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getType(android.net.Uri)">getType</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#insert(android.net.Uri,android.content.ContentValues)">insert</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+      <a href="https://developer.android.com/reference/android/content/ContentValues.html" title="class or interface in android.content" class="externalLink" target="_top">ContentValues</a>&nbsp;values)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCreate()">onCreate</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/content/res/AssetFileDescriptor.html" title="class or interface in android.content.res" class="externalLink" target="_top">AssetFileDescriptor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#openAssetFile(android.net.Uri,java.lang.String)">openAssetFile</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mode)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/database/Cursor.html" title="class or interface in android.database" class="externalLink" target="_top">Cursor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#query(android.net.Uri,java.lang.String%5B%5D,java.lang.String,java.lang.String%5B%5D,java.lang.String)">query</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;projection,
+     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;selection,
+     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;selectionArgs,
+     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sortOrder)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String%5B%5D)">update</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+      <a href="https://developer.android.com/reference/android/content/ContentValues.html" title="class or interface in android.content" class="externalLink" target="_top">ContentValues</a>&nbsp;values,
+      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;selection,
+      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;selectionArgs)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeDataToPipe(android.os.ParcelFileDescriptor,android.net.Uri,java.lang.String,android.os.Bundle,java.lang.Object)">writeDataToPipe</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top">ParcelFileDescriptor</a>&nbsp;output,
+               <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+               <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;opts,
+               <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;args)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.android.content.ContentProvider">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;android.content.<a href="https://developer.android.com/reference/android/content/ContentProvider.html" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></h3>
+<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#applyBatch(java.lang.String,java.util.ArrayList)" title="class or interface in android.content" class="externalLink">applyBatch</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#applyBatch(java.util.ArrayList)" title="class or interface in android.content" class="externalLink">applyBatch</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#attachInfo(android.content.Context,android.content.pm.ProviderInfo)" title="class or interface in android.content" class="externalLink">attachInfo</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#bulkInsert(android.net.Uri,android.content.ContentValues%5B%5D)" title="class or interface in android.content" class="externalLink">bulkInsert</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#call(java.lang.String,java.lang.String,android.os.Bundle)" title="class or interface in android.content" class="externalLink">call</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#call(java.lang.String,java.lang.String,java.lang.String,android.os.Bundle)" title="class or interface in android.content" class="externalLink">call</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#canonicalize(android.net.Uri)" title="class or interface in android.content" class="externalLink">canonicalize</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#clearCallingIdentity()" title="class or interface in android.content" class="externalLink">clearCallingIdentity</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#delete(android.net.Uri,android.os.Bundle)" title="class or interface in android.content" class="externalLink">delete</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#dump(java.io.FileDescriptor,java.io.PrintWriter,java.lang.String%5B%5D)" title="class or interface in android.content" class="externalLink">dump</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getCallingAttributionSource()" title="class or interface in android.content" class="externalLink">getCallingAttributionSource</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getCallingAttributionTag()" title="class or interface in android.content" class="externalLink">getCallingAttributionTag</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getCallingPackage()" title="class or interface in android.content" class="externalLink">getCallingPackage</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getCallingPackageUnchecked()" title="class or interface in android.content" class="externalLink">getCallingPackageUnchecked</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getContext()" title="class or interface in android.content" class="externalLink">getContext</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getPathPermissions()" title="class or interface in android.content" class="externalLink">getPathPermissions</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getReadPermission()" title="class or interface in android.content" class="externalLink">getReadPermission</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getStreamTypes(android.net.Uri,java.lang.String)" title="class or interface in android.content" class="externalLink">getStreamTypes</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#getWritePermission()" title="class or interface in android.content" class="externalLink">getWritePermission</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#insert(android.net.Uri,android.content.ContentValues,android.os.Bundle)" title="class or interface in android.content" class="externalLink">insert</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#isTemporary()" title="class or interface in android.content" class="externalLink">isTemporary</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#onCallingPackageChanged()" title="class or interface in android.content" class="externalLink">onCallingPackageChanged</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#onConfigurationChanged(android.content.res.Configuration)" title="class or interface in android.content" class="externalLink">onConfigurationChanged</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#onLowMemory()" title="class or interface in android.content" class="externalLink">onLowMemory</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#onTrimMemory(int)" title="class or interface in android.content" class="externalLink">onTrimMemory</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#openAssetFile(android.net.Uri,java.lang.String,android.os.CancellationSignal)" title="class or interface in android.content" class="externalLink">openAssetFile</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#openFile(android.net.Uri,java.lang.String)" title="class or interface in android.content" class="externalLink">openFile</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#openFile(android.net.Uri,java.lang.String,android.os.CancellationSignal)" title="class or interface in android.content" class="externalLink">openFile</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#openFileHelper(android.net.Uri,java.lang.String)" title="class or interface in android.content" class="externalLink">openFileHelper</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#openPipeHelper(android.net.Uri,java.lang.String,android.os.Bundle,T,android.content.ContentProvider.PipeDataWriter)" title="class or interface in android.content" class="externalLink">openPipeHelper</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#openTypedAssetFile(android.net.Uri,java.lang.String,android.os.Bundle)" title="class or interface in android.content" class="externalLink">openTypedAssetFile</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#openTypedAssetFile(android.net.Uri,java.lang.String,android.os.Bundle,android.os.CancellationSignal)" title="class or interface in android.content" class="externalLink">openTypedAssetFile</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#query(android.net.Uri,java.lang.String%5B%5D,android.os.Bundle,android.os.CancellationSignal)" title="class or interface in android.content" class="externalLink">query</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#query(android.net.Uri,java.lang.String%5B%5D,java.lang.String,java.lang.String%5B%5D,java.lang.String,android.os.CancellationSignal)" title="class or interface in android.content" class="externalLink">query</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#refresh(android.net.Uri,android.os.Bundle,android.os.CancellationSignal)" title="class or interface in android.content" class="externalLink">refresh</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#requireContext()" title="class or interface in android.content" class="externalLink">requireContext</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#restoreCallingIdentity(android.content.ContentProvider.CallingIdentity)" title="class or interface in android.content" class="externalLink">restoreCallingIdentity</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#setPathPermissions(android.content.pm.PathPermission%5B%5D)" title="class or interface in android.content" class="externalLink">setPathPermissions</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#setReadPermission(java.lang.String)" title="class or interface in android.content" class="externalLink">setReadPermission</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#setWritePermission(java.lang.String)" title="class or interface in android.content" class="externalLink">setWritePermission</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#shutdown()" title="class or interface in android.content" class="externalLink">shutdown</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#uncanonicalize(android.net.Uri)" title="class or interface in android.content" class="externalLink">uncanonicalize</a>, <a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true#update(android.net.Uri,android.content.ContentValues,android.os.Bundle)" title="class or interface in android.content" class="externalLink" target="_top">update</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>AssetContentProvider</h4>
+<pre>public&nbsp;AssetContentProvider()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="buildUri(java.lang.String,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildUri</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink">Uri</a>&nbsp;buildUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;filePath,
+                           boolean&nbsp;pipeMode)</pre>
+</li>
+</ul>
+<a id="onCreate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onCreate</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;onCreate()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#onCreate()" title="class or interface in android.content" class="externalLink">onCreate</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>query</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/database/Cursor.html" title="class or interface in android.database" class="externalLink">Cursor</a>&nbsp;query&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;projection,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;selection,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;selectionArgs,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sortOrder)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#query(android.net.Uri,java.lang.String%5B%5D,java.lang.String,java.lang.String%5B%5D,java.lang.String)" title="class or interface in android.content" class="externalLink">query</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="openAssetFile(android.net.Uri,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>openAssetFile</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/content/res/AssetFileDescriptor.html" title="class or interface in android.content.res" class="externalLink">AssetFileDescriptor</a>&nbsp;openAssetFile&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mode)
+                                  throws <a href="https://developer.android.com/reference/java/io/FileNotFoundException.html" title="class or interface in java.io" class="externalLink" target="_top">FileNotFoundException</a></pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#openAssetFile(android.net.Uri,java.lang.String)" title="class or interface in android.content" class="externalLink">openAssetFile</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/FileNotFoundException.html" title="class or interface in java.io" class="externalLink" target="_top">FileNotFoundException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getType(android.net.Uri)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getType</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getType&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#getType(android.net.Uri)" title="class or interface in android.content" class="externalLink">getType</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="insert(android.net.Uri,android.content.ContentValues)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>insert</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink">Uri</a>&nbsp;insert&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                  <a href="https://developer.android.com/reference/android/content/ContentValues.html" title="class or interface in android.content" class="externalLink" target="_top">ContentValues</a>&nbsp;values)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#insert(android.net.Uri,android.content.ContentValues)" title="class or interface in android.content" class="externalLink">insert</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="delete(android.net.Uri,java.lang.String,java.lang.String[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>delete</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;delete&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;selection,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;selectionArgs)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#delete(android.net.Uri,java.lang.String,java.lang.String%5B%5D)" title="class or interface in android.content" class="externalLink">delete</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>update</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;update&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                  <a href="https://developer.android.com/reference/android/content/ContentValues.html" title="class or interface in android.content" class="externalLink" target="_top">ContentValues</a>&nbsp;values,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;selection,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;selectionArgs)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.html#update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String%5B%5D)" title="class or interface in android.content" class="externalLink">update</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ContentProvider</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="writeDataToPipe(android.os.ParcelFileDescriptor,android.net.Uri,java.lang.String,android.os.Bundle,java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>writeDataToPipe</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;writeDataToPipe&#8203;(<a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top">ParcelFileDescriptor</a>&nbsp;output,
+                            <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;opts,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;args)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/content/ContentProvider.PipeDataWriter.html#writeDataToPipe(android.os.ParcelFileDescriptor,android.net.Uri,java.lang.String,android.os.Bundle,T)" title="class or interface in android.content" class="externalLink">writeDataToPipe</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/content/ContentProvider.PipeDataWriter.html?is-external=true" title="class or interface in android.content" class="externalLink">ContentProvider.PipeDataWriter</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

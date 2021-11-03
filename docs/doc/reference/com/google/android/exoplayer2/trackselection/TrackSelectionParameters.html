@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -130,7 +130,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
+<dd><code><a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
@@ -139,8 +139,24 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public class <span class="typeNameLabel">TrackSelectionParameters</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></pre>
-<div class="block">Constraint parameters for track selection.</div>
+implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="block">Constraint parameters for track selection.
+
+ <p>For example the following code modifies the parameters to restrict video track selections to
+ SD, and to select a German audio track if there is one:
+
+ <pre><code>
+ // Build on the current parameters.
+ TrackSelectionParameters currentParameters = player.getTrackSelectionParameters()
+ // Build the resulting parameters.
+ TrackSelectionParameters newParameters = currentParameters
+     .buildUpon()
+     .setMaxVideoSizeSd()
+     .setPreferredAudioLanguage("deu")
+     .build();
+ // Set the new parameters.
+ player.setTrackSelectionParameters(newParameters);
+ </code></pre></div>
 </li>
 </ul>
 </div>
@@ -170,11 +186,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a id="nested.classes.inherited.from.class.android.os.Parcelable">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></h3>
-<code><a href="https://developer.android.com/reference/android/os/Parcelable.ClassLoaderCreator.html" title="class or interface in android.os" class="externalLink">Parcelable.ClassLoaderCreator</a>&lt;<a href="https://developer.android.com/reference/android/os/Parcelable.ClassLoaderCreator.html?is-external=true" title="class or interface in android.os" class="externalLink">T</a> extends <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&gt;, <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html?is-external=true" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html?is-external=true" title="class or interface in android.os" class="externalLink">T</a> extends <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></h3>
+<code><a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="../Bundleable.Creator.html" title="type parameter in Bundleable.Creator">T</a> extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;</code></li>
 </ul>
 </li>
 </ul>
@@ -194,9 +210,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionParameters</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Object that can restore <code>TrackSelectionParameters</code> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></td>
@@ -215,6 +233,13 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableSet</a>&lt;<a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2">@TrackType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disabledTrackTypes">disabledTrackTypes</a></span></code></th>
+<td class="colLast">
+<div class="block">The track types that are disabled.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceHighestSupportedBitrate">forceHighestSupportedBitrate</a></span></code></th>
 <td class="colLast">
@@ -222,7 +247,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  other constraints.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceLowestBitrate">forceLowestBitrate</a></span></code></th>
 <td class="colLast">
@@ -230,77 +255,77 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  all other constraints.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxAudioBitrate">maxAudioBitrate</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum allowed audio bitrate in bits per second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxAudioChannelCount">maxAudioChannelCount</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum allowed audio channel count.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoBitrate">maxVideoBitrate</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum allowed video bitrate in bits per second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoFrameRate">maxVideoFrameRate</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum allowed video frame rate in hertz.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoHeight">maxVideoHeight</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum allowed video height in pixels.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVideoWidth">maxVideoWidth</a></span></code></th>
 <td class="colLast">
 <div class="block">Maximum allowed video width in pixels.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoBitrate">minVideoBitrate</a></span></code></th>
 <td class="colLast">
 <div class="block">Minimum allowed video bitrate in bits per second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoFrameRate">minVideoFrameRate</a></span></code></th>
 <td class="colLast">
 <div class="block">Minimum allowed video frame rate in hertz.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoHeight">minVideoHeight</a></span></code></th>
 <td class="colLast">
 <div class="block">Minimum allowed video height in pixels.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVideoWidth">minVideoWidth</a></span></code></th>
 <td class="colLast">
 <div class="block">Minimum allowed video width in pixels.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioLanguages">preferredAudioLanguages</a></span></code></th>
 <td class="colLast">
@@ -308,7 +333,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  order of preference.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioMimeTypes">preferredAudioMimeTypes</a></span></code></th>
 <td class="colLast">
@@ -316,28 +341,28 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  no preference.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredAudioRoleFlags">preferredAudioRoleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for audio tracks.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredTextLanguages">preferredTextLanguages</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred languages for text tracks as IETF BCP 47 conformant tags in order of preference.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredTextRoleFlags">preferredTextRoleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for text tracks.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preferredVideoMimeTypes">preferredVideoMimeTypes</a></span></code></th>
 <td class="colLast">
@@ -345,11 +370,18 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  no preference.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether a text track with undetermined language should be selected if no track with <a href="#preferredTextLanguages"><code>preferredTextLanguages</code></a> is available, or if <a href="#preferredTextLanguages"><code>preferredTextLanguages</code></a> is unset.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="TrackSelectionOverrides.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverrides</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionOverrides">trackSelectionOverrides</a></span></code></th>
+<td class="colLast">
+<div class="block">Overrides to force tracks to be selected.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -374,13 +406,6 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a id="fields.inherited.from.class.android.os.Parcelable">
-<!--   -->
-</a>
-<h3>Fields inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></h3>
-<code><a href="https://developer.android.com/reference/android/os/Parcelable.html#CONTENTS_FILE_DESCRIPTOR" title="class or interface in android.os" class="externalLink">CONTENTS_FILE_DESCRIPTOR</a>, <a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#PARCELABLE_WRITE_RETURN_VALUE" title="class or interface in android.os" class="externalLink" target="_top">PARCELABLE_WRITE_RETURN_VALUE</a></code></li>
-</ul>
 </li>
 </ul>
 </section>
@@ -429,32 +454,28 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaults(android.content.Context)">getDefaults</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
 <div class="block">Returns an instance configured with default values.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
-             int&nbsp;flags)</code></th>
-<td class="colLast">&nbsp;</td>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -512,15 +533,6 @@ public static final&nbsp;<a href="TrackSelectionParameters.html" title="class in
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">This instance is not configured using <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink"><code>Context</code></a> constraints. Use <a href="#getDefaults(android.content.Context)" target="_top"><code>getDefaults(Context)</code></a> instead.</div>
 </div>
-</li>
-</ul>
-<a id="CREATOR">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CREATOR</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionParameters</a>&gt; CREATOR</pre>
 </li>
 </ul>
 <a id="maxVideoWidth">
@@ -678,7 +690,7 @@ public static final&nbsp;<a href="TrackSelectionParameters.html" title="class in
 <li class="blockList">
 <h4>preferredAudioRoleFlags</h4>
 <pre><a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-public final&nbsp;int preferredAudioRoleFlags</pre>
+public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int preferredAudioRoleFlags</pre>
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for audio tracks. <code>0</code> selects the default track if
  there is one, or the first track if there's no default. The default value is <code>0</code>.</div>
 </li>
@@ -735,7 +747,7 @@ public final&nbsp;int preferredAudioRoleFlags</pre>
 <li class="blockList">
 <h4>preferredTextRoleFlags</h4>
 <pre><a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-public final&nbsp;int preferredTextRoleFlags</pre>
+public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int preferredTextRoleFlags</pre>
 <div class="block">The preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for text tracks. <code>0</code> selects the default track if there
  is one, or no track otherwise. The default value is <code>0</code>, or <a href="../C.html#ROLE_FLAG_SUBTITLE"><code>C.ROLE_FLAG_SUBTITLE</code></a>
  | <a href="../C.html#ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND"><code>C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND</code></a> if the accessibility <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a>
@@ -767,12 +779,44 @@ public final&nbsp;int preferredTextRoleFlags</pre>
 <a id="forceHighestSupportedBitrate">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>forceHighestSupportedBitrate</h4>
 <pre>public final&nbsp;boolean forceHighestSupportedBitrate</pre>
 <div class="block">Whether to force selection of the highest bitrate audio and video tracks that comply with all
  other constraints. The default value is <code>false</code>.</div>
+</li>
+</ul>
+<a id="trackSelectionOverrides">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>trackSelectionOverrides</h4>
+<pre>public final&nbsp;<a href="TrackSelectionOverrides.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverrides</a> trackSelectionOverrides</pre>
+<div class="block">Overrides to force tracks to be selected.</div>
+</li>
+</ul>
+<a id="disabledTrackTypes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>disabledTrackTypes</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableSet.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableSet</a>&lt;<a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2">@TrackType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt; disabledTrackTypes</pre>
+<div class="block">The track types that are disabled. No track of a disabled type will be selected, thus no track
+ type contained in the set will be played. The default value is that no track type is disabled
+ (empty set).</div>
+</li>
+</ul>
+<a id="CREATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CREATOR</h4>
+<pre>public static final&nbsp;<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&gt; CREATOR</pre>
+<div class="block">Object that can restore <code>TrackSelectionParameters</code> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -851,30 +895,18 @@ public final&nbsp;int preferredTextRoleFlags</pre>
 </dl>
 </li>
 </ul>
-<a id="describeContents()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>describeContents</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;describeContents()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#describeContents()" title="class or interface in android.os" class="externalLink">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
-</dl>
-</li>
-</ul>
-<a id="writeToParcel(android.os.Parcel,int)">
+<a id="toBundle()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>writeToParcel</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;writeToParcel&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
-                          int&nbsp;flags)</pre>
+<h4>toBundle</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Bundleable.html#toBundle()">Bundleable</a></code></span></div>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#writeToParcel(android.os.Parcel,int)" title="class or interface in android.os" class="externalLink">writeToParcel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
+<dd><code><a href="../Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 </li>
 </ul>

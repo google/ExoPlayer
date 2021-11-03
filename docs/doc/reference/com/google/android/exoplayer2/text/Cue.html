@@ -298,14 +298,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.AnchorType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lineAnchor">lineAnchor</a></span></code></th>
 <td class="colLast">
 <div class="block">The cue box anchor positioned by <a href="#line"><code>line</code></a> when <a href="#lineType"><code>lineType</code></a> is <a href="#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.LineType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lineType">lineType</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of the <a href="#line"><code>line</code></a> value.</div>
@@ -328,7 +328,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.AnchorType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#positionAnchor">positionAnchor</a></span></code></th>
 <td class="colLast">
 <div class="block">The cue box anchor positioned by <a href="#position"><code>position</code></a>.</div>
@@ -393,7 +393,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.TextSizeType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#textSizeType">textSizeType</a></span></code></th>
 <td class="colLast">
 <div class="block">The default text size type for this cue's text, or <a href="#TYPE_UNSET"><code>TYPE_UNSET</code></a> if this cue has no
@@ -422,7 +422,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.VerticalType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#verticalType">verticalType</a></span></code></th>
 <td class="colLast">
 <div class="block">The vertical formatting of this Cue, or <a href="#TYPE_UNSET"><code>TYPE_UNSET</code></a> if the cue has no vertical setting
@@ -469,13 +469,13 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.CharSequence,android.text.Layout.Alignment,float,int,int,float,int,float)">Cue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.CharSequence,android.text.Layout.Alignment,float,@com.google.android.exoplayer2.text.Cue.LineTypeint,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float)">Cue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text,
    <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
    float&nbsp;line,
-   int&nbsp;lineType,
-   int&nbsp;lineAnchor,
+   @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType,
+   @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor,
    float&nbsp;position,
-   int&nbsp;positionAnchor,
+   @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor,
    float&nbsp;size)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
@@ -484,16 +484,16 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.CharSequence,android.text.Layout.Alignment,float,int,int,float,int,float,boolean,int)">Cue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.CharSequence,android.text.Layout.Alignment,float,@com.google.android.exoplayer2.text.Cue.LineTypeint,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.TextSizeTypeint,float)">Cue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text,
    <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
    float&nbsp;line,
-   int&nbsp;lineType,
-   int&nbsp;lineAnchor,
+   @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType,
+   @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor,
    float&nbsp;position,
-   int&nbsp;positionAnchor,
+   @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor,
    float&nbsp;size,
-   boolean&nbsp;windowColorSet,
-   int&nbsp;windowColor)</code></th>
+   @com.google.android.exoplayer2.text.Cue.TextSizeType int&nbsp;textSizeType,
+   float&nbsp;textSize)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</div>
@@ -501,16 +501,16 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.CharSequence,android.text.Layout.Alignment,float,int,int,float,int,float,int,float)">Cue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.CharSequence,android.text.Layout.Alignment,float,@com.google.android.exoplayer2.text.Cue.LineTypeint,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,boolean,int)">Cue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;text,
    <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
    float&nbsp;line,
-   int&nbsp;lineType,
-   int&nbsp;lineAnchor,
+   @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType,
+   @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor,
    float&nbsp;position,
-   int&nbsp;positionAnchor,
+   @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor,
    float&nbsp;size,
-   int&nbsp;textSizeType,
-   float&nbsp;textSize)</code></th>
+   boolean&nbsp;windowColorSet,
+   int&nbsp;windowColor)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</div>
@@ -839,7 +839,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/graph
 <li class="blockList">
 <h4>lineType</h4>
 <pre><a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
-public final&nbsp;int lineType</pre>
+public final&nbsp;@com.google.android.exoplayer2.text.Cue.LineType int lineType</pre>
 <div class="block">The type of the <a href="#line"><code>line</code></a> value.
 
  <ul>
@@ -867,7 +867,7 @@ public final&nbsp;int lineType</pre>
 <li class="blockList">
 <h4>lineAnchor</h4>
 <pre><a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-public final&nbsp;int lineAnchor</pre>
+public final&nbsp;@com.google.android.exoplayer2.text.Cue.AnchorType int lineAnchor</pre>
 <div class="block">The cue box anchor positioned by <a href="#line"><code>line</code></a> when <a href="#lineType"><code>lineType</code></a> is <a href="#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a>.
 
  <p>One of:
@@ -911,7 +911,7 @@ public final&nbsp;int lineAnchor</pre>
 <li class="blockList">
 <h4>positionAnchor</h4>
 <pre><a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-public final&nbsp;int positionAnchor</pre>
+public final&nbsp;@com.google.android.exoplayer2.text.Cue.AnchorType int positionAnchor</pre>
 <div class="block">The cue box anchor positioned by <a href="#position"><code>position</code></a>. One of <a href="#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
 
  <p>For the normal case of horizontal text, <a href="#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a> and <a href="#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the left, middle and right of
@@ -968,7 +968,7 @@ public final&nbsp;int positionAnchor</pre>
 <li class="blockList">
 <h4>textSizeType</h4>
 <pre><a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
-public final&nbsp;int textSizeType</pre>
+public final&nbsp;@com.google.android.exoplayer2.text.Cue.TextSizeType int textSizeType</pre>
 <div class="block">The default text size type for this cue's text, or <a href="#TYPE_UNSET"><code>TYPE_UNSET</code></a> if this cue has no
  default text size.</div>
 </li>
@@ -991,7 +991,7 @@ public final&nbsp;int textSizeType</pre>
 <li class="blockList">
 <h4>verticalType</h4>
 <pre><a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
-public final&nbsp;int verticalType</pre>
+public final&nbsp;@com.google.android.exoplayer2.text.Cue.VerticalType int verticalType</pre>
 <div class="block">The vertical formatting of this Cue, or <a href="#TYPE_UNSET"><code>TYPE_UNSET</code></a> if the cue has no vertical setting
  (and so should be horizontal).</div>
 </li>
@@ -1045,7 +1045,7 @@ public&nbsp;Cue&#8203;(<a href="https://developer.android.com/reference/java/lan
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.CharSequence,android.text.Layout.Alignment,float,int,int,float,int,float)">
+<a id="&lt;init&gt;(java.lang.CharSequence,android.text.Layout.Alignment,float,@com.google.android.exoplayer2.text.Cue.LineTypeint,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1057,12 +1057,12 @@ public&nbsp;Cue&#8203;(<a href="https://developer.android.com/reference/java/lan
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
            <a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
-           int&nbsp;lineType,
+           @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType,
            <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-           int&nbsp;lineAnchor,
+           @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor,
            float&nbsp;position,
            <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-           int&nbsp;positionAnchor,
+           @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor,
            float&nbsp;size)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</div>
@@ -1081,7 +1081,7 @@ public&nbsp;Cue&#8203;(<a href="https://developer.android.com/reference/java/lan
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.CharSequence,android.text.Layout.Alignment,float,int,int,float,int,float,int,float)">
+<a id="&lt;init&gt;(java.lang.CharSequence,android.text.Layout.Alignment,float,@com.google.android.exoplayer2.text.Cue.LineTypeint,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.TextSizeTypeint,float)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1093,15 +1093,15 @@ public&nbsp;Cue&#8203;(<a href="https://developer.android.com/reference/java/lan
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
            <a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
-           int&nbsp;lineType,
+           @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType,
            <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-           int&nbsp;lineAnchor,
+           @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor,
            float&nbsp;position,
            <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-           int&nbsp;positionAnchor,
+           @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor,
            float&nbsp;size,
            <a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
-           int&nbsp;textSizeType,
+           @com.google.android.exoplayer2.text.Cue.TextSizeType int&nbsp;textSizeType,
            float&nbsp;textSize)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</div>
@@ -1122,7 +1122,7 @@ public&nbsp;Cue&#8203;(<a href="https://developer.android.com/reference/java/lan
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.CharSequence,android.text.Layout.Alignment,float,int,int,float,int,float,boolean,int)">
+<a id="&lt;init&gt;(java.lang.CharSequence,android.text.Layout.Alignment,float,@com.google.android.exoplayer2.text.Cue.LineTypeint,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,@com.google.android.exoplayer2.text.Cue.AnchorTypeint,float,boolean,int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -1134,12 +1134,12 @@ public&nbsp;Cue&#8203;(<a href="https://developer.android.com/reference/java/lan
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" class="externalLink" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
            <a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
-           int&nbsp;lineType,
+           @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType,
            <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-           int&nbsp;lineAnchor,
+           @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor,
            float&nbsp;position,
            <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-           int&nbsp;positionAnchor,
+           @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor,
            float&nbsp;size,
            boolean&nbsp;windowColorSet,
            int&nbsp;windowColor)</pre>

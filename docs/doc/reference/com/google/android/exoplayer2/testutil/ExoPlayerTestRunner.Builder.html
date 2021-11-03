@@ -135,7 +135,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public static final class <span class="typeNameLabel">ExoPlayerTestRunner.Builder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Builder to set-up a <a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil"><code>ExoPlayerTestRunner</code></a>. Default fake implementations will be used for
+<div class="block">Builder to set-up an <a href="ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil"><code>ExoPlayerTestRunner</code></a>. Default fake implementations will be used for
  unset test properties.</div>
 </li>
 </ul>
@@ -187,7 +187,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialSeek(int,long)">initialSeek</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initialSeek(int,long)">initialSeek</a></span>&#8203;(int&nbsp;mediaItemIndex,
            long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Seeks before setting the media sources and preparing the player.</div>
@@ -304,8 +304,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipSettingMediaSources()">skipSettingMediaSources</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Skips calling <a href="../ExoPlayer.html#setMediaSources(java.util.List)"><code>ExoPlayer.setMediaSources(List)</code></a> before
- preparing.</div>
+<div class="block">Skips calling <a href="../ExoPlayer.html#setMediaSources(java.util.List)"><code>ExoPlayer.setMediaSources(List)</code></a> before preparing.</div>
 </td>
 </tr>
 </table>
@@ -393,12 +392,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>initialSeek</h4>
-<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;initialSeek&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;initialSeek&#8203;(int&nbsp;mediaItemIndex,
                                                long&nbsp;positionMs)</pre>
 <div class="block">Seeks before setting the media sources and preparing the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The window index to seek to.</dd>
+<dd><code>mediaItemIndex</code> - The media item index to seek to.</dd>
 <dd><code>positionMs</code> - The position in milliseconds to seek to.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
@@ -448,8 +447,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>skipSettingMediaSources</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;skipSettingMediaSources()</pre>
-<div class="block">Skips calling <a href="../ExoPlayer.html#setMediaSources(java.util.List)"><code>ExoPlayer.setMediaSources(List)</code></a> before
- preparing. Calling this method is not allowed after calls to <a href="#setMediaSources(com.google.android.exoplayer2.source.MediaSource...)"><code>setMediaSources(MediaSource...)</code></a>, <a href="#setTimeline(com.google.android.exoplayer2.Timeline)"><code>setTimeline(Timeline)</code></a> and/or <a href="#setManifest(java.lang.Object)"><code>setManifest(Object)</code></a>.</div>
+<div class="block">Skips calling <a href="../ExoPlayer.html#setMediaSources(java.util.List)"><code>ExoPlayer.setMediaSources(List)</code></a> before preparing. Calling this method
+ is not allowed after calls to <a href="#setMediaSources(com.google.android.exoplayer2.source.MediaSource...)"><code>setMediaSources(MediaSource...)</code></a>, <a href="#setTimeline(com.google.android.exoplayer2.Timeline)"><code>setTimeline(Timeline)</code></a> and/or <a href="#setManifest(java.lang.Object)"><code>setManifest(Object)</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
@@ -585,7 +584,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setActionSchedule</h4>
 <pre class="methodSignature">public&nbsp;<a href="ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setActionSchedule&#8203;(<a href="ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a>&nbsp;actionSchedule)</pre>
 <div class="block">Sets an <a href="ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><code>ActionSchedule</code></a> to be run by the test runner. The first action will be
- executed immediately before <a href="../SimpleExoPlayer.html#prepare()"><code>SimpleExoPlayer.prepare()</code></a>.</div>
+ executed immediately before <a href="../Player.html#prepare()"><code>Player.prepare()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>actionSchedule</code> - An <a href="ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><code>ActionSchedule</code></a> to be used by the test runner.</dd>

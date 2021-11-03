@@ -160,18 +160,38 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializationData">initializationData</a></span></code></th>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
 <td class="colLast">
-<div class="block">List of buffers containing the codec-specific data to be provided to the decoder, or <code>
- null</code> if not known.</div>
+<div class="block">The height of each decoded frame, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializationData">initializationData</a></span></code></th>
+<td class="colLast">
+<div class="block">List of buffers containing the codec-specific data to be provided to the decoder.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nalUnitLengthFieldLength">nalUnitLengthFieldLength</a></span></code></th>
 <td class="colLast">
 <div class="block">The length of the NAL unit length field in the bitstream's container, in bytes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code></th>
+<td class="colLast">
+<div class="block">The pixel width to height ratio.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
+<td class="colLast">
+<div class="block">The width of each decoded frame, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
 </td>
 </tr>
 </table>
@@ -229,14 +249,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>initializationData</h4>
-<pre>@Nullable
-public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt; initializationData</pre>
-<div class="block">List of buffers containing the codec-specific data to be provided to the decoder, or <code>
- null</code> if not known.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Format.html#initializationData"><code>Format.initializationData</code></a></dd>
-</dl>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt; initializationData</pre>
+<div class="block">List of buffers containing the codec-specific data to be provided to the decoder.
+
+ <p>See <a href="../Format.html#initializationData"><code>Format.initializationData</code></a>.</div>
 </li>
 </ul>
 <a id="nalUnitLengthFieldLength">
@@ -249,6 +265,36 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/util/Lis
 <div class="block">The length of the NAL unit length field in the bitstream's container, in bytes.</div>
 </li>
 </ul>
+<a id="width">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>width</h4>
+<pre>public final&nbsp;int width</pre>
+<div class="block">The width of each decoded frame, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
+</li>
+</ul>
+<a id="height">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>height</h4>
+<pre>public final&nbsp;int height</pre>
+<div class="block">The height of each decoded frame, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
+</li>
+</ul>
+<a id="pixelWidthHeightRatio">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>pixelWidthHeightRatio</h4>
+<pre>public final&nbsp;float pixelWidthHeightRatio</pre>
+<div class="block">The pixel width to height ratio.</div>
+</li>
+</ul>
 <a id="codecs">
 <!--   -->
 </a>
@@ -257,11 +303,9 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/util/Lis
 <h4>codecs</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> codecs</pre>
-<div class="block">An RFC 6381 codecs string representing the video format, or <code>null</code> if not known.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../Format.html#codecs"><code>Format.codecs</code></a></dd>
-</dl>
+<div class="block">An RFC 6381 codecs string representing the video format, or <code>null</code> if not known.
+
+ <p>See <a href="../Format.html#codecs"><code>Format.codecs</code></a>.</div>
 </li>
 </ul>
 </li>

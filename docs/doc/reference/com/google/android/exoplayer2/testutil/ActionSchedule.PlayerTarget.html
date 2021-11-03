@@ -221,7 +221,7 @@ implements <a href="../PlayerMessage.Target.html" title="interface in com.google
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>abstract void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleMessage(com.google.android.exoplayer2.SimpleExoPlayer,int,java.lang.Object)">handleMessage</a></span>&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleMessage(com.google.android.exoplayer2.ExoPlayer,int,java.lang.Object)">handleMessage</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
              int&nbsp;messageType,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</code></th>
 <td class="colLast">
@@ -285,13 +285,13 @@ implements <a href="../PlayerMessage.Target.html" title="interface in com.google
 <pre class="methodSignature">public&nbsp;void&nbsp;setCallback&#8203;(<a href="ActionSchedule.PlayerTarget.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget.Callback</a>&nbsp;callback)</pre>
 </li>
 </ul>
-<a id="handleMessage(com.google.android.exoplayer2.SimpleExoPlayer,int,java.lang.Object)">
+<a id="handleMessage(com.google.android.exoplayer2.ExoPlayer,int,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>handleMessage</h4>
-<pre class="methodSignature">public abstract&nbsp;void&nbsp;handleMessage&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;handleMessage&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
                                    int&nbsp;messageType,
                                    @Nullable
                                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</pre>
@@ -304,7 +304,8 @@ implements <a href="../PlayerMessage.Target.html" title="interface in com.google
 <ul class="blockListLast">
 <li class="blockList">
 <h4>handleMessage</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;handleMessage&#8203;(int&nbsp;messageType,
+<pre class="methodSignature">public final&nbsp;void&nbsp;handleMessage&#8203;(<a href="../Renderer.MessageType.html" title="annotation in com.google.android.exoplayer2">@MessageType</a>
+                                int&nbsp;messageType,
                                 @Nullable
                                 <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../PlayerMessage.Target.html#handleMessage(int,java.lang.Object)">PlayerMessage.Target</a></code></span></div>

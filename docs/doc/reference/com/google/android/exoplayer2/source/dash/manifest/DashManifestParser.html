@@ -210,8 +210,8 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected <a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest">AdaptationSet</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAdaptationSet(int,int,java.util.List,java.util.List,java.util.List,java.util.List)">buildAdaptationSet</a></span>&#8203;(int&nbsp;id,
-                  int&nbsp;contentType,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAdaptationSet(int,@com.google.android.exoplayer2.C.TrackTypeint,java.util.List,java.util.List,java.util.List,java.util.List)">buildAdaptationSet</a></span>&#8203;(int&nbsp;id,
+                  @com.google.android.exoplayer2.C.TrackType int&nbsp;contentType,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Representation</a>&gt;&nbsp;representations,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
@@ -422,7 +422,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 </td>
 </tr>
 <tr id="i23" class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseContentType(org.xmlpull.v1.XmlPullParser)">parseContentType</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -594,22 +594,22 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i45" class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromAccessibilityDescriptors(java.util.List)">parseRoleFlagsFromAccessibilityDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i46" class="altColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromDashRoleScheme(java.lang.String)">parseRoleFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i47" class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromProperties(java.util.List)">parseRoleFlagsFromProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i48" class="altColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromRoleDescriptors(java.util.List)">parseRoleFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -655,12 +655,12 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i54" class="altColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromDashRoleScheme(java.lang.String)">parseSelectionFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i55" class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromRoleDescriptors(java.util.List)">parseSelectionFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -683,7 +683,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i59" class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
+<td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTvaAudioPurposeCsValue(java.lang.String)">parseTvaAudioPurposeCsValue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -911,14 +911,14 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 </dl>
 </li>
 </ul>
-<a id="buildAdaptationSet(int,int,java.util.List,java.util.List,java.util.List,java.util.List)">
+<a id="buildAdaptationSet(int,@com.google.android.exoplayer2.C.TrackTypeint,java.util.List,java.util.List,java.util.List,java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildAdaptationSet</h4>
 <pre class="methodSignature">protected&nbsp;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest">AdaptationSet</a>&nbsp;buildAdaptationSet&#8203;(int&nbsp;id,
-                                           int&nbsp;contentType,
+                                           @com.google.android.exoplayer2.C.TrackType int&nbsp;contentType,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Representation</a>&gt;&nbsp;representations,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
@@ -931,7 +931,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <ul class="blockList">
 <li class="blockList">
 <h4>parseContentType</h4>
-<pre class="methodSignature">protected&nbsp;int&nbsp;parseContentType&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<pre class="methodSignature">protected&nbsp;@com.google.android.exoplayer2.C.TrackType int&nbsp;parseContentType&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
 </li>
 </ul>
 <a id="parseContentProtection(org.xmlpull.v1.XmlPullParser)">
@@ -1460,7 +1460,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>parseSelectionFlagsFromRoleDescriptors</h4>
 <pre class="methodSignature"><a href="../../../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-protected&nbsp;int&nbsp;parseSelectionFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
+protected&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int&nbsp;parseSelectionFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
 </li>
 </ul>
 <a id="parseSelectionFlagsFromDashRoleScheme(java.lang.String)">
@@ -1470,8 +1470,8 @@ protected&nbsp;int&nbsp;parseSelectionFlagsFromRoleDescriptors&#8203;(<a href="h
 <li class="blockList">
 <h4>parseSelectionFlagsFromDashRoleScheme</h4>
 <pre class="methodSignature"><a href="../../../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-protected&nbsp;int&nbsp;parseSelectionFlagsFromDashRoleScheme&#8203;(@Nullable
-                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+protected&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int&nbsp;parseSelectionFlagsFromDashRoleScheme&#8203;(@Nullable
+                                                                                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
 </li>
 </ul>
 <a id="parseRoleFlagsFromRoleDescriptors(java.util.List)">
@@ -1481,7 +1481,7 @@ protected&nbsp;int&nbsp;parseSelectionFlagsFromDashRoleScheme&#8203;(@Nullable
 <li class="blockList">
 <h4>parseRoleFlagsFromRoleDescriptors</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-protected&nbsp;int&nbsp;parseRoleFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
+protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
 </li>
 </ul>
 <a id="parseRoleFlagsFromAccessibilityDescriptors(java.util.List)">
@@ -1491,7 +1491,7 @@ protected&nbsp;int&nbsp;parseRoleFlagsFromRoleDescriptors&#8203;(<a href="https:
 <li class="blockList">
 <h4>parseRoleFlagsFromAccessibilityDescriptors</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-protected&nbsp;int&nbsp;parseRoleFlagsFromAccessibilityDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromAccessibilityDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
 </li>
 </ul>
 <a id="parseRoleFlagsFromProperties(java.util.List)">
@@ -1501,7 +1501,7 @@ protected&nbsp;int&nbsp;parseRoleFlagsFromAccessibilityDescriptors&#8203;(<a hre
 <li class="blockList">
 <h4>parseRoleFlagsFromProperties</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-protected&nbsp;int&nbsp;parseRoleFlagsFromProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
 </li>
 </ul>
 <a id="parseRoleFlagsFromDashRoleScheme(java.lang.String)">
@@ -1511,8 +1511,8 @@ protected&nbsp;int&nbsp;parseRoleFlagsFromProperties&#8203;(<a href="https://dev
 <li class="blockList">
 <h4>parseRoleFlagsFromDashRoleScheme</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-protected&nbsp;int&nbsp;parseRoleFlagsFromDashRoleScheme&#8203;(@Nullable
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromDashRoleScheme&#8203;(@Nullable
+                                                                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
 </li>
 </ul>
 <a id="parseTvaAudioPurposeCsValue(java.lang.String)">
@@ -1522,8 +1522,8 @@ protected&nbsp;int&nbsp;parseRoleFlagsFromDashRoleScheme&#8203;(@Nullable
 <li class="blockList">
 <h4>parseTvaAudioPurposeCsValue</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-protected&nbsp;int&nbsp;parseTvaAudioPurposeCsValue&#8203;(@Nullable
-                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseTvaAudioPurposeCsValue&#8203;(@Nullable
+                                                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
 </li>
 </ul>
 <a id="maybeSkipTag(org.xmlpull.v1.XmlPullParser)">

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -180,20 +180,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertTimelinesSame(java.util.List,java.util.List)">assertTimelinesSame</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&gt;&nbsp;actualTimelines,
+                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&gt;&nbsp;expectedTimelines)</code></th>
+<td class="colLast">
+<div class="block">Asserts that the actual timelines are the same to the expected timelines.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAssetUri(java.lang.String)">buildAssetUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;assetPath)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> for the given asset path.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTestData(int)">buildTestData</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
 <div class="block">Equivalent to <code>buildTestData(length, length)</code>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTestData(int,int)">buildTestData</a></span>&#8203;(int&nbsp;length,
              int&nbsp;seed)</code></th>
@@ -201,7 +209,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Generates an array of random bytes with the specified length.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTestData(int,java.util.Random)">buildTestData</a></span>&#8203;(int&nbsp;length,
              <a href="https://developer.android.com/reference/java/util/Random.html" title="class or interface in java.util" class="externalLink" target="_top">Random</a>&nbsp;random)</code></th>
@@ -209,7 +217,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Generates an array of random bytes with the specified length.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTestString(int,java.util.Random)">buildTestString</a></span>&#8203;(int&nbsp;length,
                <a href="https://developer.android.com/reference/java/util/Random.html" title="class or interface in java.util" class="externalLink" target="_top">Random</a>&nbsp;random)</code></th>
@@ -217,28 +225,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Generates a random string with the specified length.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createByteArray(int...)">createByteArray</a></span>&#8203;(int...&nbsp;bytes)</code></th>
 <td class="colLast">
 <div class="block">Converts an array of integers in the range [0, 255] into an equivalent byte array.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Byte.html" title="class or interface in java.lang" class="externalLink" target="_top">Byte</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createByteList(int...)">createByteList</a></span>&#8203;(int...&nbsp;bytes)</code></th>
 <td class="colLast">
 <div class="block">Converts an array of integers in the range [0, 255] into an equivalent byte list.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>static <a href="../metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMetadataInputBuffer(byte%5B%5D)">createMetadataInputBuffer</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
 <div class="block">Create a new <a href="../metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata"><code>MetadataInputBuffer</code></a> and copy <code>data</code> into the backing <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTestFile(java.io.File,long)">createTestFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;file,
               long&nbsp;length)</code></th>
@@ -246,7 +254,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Writes test data with the specified length to the file and returns it.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTestFile(java.io.File,java.lang.String)">createTestFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;directory,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
@@ -254,7 +262,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Writes one byte long test data to the file and returns it.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTestFile(java.io.File,java.lang.String,long)">createTestFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;directory,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
@@ -263,7 +271,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Writes test data with the specified length to the file and returns it.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extractAllSamplesFromFile(com.google.android.exoplayer2.extractor.Extractor,android.content.Context,java.lang.String)">extractAllSamplesFromFile</a></span>&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
                          <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -272,7 +280,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Extracts all samples from the given file into a <a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a>.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>static <a href="../extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extractSeekMap(com.google.android.exoplayer2.extractor.Extractor,com.google.android.exoplayer2.testutil.FakeExtractorOutput,com.google.android.exoplayer2.upstream.DataSource,android.net.Uri)">extractSeekMap</a></span>&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
               <a href="FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a>&nbsp;output,
@@ -283,7 +291,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  EOF.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBitmap(android.content.Context,java.lang.String)">getBitmap</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -291,7 +299,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Bitmap</code></a> read from an asset file.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getByteArray(android.content.Context,java.lang.String)">getByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -299,7 +307,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns the bytes of an asset file.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>static <a href="../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getExtractorInputFromPosition(com.google.android.exoplayer2.upstream.DataSource,long,android.net.Uri)">getExtractorInputFromPosition</a></span>&#8203;(<a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                              long&nbsp;position,
@@ -308,14 +316,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns an <a href="../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> to read from the given input at given position.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>static <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInMemoryDatabaseProvider()">getInMemoryDatabaseProvider</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> that provides an in-memory database.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputStream(android.content.Context,java.lang.String)">getInputStream</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -323,7 +331,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns an <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>InputStream</code></a> for reading from an asset file.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getString(android.content.Context,java.lang.String)">getString</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -331,7 +339,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>String</code></a> read from an asset file.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToTimeUs(com.google.android.exoplayer2.extractor.Extractor,com.google.android.exoplayer2.extractor.SeekMap,long,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.testutil.FakeTrackOutput,android.net.Uri)">seekToTimeUs</a></span>&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
             <a href="../extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a>&nbsp;seekMap,
@@ -592,6 +600,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>getInMemoryDatabaseProvider</h4>
 <pre class="methodSignature">public static&nbsp;<a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;getInMemoryDatabaseProvider()</pre>
 <div class="block">Returns a <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> that provides an in-memory database.</div>
+</li>
+</ul>
+<a id="assertTimelinesSame(java.util.List,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertTimelinesSame</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;assertTimelinesSame&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&gt;&nbsp;actualTimelines,
+                                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&gt;&nbsp;expectedTimelines)</pre>
+<div class="block">Asserts that the actual timelines are the same to the expected timelines. This assert differs
+ from testing equality by not comparing period ids which may be different due to id mapping of
+ child source period ids.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>actualTimelines</code> - A list of actual <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>timelines</code></a>.</dd>
+<dd><code>expectedTimelines</code> - A list of expected <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>timelines</code></a>.</dd>
+</dl>
 </li>
 </ul>
 <a id="assertDataSourceContent(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,byte[],boolean)">
