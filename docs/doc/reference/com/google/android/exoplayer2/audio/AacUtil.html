@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -313,20 +313,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEncodingForAudioObjectType(int)">getEncodingForAudioObjectType</a></span>&#8203;(int&nbsp;audioObjectType)</code></th>
-<td class="colLast">
-<div class="block">Returns the encoding for a given AAC audio object type.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAudioSpecificConfig(byte%5B%5D)">parseAudioSpecificConfig</a></span>&#8203;(byte[]&nbsp;audioSpecificConfig)</code></th>
 <td class="colLast">
 <div class="block">Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAudioSpecificConfig(com.google.android.exoplayer2.util.ParsableBitArray,boolean)">parseAudioSpecificConfig</a></span>&#8203;(<a href="../util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
                         boolean&nbsp;forceReadToEnd)</code></th>
@@ -642,7 +635,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="buildAudioSpecificConfig(int,int,int)">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>buildAudioSpecificConfig</h4>
 <pre class="methodSignature">public static&nbsp;byte[]&nbsp;buildAudioSpecificConfig&#8203;(int&nbsp;audioObjectType,
@@ -657,18 +650,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The AudioSpecificConfig.</dd>
 </dl>
-</li>
-</ul>
-<a id="getEncodingForAudioObjectType(int)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getEncodingForAudioObjectType</h4>
-<pre class="methodSignature"><a href="../C.Encoding.html" title="annotation in com.google.android.exoplayer2">@Encoding</a>
-public static&nbsp;int&nbsp;getEncodingForAudioObjectType&#8203;(<a href="AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">@AacAudioObjectType</a>
-                                                int&nbsp;audioObjectType)</pre>
-<div class="block">Returns the encoding for a given AAC audio object type.</div>
 </li>
 </ul>
 </li>

@@ -181,14 +181,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(int)">contains</a></span>&#8203;(int&nbsp;event)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(@com.google.android.exoplayer2.Player.Eventint)">contains</a></span>&#8203;(@com.google.android.exoplayer2.Player.Event int&nbsp;event)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> occurred.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAny(int...)">containsAny</a></span>&#8203;(int...&nbsp;events)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAny(@com.google.android.exoplayer2.Player.Eventint...)">containsAny</a></span>&#8203;(@com.google.android.exoplayer2.Player.Event int...&nbsp;events)</code></th>
 <td class="colLast">
 <div class="block">Returns whether any of the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a> occurred.</div>
 </td>
@@ -199,7 +199,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.Player.Event int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> at the given index.</div>
@@ -265,14 +265,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="contains(int)">
+<a id="contains(@com.google.android.exoplayer2.Player.Eventint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>contains</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;contains&#8203;(<a href="Player.Event.html" title="annotation in com.google.android.exoplayer2">@Event</a>
-                        int&nbsp;event)</pre>
+                        @com.google.android.exoplayer2.Player.Event int&nbsp;event)</pre>
 <div class="block">Returns whether the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -282,14 +282,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="containsAny(int...)">
+<a id="containsAny(@com.google.android.exoplayer2.Player.Eventint...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>containsAny</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;containsAny&#8203;(<a href="Player.Event.html" title="annotation in com.google.android.exoplayer2">@Event</a>
-                           int...&nbsp;events)</pre>
+                           @com.google.android.exoplayer2.Player.Event int...&nbsp;events)</pre>
 <div class="block">Returns whether any of the given <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a> occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -316,7 +316,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>get</h4>
 <pre class="methodSignature"><a href="Player.Event.html" title="annotation in com.google.android.exoplayer2">@Event</a>
-public&nbsp;int&nbsp;get&#8203;(int&nbsp;index)</pre>
+public&nbsp;@com.google.android.exoplayer2.Player.Event int&nbsp;get&#8203;(int&nbsp;index)</pre>
 <div class="block">Returns the <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>Player.Event</code></a> at the given index.
 
  <p>Although index-based access is possible, it doesn't imply a particular order of these

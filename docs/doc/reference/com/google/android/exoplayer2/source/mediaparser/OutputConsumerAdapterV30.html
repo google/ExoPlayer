@@ -160,13 +160,13 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">OutputConsumerAdapterV30</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Equivalent to <a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,int,boolean)"><code>OutputConsumerAdapterV30(primaryTrackManifestFormat= null, primaryTrackType= C.TRACK_TYPE_NONE,
+<div class="block">Equivalent to <a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.TrackTypeint,boolean)"><code>OutputConsumerAdapterV30(primaryTrackManifestFormat= null, primaryTrackType= C.TRACK_TYPE_NONE,
  expectDummySeekMap= false)</code></a></div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,int,boolean)">OutputConsumerAdapterV30</a></span>&#8203;(<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;primaryTrackManifestFormat,
-                        int&nbsp;primaryTrackType,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.TrackTypeint,boolean)">OutputConsumerAdapterV30</a></span>&#8203;(<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;primaryTrackManifestFormat,
+                        @com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                         boolean&nbsp;expectDummySeekMap)</code></th>
 <td class="colLast">
 <div class="block">Creates a new instance.</div>
@@ -324,11 +324,11 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>OutputConsumerAdapterV30</h4>
 <pre>public&nbsp;OutputConsumerAdapterV30()</pre>
-<div class="block">Equivalent to <a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,int,boolean)"><code>OutputConsumerAdapterV30(primaryTrackManifestFormat= null, primaryTrackType= C.TRACK_TYPE_NONE,
+<div class="block">Equivalent to <a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.TrackTypeint,boolean)"><code>OutputConsumerAdapterV30(primaryTrackManifestFormat= null, primaryTrackType= C.TRACK_TYPE_NONE,
  expectDummySeekMap= false)</code></a></div>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.Format,int,boolean)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.TrackTypeint,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -336,15 +336,14 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <h4>OutputConsumerAdapterV30</h4>
 <pre>public&nbsp;OutputConsumerAdapterV30&#8203;(@Nullable
                                 <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;primaryTrackManifestFormat,
-                                int&nbsp;primaryTrackType,
+                                @com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                                 boolean&nbsp;expectDummySeekMap)</pre>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>primaryTrackManifestFormat</code> - The manifest-obtained format of the primary track, or null if
      not applicable.</dd>
-<dd><code>primaryTrackType</code> - The type of the primary track, or <a href="../../C.html#TRACK_TYPE_NONE"><code>C.TRACK_TYPE_NONE</code></a> if there is
-     no primary track. Must be one of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C.TRACK_TYPE_*</code></a> constants.</dd>
+<dd><code>primaryTrackType</code> - The <a href="../../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of the primary track. <a href="../../C.html#TRACK_TYPE_NONE"><code>C.TRACK_TYPE_NONE</code></a> if there is no primary track.</dd>
 <dd><code>expectDummySeekMap</code> - Whether the output consumer should expect an initial dummy seek map
      which should be exposed through <a href="#getDummySeekMap()"><code>getDummySeekMap()</code></a>.</dd>
 </dl>

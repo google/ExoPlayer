@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":42,"i3":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -168,7 +168,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -201,6 +201,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                          <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;contentIntent,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildProgressNotification(android.content.Context,int,android.app.PendingIntent,java.lang.String,java.util.List,int)"><code>buildProgressNotification(Context, int, PendingIntent, String, List,
+     int)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top">Notification</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildProgressNotification(android.content.Context,int,android.app.PendingIntent,java.lang.String,java.util.List,int)">buildProgressNotification</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                         int&nbsp;smallIcon,
+                         <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;contentIntent,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
+                         int&nbsp;notMetRequirements)</code></th>
 <td class="colLast">
 <div class="block">Returns a progress notification for the given downloads.</div>
 </td>
@@ -260,7 +275,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>buildProgressNotification</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink">Notification</a>&nbsp;buildProgressNotification&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink">Notification</a>&nbsp;buildProgressNotification&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                               @DrawableRes
                                               int&nbsp;smallIcon,
                                               @Nullable
@@ -268,6 +284,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                               @Nullable
                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                                               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#buildProgressNotification(android.content.Context,int,android.app.PendingIntent,java.lang.String,java.util.List,int)"><code>buildProgressNotification(Context, int, PendingIntent, String, List,
+     int)</code></a>.</div>
+</div>
+</li>
+</ul>
+<a id="buildProgressNotification(android.content.Context,int,android.app.PendingIntent,java.lang.String,java.util.List,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildProgressNotification</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink">Notification</a>&nbsp;buildProgressNotification&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                              @DrawableRes
+                                              int&nbsp;smallIcon,
+                                              @Nullable
+                                              <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;contentIntent,
+                                              @Nullable
+                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
+                                              <a href="../scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler">@RequirementFlags</a>
+                                              int&nbsp;notMetRequirements)</pre>
 <div class="block">Returns a progress notification for the given downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -276,6 +314,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>contentIntent</code> - An optional content intent to send when the notification is clicked.</dd>
 <dd><code>message</code> - An optional message to display on the notification.</dd>
 <dd><code>downloads</code> - The downloads.</dd>
+<dd><code>notMetRequirements</code> - Any requirements for downloads that are not currently met.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The notification.</dd>
 </dl>
