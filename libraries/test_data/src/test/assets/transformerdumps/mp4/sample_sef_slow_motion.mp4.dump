@@ -19,206 +19,247 @@ format 1:
 sample:
   trackIndex = 1
   dataHashCode = -549003117
+  size = 5438
   isKeyFrame = true
   presentationTimeUs = 0
 sample:
   trackIndex = 1
   dataHashCode = 593600631
+  size = 117
   isKeyFrame = false
   presentationTimeUs = 14000
 sample:
   trackIndex = 1
   dataHashCode = -961321612
+  size = 139
   isKeyFrame = false
   presentationTimeUs = 47333
 sample:
   trackIndex = 1
   dataHashCode = -386347143
+  size = 141
   isKeyFrame = false
   presentationTimeUs = 80667
 sample:
   trackIndex = 1
   dataHashCode = -1289764147
+  size = 141
   isKeyFrame = false
   presentationTimeUs = 114000
 sample:
   trackIndex = 1
   dataHashCode = 1337088875
+  size = 161
   isKeyFrame = false
   presentationTimeUs = 147333
 sample:
   trackIndex = 1
   dataHashCode = -322406979
+  size = 118
   isKeyFrame = false
   presentationTimeUs = 180667
 sample:
   trackIndex = 1
   dataHashCode = -1688033783
+  size = 112
   isKeyFrame = false
   presentationTimeUs = 228042
 sample:
   trackIndex = 1
   dataHashCode = -700344608
+  size = 118
   isKeyFrame = false
   presentationTimeUs = 244708
 sample:
   trackIndex = 1
   dataHashCode = -1441653629
+  size = 1172
   isKeyFrame = false
   presentationTimeUs = 334083
 sample:
   trackIndex = 1
   dataHashCode = 1201357091
+  size = 208
   isKeyFrame = false
   presentationTimeUs = 267416
 sample:
   trackIndex = 1
   dataHashCode = -668484307
+  size = 111
   isKeyFrame = false
   presentationTimeUs = 234083
 sample:
   trackIndex = 1
   dataHashCode = 653508165
+  size = 137
   isKeyFrame = false
   presentationTimeUs = 300750
 sample:
   trackIndex = 1
   dataHashCode = -816848987
+  size = 1266
   isKeyFrame = false
   presentationTimeUs = 467416
 sample:
   trackIndex = 1
   dataHashCode = 1842436292
+  size = 182
   isKeyFrame = false
   presentationTimeUs = 400750
 sample:
   trackIndex = 1
   dataHashCode = -559603233
+  size = 99
   isKeyFrame = false
   presentationTimeUs = 367416
 sample:
   trackIndex = 1
   dataHashCode = -666437886
+  size = 117
   isKeyFrame = false
   presentationTimeUs = 434083
 sample:
   trackIndex = 1
   dataHashCode = 182521759
+  size = 1101
   isKeyFrame = false
   presentationTimeUs = 600750
 sample:
   trackIndex = 0
   dataHashCode = -212376212
+  size = 20
   isKeyFrame = true
   presentationTimeUs = 0
 sample:
   trackIndex = 0
   dataHashCode = -833872563
+  size = 1732
   isKeyFrame = true
   presentationTimeUs = 416
 sample:
   trackIndex = 0
   dataHashCode = -135901925
+  size = 380
   isKeyFrame = true
   presentationTimeUs = 36499
 sample:
   trackIndex = 0
   dataHashCode = 250093960
+  size = 751
   isKeyFrame = true
   presentationTimeUs = 44415
 sample:
   trackIndex = 0
   dataHashCode = 1895536226
+  size = 1045
   isKeyFrame = true
   presentationTimeUs = 59998
 sample:
   trackIndex = 0
   dataHashCode = 1723596464
+  size = 947
   isKeyFrame = true
   presentationTimeUs = 81748
 sample:
   trackIndex = 0
   dataHashCode = -978803114
+  size = 946
   isKeyFrame = true
   presentationTimeUs = 101414
 sample:
   trackIndex = 0
   dataHashCode = 387377078
+  size = 946
   isKeyFrame = true
   presentationTimeUs = 121080
 sample:
   trackIndex = 0
   dataHashCode = -132658698
+  size = 901
   isKeyFrame = true
   presentationTimeUs = 140746
 sample:
   trackIndex = 0
   dataHashCode = 1495036471
+  size = 899
   isKeyFrame = true
   presentationTimeUs = 159496
 sample:
   trackIndex = 0
   dataHashCode = 304440590
+  size = 878
   isKeyFrame = true
   presentationTimeUs = 178162
 sample:
   trackIndex = 1
   dataHashCode = 2139021989
+  size = 242
   isKeyFrame = false
   presentationTimeUs = 534083
 sample:
   trackIndex = 1
   dataHashCode = 2013165108
+  size = 116
   isKeyFrame = false
   presentationTimeUs = 500750
 sample:
   trackIndex = 1
   dataHashCode = 405675195
+  size = 126
   isKeyFrame = false
   presentationTimeUs = 567416
 sample:
   trackIndex = 1
   dataHashCode = -1893277090
+  size = 1193
   isKeyFrame = false
   presentationTimeUs = 734083
 sample:
   trackIndex = 0
   dataHashCode = -752661703
+  size = 228
   isKeyFrame = true
   presentationTimeUs = 196412
 sample:
   trackIndex = 1
   dataHashCode = -1554795381
+  size = 205
   isKeyFrame = false
   presentationTimeUs = 667416
 sample:
   trackIndex = 1
   dataHashCode = 1197099206
+  size = 117
   isKeyFrame = false
   presentationTimeUs = 634083
 sample:
   trackIndex = 1
   dataHashCode = -674808173
+  size = 106
   isKeyFrame = false
   presentationTimeUs = 700750
 sample:
   trackIndex = 1
   dataHashCode = -775517313
+  size = 1002
   isKeyFrame = false
   presentationTimeUs = 867416
 sample:
   trackIndex = 1
   dataHashCode = -2045106113
+  size = 201
   isKeyFrame = false
   presentationTimeUs = 800750
 sample:
   trackIndex = 1
   dataHashCode = 305167697
+  size = 131
   isKeyFrame = false
   presentationTimeUs = 767416
 sample:
   trackIndex = 1
   dataHashCode = 554021920
+  size = 130
   isKeyFrame = false
   presentationTimeUs = 834083
 released = true
