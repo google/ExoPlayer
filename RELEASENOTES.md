@@ -90,6 +90,9 @@
     *   Rename
         `MediaSessionConnector.QueueNavigator#onCurrentWindowIndexChanged` to
         `onCurrentMediaItemIndexChanged`.
+*   Transformer:
+    *   Avoid sending a duplicate timestamp to the encoder with the end of
+        stream buffer.
 *   Remove deprecated symbols:
     *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
         constants in `C` instead.

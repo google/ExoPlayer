@@ -316,6 +316,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void queueEndOfStreamToEncoder(MediaCodecAdapterWrapper encoder) {
     checkState(checkNotNull(encoderInputBuffer.data).position() == 0);
+    encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
     encoderInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     encoderInputBuffer.flip();
     // Queuing EOS should only occur with an empty buffer.
