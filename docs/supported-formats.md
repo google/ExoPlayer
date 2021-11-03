@@ -92,7 +92,7 @@ FFmpeg decoder name.
 ## Standalone subtitle formats ##
 
 ExoPlayer supports standalone subtitle files in a variety of formats. Subtitle
-files can be side-loaded as described on the [Media source page][].
+files can be side-loaded as described on the [media items page][].
 
 | Container format      | Supported        | MIME type |
 |---------------------------|:------------:|:----------|
@@ -101,7 +101,7 @@ files can be side-loaded as described on the [Media source page][].
 | SubRip                    | YES          | MimeTypes.APPLICATION_SUBRIP |
 | SubStationAlpha (SSA/ASS) | YES          | MimeTypes.TEXT_SSA |
 
-[Media source page]: {{ site.baseurl }}/media-sources.html#side-loading-a-subtitle-file
+[media items page]: {{ site.baseurl }}/media-items.html#sideloading-subtitle-tracks
 
 ## HDR video playback ##
 
