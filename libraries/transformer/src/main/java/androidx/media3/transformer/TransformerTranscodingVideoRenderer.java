@@ -56,6 +56,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final String TAG = "TransformerTranscodingVideoRenderer";
 
+  // Predefined shader values.
+  private static final String VERTEX_SHADER_FILE_PATH = "shaders/blit_vertex_shader.glsl";
+  private static final String FRAGMENT_SHADER_FILE_PATH =
+      "shaders/copy_external_fragment_shader.glsl";
+  private static final int EXPECTED_NUMBER_OF_ATTRIBUTES = 2;
+  private static final int EXPECTED_NUMBER_OF_UNIFORMS = 2;
+
   private final Context context;
 
   private final DecoderInputBuffer decoderInputBuffer;
@@ -231,18 +238,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     decoderTextureId = GlUtil.createExternalTexture();
     GlUtil.Program copyProgram;
     try {
-      copyProgram =
-          new GlUtil.Program(
-              context,
-              /* vertexShaderFilePath= */ "shaders/blit_vertex_shader.glsl",
-              /* fragmentShaderFilePath= */ "shaders/copy_external_fragment_shader.glsl");
+      copyProgram = new GlUtil.Program(context, VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
 
     copyProgram.use();
     GlUtil.Attribute[] copyAttributes = copyProgram.getAttributes();
-    checkState(copyAttributes.length == 2, "Expected program to have two vertex attributes.");
+    checkState(
+        copyAttributes.length == EXPECTED_NUMBER_OF_ATTRIBUTES,
+        "Expected program to have " + EXPECTED_NUMBER_OF_ATTRIBUTES + " vertex attributes.");
     for (GlUtil.Attribute copyAttribute : copyAttributes) {
       if (copyAttribute.name.equals("a_position")) {
         copyAttribute.setBuffer(
@@ -268,7 +273,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       copyAttribute.bind();
     }
     GlUtil.Uniform[] copyUniforms = copyProgram.getUniforms();
-    checkState(copyUniforms.length == 2, "Expected program to have two uniforms.");
+    checkState(
+        copyUniforms.length == EXPECTED_NUMBER_OF_UNIFORMS,
+        "Expected program to have " + EXPECTED_NUMBER_OF_UNIFORMS + " uniforms.");
     for (GlUtil.Uniform copyUniform : copyUniforms) {
       if (copyUniform.name.equals("tex_sampler")) {
         copyUniform.setSamplerTexId(decoderTextureId, 0);

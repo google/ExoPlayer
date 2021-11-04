@@ -26,7 +26,6 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import android.text.TextUtils;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -88,18 +87,6 @@ public final class GlUtil {
       this(loadAsset(context, vertexShaderFilePath), loadAsset(context, fragmentShaderFilePath));
     }
 
-    /**
-     * Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.
-     *
-     * @param vertexShaderGlsl The vertex shader program as arrays of strings. Strings are joined by
-     *     adding a new line character in between each of them.
-     * @param fragmentShaderGlsl The fragment shader program as arrays of strings. Strings are
-     *     joined by adding a new line character in between each of them.
-     */
-    public Program(String[] vertexShaderGlsl, String[] fragmentShaderGlsl) {
-      this(TextUtils.join("\n", vertexShaderGlsl), TextUtils.join("\n", fragmentShaderGlsl));
-    }
-
     /** Uses the program. */
     public void use() {
       // Link and check for errors.
@@ -120,8 +107,19 @@ public final class GlUtil {
       GLES20.glDeleteProgram(programId);
     }
 
+    /**
+     * Returns the location of an {@link Attribute}, which has been enabled as a vertex attribute
+     * array.
+     */
+    public int getAttributeArrayLocationAndEnable(String attributeName) {
+      int location = getAttributeLocation(attributeName);
+      GLES20.glEnableVertexAttribArray(location);
+      checkGlError();
+      return location;
+    }
+
     /** Returns the location of an {@link Attribute}. */
-    public int getAttribLocation(String attributeName) {
+    private int getAttributeLocation(String attributeName) {
       return GLES20.glGetAttribLocation(programId, attributeName);
     }
 
@@ -135,7 +133,7 @@ public final class GlUtil {
       int[] attributeCount = new int[1];
       GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, 0);
       if (attributeCount[0] != 2) {
-        throw new IllegalStateException("Expected two attributes.");
+        throw new IllegalStateException("Expected two attributes but found " + attributeCount[0]);
       }
 
       Attribute[] attributes = new Attribute[attributeCount[0]];
@@ -170,7 +168,7 @@ public final class GlUtil {
       GLES20.glGetActiveAttrib(
           programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
       String name = new String(nameBytes, 0, strlen(nameBytes));
-      int location = getAttribLocation(name);
+      int location = getAttributeLocation(name);
 
       return new Attribute(name, index, location);
     }
