@@ -70,8 +70,8 @@ import java.util.List;
  *   <li>Message with type {@link #MSG_SET_VOLUME} to set the volume. The message payload should be
  *       a {@link Float} with 0 being silence and 1 being unity gain.
  *   <li>Message with type {@link #MSG_SET_AUDIO_ATTRIBUTES} to set the audio attributes. The
- *       message payload should be an {@link com.google.android.exoplayer2.audio.AudioAttributes}
- *       instance that will configure the underlying audio track.
+ *       message payload should be an {@link AudioAttributes} instance that will configure the
+ *       underlying audio track.
  *   <li>Message with type {@link #MSG_SET_AUX_EFFECT_INFO} to set the auxiliary effect. The message
  *       payload should be an {@link AuxEffectInfo} instance that will configure the underlying
  *       audio track.
@@ -272,7 +272,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    boolean formatHasDrm = format.exoMediaCryptoType != null;
+    boolean formatHasDrm = format.cryptoType != C.CRYPTO_TYPE_NONE;
     boolean supportsFormatDrm = supportsFormatDrm(format);
     // In direct mode, if the format has DRM then we need to use a decoder that only decrypts.
     // Else we don't don't need a decoder at all.
@@ -362,8 +362,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
             && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
     decryptOnlyCodecFormat = decryptOnlyCodecEnabled ? format : null;
-    return new MediaCodecAdapter.Configuration(
-        codecInfo, mediaFormat, format, /* surface= */ null, crypto, /* flags= */ 0);
+    return MediaCodecAdapter.Configuration.createForAudioDecoding(
+        codecInfo, mediaFormat, format, crypto);
   }
 
   @Override
@@ -667,7 +667,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     switch (messageType) {
       case MSG_SET_VOLUME:
         audioSink.setVolume((Float) message);
@@ -689,6 +690,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case MSG_SET_WAKEUP_LISTENER:
         this.wakeupListener = (WakeupListener) message;
         break;
+      case MSG_SET_CAMERA_MOTION_LISTENER:
+      case MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
+      case MSG_SET_SCALING_MODE:
+      case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
+      case MSG_SET_VIDEO_OUTPUT:
       default:
         super.handleMessage(messageType, message);
         break;

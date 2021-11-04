@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Aktivizo titrat</string>
   <string name="exo_controls_playback_speed">Shpejtësia</string>
   <string name="exo_controls_playback_speed_normal">Normale</string>
-  <string name="exo_download_description">Shkarko</string>
-  <string name="exo_download_notification_channel_name">Shkarkimet</string>
-  <string name="exo_download_downloading">Po shkarkohet</string>
-  <string name="exo_download_completed">Shkarkimi përfundoi</string>
-  <string name="exo_download_failed">Shkarkimi dështoi</string>
-  <string name="exo_download_removing">Shkarkimet po hiqen</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Tekst</string>

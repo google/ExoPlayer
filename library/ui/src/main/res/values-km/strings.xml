@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">បើកអក្សររត់</string>
   <string name="exo_controls_playback_speed">ល្បឿន</string>
   <string name="exo_controls_playback_speed_normal">ធម្មតា</string>
-  <string name="exo_download_description">ទាញយក</string>
-  <string name="exo_download_notification_channel_name">ទាញយក</string>
-  <string name="exo_download_downloading">កំពុង​ទាញ​យក</string>
-  <string name="exo_download_completed">បាន​បញ្ចប់​ការទាញយក</string>
-  <string name="exo_download_failed">មិន​អាច​ទាញយក​បាន​ទេ</string>
-  <string name="exo_download_removing">កំពុង​លុប​ការទាញយក</string>
   <string name="exo_track_selection_title_video">វីដេអូ</string>
   <string name="exo_track_selection_title_audio">សំឡេង</string>
   <string name="exo_track_selection_title_text">អក្សរ</string>

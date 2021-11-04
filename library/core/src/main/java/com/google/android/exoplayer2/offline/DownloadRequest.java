@@ -102,7 +102,7 @@ public final class DownloadRequest implements Parcelable {
   public final Uri uri;
   /**
    * The MIME type of this content. Used as a hint to infer the content's type (DASH, HLS,
-   * SmoothStreaming). If null, a {@link DownloadService} will infer the content type from the
+   * SmoothStreaming). If null, a {@code DownloadService} will infer the content type from the
    * {@link #uri}.
    */
   @Nullable public final String mimeType;
@@ -229,7 +229,6 @@ public final class DownloadRequest implements Parcelable {
         .setCustomCacheKey(customCacheKey)
         .setMimeType(mimeType)
         .setStreamKeys(streamKeys)
-        .setDrmKeySetId(keySetId)
         .build();
   }
 

@@ -228,8 +228,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeUs">timeUs</a></span></code></th>
 <td class="colLast">
-<div class="block">The time of the ad group in the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in
- microseconds, or <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to indicate a postroll ad.</div>
+<div class="block">The time of the ad group in the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in microseconds, or <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to indicate a postroll ad.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -417,8 +416,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>timeUs</h4>
 <pre>public final&nbsp;long timeUs</pre>
-<div class="block">The time of the ad group in the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in
- microseconds, or <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to indicate a postroll ad.</div>
+<div class="block">The time of the ad group in the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in microseconds, or <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to indicate a postroll ad.</div>
 </li>
 </ul>
 <a id="count">
@@ -513,7 +511,8 @@ public final&nbsp;int[] states</pre>
 <div class="block">Creates a new ad group with an unspecified number of ads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timeUs</code> - The time of the ad group in the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in microseconds, or <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to indicate a postroll ad.</dd>
+<dd><code>timeUs</code> - The time of the ad group in the <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in microseconds, or
+     <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to indicate a postroll ad.</dd>
 </dl>
 </li>
 </ul>
@@ -544,9 +543,11 @@ public final&nbsp;int[] states</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getNextAdIndexToPlay</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getNextAdIndexToPlay&#8203;(int&nbsp;lastPlayedAdIndex)</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;getNextAdIndexToPlay&#8203;(@IntRange(from=-1L)
+                                int&nbsp;lastPlayedAdIndex)</pre>
 <div class="block">Returns the index of the next ad in the ad group that should be played after playing <code>
- lastPlayedAdIndex</code>, or <a href="#count"><code>count</code></a> if no later ads should be played.</div>
+ lastPlayedAdIndex</code>, or <a href="#count"><code>count</code></a> if no later ads should be played. If no ads have been
+ played, pass -1 to get the index of the first ad to play.</div>
 </li>
 </ul>
 <a id="shouldPlayAdGroup()">
@@ -626,6 +627,7 @@ public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.an
 <h4>withAdUri</h4>
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withAdUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+                                         @IntRange(from=0L)
                                          int&nbsp;index)</pre>
 <div class="block">Returns a new instance with the specified <code>uri</code> set for the specified ad, and the ad
  marked as <a href="AdPlaybackState.html#AD_STATE_AVAILABLE"><code>AdPlaybackState.AD_STATE_AVAILABLE</code></a>.</div>
@@ -640,6 +642,7 @@ public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.an
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withAdState&#8203;(<a href="AdPlaybackState.AdState.html" title="annotation in com.google.android.exoplayer2.source.ads">@AdState</a>
                                            int&nbsp;state,
+                                           @IntRange(from=0L)
                                            int&nbsp;index)</pre>
 <div class="block">Returns a new instance with the specified ad set to the specified <code>state</code>. The ad
  specified must currently either be in <a href="AdPlaybackState.html#AD_STATE_UNAVAILABLE"><code>AdPlaybackState.AD_STATE_UNAVAILABLE</code></a> or <a href="AdPlaybackState.html#AD_STATE_AVAILABLE"><code>AdPlaybackState.AD_STATE_AVAILABLE</code></a>.

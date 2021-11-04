@@ -265,22 +265,35 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="CachedRegionTracker.html" title="class in com.google.android.exoplayer2.upstream">CachedRegionTracker</a></th>
+<td class="colLast">
+<div class="block">Utility class for efficiently tracking regions of data that are stored in a <a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> for a
+ given cache key.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ContentDataSource.html" title="class in com.google.android.exoplayer2.upstream">ContentDataSource</a></th>
 <td class="colLast">
 <div class="block">A <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading from a content URI.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="DataSchemeDataSource.html" title="class in com.google.android.exoplayer2.upstream">DataSchemeDataSource</a></th>
 <td class="colLast">
 <div class="block">A <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data URLs, as defined by RFC 2397.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DataSourceInputStream.html" title="class in com.google.android.exoplayer2.upstream">DataSourceInputStream</a></th>
 <td class="colLast">
 <div class="block">Allows data corresponding to a given <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> to be read from a <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and
  consumed through an <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>InputStream</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="DataSourceUtil.html" title="class in com.google.android.exoplayer2.upstream">DataSourceUtil</a></th>
+<td class="colLast">
+<div class="block">Utility methods for <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -320,27 +333,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="DefaultDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSourceFactory</a></th>
+<th class="colFirst" scope="row"><a href="DefaultDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSource.Factory</a></th>
 <td class="colLast">
-<div class="block">A <a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> that produces <a href="DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultDataSource</code></a> instances that delegate to <a href="DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a>s for non-file/asset/content URIs.</div>
+<div class="block"><a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultDataSource</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="DefaultDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSourceFactory</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="DefaultDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultDataSource.Factory</code></a> instead.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a></th>
 <td class="colLast">
 <div class="block">An <a href="HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> that uses Android's <a href="https://developer.android.com/reference/java/net/HttpURLConnection.html" title="class or interface in java.net" class="externalLink" target="_top"><code>HttpURLConnection</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></th>
 <td class="colLast">
 <div class="block"><a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a> instances.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSourceFactory</a></th>
-<td class="colLast">Deprecated.
-<div class="deprecationComment">Use <a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a> instead.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -368,18 +381,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="FileDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">FileDataSourceFactory</a></th>
-<td class="colLast">Deprecated.
-<div class="deprecationComment">Use <a href="FileDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>FileDataSource.Factory</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
 <th class="colFirst" scope="row"><a href="HttpDataSource.BaseFactory.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.BaseFactory</a></th>
 <td class="colLast">
 <div class="block">Base implementation of <a href="HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> that sets default request properties.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a></th>
 <td class="colLast">
 <div class="block">Stores HTTP request properties (aka HTTP headers) and provides methods to modify the headers in
@@ -387,65 +394,71 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  state.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="HttpUtil.html" title="class in com.google.android.exoplayer2.upstream">HttpUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for HTTP.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="Loader.html" title="class in com.google.android.exoplayer2.upstream">Loader</a></th>
 <td class="colLast">
 <div class="block">Manages the background loading of <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>s.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></th>
 <td class="colLast">
 <div class="block">Action that can be taken in response to <a href="Loader.Callback.html#onLoadError(T,long,long,java.io.IOException,int)"><code>Loader.Callback.onLoadError(Loadable, long, long,
  IOException, int)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream">LoaderErrorThrower.Dummy</a></th>
 <td class="colLast">
 <div class="block">A <a href="LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoaderErrorThrower</code></a> that never throws.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a></th>
 <td class="colLast">
 <div class="block">Holds information about the available fallback options.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="LoadErrorHandlingPolicy.FallbackSelection.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackSelection</a></th>
 <td class="colLast">
 <div class="block">A selected fallback option.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a></th>
 <td class="colLast">
 <div class="block">Holds information about a load task error.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">A <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> for objects that can be parsed from binary data using a <a href="ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream"><code>ParsingLoadable.Parser</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource</a></th>
 <td class="colLast">
 <div class="block">A <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> that can be used as part of a task registered with a <a href="../util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="PriorityDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource.Factory</a></th>
+<td class="colLast">
+<div class="block"><a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>PriorityDataSource</code></a> instances.</div>
+</td>
+</tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="PriorityDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSourceFactory</a></th>
-<td class="colLast">
-<div class="block">A <a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> that produces <a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>PriorityDataSource</code></a> instances.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="PriorityDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>PriorityDataSource.Factory</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -467,19 +480,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="SlidingPercentile.html" title="class in com.google.android.exoplayer2.upstream">SlidingPercentile</a></th>
+<td class="colLast">
+<div class="block">Calculate any percentile over a sliding window of weighted values.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="StatsDataSource.html" title="class in com.google.android.exoplayer2.upstream">StatsDataSource</a></th>
 <td class="colLast">
 <div class="block"><a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> wrapper which keeps track of bytes transferred, redirected uris, and response
  headers.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="TeeDataSource.html" title="class in com.google.android.exoplayer2.upstream">TeeDataSource</a></th>
 <td class="colLast">
 <div class="block">Tees data into a <a href="DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> as the data is read.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="UdpDataSource.html" title="class in com.google.android.exoplayer2.upstream">UdpDataSource</a></th>
 <td class="colLast">
 <div class="block">A UDP <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</div>

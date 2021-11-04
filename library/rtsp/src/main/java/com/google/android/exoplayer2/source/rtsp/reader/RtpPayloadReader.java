@@ -35,8 +35,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
      * @return A {@link RtpPayloadReader} for the packet stream, or {@code null} if the stream
      *     format is not supported.
      */
-    @Nullable
-    RtpPayloadReader createPayloadReader(RtpPayloadFormat payloadFormat);
+    @Nullable RtpPayloadReader createPayloadReader(RtpPayloadFormat payloadFormat);
   }
 
   /**

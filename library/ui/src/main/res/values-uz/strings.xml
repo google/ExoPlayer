@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Taglavhalarni yoqish</string>
   <string name="exo_controls_playback_speed">Tezlik</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">Yuklab olish</string>
-  <string name="exo_download_notification_channel_name">Yuklanmalar</string>
-  <string name="exo_download_downloading">Yuklab olinmoqda</string>
-  <string name="exo_download_completed">Yuklab olindi</string>
-  <string name="exo_download_failed">Yuklab olinmadi</string>
-  <string name="exo_download_removing">Yuklanmalar olib tashlanmoqda</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Matn</string>

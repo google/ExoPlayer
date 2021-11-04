@@ -14,4 +14,8 @@
      limitations under the License.
 -->
 
-<manifest package="com.google.android.exoplayer2.ext.leanback"/>
+<manifest xmlns:tools="http://schemas.android.com/tools"
+  package="com.google.android.exoplayer2.ext.leanback"
+  tools:ignore="MissingLeanbackLauncher,ImpliedTouchscreenHardware,MissingLeanbackSupport">
+  <uses-sdk />
+</manifest>

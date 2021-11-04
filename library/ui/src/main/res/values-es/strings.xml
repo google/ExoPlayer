@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Habilitar subtítulos</string>
   <string name="exo_controls_playback_speed">Velocidad</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">Descargar</string>
-  <string name="exo_download_notification_channel_name">Descargas</string>
-  <string name="exo_download_downloading">Descargando</string>
-  <string name="exo_download_completed">Descarga de archivos completado</string>
-  <string name="exo_download_failed">No se ha podido descargar</string>
-  <string name="exo_download_removing">Quitando descargas</string>
   <string name="exo_track_selection_title_video">Vídeo</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Texto</string>

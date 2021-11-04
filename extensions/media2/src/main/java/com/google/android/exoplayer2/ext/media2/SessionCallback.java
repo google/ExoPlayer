@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.media2;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -106,8 +105,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void onPostConnect(
-      @NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
+  public void onPostConnect(MediaSession session, MediaSession.ControllerInfo controller) {
     if (postConnectCallback != null) {
       postConnectCallback.onPostConnect(session, controller);
     }
@@ -175,8 +173,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public int onSkipBackward(
-      @NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
+  public int onSkipBackward(MediaSession session, MediaSession.ControllerInfo controller) {
     if (skipCallback != null) {
       return skipCallback.onSkipBackward(session, controller);
     }
@@ -184,8 +181,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public int onSkipForward(
-      @NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
+  public int onSkipForward(MediaSession session, MediaSession.ControllerInfo controller) {
     if (skipCallback != null) {
       return skipCallback.onSkipForward(session, controller);
     }

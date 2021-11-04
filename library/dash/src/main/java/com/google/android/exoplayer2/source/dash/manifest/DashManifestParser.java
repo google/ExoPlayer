@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -377,7 +376,7 @@ public class DashManifestParser extends DefaultHandler
       long timeShiftBufferDepthMs)
       throws XmlPullParserException, IOException {
     int id = parseInt(xpp, "id", AdaptationSet.ID_UNSET);
-    int contentType = parseContentType(xpp);
+    @C.TrackType int contentType = parseContentType(xpp);
 
     String mimeType = xpp.getAttributeValue(null, "mimeType");
     String codecs = xpp.getAttributeValue(null, "codecs");
@@ -515,7 +514,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected AdaptationSet buildAdaptationSet(
       int id,
-      int contentType,
+      @C.TrackType int contentType,
       List<Representation> representations,
       List<Descriptor> accessibilityDescriptors,
       List<Descriptor> essentialProperties,
@@ -529,7 +528,7 @@ public class DashManifestParser extends DefaultHandler
         supplementalProperties);
   }
 
-  protected int parseContentType(XmlPullParser xpp) {
+  protected @C.TrackType int parseContentType(XmlPullParser xpp) {
     String contentType = xpp.getAttributeValue(null, "contentType");
     return TextUtils.isEmpty(contentType)
         ? C.TRACK_TYPE_UNKNOWN
@@ -776,7 +775,7 @@ public class DashManifestParser extends DefaultHandler
     if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
       sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
       if (MimeTypes.AUDIO_E_AC3_JOC.equals(sampleMimeType)) {
-        codecs = Ac3Util.E_AC3_JOC_CODEC_STRING;
+        codecs = MimeTypes.CODEC_E_AC3_JOC;
       }
     }
     @C.SelectionFlags int selectionFlags = parseSelectionFlagsFromRoleDescriptors(roleDescriptors);
@@ -808,6 +807,8 @@ public class DashManifestParser extends DefaultHandler
         accessibilityChannel = parseCea708AccessibilityChannel(accessibilityDescriptors);
       }
       formatBuilder.setAccessibilityChannel(accessibilityChannel);
+    } else if (MimeTypes.isImage(sampleMimeType)) {
+      formatBuilder.setWidth(width).setHeight(height);
     }
 
     return formatBuilder.build();
@@ -966,8 +967,8 @@ public class DashManifestParser extends DefaultHandler
         timeline,
         availabilityTimeOffsetUs,
         segments,
-        C.msToUs(timeShiftBufferDepthMs),
-        C.msToUs(periodStartUnixTimeMs));
+        Util.msToUs(timeShiftBufferDepthMs),
+        Util.msToUs(periodStartUnixTimeMs));
   }
 
   protected SegmentTemplate parseSegmentTemplate(
@@ -1056,8 +1057,8 @@ public class DashManifestParser extends DefaultHandler
         availabilityTimeOffsetUs,
         initializationTemplate,
         mediaTemplate,
-        C.msToUs(timeShiftBufferDepthMs),
-        C.msToUs(periodStartUnixTimeMs));
+        Util.msToUs(timeShiftBufferDepthMs),
+        Util.msToUs(periodStartUnixTimeMs));
   }
 
   /**
@@ -1636,6 +1637,9 @@ public class DashManifestParser extends DefaultHandler
       }
       // All other text types are raw formats.
       return containerMimeType;
+    } else if (MimeTypes.isImage(containerMimeType)) {
+      // Image types are raw formats.
+      return containerMimeType;
     } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
       @Nullable String mimeType = MimeTypes.getMediaMimeType(codecs);
       return MimeTypes.TEXT_VTT.equals(mimeType) ? MimeTypes.APPLICATION_MP4VTT : mimeType;
@@ -1677,7 +1681,8 @@ public class DashManifestParser extends DefaultHandler
    * @param secondType The second type.
    * @return The consistent type.
    */
-  private static int checkContentTypeConsistency(int firstType, int secondType) {
+  private static int checkContentTypeConsistency(
+      @C.TrackType int firstType, @C.TrackType int secondType) {
     if (firstType == C.TRACK_TYPE_UNKNOWN) {
       return secondType;
     } else if (secondType == C.TRACK_TYPE_UNKNOWN) {

@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -58,7 +59,6 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 
 /**
  * A listener for analytics events.
@@ -159,7 +159,6 @@ public interface AnalyticsListener {
     EVENT_TIMELINE_CHANGED,
     EVENT_MEDIA_ITEM_TRANSITION,
     EVENT_TRACKS_CHANGED,
-    EVENT_STATIC_METADATA_CHANGED,
     EVENT_IS_LOADING_CHANGED,
     EVENT_PLAYBACK_STATE_CHANGED,
     EVENT_PLAY_WHEN_READY_CHANGED,
@@ -223,11 +222,10 @@ public interface AnalyticsListener {
    */
   int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
   /**
-   * {@link Player#getCurrentTrackGroups()} or {@link Player#getCurrentTrackSelections()} changed.
+   * {@link Player#getCurrentTracksInfo()}, {@link Player#getCurrentTrackGroups()} or {@link
+   * Player#getCurrentTrackSelections()} changed.
    */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
-  /** @deprecated See {@link Player#EVENT_MEDIA_METADATA_CHANGED}. */
-  @Deprecated int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
   /** {@link Player#getPlaybackState()} changed. */
@@ -384,7 +382,7 @@ public interface AnalyticsListener {
     /**
      * The current window index in {@link #currentTimeline} at the time of the event, or the
      * prospective window index if the timeline is not yet known and empty (equivalent to {@link
-     * Player#getCurrentWindowIndex()}).
+     * Player#getCurrentMediaItemIndex()}).
      */
     public final int currentWindowIndex;
 
@@ -421,7 +419,7 @@ public interface AnalyticsListener {
      *     {@link Player#getCurrentTimeline()}).
      * @param currentWindowIndex The current window index in {@code currentTimeline} at the time of
      *     the event, or the prospective window index if the timeline is not yet known and empty
-     *     (equivalent to {@link Player#getCurrentWindowIndex()}).
+     *     (equivalent to {@link Player#getCurrentMediaItemIndex()}).
      * @param currentMediaPeriodId {@link MediaPeriodId Media period identifier} for the currently
      *     playing media period at the time of the event, or {@code null} if no current media period
      *     identifier is available.
@@ -623,7 +621,7 @@ public interface AnalyticsListener {
    * @param maxSeekToPreviousPositionMs The maximum seek to previous position, in milliseconds.
    */
   default void onMaxSeekToPreviousPositionChanged(
-      EventTime eventTime, int maxSeekToPreviousPositionMs) {}
+      EventTime eventTime, long maxSeekToPreviousPositionMs) {}
 
   /**
    * Called when the repeat mode changed.
@@ -678,17 +676,19 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param trackGroups The available tracks. May be empty.
    * @param trackSelections The track selections for each renderer. May contain null elements.
+   * @deprecated Use {@link #onTracksInfoChanged}.
    */
+  @Deprecated
   default void onTracksChanged(
       EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
   /**
-   * @deprecated Use {@link Player#getMediaMetadata()} and {@link #onMediaMetadataChanged(EventTime,
-   *     MediaMetadata)} for access to structured metadata, or access the raw static metadata
-   *     directly from the {@link TrackSelection#getFormat(int) track selections' formats}.
+   * Called when the available or selected tracks change.
+   *
+   * @param eventTime The event time.
+   * @param tracksInfo The available tracks information. Never null, but may be of length zero.
    */
-  @Deprecated
-  default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
+  default void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {}
 
   /**
    * Called when the combined {@link MediaMetadata} changes.
@@ -1204,9 +1204,9 @@ public interface AnalyticsListener {
    *       {@link Player#seekTo(long)} after a {@link
    *       AnalyticsListener#onMediaItemTransition(EventTime, MediaItem, int)}).
    *   <li>They intend to use multiple state values together or in combination with {@link Player}
-   *       getter methods. For example using {@link Player#getCurrentWindowIndex()} with the {@code
-   *       timeline} provided in {@link #onTimelineChanged(EventTime, int)} is only safe from within
-   *       this method.
+   *       getter methods. For example using {@link Player#getCurrentMediaItemIndex()} with the
+   *       {@code timeline} provided in {@link #onTimelineChanged(EventTime, int)} is only safe from
+   *       within this method.
    *   <li>They are interested in events that logically happened together (e.g {@link
    *       #onPlaybackStateChanged(EventTime, int)} to {@link Player#STATE_BUFFERING} because of
    *       {@link #onMediaItemTransition(EventTime, MediaItem, int)}).

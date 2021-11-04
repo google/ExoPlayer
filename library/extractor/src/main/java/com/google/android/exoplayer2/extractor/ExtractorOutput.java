@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import com.google.android.exoplayer2.C;
+
 /** Receives stream level data extracted by an {@link Extractor}. */
 public interface ExtractorOutput {
 
@@ -48,11 +50,10 @@ public interface ExtractorOutput {
    * id}.
    *
    * @param id A track identifier.
-   * @param type The type of the track. Typically one of the {@link com.google.android.exoplayer2.C}
-   *     {@code TRACK_TYPE_*} constants.
+   * @param type The {@link C.TrackType track type}.
    * @return The {@link TrackOutput} for the given track identifier.
    */
-  TrackOutput track(int id, int type);
+  TrackOutput track(int id, @C.TrackType int type);
 
   /**
    * Called when all tracks have been identified, meaning no new {@code trackId} values will be

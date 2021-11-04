@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Субтитрді қосу</string>
   <string name="exo_controls_playback_speed">Жылдамдық</string>
   <string name="exo_controls_playback_speed_normal">Қалыпты</string>
-  <string name="exo_download_description">Жүктеп алу</string>
-  <string name="exo_download_notification_channel_name">Жүктеп алынғандар</string>
-  <string name="exo_download_downloading">Жүктеп алынуда</string>
-  <string name="exo_download_completed">Жүктеп алынды</string>
-  <string name="exo_download_failed">Жүктеп алынбады</string>
-  <string name="exo_download_removing">Жүктеп алынғандар өшірілуде</string>
   <string name="exo_track_selection_title_video">Бейне</string>
   <string name="exo_track_selection_title_audio">Aудиомазмұн</string>
   <string name="exo_track_selection_title_text">Мәтін</string>

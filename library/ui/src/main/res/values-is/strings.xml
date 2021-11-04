@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Kveikja á skjátexta</string>
   <string name="exo_controls_playback_speed">Hraði</string>
   <string name="exo_controls_playback_speed_normal">Venjulegur</string>
-  <string name="exo_download_description">Sækja</string>
-  <string name="exo_download_notification_channel_name">Niðurhal</string>
-  <string name="exo_download_downloading">Sækir</string>
-  <string name="exo_download_completed">Niðurhali lokið</string>
-  <string name="exo_download_failed">Niðurhal mistókst</string>
-  <string name="exo_download_removing">Fjarlægir niðurhal</string>
   <string name="exo_track_selection_title_video">Myndskeið</string>
   <string name="exo_track_selection_title_audio">Hljóð</string>
   <string name="exo_track_selection_title_text">Texti</string>

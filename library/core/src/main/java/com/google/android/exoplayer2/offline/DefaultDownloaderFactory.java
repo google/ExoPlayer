@@ -98,7 +98,6 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
             .setUri(request.uri)
             .setStreamKeys(request.streamKeys)
             .setCustomCacheKey(request.customCacheKey)
-            .setDrmKeySetId(request.keySetId)
             .build();
     try {
       return constructor.newInstance(mediaItem, cacheDataSourceFactory, executor);

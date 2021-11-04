@@ -173,35 +173,62 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.ClippingProperties.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingProperties</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a></span></code></th>
 <td class="colLast">
 <div class="block">Optionally clips the media item to a custom start and end position.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.ClippingProperties.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingProperties</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.ClippingConfiguration</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration</a></span></code></th>
 <td class="colLast">
 <div class="block">DRM configuration for a media item.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a></span></code></th>
 <td class="colLast">
 <div class="block">Live playback configuration.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a></span></code></th>
+<td class="colLast">
+<div class="block">Properties for local playback.</div>
+</td>
+</tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2">MediaItem.PlaybackProperties</a></span></code></th>
 <td class="colLast">
-<div class="block">Properties for local playback.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LocalConfiguration</code></a>.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2">MediaItem.Subtitle</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="MediaItem.SubtitleConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.SubtitleConfiguration</code></a> instead</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.SubtitleConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.SubtitleConfiguration</a></span></code></th>
 <td class="colLast">
 <div class="block">Properties for a text track.</div>
 </td>
@@ -232,38 +259,54 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="MediaItem.ClippingProperties.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingProperties</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clippingProperties">clippingProperties</a></span></code></th>
+<td class="colFirst"><code><a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clippingConfiguration">clippingConfiguration</a></span></code></th>
 <td class="colLast">
 <div class="block">The clipping properties.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.ClippingProperties.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingProperties</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clippingProperties">clippingProperties</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#clippingConfiguration"><code>clippingConfiguration</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
 <div class="block">Object that can restore <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MEDIA_ID">DEFAULT_MEDIA_ID</a></span></code></th>
 <td class="colLast">
 <div class="block">The default media ID that is used if the media ID is not explicitly set by <a href="MediaItem.Builder.html#setMediaId(java.lang.String)"><code>MediaItem.Builder.setMediaId(String)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
 <div class="block">Empty <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#liveConfiguration">liveConfiguration</a></span></code></th>
 <td class="colLast">
 <div class="block">The live playback configuration.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#localConfiguration">localConfiguration</a></span></code></th>
+<td class="colLast">
+<div class="block">Optional configuration for local playback.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -284,7 +327,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2">MediaItem.PlaybackProperties</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackProperties">playbackProperties</a></span></code></th>
 <td class="colLast">
-<div class="block">Optional playback properties.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#localConfiguration"><code>localConfiguration</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -401,15 +446,30 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Identifies the media item.</div>
 </li>
 </ul>
+<a id="localConfiguration">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>localConfiguration</h4>
+<pre>@Nullable
+public final&nbsp;<a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a> localConfiguration</pre>
+<div class="block">Optional configuration for local playback. May be <code>null</code> if shared over process
+ boundaries.</div>
+</li>
+</ul>
 <a id="playbackProperties">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>playbackProperties</h4>
-<pre>@Nullable
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@Nullable
 public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2">MediaItem.PlaybackProperties</a> playbackProperties</pre>
-<div class="block">Optional playback properties. May be <code>null</code> if shared over process boundaries.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#localConfiguration"><code>localConfiguration</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="liveConfiguration">
@@ -432,14 +492,27 @@ public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in co
 <div class="block">The media metadata.</div>
 </li>
 </ul>
+<a id="clippingConfiguration">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clippingConfiguration</h4>
+<pre>public final&nbsp;<a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a> clippingConfiguration</pre>
+<div class="block">The clipping properties.</div>
+</li>
+</ul>
 <a id="clippingProperties">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>clippingProperties</h4>
-<pre>public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingProperties</a> clippingProperties</pre>
-<div class="block">The clipping properties.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingProperties</a> clippingProperties</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#clippingConfiguration"><code>clippingConfiguration</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -451,7 +524,7 @@ public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in co
 <pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&gt; CREATOR</pre>
 <div class="block">Object that can restore <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
 
- <p>The <a href="#playbackProperties"><code>playbackProperties</code></a> of a restored instance will always be <code>null</code>.</div>
+ <p>The <a href="#localConfiguration"><code>localConfiguration</code></a> of a restored instance will always be <code>null</code>.</div>
 </li>
 </ul>
 </li>
@@ -542,7 +615,7 @@ public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in co
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.
 
- <p>It omits the <a href="#playbackProperties"><code>playbackProperties</code></a> field. The <a href="#playbackProperties"><code>playbackProperties</code></a> of an
+ <p>It omits the <a href="#localConfiguration"><code>localConfiguration</code></a> field. The <a href="#localConfiguration"><code>localConfiguration</code></a> of an
  instance restored by <a href="#CREATOR"><code>CREATOR</code></a> will always be <code>null</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>

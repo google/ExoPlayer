@@ -22,9 +22,9 @@ import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
@@ -32,14 +32,13 @@ import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** End-to-end tests using DASH samples. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class DashPlaybackTest {
 
   @Rule
@@ -48,12 +47,14 @@ public final class DashPlaybackTest {
 
   // https://github.com/google/ExoPlayer/issues/7985
   @Test
+  @Ignore(
+      "Disabled until subtitles are reliably asserted in robolectric tests [internal b/174661563].")
   public void webvttInMp4() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
-    SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
@@ -79,8 +80,8 @@ public final class DashPlaybackTest {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
-    SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));

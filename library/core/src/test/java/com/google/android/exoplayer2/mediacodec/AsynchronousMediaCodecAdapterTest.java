@@ -30,11 +30,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link AsynchronousMediaCodecAdapter}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class AsynchronousMediaCodecAdapterTest {
   private AsynchronousMediaCodecAdapter adapter;
   private HandlerThread callbackThread;
@@ -43,22 +41,19 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @Before
   public void setUp() throws Exception {
-    MediaCodecInfo codecInfo = createMediaCodecInfo("h264", "video/mp4");
+    MediaCodecInfo codecInfo = createMediaCodecInfo("aac", "audio/aac");
     MediaCodecAdapter.Configuration configuration =
-        new MediaCodecAdapter.Configuration(
+        MediaCodecAdapter.Configuration.createForAudioDecoding(
             codecInfo,
             createMediaFormat("format"),
-            /* format= */ new Format.Builder().build(),
-            /* surface= */ null,
-            /* crypto= */ null,
-            /* flags= */ 0);
+            new Format.Builder().build(),
+            /* crypto= */ null);
     callbackThread = new HandlerThread("TestCallbackThread");
     queueingThread = new HandlerThread("TestQueueingThread");
     adapter =
         new AsynchronousMediaCodecAdapter.Factory(
                 /* callbackThreadSupplier= */ () -> callbackThread,
                 /* queueingThreadSupplier= */ () -> queueingThread,
-                /* forceQueueingSynchronizationWorkaround= */ false,
                 /* synchronizeCodecInteractionsWithQueueing= */ false)
             .createAdapter(configuration);
     bufferInfo = new MediaCodec.BufferInfo();

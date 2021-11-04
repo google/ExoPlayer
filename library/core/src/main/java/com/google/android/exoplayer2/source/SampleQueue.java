@@ -899,8 +899,7 @@ public class SampleQueue implements TrackOutput {
 
     outputFormatHolder.format =
         drmSessionManager != null
-            ? newFormat.copyWithExoMediaCryptoType(
-                drmSessionManager.getExoMediaCryptoType(newFormat))
+            ? newFormat.copyWithCryptoType(drmSessionManager.getCryptoType(newFormat))
             : newFormat;
     outputFormatHolder.drmSession = currentDrmSession;
     if (drmSessionManager == null) {

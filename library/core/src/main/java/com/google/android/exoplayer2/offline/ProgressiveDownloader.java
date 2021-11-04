@@ -69,11 +69,11 @@ public final class ProgressiveDownloader implements Downloader {
   public ProgressiveDownloader(
       MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
     this.executor = Assertions.checkNotNull(executor);
-    Assertions.checkNotNull(mediaItem.playbackProperties);
+    Assertions.checkNotNull(mediaItem.localConfiguration);
     dataSpec =
         new DataSpec.Builder()
-            .setUri(mediaItem.playbackProperties.uri)
-            .setKey(mediaItem.playbackProperties.customCacheKey)
+            .setUri(mediaItem.localConfiguration.uri)
+            .setKey(mediaItem.localConfiguration.customCacheKey)
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
     dataSource = cacheDataSourceFactory.createDataSourceForDownloading();

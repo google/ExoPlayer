@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">സബ്‌ടൈറ്റിലുകൾ പ്രവർത്തനക്ഷമമാക്കുക</string>
   <string name="exo_controls_playback_speed">വേഗത</string>
   <string name="exo_controls_playback_speed_normal">സാധാരണം</string>
-  <string name="exo_download_description">ഡൗൺലോഡ്</string>
-  <string name="exo_download_notification_channel_name">ഡൗൺലോഡുകൾ</string>
-  <string name="exo_download_downloading">ഡൗൺലോഡ് ചെയ്യുന്നു</string>
-  <string name="exo_download_completed">ഡൗൺലോഡ് പൂർത്തിയായി</string>
-  <string name="exo_download_failed">ഡൗൺലോഡ് പരാജയപ്പെട്ടു</string>
-  <string name="exo_download_removing">ഡൗൺലോഡുകൾ നീക്കം ചെയ്യുന്നു</string>
   <string name="exo_track_selection_title_video">വീഡിയോ</string>
   <string name="exo_track_selection_title_audio">ഓഡിയോ</string>
   <string name="exo_track_selection_title_text">ടെക്‌സ്റ്റ്</string>

@@ -27,11 +27,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link PsshAtomUtil}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class PsshAtomUtilTest {
 
   @Test

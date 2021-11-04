@@ -47,24 +47,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -188,8 +181,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * To customize the layout of StyledPlayerView throughout your app, or just for certain
  * configurations, you can define {@code exo_styled_player_view.xml} layout files in your
  * application {@code res/layout*} directories. These layouts will override the one provided by the
- * ExoPlayer library, and will be inflated for use by StyledPlayerView. The view identifies and
- * binds its children by looking for the following ids:
+ * library, and will be inflated for use by StyledPlayerView. The view identifies and binds its
+ * children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
@@ -562,7 +555,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Set the {@link Player} to use.
+   * Sets the {@link Player} to use.
    *
    * <p>To transition a {@link Player} from targeting one view to another, it's recommended to use
    * {@link #switchTargetView(Player, StyledPlayerView, StyledPlayerView)} rather than this method.
@@ -917,7 +910,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Set the {@link StyledPlayerControlView.VisibilityListener}.
+   * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
@@ -947,17 +940,6 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       @Nullable StyledPlayerControlView.OnFullScreenModeChangedListener listener) {
     Assertions.checkStateNotNull(controller);
     controller.setOnFullScreenModeChangedListener(listener);
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@link SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    Assertions.checkStateNotNull(controller);
-    controller.setControlDispatcher(controlDispatcher);
   }
 
   /**
@@ -1067,7 +1049,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Set the {@link AspectRatioFrameLayout.AspectRatioListener}.
+   * Sets the {@link AspectRatioFrameLayout.AspectRatioListener}.
    *
    * @param listener The listener to be notified about aspect ratios changes of the video content or
    *     the content frame.
@@ -1297,7 +1279,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   private void updateForCurrentTrackSelections(boolean isNewPlayer) {
     @Nullable Player player = this.player;
-    if (player == null || player.getCurrentTrackGroups().isEmpty()) {
+    if (player == null || player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
       if (!keepContentOnPlayerReset) {
         hideArtwork();
         closeShutter();
@@ -1310,20 +1292,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       closeShutter();
     }
 
-    TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
-    for (int i = 0; i < trackSelections.length; i++) {
-      @Nullable TrackSelection trackSelection = trackSelections.get(i);
-      if (trackSelection != null) {
-        for (int j = 0; j < trackSelection.length(); j++) {
-          Format format = trackSelection.getFormat(j);
-          if (MimeTypes.getTrackType(format.sampleMimeType) == C.TRACK_TYPE_VIDEO) {
-            // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
-            // in onRenderedFirstFrame().
-            hideArtwork();
-            return;
-          }
-        }
-      }
+    if (player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+      // Video enabled, so artwork must be hidden. If the shutter is closed, it will be opened
+      // in onRenderedFirstFrame().
+      hideArtwork();
+      return;
     }
 
     // Video disabled so the shutter must be closed.
@@ -1534,7 +1507,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     @Override
     public void onCues(List<Cue> cues) {
       if (subtitleView != null) {
-        subtitleView.onCues(cues);
+        subtitleView.setCues(cues);
       }
     }
 
@@ -1551,7 +1524,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     }
 
     @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray selections) {
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
@@ -1559,7 +1532,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
-      } else if (!player.getCurrentTrackGroups().isEmpty()) {
+      } else if (!player.getCurrentTracksInfo().getTrackGroupInfos().isEmpty()) {
         lastPeriodUidWithTracks =
             timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
       } else if (lastPeriodUidWithTracks != null) {
@@ -1567,8 +1540,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         if (lastPeriodIndexWithTracks != C.INDEX_UNSET) {
           int lastWindowIndexWithTracks =
               timeline.getPeriod(lastPeriodIndexWithTracks, period).windowIndex;
-          if (player.getCurrentWindowIndex() == lastWindowIndexWithTracks) {
-            // We're in the same window. Suppress the update.
+          if (player.getCurrentMediaItemIndex() == lastWindowIndexWithTracks) {
+            // We're in the same media item. Suppress the update.
             return;
           }
         }

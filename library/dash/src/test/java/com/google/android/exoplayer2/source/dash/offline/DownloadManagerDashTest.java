@@ -55,12 +55,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLog;
 
 /** Tests {@link DownloadManager}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DownloadManagerDashTest {
 
   private static final int ASSERT_TRUE_TIMEOUT_MS = 5000;

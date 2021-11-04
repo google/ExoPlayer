@@ -125,7 +125,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           new HashSet<>(
               Arrays.asList(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_METADATA)));
 
-  private final int trackType;
+  private final @C.TrackType int trackType;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
@@ -185,7 +185,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private HlsMediaChunk sourceChunk;
 
   /**
-   * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
+   * @param trackType The {@link C.TrackType track type}.
    * @param callback A callback for the wrapper.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
    * @param overridingDrmInitData Overriding {@link DrmInitData}, keyed by protection scheme type
@@ -203,7 +203,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     events.
    */
   public HlsSampleStreamWrapper(
-      int trackType,
+      @C.TrackType int trackType,
       Callback callback,
       HlsChunkSource chunkSource,
       Map<String, DrmInitData> overridingDrmInitData,
@@ -916,8 +916,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             loadable.trackFormat,
             loadable.trackSelectionReason,
             loadable.trackSelectionData,
-            C.usToMs(loadable.startTimeUs),
-            C.usToMs(loadable.endTimeUs));
+            Util.usToMs(loadable.startTimeUs),
+            Util.usToMs(loadable.endTimeUs));
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
     LoadErrorAction loadErrorAction;
@@ -1422,8 +1422,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Format[] exposedFormats = new Format[trackGroup.length];
       for (int j = 0; j < trackGroup.length; j++) {
         Format format = trackGroup.getFormat(j);
-        exposedFormats[j] =
-            format.copyWithExoMediaCryptoType(drmSessionManager.getExoMediaCryptoType(format));
+        exposedFormats[j] = format.copyWithCryptoType(drmSessionManager.getCryptoType(format));
       }
       trackGroups[i] = new TrackGroup(exposedFormats);
     }

@@ -36,6 +36,9 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 @RequiresApi(18)
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
@@ -51,8 +54,8 @@ import java.nio.ByteBuffer;
   @Nullable private MediaCodecAdapterWrapper decoder;
   @Nullable private MediaCodecAdapterWrapper encoder;
   @Nullable private SpeedProvider speedProvider;
-  @Nullable private Format inputFormat;
-  @Nullable private AudioFormat encoderInputAudioFormat;
+  private @MonotonicNonNull Format decoderInputFormat;
+  private @MonotonicNonNull AudioFormat encoderInputAudioFormat;
 
   private ByteBuffer sonicOutputBuffer;
   private long nextEncoderInputBufferTimeUs;
@@ -100,8 +103,6 @@ import java.nio.ByteBuffer;
       encoder = null;
     }
     speedProvider = null;
-    inputFormat = null;
-    encoderInputAudioFormat = null;
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
     nextEncoderInputBufferTimeUs = 0;
     currentSpeed = SPEED_UNSET;
@@ -117,16 +118,18 @@ import java.nio.ByteBuffer;
     }
 
     if (ensureDecoderConfigured()) {
+      MediaCodecAdapterWrapper decoder = this.decoder;
       if (ensureEncoderAndAudioProcessingConfigured()) {
-        while (drainEncoderToFeedMuxer()) {}
+        MediaCodecAdapterWrapper encoder = this.encoder;
+        while (feedMuxerFromEncoder(encoder)) {}
         if (sonicAudioProcessor.isActive()) {
-          while (drainSonicToFeedEncoder()) {}
-          while (drainDecoderToFeedSonic()) {}
+          while (feedEncoderFromSonic(decoder, encoder)) {}
+          while (feedSonicFromDecoder(decoder)) {}
         } else {
-          while (drainDecoderToFeedEncoder()) {}
+          while (feedEncoderFromDecoder(decoder, encoder)) {}
         }
       }
-      while (feedDecoderInputFromSource()) {}
+      while (feedDecoderFromInput(decoder)) {}
     }
   }
 
@@ -134,8 +137,7 @@ import java.nio.ByteBuffer;
    * Attempts to write encoder output data to the muxer, and returns whether it may be possible to
    * write more data immediately by calling this method again.
    */
-  private boolean drainEncoderToFeedMuxer() {
-    MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
+  private boolean feedMuxerFromEncoder(MediaCodecAdapterWrapper encoder) {
     if (!hasEncoderOutputFormat) {
       @Nullable Format encoderOutputFormat = encoder.getOutputFormat();
       if (encoderOutputFormat == null) {
@@ -170,15 +172,15 @@ import java.nio.ByteBuffer;
    * Attempts to pass decoder output data to the encoder, and returns whether it may be possible to
    * pass more data immediately by calling this method again.
    */
-  private boolean drainDecoderToFeedEncoder() {
-    MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
-    MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
+  @RequiresNonNull({"encoderInputAudioFormat"})
+  private boolean feedEncoderFromDecoder(
+      MediaCodecAdapterWrapper decoder, MediaCodecAdapterWrapper encoder) {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
 
     if (decoder.isEnded()) {
-      queueEndOfStreamToEncoder();
+      queueEndOfStreamToEncoder(encoder);
       return false;
     }
 
@@ -190,7 +192,7 @@ import java.nio.ByteBuffer;
       flushSonicAndSetSpeed(currentSpeed);
       return false;
     }
-    feedEncoder(decoderOutputBuffer);
+    feedEncoder(encoder, decoderOutputBuffer);
     if (!decoderOutputBuffer.hasRemaining()) {
       decoder.releaseOutputBuffer();
     }
@@ -201,8 +203,9 @@ import java.nio.ByteBuffer;
    * Attempts to pass audio processor output data to the encoder, and returns whether it may be
    * possible to pass more data immediately by calling this method again.
    */
-  private boolean drainSonicToFeedEncoder() {
-    MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
+  @RequiresNonNull({"encoderInputAudioFormat"})
+  private boolean feedEncoderFromSonic(
+      MediaCodecAdapterWrapper decoder, MediaCodecAdapterWrapper encoder) {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
@@ -210,24 +213,22 @@ import java.nio.ByteBuffer;
     if (!sonicOutputBuffer.hasRemaining()) {
       sonicOutputBuffer = sonicAudioProcessor.getOutput();
       if (!sonicOutputBuffer.hasRemaining()) {
-        if (checkNotNull(decoder).isEnded() && sonicAudioProcessor.isEnded()) {
-          queueEndOfStreamToEncoder();
+        if (decoder.isEnded() && sonicAudioProcessor.isEnded()) {
+          queueEndOfStreamToEncoder(encoder);
         }
         return false;
       }
     }
 
-    feedEncoder(sonicOutputBuffer);
+    feedEncoder(encoder, sonicOutputBuffer);
     return true;
   }
 
   /**
-   * Attempts to process decoder output audio, and returns whether it may be possible to process
-   * more data immediately by calling this method again.
+   * Attempts to process decoder output data, and returns whether it may be possible to process more
+   * data immediately by calling this method again.
    */
-  private boolean drainDecoderToFeedSonic() {
-    MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
-
+  private boolean feedSonicFromDecoder(MediaCodecAdapterWrapper decoder) {
     if (drainingSonicForSpeedChange) {
       if (sonicAudioProcessor.isEnded() && !sonicOutputBuffer.hasRemaining()) {
         flushSonicAndSetSpeed(currentSpeed);
@@ -268,8 +269,7 @@ import java.nio.ByteBuffer;
    * Attempts to pass input data to the decoder, and returns whether it may be possible to pass more
    * data immediately by calling this method again.
    */
-  private boolean feedDecoderInputFromSource() {
-    MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
+  private boolean feedDecoderFromInput(MediaCodecAdapterWrapper decoder) {
     if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
       return false;
     }
@@ -280,6 +280,7 @@ import java.nio.ByteBuffer;
     switch (result) {
       case C.RESULT_BUFFER_READ:
         mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
+        decoderInputBuffer.timeUs -= streamOffsetUs;
         decoderInputBuffer.flip();
         decoder.queueInputBuffer(decoderInputBuffer);
         return !decoderInputBuffer.isEndOfStream();
@@ -295,9 +296,8 @@ import java.nio.ByteBuffer;
    * Feeds as much data as possible between the current position and limit of the specified {@link
    * ByteBuffer} to the encoder, and advances its position by the number of bytes fed.
    */
-  private void feedEncoder(ByteBuffer inputBuffer) {
-    AudioFormat encoderInputAudioFormat = checkNotNull(this.encoderInputAudioFormat);
-    MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
+  @RequiresNonNull({"encoderInputAudioFormat"})
+  private void feedEncoder(MediaCodecAdapterWrapper encoder, ByteBuffer inputBuffer) {
     ByteBuffer encoderInputBufferData = checkNotNull(encoderInputBuffer.data);
     int bufferLimit = inputBuffer.limit();
     inputBuffer.limit(min(bufferLimit, inputBuffer.position() + encoderInputBufferData.capacity()));
@@ -314,9 +314,9 @@ import java.nio.ByteBuffer;
     encoder.queueInputBuffer(encoderInputBuffer);
   }
 
-  private void queueEndOfStreamToEncoder() {
-    MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
+  private void queueEndOfStreamToEncoder(MediaCodecAdapterWrapper encoder) {
     checkState(checkNotNull(encoderInputBuffer.data).position() == 0);
+    encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
     encoderInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     encoderInputBuffer.flip();
     // Queuing EOS should only occur with an empty buffer.
@@ -327,11 +327,15 @@ import java.nio.ByteBuffer;
    * Attempts to configure the {@link #encoder} and Sonic (if applicable), if they have not been
    * configured yet, and returns whether they have been configured.
    */
+  @RequiresNonNull({"decoder", "decoderInputFormat"})
+  @EnsuresNonNullIf(
+      expression = {"encoder", "encoderInputAudioFormat"},
+      result = true)
   private boolean ensureEncoderAndAudioProcessingConfigured() throws ExoPlaybackException {
-    if (encoder != null) {
+    if (encoder != null && encoderInputAudioFormat != null) {
       return true;
     }
-    MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
+    MediaCodecAdapterWrapper decoder = this.decoder;
     @Nullable Format decoderOutputFormat = decoder.getOutputFormat();
     if (decoderOutputFormat == null) {
       return false;
@@ -350,11 +354,15 @@ import java.nio.ByteBuffer;
         throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
       }
     }
+    String audioMimeType =
+        transformation.audioMimeType == null
+            ? decoderInputFormat.sampleMimeType
+            : transformation.audioMimeType;
     try {
       encoder =
           MediaCodecAdapterWrapper.createForAudioEncoding(
               new Format.Builder()
-                  .setSampleMimeType(checkNotNull(inputFormat).sampleMimeType)
+                  .setSampleMimeType(audioMimeType)
                   .setSampleRate(outputAudioFormat.sampleRate)
                   .setChannelCount(outputAudioFormat.channelCount)
                   .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
@@ -371,8 +379,11 @@ import java.nio.ByteBuffer;
    * Attempts to configure the {@link #decoder} if it has not been configured yet, and returns
    * whether the decoder has been configured.
    */
+  @EnsuresNonNullIf(
+      expression = {"decoderInputFormat", "decoder"},
+      result = true)
   private boolean ensureDecoderConfigured() throws ExoPlaybackException {
-    if (decoder != null) {
+    if (decoder != null && decoderInputFormat != null) {
       return true;
     }
 
@@ -381,15 +392,17 @@ import java.nio.ByteBuffer;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    inputFormat = checkNotNull(formatHolder.format);
+    decoderInputFormat = checkNotNull(formatHolder.format);
+    MediaCodecAdapterWrapper decoder;
     try {
-      decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
+      decoder = MediaCodecAdapterWrapper.createForAudioDecoding(decoderInputFormat);
     } catch (IOException e) {
       // TODO (internal b/184262323): Assign an adequate error code.
       throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
-    speedProvider = new SegmentSpeedProvider(inputFormat);
+    speedProvider = new SegmentSpeedProvider(decoderInputFormat);
     currentSpeed = speedProvider.getSpeed(0);
+    this.decoder = decoder;
     return true;
   }
 
@@ -414,7 +427,7 @@ import java.nio.ByteBuffer;
         cause,
         TAG,
         getIndex(),
-        inputFormat,
+        decoderInputFormat,
         /* rendererFormatSupport= */ C.FORMAT_HANDLED,
         /* isRecoverable= */ false,
         errorCode);

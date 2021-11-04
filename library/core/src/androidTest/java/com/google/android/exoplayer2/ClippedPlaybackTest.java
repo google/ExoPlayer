@@ -22,7 +22,6 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
@@ -34,8 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Instrumentation tests for playback of clipped items using {@link MediaItem#clippingProperties} or
- * {@link ClippingMediaSource} directly.
+ * Instrumentation tests for playback of clipped items using {@link MediaItem#clippingConfiguration}
+ * or {@link ClippingMediaSource} directly.
  */
 @RunWith(AndroidJUnit4.class)
 public final class ClippedPlaybackTest {
@@ -55,35 +54,23 @@ public final class ClippedPlaybackTest {
             // Expect the clipping to affect both subtitles and video.
             .setClipEndPositionMs(1000)
             .build();
-    AtomicReference<SimpleExoPlayer> player = new AtomicReference<>();
-    CapturingTextOutput textOutput = new CapturingTextOutput();
-    ConditionVariable playbackEnded = new ConditionVariable();
+    AtomicReference<ExoPlayer> player = new AtomicReference<>();
+    TextCapturingPlaybackListener textCapturer = new TextCapturingPlaybackListener();
     getInstrumentation()
         .runOnMainSync(
             () -> {
-              player.set(new SimpleExoPlayer.Builder(getInstrumentation().getContext()).build());
-              player.get().addTextOutput(textOutput);
-              player
-                  .get()
-                  .addListener(
-                      new Player.Listener() {
-                        @Override
-                        public void onPlaybackStateChanged(@Player.State int playbackState) {
-                          if (playbackState == Player.STATE_ENDED) {
-                            playbackEnded.open();
-                          }
-                        }
-                      });
+              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).build());
+              player.get().addListener(textCapturer);
               player.get().setMediaItem(mediaItem);
               player.get().prepare();
               player.get().play();
             });
 
-    playbackEnded.block();
+    textCapturer.block();
 
     getInstrumentation().runOnMainSync(() -> player.get().release());
     getInstrumentation().waitForIdleSync();
-    assertThat(Iterables.getOnlyElement(Iterables.concat(textOutput.cues)).text.toString())
+    assertThat(Iterables.getOnlyElement(Iterables.concat(textCapturer.cues)).text.toString())
         .isEqualTo("This is the first subtitle.");
   }
 
@@ -109,49 +96,50 @@ public final class ClippedPlaybackTest {
                 // subtitle content (3.5s).
                 .setClipEndPositionMs(4_000)
                 .build());
-    AtomicReference<SimpleExoPlayer> player = new AtomicReference<>();
-    CapturingTextOutput textOutput = new CapturingTextOutput();
-    ConditionVariable playbackEnded = new ConditionVariable();
+    AtomicReference<ExoPlayer> player = new AtomicReference<>();
+    TextCapturingPlaybackListener textCapturer = new TextCapturingPlaybackListener();
     getInstrumentation()
         .runOnMainSync(
             () -> {
-              player.set(new SimpleExoPlayer.Builder(getInstrumentation().getContext()).build());
-              player.get().addTextOutput(textOutput);
-              player
-                  .get()
-                  .addListener(
-                      new Player.Listener() {
-                        @Override
-                        public void onPlaybackStateChanged(@Player.State int playbackState) {
-                          if (playbackState == Player.STATE_ENDED) {
-                            playbackEnded.open();
-                          }
-                        }
-                      });
+              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).build());
+              player.get().addListener(textCapturer);
               player.get().setMediaItems(mediaItems);
               player.get().prepare();
               player.get().play();
             });
 
-    playbackEnded.block();
+    textCapturer.block();
 
     getInstrumentation().runOnMainSync(() -> player.get().release());
     getInstrumentation().waitForIdleSync();
-    assertThat(Iterables.getOnlyElement(Iterables.concat(textOutput.cues)).text.toString())
+    assertThat(Iterables.getOnlyElement(Iterables.concat(textCapturer.cues)).text.toString())
         .isEqualTo("This is the first subtitle.");
   }
 
-  private static class CapturingTextOutput implements TextOutput {
+  private static class TextCapturingPlaybackListener implements Player.Listener {
 
+    private final ConditionVariable playbackEnded;
     private final List<List<Cue>> cues;
 
-    private CapturingTextOutput() {
+    private TextCapturingPlaybackListener() {
+      playbackEnded = new ConditionVariable();
       cues = new ArrayList<>();
     }
 
     @Override
     public void onCues(List<Cue> cues) {
       this.cues.add(cues);
+    }
+
+    @Override
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
+      if (playbackState == Player.STATE_ENDED) {
+        playbackEnded.open();
+      }
+    }
+
+    public void block() throws InterruptedException {
+      playbackEnded.block();
     }
   }
 }

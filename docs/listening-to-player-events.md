@@ -180,15 +180,15 @@ together in `onEvents`.
 
 ## Using AnalyticsListener ##
 
-When using `SimpleExoPlayer`, an `AnalyticsListener` can be registered with the
-player by calling `addAnalyticsListener`. `AnalyticsListener` implementations
-are able to listen to detailed events that may be useful for analytics and
-logging purposes. Please refer to the [analytics page][] for more details.
+When using `ExoPlayer`, an `AnalyticsListener` can be registered with the player
+by calling `addAnalyticsListener`. `AnalyticsListener` implementations are able
+to listen to detailed events that may be useful for analytics and logging
+purposes. Please refer to the [analytics page][] for more details.
 
 ### Using EventLogger ###
 
 `EventLogger` is an `AnalyticsListener` provided directly by the library for
-logging purposes. It can be added to a `SimpleExoPlayer` to enable useful
+logging purposes. It can be added to an `ExoPlayer` to enable useful
 additional logging with a single line.
 
 ```

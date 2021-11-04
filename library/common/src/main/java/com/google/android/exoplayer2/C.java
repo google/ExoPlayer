@@ -15,20 +15,30 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.view.Surface;
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.UUID;
 
 /** Defines constants used by the library. */
@@ -114,6 +124,34 @@ public final class C {
 
   /** The name of the sans-serif font family. */
   public static final String SANS_SERIF_NAME = "sans-serif";
+
+  /**
+   * Types of crypto implementation. May be one of {@link #CRYPTO_TYPE_NONE}, {@link
+   * #CRYPTO_TYPE_UNSUPPORTED} or {@link #CRYPTO_TYPE_FRAMEWORK}. May also be an app-defined value
+   * (see {@link #CRYPTO_TYPE_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef(
+      open = true,
+      value = {
+        CRYPTO_TYPE_UNSUPPORTED,
+        CRYPTO_TYPE_NONE,
+        CRYPTO_TYPE_FRAMEWORK,
+      })
+  public @interface CryptoType {}
+  /** No crypto. */
+  public static final int CRYPTO_TYPE_NONE = 0;
+  /** An unsupported crypto type. */
+  public static final int CRYPTO_TYPE_UNSUPPORTED = 1;
+  /** Framework crypto in which a {@link MediaCodec} is configured with a {@link MediaCrypto}. */
+  public static final int CRYPTO_TYPE_FRAMEWORK = 2;
+  /**
+   * Applications or extensions may define custom {@code CRYPTO_TYPE_*} constants greater than or
+   * equal to this value.
+   */
+  public static final int CRYPTO_TYPE_CUSTOM_BASE = 10000;
 
   /**
    * Crypto modes for a codec. One of {@link #CRYPTO_MODE_UNENCRYPTED}, {@link #CRYPTO_MODE_AES_CTR}
@@ -237,8 +275,10 @@ public final class C {
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link
    * #STREAM_TYPE_DTMF}, {@link #STREAM_TYPE_MUSIC}, {@link #STREAM_TYPE_NOTIFICATION}, {@link
-   * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM} or {@link #STREAM_TYPE_VOICE_CALL}.
+   * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM}, {@link #STREAM_TYPE_VOICE_CALL} or {@link
+   * #STREAM_TYPE_DEFAULT}.
    */
+  @SuppressLint("UniqueConstants") // Intentional duplication to set STREAM_TYPE_DEFAULT.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
@@ -248,7 +288,8 @@ public final class C {
     STREAM_TYPE_NOTIFICATION,
     STREAM_TYPE_RING,
     STREAM_TYPE_SYSTEM,
-    STREAM_TYPE_VOICE_CALL
+    STREAM_TYPE_VOICE_CALL,
+    STREAM_TYPE_DEFAULT
   })
   public @interface StreamType {}
   /** @see AudioManager#STREAM_ALARM */
@@ -275,6 +316,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     CONTENT_TYPE_MOVIE,
     CONTENT_TYPE_MUSIC,
@@ -303,6 +345,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {FLAG_AUDIBILITY_ENFORCED})
@@ -323,6 +366,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     USAGE_ALARM,
     USAGE_ASSISTANCE_ACCESSIBILITY,
@@ -391,6 +435,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({ALLOW_CAPTURE_BY_ALL, ALLOW_CAPTURE_BY_NONE, ALLOW_CAPTURE_BY_SYSTEM})
   public @interface AudioAllowedCapturePolicy {}
   /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_ALL}. */
@@ -427,6 +472,26 @@ public final class C {
   /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE */
   public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE =
       AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
+
+  /**
+   * Playback offload mode. One of {@link #PLAYBACK_OFFLOAD_NOT_SUPPORTED},{@link
+   * #PLAYBACK_OFFLOAD_SUPPORTED} or {@link #PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED}.
+   */
+  @IntDef({
+    PLAYBACK_OFFLOAD_NOT_SUPPORTED,
+    PLAYBACK_OFFLOAD_SUPPORTED,
+    PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED
+  })
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface AudioManagerOffloadMode {}
+  /** See AudioManager#PLAYBACK_OFFLOAD_NOT_SUPPORTED */
+  public static final int PLAYBACK_OFFLOAD_NOT_SUPPORTED =
+      AudioManager.PLAYBACK_OFFLOAD_NOT_SUPPORTED;
+  /** See AudioManager#PLAYBACK_OFFLOAD_SUPPORTED */
+  public static final int PLAYBACK_OFFLOAD_SUPPORTED = AudioManager.PLAYBACK_OFFLOAD_SUPPORTED;
+  /** See AudioManager#PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED */
+  public static final int PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED =
+      AudioManager.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
 
   /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
@@ -476,11 +541,17 @@ public final class C {
 
   /**
    * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
-   * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
+   * #VIDEO_SCALING_MODE_SCALE_TO_FIT}, {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING} or
+   * {@link #VIDEO_SCALING_MODE_DEFAULT}.
    */
+  @SuppressLint("UniqueConstants") // Intentional duplication to set VIDEO_SCALING_MODE_DEFAULT.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+  @IntDef({
+    VIDEO_SCALING_MODE_SCALE_TO_FIT,
+    VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING,
+    VIDEO_SCALING_MODE_DEFAULT
+  })
   public @interface VideoScalingMode {}
   /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
@@ -491,12 +562,30 @@ public final class C {
   /** A default video scaling mode for {@link MediaCodec}-based renderers. */
   public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
+  /** Strategies for calling {@link Surface#setFrameRate}. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF, VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS})
+  public @interface VideoChangeFrameRateStrategy {}
+  /**
+   * Strategy to never call {@link Surface#setFrameRate}. Use this strategy if you prefer to call
+   * {@link Surface#setFrameRate} directly from application code.
+   */
+  public static final int VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF = Integer.MIN_VALUE;
+  /**
+   * Strategy to call {@link Surface#setFrameRate} with {@link
+   * Surface#CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS} when the output frame rate is known.
+   */
+  public static final int VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS =
+      Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS;
+
   /**
    * Track selection flags. Possible flag values are {@link #SELECTION_FLAG_DEFAULT}, {@link
    * #SELECTION_FLAG_FORCED} and {@link #SELECTION_FLAG_AUTOSELECT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
@@ -603,6 +692,32 @@ public final class C {
    */
   public static final int DATA_TYPE_CUSTOM_BASE = 10000;
 
+  /**
+   * Represents a type of media track. May be one of {@link #TRACK_TYPE_UNKNOWN}, {@link
+   * #TRACK_TYPE_DEFAULT}, {@link #TRACK_TYPE_AUDIO}, {@link #TRACK_TYPE_VIDEO}, {@link
+   * #TRACK_TYPE_TEXT}, {@link #TRACK_TYPE_IMAGE}, {@link #TRACK_TYPE_METADATA}, {@link
+   * #TRACK_TYPE_CAMERA_MOTION} or {@link #TRACK_TYPE_NONE}. May also be an app-defined value (see
+   * {@link #TRACK_TYPE_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef(
+      open = true,
+      value = {
+        TRACK_TYPE_UNKNOWN,
+        TRACK_TYPE_DEFAULT,
+        TRACK_TYPE_AUDIO,
+        TRACK_TYPE_VIDEO,
+        TRACK_TYPE_TEXT,
+        TRACK_TYPE_IMAGE,
+        TRACK_TYPE_METADATA,
+        TRACK_TYPE_CAMERA_MOTION,
+        TRACK_TYPE_NONE,
+      })
+  public @interface TrackType {}
+  /** A type constant for a fake or empty track. */
+  public static final int TRACK_TYPE_NONE = -2;
   /** A type constant for tracks of unknown type. */
   public static final int TRACK_TYPE_UNKNOWN = -1;
   /** A type constant for tracks of some default type, where the type itself is unknown. */
@@ -619,14 +734,30 @@ public final class C {
   public static final int TRACK_TYPE_METADATA = 5;
   /** A type constant for camera motion tracks. */
   public static final int TRACK_TYPE_CAMERA_MOTION = 6;
-  /** A type constant for a fake or empty track. */
-  public static final int TRACK_TYPE_NONE = 7;
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
    */
   public static final int TRACK_TYPE_CUSTOM_BASE = 10000;
 
+  /**
+   * Represents a reason for selection. May be one of {@link #SELECTION_REASON_UNKNOWN}, {@link
+   * #SELECTION_REASON_INITIAL}, {@link #SELECTION_REASON_MANUAL}, {@link
+   * #SELECTION_REASON_ADAPTIVE} or {@link #SELECTION_REASON_TRICK_PLAY}. May also be an app-defined
+   * value (see {@link #SELECTION_REASON_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      open = true,
+      value = {
+        SELECTION_REASON_UNKNOWN,
+        SELECTION_REASON_INITIAL,
+        SELECTION_REASON_MANUAL,
+        SELECTION_REASON_ADAPTIVE,
+        SELECTION_REASON_TRICK_PLAY
+      })
+  public @interface SelectionReason {}
   /** A selection reason constant for selections whose reasons are unknown or unspecified. */
   public static final int SELECTION_REASON_UNKNOWN = 0;
   /** A selection reason constant for an initial track selection. */
@@ -647,7 +778,7 @@ public final class C {
   public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
   /** A default seek back increment, in milliseconds. */
-  public static final long DEFAULT_SEEK_BACK_INCREMENT_MS = 5000;
+  public static final long DEFAULT_SEEK_BACK_INCREMENT_MS = 5_000;
   /** A default seek forward increment, in milliseconds. */
   public static final long DEFAULT_SEEK_FORWARD_INCREMENT_MS = 15_000;
 
@@ -655,7 +786,7 @@ public final class C {
    * A default maximum position for which a seek to previous will seek to the previous window, in
    * milliseconds.
    */
-  public static final int DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS = 3000;
+  public static final long DEFAULT_MAX_SEEK_TO_PREVIOUS_POSITION_MS = 3_000;
 
   /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
   @SuppressWarnings("ConstantField")
@@ -707,30 +838,6 @@ public final class C {
    * provide PlayReady support.
    */
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
-
-  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_OUTPUT}. */
-  @Deprecated public static final int MSG_SET_SURFACE = 1;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_VOLUME}. */
-  @Deprecated public static final int MSG_SET_VOLUME = 2;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_AUDIO_ATTRIBUTES}. */
-  @Deprecated public static final int MSG_SET_AUDIO_ATTRIBUTES = 3;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_SCALING_MODE}. */
-  @Deprecated public static final int MSG_SET_SCALING_MODE = 4;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_AUX_EFFECT_INFO}. */
-  @Deprecated public static final int MSG_SET_AUX_EFFECT_INFO = 5;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER}. */
-  @Deprecated public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_CAMERA_MOTION_LISTENER}. */
-  @Deprecated public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
-
-  /** @deprecated Use {@code Renderer.MSG_CUSTOM_BASE}. */
-  @Deprecated public static final int MSG_CUSTOM_BASE = 10000;
 
   /**
    * The stereo mode for 360/3D/VR videos. One of {@link Format#NO_VALUE}, {@link
@@ -890,6 +997,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({WAKE_MODE_NONE, WAKE_MODE_LOCAL, WAKE_MODE_NETWORK})
   public @interface WakeMode {}
   /**
@@ -926,6 +1034,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {
@@ -1006,7 +1115,7 @@ public final class C {
     FORMAT_UNSUPPORTED_SUBTYPE,
     FORMAT_UNSUPPORTED_TYPE
   })
-  public static @interface FormatSupport {}
+  public @interface FormatSupport {}
   // TODO(b/172315872) Renderer was a link. Link to equivalent concept or remove @code.
   /** The {@code Renderer} is capable of rendering the format. */
   public static final int FORMAT_HANDLED = 0b100;
@@ -1047,112 +1156,51 @@ public final class C {
    * audio MIME type.
    */
   public static final int FORMAT_UNSUPPORTED_TYPE = 0b000;
-  /**
-   * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
-   * #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
-   *
-   * @param timeUs The time in microseconds.
-   * @return The corresponding time in milliseconds.
-   */
+
+  /** @deprecated Use {@link Util#usToMs(long)}. */
+  @InlineMe(
+      replacement = "Util.usToMs(timeUs)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   public static long usToMs(long timeUs) {
-    return (timeUs == TIME_UNSET || timeUs == TIME_END_OF_SOURCE) ? timeUs : (timeUs / 1000);
+    return Util.usToMs(timeUs);
   }
 
-  /**
-   * Converts a time in milliseconds to the corresponding time in microseconds, preserving {@link
-   * #TIME_UNSET} values and {@link #TIME_END_OF_SOURCE} values.
-   *
-   * @param timeMs The time in milliseconds.
-   * @return The corresponding time in microseconds.
-   */
+  /** @deprecated Use {@link Util#msToUs(long)}. */
+  @InlineMe(
+      replacement = "Util.msToUs(timeMs)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   public static long msToUs(long timeMs) {
-    return (timeMs == TIME_UNSET || timeMs == TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
+    return Util.msToUs(timeMs);
   }
 
-  /**
-   * Returns a newly generated audio session identifier, or {@link AudioManager#ERROR} if an error
-   * occurred in which case audio playback may fail.
-   *
-   * @see AudioManager#generateAudioSessionId()
-   */
+  /** @deprecated Use {@link Util#generateAudioSessionIdV21(Context)}. */
+  @InlineMe(
+      replacement = "Util.generateAudioSessionIdV21(context)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   @RequiresApi(21)
   public static int generateAudioSessionIdV21(Context context) {
-    @Nullable
-    AudioManager audioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
-    return audioManager == null ? AudioManager.ERROR : audioManager.generateAudioSessionId();
+    return Util.generateAudioSessionIdV21(context);
   }
 
-  /**
-   * Returns string representation of a {@link FormatSupport} flag.
-   *
-   * @param formatSupport A {@link FormatSupport} flag.
-   * @return A string representation of the flag.
-   */
+  /** @deprecated Use {@link Util#getFormatSupportString(int)}. */
+  @InlineMe(
+      replacement = "Util.getFormatSupportString(formatSupport)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   public static String getFormatSupportString(@FormatSupport int formatSupport) {
-    switch (formatSupport) {
-      case FORMAT_HANDLED:
-        return "YES";
-      case FORMAT_EXCEEDS_CAPABILITIES:
-        return "NO_EXCEEDS_CAPABILITIES";
-      case FORMAT_UNSUPPORTED_DRM:
-        return "NO_UNSUPPORTED_DRM";
-      case FORMAT_UNSUPPORTED_SUBTYPE:
-        return "NO_UNSUPPORTED_TYPE";
-      case FORMAT_UNSUPPORTED_TYPE:
-        return "NO";
-      default:
-        throw new IllegalStateException();
-    }
+    return Util.getFormatSupportString(formatSupport);
   }
 
-  // Copy of relevant error codes defined in MediaDrm.ErrorCodes from API 31.
-  // TODO (internal b/192337376): Remove once ExoPlayer depends on SDK 31.
-  private static final int ERROR_KEY_EXPIRED = 2;
-  private static final int ERROR_INSUFFICIENT_OUTPUT_PROTECTION = 4;
-  private static final int ERROR_INSUFFICIENT_SECURITY = 7;
-  private static final int ERROR_FRAME_TOO_LARGE = 8;
-  private static final int ERROR_CERTIFICATE_MALFORMED = 10;
-  private static final int ERROR_INIT_DATA = 15;
-  private static final int ERROR_KEY_NOT_LOADED = 16;
-  private static final int ERROR_LICENSE_PARSE = 17;
-  private static final int ERROR_LICENSE_POLICY = 18;
-  private static final int ERROR_LICENSE_RELEASE = 19;
-  private static final int ERROR_LICENSE_REQUEST_REJECTED = 20;
-  private static final int ERROR_LICENSE_RESTORE = 21;
-  private static final int ERROR_LICENSE_STATE = 22;
-  private static final int ERROR_PROVISIONING_CERTIFICATE = 24;
-  private static final int ERROR_PROVISIONING_CONFIG = 25;
-  private static final int ERROR_PROVISIONING_PARSE = 26;
-  private static final int ERROR_PROVISIONING_REQUEST_REJECTED = 27;
-  private static final int ERROR_PROVISIONING_RETRY = 28;
-
+  /** @deprecated Use {@link Util#getErrorCodeForMediaDrmErrorCode(int)}. */
+  @InlineMe(
+      replacement = "Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode)",
+      imports = {"com.google.android.exoplayer2.util.Util"})
+  @Deprecated
   @PlaybackException.ErrorCode
   public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
-    switch (mediaDrmErrorCode) {
-      case ERROR_PROVISIONING_CONFIG:
-      case ERROR_PROVISIONING_PARSE:
-      case ERROR_PROVISIONING_REQUEST_REJECTED:
-      case ERROR_PROVISIONING_CERTIFICATE:
-      case ERROR_PROVISIONING_RETRY:
-        return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
-      case ERROR_LICENSE_PARSE:
-      case ERROR_LICENSE_RELEASE:
-      case ERROR_LICENSE_REQUEST_REJECTED:
-      case ERROR_LICENSE_RESTORE:
-      case ERROR_LICENSE_STATE:
-      case ERROR_CERTIFICATE_MALFORMED:
-        return PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED;
-      case ERROR_LICENSE_POLICY:
-      case ERROR_INSUFFICIENT_OUTPUT_PROTECTION:
-      case ERROR_INSUFFICIENT_SECURITY:
-      case ERROR_KEY_EXPIRED:
-      case ERROR_KEY_NOT_LOADED:
-        return PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION;
-      case ERROR_INIT_DATA:
-      case ERROR_FRAME_TOO_LARGE:
-        return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
-      default:
-        return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    }
+    return Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode);
   }
 }

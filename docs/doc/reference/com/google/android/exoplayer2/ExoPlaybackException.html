@@ -327,13 +327,13 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,int,boolean,int)">createForRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,int,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createForRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rendererName,
                  int&nbsp;rendererIndex,
                  <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;rendererFormat,
                  int&nbsp;rendererFormatSupport,
                  boolean&nbsp;isRecoverable,
-                 int&nbsp;errorCode)</code></th>
+                 @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance of type <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 </td>
@@ -351,14 +351,14 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForUnexpected(java.lang.RuntimeException)">createForUnexpected</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;cause)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#createForUnexpected(java.lang.RuntimeException,int)"><code>createForUnexpected(RuntimeException, ERROR_CODE_UNSPECIFIED)</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#createForUnexpected(java.lang.RuntimeException,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)"><code>createForUnexpected(RuntimeException, ERROR_CODE_UNSPECIFIED)</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForUnexpected(java.lang.RuntimeException,int)">createForUnexpected</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;cause,
-                   int&nbsp;errorCode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForUnexpected(java.lang.RuntimeException,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createForUnexpected</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;cause,
+                   @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance of type <a href="#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
 </td>
@@ -405,7 +405,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a></h3>
-<code><a href="PlaybackException.html#getErrorCodeName()">getErrorCodeName</a>, <a href="PlaybackException.html#getErrorCodeName(int)">getErrorCodeName</a>, <a href="PlaybackException.html#keyForField(int)">keyForField</a></code></li>
+<code><a href="PlaybackException.html#getErrorCodeName()">getErrorCodeName</a>, <a href="PlaybackException.html#getErrorCodeName(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">getErrorCodeName</a>, <a href="PlaybackException.html#keyForField(int)">keyForField</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Throwable">
@@ -606,7 +606,7 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
 </dl>
 </li>
 </ul>
-<a id="createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,int,boolean,int)">
+<a id="createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,int,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -621,7 +621,7 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
                                                      int&nbsp;rendererFormatSupport,
                                                      boolean&nbsp;isRecoverable,
                                                      <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                                                     int&nbsp;errorCode)</pre>
+                                                     @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</pre>
 <div class="block">Creates an instance of type <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -647,11 +647,11 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForUnexpected&#8203;(<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;cause)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#createForUnexpected(java.lang.RuntimeException,int)"><code>createForUnexpected(RuntimeException, ERROR_CODE_UNSPECIFIED)</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#createForUnexpected(java.lang.RuntimeException,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)"><code>createForUnexpected(RuntimeException, ERROR_CODE_UNSPECIFIED)</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a id="createForUnexpected(java.lang.RuntimeException,int)">
+<a id="createForUnexpected(java.lang.RuntimeException,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -659,7 +659,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <h4>createForUnexpected</h4>
 <pre class="methodSignature">public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForUnexpected&#8203;(<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;cause,
                                                        <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                                                       int&nbsp;errorCode)</pre>
+                                                       @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</pre>
 <div class="block">Creates an instance of type <a href="#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

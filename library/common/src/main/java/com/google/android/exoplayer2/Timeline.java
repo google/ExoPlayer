@@ -30,9 +30,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleUtil;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -273,8 +273,8 @@ public abstract class Timeline implements Bundleable {
       this.uid = uid;
       this.mediaItem = mediaItem != null ? mediaItem : EMPTY_MEDIA_ITEM;
       this.tag =
-          mediaItem != null && mediaItem.playbackProperties != null
-              ? mediaItem.playbackProperties.tag
+          mediaItem != null && mediaItem.localConfiguration != null
+              ? mediaItem.localConfiguration.tag
               : null;
       this.manifest = manifest;
       this.presentationStartTimeMs = presentationStartTimeMs;
@@ -300,7 +300,7 @@ public abstract class Timeline implements Bundleable {
      * whilst remaining within the bounds of the window.
      */
     public long getDefaultPositionMs() {
-      return C.usToMs(defaultPositionUs);
+      return Util.usToMs(defaultPositionUs);
     }
 
     /**
@@ -315,7 +315,7 @@ public abstract class Timeline implements Bundleable {
 
     /** Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
-      return C.usToMs(durationUs);
+      return Util.usToMs(durationUs);
     }
 
     /** Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown. */
@@ -328,7 +328,7 @@ public abstract class Timeline implements Bundleable {
      * belonging to it, in milliseconds.
      */
     public long getPositionInFirstPeriodMs() {
-      return C.usToMs(positionInFirstPeriodUs);
+      return Util.usToMs(positionInFirstPeriodUs);
     }
 
     /**
@@ -671,7 +671,7 @@ public abstract class Timeline implements Bundleable {
 
     /** Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown. */
     public long getDurationMs() {
-      return C.usToMs(durationUs);
+      return Util.usToMs(durationUs);
     }
 
     /** Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown. */
@@ -685,7 +685,7 @@ public abstract class Timeline implements Bundleable {
      * window.
      */
     public long getPositionInWindowMs() {
-      return C.usToMs(positionInWindowUs);
+      return Util.usToMs(positionInWindowUs);
     }
 
     /**
@@ -986,6 +986,8 @@ public abstract class Timeline implements Bundleable {
         }
       };
 
+  protected Timeline() {}
+
   /** Returns whether the timeline is empty. */
   public final boolean isEmpty() {
     return getWindowCount() == 0;
@@ -1147,11 +1149,35 @@ public abstract class Timeline implements Bundleable {
         == C.INDEX_UNSET;
   }
 
+  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead. */
+  @Deprecated
+  @InlineMe(replacement = "this.getPeriodPositionUs(window, period, windowIndex, windowPositionUs)")
+  public final Pair<Object, Long> getPeriodPosition(
+      Window window, Period period, int windowIndex, long windowPositionUs) {
+    return getPeriodPositionUs(window, period, windowIndex, windowPositionUs);
+  }
+  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead. */
+  @Deprecated
+  @Nullable
+  @InlineMe(
+      replacement =
+          "this.getPeriodPositionUs("
+              + "window, period, windowIndex, windowPositionUs, defaultPositionProjectionUs)")
+  public final Pair<Object, Long> getPeriodPosition(
+      Window window,
+      Period period,
+      int windowIndex,
+      long windowPositionUs,
+      long defaultPositionProjectionUs) {
+    return getPeriodPositionUs(
+        window, period, windowIndex, windowPositionUs, defaultPositionProjectionUs);
+  }
+
   /**
    * Calls {@link #getPeriodPosition(Window, Period, int, long, long)} with a zero default position
    * projection.
    */
-  public final Pair<Object, Long> getPeriodPosition(
+  public final Pair<Object, Long> getPeriodPositionUs(
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return Assertions.checkNotNull(
         getPeriodPosition(
@@ -1175,7 +1201,7 @@ public abstract class Timeline implements Bundleable {
    *     position could not be projected by {@code defaultPositionProjectionUs}.
    */
   @Nullable
-  public final Pair<Object, Long> getPeriodPosition(
+  public final Pair<Object, Long> getPeriodPositionUs(
       Window window,
       Period period,
       int windowIndex,
@@ -1204,9 +1230,6 @@ public abstract class Timeline implements Bundleable {
     }
     // Period positions cannot be negative.
     periodPositionUs = max(0, periodPositionUs);
-    if (periodPositionUs == 9) {
-      Log.e("XXX", "YYY");
-    }
     return Pair.create(Assertions.checkNotNull(period.uid), periodPositionUs);
   }
 

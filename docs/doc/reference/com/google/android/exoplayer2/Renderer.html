@@ -162,18 +162,16 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Renderer.MessageType.html" title="annotation in com.google.android.exoplayer2">Renderer.MessageType</a></span></code></th>
 <td class="colLast">
-<div class="block">The renderer states.</div>
+<div class="block">Represents a type of message that can be passed to a renderer.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">Renderer.VideoScalingMode</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a></span></code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
-</div>
+<div class="block">The renderer states.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -239,41 +237,48 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a></span></code></th>
+<td class="colLast">
+<div class="block">The type of a message that can be passed to a video renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>-based video renderer via
  <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to an audio renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to a video renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a></span></code></th>
 <td class="colLast">
 <div class="block">The type of a message that can be passed to a video renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_VOLUME">MSG_SET_VOLUME</a></span></code></th>
 <td class="colLast">
 <div class="block">A type of a message that can be passed to an audio renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a></span></code></th>
 <td class="colLast">
@@ -281,52 +286,25 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
  component.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_DISABLED">STATE_DISABLED</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is disabled.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_ENABLED">STATE_ENABLED</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is enabled but not started.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_STARTED">STATE_STARTED</a></span></code></th>
 <td class="colLast">
 <div class="block">The renderer is started.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_SCALING_MODE_DEFAULT">VIDEO_SCALING_MODE_DEFAULT</a></span></code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <code>C.VIDEO_SCALING_MODE_DEFAULT</code>.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_SCALING_MODE_SCALE_TO_FIT">VIDEO_SCALING_MODE_SCALE_TO_FIT</a></span></code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT"><code>C.VIDEO_SCALING_MODE_SCALE_TO_FIT</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</a></span></code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING"><code>C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</code></a>.</div>
-</div>
 </td>
 </tr>
 </table>
@@ -412,7 +390,7 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackType()">getTrackType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the track type that the renderer handles.</div>
@@ -588,9 +566,9 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>MSG_SET_AUDIO_ATTRIBUTES</h4>
 <pre>static final&nbsp;int MSG_SET_AUDIO_ATTRIBUTES</pre>
-<div class="block">A type of a message that can be passed to an audio renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>. The message payload should be an <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> instance that will configure the
- underlying audio track. If not set, the default audio attributes will be used. They are
- suitable for general media playback.
+<div class="block">A type of a message that can be passed to an audio renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>. The message payload should be an <a href="audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>
+ instance that will configure the underlying audio track. If not set, the default audio
+ attributes will be used. They are suitable for general media playback.
 
  <p>Setting the audio attributes during playback may introduce a short gap in audio output as
  the audio track is recreated. A new audio session id will also be generated.
@@ -600,7 +578,7 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 
  <p>If the device is running a build before platform API version 21, audio attributes cannot be
  set directly on the underlying audio track. In this case, the usage will be mapped onto an
- equivalent stream type using <a href="util/Util.html#getStreamTypeForAudioUsage(int)"><code>Util.getStreamTypeForAudioUsage(int)</code></a>.
+ equivalent stream type using <a href="util/Util.html#getStreamTypeForAudioUsage(@com.google.android.exoplayer2.C.AudioUsageint)"><code>Util.getStreamTypeForAudioUsage(int)</code></a>.
 
  <p>To get audio attributes that are equivalent to a legacy stream type, pass the stream type to
  <a href="util/Util.html#getAudioUsageForStreamType(int)"><code>Util.getAudioUsageForStreamType(int)</code></a> and use the returned <a href="C.AudioUsage.html" title="annotation in com.google.android.exoplayer2"><code>C.AudioUsage</code></a> to build
@@ -627,6 +605,21 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="MSG_SET_CHANGE_FRAME_RATE_STRATEGY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MSG_SET_CHANGE_FRAME_RATE_STRATEGY</h4>
+<pre>static final&nbsp;int MSG_SET_CHANGE_FRAME_RATE_STRATEGY</pre>
+<div class="block">The type of a message that can be passed to a video renderer via <a href="ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>. The message payload should be one of the integer strategy
+ constants in <a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -737,57 +730,6 @@ extends <a href="PlayerMessage.Target.html" title="interface in com.google.andro
 </dl>
 </li>
 </ul>
-<a id="VIDEO_SCALING_MODE_SCALE_TO_FIT">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>VIDEO_SCALING_MODE_SCALE_TO_FIT</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-static final&nbsp;int VIDEO_SCALING_MODE_SCALE_TO_FIT</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT"><code>C.VIDEO_SCALING_MODE_SCALE_TO_FIT</code></a>.</div>
-</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-static final&nbsp;int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING"><code>C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</code></a>.</div>
-</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="VIDEO_SCALING_MODE_DEFAULT">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>VIDEO_SCALING_MODE_DEFAULT</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-static final&nbsp;int VIDEO_SCALING_MODE_DEFAULT</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <code>C.VIDEO_SCALING_MODE_DEFAULT</code>.</div>
-</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Renderer.VIDEO_SCALING_MODE_DEFAULT">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
 <a id="STATE_DISABLED">
 <!--   -->
 </a>
@@ -866,11 +808,11 @@ static final&nbsp;int VIDEO_SCALING_MODE_DEFAULT</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackType</h4>
-<pre class="methodSignature">int&nbsp;getTrackType()</pre>
+<pre class="methodSignature">@com.google.android.exoplayer2.C.TrackType int&nbsp;getTrackType()</pre>
 <div class="block">Returns the track type that the renderer handles.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of the <code>TRACK_TYPE_*</code> constants defined in <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a>.</dd>
+<dd>The <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track type</code></a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="ExoPlayer.html#getRendererType(int)"><code>ExoPlayer.getRendererType(int)</code></a></dd>
 </dl>

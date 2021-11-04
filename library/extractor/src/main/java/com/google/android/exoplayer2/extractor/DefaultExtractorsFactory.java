@@ -19,7 +19,10 @@ import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromResp
 import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 
 import android.net.Uri;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
@@ -44,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An {@link ExtractorsFactory} that provides an array of extractors for the following formats:
@@ -97,34 +101,10 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.JPEG,
       };
 
-  @Nullable
-  private static final Constructor<? extends Extractor> FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR;
-
-  static {
-    @Nullable Constructor<? extends Extractor> flacExtensionExtractorConstructor = null;
-    try {
-      @SuppressWarnings("nullness:argument")
-      boolean isFlacNativeLibraryAvailable =
-          Boolean.TRUE.equals(
-              Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")
-                  .getMethod("isAvailable")
-                  .invoke(/* obj= */ null));
-      if (isFlacNativeLibraryAvailable) {
-        flacExtensionExtractorConstructor =
-            Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
-                .asSubclass(Extractor.class)
-                .getConstructor(int.class);
-      }
-    } catch (ClassNotFoundException e) {
-      // Expected if the app was built without the FLAC extension.
-    } catch (Exception e) {
-      // The FLAC extension is present, but instantiation failed.
-      throw new RuntimeException("Error instantiating FLAC extension", e);
-    }
-    FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR = flacExtensionExtractorConstructor;
-  }
+  private static final FlacExtensionLoader FLAC_EXTENSION_LOADER = new FlacExtensionLoader();
 
   private boolean constantBitrateSeekingEnabled;
+  private boolean constantBitrateSeekingAlwaysEnabled;
   @AdtsExtractor.Flags private int adtsFlags;
   @AmrExtractor.Flags private int amrFlags;
   @FlacExtractor.Flags private int flacFlags;
@@ -155,6 +135,30 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   public synchronized DefaultExtractorsFactory setConstantBitrateSeekingEnabled(
       boolean constantBitrateSeekingEnabled) {
     this.constantBitrateSeekingEnabled = constantBitrateSeekingEnabled;
+    return this;
+  }
+
+  /**
+   * Convenience method to set whether approximate seeking using constant bitrate assumptions should
+   * be enabled for all extractors that support it, and if it should be enabled even if the content
+   * length (and hence the duration of the media) is unknown. If set to true, the flags required to
+   * enable this functionality will be OR'd with those passed to the setters when creating extractor
+   * instances. If set to false then the flags passed to the setters will be used without
+   * modification.
+   *
+   * <p>When seeking into content where the length is unknown, application code should ensure that
+   * requested seek positions are valid, or should be ready to handle playback failures reported
+   * through {@link Player.Listener#onPlayerError} with {@link PlaybackException#errorCode} set to
+   * {@link PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE}.
+   *
+   * @param constantBitrateSeekingAlwaysEnabled Whether approximate seeking using a constant bitrate
+   *     assumption should be enabled for all extractors that support it, including when the content
+   *     duration is unknown.
+   * @return The factory, for convenience.
+   */
+  public synchronized DefaultExtractorsFactory setConstantBitrateSeekingAlwaysEnabled(
+      boolean constantBitrateSeekingAlwaysEnabled) {
+    this.constantBitrateSeekingAlwaysEnabled = constantBitrateSeekingAlwaysEnabled;
     return this;
   }
 
@@ -333,6 +337,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 adtsFlags
                     | (constantBitrateSeekingEnabled
                         ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                        : 0)
+                    | (constantBitrateSeekingAlwaysEnabled
+                        ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS
                         : 0)));
         break;
       case FileTypes.AMR:
@@ -341,16 +348,15 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 amrFlags
                     | (constantBitrateSeekingEnabled
                         ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                        : 0)
+                    | (constantBitrateSeekingAlwaysEnabled
+                        ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS
                         : 0)));
         break;
       case FileTypes.FLAC:
-        if (FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR != null) {
-          try {
-            extractors.add(FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR.newInstance(flacFlags));
-          } catch (Exception e) {
-            // Should never happen.
-            throw new IllegalStateException("Unexpected error creating FLAC extractor", e);
-          }
+        @Nullable Extractor flacExtractor = FLAC_EXTENSION_LOADER.getExtractor(flacFlags);
+        if (flacExtractor != null) {
+          extractors.add(flacExtractor);
         } else {
           extractors.add(new FlacExtractor(flacFlags));
         }
@@ -367,6 +373,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 mp3Flags
                     | (constantBitrateSeekingEnabled
                         ? Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                        : 0)
+                    | (constantBitrateSeekingAlwaysEnabled
+                        ? Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS
                         : 0)));
         break;
       case FileTypes.MP4:
@@ -392,6 +401,62 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
       case FileTypes.UNKNOWN:
       default:
         break;
+    }
+  }
+
+  private static final class FlacExtensionLoader {
+    private final AtomicBoolean extensionLoaded;
+
+    @GuardedBy("extensionLoaded")
+    @Nullable
+    private Constructor<? extends Extractor> extractorConstructor;
+
+    public FlacExtensionLoader() {
+      extensionLoaded = new AtomicBoolean(false);
+    }
+
+    @Nullable
+    public Extractor getExtractor(int flags) {
+      @Nullable
+      Constructor<? extends Extractor> extractorConstructor = maybeLoadExtractorConstructor();
+      if (extractorConstructor == null) {
+        return null;
+      }
+      try {
+        return extractorConstructor.newInstance(flags);
+      } catch (Exception e) {
+        throw new IllegalStateException("Unexpected error creating FLAC extractor", e);
+      }
+    }
+
+    @Nullable
+    private Constructor<? extends Extractor> maybeLoadExtractorConstructor() {
+      synchronized (extensionLoaded) {
+        if (extensionLoaded.get()) {
+          return extractorConstructor;
+        }
+        try {
+          @SuppressWarnings("nullness:argument")
+          boolean isFlacNativeLibraryAvailable =
+              Boolean.TRUE.equals(
+                  Class.forName("com.google.android.exoplayer2.ext.flac.FlacLibrary")
+                      .getMethod("isAvailable")
+                      .invoke(/* obj= */ null));
+          if (isFlacNativeLibraryAvailable) {
+            extractorConstructor =
+                Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
+                    .asSubclass(Extractor.class)
+                    .getConstructor(int.class);
+          }
+        } catch (ClassNotFoundException e) {
+          // Expected if the app was built without the FLAC extension.
+        } catch (Exception e) {
+          // The FLAC extension is present, but instantiation failed.
+          throw new RuntimeException("Error instantiating FLAC extension", e);
+        }
+        extensionLoaded.set(true);
+        return extractorConstructor;
+      }
     }
   }
 }

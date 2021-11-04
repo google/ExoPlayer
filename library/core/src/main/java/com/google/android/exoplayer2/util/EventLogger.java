@@ -151,8 +151,8 @@ public class EventLogger implements AnalyticsListener {
         .append("reason=")
         .append(getDiscontinuityReasonString(reason))
         .append(", PositionInfo:old [")
-        .append("window=")
-        .append(oldPosition.windowIndex)
+        .append("mediaItem=")
+        .append(oldPosition.mediaItemIndex)
         .append(", period=")
         .append(oldPosition.periodIndex)
         .append(", pos=")
@@ -168,8 +168,8 @@ public class EventLogger implements AnalyticsListener {
     }
     builder
         .append("], PositionInfo:new [")
-        .append("window=")
-        .append(newPosition.windowIndex)
+        .append("mediaItem=")
+        .append(newPosition.mediaItemIndex)
         .append(", period=")
         .append(newPosition.periodIndex)
         .append(", pos=")
@@ -277,7 +277,7 @@ public class EventLogger implements AnalyticsListener {
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
             String formatSupport =
-                C.getFormatSupportString(
+                Util.getFormatSupportString(
                     mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex));
             logd(
                 "      "
@@ -315,7 +315,7 @@ public class EventLogger implements AnalyticsListener {
         TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           String status = getTrackStatusString(false);
-          String formatSupport = C.getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE);
+          String formatSupport = Util.getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE);
           logd(
               "      "
                   + status

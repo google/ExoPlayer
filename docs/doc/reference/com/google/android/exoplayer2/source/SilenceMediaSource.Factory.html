@@ -195,7 +195,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTag(java.lang.Object)">setTag</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</code></th>
 <td class="colLast">
-<div class="block">Sets a tag for the media source which will be published in the <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
+ as <a href="../MediaItem.LocalConfiguration.html#tag"><code>Window#mediaItem.localConfiguration.tag</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -247,7 +248,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDurationUs</h4>
-<pre class="methodSignature">public&nbsp;<a href="SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource.Factory</a>&nbsp;setDurationUs&#8203;(long&nbsp;durationUs)</pre>
+<pre class="methodSignature">public&nbsp;<a href="SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource.Factory</a>&nbsp;setDurationUs&#8203;(@IntRange(from=1L)
+                                                long&nbsp;durationUs)</pre>
 <div class="block">Sets the duration of the silent audio. The value needs to be a positive value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -265,7 +267,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setTag</h4>
 <pre class="methodSignature">public&nbsp;<a href="SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource.Factory</a>&nbsp;setTag&#8203;(@Nullable
                                          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</pre>
-<div class="block">Sets a tag for the media source which will be published in the <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
+ as <a href="../MediaItem.LocalConfiguration.html#tag"><code>Window#mediaItem.localConfiguration.tag</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tag</code> - A tag for the media source.</dd>

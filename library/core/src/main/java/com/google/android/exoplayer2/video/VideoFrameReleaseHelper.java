@@ -27,6 +27,7 @@ import android.view.Choreographer.FrameCallback;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -108,6 +109,7 @@ public final class VideoFrameReleaseHelper {
   private float surfacePlaybackFrameRate;
 
   private float playbackSpeed;
+  @C.VideoChangeFrameRateStrategy private int changeFrameRateStrategy;
 
   private long vsyncDurationNs;
   private long vsyncOffsetNs;
@@ -131,6 +133,20 @@ public final class VideoFrameReleaseHelper {
     vsyncOffsetNs = C.TIME_UNSET;
     formatFrameRate = Format.NO_VALUE;
     playbackSpeed = 1f;
+    changeFrameRateStrategy = C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS;
+  }
+
+  /**
+   * Change the {@link C.VideoChangeFrameRateStrategy} used when calling {@link
+   * Surface#setFrameRate}.
+   */
+  public void setChangeFrameRateStrategy(
+      @C.VideoChangeFrameRateStrategy int changeFrameRateStrategy) {
+    if (this.changeFrameRateStrategy == changeFrameRateStrategy) {
+      return;
+    }
+    this.changeFrameRateStrategy = changeFrameRateStrategy;
+    updateSurfacePlaybackFrameRate(/* forceUpdate= */ true);
   }
 
   /** Called when the renderer is enabled. */
@@ -145,7 +161,7 @@ public final class VideoFrameReleaseHelper {
   public void onStarted() {
     started = true;
     resetAdjustment();
-    updateSurfacePlaybackFrameRate(/* isNewSurface= */ false);
+    updateSurfacePlaybackFrameRate(/* forceUpdate= */ false);
   }
 
   /**
@@ -163,7 +179,7 @@ public final class VideoFrameReleaseHelper {
     }
     clearSurfaceFrameRate();
     this.surface = surface;
-    updateSurfacePlaybackFrameRate(/* isNewSurface= */ true);
+    updateSurfacePlaybackFrameRate(/* forceUpdate= */ true);
   }
 
   /** Called when the renderer's position is reset. */
@@ -179,7 +195,7 @@ public final class VideoFrameReleaseHelper {
   public void onPlaybackSpeed(float playbackSpeed) {
     this.playbackSpeed = playbackSpeed;
     resetAdjustment();
-    updateSurfacePlaybackFrameRate(/* isNewSurface= */ false);
+    updateSurfacePlaybackFrameRate(/* forceUpdate= */ false);
   }
 
   /**
@@ -321,7 +337,7 @@ public final class VideoFrameReleaseHelper {
 
     if (shouldUpdate) {
       surfaceMediaFrameRate = candidateFrameRate;
-      updateSurfacePlaybackFrameRate(/* isNewSurface= */ false);
+      updateSurfacePlaybackFrameRate(/* forceUpdate= */ false);
     }
   }
 
@@ -329,10 +345,16 @@ public final class VideoFrameReleaseHelper {
    * Updates the playback frame rate of the current {@link #surface} based on the playback speed,
    * frame rate of the content, and whether the renderer is started.
    *
-   * @param isNewSurface Whether the current {@link #surface} is new.
+   * <p>Does nothing if {@link #changeFrameRateStrategy} is {@link
+   * C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF}.
+   *
+   * @param forceUpdate Whether to call {@link Surface#setFrameRate} even if the frame rate is
+   *     unchanged.
    */
-  private void updateSurfacePlaybackFrameRate(boolean isNewSurface) {
-    if (Util.SDK_INT < 30 || surface == null) {
+  private void updateSurfacePlaybackFrameRate(boolean forceUpdate) {
+    if (Util.SDK_INT < 30
+        || surface == null
+        || changeFrameRateStrategy == C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF) {
       return;
     }
 
@@ -342,33 +364,28 @@ public final class VideoFrameReleaseHelper {
     }
     // We always set the frame-rate if we have a new surface, since we have no way of knowing what
     // it might have been set to previously.
-    if (!isNewSurface && this.surfacePlaybackFrameRate == surfacePlaybackFrameRate) {
+    if (!forceUpdate && this.surfacePlaybackFrameRate == surfacePlaybackFrameRate) {
       return;
     }
     this.surfacePlaybackFrameRate = surfacePlaybackFrameRate;
-    setSurfaceFrameRateV30(surface, surfacePlaybackFrameRate);
+    Api30.setSurfaceFrameRate(surface, surfacePlaybackFrameRate);
   }
 
-  /** Clears the frame-rate of the current {@link #surface}. */
+  /**
+   * Clears the frame-rate of the current {@link #surface}.
+   *
+   * <p>Does nothing if {@link #changeFrameRateStrategy} is {@link
+   * C#VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF}.
+   */
   private void clearSurfaceFrameRate() {
-    if (Util.SDK_INT < 30 || surface == null || surfacePlaybackFrameRate == 0) {
+    if (Util.SDK_INT < 30
+        || surface == null
+        || changeFrameRateStrategy == C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF
+        || surfacePlaybackFrameRate == 0) {
       return;
     }
     surfacePlaybackFrameRate = 0;
-    setSurfaceFrameRateV30(surface, /* frameRate= */ 0);
-  }
-
-  @RequiresApi(30)
-  private static void setSurfaceFrameRateV30(Surface surface, float frameRate) {
-    int compatibility =
-        frameRate == 0
-            ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
-            : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
-    try {
-      surface.setFrameRate(frameRate, compatibility);
-    } catch (IllegalStateException e) {
-      Log.e(TAG, "Failed to call Surface.setFrameRate", e);
-    }
+    Api30.setSurfaceFrameRate(surface, /* frameRate= */ 0);
   }
 
   // Display refresh rate and vsync logic.
@@ -415,6 +432,24 @@ public final class VideoFrameReleaseHelper {
       }
     }
     return displayHelper;
+  }
+
+  // Nested classes.
+
+  @RequiresApi(30)
+  private static final class Api30 {
+    @DoNotInline
+    public static void setSurfaceFrameRate(Surface surface, float frameRate) {
+      int compatibility =
+          frameRate == 0
+              ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
+              : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
+      try {
+        surface.setFrameRate(frameRate, compatibility);
+      } catch (IllegalStateException e) {
+        Log.e(TAG, "Failed to call Surface.setFrameRate", e);
+      }
+    }
   }
 
   /** Helper for listening to changes to the default display. */

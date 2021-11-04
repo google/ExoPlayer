@@ -42,7 +42,7 @@ public abstract class MediaChunk extends Chunk {
       DataSource dataSource,
       DataSpec dataSpec,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,

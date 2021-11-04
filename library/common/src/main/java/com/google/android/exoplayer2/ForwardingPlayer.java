@@ -22,11 +22,11 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
 
@@ -43,26 +43,14 @@ public class ForwardingPlayer implements Player {
     this.player = player;
   }
 
-  @Override
+  @Deprecated
   public Looper getApplicationLooper() {
     return player.getApplicationLooper();
   }
 
   @Deprecated
-  @Override
-  public void addListener(EventListener listener) {
-    player.addListener(new ForwardingEventListener(this, listener));
-  }
-
-  @Override
   public void addListener(Listener listener) {
     player.addListener(new ForwardingListener(this, listener));
-  }
-
-  @Deprecated
-  @Override
-  public void removeListener(EventListener listener) {
-    player.removeListener(new ForwardingEventListener(this, listener));
   }
 
   @Override
@@ -81,9 +69,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
-    player.setMediaItems(mediaItems, startWindowIndex, startPositionMs);
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+    player.setMediaItems(mediaItems, startIndex, startPositionMs);
   }
 
   @Override
@@ -149,6 +136,11 @@ public class ForwardingPlayer implements Player {
   @Override
   public boolean isCommandAvailable(@Command int command) {
     return player.isCommandAvailable(command);
+  }
+
+  @Override
+  public boolean canAdvertiseSession() {
+    return player.canAdvertiseSession();
   }
 
   @Override
@@ -233,8 +225,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    player.seekToDefaultPosition(windowIndex);
+  public void seekToDefaultPosition(int mediaItemIndex) {
+    player.seekToDefaultPosition(mediaItemIndex);
   }
 
   @Override
@@ -243,8 +235,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
-    player.seekTo(windowIndex, positionMs);
+  public void seekTo(int mediaItemIndex, long positionMs) {
+    player.seekTo(mediaItemIndex, positionMs);
   }
 
   @Override
@@ -273,9 +265,15 @@ public class ForwardingPlayer implements Player {
     return player.hasPrevious();
   }
 
+  @Deprecated
   @Override
   public boolean hasPreviousWindow() {
     return player.hasPreviousWindow();
+  }
+
+  @Override
+  public boolean hasPreviousMediaItem() {
+    return player.hasPreviousMediaItem();
   }
 
   @Deprecated
@@ -284,9 +282,15 @@ public class ForwardingPlayer implements Player {
     player.previous();
   }
 
+  @Deprecated
   @Override
   public void seekToPreviousWindow() {
     player.seekToPreviousWindow();
+  }
+
+  @Override
+  public void seekToPreviousMediaItem() {
+    player.seekToPreviousMediaItem();
   }
 
   @Override
@@ -295,7 +299,7 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public int getMaxSeekToPreviousPosition() {
+  public long getMaxSeekToPreviousPosition() {
     return player.getMaxSeekToPreviousPosition();
   }
 
@@ -305,9 +309,15 @@ public class ForwardingPlayer implements Player {
     return player.hasNext();
   }
 
+  @Deprecated
   @Override
   public boolean hasNextWindow() {
     return player.hasNextWindow();
+  }
+
+  @Override
+  public boolean hasNextMediaItem() {
+    return player.hasNextMediaItem();
   }
 
   @Deprecated
@@ -316,9 +326,15 @@ public class ForwardingPlayer implements Player {
     player.next();
   }
 
+  @Deprecated
   @Override
   public void seekToNextWindow() {
     player.seekToNextWindow();
+  }
+
+  @Override
+  public void seekToNextMediaItem() {
+    player.seekToNextMediaItem();
   }
 
   @Override
@@ -367,10 +383,19 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentTrackSelections();
   }
 
-  @Deprecated
   @Override
-  public List<Metadata> getCurrentStaticMetadata() {
-    return player.getCurrentStaticMetadata();
+  public TracksInfo getCurrentTracksInfo() {
+    return player.getCurrentTracksInfo();
+  }
+
+  @Override
+  public TrackSelectionParameters getTrackSelectionParameters() {
+    return player.getTrackSelectionParameters();
+  }
+
+  @Override
+  public void setTrackSelectionParameters(TrackSelectionParameters parameters) {
+    player.setTrackSelectionParameters(parameters);
   }
 
   @Override
@@ -404,19 +429,37 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentPeriodIndex();
   }
 
+  @Deprecated
   @Override
   public int getCurrentWindowIndex() {
     return player.getCurrentWindowIndex();
   }
 
   @Override
+  public int getCurrentMediaItemIndex() {
+    return player.getCurrentMediaItemIndex();
+  }
+
+  @Deprecated
+  @Override
   public int getNextWindowIndex() {
     return player.getNextWindowIndex();
   }
 
   @Override
+  public int getNextMediaItemIndex() {
+    return player.getNextMediaItemIndex();
+  }
+
+  @Deprecated
+  @Override
   public int getPreviousWindowIndex() {
     return player.getPreviousWindowIndex();
+  }
+
+  @Override
+  public int getPreviousMediaItemIndex() {
+    return player.getPreviousMediaItemIndex();
   }
 
   @Nullable
@@ -460,14 +503,26 @@ public class ForwardingPlayer implements Player {
     return player.getTotalBufferedDuration();
   }
 
+  @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
     return player.isCurrentWindowDynamic();
   }
 
   @Override
+  public boolean isCurrentMediaItemDynamic() {
+    return player.isCurrentMediaItemDynamic();
+  }
+
+  @Deprecated
+  @Override
   public boolean isCurrentWindowLive() {
     return player.isCurrentWindowLive();
+  }
+
+  @Override
+  public boolean isCurrentMediaItemLive() {
+    return player.isCurrentMediaItemLive();
   }
 
   @Override
@@ -475,9 +530,15 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentLiveOffset();
   }
 
+  @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
     return player.isCurrentWindowSeekable();
+  }
+
+  @Override
+  public boolean isCurrentMediaItemSeekable() {
+    return player.isCurrentMediaItemSeekable();
   }
 
   @Override
@@ -516,8 +577,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void setVolume(float audioVolume) {
-    player.setVolume(audioVolume);
+  public void setVolume(float volume) {
+    player.setVolume(volume);
   }
 
   @Override
@@ -648,10 +709,9 @@ public class ForwardingPlayer implements Player {
       eventListener.onTracksChanged(trackGroups, trackSelections);
     }
 
-    @Deprecated
     @Override
-    public void onStaticMetadataChanged(List<Metadata> metadataList) {
-      eventListener.onStaticMetadataChanged(metadataList);
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+      eventListener.onTracksInfoChanged(tracksInfo);
     }
 
     @Override
@@ -677,6 +737,11 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onAvailableCommandsChanged(Commands availableCommands) {
       eventListener.onAvailableCommandsChanged(availableCommands);
+    }
+
+    @Override
+    public void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {
+      eventListener.onTrackSelectionParametersChanged(parameters);
     }
 
     @Override
@@ -753,7 +818,7 @@ public class ForwardingPlayer implements Player {
     }
 
     @Override
-    public void onMaxSeekToPreviousPositionChanged(int maxSeekToPreviousPositionMs) {
+    public void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {
       eventListener.onMaxSeekToPreviousPositionChanged(maxSeekToPreviousPositionMs);
     }
 
@@ -803,18 +868,9 @@ public class ForwardingPlayer implements Player {
       this.listener = listener;
     }
 
-    // VideoListener methods.
-
     @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
       listener.onVideoSizeChanged(videoSize);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void onVideoSizeChanged(
-        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      listener.onVideoSizeChanged(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     }
 
     @Override
@@ -826,8 +882,6 @@ public class ForwardingPlayer implements Player {
     public void onRenderedFirstFrame() {
       listener.onRenderedFirstFrame();
     }
-
-    // AudioListener methods
 
     @Override
     public void onAudioSessionIdChanged(int audioSessionId) {
@@ -849,21 +903,15 @@ public class ForwardingPlayer implements Player {
       listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     }
 
-    // TextOutput methods.
-
     @Override
     public void onCues(List<Cue> cues) {
       listener.onCues(cues);
     }
 
-    // MetadataOutput methods.
-
     @Override
     public void onMetadata(Metadata metadata) {
       listener.onMetadata(metadata);
     }
-
-    // DeviceListener callbacks
 
     @Override
     public void onDeviceInfoChanged(DeviceInfo deviceInfo) {

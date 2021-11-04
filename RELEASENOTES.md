@@ -1,5 +1,147 @@
 # Release notes
 
+### 2.16.0 (2021-11-04)
+
+*   Core Library:
+    *   Deprecate `SimpleExoPlayer`. All functionality has been moved to
+        `ExoPlayer` instead. `ExoPlayer.Builder` can be used instead of
+        `SimpleExoPlayer.Builder`.
+    *   Add track selection methods to the `Player` interface, for example,
+        `Player.getCurrentTracksInfo` and `Player.setTrackSelectionParameters`.
+        These methods can be used instead of directly accessing the track
+        selector.
+    *   Enable MediaCodec asynchronous queueing by default on devices with API
+        level >= 31. Add methods in `DefaultMediaCodecRendererFactory` and
+        `DefaultRenderersFactory` to force enable or force disable asynchronous
+        queueing ([6348](https://github.com/google/ExoPlayer/issues/6348)).
+    *   Remove final dependency on `jcenter()`.
+    *   Fix `mediaMetadata` being reset when media is repeated
+        ([#9458](https://github.com/google/ExoPlayer/issues/9458)).
+    *   Adjust `ExoPlayer` `MediaMetadata` update priority, such that values
+        input through the `MediaItem.MediaMetadata` are used above media derived
+        values.
+    *   Move `com.google.android.exoplayer2.device.DeviceInfo` to
+        `com.google.android.exoplayer2.DeviceInfo`.
+    *   Move `com.google.android.exoplayer2.drm.DecryptionException` to
+        `com.google.android.exoplayer2.decoder.CryptoException`.
+    *   Move `com.google.android.exoplayer2.upstream.cache.CachedRegionTracker`
+        to `com.google.android.exoplayer2.upstream.CachedRegionTracker`.
+    *   Move `Player.addListener(EventListener)` and
+        `Player.removeListener(EventListener)` out of `Player` into subclasses.
+*   Android 12 compatibility:
+    *   Keep `DownloadService` started and in the foreground whilst waiting for
+        requirements to be met on Android 12. This is necessary due to new
+        [foreground service launch restrictions](https://developer.android.com/about/versions/12/foreground-services).
+        `DownloadService.getScheduler` will not be called on Android 12 devices.
+    *   Disable platform transcoding when playing content URIs on Android 12.
+    *   Add `ExoPlayer.setVideoChangeFrameRateStrategy` to allow disabling of
+        calls from the player to `Surface.setFrameRate`. This is useful for
+        applications wanting to call `Surface.setFrameRate` directly from
+        application code with Android 12's `Surface.CHANGE_FRAME_RATE_ALWAYS`.
+    *   Upgrade the WorkManager extension to depend on
+        `androidx.work:work-runtime:2.7.0`. Earlier versions of `work-runtime`
+        are not compatible with apps targeting Android 12, and will crash with
+        an `IllegalArgumentException` when creating `PendingIntent`s
+        ([#9181](https://github.com/google/ExoPlayer/issues/9181)).
+*   Video:
+    *   Fix bug in `MediaCodecVideoRenderer` that resulted in re-using a
+        released `Surface` when playing without an app-provided `Surface`
+        ([#9476](https://github.com/google/ExoPlayer/issues/9476)).
+*   DRM:
+    *   Log an error (instead of throwing `IllegalStateException`) when calling
+        `DefaultDrmSession#release()` on a fully released session
+        ([#9392](https://github.com/google/ExoPlayer/issues/9392)).
+*   UI:
+    *   `SubtitleView` no longer implements `TextOutput`. `SubtitleView`
+        implements `Player.Listener`, so can be registered to a player with
+        `Player.addListener`.
+    *   Fix initial timestamp display in `PlayerControlView`
+        ([#9524](https://github.com/google/ExoPlayer/issues/9254)).
+    *   Fix capitalization of languages in the track selector
+        ([#9452](https://github.com/google/ExoPlayer/issues/9452)).
+*   Extractors:
+    *   MP4: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
+    *   MP4: Add support for Dolby TrueHD (only for unfragmented streams)
+        ([#9496](https://github.com/google/ExoPlayer/issues/9496)).
+    *   MP4: Avoid throwing `ArrayIndexOutOfBoundsException` when parsing
+        invalid `colr` boxes produced by some device cameras
+        ([#9332](https://github.com/google/ExoPlayer/issues/9332)).
+    *   MP4: Parse HDR static metadata from the `clli` and `mdcv` boxes.
+    *   TS: Correctly handle HEVC tracks with pixel aspect ratios other than 1.
+    *   TS: Map stream type 0x80 to H262
+        ([#9472](https://github.com/google/ExoPlayer/issues/9472)).
+*   Downloads and caching:
+    *   Modify `DownloadService` behavior when `DownloadService.getScheduler`
+        returns `null`, or returns a `Scheduler` that does not support the
+        requirements for downloads to continue. In both cases, `DownloadService`
+        will now remain started and in the foreground whilst waiting for
+        requirements to be met.
+    *   Modify `DownloadService` behavior when running on Android 12 and above.
+        See the "Android 12 compatibility" section above.
+*   RTSP:
+    *   Support RFC4566 SDP attribute field grammar
+        ([#9430](https://github.com/google/ExoPlayer/issues/9430)).
+*   DASH:
+    *   Populate `Format.sampleMimeType`, `width` and `height` for image
+        `AdaptationSet` elements
+        ([#9500](https://github.com/google/ExoPlayer/issues/9500)).
+*   HLS:
+    *   Fix rounding error in HLS playlists
+        ([#9575](https://github.com/google/ExoPlayer/issues/9575)).
+    *   Fix `NoSuchElementException` thrown when an HLS manifest declares
+        `#EXT-X-RENDITION-REPORT` at the beginning of the playlist
+        ([#9592](https://github.com/google/ExoPlayer/issues/9592)).
+*   RTMP extension:
+    *   Upgrade to `io.antmedia:rtmp_client`, which does not rely on `jcenter()`
+        ([#9591](https://github.com/google/ExoPlayer/issues/9591)).
+*   MediaSession extension:
+    *   Rename
+        `MediaSessionConnector.QueueNavigator#onCurrentWindowIndexChanged` to
+        `onCurrentMediaItemIndexChanged`.
+*   Transformer:
+    *   Avoid sending a duplicate timestamp to the encoder with the end of
+        stream buffer.
+*   Remove deprecated symbols:
+    *   Remove `Renderer.VIDEO_SCALING_MODE_*` constants. Use identically named
+        constants in `C` instead.
+    *   Remove `C.MSG_*` constants. Use identically named constants in
+        `Renderer` instead, except for `C.MSG_SET_SURFACE`, which is replaced
+        with `Renderer.MSG_SET_VIDEO_OUTPUT`.
+    *   Remove `DeviceListener`. Use `Player.Listener` instead.
+    *   Remove `CacheDataSourceFactory`. Use `CacheDataSource.Factory` instead.
+    *   Remove `CacheDataSinkFactory`. Use `CacheDataSink.Factory` instead.
+    *   Remove `FileDataSourceFactory`. Use `FileDataSource.Factory` instead.
+    *   Remove `SimpleExoPlayer.addMetadataOutput` and `removeMetadataOutput`.
+        Use `Player.addListener` and `Player.Listener` instead.
+    *   Remove `SimpleExoPlayer.addAudioListener`, `removeAudioListener` and
+        `AudioListener`. Use `Player.addListener` and `Player.Listener` instead.
+    *   Remove `SimpleExoPlayer.addVideoListener`, `removeVideoListener` and
+        `VideoListener`. Use `Player.addListener` and `Player.Listener` instead.
+    *   Remove `DefaultHttpDataSourceFactory`. Use
+        `DefaultHttpDataSource.Factory` instead.
+    *   Remove `SingleSampleMediaSource.createMediaSource(Uri, Format, long)`.
+        Use `SingleSampleMediaSource.createMediaSource(MediaItem.Subtitle,
+        long)` instead.
+    *   Remove `HttpDataSource.Factory.getDefaultRequestProperties`. Use
+        `HttpDataSource.Factory.setDefaultRequestProperties` instead.
+    *   Remove `GvrAudioProcessor` and the GVR extension, which has been
+        deprecated since 2.11.0.
+    *   Remove `DownloadService.onDownloadChanged` and
+        `DownloadService.onDownloadRemoved`. Instead, use
+        `DownloadManager.addListener` to register a listener directly to the
+        `DownloadManager` returned through `DownloadService.getDownloadManager`.
+    *   Remove `Player.getCurrentStaticMetadata`,
+        `Player.Listener.onStaticMetadataChanged` and
+        `Player.EVENT_STATIC_METADATA_CHANGED`. Use `Player.getMediaMetadata`,
+        `Player.Listener.onMediaMetadataChanged` and
+        `Player.EVENT_MEDIA_METADATA_CHANGED` for convenient access to
+        structured metadata, or access the raw static metadata directly from the
+        `TrackSelection#getFormat()`.
+    *   Remove `ControlDispatcher` and `DefaultControlDispatcher`. Operations
+        can be customized by using a `ForwardingPlayer`, or when configuring the
+        player (for example by using
+        `ExoPlayer.Builder.setSeekBackIncrementMs`).
+
 ### 2.15.1 (2021-09-20)
 
 *   Core Library:

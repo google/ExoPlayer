@@ -40,10 +40,8 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.ParserException;
@@ -51,10 +49,11 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -64,6 +63,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /** An activity for selecting from a list of media samples. */
 public class SampleChooserActivity extends AppCompatActivity
@@ -162,7 +162,7 @@ public class SampleChooserActivity extends AppCompatActivity
 
   @Override
   public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      int requestCode, String[] permissions, int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (grantResults.length == 0) {
       // Empty results are triggered if a permission is requested while another request was already
@@ -249,12 +249,12 @@ public class SampleChooserActivity extends AppCompatActivity
     if (playlistHolder.mediaItems.size() > 1) {
       return R.string.download_playlist_unsupported;
     }
-    MediaItem.PlaybackProperties playbackProperties =
-        checkNotNull(playlistHolder.mediaItems.get(0).playbackProperties);
-    if (playbackProperties.adsConfiguration != null) {
+    MediaItem.LocalConfiguration localConfiguration =
+        checkNotNull(playlistHolder.mediaItems.get(0).localConfiguration);
+    if (localConfiguration.adsConfiguration != null) {
       return R.string.download_ads_unsupported;
     }
-    String scheme = playbackProperties.uri.getScheme();
+    String scheme = localConfiguration.uri.getScheme();
     if (!("http".equals(scheme) || "https".equals(scheme))) {
       return R.string.download_scheme_unsupported;
     }
@@ -284,7 +284,7 @@ public class SampleChooserActivity extends AppCompatActivity
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;
         } finally {
-          Util.closeQuietly(dataSource);
+          DataSourceUtil.closeQuietly(dataSource);
         }
       }
       return result;
@@ -345,6 +345,12 @@ public class SampleChooserActivity extends AppCompatActivity
       Uri subtitleUri = null;
       String subtitleMimeType = null;
       String subtitleLanguage = null;
+      UUID drmUuid = null;
+      String drmLicenseUri = null;
+      ImmutableMap<String, String> drmLicenseRequestHeaders = ImmutableMap.of();
+      boolean drmSessionForClearContent = false;
+      boolean drmMultiSession = false;
+      boolean drmForceDefaultLicenseUri = false;
 
       MediaItem.Builder mediaItem = new MediaItem.Builder();
       reader.beginObject();
@@ -367,14 +373,15 @@ public class SampleChooserActivity extends AppCompatActivity
             mediaItem.setClipEndPositionMs(reader.nextLong());
             break;
           case "ad_tag_uri":
-            mediaItem.setAdTagUri(reader.nextString());
+            mediaItem.setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(Uri.parse(reader.nextString())).build());
             break;
           case "drm_scheme":
-            mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
+            drmUuid = Util.getDrmUuid(reader.nextString());
             break;
           case "drm_license_uri":
           case "drm_license_url": // For backward compatibility only.
-            mediaItem.setDrmLicenseUri(reader.nextString());
+            drmLicenseUri = reader.nextString();
             break;
           case "drm_key_request_properties":
             Map<String, String> requestHeaders = new HashMap<>();
@@ -383,19 +390,16 @@ public class SampleChooserActivity extends AppCompatActivity
               requestHeaders.put(reader.nextName(), reader.nextString());
             }
             reader.endObject();
-            mediaItem.setDrmLicenseRequestHeaders(requestHeaders);
+            drmLicenseRequestHeaders = ImmutableMap.copyOf(requestHeaders);
             break;
           case "drm_session_for_clear_content":
-            if (reader.nextBoolean()) {
-              mediaItem.setDrmSessionForClearTypes(
-                  ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO));
-            }
+            drmSessionForClearContent = reader.nextBoolean();
             break;
           case "drm_multi_session":
-            mediaItem.setDrmMultiSession(reader.nextBoolean());
+            drmMultiSession = reader.nextBoolean();
             break;
           case "drm_force_default_license_uri":
-            mediaItem.setDrmForceDefaultLicenseUri(reader.nextBoolean());
+            drmForceDefaultLicenseUri = reader.nextBoolean();
             break;
           case "subtitle_uri":
             subtitleUri = Uri.parse(reader.nextString());
@@ -436,6 +440,28 @@ public class SampleChooserActivity extends AppCompatActivity
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
             .setMimeType(adaptiveMimeType);
+        if (drmUuid != null) {
+          mediaItem.setDrmConfiguration(
+              new MediaItem.DrmConfiguration.Builder(drmUuid)
+                  .setLicenseUri(drmLicenseUri)
+                  .setLicenseRequestHeaders(drmLicenseRequestHeaders)
+                  .forceSessionsForAudioAndVideoTracks(drmSessionForClearContent)
+                  .setMultiSession(drmMultiSession)
+                  .setForceDefaultLicenseUri(drmForceDefaultLicenseUri)
+                  .build());
+        } else {
+          checkState(drmLicenseUri == null, "drm_uuid is required if drm_license_uri is set.");
+          checkState(
+              drmLicenseRequestHeaders.isEmpty(),
+              "drm_uuid is required if drm_key_request_properties is set.");
+          checkState(
+              !drmSessionForClearContent,
+              "drm_uuid is required if drm_session_for_clear_content is set.");
+          checkState(!drmMultiSession, "drm_uuid is required if drm_multi_session is set.");
+          checkState(
+              !drmForceDefaultLicenseUri,
+              "drm_uuid is required if drm_force_default_license_uri is set.");
+        }
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =
               new MediaItem.Subtitle(

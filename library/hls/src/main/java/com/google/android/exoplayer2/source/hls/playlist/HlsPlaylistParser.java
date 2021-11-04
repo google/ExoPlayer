@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -49,6 +48,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -518,7 +518,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             formatBuilder.setChannelCount(channelCount);
             if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType) && channelsString.endsWith("/JOC")) {
               sampleMimeType = MimeTypes.AUDIO_E_AC3_JOC;
-              formatBuilder.setCodecs(Ac3Util.E_AC3_JOC_CODEC_STRING);
+              formatBuilder.setCodecs(MimeTypes.CODEC_E_AC3_JOC);
             }
           }
           formatBuilder.setSampleMimeType(sampleMimeType);
@@ -646,7 +646,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     List<Segment> segments = new ArrayList<>();
     List<Part> trailingParts = new ArrayList<>();
     @Nullable Part preloadPart = null;
-    Map<Uri, RenditionReport> renditionReports = new HashMap<>();
+    List<RenditionReport> renditionReports = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
     long segmentDurationUs = 0;
@@ -760,8 +760,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               parseStringAttr(line, REGEX_VALUE, variableDefinitions));
         }
       } else if (line.startsWith(TAG_MEDIA_DURATION)) {
-        segmentDurationUs =
-            (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
+        segmentDurationUs = parseTimeSecondsToUs(line, REGEX_MEDIA_DURATION);
         segmentTitle = parseOptionalStringAttr(line, REGEX_MEDIA_TITLE, "", variableDefinitions);
       } else if (line.startsWith(TAG_SKIP)) {
         int skippedSegmentCount = parseIntAttr(line, REGEX_SKIPPED_SEGMENTS);
@@ -845,7 +844,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_PROGRAM_DATE_TIME)) {
         if (playlistStartTimeUs == 0) {
           long programDatetimeUs =
-              C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
+              Util.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
           playlistStartTimeUs = programDatetimeUs - segmentStartTimeUs;
         }
       } else if (line.equals(TAG_GAP)) {
@@ -855,17 +854,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.equals(TAG_ENDLIST)) {
         hasEndTag = true;
       } else if (line.startsWith(TAG_RENDITION_REPORT)) {
-        long defaultValue = mediaSequence + segments.size() - (trailingParts.isEmpty() ? 1 : 0);
-        long lastMediaSequence = parseOptionalLongAttr(line, REGEX_LAST_MSN, defaultValue);
-        List<Part> lastParts =
-            trailingParts.isEmpty() ? Iterables.getLast(segments).parts : trailingParts;
-        int defaultPartIndex =
-            partTargetDurationUs != C.TIME_UNSET ? lastParts.size() - 1 : C.INDEX_UNSET;
-        int lastPartIndex = parseOptionalIntAttr(line, REGEX_LAST_PART, defaultPartIndex);
+        long lastMediaSequence = parseOptionalLongAttr(line, REGEX_LAST_MSN, C.INDEX_UNSET);
+        int lastPartIndex = parseOptionalIntAttr(line, REGEX_LAST_PART, C.INDEX_UNSET);
         String uri = parseStringAttr(line, REGEX_URI, variableDefinitions);
         Uri playlistUri = Uri.parse(UriUtil.resolve(baseUri, uri));
-        renditionReports.put(
-            playlistUri, new RenditionReport(playlistUri, lastMediaSequence, lastPartIndex));
+        renditionReports.add(new RenditionReport(playlistUri, lastMediaSequence, lastPartIndex));
       } else if (line.startsWith(TAG_PRELOAD_HINT)) {
         if (preloadPart != null) {
           continue;
@@ -1023,6 +1016,24 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       }
     }
 
+    Map<Uri, RenditionReport> renditionReportMap = new HashMap<>();
+    for (int i = 0; i < renditionReports.size(); i++) {
+      RenditionReport renditionReport = renditionReports.get(i);
+      long lastMediaSequence = renditionReport.lastMediaSequence;
+      if (lastMediaSequence == C.INDEX_UNSET) {
+        lastMediaSequence = mediaSequence + segments.size() - (trailingParts.isEmpty() ? 1 : 0);
+      }
+      int lastPartIndex = renditionReport.lastPartIndex;
+      if (lastPartIndex == C.INDEX_UNSET && partTargetDurationUs != C.TIME_UNSET) {
+        List<Part> lastParts =
+            trailingParts.isEmpty() ? Iterables.getLast(segments).parts : trailingParts;
+        lastPartIndex = lastParts.size() - 1;
+      }
+      renditionReportMap.put(
+          renditionReport.playlistUri,
+          new RenditionReport(renditionReport.playlistUri, lastMediaSequence, lastPartIndex));
+    }
+
     if (preloadPart != null) {
       trailingParts.add(preloadPart);
     }
@@ -1047,7 +1058,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         segments,
         trailingParts,
         serverControl,
-        renditionReports);
+        renditionReportMap);
   }
 
   private static DrmInitData getPlaylistProtectionSchemes(
@@ -1189,6 +1200,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       return Long.parseLong(checkNotNull(matcher.group(1)));
     }
     return defaultValue;
+  }
+
+  private static long parseTimeSecondsToUs(String line, Pattern pattern) throws ParserException {
+    String timeValueSeconds = parseStringAttr(line, pattern, Collections.emptyMap());
+    BigDecimal timeValue = new BigDecimal(timeValueSeconds);
+    return timeValue.multiply(new BigDecimal(C.MICROS_PER_SECOND)).longValue();
   }
 
   private static double parseDoubleAttr(String line, Pattern pattern) throws ParserException {

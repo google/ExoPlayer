@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">උපසිරැසි සබල කරන්න</string>
   <string name="exo_controls_playback_speed">වේගය</string>
   <string name="exo_controls_playback_speed_normal">සාමාන්‍ය</string>
-  <string name="exo_download_description">බාගන්න</string>
-  <string name="exo_download_notification_channel_name">බාගැනීම්</string>
-  <string name="exo_download_downloading">බාගනිමින්</string>
-  <string name="exo_download_completed">බාගැනීම සම්පූර්ණ කරන ලදී</string>
-  <string name="exo_download_failed">බාගැනීම අසමත් විය</string>
-  <string name="exo_download_removing">බාගැනීම් ඉවත් කිරීම</string>
   <string name="exo_track_selection_title_video">වීඩියෝ</string>
   <string name="exo_track_selection_title_audio">ශ්‍රව්‍ය</string>
   <string name="exo_track_selection_title_text">පෙළ</string>

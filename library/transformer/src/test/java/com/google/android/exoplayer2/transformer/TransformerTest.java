@@ -562,22 +562,36 @@ public final class TransformerTest {
   }
 
   private final class TestMuxerFactory implements Muxer.Factory {
+
+    private final Muxer.Factory frameworkMuxerFactory;
+
+    public TestMuxerFactory() {
+      frameworkMuxerFactory = new FrameworkMuxer.Factory();
+    }
+
     @Override
     public Muxer create(String path, String outputMimeType) throws IOException {
-      testMuxer = new TestMuxer(path, outputMimeType);
+      testMuxer = new TestMuxer(path, outputMimeType, frameworkMuxerFactory);
       return testMuxer;
     }
 
     @Override
     public Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
         throws IOException {
-      testMuxer = new TestMuxer("FD:" + parcelFileDescriptor.getFd(), outputMimeType);
+      testMuxer =
+          new TestMuxer(
+              "FD:" + parcelFileDescriptor.getFd(), outputMimeType, frameworkMuxerFactory);
       return testMuxer;
     }
 
     @Override
     public boolean supportsOutputMimeType(String mimeType) {
       return true;
+    }
+
+    @Override
+    public boolean supportsSampleMimeType(String sampleMimeType, String outputMimeType) {
+      return frameworkMuxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType);
     }
   }
 }

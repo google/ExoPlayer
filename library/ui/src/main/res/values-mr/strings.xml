@@ -20,7 +20,7 @@
   <string name="exo_controls_settings_description">सेटिंग्ज</string>
   <string name="exo_controls_overflow_hide_description">अतिरिक्त सेटिंग्ज लपवा</string>
   <string name="exo_controls_overflow_show_description">अतिरिक्त सेटिंग्ज दाखवा</string>
-  <string name="exo_controls_fullscreen_enter_description">फुलस्क्रीनवर पाहा</string>
+  <string name="exo_controls_fullscreen_enter_description">फुलस्क्रीनवर पहा</string>
   <string name="exo_controls_fullscreen_exit_description">फुलस्क्रीनवरून बाहेर पडा</string>
   <string name="exo_controls_previous_description">मागील</string>
   <string name="exo_controls_next_description">पुढील</string>
@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">सबटायटल सुरू करा</string>
   <string name="exo_controls_playback_speed">वेग</string>
   <string name="exo_controls_playback_speed_normal">सामान्य</string>
-  <string name="exo_download_description">डाउनलोड करा</string>
-  <string name="exo_download_notification_channel_name">डाउनलोड</string>
-  <string name="exo_download_downloading">डाउनलोड होत आहे</string>
-  <string name="exo_download_completed">डाउनलोड पूर्ण झाले</string>
-  <string name="exo_download_failed">डाउनलोड अयशस्वी झाले</string>
-  <string name="exo_download_removing">डाउनलोड काढून टाकत आहे</string>
   <string name="exo_track_selection_title_video">व्हिडिओ</string>
   <string name="exo_track_selection_title_audio">ऑडिओ</string>
   <string name="exo_track_selection_title_text">मजकूर</string>

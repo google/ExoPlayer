@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">字幕の有効化</string>
   <string name="exo_controls_playback_speed">速度</string>
   <string name="exo_controls_playback_speed_normal">標準</string>
-  <string name="exo_download_description">ダウンロード</string>
-  <string name="exo_download_notification_channel_name">ダウンロード</string>
-  <string name="exo_download_downloading">ダウンロードしています</string>
-  <string name="exo_download_completed">ダウンロードが完了しました</string>
-  <string name="exo_download_failed">ダウンロードに失敗しました</string>
-  <string name="exo_download_removing">ダウンロードを削除しています</string>
   <string name="exo_track_selection_title_video">動画</string>
   <string name="exo_track_selection_title_audio">音声</string>
   <string name="exo_track_selection_title_text">文字</string>

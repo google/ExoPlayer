@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":10,"i5":42,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":42,"i4":42,"i5":10,"i6":42,"i7":10,"i8":10,"i9":10,"i10":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -157,6 +157,23 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.source.MediaSourceFactory">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></h3>
+<code><a href="../MediaSourceFactory.html#UNSUPPORTED">UNSUPPORTED</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -209,16 +226,14 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></span>&#8203;(<a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDebugLoggingEnabled(boolean)">setDebugLoggingEnabled</a></span>&#8203;(boolean&nbsp;debugLoggingEnabled)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment"><a href="RtspMediaSource.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtspMediaSource</code></a> does not support DRM.</div>
-</div>
+<div class="block">Sets whether to log RTSP messages, the default value is <code>false</code>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">setDrmSessionManager</a></span>&#8203;(<a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></span>&#8203;(<a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment"><a href="RtspMediaSource.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtspMediaSource</code></a> does not support DRM.</div>
@@ -227,12 +242,21 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">setDrmSessionManager</a></span>&#8203;(<a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment"><a href="RtspMediaSource.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtspMediaSource</code></a> does not support DRM.</div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></span>&#8203;(<a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManager)</code></th>
 <td class="colLast">
 <div class="block">Does nothing.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmUserAgent(java.lang.String)">setDrmUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
@@ -241,28 +265,28 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setForceUseRtpTcp(boolean)">setForceUseRtpTcp</a></span>&#8203;(boolean&nbsp;forceUseRtpTcp)</code></th>
 <td class="colLast">
 <div class="block">Sets whether to force using TCP as the default RTP transport.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
 <div class="block">Does nothing.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTimeoutMs(long)">setTimeoutMs</a></span>&#8203;(long&nbsp;timeoutMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the timeout in milliseconds, the default value is <a href="RtspMediaSource.html#DEFAULT_TIMEOUT_MS"><code>RtspMediaSource.DEFAULT_TIMEOUT_MS</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUserAgent(java.lang.String)">setUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
@@ -356,6 +380,25 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </dl>
 </li>
 </ul>
+<a id="setDebugLoggingEnabled(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDebugLoggingEnabled</h4>
+<pre class="methodSignature">public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a>&nbsp;setDebugLoggingEnabled&#8203;(boolean&nbsp;debugLoggingEnabled)</pre>
+<div class="block">Sets whether to log RTSP messages, the default value is <code>false</code>.
+
+ <p>This option presents a privacy risk, since it may expose sensitive information such as
+ user's credentials.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>debugLoggingEnabled</code> - Whether to log RTSP messages.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This Factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a id="setTimeoutMs(long)">
 <!--   -->
 </a>
@@ -433,7 +476,7 @@ public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.an
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../../upstream/DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSourceFactory</code></a>.</dd>
+<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -515,7 +558,7 @@ public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.an
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The new <a href="RtspMediaSource.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtspMediaSource</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink">NullPointerException</a></code> - if <a href="../../MediaItem.html#playbackProperties" target="_top"><code>MediaItem.playbackProperties</code></a> is <code>null</code>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink">NullPointerException</a></code> - if <a href="../../MediaItem.html#localConfiguration" target="_top"><code>MediaItem.localConfiguration</code></a> is <code>null</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -571,7 +614,7 @@ public&nbsp;<a href="RtspMediaSource.Factory.html" title="class in com.google.an
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

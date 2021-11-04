@@ -28,11 +28,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link VorbisUtil}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class VorbisUtilTest {
 
   @Test

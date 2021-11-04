@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.database.DatabaseIOException;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
 import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -51,12 +51,12 @@ public class DefaultDownloadIndexTest {
 
   private static final String EMPTY_NAME = "";
 
-  private ExoDatabaseProvider databaseProvider;
+  private StandaloneDatabaseProvider databaseProvider;
   private DefaultDownloadIndex downloadIndex;
 
   @Before
   public void setUp() {
-    databaseProvider = new ExoDatabaseProvider(ApplicationProvider.getApplicationContext());
+    databaseProvider = new StandaloneDatabaseProvider(ApplicationProvider.getApplicationContext());
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
   }
 
@@ -222,7 +222,7 @@ public class DefaultDownloadIndexTest {
   @Test
   public void downloadIndex_upgradesFromVersion2() throws IOException {
     Context context = ApplicationProvider.getApplicationContext();
-    File databaseFile = context.getDatabasePath(ExoDatabaseProvider.DATABASE_NAME);
+    File databaseFile = context.getDatabasePath(StandaloneDatabaseProvider.DATABASE_NAME);
     try (FileOutputStream output = new FileOutputStream(databaseFile)) {
       output.write(TestUtil.getByteArray(context, "media/offline/exoplayer_internal_v2.db"));
     }
@@ -251,7 +251,7 @@ public class DefaultDownloadIndexTest {
             ImmutableList.of(),
             /* customCacheKey= */ "customCacheKey");
 
-    databaseProvider = new ExoDatabaseProvider(context);
+    databaseProvider = new StandaloneDatabaseProvider(context);
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
 
     assertEqual(downloadIndex.getDownload("http://www.test.com/manifest.mpd"), dashDownload);

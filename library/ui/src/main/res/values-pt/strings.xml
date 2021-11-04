@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Ativar legendas</string>
   <string name="exo_controls_playback_speed">Velocidade</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">Fazer o download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Fazendo o download</string>
-  <string name="exo_download_completed">Download concluído</string>
-  <string name="exo_download_failed">Falha no download</string>
-  <string name="exo_download_removing">Removendo downloads</string>
   <string name="exo_track_selection_title_video">Vídeo</string>
   <string name="exo_track_selection_title_audio">Áudio</string>
   <string name="exo_track_selection_title_text">Texto</string>

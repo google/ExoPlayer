@@ -277,20 +277,20 @@ public final class SsMediaSource extends BaseMediaSource
     public SsMediaSource createMediaSource(SsManifest manifest, MediaItem mediaItem) {
       Assertions.checkArgument(!manifest.isLive);
       List<StreamKey> streamKeys =
-          mediaItem.playbackProperties != null && !mediaItem.playbackProperties.streamKeys.isEmpty()
-              ? mediaItem.playbackProperties.streamKeys
+          mediaItem.localConfiguration != null && !mediaItem.localConfiguration.streamKeys.isEmpty()
+              ? mediaItem.localConfiguration.streamKeys
               : this.streamKeys;
       if (!streamKeys.isEmpty()) {
         manifest = manifest.copy(streamKeys);
       }
-      boolean hasUri = mediaItem.playbackProperties != null;
-      boolean hasTag = hasUri && mediaItem.playbackProperties.tag != null;
+      boolean hasUri = mediaItem.localConfiguration != null;
+      boolean hasTag = hasUri && mediaItem.localConfiguration.tag != null;
       mediaItem =
           mediaItem
               .buildUpon()
               .setMimeType(MimeTypes.APPLICATION_SS)
-              .setUri(hasUri ? mediaItem.playbackProperties.uri : Uri.EMPTY)
-              .setTag(hasTag ? mediaItem.playbackProperties.tag : tag)
+              .setUri(hasUri ? mediaItem.localConfiguration.uri : Uri.EMPTY)
+              .setTag(hasTag ? mediaItem.localConfiguration.tag : tag)
               .setStreamKeys(streamKeys)
               .build();
       return new SsMediaSource(
@@ -310,26 +310,26 @@ public final class SsMediaSource extends BaseMediaSource
      *
      * @param mediaItem The {@link MediaItem}.
      * @return The new {@link SsMediaSource}.
-     * @throws NullPointerException if {@link MediaItem#playbackProperties} is {@code null}.
+     * @throws NullPointerException if {@link MediaItem#localConfiguration} is {@code null}.
      */
     @Override
     public SsMediaSource createMediaSource(MediaItem mediaItem) {
-      checkNotNull(mediaItem.playbackProperties);
+      checkNotNull(mediaItem.localConfiguration);
       @Nullable ParsingLoadable.Parser<? extends SsManifest> manifestParser = this.manifestParser;
       if (manifestParser == null) {
         manifestParser = new SsManifestParser();
       }
       List<StreamKey> streamKeys =
-          !mediaItem.playbackProperties.streamKeys.isEmpty()
-              ? mediaItem.playbackProperties.streamKeys
+          !mediaItem.localConfiguration.streamKeys.isEmpty()
+              ? mediaItem.localConfiguration.streamKeys
               : this.streamKeys;
       if (!streamKeys.isEmpty()) {
         manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
 
-      boolean needsTag = mediaItem.playbackProperties.tag == null && tag != null;
+      boolean needsTag = mediaItem.localConfiguration.tag == null && tag != null;
       boolean needsStreamKeys =
-          mediaItem.playbackProperties.streamKeys.isEmpty() && !streamKeys.isEmpty();
+          mediaItem.localConfiguration.streamKeys.isEmpty() && !streamKeys.isEmpty();
       if (needsTag && needsStreamKeys) {
         mediaItem = mediaItem.buildUpon().setTag(tag).setStreamKeys(streamKeys).build();
       } else if (needsTag) {
@@ -370,7 +370,7 @@ public final class SsMediaSource extends BaseMediaSource
 
   private final boolean sideloadedManifest;
   private final Uri manifestUri;
-  private final MediaItem.PlaybackProperties playbackProperties;
+  private final MediaItem.LocalConfiguration localConfiguration;
   private final MediaItem mediaItem;
   private final DataSource.Factory manifestDataSourceFactory;
   private final SsChunkSource.Factory chunkSourceFactory;
@@ -404,12 +404,12 @@ public final class SsMediaSource extends BaseMediaSource
       long livePresentationDelayMs) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.mediaItem = mediaItem;
-    playbackProperties = checkNotNull(mediaItem.playbackProperties);
+    localConfiguration = checkNotNull(mediaItem.localConfiguration);
     this.manifest = manifest;
     this.manifestUri =
-        playbackProperties.uri.equals(Uri.EMPTY)
+        localConfiguration.uri.equals(Uri.EMPTY)
             ? null
-            : Util.fixSmoothStreamingIsmManifestUri(playbackProperties.uri);
+            : Util.fixSmoothStreamingIsmManifestUri(localConfiguration.uri);
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
@@ -604,7 +604,7 @@ public final class SsMediaSource extends BaseMediaSource
         startTimeUs = max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
       }
       long durationUs = endTimeUs - startTimeUs;
-      long defaultStartPositionUs = durationUs - C.msToUs(livePresentationDelayMs);
+      long defaultStartPositionUs = durationUs - Util.msToUs(livePresentationDelayMs);
       if (defaultStartPositionUs < MIN_LIVE_DEFAULT_START_POSITION_US) {
         // The default start position is too close to the start of the live window. Set it to the
         // minimum default start position provided the window is at least twice as big. Else set

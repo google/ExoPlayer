@@ -136,6 +136,32 @@ public abstract class TrackSelector {
    */
   public abstract void onSelectionActivated(@Nullable Object info);
 
+  /** Returns the current parameters for track selection. */
+  public TrackSelectionParameters getParameters() {
+    return TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT;
+  }
+
+  /**
+   * Called by the player to provide parameters for track selection.
+   *
+   * <p>Only supported if {@link #isSetParametersSupported()} returns true.
+   *
+   * @param parameters The parameters for track selection.
+   */
+  public void setParameters(TrackSelectionParameters parameters) {
+    // Default implementation doesn't support this method.
+  }
+
+  /**
+   * Returns if this {@code TrackSelector} supports {@link
+   * #setParameters(TrackSelectionParameters)}.
+   *
+   * <p>The same value is always returned for a given {@code TrackSelector} instance.
+   */
+  public boolean isSetParametersSupported() {
+    return false;
+  }
+
   /**
    * Calls {@link InvalidationListener#onTrackSelectionsInvalidated()} to invalidate all previously
    * generated track selections.

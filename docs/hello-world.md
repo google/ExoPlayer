@@ -14,7 +14,7 @@ For simple use cases, getting started with `ExoPlayer` consists of implementing
 the following steps:
 
 1. Add ExoPlayer as a dependency to your project.
-1. Create a `SimpleExoPlayer` instance.
+1. Create an `ExoPlayer` instance.
 1. Attach the player to a view (for video output and user input).
 1. Prepare the player with a `MediaItem` to play.
 1. Release the player when done.
@@ -92,12 +92,12 @@ to prevent build errors.
 
 ## Creating the player ##
 
-You can create an `ExoPlayer` instance using `SimpleExoPlayer.Builder`, which
-provides a range of customization options. The code below is the simplest
-example of creating an instance.
+You can create an `ExoPlayer` instance using `ExoPlayer.Builder`, which provides
+a range of customization options. The code below is the simplest example of
+creating an instance.
 
 ~~~
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+ExoPlayer player = new ExoPlayer.Builder(context).build();
 ~~~
 {: .language-java}
 
@@ -117,12 +117,12 @@ which the player must be accessed can be queried using
 `Player.getApplicationLooper`.
 
 If you see `IllegalStateException` being thrown with the message "Player is
-accessed on the wrong thread", then some code in your app is accessing a
-`SimpleExoPlayer` instance on the wrong thread (the exception's stack trace
-shows you where). You can temporarily opt out from these exceptions being thrown
-by calling `SimpleExoPlayer.setThrowsWhenUsingWrongThread(false)`, in which case
-the issue will be logged as a warning instead. Using this opt out is not safe
-and may result in unexpected or obscure errors. It will be removed in ExoPlayer
+accessed on the wrong thread", then some code in your app is accessing an
+`ExoPlayer` instance on the wrong thread (the exception's stack trace shows you
+where). You can temporarily opt out from these exceptions being thrown by
+calling `ExoPlayer.setThrowsWhenUsingWrongThread(false)`, in which case the
+issue will be logged as a warning instead. Using this opt out is not safe and
+may result in unexpected or obscure errors. It will be removed in ExoPlayer
 2.16.
 {:.info}
 
@@ -148,10 +148,10 @@ useful for audio only use cases.
 
 Use of ExoPlayer's pre-built UI components is optional. For video applications
 that implement their own UI, the target `SurfaceView`, `TextureView`,
-`SurfaceHolder` or `Surface` can be set using `SimpleExoPlayer`'s
+`SurfaceHolder` or `Surface` can be set using `ExoPlayer`'s
 `setVideoSurfaceView`, `setVideoTextureView`, `setVideoSurfaceHolder` and
-`setVideoSurface` methods respectively. `SimpleExoPlayer`'s `addTextOutput`
-method can be used to receive captions that should be rendered during playback.
+`setVideoSurface` methods respectively. `ExoPlayer`'s `addTextOutput` method can
+be used to receive captions that should be rendered during playback.
 
 ## Populating the playlist and preparing the player ##
 

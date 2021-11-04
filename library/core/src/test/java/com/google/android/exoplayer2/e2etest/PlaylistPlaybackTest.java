@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.e2etest;
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
@@ -44,8 +44,8 @@ public final class PlaylistPlaybackTest {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
-    SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
@@ -66,8 +66,8 @@ public final class PlaylistPlaybackTest {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
-    SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);

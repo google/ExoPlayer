@@ -97,7 +97,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
   private final ArrayList<@NullableType CryptoData> lastOutputCryptoDatas;
   private final DataReaderAdapter scratchDataReaderAdapter;
   private final boolean expectDummySeekMap;
-  private final int primaryTrackType;
+  private final @C.TrackType int primaryTrackType;
   @Nullable private final Format primaryTrackManifestFormat;
 
   private ExtractorOutput extractorOutput;
@@ -130,14 +130,14 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
    *
    * @param primaryTrackManifestFormat The manifest-obtained format of the primary track, or null if
    *     not applicable.
-   * @param primaryTrackType The type of the primary track, or {@link C#TRACK_TYPE_NONE} if there is
-   *     no primary track. Must be one of the {@link C C.TRACK_TYPE_*} constants.
+   * @param primaryTrackType The {@link C.TrackType type} of the primary track. {@link
+   *     C#TRACK_TYPE_NONE} if there is no primary track.
    * @param expectDummySeekMap Whether the output consumer should expect an initial dummy seek map
    *     which should be exposed through {@link #getDummySeekMap()}.
    */
   public OutputConsumerAdapterV30(
       @Nullable Format primaryTrackManifestFormat,
-      int primaryTrackType,
+      @C.TrackType int primaryTrackType,
       boolean expectDummySeekMap) {
     this.expectDummySeekMap = expectDummySeekMap;
     this.primaryTrackManifestFormat = primaryTrackManifestFormat;
@@ -429,7 +429,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
     tracksEnded = true;
   }
 
-  private static int toTrackTypeConstant(@Nullable String string) {
+  private static @C.TrackType int toTrackTypeConstant(@Nullable String string) {
     if (string == null) {
       return C.TRACK_TYPE_UNKNOWN;
     }

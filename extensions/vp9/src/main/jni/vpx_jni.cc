@@ -479,7 +479,7 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
 
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
-      "com/google/android/exoplayer2/video/VideoDecoderOutputBuffer");
+      "com/google/android/exoplayer2/decoder/VideoDecoderOutputBuffer");
   initForYuvFrame =
       env->GetMethodID(outputBufferClass, "initForYuvFrame", "(IIIII)Z");
   initForPrivateFrame =

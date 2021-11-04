@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -39,6 +40,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.TrueHdSampleRechunker;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
@@ -56,7 +58,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** Extracts data from the MP4 container format. */
 public final class Mp4Extractor implements Extractor, SeekMap {
@@ -220,7 +221,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         slowMotionMetadataEntries.clear();
       }
     } else if (tracks != null) {
-      updateSampleIndices(timeUs);
+      for (Mp4Track track : tracks) {
+        updateSampleIndex(track, timeUs);
+        if (track.trueHdSampleRechunker != null) {
+          track.trueHdSampleRechunker.reset();
+        }
+      }
     }
   }
 
@@ -503,9 +509,16 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       Mp4Track mp4Track =
           new Mp4Track(track, trackSampleTable, extractorOutput.track(i, track.type));
 
-      // Each sample has up to three bytes of overhead for the start code that replaces its length.
-      // Allow ten source samples per output sample, like the platform extractor.
-      int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
+      int maxInputSize;
+      if (MimeTypes.AUDIO_TRUEHD.equals(track.format.sampleMimeType)) {
+        // TrueHD groups samples per chunks of TRUEHD_RECHUNK_SAMPLE_COUNT samples.
+        maxInputSize = trackSampleTable.maximumSize * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT;
+      } else {
+        // Each sample has up to three bytes of overhead for the start code that replaces its
+        // length. Allow ten source samples per output sample, like the platform extractor.
+        maxInputSize = trackSampleTable.maximumSize + 3 * 10;
+      }
+
       Format.Builder formatBuilder = track.format.buildUpon();
       formatBuilder.setMaxInputSize(maxInputSize);
       if (track.type == C.TRACK_TYPE_VIDEO
@@ -567,6 +580,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     int sampleIndex = track.sampleIndex;
     long position = track.sampleTable.offsets[sampleIndex];
     int sampleSize = track.sampleTable.sizes[sampleIndex];
+    @Nullable TrueHdSampleRechunker trueHdSampleRechunker = track.trueHdSampleRechunker;
     long skipAmount = position - inputPosition + sampleBytesRead;
     if (skipAmount < 0 || skipAmount >= RELOAD_MINIMUM_SEEK_DISTANCE) {
       positionHolder.position = position;
@@ -624,7 +638,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           sampleBytesWritten += Ac4Util.SAMPLE_HEADER_SIZE;
         }
         sampleSize += Ac4Util.SAMPLE_HEADER_SIZE;
+      } else if (trueHdSampleRechunker != null) {
+        trueHdSampleRechunker.startSample(input);
       }
+
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesRead += writtenBytes;
@@ -632,12 +649,20 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
     }
-    trackOutput.sampleMetadata(
-        track.sampleTable.timestampsUs[sampleIndex],
-        track.sampleTable.flags[sampleIndex],
-        sampleSize,
-        0,
-        null);
+
+    long timeUs = track.sampleTable.timestampsUs[sampleIndex];
+    @C.BufferFlags int flags = track.sampleTable.flags[sampleIndex];
+    if (trueHdSampleRechunker != null) {
+      trueHdSampleRechunker.sampleMetadata(
+          trackOutput, timeUs, flags, sampleSize, /* offset= */ 0, /* cryptoData= */ null);
+      if (sampleIndex + 1 == track.sampleTable.sampleCount) {
+        trueHdSampleRechunker.outputPendingSampleMetadata(trackOutput, /* cryptoData= */ null);
+      }
+    } else {
+      trackOutput.sampleMetadata(
+          timeUs, flags, sampleSize, /* offset= */ 0, /* cryptoData= */ null);
+    }
+
     track.sampleIndex++;
     sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesRead = 0;
@@ -697,20 +722,15 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         : minAccumulatedBytesTrackIndex;
   }
 
-  /**
-   * Updates every track's sample index to point its latest sync sample before/at {@code timeUs}.
-   */
-  @RequiresNonNull("tracks")
-  private void updateSampleIndices(long timeUs) {
-    for (Mp4Track track : tracks) {
-      TrackSampleTable sampleTable = track.sampleTable;
-      int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(timeUs);
-      if (sampleIndex == C.INDEX_UNSET) {
-        // Handle the case where the requested time is before the first synchronization sample.
-        sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
-      }
-      track.sampleIndex = sampleIndex;
+  /** Updates a track's sample index to point its latest sync sample before/at {@code timeUs}. */
+  private void updateSampleIndex(Mp4Track track, long timeUs) {
+    TrackSampleTable sampleTable = track.sampleTable;
+    int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(timeUs);
+    if (sampleIndex == C.INDEX_UNSET) {
+      // Handle the case where the requested time is before the first synchronization sample.
+      sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
     }
+    track.sampleIndex = sampleIndex;
   }
 
   /** Processes the end of stream in case there is not atom left to read. */
@@ -902,6 +922,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     public final Track track;
     public final TrackSampleTable sampleTable;
     public final TrackOutput trackOutput;
+    @Nullable public final TrueHdSampleRechunker trueHdSampleRechunker;
 
     public int sampleIndex;
 
@@ -909,6 +930,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       this.track = track;
       this.sampleTable = sampleTable;
       this.trackOutput = trackOutput;
+      trueHdSampleRechunker =
+          MimeTypes.AUDIO_TRUEHD.equals(track.format.sampleMimeType)
+              ? new TrueHdSampleRechunker()
+              : null;
     }
   }
 }

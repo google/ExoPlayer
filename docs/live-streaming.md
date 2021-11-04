@@ -89,15 +89,15 @@ components to support additional modes when playing live streams.
 
 By default, ExoPlayer uses live playback parameters defined by the media. If you
 want to configure the live playback parameters yourself, you can set them on a
-per `MediaItem` basis by calling `MediaItem.Builder.setLiveXXX` methods. If
+per `MediaItem` basis by calling `MediaItem.Builder.setLiveConfiguration`. If
 you'd like to set these values globally for all items, you can set them on the
 `DefaultMediaSourceFactory` provided to the player. In both cases, the provided
 values will override parameters defined by the media.
 
 ~~~
 // Global settings.
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+ExoPlayer player =
+    new ExoPlayer.Builder(context)
         .setMediaSourceFactory(
             new DefaultMediaSourceFactory(context).setLiveTargetOffsetMs(5000))
         .build();
@@ -106,7 +106,10 @@ SimpleExoPlayer player =
 MediaItem mediaItem =
     new MediaItem.Builder()
         .setUri(mediaUri)
-        .setLiveMaxPlaybackSpeed(1.02f)
+        .setLiveConfiguration(
+            new MediaItem.LiveConfiguration.Builder()
+                .setMaxPlaybackSpeed(1.02f)
+                .build())
         .build();
 player.setMediaItem(mediaItem);
 ~~~
@@ -163,8 +166,8 @@ implementation, which is `DefaultLivePlaybackSpeedControl`. In both cases an
 instance can be set when building the player:
 
 ~~~
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+ExoPlayer player =
+    new ExoPlayer.Builder(context)
         .setLivePlaybackSpeedControl(
             new DefaultLivePlaybackSpeedControl.Builder()
                 .setFallbackMaxPlaybackSpeed(1.04f)

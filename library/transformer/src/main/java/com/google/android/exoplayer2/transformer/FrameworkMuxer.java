@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
+import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
@@ -42,7 +43,7 @@ import java.nio.ByteBuffer;
     @Override
     public FrameworkMuxer create(String path, String outputMimeType) throws IOException {
       MediaMuxer mediaMuxer = new MediaMuxer(path, mimeTypeToMuxerOutputFormat(outputMimeType));
-      return new FrameworkMuxer(mediaMuxer, outputMimeType);
+      return new FrameworkMuxer(mediaMuxer);
     }
 
     @RequiresApi(26)
@@ -53,7 +54,7 @@ import java.nio.ByteBuffer;
           new MediaMuxer(
               parcelFileDescriptor.getFileDescriptor(),
               mimeTypeToMuxerOutputFormat(outputMimeType));
-      return new FrameworkMuxer(mediaMuxer, outputMimeType);
+      return new FrameworkMuxer(mediaMuxer);
     }
 
     @Override
@@ -65,45 +66,44 @@ import java.nio.ByteBuffer;
       }
       return true;
     }
+
+    @Override
+    public boolean supportsSampleMimeType(
+        @Nullable String sampleMimeType, String containerMimeType) {
+      // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
+      boolean isAudio = MimeTypes.isAudio(sampleMimeType);
+      boolean isVideo = MimeTypes.isVideo(sampleMimeType);
+      if (containerMimeType.equals(MimeTypes.VIDEO_MP4)) {
+        if (isVideo) {
+          return MimeTypes.VIDEO_H263.equals(sampleMimeType)
+              || MimeTypes.VIDEO_H264.equals(sampleMimeType)
+              || MimeTypes.VIDEO_MP4V.equals(sampleMimeType)
+              || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_H265.equals(sampleMimeType));
+        } else if (isAudio) {
+          return MimeTypes.AUDIO_AAC.equals(sampleMimeType)
+              || MimeTypes.AUDIO_AMR_NB.equals(sampleMimeType)
+              || MimeTypes.AUDIO_AMR_WB.equals(sampleMimeType);
+        }
+      } else if (containerMimeType.equals(MimeTypes.VIDEO_WEBM) && SDK_INT >= 21) {
+        if (isVideo) {
+          return MimeTypes.VIDEO_VP8.equals(sampleMimeType)
+              || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_VP9.equals(sampleMimeType));
+        } else if (isAudio) {
+          return MimeTypes.AUDIO_VORBIS.equals(sampleMimeType);
+        }
+      }
+      return false;
+    }
   }
 
   private final MediaMuxer mediaMuxer;
-  private final String outputMimeType;
   private final MediaCodec.BufferInfo bufferInfo;
 
   private boolean isStarted;
 
-  private FrameworkMuxer(MediaMuxer mediaMuxer, String outputMimeType) {
+  private FrameworkMuxer(MediaMuxer mediaMuxer) {
     this.mediaMuxer = mediaMuxer;
-    this.outputMimeType = outputMimeType;
     bufferInfo = new MediaCodec.BufferInfo();
-  }
-
-  @Override
-  public boolean supportsSampleMimeType(@Nullable String mimeType) {
-    // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
-    boolean isAudio = MimeTypes.isAudio(mimeType);
-    boolean isVideo = MimeTypes.isVideo(mimeType);
-    if (outputMimeType.equals(MimeTypes.VIDEO_MP4)) {
-      if (isVideo) {
-        return MimeTypes.VIDEO_H263.equals(mimeType)
-            || MimeTypes.VIDEO_H264.equals(mimeType)
-            || MimeTypes.VIDEO_MP4V.equals(mimeType)
-            || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_H265.equals(mimeType));
-      } else if (isAudio) {
-        return MimeTypes.AUDIO_AAC.equals(mimeType)
-            || MimeTypes.AUDIO_AMR_NB.equals(mimeType)
-            || MimeTypes.AUDIO_AMR_WB.equals(mimeType);
-      }
-    } else if (outputMimeType.equals(MimeTypes.VIDEO_WEBM) && SDK_INT >= 21) {
-      if (isVideo) {
-        return MimeTypes.VIDEO_VP8.equals(mimeType)
-            || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_VP9.equals(mimeType));
-      } else if (isAudio) {
-        return MimeTypes.AUDIO_VORBIS.equals(mimeType);
-      }
-    }
-    return false;
   }
 
   @Override
@@ -123,6 +123,7 @@ import java.nio.ByteBuffer;
     return mediaMuxer.addTrack(mediaFormat);
   }
 
+  @SuppressLint("WrongConstant") // C.BUFFER_FLAG_KEY_FRAME equals MediaCodec.BUFFER_FLAG_KEY_FRAME.
   @Override
   public void writeSampleData(
       int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {

@@ -493,10 +493,13 @@ public final class MediaPeriodQueueTest {
     // Change position of first ad (= change duration of playing content before first ad).
     updateAdPlaybackStateAndTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US - 2000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
-    long maxRendererReadPositionUs = FIRST_AD_START_TIME_US - 3000;
+    long maxRendererReadPositionUs =
+        MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US + FIRST_AD_START_TIME_US - 3000;
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
-            playbackInfo.timeline, /* rendererPositionUs= */ 0, maxRendererReadPositionUs);
+            playbackInfo.timeline,
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
+            maxRendererReadPositionUs);
 
     assertThat(changeHandled).isTrue();
     assertThat(getQueueLength()).isEqualTo(1);
@@ -518,10 +521,13 @@ public final class MediaPeriodQueueTest {
     // Change position of first ad (= change duration of playing content before first ad).
     updateAdPlaybackStateAndTimeline(/* adGroupTimesUs...= */ FIRST_AD_START_TIME_US - 2000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
-    long maxRendererReadPositionUs = FIRST_AD_START_TIME_US - 1000;
+    long maxRendererReadPositionUs =
+        MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US + FIRST_AD_START_TIME_US - 1000;
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
-            playbackInfo.timeline, /* rendererPositionUs= */ 0, maxRendererReadPositionUs);
+            playbackInfo.timeline,
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
+            maxRendererReadPositionUs);
 
     assertThat(changeHandled).isFalse();
     assertThat(getQueueLength()).isEqualTo(1);
@@ -552,10 +558,13 @@ public final class MediaPeriodQueueTest {
             .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true);
     updateTimeline();
     setAdGroupLoaded(/* adGroupIndex= */ 0);
-    long maxRendererReadPositionUs = FIRST_AD_START_TIME_US - 1000;
+    long maxRendererReadPositionUs =
+        MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US + FIRST_AD_START_TIME_US - 1000;
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
-            playbackInfo.timeline, /* rendererPositionUs= */ 0, maxRendererReadPositionUs);
+            playbackInfo.timeline,
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
+            maxRendererReadPositionUs);
 
     assertThat(changeHandled).isTrue();
     assertThat(getQueueLength()).isEqualTo(1);
@@ -583,7 +592,9 @@ public final class MediaPeriodQueueTest {
     setAdGroupLoaded(/* adGroupIndex= */ 1);
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
-            playbackInfo.timeline, /* rendererPositionUs= */ 0, /* maxRendererReadPositionUs= */ 0);
+            playbackInfo.timeline,
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
+            /* maxRendererReadPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US);
 
     assertThat(changeHandled).isTrue();
     assertThat(getQueueLength()).isEqualTo(3);
@@ -608,11 +619,13 @@ public final class MediaPeriodQueueTest {
         /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
+    long maxRendererReadPositionUs =
+        MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US + FIRST_AD_START_TIME_US;
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
             playbackInfo.timeline,
-            /* rendererPositionUs= */ 0,
-            /* maxRendererReadPositionUs= */ FIRST_AD_START_TIME_US);
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
+            maxRendererReadPositionUs);
 
     assertThat(changeHandled).isFalse();
     assertThat(getQueueLength()).isEqualTo(3);
@@ -636,11 +649,14 @@ public final class MediaPeriodQueueTest {
         /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
-    long readingPositionAtStartOfContentBetweenAds = FIRST_AD_START_TIME_US + AD_DURATION_US;
+    long readingPositionAtStartOfContentBetweenAds =
+        MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US
+            + FIRST_AD_START_TIME_US
+            + AD_DURATION_US;
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
             playbackInfo.timeline,
-            /* rendererPositionUs= */ 0,
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
             /* maxRendererReadPositionUs= */ readingPositionAtStartOfContentBetweenAds);
 
     assertThat(changeHandled).isTrue();
@@ -665,11 +681,14 @@ public final class MediaPeriodQueueTest {
         /* adGroupTimesUs...= */ FIRST_AD_START_TIME_US, SECOND_AD_START_TIME_US - 1000);
     setAdGroupLoaded(/* adGroupIndex= */ 0);
     setAdGroupLoaded(/* adGroupIndex= */ 1);
-    long readingPositionAtEndOfContentBetweenAds = SECOND_AD_START_TIME_US + AD_DURATION_US;
+    long readingPositionAtEndOfContentBetweenAds =
+        MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US
+            + SECOND_AD_START_TIME_US
+            + AD_DURATION_US;
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
             playbackInfo.timeline,
-            /* rendererPositionUs= */ 0,
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
             /* maxRendererReadPositionUs= */ readingPositionAtEndOfContentBetweenAds);
 
     assertThat(changeHandled).isFalse();
@@ -697,7 +716,7 @@ public final class MediaPeriodQueueTest {
     boolean changeHandled =
         mediaPeriodQueue.updateQueuedPeriods(
             playbackInfo.timeline,
-            /* rendererPositionUs= */ 0,
+            /* rendererPositionUs= */ MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US,
             /* maxRendererReadPositionUs= */ C.TIME_END_OF_SOURCE);
 
     assertThat(changeHandled).isFalse();
@@ -771,7 +790,10 @@ public final class MediaPeriodQueueTest {
         mediaSourceList,
         getNextMediaPeriodInfo(),
         new TrackSelectorResult(
-            new RendererConfiguration[0], new ExoTrackSelection[0], /* info= */ null));
+            new RendererConfiguration[0],
+            new ExoTrackSelection[0],
+            TracksInfo.EMPTY,
+            /* info= */ null));
   }
 
   private void clear() {

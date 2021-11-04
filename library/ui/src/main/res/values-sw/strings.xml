@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Washa manukuu</string>
   <string name="exo_controls_playback_speed">Kasi</string>
   <string name="exo_controls_playback_speed_normal">Kawaida</string>
-  <string name="exo_download_description">Pakua</string>
-  <string name="exo_download_notification_channel_name">Vipakuliwa</string>
-  <string name="exo_download_downloading">Inapakua</string>
-  <string name="exo_download_completed">Imepakuliwa</string>
-  <string name="exo_download_failed">Imeshindwa kupakua</string>
-  <string name="exo_download_removing">Inaondoa vipakuliwa</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Sauti</string>
   <string name="exo_track_selection_title_text">Maandishi</string>

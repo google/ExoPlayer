@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.gldemo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -26,13 +28,11 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 import javax.microedition.khronos.opengles.GL10;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Video processor that demonstrates how to overlay a bitmap on video output using a GL shader. The
@@ -51,7 +51,7 @@ import javax.microedition.khronos.opengles.GL10;
   private final Bitmap logoBitmap;
   private final Canvas overlayCanvas;
 
-  private int program;
+  private GlUtil.@MonotonicNonNull Program program;
   @Nullable private GlUtil.Attribute[] attributes;
   @Nullable private GlUtil.Uniform[] uniforms;
 
@@ -79,22 +79,39 @@ import javax.microedition.khronos.opengles.GL10;
 
   @Override
   public void initialize() {
-    String vertexShaderCode =
-        loadAssetAsString(context, "bitmap_overlay_video_processor_vertex.glsl");
-    String fragmentShaderCode =
-        loadAssetAsString(context, "bitmap_overlay_video_processor_fragment.glsl");
-    program = GlUtil.compileProgram(vertexShaderCode, fragmentShaderCode);
-    GlUtil.Attribute[] attributes = GlUtil.getAttributes(program);
-    GlUtil.Uniform[] uniforms = GlUtil.getUniforms(program);
+    try {
+      program =
+          new GlUtil.Program(
+              context,
+              /* vertexShaderFilePath= */ "bitmap_overlay_video_processor_vertex.glsl",
+              /* fragmentShaderFilePath= */ "bitmap_overlay_video_processor_fragment.glsl");
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+    GlUtil.Attribute[] attributes = program.getAttributes();
     for (GlUtil.Attribute attribute : attributes) {
       if (attribute.name.equals("a_position")) {
-        attribute.setBuffer(new float[] {-1, -1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, 1, 1, 0, 1}, 4);
+        attribute.setBuffer(
+            new float[] {
+              -1, -1, 0, 1,
+              1, -1, 0, 1,
+              -1, 1, 0, 1,
+              1, 1, 0, 1
+            },
+            4);
       } else if (attribute.name.equals("a_texcoord")) {
-        attribute.setBuffer(new float[] {0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1}, 4);
+        attribute.setBuffer(
+            new float[] {
+              0, 0, 0, 1,
+              1, 0, 0, 1,
+              0, 1, 0, 1,
+              1, 1, 0, 1
+            },
+            4);
       }
     }
     this.attributes = attributes;
-    this.uniforms = uniforms;
+    this.uniforms = program.getUniforms();
     GLES20.glGenTextures(1, textures, 0);
     GLES20.glBindTexture(GL10.GL_TEXTURE_2D, textures[0]);
     GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
@@ -123,9 +140,9 @@ import javax.microedition.khronos.opengles.GL10;
     GlUtil.checkGlError();
 
     // Run the shader program.
-    GlUtil.Uniform[] uniforms = Assertions.checkNotNull(this.uniforms);
-    GlUtil.Attribute[] attributes = Assertions.checkNotNull(this.attributes);
-    GLES20.glUseProgram(program);
+    GlUtil.Uniform[] uniforms = checkNotNull(this.uniforms);
+    GlUtil.Attribute[] attributes = checkNotNull(this.attributes);
+    checkNotNull(program).use();
     for (GlUtil.Uniform uniform : uniforms) {
       switch (uniform.name) {
         case "tex_sampler_0":
@@ -155,17 +172,5 @@ import javax.microedition.khronos.opengles.GL10;
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     GlUtil.checkGlError();
-  }
-
-  private static String loadAssetAsString(Context context, String assetFileName) {
-    @Nullable InputStream inputStream = null;
-    try {
-      inputStream = context.getAssets().open(assetFileName);
-      return Util.fromUtf8Bytes(Util.toByteArray(inputStream));
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    } finally {
-      Util.closeQuietly(inputStream);
-    }
   }
 }

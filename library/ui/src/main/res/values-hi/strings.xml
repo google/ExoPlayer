@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">सबटाइटल चालू करें</string>
   <string name="exo_controls_playback_speed">रफ़्तार</string>
   <string name="exo_controls_playback_speed_normal">सामान्य</string>
-  <string name="exo_download_description">डाउनलोड करें</string>
-  <string name="exo_download_notification_channel_name">डाउनलोड की गई मीडिया फ़ाइलें</string>
-  <string name="exo_download_downloading">डाउनलोड हो रहा है</string>
-  <string name="exo_download_completed">डाउनलोड पूरा हुआ</string>
-  <string name="exo_download_failed">डाउनलोड नहीं हो सका</string>
-  <string name="exo_download_removing">डाउनलोड की गई फ़ाइलें हटाई जा रही हैं</string>
   <string name="exo_track_selection_title_video">वीडियो</string>
   <string name="exo_track_selection_title_audio">ऑडियो</string>
   <string name="exo_track_selection_title_text">लेख</string>

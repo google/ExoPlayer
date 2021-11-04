@@ -24,10 +24,8 @@ import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.util.IntArrayQueue;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -208,15 +206,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Called from the callback thread.
 
   @Override
-  public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
+  public void onInputBufferAvailable(MediaCodec codec, int index) {
     synchronized (lock) {
       availableInputBuffers.add(index);
     }
   }
 
   @Override
-  public void onOutputBufferAvailable(
-      @NonNull MediaCodec codec, int index, @NonNull MediaCodec.BufferInfo info) {
+  public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
     synchronized (lock) {
       if (pendingOutputFormat != null) {
         addOutputFormat(pendingOutputFormat);
@@ -228,14 +225,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException e) {
+  public void onError(MediaCodec codec, MediaCodec.CodecException e) {
     synchronized (lock) {
       mediaCodecException = e;
     }
   }
 
   @Override
-  public void onOutputFormatChanged(@NonNull MediaCodec codec, @NonNull MediaFormat format) {
+  public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
     synchronized (lock) {
       addOutputFormat(format);
       pendingOutputFormat = null;

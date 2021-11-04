@@ -103,7 +103,7 @@ public final class DashUtil {
   @Nullable
   public static Format loadFormatWithDrmInitData(DataSource dataSource, Period period)
       throws IOException {
-    int primaryTrackType = C.TRACK_TYPE_VIDEO;
+    @C.TrackType int primaryTrackType = C.TRACK_TYPE_VIDEO;
     Representation representation = getFirstRepresentation(period, primaryTrackType);
     if (representation == null) {
       primaryTrackType = C.TRACK_TYPE_AUDIO;
@@ -124,7 +124,7 @@ public final class DashUtil {
    * Loads initialization data for the {@code representation} and returns the sample {@link Format}.
    *
    * @param dataSource The source from which the data should be loaded.
-   * @param trackType The type of the representation. Typically one of the {@link
+   * @param trackType The type of the representation. Typically one of the {@link C
    *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @param baseUrlIndex The index of the base URL to be picked from the {@link
@@ -155,7 +155,7 @@ public final class DashUtil {
    * <p>Uses the first base URL for loading the format.
    *
    * @param dataSource The source from which the data should be loaded.
-   * @param trackType The type of the representation. Typically one of the {@link
+   * @param trackType The type of the representation. Typically one of the {@link C
    *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @return the sample {@link Format} of the given representation.
@@ -172,7 +172,7 @@ public final class DashUtil {
    * ChunkIndex}.
    *
    * @param dataSource The source from which the data should be loaded.
-   * @param trackType The type of the representation. Typically one of the {@link
+   * @param trackType The type of the representation. Typically one of the {@link C
    *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @param baseUrlIndex The index of the base URL with which to resolve the request URI.
@@ -204,7 +204,7 @@ public final class DashUtil {
    * <p>Uses the first base URL for loading the index.
    *
    * @param dataSource The source from which the data should be loaded.
-   * @param trackType The type of the representation. Typically one of the {@link
+   * @param trackType The type of the representation. Typically one of the {@link C
    *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @return The {@link ChunkIndex} of the given representation, or null if no initialization or
@@ -329,7 +329,7 @@ public final class DashUtil {
   }
 
   @Nullable
-  private static Representation getFirstRepresentation(Period period, int type) {
+  private static Representation getFirstRepresentation(Period period, @C.TrackType int type) {
     int index = period.getAdaptationSetIndex(type);
     if (index == C.INDEX_UNSET) {
       return null;

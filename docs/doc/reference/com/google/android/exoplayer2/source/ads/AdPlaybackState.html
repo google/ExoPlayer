@@ -693,8 +693,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adsId</code> - The opaque identifier for ads with which this instance is associated.</dd>
 <dd><code>adGroupTimesUs</code> - The times of ad groups in microseconds, relative to the start of the
-     <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> they belong to. A final element with
-     the value <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> indicates that there is a postroll ad.</dd>
+     <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> they belong to. A final element with the value <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> indicates that there is a postroll ad.</dd>
 </dl>
 </li>
 </ul>
@@ -714,7 +713,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <ul class="blockList">
 <li class="blockList">
 <h4>getAdGroup</h4>
-<pre class="methodSignature">public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;getAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
+<pre class="methodSignature">public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;getAdGroup&#8203;(@IntRange(from=0L)
+                                          int&nbsp;adGroupIndex)</pre>
 <div class="block">Returns the specified <a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState.AdGroup</code></a>.</div>
 </li>
 </ul>
@@ -769,7 +769,9 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <ul class="blockList">
 <li class="blockList">
 <h4>isAdInErrorState</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;isAdInErrorState&#8203;(int&nbsp;adGroupIndex,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isAdInErrorState&#8203;(@IntRange(from=0L)
+                                int&nbsp;adGroupIndex,
+                                @IntRange(from=0L)
                                 int&nbsp;adIndexInAdGroup)</pre>
 <div class="block">Returns whether the specified ad has been marked as in <a href="#AD_STATE_ERROR"><code>AD_STATE_ERROR</code></a>.</div>
 </li>
@@ -781,7 +783,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>withAdGroupTimeUs</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdGroupTimeUs&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdGroupTimeUs&#8203;(@IntRange(from=0L)
+                                         int&nbsp;adGroupIndex,
                                          long&nbsp;adGroupTimeUs)</pre>
 <div class="block">Returns an instance with the specified ad group time.</div>
 <dl>
@@ -801,7 +804,8 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withNewAdGroup</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withNewAdGroup&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withNewAdGroup&#8203;(@IntRange(from=0L)
+                                      int&nbsp;adGroupIndex,
                                       long&nbsp;adGroupTimeUs)</pre>
 <div class="block">Returns an instance with a new ad group.</div>
 <dl>
@@ -821,7 +825,9 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withAdCount</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdCount&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdCount&#8203;(@IntRange(from=0L)
+                                   int&nbsp;adGroupIndex,
+                                   @IntRange(from=1L)
                                    int&nbsp;adCount)</pre>
 <div class="block">Returns an instance with the number of ads in <code>adGroupIndex</code> resolved to <code>adCount</code>.
  The ad count must be greater than zero.</div>
@@ -834,7 +840,9 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withAdUri</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdUri&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdUri&#8203;(@IntRange(from=0L)
+                                 int&nbsp;adGroupIndex,
+                                 @IntRange(from=0L)
                                  int&nbsp;adIndexInAdGroup,
                                  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
 <div class="block">Returns an instance with the specified ad URI.</div>
@@ -847,7 +855,9 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withPlayedAd</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withPlayedAd&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withPlayedAd&#8203;(@IntRange(from=0L)
+                                    int&nbsp;adGroupIndex,
+                                    @IntRange(from=0L)
                                     int&nbsp;adIndexInAdGroup)</pre>
 <div class="block">Returns an instance with the specified ad marked as played.</div>
 </li>
@@ -859,7 +869,9 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withSkippedAd</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAd&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAd&#8203;(@IntRange(from=0L)
+                                     int&nbsp;adGroupIndex,
+                                     @IntRange(from=0L)
                                      int&nbsp;adIndexInAdGroup)</pre>
 <div class="block">Returns an instance with the specified ad marked as skipped.</div>
 </li>
@@ -871,7 +883,9 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withAdLoadError</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdLoadError&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdLoadError&#8203;(@IntRange(from=0L)
+                                       int&nbsp;adGroupIndex,
+                                       @IntRange(from=0L)
                                        int&nbsp;adIndexInAdGroup)</pre>
 <div class="block">Returns an instance with the specified ad marked as having a load error.</div>
 </li>
@@ -883,7 +897,8 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withSkippedAdGroup</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAdGroup&#8203;(int&nbsp;adGroupIndex)</pre>
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAdGroup&#8203;(@IntRange(from=0L)
+                                          int&nbsp;adGroupIndex)</pre>
 <div class="block">Returns an instance with all ads in the specified ad group skipped (except for those already
  marked as played or in the error state).</div>
 </li>
@@ -908,7 +923,8 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withAdDurationsUs</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdDurationsUs&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdDurationsUs&#8203;(@IntRange(from=0L)
+                                         int&nbsp;adGroupIndex,
                                          long...&nbsp;adDurationsUs)</pre>
 <div class="block">Returns an instance with the specified ad durations, in microseconds, in the specified ad
  group.</div>
@@ -944,7 +960,8 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withRemovedAdGroupCount</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withRemovedAdGroupCount&#8203;(int&nbsp;removedAdGroupCount)</pre>
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withRemovedAdGroupCount&#8203;(@IntRange(from=0L)
+                                               int&nbsp;removedAdGroupCount)</pre>
 <div class="block">Returns an instance with the specified number of <a href="#removedAdGroupCount"><code>removed ad
  groups</code></a>.
 
@@ -959,7 +976,8 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withContentResumeOffsetUs</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withContentResumeOffsetUs&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withContentResumeOffsetUs&#8203;(@IntRange(from=0L)
+                                                 int&nbsp;adGroupIndex,
                                                  long&nbsp;contentResumeOffsetUs)</pre>
 <div class="block">Returns an instance with the specified <a href="AdPlaybackState.AdGroup.html#contentResumeOffsetUs"><code>AdPlaybackState.AdGroup.contentResumeOffsetUs</code></a>, in microseconds,
  for the specified ad group.</div>
@@ -972,7 +990,8 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>withIsServerSideInserted</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withIsServerSideInserted&#8203;(int&nbsp;adGroupIndex,
+public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withIsServerSideInserted&#8203;(@IntRange(from=0L)
+                                                int&nbsp;adGroupIndex,
                                                 boolean&nbsp;isServerSideInserted)</pre>
 <div class="block">Returns an instance with the specified value for <a href="AdPlaybackState.AdGroup.html#isServerSideInserted"><code>AdPlaybackState.AdGroup.isServerSideInserted</code></a> in the
  specified ad group.</div>

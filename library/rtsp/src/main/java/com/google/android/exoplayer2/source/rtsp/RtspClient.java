@@ -34,11 +34,13 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.base.Strings.nullToEmpty;
+import static java.lang.Math.max;
 
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.SparseArray;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -47,13 +49,18 @@ import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackExc
 import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspAuthUserInfo;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspSessionHeader;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -65,6 +72,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** The RTSP client. */
 /* package */ final class RtspClient implements Closeable {
 
+  /**
+   * The RTSP session state (RFC2326, Section A.1). One of {@link #RTSP_STATE_UNINITIALIZED}, {@link
+   * #RTSP_STATE_INIT}, {@link #RTSP_STATE_READY}, or {@link #RTSP_STATE_PLAYING}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({RTSP_STATE_UNINITIALIZED, RTSP_STATE_INIT, RTSP_STATE_READY, RTSP_STATE_PLAYING})
+  public @interface RtspState {}
+  /** RTSP uninitialized state, the state before sending any SETUP request. */
+  public static final int RTSP_STATE_UNINITIALIZED = -1;
+  /** RTSP initial state, the state after sending SETUP REQUEST. */
+  public static final int RTSP_STATE_INIT = 0;
+  /** RTSP ready state, the state after receiving SETUP, or PAUSE response. */
+  public static final int RTSP_STATE_READY = 1;
+  /** RTSP playing state, the state after receiving PLAY response. */
+  public static final int RTSP_STATE_PLAYING = 2;
+
+  private static final String TAG = "RtspClient";
   private static final long DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS = 30_000;
 
   /** A listener for session information update. */
@@ -97,18 +122,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final SessionInfoListener sessionInfoListener;
   private final PlaybackEventListener playbackEventListener;
-  private final Uri uri;
-  @Nullable private final RtspAuthUserInfo rtspAuthUserInfo;
   private final String userAgent;
+  private final boolean debugLoggingEnabled;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
   private final SparseArray<RtspRequest> pendingRequests;
   private final MessageSender messageSender;
 
+  /** RTSP session URI. */
+  private Uri uri;
+
   private RtspMessageChannel messageChannel;
+  @Nullable private RtspAuthUserInfo rtspAuthUserInfo;
   @Nullable private String sessionId;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
   @Nullable private RtspAuthenticationInfo rtspAuthenticationInfo;
+  @RtspState private int rtspState;
   private boolean hasUpdatedTimelineAndTracks;
   private boolean receivedAuthorizationRequest;
   private long pendingSeekPositionUs;
@@ -131,17 +160,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       SessionInfoListener sessionInfoListener,
       PlaybackEventListener playbackEventListener,
       String userAgent,
-      Uri uri) {
+      Uri uri,
+      boolean debugLoggingEnabled) {
     this.sessionInfoListener = sessionInfoListener;
     this.playbackEventListener = playbackEventListener;
-    this.uri = RtspMessageUtil.removeUserInfo(uri);
-    this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
     this.userAgent = userAgent;
-    pendingSetupRtpLoadInfos = new ArrayDeque<>();
-    pendingRequests = new SparseArray<>();
-    messageSender = new MessageSender();
-    pendingSeekPositionUs = C.TIME_UNSET;
-    messageChannel = new RtspMessageChannel(new MessageListener());
+    this.debugLoggingEnabled = debugLoggingEnabled;
+    this.pendingSetupRtpLoadInfos = new ArrayDeque<>();
+    this.pendingRequests = new SparseArray<>();
+    this.messageSender = new MessageSender();
+    this.uri = RtspMessageUtil.removeUserInfo(uri);
+    this.messageChannel = new RtspMessageChannel(new MessageListener());
+    this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
+    this.pendingSeekPositionUs = C.TIME_UNSET;
+    this.rtspState = RTSP_STATE_UNINITIALIZED;
   }
 
   /**
@@ -160,6 +192,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throw e;
     }
     messageSender.sendOptionsRequest(uri, sessionId);
+  }
+
+  /** Returns the current {@link RtspState RTSP state}. */
+  @RtspState
+  public int getState() {
+    return rtspState;
   }
 
   /**
@@ -241,6 +279,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     messageSender.sendSetupRequest(loadInfo.getTrackUri(), loadInfo.getTransport(), sessionId);
   }
 
+  private void maybeLogMessage(List<String> message) {
+    if (debugLoggingEnabled) {
+      Log.d(TAG, Joiner.on("\n").join(message));
+    }
+  }
+
   /** Returns a {@link Socket} that is connected to the {@code uri}. */
   private static Socket getSocket(Uri uri) throws IOException {
     checkArgument(uri.getHost() != null);
@@ -312,6 +356,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     public void sendSetupRequest(Uri trackUri, String transport, @Nullable String sessionId) {
+      rtspState = RTSP_STATE_INIT;
       sendRequest(
           getRequestWithCommonHeaders(
               METHOD_SETUP,
@@ -321,6 +366,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     public void sendPlayRequest(Uri uri, long offsetMs, String sessionId) {
+      checkState(rtspState == RTSP_STATE_READY || rtspState == RTSP_STATE_PLAYING);
       sendRequest(
           getRequestWithCommonHeaders(
               METHOD_PLAY,
@@ -331,12 +377,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     public void sendTeardownRequest(Uri uri, String sessionId) {
+      if (rtspState == RTSP_STATE_UNINITIALIZED || rtspState == RTSP_STATE_INIT) {
+        // No need to perform session teardown before a session is set up, where the state is
+        // RTSP_STATE_READY or RTSP_STATE_PLAYING.
+        return;
+      }
+
+      rtspState = RTSP_STATE_INIT;
       sendRequest(
           getRequestWithCommonHeaders(
               METHOD_TEARDOWN, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
     }
 
     public void sendPauseRequest(Uri uri, String sessionId) {
+      checkState(rtspState == RTSP_STATE_PLAYING);
       sendRequest(
           getRequestWithCommonHeaders(
               METHOD_PAUSE, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
@@ -364,18 +418,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               lastRequest.method, sessionId, lastRequestHeaders, lastRequest.uri));
     }
 
+    public void sendMethodNotAllowedResponse(int cSeq) {
+      // RTSP status code 405: Method Not Allowed (RFC2326 Section 7.1.1).
+      sendResponse(
+          new RtspResponse(
+              /* status= */ 405, new RtspHeaders.Builder(userAgent, sessionId, cSeq).build()));
+
+      // The server could send a cSeq that is larger than the current stored cSeq. To maintain a
+      // monotonically increasing cSeq number, this.cSeq needs to be reset to server's cSeq + 1.
+      this.cSeq = max(this.cSeq, cSeq + 1);
+    }
+
     private RtspRequest getRequestWithCommonHeaders(
         @RtspRequest.Method int method,
         @Nullable String sessionId,
         Map<String, String> additionalHeaders,
         Uri uri) {
-      RtspHeaders.Builder headersBuilder = new RtspHeaders.Builder();
-      headersBuilder.add(RtspHeaders.CSEQ, String.valueOf(cSeq++));
-      headersBuilder.add(RtspHeaders.USER_AGENT, userAgent);
-
-      if (sessionId != null) {
-        headersBuilder.add(RtspHeaders.SESSION, sessionId);
-      }
+      RtspHeaders.Builder headersBuilder = new RtspHeaders.Builder(userAgent, sessionId, cSeq++);
 
       if (rtspAuthenticationInfo != null) {
         checkStateNotNull(rtspAuthUserInfo);
@@ -396,8 +455,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int cSeq = Integer.parseInt(checkNotNull(request.headers.get(RtspHeaders.CSEQ)));
       checkState(pendingRequests.get(cSeq) == null);
       pendingRequests.append(cSeq, request);
-      messageChannel.send(RtspMessageUtil.serializeRequest(request));
+      List<String> message = RtspMessageUtil.serializeRequest(request);
+      maybeLogMessage(message);
+      messageChannel.send(message);
       lastRequest = request;
+    }
+
+    private void sendResponse(RtspResponse response) {
+      List<String> message = RtspMessageUtil.serializeResponse(response);
+      maybeLogMessage(message);
+      messageChannel.send(message);
     }
   }
 
@@ -421,6 +488,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void handleRtspMessage(List<String> message) {
+      maybeLogMessage(message);
+
+      if (RtspMessageUtil.isRtspResponse(message)) {
+        handleRtspResponse(message);
+      } else {
+        handleRtspRequest(message);
+      }
+    }
+
+    private void handleRtspRequest(List<String> message) {
+      // Handling RTSP requests on the client is optional (RFC2326 Section 10). Decline all
+      // requests with 'Method Not Allowed'.
+      messageSender.sendMethodNotAllowedResponse(
+          Integer.parseInt(
+              checkNotNull(RtspMessageUtil.parseRequest(message).headers.get(RtspHeaders.CSEQ))));
+    }
+
+    private void handleRtspResponse(List<String> message) {
       RtspResponse response = RtspMessageUtil.parseResponse(message);
 
       int cSeq = Integer.parseInt(checkNotNull(response.headers.get(RtspHeaders.CSEQ)));
@@ -438,6 +523,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         switch (response.status) {
           case 200:
             break;
+          case 301:
+          case 302:
+            // Redirection request.
+            if (rtspState != RTSP_STATE_UNINITIALIZED) {
+              rtspState = RTSP_STATE_INIT;
+            }
+            @Nullable String redirectionUriString = response.headers.get(RtspHeaders.LOCATION);
+            if (redirectionUriString == null) {
+              sessionInfoListener.onSessionTimelineRequestFailed(
+                  "Redirection without new location.", /* cause= */ null);
+            } else {
+              Uri redirectionUri = Uri.parse(redirectionUriString);
+              RtspClient.this.uri = RtspMessageUtil.removeUserInfo(redirectionUri);
+              RtspClient.this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(redirectionUri);
+              messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId);
+            }
+            return;
           case 401:
             if (rtspAuthUserInfo != null && !receivedAuthorizationRequest) {
               // Unauthorized.
@@ -567,24 +669,33 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void onSetupResponseReceived(RtspSetupResponse response) {
+      checkState(rtspState != RTSP_STATE_UNINITIALIZED);
+
+      rtspState = RTSP_STATE_READY;
       sessionId = response.sessionHeader.sessionId;
       continueSetupRtspTrack();
     }
 
     private void onPlayResponseReceived(RtspPlayResponse response) {
+      checkState(rtspState == RTSP_STATE_READY);
+
+      rtspState = RTSP_STATE_PLAYING;
       if (keepAliveMonitor == null) {
         keepAliveMonitor = new KeepAliveMonitor(DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS);
         keepAliveMonitor.start();
       }
 
       playbackEventListener.onPlaybackStarted(
-          C.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
+          Util.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
       pendingSeekPositionUs = C.TIME_UNSET;
     }
 
     private void onPauseResponseReceived() {
+      checkState(rtspState == RTSP_STATE_PLAYING);
+
+      rtspState = RTSP_STATE_READY;
       if (pendingSeekPositionUs != C.TIME_UNSET) {
-        startPlayback(C.usToMs(pendingSeekPositionUs));
+        startPlayback(Util.usToMs(pendingSeekPositionUs));
       }
     }
   }

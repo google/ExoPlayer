@@ -19,7 +19,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 
@@ -64,15 +63,11 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
   }
 
   @Override
-  public void onCustomAction(
-      Player player,
-      @Deprecated ControlDispatcher controlDispatcher,
-      String action,
-      @Nullable Bundle extras) {
+  public void onCustomAction(Player player, String action, @Nullable Bundle extras) {
     int mode = player.getRepeatMode();
     int proposedMode = RepeatModeUtil.getNextRepeatMode(mode, repeatToggleModes);
     if (mode != proposedMode) {
-      controlDispatcher.dispatchSetRepeatMode(player, proposedMode);
+      player.setRepeatMode(proposedMode);
     }
   }
 

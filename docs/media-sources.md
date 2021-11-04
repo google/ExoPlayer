@@ -37,7 +37,7 @@ MediaSourceFactory mediaSourceFactory =
     new DefaultMediaSourceFactory(cacheDataSourceFactory)
         .setAdsLoaderProvider(adsLoaderProvider)
         .setAdViewProvider(playerView);
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+ExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(mediaSourceFactory)
     .build();
 ~~~

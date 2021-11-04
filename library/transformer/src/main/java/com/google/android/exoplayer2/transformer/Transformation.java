@@ -16,6 +16,8 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import androidx.annotation.Nullable;
+
 /** A media transformation configuration. */
 /* package */ final class Transformation {
 
@@ -23,15 +25,21 @@ package com.google.android.exoplayer2.transformer;
   public final boolean removeVideo;
   public final boolean flattenForSlowMotion;
   public final String outputMimeType;
+  @Nullable public final String audioMimeType;
+  @Nullable public final String videoMimeType;
 
   public Transformation(
       boolean removeAudio,
       boolean removeVideo,
       boolean flattenForSlowMotion,
-      String outputMimeType) {
+      String outputMimeType,
+      @Nullable String audioMimeType,
+      @Nullable String videoMimeType) {
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.outputMimeType = outputMimeType;
+    this.audioMimeType = audioMimeType;
+    this.videoMimeType = videoMimeType;
   }
 }

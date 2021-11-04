@@ -21,11 +21,11 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-/** Builds {@link Renderer} instances for use by a {@link SimpleExoPlayer}. */
+/** Builds {@link Renderer} instances for use by an {@link ExoPlayer}. */
 public interface RenderersFactory {
 
   /**
-   * Builds the {@link Renderer} instances for a {@link SimpleExoPlayer}.
+   * Builds the {@link Renderer} instances for an {@link ExoPlayer}.
    *
    * @param eventHandler A handler to use when invoking event listeners and outputs.
    * @param videoRendererEventListener An event listener for video renderers.

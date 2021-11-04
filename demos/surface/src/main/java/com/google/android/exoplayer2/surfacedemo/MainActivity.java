@@ -28,9 +28,9 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -40,8 +40,8 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -66,7 +66,7 @@ public final class MainActivity extends Activity {
   @Nullable private SurfaceView nonFullScreenView;
   @Nullable private SurfaceView currentOutputView;
 
-  @Nullable private static SimpleExoPlayer player;
+  @Nullable private static ExoPlayer player;
   @Nullable private static SurfaceControl surfaceControl;
   @Nullable private static Surface videoSurface;
 
@@ -189,7 +189,7 @@ public final class MainActivity extends Activity {
       String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
       String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));
       UUID drmSchemeUuid = Assertions.checkNotNull(Util.getDrmUuid(drmScheme));
-      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSourceFactory();
+      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSource.Factory();
       HttpMediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
       drmSessionManager =
@@ -200,7 +200,7 @@ public final class MainActivity extends Activity {
       drmSessionManager = DrmSessionManager.DRM_UNSUPPORTED;
     }
 
-    DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this);
+    DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
     MediaSource mediaSource;
     @C.ContentType int type = Util.inferContentType(uri, intent.getStringExtra(EXTENSION_EXTRA));
     if (type == C.TYPE_DASH) {
@@ -216,7 +216,7 @@ public final class MainActivity extends Activity {
     } else {
       throw new IllegalStateException();
     }
-    SimpleExoPlayer player = new SimpleExoPlayer.Builder(getApplicationContext()).build();
+    ExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
     player.setMediaSource(mediaSource);
     player.prepare();
     player.play();

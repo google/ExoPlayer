@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">ಸಬ್‌ಟೈಟಲ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</string>
   <string name="exo_controls_playback_speed">ವೇಗ</string>
   <string name="exo_controls_playback_speed_normal">ಸಾಮಾನ್ಯ</string>
-  <string name="exo_download_description">ಡೌನ್‌ಲೋಡ್‌</string>
-  <string name="exo_download_notification_channel_name">ಡೌನ್‌ಲೋಡ್‌ಗಳು</string>
-  <string name="exo_download_downloading">ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ</string>
-  <string name="exo_download_completed">ಡೌನ್‌ಲೋಡ್ ಪೂರ್ಣಗೊಂಡಿದೆ</string>
-  <string name="exo_download_failed">ಡೌನ್‌ಲೋಡ್‌ ವಿಫಲಗೊಂಡಿದೆ</string>
-  <string name="exo_download_removing">ಡೌನ್ಲೋಡ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕಲಾಗುತ್ತಿದೆ</string>
   <string name="exo_track_selection_title_video">ವೀಡಿಯೊ</string>
   <string name="exo_track_selection_title_audio">ಆಡಿಯೊ</string>
   <string name="exo_track_selection_title_text">ಪಠ್ಯ</string>

@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.robolectric.TestDownloadManagerListener;
+import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
@@ -57,11 +58,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link DownloadService}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DownloadServiceDashTest {
 
   private SimpleCache cache;
@@ -141,7 +140,9 @@ public class DownloadServiceDashTest {
                 }
 
                 @Override
-                protected Notification getForegroundNotification(List<Download> downloads) {
+                protected Notification getForegroundNotification(
+                    List<Download> downloads,
+                    @Requirements.RequirementFlags int notMetRequirements) {
                   throw new UnsupportedOperationException();
                 }
               };

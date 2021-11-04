@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
 
 /**
@@ -75,7 +74,7 @@ public final class StandaloneMediaClock implements MediaClock {
     if (started) {
       long elapsedSinceBaseMs = clock.elapsedRealtime() - baseElapsedMs;
       if (playbackParameters.speed == 1f) {
-        positionUs += C.msToUs(elapsedSinceBaseMs);
+        positionUs += Util.msToUs(elapsedSinceBaseMs);
       } else {
         // Add the media time in microseconds that will elapse in elapsedSinceBaseMs milliseconds of
         // wallclock time

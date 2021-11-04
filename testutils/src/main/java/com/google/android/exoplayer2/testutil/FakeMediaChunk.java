@@ -46,9 +46,13 @@ public final class FakeMediaChunk extends MediaChunk {
    * @param trackFormat The {@link Format}.
    * @param startTimeUs The start time of the media, in microseconds.
    * @param endTimeUs The end time of the media, in microseconds.
-   * @param selectionReason The reason for selecting this format.
+   * @param selectionReason One of the {@link C.SelectionReason selection reasons}.
    */
-  public FakeMediaChunk(Format trackFormat, long startTimeUs, long endTimeUs, int selectionReason) {
+  public FakeMediaChunk(
+      Format trackFormat,
+      long startTimeUs,
+      long endTimeUs,
+      @C.SelectionReason int selectionReason) {
     super(
         DATA_SOURCE,
         new DataSpec(Uri.EMPTY),

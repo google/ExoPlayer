@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Dayakan sari kata</string>
   <string name="exo_controls_playback_speed">Kelajuan</string>
   <string name="exo_controls_playback_speed_normal">Biasa</string>
-  <string name="exo_download_description">Muat turun</string>
-  <string name="exo_download_notification_channel_name">Muat turun</string>
-  <string name="exo_download_downloading">Memuat turun</string>
-  <string name="exo_download_completed">Muat turun selesai</string>
-  <string name="exo_download_failed">Muat turun gagal</string>
-  <string name="exo_download_removing">Mengalih keluar muat turun</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Teks</string>

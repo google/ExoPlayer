@@ -23,19 +23,17 @@ import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoListener;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
- * Helper methods to block the calling thread until the provided {@link SimpleExoPlayer} instance
- * reaches a particular state.
+ * Helper methods to block the calling thread until the provided {@link ExoPlayer} instance reaches
+ * a particular state.
  */
 public class TestPlayerRunHelper {
 
@@ -252,7 +250,7 @@ public class TestPlayerRunHelper {
   }
 
   /**
-   * Runs tasks of the main {@link Looper} until the {@link VideoListener#onRenderedFirstFrame}
+   * Runs tasks of the main {@link Looper} until the {@link Player.Listener#onRenderedFirstFrame}
    * callback is called or a playback error occurs.
    *
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}..
@@ -261,7 +259,7 @@ public class TestPlayerRunHelper {
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void runUntilRenderedFirstFrame(SimpleExoPlayer player) throws TimeoutException {
+  public static void runUntilRenderedFirstFrame(ExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
     Player.Listener listener =
@@ -286,12 +284,12 @@ public class TestPlayerRunHelper {
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
    *
    * @param player The {@link Player}.
-   * @param windowIndex The window.
-   * @param positionMs The position within the window, in milliseconds.
+   * @param mediaItemIndex The index of the media item.
+   * @param positionMs The position within the media item, in milliseconds.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void playUntilPosition(ExoPlayer player, int windowIndex, long positionMs)
+  public static void playUntilPosition(ExoPlayer player, int mediaItemIndex, long positionMs)
       throws TimeoutException {
     verifyMainTestThread(player);
     Looper applicationLooper = Util.getCurrentOrMainLooper();
@@ -317,7 +315,7 @@ public class TestPlayerRunHelper {
                 // Ignore.
               }
             })
-        .setPosition(windowIndex, positionMs)
+        .setPosition(mediaItemIndex, positionMs)
         .send();
     player.play();
     runMainLooperUntil(() -> messageHandled.get() || player.getPlayerError() != null);
@@ -328,18 +326,19 @@ public class TestPlayerRunHelper {
 
   /**
    * Calls {@link Player#play()}, runs tasks of the main {@link Looper} until the {@code player}
-   * reaches the specified window or a playback error occurs, and then pauses the {@code player}.
+   * reaches the specified media item or a playback error occurs, and then pauses the {@code
+   * player}.
    *
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
    *
    * @param player The {@link Player}.
-   * @param windowIndex The window.
+   * @param mediaItemIndex The index of the media item.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void playUntilStartOfWindow(ExoPlayer player, int windowIndex)
+  public static void playUntilStartOfMediaItem(ExoPlayer player, int mediaItemIndex)
       throws TimeoutException {
-    playUntilPosition(player, windowIndex, /* positionMs= */ 0);
+    playUntilPosition(player, mediaItemIndex, /* positionMs= */ 0);
   }
 
   /**

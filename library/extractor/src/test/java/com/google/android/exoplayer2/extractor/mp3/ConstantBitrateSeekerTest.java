@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,11 +33,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ConstantBitrateSeeker}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class ConstantBitrateSeekerTest {
   private static final String CONSTANT_FRAME_SIZE_TEST_FILE =
       "media/mp3/bear-cbr-constant-frame-size-no-seek-table.mp3";
@@ -54,7 +51,7 @@ public class ConstantBitrateSeekerTest {
     extractor = new Mp3Extractor();
     extractorOutput = new FakeExtractorOutput();
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
+        new DefaultDataSource.Factory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

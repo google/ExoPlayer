@@ -134,7 +134,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   public int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {
       return RendererCapabilities.create(
-          format.exoMediaCryptoType == null ? C.FORMAT_HANDLED : C.FORMAT_UNSUPPORTED_DRM);
+          format.cryptoType == C.CRYPTO_TYPE_NONE ? C.FORMAT_HANDLED : C.FORMAT_UNSUPPORTED_DRM);
     } else if (MimeTypes.isText(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     } else {

@@ -16,13 +16,17 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
+import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaFormat;
+import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -35,6 +39,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -45,6 +50,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * through {@link MediaCodecAdapter}. This is done by simplifying the calls needed to queue and
  * dequeue buffers, removing the need to track buffer indices and codec events.
  */
+@RequiresApi(18)
 /* package */ final class MediaCodecAdapterWrapper {
 
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
@@ -63,17 +69,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean outputStreamEnded;
 
   private static class Factory extends SynchronousMediaCodecAdapter.Factory {
-    private final boolean decoder;
-
-    public Factory(boolean decoder) {
-      this.decoder = decoder;
-    }
-
     @Override
     protected MediaCodec createCodec(Configuration configuration) throws IOException {
       String sampleMimeType =
           checkNotNull(configuration.mediaFormat.getString(MediaFormat.KEY_MIME));
-      return decoder
+      boolean isDecoder = (configuration.flags & MediaCodec.CONFIGURE_FLAG_ENCODE) == 0;
+      return isDecoder
           ? MediaCodec.createDecoderByType(checkNotNull(sampleMimeType))
           : MediaCodec.createEncoderByType(checkNotNull(sampleMimeType));
     }
@@ -111,15 +112,48 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
       MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
       adapter =
-          new Factory(/* decoder= */ true)
+          new Factory()
               .createAdapter(
-                  new MediaCodecAdapter.Configuration(
+                  MediaCodecAdapter.Configuration.createForAudioDecoding(
+                      createPlaceholderMediaCodecInfo(), mediaFormat, format, /* crypto= */ null));
+      return new MediaCodecAdapterWrapper(adapter);
+    } catch (Exception e) {
+      if (adapter != null) {
+        adapter.release();
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
+   * MediaCodecAdapter} video decoder.
+   *
+   * @param format The {@link Format} (of the input data) used to determine the underlying {@link
+   *     MediaCodec} and its configuration values.
+   * @param surface The {@link Surface} to which the decoder output is rendered.
+   * @return A configured and started decoder wrapper.
+   * @throws IOException If the underlying codec cannot be created.
+   */
+  public static MediaCodecAdapterWrapper createForVideoDecoding(Format format, Surface surface)
+      throws IOException {
+    @Nullable MediaCodecAdapter adapter = null;
+    try {
+      MediaFormat mediaFormat =
+          MediaFormat.createVideoFormat(
+              checkNotNull(format.sampleMimeType), format.width, format.height);
+      MediaFormatUtil.maybeSetInteger(
+          mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
+      MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
+      adapter =
+          new Factory()
+              .createAdapter(
+                  MediaCodecAdapter.Configuration.createForVideoDecoding(
                       createPlaceholderMediaCodecInfo(),
                       mediaFormat,
                       format,
-                      /* surface= */ null,
-                      /* crypto= */ null,
-                      /* flags= */ 0));
+                      surface,
+                      /* crypto= */ null));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
@@ -147,15 +181,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
       mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
       adapter =
-          new Factory(/* decoder= */ false)
+          new Factory()
               .createAdapter(
-                  new MediaCodecAdapter.Configuration(
-                      createPlaceholderMediaCodecInfo(),
-                      mediaFormat,
-                      format,
-                      /* surface= */ null,
-                      /* crypto= */ null,
-                      /* flags= */ MediaCodec.CONFIGURE_FLAG_ENCODE));
+                  MediaCodecAdapter.Configuration.createForAudioEncoding(
+                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
       return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
@@ -167,11 +196,64 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  /**
+   * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
+   * MediaCodecAdapter} video encoder.
+   *
+   * @param format The {@link Format} (of the output data) used to determine the underlying {@link
+   *     MediaCodec} and its configuration values. {@link Format#sampleMimeType}, {@link
+   *     Format#width} and {@link Format#height} must be set to those of the desired output video
+   *     format.
+   * @param additionalEncoderConfig A map of {@link MediaFormat}'s integer settings, where the keys
+   *     are from {@code MediaFormat.KEY_*} constants. Its values will override those in {@code
+   *     format}.
+   * @return A configured and started encoder wrapper.
+   * @throws IOException If the underlying codec cannot be created.
+   */
+  public static MediaCodecAdapterWrapper createForVideoEncoding(
+      Format format, Map<String, Integer> additionalEncoderConfig) throws IOException {
+    checkArgument(format.width != Format.NO_VALUE);
+    checkArgument(format.height != Format.NO_VALUE);
+
+    @Nullable MediaCodecAdapter adapter = null;
+    try {
+      MediaFormat mediaFormat =
+          MediaFormat.createVideoFormat(
+              checkNotNull(format.sampleMimeType), format.width, format.height);
+      mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, CodecCapabilities.COLOR_FormatSurface);
+      mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
+      mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+      mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 413_000);
+
+      for (Map.Entry<String, Integer> encoderSetting : additionalEncoderConfig.entrySet()) {
+        mediaFormat.setInteger(encoderSetting.getKey(), encoderSetting.getValue());
+      }
+
+      adapter =
+          new Factory()
+              .createAdapter(
+                  MediaCodecAdapter.Configuration.createForVideoEncoding(
+                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
+      return new MediaCodecAdapterWrapper(adapter);
+    } catch (Exception e) {
+      if (adapter != null) {
+        adapter.release();
+      }
+      throw e;
+    }
+  }
+
   private MediaCodecAdapterWrapper(MediaCodecAdapter codec) {
     this.codec = codec;
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
+  }
+
+  /** Returns the input {@link Surface}, or null if the input is not a surface. */
+  @Nullable
+  public Surface getInputSurface() {
+    return codec.getInputSurface();
   }
 
   /**
@@ -221,6 +303,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputBuffer.data = null;
   }
 
+  @RequiresApi(18)
+  public void signalEndOfInputStream() {
+    codec.signalEndOfInputStream();
+  }
+
   /** Returns the current output format, if available. */
   @Nullable
   public Format getOutputFormat() {
@@ -232,7 +319,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Returns the current output {@link ByteBuffer}, if available. */
   @Nullable
   public ByteBuffer getOutputBuffer() {
-    return maybeDequeueOutputBuffer() ? outputBuffer : null;
+    return maybeDequeueAndSetOutputBuffer() ? outputBuffer : null;
   }
 
   /** Returns the {@link BufferInfo} associated with the current output buffer, if available. */
@@ -248,8 +335,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * be available until the previous has been released.
    */
   public void releaseOutputBuffer() {
+    releaseOutputBuffer(/* render= */ false);
+  }
+
+  /**
+   * Releases the current output buffer. If the {@link MediaCodec} was configured with an output
+   * surface, setting {@code render} to {@code true} will first send the buffer to the output
+   * surface. The surface will release the buffer back to the codec once it is no longer
+   * used/displayed.
+   *
+   * <p>This should be called after the buffer has been processed. The next output buffer will not
+   * be available until the previous has been released.
+   */
+  public void releaseOutputBuffer(boolean render) {
     outputBuffer = null;
-    codec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
+    codec.releaseOutputBuffer(outputBufferIndex, render);
     outputBufferIndex = C.INDEX_UNSET;
   }
 
@@ -262,6 +362,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void release() {
     outputBuffer = null;
     codec.release();
+  }
+
+  /**
+   * Tries obtaining an output buffer and sets {@link #outputBuffer} to the obtained output buffer.
+   *
+   * @return {@code true} if a buffer is successfully obtained, {@code false} otherwise.
+   */
+  private boolean maybeDequeueAndSetOutputBuffer() {
+    if (!maybeDequeueOutputBuffer()) {
+      return false;
+    }
+
+    outputBuffer = checkNotNull(codec.getOutputBuffer(outputBufferIndex));
+    outputBuffer.position(outputBufferInfo.offset);
+    outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
+    return true;
   }
 
   /**
@@ -295,11 +411,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       releaseOutputBuffer();
       return false;
     }
-
-    outputBuffer = checkNotNull(codec.getOutputBuffer(outputBufferIndex));
-    outputBuffer.position(outputBufferInfo.offset);
-    outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
-
     return true;
   }
 

@@ -20,13 +20,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link TrackSelectionParameters}. */
 @RunWith(AndroidJUnit4.class)
-public class TrackSelectionParametersTest {
+public final class TrackSelectionParametersTest {
 
   @Test
   public void defaultValue_withoutChange_isAsExpected() {
@@ -58,10 +63,22 @@ public class TrackSelectionParametersTest {
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isFalse();
+    assertThat(parameters.trackSelectionOverrides.asList()).isEmpty();
+    assertThat(parameters.disabledTrackTypes).isEmpty();
   }
 
   @Test
   public void parametersSet_fromDefault_isAsExpected() {
+    TrackSelectionOverrides trackSelectionOverrides =
+        new TrackSelectionOverrides.Builder()
+            .addOverride(new TrackSelectionOverride(new TrackGroup(new Format.Builder().build())))
+            .addOverride(
+                new TrackSelectionOverride(
+                    new TrackGroup(
+                        new Format.Builder().setId(4).build(),
+                        new Format.Builder().setId(5).build()),
+                    /* trackIndexes= */ ImmutableList.of(1)))
+            .build();
     TrackSelectionParameters parameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT
             .buildUpon()
@@ -90,6 +107,8 @@ public class TrackSelectionParametersTest {
             // General
             .setForceLowestBitrate(false)
             .setForceHighestSupportedBitrate(true)
+            .setTrackSelectionOverrides(trackSelectionOverrides)
+            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT))
             .build();
 
     // Video
@@ -122,6 +141,9 @@ public class TrackSelectionParametersTest {
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isTrue();
+    assertThat(parameters.trackSelectionOverrides).isEqualTo(trackSelectionOverrides);
+    assertThat(parameters.disabledTrackTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT);
   }
 
   @Test

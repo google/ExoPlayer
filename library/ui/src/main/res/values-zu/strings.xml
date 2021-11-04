@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Nika amandla imibhalo engezansi</string>
   <string name="exo_controls_playback_speed">Isivinini</string>
   <string name="exo_controls_playback_speed_normal">Ivamile</string>
-  <string name="exo_download_description">Landa</string>
-  <string name="exo_download_notification_channel_name">Ukulandwa</string>
-  <string name="exo_download_downloading">Iyalanda</string>
-  <string name="exo_download_completed">Ukulanda kuqedile</string>
-  <string name="exo_download_failed">Ukulanda kuhlulekile</string>
-  <string name="exo_download_removing">Kususwa okulandiwe</string>
   <string name="exo_track_selection_title_video">Ividiyo</string>
   <string name="exo_track_selection_title_audio">Umsindo</string>
   <string name="exo_track_selection_title_text">Umbhalo</string>

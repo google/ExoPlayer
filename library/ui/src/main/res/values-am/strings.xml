@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">የግርጌ ጽሑፎችን አንቃ</string>
   <string name="exo_controls_playback_speed">ፍጥነት</string>
   <string name="exo_controls_playback_speed_normal">መደበኛ</string>
-  <string name="exo_download_description">አውርድ</string>
-  <string name="exo_download_notification_channel_name">የወረዱ</string>
-  <string name="exo_download_downloading">በማውረድ ላይ</string>
-  <string name="exo_download_completed">ማውረድ ተጠናቋል</string>
-  <string name="exo_download_failed">ማውረድ አልተሳካም</string>
-  <string name="exo_download_removing">ውርዶችን በማስወገድ ላይ</string>
   <string name="exo_track_selection_title_video">ቪዲዮ</string>
   <string name="exo_track_selection_title_audio">ኦዲዮ</string>
   <string name="exo_track_selection_title_text">ጽሑፍ</string>

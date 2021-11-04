@@ -50,8 +50,7 @@ import java.util.regex.Pattern;
  * Utility class to convert from <a
  * href="https://developer.android.com/guide/topics/text/spans">span-styled text</a> to HTML.
  *
- * <p>Supports all of the spans used by ExoPlayer's subtitle decoders, including custom ones found
- * in {@link com.google.android.exoplayer2.text.span}.
+ * <p>Supports all of the spans used by subtitle decoders.
  */
 /* package */ final class SpannedToHtmlConverter {
 

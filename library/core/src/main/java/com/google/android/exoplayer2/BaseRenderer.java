@@ -30,7 +30,7 @@ import java.io.IOException;
 /** An abstract base class suitable for most {@link Renderer} implementations. */
 public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
-  private final int trackType;
+  private final @C.TrackType int trackType;
   private final FormatHolder formatHolder;
 
   @Nullable private RendererConfiguration configuration;
@@ -48,14 +48,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param trackType The track type that the renderer handles. One of the {@link C} {@code
    *     TRACK_TYPE_*} constants.
    */
-  public BaseRenderer(int trackType) {
+  public BaseRenderer(@C.TrackType int trackType) {
     this.trackType = trackType;
     formatHolder = new FormatHolder();
     readingPositionUs = C.TIME_END_OF_SOURCE;
   }
 
   @Override
-  public final int getTrackType() {
+  public final @C.TrackType int getTrackType() {
     return trackType;
   }
 
@@ -196,7 +196,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 

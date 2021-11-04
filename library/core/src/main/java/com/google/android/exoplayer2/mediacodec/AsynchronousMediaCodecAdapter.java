@@ -49,15 +49,11 @@ import java.nio.ByteBuffer;
   public static final class Factory implements MediaCodecAdapter.Factory {
     private final Supplier<HandlerThread> callbackThreadSupplier;
     private final Supplier<HandlerThread> queueingThreadSupplier;
-    private final boolean forceQueueingSynchronizationWorkaround;
     private final boolean synchronizeCodecInteractionsWithQueueing;
 
-    /** Creates a factory for the specified {@code trackType}. */
-    public Factory(int trackType) {
-      this(
-          trackType,
-          /* forceQueueingSynchronizationWorkaround= */ false,
-          /* synchronizeCodecInteractionsWithQueueing= */ false);
+    /** Creates a factory for codecs handling the specified {@link C.TrackType track type}. */
+    public Factory(@C.TrackType int trackType) {
+      this(trackType, /* synchronizeCodecInteractionsWithQueueing= */ false);
     }
 
     /**
@@ -65,23 +61,17 @@ import java.nio.ByteBuffer;
      *
      * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
      *     labelling the internal thread accordingly.
-     * @param forceQueueingSynchronizationWorkaround Whether the queueing synchronization workaround
-     *     will be enabled by default or only for the predefined devices.
      * @param synchronizeCodecInteractionsWithQueueing Whether the adapter should synchronize {@link
      *     MediaCodec} interactions with asynchronous buffer queueing. When {@code true}, codec
      *     interactions will wait until all input buffers pending queueing wil be submitted to the
      *     {@link MediaCodec}.
      */
-    public Factory(
-        int trackType,
-        boolean forceQueueingSynchronizationWorkaround,
-        boolean synchronizeCodecInteractionsWithQueueing) {
+    public Factory(@C.TrackType int trackType, boolean synchronizeCodecInteractionsWithQueueing) {
       this(
           /* callbackThreadSupplier= */ () ->
               new HandlerThread(createCallbackThreadLabel(trackType)),
           /* queueingThreadSupplier= */ () ->
               new HandlerThread(createQueueingThreadLabel(trackType)),
-          forceQueueingSynchronizationWorkaround,
           synchronizeCodecInteractionsWithQueueing);
     }
 
@@ -89,11 +79,9 @@ import java.nio.ByteBuffer;
     /* package */ Factory(
         Supplier<HandlerThread> callbackThreadSupplier,
         Supplier<HandlerThread> queueingThreadSupplier,
-        boolean forceQueueingSynchronizationWorkaround,
         boolean synchronizeCodecInteractionsWithQueueing) {
       this.callbackThreadSupplier = callbackThreadSupplier;
       this.queueingThreadSupplier = queueingThreadSupplier;
-      this.forceQueueingSynchronizationWorkaround = forceQueueingSynchronizationWorkaround;
       this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
     }
 
@@ -111,14 +99,14 @@ import java.nio.ByteBuffer;
                 codec,
                 callbackThreadSupplier.get(),
                 queueingThreadSupplier.get(),
-                forceQueueingSynchronizationWorkaround,
                 synchronizeCodecInteractionsWithQueueing);
         TraceUtil.endSection();
         codecAdapter.initialize(
             configuration.mediaFormat,
             configuration.surface,
             configuration.crypto,
-            configuration.flags);
+            configuration.flags,
+            configuration.createInputSurface);
         return codecAdapter;
       } catch (Exception e) {
         if (codecAdapter != null) {
@@ -146,18 +134,16 @@ import java.nio.ByteBuffer;
   private final boolean synchronizeCodecInteractionsWithQueueing;
   private boolean codecReleased;
   @State private int state;
+  @Nullable private Surface inputSurface;
 
   private AsynchronousMediaCodecAdapter(
       MediaCodec codec,
       HandlerThread callbackThread,
       HandlerThread enqueueingThread,
-      boolean forceQueueingSynchronizationWorkaround,
       boolean synchronizeCodecInteractionsWithQueueing) {
     this.codec = codec;
     this.asynchronousMediaCodecCallback = new AsynchronousMediaCodecCallback(callbackThread);
-    this.bufferEnqueuer =
-        new AsynchronousMediaCodecBufferEnqueuer(
-            codec, enqueueingThread, forceQueueingSynchronizationWorkaround);
+    this.bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, enqueueingThread);
     this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
     this.state = STATE_CREATED;
   }
@@ -166,11 +152,15 @@ import java.nio.ByteBuffer;
       @Nullable MediaFormat mediaFormat,
       @Nullable Surface surface,
       @Nullable MediaCrypto crypto,
-      int flags) {
+      int flags,
+      boolean createInputSurface) {
     asynchronousMediaCodecCallback.initialize(codec);
     TraceUtil.beginSection("configureCodec");
     codec.configure(mediaFormat, surface, crypto, flags);
     TraceUtil.endSection();
+    if (createInputSurface) {
+      inputSurface = codec.createInputSurface();
+    }
     bufferEnqueuer.start();
     TraceUtil.beginSection("startCodec");
     codec.start();
@@ -228,6 +218,12 @@ import java.nio.ByteBuffer;
 
   @Override
   @Nullable
+  public Surface getInputSurface() {
+    return inputSurface;
+  }
+
+  @Override
+  @Nullable
   public ByteBuffer getOutputBuffer(int index) {
     return codec.getOutputBuffer(index);
   }
@@ -253,6 +249,9 @@ import java.nio.ByteBuffer;
       }
       state = STATE_SHUT_DOWN;
     } finally {
+      if (inputSurface != null) {
+        inputSurface.release();
+      }
       if (!codecReleased) {
         codec.release();
         codecReleased = true;
@@ -288,6 +287,11 @@ import java.nio.ByteBuffer;
     codec.setVideoScalingMode(scalingMode);
   }
 
+  @Override
+  public void signalEndOfInputStream() {
+    codec.signalEndOfInputStream();
+  }
+
   @VisibleForTesting
   /* package */ void onError(MediaCodec.CodecException error) {
     asynchronousMediaCodecCallback.onError(codec, error);
@@ -311,15 +315,15 @@ import java.nio.ByteBuffer;
     }
   }
 
-  private static String createCallbackThreadLabel(int trackType) {
+  private static String createCallbackThreadLabel(@C.TrackType int trackType) {
     return createThreadLabel(trackType, /* prefix= */ "ExoPlayer:MediaCodecAsyncAdapter:");
   }
 
-  private static String createQueueingThreadLabel(int trackType) {
+  private static String createQueueingThreadLabel(@C.TrackType int trackType) {
     return createThreadLabel(trackType, /* prefix= */ "ExoPlayer:MediaCodecQueueingThread:");
   }
 
-  private static String createThreadLabel(int trackType, String prefix) {
+  private static String createThreadLabel(@C.TrackType int trackType, String prefix) {
     StringBuilder labelBuilder = new StringBuilder(prefix);
     if (trackType == C.TRACK_TYPE_AUDIO) {
       labelBuilder.append("Audio");

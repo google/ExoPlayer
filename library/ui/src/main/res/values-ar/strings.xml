@@ -55,12 +55,6 @@
   <string name="exo_controls_cc_disabled_description">تفعيل الترجمة</string>
   <string name="exo_controls_playback_speed">السرعة</string>
   <string name="exo_controls_playback_speed_normal">عادية</string>
-  <string name="exo_download_description">تنزيل</string>
-  <string name="exo_download_notification_channel_name">عمليات التنزيل</string>
-  <string name="exo_download_downloading">جارٍ التنزيل.</string>
-  <string name="exo_download_completed">اكتمل التنزيل</string>
-  <string name="exo_download_failed">تعذّر التنزيل</string>
-  <string name="exo_download_removing">تجري إزالة المحتوى الذي تم تنزيله</string>
   <string name="exo_track_selection_title_video">فيديو</string>
   <string name="exo_track_selection_title_audio">صوت</string>
   <string name="exo_track_selection_title_text">نص</string>

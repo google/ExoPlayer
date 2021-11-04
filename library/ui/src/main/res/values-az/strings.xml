@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Subtitrləri aktiv edin</string>
   <string name="exo_controls_playback_speed">Sürət</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">Endirin</string>
-  <string name="exo_download_notification_channel_name">Endirmələr</string>
-  <string name="exo_download_downloading">Endirilir</string>
-  <string name="exo_download_completed">Endirmə tamamlandı</string>
-  <string name="exo_download_failed">Endirmə alınmadı</string>
-  <string name="exo_download_removing">Endirilənlər silinir</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Mətn</string>

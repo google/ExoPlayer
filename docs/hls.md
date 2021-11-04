@@ -18,7 +18,7 @@ player.
 
 ~~~
 // Create a player instance.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+ExoPlayer player = new ExoPlayer.Builder(context).build();
 // Set the media item to be played.
 player.setMediaItem(MediaItem.fromUri(hlsUri));
 // Prepare the player.
@@ -48,7 +48,7 @@ HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory)
         .createMediaSource(MediaItem.fromUri(hlsUri));
 // Create a player instance.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+ExoPlayer player = new ExoPlayer.Builder(context).build();
 // Set the media source to be played.
 player.setMediaSource(hlsMediaSource);
 // Prepare the player.

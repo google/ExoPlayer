@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Omogočanje podnapisov</string>
   <string name="exo_controls_playback_speed">Hitrost</string>
   <string name="exo_controls_playback_speed_normal">Običajna</string>
-  <string name="exo_download_description">Prenos</string>
-  <string name="exo_download_notification_channel_name">Prenosi</string>
-  <string name="exo_download_downloading">Prenašanje</string>
-  <string name="exo_download_completed">Prenos je končan</string>
-  <string name="exo_download_failed">Prenos ni uspel</string>
-  <string name="exo_download_removing">Odstranjevanje prenosov</string>
   <string name="exo_track_selection_title_video">Videoposnetki</string>
   <string name="exo_track_selection_title_audio">Zvočni posnetki</string>
   <string name="exo_track_selection_title_text">Podnapisi</string>

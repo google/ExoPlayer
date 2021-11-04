@@ -19,6 +19,7 @@ import android.media.MediaDrm;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -109,11 +110,11 @@ public interface DrmSession {
   UUID getSchemeUuid();
 
   /**
-   * Returns an {@link ExoMediaCrypto} for the open session, or null if called before the session
-   * has been opened or after it's been released.
+   * Returns a {@link CryptoConfig} for the open session, or null if called before the session has
+   * been opened or after it's been released.
    */
   @Nullable
-  ExoMediaCrypto getMediaCrypto();
+  CryptoConfig getCryptoConfig();
 
   /**
    * Returns a map describing the key status for the session, or null if called before the session
@@ -136,6 +137,15 @@ public interface DrmSession {
    */
   @Nullable
   byte[] getOfflineLicenseKeySetId();
+
+  /**
+   * Returns whether this session requires use of a secure decoder for the given MIME type. Assumes
+   * a license policy that requires the highest level of security supported by the session.
+   *
+   * <p>The session must be in {@link #getState() state} {@link #STATE_OPENED} or {@link
+   * #STATE_OPENED_WITH_KEYS}.
+   */
+  boolean requiresSecureDecoder(String mimeType);
 
   /**
    * Increments the reference count. When the caller no longer needs to use the instance, it must

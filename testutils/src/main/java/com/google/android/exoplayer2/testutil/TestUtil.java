@@ -26,6 +26,7 @@ import android.graphics.Color;
 import android.media.MediaCodec;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -45,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Random;
 
 /** Utility methods for tests. */
@@ -184,6 +187,23 @@ public class TestUtil {
   }
 
   /**
+   * Asserts that the actual timelines are the same to the expected timelines. This assert differs
+   * from testing equality by not comparing period ids which may be different due to id mapping of
+   * child source period ids.
+   *
+   * @param actualTimelines A list of actual {@link Timeline timelines}.
+   * @param expectedTimelines A list of expected {@link Timeline timelines}.
+   */
+  public static void assertTimelinesSame(
+      List<Timeline> actualTimelines, List<Timeline> expectedTimelines) {
+    assertThat(actualTimelines).hasSize(expectedTimelines.size());
+    for (int i = 0; i < actualTimelines.size(); i++) {
+      assertThat(new NoUidTimeline(actualTimelines.get(i)))
+          .isEqualTo(new NoUidTimeline(expectedTimelines.get(i)));
+    }
+  }
+
+  /**
    * Asserts that data read from a {@link DataSource} matches {@code expected}.
    *
    * @param dataSource The {@link DataSource} through which to read.
@@ -199,7 +219,7 @@ public class TestUtil {
     try {
       long length = dataSource.open(dataSpec);
       assertThat(length).isEqualTo(expectKnownLength ? expectedData.length : C.LENGTH_UNSET);
-      byte[] readData = Util.readToEnd(dataSource);
+      byte[] readData = DataSourceUtil.readToEnd(dataSource);
       assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
@@ -306,7 +326,7 @@ public class TestUtil {
           }
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (readResult == Extractor.RESULT_SEEK) {
@@ -394,7 +414,7 @@ public class TestUtil {
           extractorReadResult = extractor.read(extractorInput, positionHolder);
         }
       } finally {
-        Util.closeQuietly(dataSource);
+        DataSourceUtil.closeQuietly(dataSource);
       }
 
       if (extractorReadResult == Extractor.RESULT_SEEK) {

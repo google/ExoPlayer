@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
@@ -51,10 +50,10 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
   /**
    * Sets the {@link HttpDataSource.Factory} to be used for creating {@link HttpMediaDrmCallback
    * HttpMediaDrmCallbacks} which executes key and provisioning requests over HTTP. If {@code null}
-   * is passed the {@link DefaultHttpDataSourceFactory} is used.
+   * is passed the {@link DefaultHttpDataSource.Factory} is used.
    *
    * @param drmHttpDataSourceFactory The HTTP data source factory or {@code null} to use {@link
-   *     DefaultHttpDataSourceFactory}.
+   *     DefaultHttpDataSource.Factory}.
    */
   public void setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
@@ -75,9 +74,9 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
 
   @Override
   public DrmSessionManager get(MediaItem mediaItem) {
-    checkNotNull(mediaItem.playbackProperties);
+    checkNotNull(mediaItem.localConfiguration);
     @Nullable
-    MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;
+    MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
     if (drmConfiguration == null || Util.SDK_INT < 18) {
       return DrmSessionManager.DRM_UNSUPPORTED;
     }
@@ -102,16 +101,17 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
             drmConfiguration.licenseUri == null ? null : drmConfiguration.licenseUri.toString(),
             drmConfiguration.forceDefaultLicenseUri,
             dataSourceFactory);
-    for (Map.Entry<String, String> entry : drmConfiguration.requestHeaders.entrySet()) {
+    for (Map.Entry<String, String> entry : drmConfiguration.licenseRequestHeaders.entrySet()) {
       httpDrmCallback.setKeyRequestProperty(entry.getKey(), entry.getValue());
     }
     DefaultDrmSessionManager drmSessionManager =
         new DefaultDrmSessionManager.Builder()
             .setUuidAndExoMediaDrmProvider(
-                drmConfiguration.uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+                drmConfiguration.scheme, FrameworkMediaDrm.DEFAULT_PROVIDER)
             .setMultiSession(drmConfiguration.multiSession)
             .setPlayClearSamplesWithoutKeys(drmConfiguration.playClearContentWithoutKey)
-            .setUseDrmSessionsForClearContent(Ints.toArray(drmConfiguration.sessionForClearTypes))
+            .setUseDrmSessionsForClearContent(
+                Ints.toArray(drmConfiguration.forcedSessionTrackTypes))
             .build(httpDrmCallback);
     drmSessionManager.setMode(MODE_PLAYBACK, drmConfiguration.getKeySetId());
     return drmSessionManager;

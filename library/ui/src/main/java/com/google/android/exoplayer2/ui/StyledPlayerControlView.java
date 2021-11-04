@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static com.google.android.exoplayer2.Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
@@ -33,6 +33,7 @@ import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CH
 import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TRACKS_CHANGED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -57,29 +58,23 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,6 +82,7 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * A view for controlling {@link Player} instances.
@@ -200,9 +196,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * default animation implementation expects certain relative positions between children. See also <a
  * href="CustomLayout">Specifying a custom layout file</a>.
  *
- * <p>The layout files in your {@code res/layout*} will override the one provided by the ExoPlayer
- * library, and will be inflated for use by StyledPlayerControlView. The view identifies and binds
- * its children by looking for the following ids:
+ * <p>The layout files in your {@code res/layout*} will override the one provided by the library,
+ * and will be inflated for use by StyledPlayerControlView. The view identifies and binds its
+ * children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_play_pause}</b> - The play and pause button.
@@ -410,7 +406,6 @@ public class StyledPlayerControlView extends FrameLayout {
   private final String fullScreenEnterContentDescription;
 
   @Nullable private Player player;
-  private ControlDispatcher controlDispatcher;
   @Nullable private ProgressUpdateListener progressUpdateListener;
 
   @Nullable private OnFullScreenModeChangedListener onFullScreenModeChangedListener;
@@ -438,9 +433,8 @@ public class StyledPlayerControlView extends FrameLayout {
   private boolean needToHideBars;
   private int settingsWindowMargin;
 
-  @Nullable private DefaultTrackSelector trackSelector;
-  private TrackSelectionAdapter textTrackSelectionAdapter;
-  private TrackSelectionAdapter audioTrackSelectionAdapter;
+  private TextTrackSelectionAdapter textTrackSelectionAdapter;
+  private AudioTrackSelectionAdapter audioTrackSelectionAdapter;
   // TODO(insun): Add setTrackNameProvider to use customized track name provider.
   private TrackNameProvider trackNameProvider;
 
@@ -545,7 +539,6 @@ public class StyledPlayerControlView extends FrameLayout {
     playedAdGroups = new boolean[0];
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
-    controlDispatcher = new DefaultControlDispatcher();
     updateProgressAction = this::updateProgress;
 
     durationView = findViewById(R.id.exo_duration);
@@ -765,14 +758,6 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player instanceof ForwardingPlayer) {
       player = ((ForwardingPlayer) player).getWrappedPlayer();
     }
-    if (player instanceof ExoPlayer) {
-      TrackSelector trackSelector = ((ExoPlayer) player).getTrackSelector();
-      if (trackSelector instanceof DefaultTrackSelector) {
-        this.trackSelector = (DefaultTrackSelector) trackSelector;
-      }
-    } else {
-      this.trackSelector = null;
-    }
     updateAll();
   }
 
@@ -819,7 +804,7 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param listener The listener to be notified about visibility changes.
    */
   public void addVisibilityListener(VisibilityListener listener) {
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     visibilityListeners.add(listener);
   }
 
@@ -839,19 +824,6 @@ public class StyledPlayerControlView extends FrameLayout {
    */
   public void setProgressUpdateListener(@Nullable ProgressUpdateListener listener) {
     this.progressUpdateListener = listener;
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@link SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    if (this.controlDispatcher != controlDispatcher) {
-      this.controlDispatcher = controlDispatcher;
-      updateNavigation();
-    }
   }
 
   /**
@@ -939,13 +911,13 @@ public class StyledPlayerControlView extends FrameLayout {
       @Player.RepeatMode int currentMode = player.getRepeatMode();
       if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE
           && currentMode != Player.REPEAT_MODE_OFF) {
-        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_OFF);
+        player.setRepeatMode(Player.REPEAT_MODE_OFF);
       } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE
           && currentMode == Player.REPEAT_MODE_ALL) {
-        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ONE);
+        player.setRepeatMode(Player.REPEAT_MODE_ONE);
       } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL
           && currentMode == Player.REPEAT_MODE_ONE) {
-        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ALL);
+        player.setRepeatMode(Player.REPEAT_MODE_ALL);
       }
     }
     controlViewLayoutManager.setShowButton(
@@ -1127,13 +1099,10 @@ public class StyledPlayerControlView extends FrameLayout {
     boolean enableFastForward = false;
     boolean enableNext = false;
     if (player != null) {
-      enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW);
+      enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
       enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
-      enableRewind =
-          player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
-      enableFastForward =
-          player.isCommandAvailable(COMMAND_SEEK_FORWARD)
-              && controlDispatcher.isFastForwardEnabled();
+      enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
+      enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
       enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
     }
 
@@ -1155,9 +1124,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private void updateRewindButton() {
     long rewindMs =
-        controlDispatcher instanceof DefaultControlDispatcher && player != null
-            ? ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs(player)
-            : C.DEFAULT_SEEK_BACK_INCREMENT_MS;
+        player != null ? player.getSeekBackIncrement() : C.DEFAULT_SEEK_BACK_INCREMENT_MS;
     int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
       rewindButtonTextView.setText(String.valueOf(rewindSec));
@@ -1171,9 +1138,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private void updateFastForwardButton() {
     long fastForwardMs =
-        controlDispatcher instanceof DefaultControlDispatcher && player != null
-            ? ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs(player)
-            : C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
+        player != null ? player.getSeekForwardIncrement() : C.DEFAULT_SEEK_FORWARD_INCREMENT_MS;
     int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
       fastForwardButtonTextView.setText(String.valueOf(fastForwardSec));
@@ -1255,60 +1220,41 @@ public class StyledPlayerControlView extends FrameLayout {
   private void initTrackSelectionAdapter() {
     textTrackSelectionAdapter.clear();
     audioTrackSelectionAdapter.clear();
-    if (player == null || trackSelector == null) {
+    if (player == null
+        || !player.isCommandAvailable(Player.COMMAND_GET_TRACK_INFOS)
+        || !player.isCommandAvailable(Player.COMMAND_SET_TRACK_SELECTION_PARAMETERS)) {
       return;
     }
-    DefaultTrackSelector trackSelector = this.trackSelector;
-    @Nullable MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-    if (mappedTrackInfo == null) {
-      return;
+    TracksInfo tracksInfo = player.getCurrentTracksInfo();
+    audioTrackSelectionAdapter.init(
+        gatherSupportedTrackInfosOfType(tracksInfo, C.TRACK_TYPE_AUDIO));
+    if (controlViewLayoutManager.getShowButton(subtitleButton)) {
+      textTrackSelectionAdapter.init(
+          gatherSupportedTrackInfosOfType(tracksInfo, C.TRACK_TYPE_TEXT));
+    } else {
+      textTrackSelectionAdapter.init(ImmutableList.of());
     }
-    List<TrackInfo> textTracks = new ArrayList<>();
-    List<TrackInfo> audioTracks = new ArrayList<>();
-    List<Integer> textRendererIndices = new ArrayList<>();
-    List<Integer> audioRendererIndices = new ArrayList<>();
-    for (int rendererIndex = 0;
-        rendererIndex < mappedTrackInfo.getRendererCount();
-        rendererIndex++) {
-      if (mappedTrackInfo.getRendererType(rendererIndex) == C.TRACK_TYPE_TEXT
-          && controlViewLayoutManager.getShowButton(subtitleButton)) {
-        // Get TrackSelection at the corresponding renderer index.
-        gatherTrackInfosForAdapter(mappedTrackInfo, rendererIndex, textTracks);
-        textRendererIndices.add(rendererIndex);
-      } else if (mappedTrackInfo.getRendererType(rendererIndex) == C.TRACK_TYPE_AUDIO) {
-        gatherTrackInfosForAdapter(mappedTrackInfo, rendererIndex, audioTracks);
-        audioRendererIndices.add(rendererIndex);
-      }
-    }
-    textTrackSelectionAdapter.init(textRendererIndices, textTracks, mappedTrackInfo);
-    audioTrackSelectionAdapter.init(audioRendererIndices, audioTracks, mappedTrackInfo);
   }
 
-  private void gatherTrackInfosForAdapter(
-      MappedTrackInfo mappedTrackInfo, int rendererIndex, List<TrackInfo> tracks) {
-    TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(rendererIndex);
-
-    TrackSelectionArray trackSelections = checkNotNull(player).getCurrentTrackSelections();
-    @Nullable TrackSelection trackSelection = trackSelections.get(rendererIndex);
-
-    for (int groupIndex = 0; groupIndex < trackGroupArray.length; groupIndex++) {
-      TrackGroup trackGroup = trackGroupArray.get(groupIndex);
+  private ImmutableList<TrackInformation> gatherSupportedTrackInfosOfType(
+      TracksInfo tracksInfo, @C.TrackType int trackType) {
+    ImmutableList.Builder<TrackInformation> tracks = new ImmutableList.Builder<>();
+    List<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
+    for (int trackGroupIndex = 0; trackGroupIndex < trackGroupInfos.size(); trackGroupIndex++) {
+      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(trackGroupIndex);
+      if (trackGroupInfo.getTrackType() != trackType) {
+        continue;
+      }
+      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        Format format = trackGroup.getFormat(trackIndex);
-        if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
-            == C.FORMAT_HANDLED) {
-          boolean trackIsSelected =
-              trackSelection != null && trackSelection.indexOf(format) != C.INDEX_UNSET;
-          tracks.add(
-              new TrackInfo(
-                  rendererIndex,
-                  groupIndex,
-                  trackIndex,
-                  trackNameProvider.getTrackName(format),
-                  trackIsSelected));
+        if (!trackGroupInfo.isTrackSupported(trackIndex)) {
+          continue;
         }
+        String trackName = trackNameProvider.getTrackName(trackGroup.getFormat(trackIndex));
+        tracks.add(new TrackInformation(tracksInfo, trackGroupIndex, trackIndex, trackName));
       }
     }
+    return tracks.build();
   }
 
   private void updateTimeline() {
@@ -1323,12 +1269,12 @@ public class StyledPlayerControlView extends FrameLayout {
     int adGroupCount = 0;
     Timeline timeline = player.getCurrentTimeline();
     if (!timeline.isEmpty()) {
-      int currentWindowIndex = player.getCurrentWindowIndex();
+      int currentWindowIndex = player.getCurrentMediaItemIndex();
       int firstWindowIndex = multiWindowTimeBar ? 0 : currentWindowIndex;
       int lastWindowIndex = multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
       for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
         if (i == currentWindowIndex) {
-          currentWindowOffset = C.usToMs(durationUs);
+          currentWindowOffset = Util.usToMs(durationUs);
         }
         timeline.getWindow(i, window);
         if (window.durationUs == C.TIME_UNSET) {
@@ -1355,7 +1301,7 @@ public class StyledPlayerControlView extends FrameLayout {
                 adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);
                 playedAdGroups = Arrays.copyOf(playedAdGroups, newLength);
               }
-              adGroupTimesMs[adGroupCount] = C.usToMs(durationUs + adGroupTimeInWindowUs);
+              adGroupTimesMs[adGroupCount] = Util.usToMs(durationUs + adGroupTimeInWindowUs);
               playedAdGroups[adGroupCount] = period.hasPlayedAdGroup(adGroupIndex);
               adGroupCount++;
             }
@@ -1364,7 +1310,7 @@ public class StyledPlayerControlView extends FrameLayout {
         durationUs += window.durationUs;
       }
     }
-    long durationMs = C.usToMs(durationUs);
+    long durationMs = Util.usToMs(durationUs);
     if (durationView != null) {
       durationView.setText(Util.getStringForTime(formatBuilder, formatter, durationMs));
     }
@@ -1471,8 +1417,7 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    controlDispatcher.dispatchSetPlaybackParameters(
-        player, player.getPlaybackParameters().withSpeed(speed));
+    player.setPlaybackParameters(player.getPlaybackParameters().withSpeed(speed));
   }
 
   /* package */ void requestPlayPauseFocus() {
@@ -1508,14 +1453,14 @@ public class StyledPlayerControlView extends FrameLayout {
         windowIndex++;
       }
     } else {
-      windowIndex = player.getCurrentWindowIndex();
+      windowIndex = player.getCurrentMediaItemIndex();
     }
     seekTo(player, windowIndex, positionMs);
     updateProgress();
   }
 
-  private boolean seekTo(Player player, int windowIndex, long positionMs) {
-    return controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
+  private void seekTo(Player player, int windowIndex, long positionMs) {
+    player.seekTo(windowIndex, positionMs);
   }
 
   private void onFullScreenButtonClicked(View v) {
@@ -1596,10 +1541,10 @@ public class StyledPlayerControlView extends FrameLayout {
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
       if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
         if (player.getPlaybackState() != Player.STATE_ENDED) {
-          controlDispatcher.dispatchFastForward(player);
+          player.seekForward();
         }
       } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       } else if (event.getRepeatCount() == 0) {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
@@ -1613,10 +1558,10 @@ public class StyledPlayerControlView extends FrameLayout {
             dispatchPause(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_NEXT:
-            controlDispatcher.dispatchNext(player);
+            player.seekToNext();
             break;
           case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-            controlDispatcher.dispatchPrevious(player);
+            player.seekToPrevious();
             break;
           default:
             break;
@@ -1671,19 +1616,18 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
     if (state == Player.STATE_IDLE) {
-      controlDispatcher.dispatchPrepare(player);
+      player.prepare();
     } else if (state == Player.STATE_ENDED) {
-      seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+      seekTo(player, player.getCurrentMediaItemIndex(), C.TIME_UNSET);
     }
-    controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+    player.play();
   }
 
   private void dispatchPause(Player player) {
-    controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+    player.pause();
   }
 
   @SuppressLint("InlinedApi")
@@ -1826,22 +1770,22 @@ public class StyledPlayerControlView extends FrameLayout {
       }
       controlViewLayoutManager.resetHideCallbacks();
       if (nextButton == view) {
-        controlDispatcher.dispatchNext(player);
+        player.seekToNext();
       } else if (previousButton == view) {
-        controlDispatcher.dispatchPrevious(player);
+        player.seekToPrevious();
       } else if (fastForwardButton == view) {
         if (player.getPlaybackState() != Player.STATE_ENDED) {
-          controlDispatcher.dispatchFastForward(player);
+          player.seekForward();
         }
       } else if (rewindButton == view) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       } else if (playPauseButton == view) {
         dispatchPlayPause(player);
       } else if (repeatToggleButton == view) {
-        controlDispatcher.dispatchSetRepeatMode(
-            player, RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
+        player.setRepeatMode(
+            RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
       } else if (shuffleButton == view) {
-        controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
+        player.setShuffleModeEnabled(!player.getShuffleModeEnabled());
       } else if (settingsButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
         displaySettingsWindow(settingsAdapter);
@@ -1989,33 +1933,36 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private static final class TrackInfo {
+  private static final class TrackInformation {
 
-    public final int rendererIndex;
-    public final int groupIndex;
+    private TracksInfo tracksInfo;
+    private int trackGroupIndex;
+    public final TrackGroupInfo trackGroupInfo;
+    public final TrackGroup trackGroup;
     public final int trackIndex;
     public final String trackName;
-    public final boolean selected;
 
-    public TrackInfo(
-        int rendererIndex, int groupIndex, int trackIndex, String trackName, boolean selected) {
-      this.rendererIndex = rendererIndex;
-      this.groupIndex = groupIndex;
+    public TrackInformation(
+        TracksInfo tracksInfo, int trackGroupIndex, int trackIndex, String trackName) {
+      this.tracksInfo = tracksInfo;
+      this.trackGroupIndex = trackGroupIndex;
+      this.trackGroupInfo = tracksInfo.getTrackGroupInfos().get(trackGroupIndex);
+      this.trackGroup = trackGroupInfo.getTrackGroup();
       this.trackIndex = trackIndex;
       this.trackName = trackName;
-      this.selected = selected;
+    }
+
+    public boolean isSelected() {
+      return trackGroupInfo.isTrackSelected(trackIndex);
     }
   }
 
   private final class TextTrackSelectionAdapter extends TrackSelectionAdapter {
     @Override
-    public void init(
-        List<Integer> rendererIndices,
-        List<TrackInfo> trackInfos,
-        MappedTrackInfo mappedTrackInfo) {
+    public void init(List<TrackInformation> trackInformations) {
       boolean subtitleIsOn = false;
-      for (int i = 0; i < trackInfos.size(); i++) {
-        if (trackInfos.get(i).selected) {
+      for (int i = 0; i < trackInformations.size(); i++) {
+        if (trackInformations.get(i).isSelected()) {
           subtitleIsOn = true;
           break;
         }
@@ -2027,9 +1974,7 @@ public class StyledPlayerControlView extends FrameLayout {
         subtitleButton.setContentDescription(
             subtitleIsOn ? subtitleOnContentDescription : subtitleOffContentDescription);
       }
-      this.rendererIndices = rendererIndices;
-      this.tracks = trackInfos;
-      this.mappedTrackInfo = mappedTrackInfo;
+      this.tracks = trackInformations;
     }
 
     @Override
@@ -2038,7 +1983,7 @@ public class StyledPlayerControlView extends FrameLayout {
       holder.textView.setText(R.string.exo_track_selection_none);
       boolean isTrackSelectionOff = true;
       for (int i = 0; i < tracks.size(); i++) {
-        if (tracks.get(i).selected) {
+        if (tracks.get(i).isSelected()) {
           isTrackSelectionOff = false;
           break;
         }
@@ -2046,16 +1991,18 @@ public class StyledPlayerControlView extends FrameLayout {
       holder.checkView.setVisibility(isTrackSelectionOff ? VISIBLE : INVISIBLE);
       holder.itemView.setOnClickListener(
           v -> {
-            if (trackSelector != null) {
-              ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-              for (int i = 0; i < rendererIndices.size(); i++) {
-                int rendererIndex = rendererIndices.get(i);
-                parametersBuilder =
-                    parametersBuilder
-                        .clearSelectionOverrides(rendererIndex)
-                        .setRendererDisabled(rendererIndex, true);
-              }
-              checkNotNull(trackSelector).setParameters(parametersBuilder);
+            if (player != null) {
+              TrackSelectionParameters trackSelectionParameters =
+                  player.getTrackSelectionParameters();
+              player.setTrackSelectionParameters(
+                  trackSelectionParameters
+                      .buildUpon()
+                      .setDisabledTrackTypes(
+                          new ImmutableSet.Builder<@C.TrackType Integer>()
+                              .addAll(trackSelectionParameters.disabledTrackTypes)
+                              .add(C.TRACK_TYPE_TEXT)
+                              .build())
+                      .build());
               settingsWindow.dismiss();
             }
           });
@@ -2065,8 +2012,8 @@ public class StyledPlayerControlView extends FrameLayout {
     public void onBindViewHolder(SubSettingViewHolder holder, int position) {
       super.onBindViewHolder(holder, position);
       if (position > 0) {
-        TrackInfo track = tracks.get(position - 1);
-        holder.checkView.setVisibility(track.selected ? VISIBLE : INVISIBLE);
+        TrackInformation track = tracks.get(position - 1);
+        holder.checkView.setVisibility(track.isSelected() ? VISIBLE : INVISIBLE);
       }
     }
 
@@ -2083,32 +2030,48 @@ public class StyledPlayerControlView extends FrameLayout {
       // Audio track selection option includes "Auto" at the top.
       holder.textView.setText(R.string.exo_track_selection_auto);
       // hasSelectionOverride is true means there is an explicit track selection, not "Auto".
-      boolean hasSelectionOverride = false;
-      DefaultTrackSelector.Parameters parameters = checkNotNull(trackSelector).getParameters();
-      for (int i = 0; i < rendererIndices.size(); i++) {
-        int rendererIndex = rendererIndices.get(i);
-        TrackGroupArray trackGroups = checkNotNull(mappedTrackInfo).getTrackGroups(rendererIndex);
-        if (parameters.hasSelectionOverride(rendererIndex, trackGroups)) {
-          hasSelectionOverride = true;
-          break;
-        }
-      }
+      TrackSelectionParameters parameters = checkNotNull(player).getTrackSelectionParameters();
+      boolean hasSelectionOverride = hasSelectionOverride(parameters.trackSelectionOverrides);
       holder.checkView.setVisibility(hasSelectionOverride ? INVISIBLE : VISIBLE);
       holder.itemView.setOnClickListener(
           v -> {
-            if (trackSelector != null) {
-              ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-              for (int i = 0; i < rendererIndices.size(); i++) {
-                int rendererIndex = rendererIndices.get(i);
-                parametersBuilder = parametersBuilder.clearSelectionOverrides(rendererIndex);
-              }
-              checkNotNull(trackSelector).setParameters(parametersBuilder);
+            if (player == null) {
+              return;
             }
+            TrackSelectionParameters trackSelectionParameters =
+                player.getTrackSelectionParameters();
+            TrackSelectionOverrides trackSelectionOverrides =
+                trackSelectionParameters
+                    .trackSelectionOverrides
+                    .buildUpon()
+                    .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+                    .build();
+            castNonNull(player)
+                .setTrackSelectionParameters(
+                    trackSelectionParameters
+                        .buildUpon()
+                        .setTrackSelectionOverrides(trackSelectionOverrides)
+                        .build());
             settingsAdapter.setSubTextAtPosition(
                 SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
                 getResources().getString(R.string.exo_track_selection_auto));
             settingsWindow.dismiss();
           });
+    }
+
+    private boolean hasSelectionOverride(TrackSelectionOverrides trackSelectionOverrides) {
+      int previousTrackGroupIndex = C.INDEX_UNSET;
+      for (int i = 0; i < tracks.size(); i++) {
+        TrackInformation track = tracks.get(i);
+        if (track.trackGroupIndex == previousTrackGroupIndex) {
+          continue;
+        }
+        if (trackSelectionOverrides.getOverride(track.trackGroup) != null) {
+          return true;
+        }
+        previousTrackGroupIndex = track.trackGroupIndex;
+      }
+      return false;
     }
 
     @Override
@@ -2117,22 +2080,20 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void init(
-        List<Integer> rendererIndices,
-        List<TrackInfo> trackInfos,
-        MappedTrackInfo mappedTrackInfo) {
+    public void init(List<TrackInformation> trackInformations) {
       // Update subtext in settings menu with current audio track selection.
       boolean hasSelectionOverride = false;
-      for (int i = 0; i < rendererIndices.size(); i++) {
-        int rendererIndex = rendererIndices.get(i);
-        TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-        if (trackSelector != null
-            && trackSelector.getParameters().hasSelectionOverride(rendererIndex, trackGroups)) {
+      for (int i = 0; i < trackInformations.size(); i++) {
+        if (checkNotNull(player)
+                .getTrackSelectionParameters()
+                .trackSelectionOverrides
+                .getOverride(trackInformations.get(i).trackGroup)
+            != null) {
           hasSelectionOverride = true;
           break;
         }
       }
-      if (trackInfos.isEmpty()) {
+      if (trackInformations.isEmpty()) {
         settingsAdapter.setSubTextAtPosition(
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_none));
@@ -2143,35 +2104,28 @@ public class StyledPlayerControlView extends FrameLayout {
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_auto));
       } else {
-        for (int i = 0; i < trackInfos.size(); i++) {
-          TrackInfo track = trackInfos.get(i);
-          if (track.selected) {
+        for (int i = 0; i < trackInformations.size(); i++) {
+          TrackInformation track = trackInformations.get(i);
+          if (track.isSelected()) {
             settingsAdapter.setSubTextAtPosition(
                 SETTINGS_AUDIO_TRACK_SELECTION_POSITION, track.trackName);
             break;
           }
         }
       }
-      this.rendererIndices = rendererIndices;
-      this.tracks = trackInfos;
-      this.mappedTrackInfo = mappedTrackInfo;
+      this.tracks = trackInformations;
     }
   }
 
   private abstract class TrackSelectionAdapter extends RecyclerView.Adapter<SubSettingViewHolder> {
 
-    protected List<Integer> rendererIndices;
-    protected List<TrackInfo> tracks;
-    protected @Nullable MappedTrackInfo mappedTrackInfo;
+    protected List<TrackInformation> tracks;
 
-    public TrackSelectionAdapter() {
-      this.rendererIndices = new ArrayList<>();
+    protected TrackSelectionAdapter() {
       this.tracks = new ArrayList<>();
-      this.mappedTrackInfo = null;
     }
 
-    public abstract void init(
-        List<Integer> rendererIndices, List<TrackInfo> trackInfos, MappedTrackInfo mappedTrackInfo);
+    public abstract void init(List<TrackInformation> trackInformations);
 
     @Override
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -2182,52 +2136,50 @@ public class StyledPlayerControlView extends FrameLayout {
       return new SubSettingViewHolder(v);
     }
 
-    public abstract void onBindViewHolderAtZeroPosition(SubSettingViewHolder holder);
+    protected abstract void onBindViewHolderAtZeroPosition(SubSettingViewHolder holder);
 
-    public abstract void onTrackSelection(String subtext);
+    protected abstract void onTrackSelection(String subtext);
 
     @Override
     public void onBindViewHolder(SubSettingViewHolder holder, int position) {
-      if (trackSelector == null || mappedTrackInfo == null) {
+      if (player == null) {
         return;
       }
       if (position == 0) {
         onBindViewHolderAtZeroPosition(holder);
       } else {
-        TrackInfo track = tracks.get(position - 1);
-        TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(track.rendererIndex);
+        TrackInformation track = tracks.get(position - 1);
         boolean explicitlySelected =
-            checkNotNull(trackSelector)
-                    .getParameters()
-                    .hasSelectionOverride(track.rendererIndex, trackGroups)
-                && track.selected;
+            checkNotNull(player)
+                        .getTrackSelectionParameters()
+                        .trackSelectionOverrides
+                        .getOverride(track.trackGroup)
+                    != null
+                && track.isSelected();
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
             v -> {
-              if (mappedTrackInfo != null && trackSelector != null) {
-                ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-                for (int i = 0; i < rendererIndices.size(); i++) {
-                  int rendererIndex = rendererIndices.get(i);
-                  if (rendererIndex == track.rendererIndex) {
-                    parametersBuilder =
-                        parametersBuilder
-                            .setSelectionOverride(
-                                rendererIndex,
-                                checkNotNull(mappedTrackInfo).getTrackGroups(rendererIndex),
-                                new SelectionOverride(track.groupIndex, track.trackIndex))
-                            .setRendererDisabled(rendererIndex, false);
-                  } else {
-                    parametersBuilder =
-                        parametersBuilder
-                            .clearSelectionOverrides(rendererIndex)
-                            .setRendererDisabled(rendererIndex, true);
-                  }
-                }
-                checkNotNull(trackSelector).setParameters(parametersBuilder);
-                onTrackSelection(track.trackName);
-                settingsWindow.dismiss();
+              if (player == null) {
+                return;
               }
+              TrackSelectionParameters trackSelectionParameters =
+                  player.getTrackSelectionParameters();
+              TrackSelectionOverrides overrides =
+                  forceTrackSelection(
+                      trackSelectionParameters.trackSelectionOverrides,
+                      track.tracksInfo,
+                      track.trackGroupIndex,
+                      new TrackSelectionOverride(
+                          track.trackGroup, ImmutableList.of(track.trackIndex)));
+              checkNotNull(player)
+                  .setTrackSelectionParameters(
+                      trackSelectionParameters
+                          .buildUpon()
+                          .setTrackSelectionOverrides(overrides)
+                          .build());
+              onTrackSelection(track.trackName);
+              settingsWindow.dismiss();
             });
       }
     }
@@ -2237,9 +2189,8 @@ public class StyledPlayerControlView extends FrameLayout {
       return tracks.isEmpty() ? 0 : tracks.size() + 1;
     }
 
-    public void clear() {
+    protected void clear() {
       tracks = Collections.emptyList();
-      mappedTrackInfo = null;
     }
   }
 
@@ -2257,5 +2208,42 @@ public class StyledPlayerControlView extends FrameLayout {
       textView = itemView.findViewById(R.id.exo_text);
       checkView = itemView.findViewById(R.id.exo_check);
     }
+  }
+
+  /**
+   * Forces tracks in a {@link TrackGroup} to be the only ones selected for a {@link C.TrackType}.
+   * No other tracks of that type will be selectable. If the forced tracks are not supported, then
+   * no tracks of that type will be selected.
+   *
+   * @param trackSelectionOverrides The current {@link TrackSelectionOverride overrides}.
+   * @param tracksInfo The current {@link TracksInfo}.
+   * @param forcedTrackGroupIndex The index of the {@link TrackGroup} in {@code tracksInfo} that
+   *     should have its track selected.
+   * @param forcedTrackSelectionOverride The tracks to force selection of.
+   * @return The updated {@link TrackSelectionOverride overrides}.
+   */
+  @Pure
+  private static TrackSelectionOverrides forceTrackSelection(
+      TrackSelectionOverrides trackSelectionOverrides,
+      TracksInfo tracksInfo,
+      int forcedTrackGroupIndex,
+      TrackSelectionOverride forcedTrackSelectionOverride) {
+    TrackSelectionOverrides.Builder overridesBuilder = trackSelectionOverrides.buildUpon();
+
+    @C.TrackType
+    int trackType = tracksInfo.getTrackGroupInfos().get(forcedTrackGroupIndex).getTrackType();
+    overridesBuilder.setOverrideForType(forcedTrackSelectionOverride);
+    // TrackSelectionOverride doesn't currently guarantee that only overwritten track
+    // group of a given type are selected, so the others have to be explicitly disabled.
+    // This guarantee is provided in the following patch that removes the need for this method.
+    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
+    for (int i = 0; i < trackGroupInfos.size(); i++) {
+      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(i);
+      if (i != forcedTrackGroupIndex && trackGroupInfo.getTrackType() == trackType) {
+        TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
+        overridesBuilder.addOverride(new TrackSelectionOverride(trackGroup, ImmutableList.of()));
+      }
+    }
+    return overridesBuilder.build();
   }
 }

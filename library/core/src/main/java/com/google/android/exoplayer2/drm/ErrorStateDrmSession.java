@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Map;
 import java.util.UUID;
@@ -53,7 +54,7 @@ public final class ErrorStateDrmSession implements DrmSession {
 
   @Override
   @Nullable
-  public ExoMediaCrypto getMediaCrypto() {
+  public CryptoConfig getCryptoConfig() {
     return null;
   }
 
@@ -67,6 +68,11 @@ public final class ErrorStateDrmSession implements DrmSession {
   @Nullable
   public byte[] getOfflineLicenseKeySetId() {
     return null;
+  }
+
+  @Override
+  public boolean requiresSecureDecoder(String mimeType) {
+    return false;
   }
 
   @Override

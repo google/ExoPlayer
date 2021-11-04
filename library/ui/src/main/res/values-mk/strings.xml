@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Овозможете ги титловите</string>
   <string name="exo_controls_playback_speed">Брзина</string>
   <string name="exo_controls_playback_speed_normal">Нормална</string>
-  <string name="exo_download_description">Преземи</string>
-  <string name="exo_download_notification_channel_name">Преземања</string>
-  <string name="exo_download_downloading">Се презема</string>
-  <string name="exo_download_completed">Преземањето заврши</string>
-  <string name="exo_download_failed">Неуспешно преземање</string>
-  <string name="exo_download_removing">Се отстрануваат преземањата</string>
   <string name="exo_track_selection_title_video">Видео</string>
   <string name="exo_track_selection_title_audio">Аудио</string>
   <string name="exo_track_selection_title_text">Текст</string>

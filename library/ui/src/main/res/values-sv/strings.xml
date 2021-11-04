@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Aktivera undertexter</string>
   <string name="exo_controls_playback_speed">Hastighet</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">Ladda ned</string>
-  <string name="exo_download_notification_channel_name">Nedladdningar</string>
-  <string name="exo_download_downloading">Laddar ned</string>
-  <string name="exo_download_completed">Nedladdningen är klar</string>
-  <string name="exo_download_failed">Nedladdningen misslyckades</string>
-  <string name="exo_download_removing">Nedladdningar tas bort</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Ljud</string>
   <string name="exo_track_selection_title_text">Text</string>

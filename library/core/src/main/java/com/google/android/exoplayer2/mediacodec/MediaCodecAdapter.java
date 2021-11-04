@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
@@ -39,13 +38,109 @@ import java.nio.ByteBuffer;
 public interface MediaCodecAdapter {
   /** Configuration parameters for a {@link MediaCodecAdapter}. */
   final class Configuration {
+
+    /**
+     * Creates a configuration for audio decoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @param crypto See {@link #crypto}.
+     * @return The created instance.
+     */
+    public static Configuration createForAudioDecoding(
+        MediaCodecInfo codecInfo,
+        MediaFormat mediaFormat,
+        Format format,
+        @Nullable MediaCrypto crypto) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          /* surface= */ null,
+          crypto,
+          /* flags= */ 0,
+          /* createInputSurface= */ false);
+    }
+
+    /**
+     * Creates a configuration for video decoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @param surface See {@link #surface}.
+     * @param crypto See {@link #crypto}.
+     * @return The created instance.
+     */
+    public static Configuration createForVideoDecoding(
+        MediaCodecInfo codecInfo,
+        MediaFormat mediaFormat,
+        Format format,
+        @Nullable Surface surface,
+        @Nullable MediaCrypto crypto) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          surface,
+          crypto,
+          /* flags= */ 0,
+          /* createInputSurface= */ false);
+    }
+
+    /**
+     * Creates a configuration for audio encoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @return The created instance.
+     */
+    public static Configuration createForAudioEncoding(
+        MediaCodecInfo codecInfo, MediaFormat mediaFormat, Format format) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          /* surface= */ null,
+          /* crypto= */ null,
+          MediaCodec.CONFIGURE_FLAG_ENCODE,
+          /* createInputSurface= */ false);
+    }
+
+    /**
+     * Creates a configuration for video encoding.
+     *
+     * @param codecInfo See {@link #codecInfo}.
+     * @param mediaFormat See {@link #mediaFormat}.
+     * @param format See {@link #format}.
+     * @return The created instance.
+     */
+    @RequiresApi(18)
+    public static Configuration createForVideoEncoding(
+        MediaCodecInfo codecInfo, MediaFormat mediaFormat, Format format) {
+      return new Configuration(
+          codecInfo,
+          mediaFormat,
+          format,
+          /* surface= */ null,
+          /* crypto= */ null,
+          MediaCodec.CONFIGURE_FLAG_ENCODE,
+          /* createInputSurface= */ true);
+    }
+
     /** Information about the {@link MediaCodec} being configured. */
     public final MediaCodecInfo codecInfo;
     /** The {@link MediaFormat} for which the codec is being configured. */
     public final MediaFormat mediaFormat;
     /** The {@link Format} for which the codec is being configured. */
     public final Format format;
-    /** For video playbacks, the output where the object will render the decoded frames. */
+    /**
+     * For video decoding, the output where the object will render the decoded frames. This must be
+     * null if the codec is not a video decoder, or if it is configured for {@link ByteBuffer}
+     * output.
+     */
     @Nullable public final Surface surface;
     /** For DRM protected playbacks, a {@link MediaCrypto} to use for decryption. */
     @Nullable public final MediaCrypto crypto;
@@ -55,20 +150,27 @@ public interface MediaCodecAdapter {
      * @see MediaCodec#configure
      */
     public final int flags;
+    /**
+     * Whether to request a {@link Surface} and use it as to the input to an encoder. This can only
+     * be set to {@code true} on API 18+.
+     */
+    public final boolean createInputSurface;
 
-    public Configuration(
+    private Configuration(
         MediaCodecInfo codecInfo,
         MediaFormat mediaFormat,
         Format format,
         @Nullable Surface surface,
         @Nullable MediaCrypto crypto,
-        int flags) {
+        int flags,
+        boolean createInputSurface) {
       this.codecInfo = codecInfo;
       this.mediaFormat = mediaFormat;
       this.format = format;
       this.surface = surface;
       this.crypto = crypto;
       this.flags = flags;
+      this.createInputSurface = createInputSurface;
     }
   }
 
@@ -76,7 +178,7 @@ public interface MediaCodecAdapter {
   interface Factory {
 
     /** Default factory used in most cases. */
-    Factory DEFAULT = new SynchronousMediaCodecAdapter.Factory();
+    Factory DEFAULT = new DefaultMediaCodecAdapterFactory();
 
     /** Creates a {@link MediaCodecAdapter} instance. */
     MediaCodecAdapter createAdapter(Configuration configuration) throws IOException;
@@ -125,6 +227,14 @@ public interface MediaCodecAdapter {
    */
   @Nullable
   ByteBuffer getInputBuffer(int index);
+
+  /**
+   * Returns the input {@link Surface}, or null if the input is not a surface.
+   *
+   * @see MediaCodec#createInputSurface()
+   */
+  @Nullable
+  Surface getInputSurface();
 
   /**
    * Returns a read-only ByteBuffer for a dequeued output buffer index.
@@ -217,4 +327,13 @@ public interface MediaCodecAdapter {
 
   /** Whether the adapter needs to be reconfigured before it is used. */
   boolean needsReconfiguration();
+
+  /**
+   * Signals the encoder of end-of-stream on input. The call can only be used when the encoder
+   * receives its input from a {@link Surface surface}.
+   *
+   * @see MediaCodec#signalEndOfInputStream()
+   */
+  @RequiresApi(18)
+  void signalEndOfInputStream();
 }

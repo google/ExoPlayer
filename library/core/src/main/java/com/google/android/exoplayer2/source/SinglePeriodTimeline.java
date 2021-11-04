@@ -147,7 +147,7 @@ public final class SinglePeriodTimeline extends Timeline {
    * @param isDynamic Whether the window may change when the timeline is updated.
    * @param useLiveConfiguration Whether the window is live and {@link MediaItem#liveConfiguration}
    *     is used to configure live playback behaviour.
-   * @param manifest The manifest. May be (@code null}.
+   * @param manifest The manifest. May be {@code null}.
    * @param mediaItem A media item used for {@link Timeline.Window#mediaItem}.
    */
   public SinglePeriodTimeline(

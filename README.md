@@ -1,4 +1,4 @@
-# ExoPlayer <img src="https://img.shields.io/github/v/release/google/ExoPlayer.svg?label=latest"/> #
+# ExoPlayer <img src="https://img.shields.io/github/v/release/google/ExoPlayer.svg?label=latest"/>
 
 ExoPlayer is an application level media player for Android. It provides an
 alternative to Android’s MediaPlayer API for playing audio and video both
@@ -7,7 +7,7 @@ supported by Android’s MediaPlayer API, including DASH and SmoothStreaming
 adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to customize
 and extend, and can be updated through Play Store application updates.
 
-## Documentation ##
+## Documentation
 
 * The [developer guide][] provides a wealth of information.
 * The [class reference][] documents ExoPlayer classes.
@@ -20,7 +20,7 @@ and extend, and can be updated through Play Store application updates.
 [release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
 [developer blog]: https://medium.com/google-exoplayer
 
-## Using ExoPlayer ##
+## Using ExoPlayer
 
 ExoPlayer modules can be obtained from [the Google Maven repository][]. It's
 also possible to clone the repository and depend on the modules locally.
@@ -29,7 +29,7 @@ also possible to clone the repository and depend on the modules locally.
 
 ### From the Google Maven repository
 
-#### 1. Add ExoPlayer module dependencies ####
+#### 1. Add ExoPlayer module dependencies
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
 dependency in the `build.gradle` file of your app module. The following will add
@@ -77,7 +77,7 @@ found on the [Google Maven ExoPlayer page][].
 [extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
 [Google Maven ExoPlayer page]: https://maven.google.com/web/index.html#com.google.android.exoplayer
 
-#### 2. Turn on Java 8 support ####
+#### 2. Turn on Java 8 support
 
 If not enabled already, you also need to turn on Java 8 support in all
 `build.gradle` files depending on ExoPlayer, by adding the following to the
@@ -89,13 +89,13 @@ compileOptions {
 }
 ```
 
-#### 3. Enable multidex ####
+#### 3. Enable multidex
 
 If your Gradle `minSdkVersion` is 20 or lower, you should
 [enable multidex](https://developer.android.com/studio/build/multidex) in order
 to prevent build errors.
 
-### Locally ###
+### Locally
 
 Cloning the repository and depending on the modules locally is required when
 using some ExoPlayer extension modules. It's also a suitable approach if you
@@ -128,15 +128,15 @@ implementation project(':exoplayer-library-dash')
 implementation project(':exoplayer-library-ui')
 ```
 
-## Developing ExoPlayer ##
+## Developing ExoPlayer
 
-#### Project branches ####
+#### Project branches
 
 * Development work happens on the `dev-v2` branch. Pull requests should
   normally be made to this branch.
 * The `release-v2` branch holds the most recent release.
 
-#### Using Android Studio ####
+#### Using Android Studio
 
 To develop ExoPlayer using Android Studio, simply open the ExoPlayer project in
 the root directory of the repository.

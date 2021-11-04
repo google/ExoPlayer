@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.extractor.FlacSeekTableSeekMap;
 import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
 import com.google.android.exoplayer2.extractor.FlacStreamMetadata.SeekTable;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.util.FlacConstants;
+import com.google.android.exoplayer2.extractor.flac.FlacConstants;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;

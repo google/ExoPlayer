@@ -26,17 +26,14 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Seeking tests for {@link FlacExtractor}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class FlacExtractorSeekTest {
 
   private static final String TEST_FILE_SEEK_TABLE = "media/flac/bear.flac";
@@ -45,10 +42,10 @@ public class FlacExtractorSeekTest {
       "media/flac/bear_no_seek_table_no_num_samples.flac";
   private static final int DURATION_US = 2_741_000;
 
-  private FlacExtractor extractor = new FlacExtractor();
-  private FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
-  private DefaultDataSource dataSource =
-      new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext()).createDataSource();
+  private final FlacExtractor extractor = new FlacExtractor();
+  private final FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
+  private final DefaultDataSource dataSource =
+      new DefaultDataSource.Factory(ApplicationProvider.getApplicationContext()).createDataSource();
 
   @Test
   public void flacExtractorReads_seekTable_returnSeekableSeekMap() throws IOException {

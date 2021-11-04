@@ -59,7 +59,8 @@ public class SsTestUtils {
   }
 
   /** Creates test video stream element with the given name, track type and formats. */
-  public static StreamElement createStreamElement(String name, int trackType, Format... formats) {
+  public static StreamElement createStreamElement(
+      String name, @C.TrackType int trackType, Format... formats) {
     return new StreamElement(
         TEST_BASE_URI,
         TEST_CHUNK_TEMPLATE,

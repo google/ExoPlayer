@@ -18,24 +18,18 @@ package com.google.android.exoplayer2.castdemo;
 import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
@@ -56,24 +50,19 @@ import java.util.ArrayList;
     void onUnsupportedTrack(int trackType);
   }
 
-  private static final String USER_AGENT = "ExoCastDemoPlayer";
-  private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
-      new DefaultHttpDataSourceFactory(USER_AGENT);
-
   private final PlayerView localPlayerView;
   private final PlayerControlView castControlView;
-  private final DefaultTrackSelector trackSelector;
-  private final SimpleExoPlayer exoPlayer;
+  private final Player localPlayer;
   private final CastPlayer castPlayer;
   private final ArrayList<MediaItem> mediaQueue;
   private final Listener listener;
 
-  private TrackGroupArray lastSeenTrackGroupArray;
+  private TracksInfo lastSeenTrackGroupInfo;
   private int currentItemIndex;
   private Player currentPlayer;
 
   /**
-   * Creates a new manager for {@link SimpleExoPlayer} and {@link CastPlayer}.
+   * Creates a new manager for {@link ExoPlayer} and {@link CastPlayer}.
    *
    * @param listener A {@link Listener} for queue position changes.
    * @param localPlayerView The {@link PlayerView} for local playback.
@@ -93,17 +82,16 @@ import java.util.ArrayList;
     mediaQueue = new ArrayList<>();
     currentItemIndex = C.INDEX_UNSET;
 
-    trackSelector = new DefaultTrackSelector(context);
-    exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
-    exoPlayer.addListener(this);
-    localPlayerView.setPlayer(exoPlayer);
+    localPlayer = new ExoPlayer.Builder(context).build();
+    localPlayer.addListener(this);
+    localPlayerView.setPlayer(localPlayer);
 
     castPlayer = new CastPlayer(castContext);
     castPlayer.addListener(this);
     castPlayer.setSessionAvailabilityListener(this);
     castControlView.setPlayer(castPlayer);
 
-    setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
+    setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : localPlayer);
   }
 
   // Queue manipulation methods.
@@ -204,7 +192,7 @@ import java.util.ArrayList;
    * @return Whether the event was handled by the target view.
    */
   public boolean dispatchKeyEvent(KeyEvent event) {
-    if (currentPlayer == exoPlayer) {
+    if (currentPlayer == localPlayer) {
       return localPlayerView.dispatchKeyEvent(event);
     } else /* currentPlayer == castPlayer */ {
       return castControlView.dispatchKeyEvent(event);
@@ -218,7 +206,7 @@ import java.util.ArrayList;
     castPlayer.setSessionAvailabilityListener(null);
     castPlayer.release();
     localPlayerView.setPlayer(null);
-    exoPlayer.release();
+    localPlayer.release();
   }
 
   // Player.Listener implementation.
@@ -237,29 +225,22 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void onTimelineChanged(@NonNull Timeline timeline, @TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
   }
 
   @Override
-  public void onTracksChanged(
-      @NonNull TrackGroupArray trackGroups, @NonNull TrackSelectionArray trackSelections) {
-    if (currentPlayer == exoPlayer && trackGroups != lastSeenTrackGroupArray) {
-      @Nullable
-      MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
-          trackSelector.getCurrentMappedTrackInfo();
-      if (mappedTrackInfo != null) {
-        if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
-            == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-          listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
-        }
-        if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_AUDIO)
-            == MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-          listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
-        }
-      }
-      lastSeenTrackGroupArray = trackGroups;
+  public void onTracksInfoChanged(TracksInfo tracksInfo) {
+    if (currentPlayer != localPlayer || tracksInfo == lastSeenTrackGroupInfo) {
+      return;
     }
+    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)) {
+      listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
+    }
+    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)) {
+      listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
+    }
+    lastSeenTrackGroupInfo = tracksInfo;
   }
 
   // CastPlayer.SessionAvailabilityListener implementation.
@@ -271,7 +252,7 @@ import java.util.ArrayList;
 
   @Override
   public void onCastSessionUnavailable() {
-    setCurrentPlayer(exoPlayer);
+    setCurrentPlayer(localPlayer);
   }
 
   // Internal methods.
@@ -280,7 +261,7 @@ import java.util.ArrayList;
     int playbackState = currentPlayer.getPlaybackState();
     maybeSetCurrentItemAndNotify(
         playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED
-            ? currentPlayer.getCurrentWindowIndex()
+            ? currentPlayer.getCurrentMediaItemIndex()
             : C.INDEX_UNSET);
   }
 
@@ -290,7 +271,7 @@ import java.util.ArrayList;
     }
 
     // View management.
-    if (currentPlayer == exoPlayer) {
+    if (currentPlayer == localPlayer) {
       localPlayerView.setVisibility(View.VISIBLE);
       castControlView.hide();
     } else /* currentPlayer == castPlayer */ {
@@ -300,7 +281,7 @@ import java.util.ArrayList;
 
     // Player state management.
     long playbackPositionMs = C.TIME_UNSET;
-    int windowIndex = C.INDEX_UNSET;
+    int currentItemIndex = C.INDEX_UNSET;
     boolean playWhenReady = false;
 
     Player previousPlayer = this.currentPlayer;
@@ -310,10 +291,10 @@ import java.util.ArrayList;
       if (playbackState != Player.STATE_ENDED) {
         playbackPositionMs = previousPlayer.getCurrentPosition();
         playWhenReady = previousPlayer.getPlayWhenReady();
-        windowIndex = previousPlayer.getCurrentWindowIndex();
-        if (windowIndex != currentItemIndex) {
+        currentItemIndex = previousPlayer.getCurrentMediaItemIndex();
+        if (currentItemIndex != this.currentItemIndex) {
           playbackPositionMs = C.TIME_UNSET;
-          windowIndex = currentItemIndex;
+          currentItemIndex = this.currentItemIndex;
         }
       }
       previousPlayer.stop();
@@ -323,7 +304,7 @@ import java.util.ArrayList;
     this.currentPlayer = currentPlayer;
 
     // Media queue management.
-    currentPlayer.setMediaItems(mediaQueue, windowIndex, playbackPositionMs);
+    currentPlayer.setMediaItems(mediaQueue, currentItemIndex, playbackPositionMs);
     currentPlayer.setPlayWhenReady(playWhenReady);
     currentPlayer.prepare();
   }

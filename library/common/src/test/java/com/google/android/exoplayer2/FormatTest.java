@@ -20,13 +20,10 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.testutil.FakeMetadataEntry;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
@@ -46,21 +43,11 @@ public final class FormatTest {
   }
 
   @Test
-  public void parcelFormat_createsEqualFormat_exceptExoMediaCryptoType() {
-    Format formatToParcel = createTestFormat();
+  public void roundTripViaBundle_ofParameters_yieldsEqualInstance() {
+    Format formatToBundle = createTestFormat();
+    Format formatFromBundle = Format.CREATOR.fromBundle(formatToBundle.toBundle());
 
-    Parcel parcel = Parcel.obtain();
-    formatToParcel.writeToParcel(parcel, 0);
-    parcel.setDataPosition(0);
-
-    Format formatFromParcel = Format.CREATOR.createFromParcel(parcel);
-    Format expectedFormat =
-        formatToParcel.buildUpon().setExoMediaCryptoType(UnsupportedMediaCrypto.class).build();
-
-    assertThat(formatFromParcel.exoMediaCryptoType).isEqualTo(UnsupportedMediaCrypto.class);
-    assertThat(formatFromParcel).isEqualTo(expectedFormat);
-
-    parcel.recycle();
+    assertThat(formatFromBundle).isEqualTo(formatToBundle);
   }
 
   private static Format createTestFormat() {
@@ -78,10 +65,7 @@ public final class FormatTest {
 
     byte[] projectionData = new byte[] {1, 2, 3};
 
-    Metadata metadata =
-        new Metadata(
-            new TextInformationFrame("id1", "description1", "value1"),
-            new TextInformationFrame("id2", "description2", "value2"));
+    Metadata metadata = new Metadata(new FakeMetadataEntry("id1"), new FakeMetadataEntry("id2"));
 
     ColorInfo colorInfo =
         new ColorInfo(
@@ -100,7 +84,7 @@ public final class FormatTest {
         .setPeakBitrate(2048)
         .setCodecs("codec")
         .setMetadata(metadata)
-        .setContainerMimeType(MimeTypes.VIDEO_MP4)
+        .setContainerMimeType(VIDEO_MP4)
         .setSampleMimeType(MimeTypes.VIDEO_H264)
         .setMaxInputSize(5000)
         .setInitializationData(initializationData)
@@ -120,7 +104,7 @@ public final class FormatTest {
         .setEncoderDelay(1001)
         .setEncoderPadding(1002)
         .setAccessibilityChannel(2)
-        .setExoMediaCryptoType(ExoMediaCrypto.class)
+        .setCryptoType(C.CRYPTO_TYPE_CUSTOM_BASE)
         .build();
   }
 

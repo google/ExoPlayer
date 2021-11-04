@@ -17,6 +17,7 @@ android.defaultConfig.minSdkVersion 21
 
 dependencies {
     implementation project(modulePrefix + 'library-common')
+    implementation project(modulePrefix + 'library-datasource')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
@@ -32,7 +33,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-okhttp'
+    releaseArtifactId = 'extension-okhttp'
     releaseDescription = 'OkHttp extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'

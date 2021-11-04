@@ -25,16 +25,16 @@ import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TIMELINE;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
-import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP;
+import static com.google.android.exoplayer2.Player.COMMAND_PREPARE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_WINDOW;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_DEVICE_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
@@ -42,6 +42,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VIDEO_SURFACE;
 import static com.google.android.exoplayer2.Player.COMMAND_SET_VOLUME;
+import static com.google.android.exoplayer2.Player.COMMAND_STOP;
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_REMOVE;
 import static com.google.android.exoplayer2.Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
 import static com.google.common.truth.Truth.assertThat;
@@ -423,7 +424,7 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getAllValues().get(1).playbackProperties.tag).isEqualTo(3);
+    assertThat(mediaItemCaptor.getAllValues().get(1).localConfiguration.tag).isEqualTo(3);
   }
 
   @SuppressWarnings("deprecation") // Verifies deprecated callback being called correctly.
@@ -469,6 +470,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 1,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 1,
             /* positionMs= */ 2000,
@@ -479,6 +481,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 3,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(3).build(),
             /* periodUid= */ 3,
             /* periodIndex= */ 0,
             /* positionMs= */ 1000,
@@ -531,7 +534,7 @@ public class CastPlayerTest {
     verify(mockRemoteMediaClient)
         .queueInsertItems(
             queueItemsArgumentCaptor.capture(),
-            eq((int) mediaItems.get(index).playbackProperties.tag),
+            eq((int) mediaItems.get(index).localConfiguration.tag),
             any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
@@ -675,7 +678,7 @@ public class CastPlayerTest {
     Timeline currentTimeline = castPlayer.getCurrentTimeline();
     for (int i = 0; i < mediaItems.size(); i++) {
       assertThat(currentTimeline.getWindow(/* windowIndex= */ i, window).uid)
-          .isEqualTo(mediaItems.get(i).playbackProperties.tag);
+          .isEqualTo(mediaItems.get(i).localConfiguration.tag);
     }
   }
 
@@ -694,8 +697,8 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getValue().playbackProperties.tag)
-        .isEqualTo(mediaItem.playbackProperties.tag);
+    assertThat(mediaItemCaptor.getValue().localConfiguration.tag)
+        .isEqualTo(mediaItem.localConfiguration.tag);
   }
 
   @Test
@@ -749,6 +752,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 1234,
@@ -759,6 +763,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ null,
             /* windowIndex= */ 0,
+            /* mediaItem= */ null,
             /* periodUid= */ null,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -797,10 +802,10 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getAllValues().get(0).playbackProperties.tag)
-        .isEqualTo(mediaItem1.playbackProperties.tag);
-    assertThat(mediaItemCaptor.getAllValues().get(1).playbackProperties.tag)
-        .isEqualTo(mediaItem2.playbackProperties.tag);
+    assertThat(mediaItemCaptor.getAllValues().get(0).localConfiguration.tag)
+        .isEqualTo(mediaItem1.localConfiguration.tag);
+    assertThat(mediaItemCaptor.getAllValues().get(1).localConfiguration.tag)
+        .isEqualTo(mediaItem2.localConfiguration.tag);
   }
 
   @Test
@@ -833,6 +838,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 1234,
@@ -843,6 +849,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -880,10 +887,10 @@ public class CastPlayerTest {
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
     List<MediaItem> capturedMediaItems = mediaItemCaptor.getAllValues();
-    assertThat(capturedMediaItems.get(0).playbackProperties.tag)
-        .isEqualTo(mediaItem1.playbackProperties.tag);
-    assertThat(capturedMediaItems.get(1).playbackProperties.tag)
-        .isEqualTo(mediaItem2.playbackProperties.tag);
+    assertThat(capturedMediaItems.get(0).localConfiguration.tag)
+        .isEqualTo(mediaItem1.localConfiguration.tag);
+    assertThat(capturedMediaItems.get(1).localConfiguration.tag)
+        .isEqualTo(mediaItem2.localConfiguration.tag);
   }
 
   @Test
@@ -914,6 +921,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0, // position at which we receive the timeline change
@@ -924,6 +932,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -1004,8 +1013,8 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_SEEK));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
-    assertThat(mediaItemCaptor.getValue().playbackProperties.tag)
-        .isEqualTo(mediaItem2.playbackProperties.tag);
+    assertThat(mediaItemCaptor.getValue().localConfiguration.tag)
+        .isEqualTo(mediaItem2.localConfiguration.tag);
   }
 
   @Test
@@ -1026,6 +1035,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -1036,6 +1046,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 1,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 1,
             /* positionMs= */ 1234,
@@ -1081,10 +1092,12 @@ public class CastPlayerTest {
     updateTimeLine(mediaItems, mediaQueueItemIds, /* currentItemId= */ 1);
     castPlayer.seekTo(/* windowIndex= */ 0, /* positionMs= */ 1234);
 
+    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build();
     Player.PositionInfo oldPosition =
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -1095,6 +1108,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 1234,
@@ -1131,7 +1145,7 @@ public class CastPlayerTest {
         .onMediaItemTransition(
             mediaItemCaptor.capture(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
     inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
-    assertThat(mediaItemCaptor.getValue().playbackProperties.tag).isEqualTo(2);
+    assertThat(mediaItemCaptor.getValue().localConfiguration.tag).isEqualTo(2);
   }
 
   @Test
@@ -1165,6 +1179,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build(),
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 12500,
@@ -1175,6 +1190,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 2,
             /* windowIndex= */ 1,
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(2).build(),
             /* periodUid= */ 2,
             /* periodIndex= */ 1,
             /* positionMs= */ 0,
@@ -1209,10 +1225,12 @@ public class CastPlayerTest {
         mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
     castPlayer.seekBack();
 
+    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build();
     Player.PositionInfo oldPosition =
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 2 * C.DEFAULT_SEEK_BACK_INCREMENT_MS,
@@ -1223,6 +1241,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ C.DEFAULT_SEEK_BACK_INCREMENT_MS,
@@ -1255,10 +1274,12 @@ public class CastPlayerTest {
         mediaItems, mediaQueueItemIds, currentItemId, streamTypes, durationsMs, positionMs);
     castPlayer.seekForward();
 
+    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).setTag(1).build();
     Player.PositionInfo oldPosition =
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ 0,
@@ -1269,6 +1290,7 @@ public class CastPlayerTest {
         new Player.PositionInfo(
             /* windowUid= */ 1,
             /* windowIndex= */ 0,
+            mediaItem,
             /* periodUid= */ 1,
             /* periodIndex= */ 0,
             /* positionMs= */ C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
@@ -1294,14 +1316,15 @@ public class CastPlayerTest {
     updateTimeLine(mediaItems, mediaQueueItemIds, /* currentItemId= */ 1);
 
     assertThat(castPlayer.isCommandAvailable(COMMAND_PLAY_PAUSE)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_PREPARE_STOP)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_PREPARE)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_STOP)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_WINDOW)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_WINDOW)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_NEXT)).isTrue();
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_WINDOW)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_TO_MEDIA_ITEM)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isTrue();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isTrue();
@@ -1339,7 +1362,7 @@ public class CastPlayerTest {
         durationsMs,
         /* positionMs= */ C.TIME_UNSET);
 
-    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW)).isFalse();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_BACK)).isFalse();
     assertThat(castPlayer.isCommandAvailable(COMMAND_SEEK_FORWARD)).isFalse();
   }
@@ -1409,12 +1432,14 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
         .thenReturn(mockPendingResult);
     Player.Commands commandsWithSeekToPreviousWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT);
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
         createWithDefaultCommands(
-            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+            COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+            COMMAND_SEEK_TO_NEXT);
     int[] mediaQueueItemIds = new int[] {1, 2, 3, 4};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1441,12 +1466,14 @@ public class CastPlayerTest {
     when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
         .thenReturn(mockPendingResult);
     Player.Commands commandsWithSeekToPreviousWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT);
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
         createWithDefaultCommands(
-            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+            COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+            COMMAND_SEEK_TO_NEXT);
     int[] mediaQueueItemIds = new int[] {1, 2, 3, 4};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1490,7 +1517,7 @@ public class CastPlayerTest {
   public void addMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -1524,7 +1551,7 @@ public class CastPlayerTest {
   public void addMediaItem_atTheStart_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToPreviousWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -1558,7 +1585,7 @@ public class CastPlayerTest {
   public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT);
     Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty= */ true);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
@@ -1603,7 +1630,7 @@ public class CastPlayerTest {
         .thenReturn(mockPendingResult);
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToPreviousWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_WINDOW);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands emptyTimelineCommands = createWithDefaultCommands(/* isTimelineEmpty= */ true);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
@@ -1646,7 +1673,7 @@ public class CastPlayerTest {
   public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToNextWindow =
-        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT);
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
 
@@ -1675,7 +1702,9 @@ public class CastPlayerTest {
     Player.Commands defaultCommands = createWithDefaultCommands();
     Player.Commands commandsWithSeekToPreviousAndNextWindow =
         createWithDefaultCommands(
-            COMMAND_SEEK_TO_PREVIOUS_WINDOW, COMMAND_SEEK_TO_NEXT_WINDOW, COMMAND_SEEK_TO_NEXT);
+            COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+            COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+            COMMAND_SEEK_TO_NEXT);
     int[] mediaQueueItemIds = new int[] {1};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
 
@@ -1767,9 +1796,9 @@ public class CastPlayerTest {
       int streamType = streamTypes[i];
       long durationMs = durationsMs[i];
       MediaInfo.Builder mediaInfoBuilder =
-          new MediaInfo.Builder(mediaItem.playbackProperties.uri.toString())
+          new MediaInfo.Builder(mediaItem.localConfiguration.uri.toString())
               .setStreamType(streamType)
-              .setContentType(mediaItem.playbackProperties.mimeType);
+              .setContentType(mediaItem.localConfiguration.mimeType);
       if (durationMs != C.TIME_UNSET) {
         mediaInfoBuilder.setStreamDuration(durationMs);
       }
@@ -1800,7 +1829,7 @@ public class CastPlayerTest {
     Player.Commands.Builder builder = new Player.Commands.Builder();
     builder.addAll(CastPlayer.PERMANENT_AVAILABLE_COMMANDS);
     if (!isTimelineEmpty) {
-      builder.add(COMMAND_SEEK_IN_CURRENT_WINDOW);
+      builder.add(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
       builder.add(COMMAND_SEEK_TO_PREVIOUS);
       builder.add(COMMAND_SEEK_BACK);
       builder.add(COMMAND_SEEK_FORWARD);

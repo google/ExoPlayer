@@ -28,7 +28,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-leanback'
+    releaseArtifactId = 'extension-leanback'
     releaseDescription = 'Leanback extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'

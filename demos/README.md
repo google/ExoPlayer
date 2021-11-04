@@ -21,5 +21,5 @@ the demo project. Choose an install option from the `Install tasks` section.
 
 **Example**:
 
-`./gradlew :demo:installNoExtensionsDebug` installs the main ExoPlayer demo app
- in debug mode with no extensions.
+`./gradlew :demo:installNoDecoderExtensionsDebug` installs the main ExoPlayer
+demo app in debug mode with no decoder extensions.

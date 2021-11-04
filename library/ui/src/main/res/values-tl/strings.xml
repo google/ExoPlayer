@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">I-enable ang mga subtitle</string>
   <string name="exo_controls_playback_speed">Bilis</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">I-download</string>
-  <string name="exo_download_notification_channel_name">Mga Download</string>
-  <string name="exo_download_downloading">Nagda-download</string>
-  <string name="exo_download_completed">Tapos na ang pag-download</string>
-  <string name="exo_download_failed">Hindi na-download</string>
-  <string name="exo_download_removing">Inaalis ang mga na-download</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Text</string>

@@ -60,7 +60,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     private static final String URL_PLACEHOLDER_BITRATE_1 = "{bitrate}";
     private static final String URL_PLACEHOLDER_BITRATE_2 = "{Bitrate}";
 
-    public final int type;
+    public final @C.TrackType int type;
     public final String subType;
     public final long timescale;
     public final String name;
@@ -82,7 +82,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     public StreamElement(
         String baseUri,
         String chunkTemplate,
-        int type,
+        @C.TrackType int type,
         String subType,
         long timescale,
         String name,
@@ -115,7 +115,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     private StreamElement(
         String baseUri,
         String chunkTemplate,
-        int type,
+        @C.TrackType int type,
         String subType,
         long timescale,
         String name,

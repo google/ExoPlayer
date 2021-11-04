@@ -215,14 +215,14 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *
      * @param mediaItem The {@link MediaItem}.
      * @return The new {@link ProgressiveMediaSource}.
-     * @throws NullPointerException if {@link MediaItem#playbackProperties} is {@code null}.
+     * @throws NullPointerException if {@link MediaItem#localConfiguration} is {@code null}.
      */
     @Override
     public ProgressiveMediaSource createMediaSource(MediaItem mediaItem) {
-      checkNotNull(mediaItem.playbackProperties);
-      boolean needsTag = mediaItem.playbackProperties.tag == null && tag != null;
+      checkNotNull(mediaItem.localConfiguration);
+      boolean needsTag = mediaItem.localConfiguration.tag == null && tag != null;
       boolean needsCustomCacheKey =
-          mediaItem.playbackProperties.customCacheKey == null && customCacheKey != null;
+          mediaItem.localConfiguration.customCacheKey == null && customCacheKey != null;
       if (needsTag && needsCustomCacheKey) {
         mediaItem = mediaItem.buildUpon().setTag(tag).setCustomCacheKey(customCacheKey).build();
       } else if (needsTag) {
@@ -252,7 +252,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   public static final int DEFAULT_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
 
   private final MediaItem mediaItem;
-  private final MediaItem.PlaybackProperties playbackProperties;
+  private final MediaItem.LocalConfiguration localConfiguration;
   private final DataSource.Factory dataSourceFactory;
   private final ProgressiveMediaExtractor.Factory progressiveMediaExtractorFactory;
   private final DrmSessionManager drmSessionManager;
@@ -272,7 +272,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy,
       int continueLoadingCheckIntervalBytes) {
-    this.playbackProperties = checkNotNull(mediaItem.playbackProperties);
+    this.localConfiguration = checkNotNull(mediaItem.localConfiguration);
     this.mediaItem = mediaItem;
     this.dataSourceFactory = dataSourceFactory;
     this.progressiveMediaExtractorFactory = progressiveMediaExtractorFactory;
@@ -307,7 +307,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       dataSource.addTransferListener(transferListener);
     }
     return new ProgressiveMediaPeriod(
-        playbackProperties.uri,
+        localConfiguration.uri,
         dataSource,
         progressiveMediaExtractorFactory.createProgressiveMediaExtractor(),
         drmSessionManager,
@@ -316,7 +316,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
         createEventDispatcher(id),
         this,
         allocator,
-        playbackProperties.customCacheKey,
+        localConfiguration.customCacheKey,
         continueLoadingCheckIntervalBytes);
   }
 

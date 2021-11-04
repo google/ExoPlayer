@@ -90,10 +90,11 @@ public final class AudioCapabilities {
     }
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
-    // it on TV devices, which generally shouldn't support audio offload for surround encodings.
-    if (Util.SDK_INT >= 29 && Util.isTv(context)) {
+    // it on TV and automotive devices, which generally shouldn't support audio offload for surround
+    // encodings.
+    if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
       return new AudioCapabilities(
-          Api29.getDirectPlaybackSupportedEncodingsV29(), DEFAULT_MAX_CHANNEL_COUNT);
+          Api29.getDirectPlaybackSupportedEncodings(), DEFAULT_MAX_CHANNEL_COUNT);
     }
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
       return DEFAULT_AUDIO_CAPABILITIES;
@@ -190,7 +191,7 @@ public final class AudioCapabilities {
   @RequiresApi(29)
   private static final class Api29 {
     @DoNotInline
-    public static int[] getDirectPlaybackSupportedEncodingsV29() {
+    public static int[] getDirectPlaybackSupportedEncodings() {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
       for (int encoding : ALL_SURROUND_ENCODINGS) {
         if (AudioTrack.isDirectPlaybackSupported(

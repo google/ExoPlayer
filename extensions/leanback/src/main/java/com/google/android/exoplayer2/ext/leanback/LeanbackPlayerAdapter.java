@@ -26,10 +26,7 @@ import androidx.leanback.media.PlaybackGlueHost;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.media.SurfaceHolderGlueHost;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -52,7 +49,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   private final PlayerListener playerListener;
   private final int updatePeriodMs;
 
-  private ControlDispatcher controlDispatcher;
   @Nullable private ErrorMessageProvider<? super PlaybackException> errorMessageProvider;
   @Nullable private SurfaceHolderGlueHost surfaceHolderGlueHost;
   private boolean hasSurface;
@@ -63,8 +59,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
    * {@link Player} instance. The caller remains responsible for releasing the player when it's no
    * longer required.
    *
-   * @param context The current context (activity).
-   * @param player Instance of your exoplayer that needs to be configured.
+   * @param context The current {@link Context} (activity).
+   * @param player The {@link Player} being used.
    * @param updatePeriodMs The delay between player control updates, in milliseconds.
    */
   public LeanbackPlayerAdapter(Context context, Player player, final int updatePeriodMs) {
@@ -73,18 +69,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     this.updatePeriodMs = updatePeriodMs;
     handler = Util.createHandlerForCurrentOrMainLooper();
     playerListener = new PlayerListener();
-    controlDispatcher = new DefaultControlDispatcher();
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to the constructor instead. You can also
-   *     customize some operations when configuring the player (for example by using {@code
-   *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
-    this.controlDispatcher =
-        controlDispatcher == null ? new DefaultControlDispatcher() : controlDispatcher;
   }
 
   /**
@@ -155,27 +139,27 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
   @Override
   public void play() {
     if (player.getPlaybackState() == Player.STATE_IDLE) {
-      controlDispatcher.dispatchPrepare(player);
+      player.prepare();
     } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-      controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+      player.seekToDefaultPosition(player.getCurrentMediaItemIndex());
     }
-    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)
-        && controlDispatcher.dispatchSetPlayWhenReady(player, true)) {
+    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+      player.play();
       getCallback().onPlayStateChanged(this);
     }
   }
 
   @Override
   public void pause() {
-    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)
-        && controlDispatcher.dispatchSetPlayWhenReady(player, false)) {
+    if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+      player.pause();
       getCallback().onPlayStateChanged(this);
     }
   }
 
   @Override
   public void seekTo(long positionMs) {
-    controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), positionMs);
+    player.seekTo(player.getCurrentMediaItemIndex(), positionMs);
   }
 
   @Override
@@ -267,9 +251,9 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
         callback.onError(
             LeanbackPlayerAdapter.this,
             error.errorCode,
-            // This string was probably tailored for MediaPlayer, whose callback takes 2 ints as
-            // error code. Since ExoPlayer provides a single error code, we just pass 0 as the
-            // extra.
+            // This string was probably tailored for MediaPlayer, whose error callback takes two
+            // int arguments (int what, int extra). Since PlaybackException defines a single error
+            // code, we pass 0 as the extra.
             context.getString(
                 R.string.lb_media_player_error, /* formatArgs...= */ error.errorCode, 0));
       }

@@ -20,6 +20,8 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -56,8 +58,8 @@ public final class Mp3Extractor implements Extractor {
 
   /**
    * Flags controlling the behavior of the extractor. Possible flag values are {@link
-   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}, {@link #FLAG_ENABLE_INDEX_SEEKING} and {@link
-   * #FLAG_DISABLE_ID3_METADATA}.
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}, {@link #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS},
+   * {@link #FLAG_ENABLE_INDEX_SEEKING} and {@link #FLAG_DISABLE_ID3_METADATA}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -65,6 +67,7 @@ public final class Mp3Extractor implements Extractor {
       flag = true,
       value = {
         FLAG_ENABLE_CONSTANT_BITRATE_SEEKING,
+        FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS,
         FLAG_ENABLE_INDEX_SEEKING,
         FLAG_DISABLE_ID3_METADATA
       })
@@ -77,6 +80,21 @@ public final class Mp3Extractor implements Extractor {
    */
   public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
   /**
+   * Like {@link #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}, except that seeking is also enabled in
+   * cases where the content length (and hence the duration of the media) is unknown. Application
+   * code should ensure that requested seek positions are valid when using this flag, or be ready to
+   * handle playback failures reported through {@link Player.Listener#onPlayerError} with {@link
+   * PlaybackException#errorCode} set to {@link
+   * PlaybackException#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE}.
+   *
+   * <p>If this flag is set, then the behavior enabled by {@link
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING} is implicitly enabled.
+   *
+   * <p>This flag is ignored if {@link #FLAG_ENABLE_INDEX_SEEKING} is set.
+   */
+  public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS = 1 << 1;
+
+  /**
    * Flag to force index seeking, in which a time-to-byte mapping is built as the file is read.
    *
    * <p>This seeker may require to scan a significant portion of the file to compute a seek point.
@@ -88,12 +106,12 @@ public final class Mp3Extractor implements Extractor {
    *       provide precise enough seeking metadata.
    * </ul>
    */
-  public static final int FLAG_ENABLE_INDEX_SEEKING = 1 << 1;
+  public static final int FLAG_ENABLE_INDEX_SEEKING = 1 << 2;
   /**
    * Flag to disable parsing of ID3 metadata. Can be set to save memory if ID3 metadata is not
    * required.
    */
-  public static final int FLAG_DISABLE_ID3_METADATA = 1 << 2;
+  public static final int FLAG_DISABLE_ID3_METADATA = 1 << 3;
 
   /** Predicate that matches ID3 frames containing only required gapless/seeking metadata. */
   private static final FramePredicate REQUIRED_ID3_FRAME_PREDICATE =
@@ -158,6 +176,9 @@ public final class Mp3Extractor implements Extractor {
    *     C#TIME_UNSET} if forcing is not required.
    */
   public Mp3Extractor(@Flags int flags, long forcedFirstSampleTimestampUs) {
+    if ((flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS) != 0) {
+      flags |= FLAG_ENABLE_CONSTANT_BITRATE_SEEKING;
+    }
     this.flags = flags;
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     scratch = new ParsableByteArray(SCRATCH_LENGTH);
@@ -446,7 +467,9 @@ public final class Mp3Extractor implements Extractor {
 
     if (resultSeeker == null
         || (!resultSeeker.isSeekable() && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
-      resultSeeker = getConstantBitrateSeeker(input);
+      resultSeeker =
+          getConstantBitrateSeeker(
+              input, (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS) != 0);
     }
 
     return resultSeeker;
@@ -485,7 +508,7 @@ public final class Mp3Extractor implements Extractor {
       input.skipFully(synchronizedHeader.frameSize);
       if (seeker != null && !seeker.isSeekable() && seekHeader == SEEK_HEADER_INFO) {
         // Fall back to constant bitrate seeking for Info headers missing a table of contents.
-        return getConstantBitrateSeeker(input);
+        return getConstantBitrateSeeker(input, /* allowSeeksIfLengthUnknown= */ false);
       }
     } else if (seekHeader == SEEK_HEADER_VBRI) {
       seeker = VbriSeeker.create(input.getLength(), input.getPosition(), synchronizedHeader, frame);
@@ -499,11 +522,13 @@ public final class Mp3Extractor implements Extractor {
   }
 
   /** Peeks the next frame and returns a {@link ConstantBitrateSeeker} based on its bitrate. */
-  private Seeker getConstantBitrateSeeker(ExtractorInput input) throws IOException {
+  private Seeker getConstantBitrateSeeker(ExtractorInput input, boolean allowSeeksIfLengthUnknown)
+      throws IOException {
     input.peekFully(scratch.getData(), 0, 4);
     scratch.setPosition(0);
     synchronizedHeader.setForHeaderData(scratch.readInt());
-    return new ConstantBitrateSeeker(input.getLength(), input.getPosition(), synchronizedHeader);
+    return new ConstantBitrateSeeker(
+        input.getLength(), input.getPosition(), synchronizedHeader, allowSeeksIfLengthUnknown);
   }
 
   @EnsuresNonNull({"extractorOutput", "realTrackOutput"})
@@ -561,7 +586,7 @@ public final class Mp3Extractor implements Extractor {
         Metadata.Entry entry = metadata.get(i);
         if (entry instanceof TextInformationFrame
             && ((TextInformationFrame) entry).id.equals("TLEN")) {
-          return C.msToUs(Long.parseLong(((TextInformationFrame) entry).value));
+          return Util.msToUs(Long.parseLong(((TextInformationFrame) entry).value));
         }
       }
     }

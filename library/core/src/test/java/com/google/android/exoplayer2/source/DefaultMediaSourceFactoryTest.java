@@ -166,9 +166,13 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withAdTagUri_callsAdsLoader() {
+  public void createMediaSource_withAdsConfiguration_callsAdsLoader() {
     Uri adTagUri = Uri.parse(URI_MEDIA);
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).setAdTagUri(adTagUri).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setAdsConfiguration(new MediaItem.AdsConfiguration.Builder(adTagUri).build())
+            .build();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .setAdsLoaderProvider(ignoredAdsConfiguration -> mock(AdsLoader.class))
@@ -180,9 +184,13 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withAdTagUri_adProvidersNotSet_playsWithoutAdNoException() {
+  public void createMediaSource_withAdsConfiguration_adProvidersNotSet_playsWithoutAdNoException() {
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(URI_MEDIA).setAdTagUri(Uri.parse(URI_MEDIA)).build();
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(Uri.parse(URI_MEDIA)).build())
+            .build();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
 
@@ -192,10 +200,14 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withAdTagUriProvidersNull_playsWithoutAdNoException() {
+  public void createMediaSource_withAdsConfigurationProvidersNull_playsWithoutAdNoException() {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(URI_MEDIA).setAdTagUri(Uri.parse(URI_MEDIA)).build();
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(Uri.parse(URI_MEDIA)).build())
+            .build();
 
     MediaSource mediaSource =
         new DefaultMediaSourceFactory(applicationContext).createMediaSource(mediaItem);
@@ -252,11 +264,14 @@ public final class DefaultMediaSourceFactoryTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(URI_MEDIA + "/file.mp4")
-            .setLiveTargetOffsetMs(10)
-            .setLiveMinOffsetMs(1111)
-            .setLiveMinOffsetMs(3333)
-            .setLiveMinPlaybackSpeed(20.0f)
-            .setLiveMaxPlaybackSpeed(20.0f)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setTargetOffsetMs(10)
+                    .setMinOffsetMs(1111)
+                    .setMinOffsetMs(3333)
+                    .setMinPlaybackSpeed(20.0f)
+                    .setMaxPlaybackSpeed(20.0f)
+                    .build())
             .build();
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 

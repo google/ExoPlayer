@@ -21,17 +21,19 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -65,84 +67,51 @@ public final class MediaItem implements Bundleable {
     @Nullable private String mediaId;
     @Nullable private Uri uri;
     @Nullable private String mimeType;
-    private long clipStartPositionMs;
-    private long clipEndPositionMs;
-    private boolean clipRelativeToLiveWindow;
-    private boolean clipRelativeToDefaultPosition;
-    private boolean clipStartsAtKeyFrame;
-    @Nullable private Uri drmLicenseUri;
-    private Map<String, String> drmLicenseRequestHeaders;
-    @Nullable private UUID drmUuid;
-    private boolean drmMultiSession;
-    private boolean drmPlayClearContentWithoutKey;
-    private boolean drmForceDefaultLicenseUri;
-    private List<Integer> drmSessionForClearTypes;
-    @Nullable private byte[] drmKeySetId;
+    // TODO: Change this to ClippingProperties once all the deprecated individual setters are
+    // removed.
+    private ClippingConfiguration.Builder clippingConfiguration;
+    // TODO: Change this to @Nullable DrmConfiguration once all the deprecated individual setters
+    // are removed.
+    private DrmConfiguration.Builder drmConfiguration;
     private List<StreamKey> streamKeys;
     @Nullable private String customCacheKey;
-    private List<Subtitle> subtitles;
-    @Nullable private Uri adTagUri;
-    @Nullable private Object adsId;
+    private ImmutableList<SubtitleConfiguration> subtitleConfigurations;
+    @Nullable private AdsConfiguration adsConfiguration;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
-    private long liveTargetOffsetMs;
-    private long liveMinOffsetMs;
-    private long liveMaxOffsetMs;
-    private float liveMinPlaybackSpeed;
-    private float liveMaxPlaybackSpeed;
+    // TODO: Change this to LiveConfiguration once all the deprecated individual setters
+    // are removed.
+    private LiveConfiguration.Builder liveConfiguration;
 
     /** Creates a builder. */
+    @SuppressWarnings("deprecation") // Temporarily uses DrmConfiguration.Builder() constructor.
     public Builder() {
-      clipEndPositionMs = C.TIME_END_OF_SOURCE;
-      drmSessionForClearTypes = Collections.emptyList();
-      drmLicenseRequestHeaders = Collections.emptyMap();
+      clippingConfiguration = new ClippingConfiguration.Builder();
+      drmConfiguration = new DrmConfiguration.Builder();
       streamKeys = Collections.emptyList();
-      subtitles = Collections.emptyList();
-      liveTargetOffsetMs = C.TIME_UNSET;
-      liveMinOffsetMs = C.TIME_UNSET;
-      liveMaxOffsetMs = C.TIME_UNSET;
-      liveMinPlaybackSpeed = C.RATE_UNSET;
-      liveMaxPlaybackSpeed = C.RATE_UNSET;
+      subtitleConfigurations = ImmutableList.of();
+      liveConfiguration = new LiveConfiguration.Builder();
     }
 
     private Builder(MediaItem mediaItem) {
       this();
-      clipEndPositionMs = mediaItem.clippingProperties.endPositionMs;
-      clipRelativeToLiveWindow = mediaItem.clippingProperties.relativeToLiveWindow;
-      clipRelativeToDefaultPosition = mediaItem.clippingProperties.relativeToDefaultPosition;
-      clipStartPositionMs = mediaItem.clippingProperties.startPositionMs;
-      clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
+      clippingConfiguration = mediaItem.clippingConfiguration.buildUpon();
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
-      liveTargetOffsetMs = mediaItem.liveConfiguration.targetOffsetMs;
-      liveMinOffsetMs = mediaItem.liveConfiguration.minOffsetMs;
-      liveMaxOffsetMs = mediaItem.liveConfiguration.maxOffsetMs;
-      liveMinPlaybackSpeed = mediaItem.liveConfiguration.minPlaybackSpeed;
-      liveMaxPlaybackSpeed = mediaItem.liveConfiguration.maxPlaybackSpeed;
-      @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
-      if (playbackProperties != null) {
-        customCacheKey = playbackProperties.customCacheKey;
-        mimeType = playbackProperties.mimeType;
-        uri = playbackProperties.uri;
-        streamKeys = playbackProperties.streamKeys;
-        subtitles = playbackProperties.subtitles;
-        tag = playbackProperties.tag;
-        @Nullable DrmConfiguration drmConfiguration = playbackProperties.drmConfiguration;
-        if (drmConfiguration != null) {
-          drmLicenseUri = drmConfiguration.licenseUri;
-          drmLicenseRequestHeaders = drmConfiguration.requestHeaders;
-          drmMultiSession = drmConfiguration.multiSession;
-          drmForceDefaultLicenseUri = drmConfiguration.forceDefaultLicenseUri;
-          drmPlayClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
-          drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
-          drmUuid = drmConfiguration.uuid;
-          drmKeySetId = drmConfiguration.getKeySetId();
-        }
-        @Nullable AdsConfiguration adsConfiguration = playbackProperties.adsConfiguration;
-        if (adsConfiguration != null) {
-          adTagUri = adsConfiguration.adTagUri;
-          adsId = adsConfiguration.adsId;
-        }
+      liveConfiguration = mediaItem.liveConfiguration.buildUpon();
+      @Nullable LocalConfiguration localConfiguration = mediaItem.localConfiguration;
+      if (localConfiguration != null) {
+        customCacheKey = localConfiguration.customCacheKey;
+        mimeType = localConfiguration.mimeType;
+        uri = localConfiguration.uri;
+        streamKeys = localConfiguration.streamKeys;
+        subtitleConfigurations = localConfiguration.subtitleConfigurations;
+        tag = localConfiguration.tag;
+        drmConfiguration =
+            localConfiguration.drmConfiguration != null
+                ? localConfiguration.drmConfiguration.buildUpon()
+                : new DrmConfiguration.Builder();
+        adsConfiguration = localConfiguration.adsConfiguration;
       }
     }
 
@@ -159,9 +128,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional URI.
      *
-     * <p>If {@code uri} is null or unset then no {@link PlaybackProperties} object is created
+     * <p>If {@code uri} is null or unset then no {@link LocalConfiguration} object is created
      * during {@link #build()} and no other {@code Builder} methods that would populate {@link
-     * MediaItem#playbackProperties} should be called.
+     * MediaItem#localConfiguration} should be called.
      */
     public Builder setUri(@Nullable String uri) {
       return setUri(uri == null ? null : Uri.parse(uri));
@@ -170,9 +139,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Sets the optional URI.
      *
-     * <p>If {@code uri} is null or unset then no {@link PlaybackProperties} object is created
+     * <p>If {@code uri} is null or unset then no {@link LocalConfiguration} object is created
      * during {@link #build()} and no other {@code Builder} methods that would populate {@link
-     * MediaItem#playbackProperties} should be called.
+     * MediaItem#localConfiguration} should be called.
      */
     public Builder setUri(@Nullable Uri uri) {
       this.uri = uri;
@@ -193,198 +162,174 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
-    /**
-     * Sets the optional start position in milliseconds which must be a value larger than or equal
-     * to zero (Default: 0).
-     */
-    public Builder setClipStartPositionMs(long startPositionMs) {
-      Assertions.checkArgument(startPositionMs >= 0);
-      this.clipStartPositionMs = startPositionMs;
+    /** Sets the {@link ClippingConfiguration}, defaults to {@link ClippingConfiguration#UNSET}. */
+    public Builder setClippingConfiguration(ClippingConfiguration clippingConfiguration) {
+      this.clippingConfiguration = clippingConfiguration.buildUpon();
       return this;
     }
 
     /**
-     * Sets the optional end position in milliseconds which must be a value larger than or equal to
-     * zero, or {@link C#TIME_END_OF_SOURCE} to end when playback reaches the end of media (Default:
-     * {@link C#TIME_END_OF_SOURCE}).
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setStartPositionMs(long)} instead.
      */
+    @Deprecated
+    public Builder setClipStartPositionMs(@IntRange(from = 0) long startPositionMs) {
+      clippingConfiguration.setStartPositionMs(startPositionMs);
+      return this;
+    }
+
+    /**
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setEndPositionMs(long)} instead.
+     */
+    @Deprecated
     public Builder setClipEndPositionMs(long endPositionMs) {
-      Assertions.checkArgument(endPositionMs == C.TIME_END_OF_SOURCE || endPositionMs >= 0);
-      this.clipEndPositionMs = endPositionMs;
+      clippingConfiguration.setEndPositionMs(endPositionMs);
       return this;
     }
 
     /**
-     * Sets whether the start/end positions should move with the live window for live streams. If
-     * {@code false}, live streams end when playback reaches the end position in live window seen
-     * when the media is first loaded (Default: {@code false}).
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setRelativeToLiveWindow(boolean)} instead.
      */
+    @Deprecated
     public Builder setClipRelativeToLiveWindow(boolean relativeToLiveWindow) {
-      this.clipRelativeToLiveWindow = relativeToLiveWindow;
+      clippingConfiguration.setRelativeToLiveWindow(relativeToLiveWindow);
       return this;
     }
 
     /**
-     * Sets whether the start position and the end position are relative to the default position in
-     * the window (Default: {@code false}).
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setRelativeToDefaultPosition(boolean)} instead.
      */
+    @Deprecated
     public Builder setClipRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
-      this.clipRelativeToDefaultPosition = relativeToDefaultPosition;
+      clippingConfiguration.setRelativeToDefaultPosition(relativeToDefaultPosition);
       return this;
     }
 
     /**
-     * Sets whether the start point is guaranteed to be a key frame. If {@code false}, the playback
-     * transition into the clip may not be seamless (Default: {@code false}).
+     * @deprecated Use {@link #setClippingConfiguration(ClippingConfiguration)} and {@link
+     *     ClippingConfiguration.Builder#setStartsAtKeyFrame(boolean)} instead.
      */
+    @Deprecated
     public Builder setClipStartsAtKeyFrame(boolean startsAtKeyFrame) {
-      this.clipStartsAtKeyFrame = startsAtKeyFrame;
+      clippingConfiguration.setStartsAtKeyFrame(startsAtKeyFrame);
+      return this;
+    }
+
+    /** Sets the optional DRM configuration. */
+    public Builder setDrmConfiguration(@Nullable DrmConfiguration drmConfiguration) {
+      this.drmConfiguration =
+          drmConfiguration != null ? drmConfiguration.buildUpon() : new DrmConfiguration.Builder();
       return this;
     }
 
     /**
-     * Sets the optional default DRM license server URI. If this URI is set, the {@link
-     * DrmConfiguration#uuid} needs to be specified as well.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setLicenseUri(Uri)} instead.
      */
+    @Deprecated
     public Builder setDrmLicenseUri(@Nullable Uri licenseUri) {
-      drmLicenseUri = licenseUri;
+      drmConfiguration.setLicenseUri(licenseUri);
       return this;
     }
 
     /**
-     * Sets the optional default DRM license server URI. If this URI is set, the {@link
-     * DrmConfiguration#uuid} needs to be specified as well.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setLicenseUri(String)} instead.
      */
+    @Deprecated
     public Builder setDrmLicenseUri(@Nullable String licenseUri) {
-      drmLicenseUri = licenseUri == null ? null : Uri.parse(licenseUri);
+      drmConfiguration.setLicenseUri(licenseUri);
       return this;
     }
 
     /**
-     * Sets the optional request headers attached to the DRM license request.
-     *
-     * <p>{@code null} or an empty {@link Map} can be used for a reset.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setLicenseRequestHeaders(Map)} instead. Note that {@link
+     *     DrmConfiguration.Builder#setLicenseRequestHeaders(Map)} doesn't accept null, use an empty
+     *     map to clear the headers.
      */
+    @Deprecated
     public Builder setDrmLicenseRequestHeaders(
         @Nullable Map<String, String> licenseRequestHeaders) {
-      this.drmLicenseRequestHeaders =
-          licenseRequestHeaders != null && !licenseRequestHeaders.isEmpty()
-              ? Collections.unmodifiableMap(new HashMap<>(licenseRequestHeaders))
-              : Collections.emptyMap();
+      drmConfiguration.setLicenseRequestHeaders(
+          licenseRequestHeaders != null ? licenseRequestHeaders : ImmutableMap.of());
       return this;
     }
 
     /**
-     * Sets the {@link UUID} of the protection scheme.
-     *
-     * <p>If {@code uuid} is null or unset then no {@link DrmConfiguration} object is created during
-     * {@link #build()} and no other {@code Builder} methods that would populate {@link
-     * MediaItem.PlaybackProperties#drmConfiguration} should be called.
-     *
-     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and pass the {@code uuid} to
+     *     {@link DrmConfiguration.Builder#Builder(UUID)} instead.
      */
+    @Deprecated
     public Builder setDrmUuid(@Nullable UUID uuid) {
-      drmUuid = uuid;
+      drmConfiguration.setNullableScheme(uuid);
       return this;
     }
 
     /**
-     * Sets whether the DRM configuration is multi session enabled.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setMultiSession(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmMultiSession(boolean multiSession) {
-      drmMultiSession = multiSession;
+      drmConfiguration.setMultiSession(multiSession);
       return this;
     }
 
     /**
-     * Sets whether to force use the default DRM license server URI even if the media specifies its
-     * own DRM license server URI.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setForceDefaultLicenseUri(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
-      this.drmForceDefaultLicenseUri = forceDefaultLicenseUri;
+      drmConfiguration.setForceDefaultLicenseUri(forceDefaultLicenseUri);
       return this;
     }
 
     /**
-     * Sets whether clear samples within protected content should be played when keys for the
-     * encrypted part of the content have yet to be loaded.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setPlayClearContentWithoutKey(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
-      this.drmPlayClearContentWithoutKey = playClearContentWithoutKey;
+      drmConfiguration.setPlayClearContentWithoutKey(playClearContentWithoutKey);
       return this;
     }
 
     /**
-     * Sets whether a DRM session should be used for clear tracks of type {@link C#TRACK_TYPE_VIDEO}
-     * and {@link C#TRACK_TYPE_AUDIO}.
-     *
-     * <p>This method overrides what has been set by previously calling {@link
-     * #setDrmSessionForClearTypes(List)}.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#forceSessionsForAudioAndVideoTracks(boolean)} instead.
      */
+    @Deprecated
     public Builder setDrmSessionForClearPeriods(boolean sessionForClearPeriods) {
-      this.setDrmSessionForClearTypes(
-          sessionForClearPeriods
-              ? Arrays.asList(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO)
-              : Collections.emptyList());
+      drmConfiguration.forceSessionsForAudioAndVideoTracks(sessionForClearPeriods);
       return this;
     }
 
     /**
-     * Sets a list of {@link C}{@code .TRACK_TYPE_*} constants for which to use a DRM session even
-     * when the tracks are in the clear.
-     *
-     * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
-     * C#TRACK_TYPE_AUDIO} the {@link #setDrmSessionForClearPeriods(boolean)} can be used.
-     *
-     * <p>This method overrides what has been set by previously calling {@link
-     * #setDrmSessionForClearPeriods(boolean)}.
-     *
-     * <p>{@code null} or an empty {@link List} can be used for a reset.
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setForcedSessionTrackTypes(List)} instead. Note that {@link
+     *     DrmConfiguration.Builder#setForcedSessionTrackTypes(List)} doesn't accept null, use an
+     *     empty list to clear the contents.
      */
-    public Builder setDrmSessionForClearTypes(@Nullable List<Integer> sessionForClearTypes) {
-      this.drmSessionForClearTypes =
-          sessionForClearTypes != null && !sessionForClearTypes.isEmpty()
-              ? Collections.unmodifiableList(new ArrayList<>(sessionForClearTypes))
-              : Collections.emptyList();
+    @Deprecated
+    public Builder setDrmSessionForClearTypes(
+        @Nullable List<@C.TrackType Integer> sessionForClearTypes) {
+      drmConfiguration.setForcedSessionTrackTypes(
+          sessionForClearTypes != null ? sessionForClearTypes : ImmutableList.of());
       return this;
     }
 
     /**
-     * Sets the key set ID of the offline license.
-     *
-     * <p>The key set ID identifies an offline license. The ID is required to query, renew or
-     * release an existing offline license (see {@code DefaultDrmSessionManager#setMode(int
-     * mode,byte[] offlineLicenseKeySetId)}).
-     *
-     * <p>This method should only be called if both {@link #setUri} and {@link #setDrmUuid(UUID)}
-     * are passed non-null values.
+     * @deprecated Use {@link #setDrmConfiguration(DrmConfiguration)} and {@link
+     *     DrmConfiguration.Builder#setKeySetId(byte[])} instead.
      */
+    @Deprecated
     public Builder setDrmKeySetId(@Nullable byte[] keySetId) {
-      this.drmKeySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+      drmConfiguration.setKeySetId(keySetId);
       return this;
     }
 
@@ -395,7 +340,7 @@ public final class MediaItem implements Bundleable {
      * <p>{@code null} or an empty {@link List} can be used for a reset.
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the stream keys are used to create a
-     * {@link PlaybackProperties} object. Otherwise they will be ignored.
+     * {@link LocalConfiguration} object. Otherwise they will be ignored.
      */
     public Builder setStreamKeys(@Nullable List<StreamKey> streamKeys) {
       this.streamKeys =
@@ -416,134 +361,121 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
-     * Sets the optional subtitles.
-     *
-     * <p>{@code null} or an empty {@link List} can be used for a reset.
-     *
-     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
+     * @deprecated Use {@link #setSubtitleConfigurations(List)} instead. Note that {@link
+     *     #setSubtitleConfigurations(List)} doesn't accept null, use an empty list to clear the
+     *     contents.
      */
+    @Deprecated
     public Builder setSubtitles(@Nullable List<Subtitle> subtitles) {
-      this.subtitles =
-          subtitles != null && !subtitles.isEmpty()
-              ? Collections.unmodifiableList(new ArrayList<>(subtitles))
-              : Collections.emptyList();
+      this.subtitleConfigurations =
+          subtitles != null ? ImmutableList.copyOf(subtitles) : ImmutableList.of();
       return this;
     }
 
     /**
-     * Sets the optional ad tag {@link Uri}.
-     *
-     * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
-     * the same ad playback state. To resume ad playback when recreating the playlist on returning
-     * from the background, pass media items with the same ad tag URIs and media IDs to the player.
+     * Sets the optional subtitles.
      *
      * <p>This method should only be called if {@link #setUri} is passed a non-null value.
-     *
-     * @param adTagUri The ad tag URI to load.
      */
+    public Builder setSubtitleConfigurations(List<SubtitleConfiguration> subtitleConfigurations) {
+      this.subtitleConfigurations = ImmutableList.copyOf(subtitleConfigurations);
+      return this;
+    }
+
+    /**
+     * Sets the optional {@link AdsConfiguration}.
+     *
+     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
+     */
+    public Builder setAdsConfiguration(@Nullable AdsConfiguration adsConfiguration) {
+      this.adsConfiguration = adsConfiguration;
+      return this;
+    }
+
+    /**
+     * @deprecated Use {@link #setAdsConfiguration(AdsConfiguration)}, parse the {@code adTagUri}
+     *     with {@link Uri#parse(String)} and pass the result to {@link
+     *     AdsConfiguration.Builder#Builder(Uri)} instead.
+     */
+    @Deprecated
     public Builder setAdTagUri(@Nullable String adTagUri) {
       return setAdTagUri(adTagUri != null ? Uri.parse(adTagUri) : null);
     }
 
     /**
-     * Sets the optional ad tag {@link Uri}.
-     *
-     * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
-     * the same ad playback state. To resume ad playback when recreating the playlist on returning
-     * from the background, pass media items with the same ad tag URIs and media IDs to the player.
-     *
-     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
-     *
-     * @param adTagUri The ad tag URI to load.
+     * @deprecated Use {@link #setAdsConfiguration(AdsConfiguration)} and pass the {@code adTagUri}
+     *     to {@link AdsConfiguration.Builder#Builder(Uri)} instead.
      */
+    @Deprecated
     public Builder setAdTagUri(@Nullable Uri adTagUri) {
       return setAdTagUri(adTagUri, /* adsId= */ null);
     }
 
     /**
-     * Sets the optional ad tag {@link Uri} and ads identifier.
-     *
-     * <p>Media items in the playlist that have the same ads identifier and ads loader share the
-     * same ad playback state. To resume ad playback when recreating the playlist on returning from
-     * the background, pass the same ads IDs to the player.
-     *
-     * <p>This method should only be called if {@link #setUri} is passed a non-null value.
-     *
-     * @param adTagUri The ad tag URI to load.
-     * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
-     *     and playback state is shared among all media items that have the same ads ID (by {@link
-     *     Object#equals(Object) equality}) and ads loader, so it is important to pass the same
-     *     identifiers when constructing playlist items each time the player returns to the
-     *     foreground.
+     * @deprecated Use {@link #setAdsConfiguration(AdsConfiguration)}, pass the {@code adTagUri} to
+     *     {@link AdsConfiguration.Builder#Builder(Uri)} and the {@code adsId} to {@link
+     *     AdsConfiguration.Builder#setAdsId(Object)} instead.
      */
+    @Deprecated
     public Builder setAdTagUri(@Nullable Uri adTagUri, @Nullable Object adsId) {
-      this.adTagUri = adTagUri;
-      this.adsId = adsId;
+      this.adsConfiguration =
+          adTagUri != null ? new AdsConfiguration.Builder(adTagUri).setAdsId(adsId).build() : null;
+      return this;
+    }
+
+    /** Sets the {@link LiveConfiguration}. Defaults to {@link LiveConfiguration#UNSET}. */
+    public Builder setLiveConfiguration(LiveConfiguration liveConfiguration) {
+      this.liveConfiguration = liveConfiguration.buildUpon();
       return this;
     }
 
     /**
-     * Sets the optional target offset from the live edge for live streams, in milliseconds.
-     *
-     * <p>See {@code Player#getCurrentLiveOffset()}.
-     *
-     * @param liveTargetOffsetMs The target offset, in milliseconds, or {@link C#TIME_UNSET} to use
-     *     the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setTargetOffsetMs(long)}.
      */
+    @Deprecated
     public Builder setLiveTargetOffsetMs(long liveTargetOffsetMs) {
-      this.liveTargetOffsetMs = liveTargetOffsetMs;
+      liveConfiguration.setTargetOffsetMs(liveTargetOffsetMs);
       return this;
     }
 
     /**
-     * Sets the optional minimum offset from the live edge for live streams, in milliseconds.
-     *
-     * <p>See {@code Player#getCurrentLiveOffset()}.
-     *
-     * @param liveMinOffsetMs The minimum allowed offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMinOffsetMs(long)}.
      */
+    @Deprecated
     public Builder setLiveMinOffsetMs(long liveMinOffsetMs) {
-      this.liveMinOffsetMs = liveMinOffsetMs;
+      liveConfiguration.setMinOffsetMs(liveMinOffsetMs);
       return this;
     }
 
     /**
-     * Sets the optional maximum offset from the live edge for live streams, in milliseconds.
-     *
-     * <p>See {@code Player#getCurrentLiveOffset()}.
-     *
-     * @param liveMaxOffsetMs The maximum allowed offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMaxOffsetMs(long)}.
      */
+    @Deprecated
     public Builder setLiveMaxOffsetMs(long liveMaxOffsetMs) {
-      this.liveMaxOffsetMs = liveMaxOffsetMs;
+      liveConfiguration.setMaxOffsetMs(liveMaxOffsetMs);
       return this;
     }
 
     /**
-     * Sets the optional minimum playback speed for live stream speed adjustment.
-     *
-     * <p>This value is ignored for other stream types.
-     *
-     * @param minPlaybackSpeed The minimum factor by which playback can be sped up for live streams,
-     *     or {@link C#RATE_UNSET} to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMinPlaybackSpeed(float)}.
      */
+    @Deprecated
     public Builder setLiveMinPlaybackSpeed(float minPlaybackSpeed) {
-      this.liveMinPlaybackSpeed = minPlaybackSpeed;
+      liveConfiguration.setMinPlaybackSpeed(minPlaybackSpeed);
       return this;
     }
 
     /**
-     * Sets the optional maximum playback speed for live stream speed adjustment.
-     *
-     * <p>This value is ignored for other stream types.
-     *
-     * @param maxPlaybackSpeed The maximum factor by which playback can be sped up for live streams,
-     *     or {@link C#RATE_UNSET} to use the media-defined default.
+     * @deprecated Use {@link #setLiveConfiguration(LiveConfiguration)} and {@link
+     *     LiveConfiguration.Builder#setMaxPlaybackSpeed(float)}.
      */
+    @Deprecated
     public Builder setLiveMaxPlaybackSpeed(float maxPlaybackSpeed) {
-      this.liveMaxPlaybackSpeed = maxPlaybackSpeed;
+      liveConfiguration.setMaxPlaybackSpeed(maxPlaybackSpeed);
       return this;
     }
 
@@ -566,47 +498,29 @@ public final class MediaItem implements Bundleable {
     }
 
     /** Returns a new {@link MediaItem} instance with the current builder values. */
+    @SuppressWarnings("deprecation") // Using PlaybackProperties while it exists.
     public MediaItem build() {
-      checkState(drmLicenseUri == null || drmUuid != null);
-      @Nullable PlaybackProperties playbackProperties = null;
+      // TODO: remove this check once all the deprecated individual DRM setters are removed.
+      checkState(drmConfiguration.licenseUri == null || drmConfiguration.scheme != null);
+      @Nullable PlaybackProperties localConfiguration = null;
       @Nullable Uri uri = this.uri;
       if (uri != null) {
-        playbackProperties =
+        localConfiguration =
             new PlaybackProperties(
                 uri,
                 mimeType,
-                drmUuid != null
-                    ? new DrmConfiguration(
-                        drmUuid,
-                        drmLicenseUri,
-                        drmLicenseRequestHeaders,
-                        drmMultiSession,
-                        drmForceDefaultLicenseUri,
-                        drmPlayClearContentWithoutKey,
-                        drmSessionForClearTypes,
-                        drmKeySetId)
-                    : null,
-                adTagUri != null ? new AdsConfiguration(adTagUri, adsId) : null,
+                drmConfiguration.scheme != null ? drmConfiguration.build() : null,
+                adsConfiguration,
                 streamKeys,
                 customCacheKey,
-                subtitles,
+                subtitleConfigurations,
                 tag);
       }
       return new MediaItem(
           mediaId != null ? mediaId : DEFAULT_MEDIA_ID,
-          new ClippingProperties(
-              clipStartPositionMs,
-              clipEndPositionMs,
-              clipRelativeToLiveWindow,
-              clipRelativeToDefaultPosition,
-              clipStartsAtKeyFrame),
-          playbackProperties,
-          new LiveConfiguration(
-              liveTargetOffsetMs,
-              liveMinOffsetMs,
-              liveMaxOffsetMs,
-              liveMinPlaybackSpeed,
-              liveMaxPlaybackSpeed),
+          clippingConfiguration.buildClippingProperties(),
+          localConfiguration,
+          liveConfiguration.build(),
           mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY);
     }
   }
@@ -614,8 +528,164 @@ public final class MediaItem implements Bundleable {
   /** DRM configuration for a media item. */
   public static final class DrmConfiguration {
 
+    /** Builder for {@link DrmConfiguration}. */
+    public static final class Builder {
+
+      // TODO remove @Nullable annotation when the deprecated zero-arg constructor is removed.
+      @Nullable private UUID scheme;
+      @Nullable private Uri licenseUri;
+      private ImmutableMap<String, String> licenseRequestHeaders;
+      private boolean multiSession;
+      private boolean playClearContentWithoutKey;
+      private boolean forceDefaultLicenseUri;
+      private ImmutableList<@C.TrackType Integer> forcedSessionTrackTypes;
+      @Nullable private byte[] keySetId;
+
+      /**
+       * Constructs an instance.
+       *
+       * @param scheme The {@link UUID} of the protection scheme.
+       */
+      public Builder(UUID scheme) {
+        this.scheme = scheme;
+        this.licenseRequestHeaders = ImmutableMap.of();
+        this.forcedSessionTrackTypes = ImmutableList.of();
+      }
+
+      /**
+       * @deprecated This only exists to support the deprecated setters for individual DRM
+       *     properties on {@link MediaItem.Builder}.
+       */
+      @Deprecated
+      private Builder() {
+        this.licenseRequestHeaders = ImmutableMap.of();
+        this.forcedSessionTrackTypes = ImmutableList.of();
+      }
+
+      private Builder(DrmConfiguration drmConfiguration) {
+        this.scheme = drmConfiguration.scheme;
+        this.licenseUri = drmConfiguration.licenseUri;
+        this.licenseRequestHeaders = drmConfiguration.licenseRequestHeaders;
+        this.multiSession = drmConfiguration.multiSession;
+        this.playClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
+        this.forceDefaultLicenseUri = drmConfiguration.forceDefaultLicenseUri;
+        this.forcedSessionTrackTypes = drmConfiguration.forcedSessionTrackTypes;
+        this.keySetId = drmConfiguration.keySetId;
+      }
+
+      /** Sets the {@link UUID} of the protection scheme. */
+      public Builder setScheme(UUID scheme) {
+        this.scheme = scheme;
+        return this;
+      }
+
+      /**
+       * @deprecated This only exists to support the deprecated {@link
+       *     MediaItem.Builder#setDrmUuid(UUID)}.
+       */
+      @Deprecated
+      private Builder setNullableScheme(@Nullable UUID scheme) {
+        this.scheme = scheme;
+        return this;
+      }
+
+      /** Sets the optional default DRM license server URI. */
+      public Builder setLicenseUri(@Nullable Uri licenseUri) {
+        this.licenseUri = licenseUri;
+        return this;
+      }
+
+      /** Sets the optional default DRM license server URI. */
+      public Builder setLicenseUri(@Nullable String licenseUri) {
+        this.licenseUri = licenseUri == null ? null : Uri.parse(licenseUri);
+        return this;
+      }
+
+      /** Sets the optional request headers attached to DRM license requests. */
+      public Builder setLicenseRequestHeaders(Map<String, String> licenseRequestHeaders) {
+        this.licenseRequestHeaders = ImmutableMap.copyOf(licenseRequestHeaders);
+        return this;
+      }
+
+      /** Sets whether multi session is enabled. */
+      public Builder setMultiSession(boolean multiSession) {
+        this.multiSession = multiSession;
+        return this;
+      }
+
+      /**
+       * Sets whether to always use the default DRM license server URI even if the media specifies
+       * its own DRM license server URI.
+       */
+      public Builder setForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
+        this.forceDefaultLicenseUri = forceDefaultLicenseUri;
+        return this;
+      }
+
+      /**
+       * Sets whether clear samples within protected content should be played when keys for the
+       * encrypted part of the content have yet to be loaded.
+       */
+      public Builder setPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
+        this.playClearContentWithoutKey = playClearContentWithoutKey;
+        return this;
+      }
+
+      /**
+       * Sets whether a DRM session should be used for clear tracks of type {@link
+       * C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_AUDIO}.
+       *
+       * <p>This method overrides what has been set by previously calling {@link
+       * #setForcedSessionTrackTypes(List)}.
+       */
+      public Builder forceSessionsForAudioAndVideoTracks(
+          boolean useClearSessionsForAudioAndVideoTracks) {
+        this.setForcedSessionTrackTypes(
+            useClearSessionsForAudioAndVideoTracks
+                ? ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO)
+                : ImmutableList.of());
+        return this;
+      }
+
+      /**
+       * Sets a list of {@link C.TrackType track type} constants for which to use a DRM session even
+       * when the tracks are in the clear.
+       *
+       * <p>For the common case of using a DRM session for {@link C#TRACK_TYPE_VIDEO} and {@link
+       * C#TRACK_TYPE_AUDIO}, {@link #forceSessionsForAudioAndVideoTracks(boolean)} can be used.
+       *
+       * <p>This method overrides what has been set by previously calling {@link
+       * #forceSessionsForAudioAndVideoTracks(boolean)}.
+       */
+      public Builder setForcedSessionTrackTypes(
+          List<@C.TrackType Integer> forcedSessionTrackTypes) {
+        this.forcedSessionTrackTypes = ImmutableList.copyOf(forcedSessionTrackTypes);
+        return this;
+      }
+
+      /**
+       * Sets the key set ID of the offline license.
+       *
+       * <p>The key set ID identifies an offline license. The ID is required to query, renew or
+       * release an existing offline license (see {@code DefaultDrmSessionManager#setMode(int
+       * mode,byte[] offlineLicenseKeySetId)}).
+       */
+      public Builder setKeySetId(@Nullable byte[] keySetId) {
+        this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+        return this;
+      }
+
+      public DrmConfiguration build() {
+
+        return new DrmConfiguration(this);
+      }
+    }
+
     /** The UUID of the protection scheme. */
-    public final UUID uuid;
+    public final UUID scheme;
+
+    /** @deprecated Use {@link #scheme} instead. */
+    @Deprecated public final UUID uuid;
 
     /**
      * Optional default DRM license server {@link Uri}. If {@code null} then the DRM license server
@@ -623,8 +693,11 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Uri licenseUri;
 
-    /** The headers to attach to the request to the DRM license server. */
-    public final Map<String, String> requestHeaders;
+    /** @deprecated Use {@link #licenseRequestHeaders} instead. */
+    @Deprecated public final ImmutableMap<String, String> requestHeaders;
+
+    /** The headers to attach to requests sent to the DRM license server. */
+    public final ImmutableMap<String, String> licenseRequestHeaders;
 
     /** Whether the DRM configuration is multi session enabled. */
     public final boolean multiSession;
@@ -641,35 +714,43 @@ public final class MediaItem implements Bundleable {
      */
     public final boolean forceDefaultLicenseUri;
 
-    /** The types of clear tracks for which to use a DRM session. */
-    public final List<Integer> sessionForClearTypes;
+    /** @deprecated Use {@link #forcedSessionTrackTypes}. */
+    @Deprecated public final ImmutableList<@C.TrackType Integer> sessionForClearTypes;
+    /**
+     * The types of tracks for which to always use a DRM session even if the content is unencrypted.
+     */
+    public final ImmutableList<@C.TrackType Integer> forcedSessionTrackTypes;
 
     @Nullable private final byte[] keySetId;
 
-    private DrmConfiguration(
-        UUID uuid,
-        @Nullable Uri licenseUri,
-        Map<String, String> requestHeaders,
-        boolean multiSession,
-        boolean forceDefaultLicenseUri,
-        boolean playClearContentWithoutKey,
-        List<Integer> drmSessionForClearTypes,
-        @Nullable byte[] keySetId) {
-      Assertions.checkArgument(!(forceDefaultLicenseUri && licenseUri == null));
-      this.uuid = uuid;
-      this.licenseUri = licenseUri;
-      this.requestHeaders = requestHeaders;
-      this.multiSession = multiSession;
-      this.forceDefaultLicenseUri = forceDefaultLicenseUri;
-      this.playClearContentWithoutKey = playClearContentWithoutKey;
-      this.sessionForClearTypes = drmSessionForClearTypes;
-      this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+    @SuppressWarnings("deprecation") // Setting deprecated field
+    private DrmConfiguration(Builder builder) {
+      checkState(!(builder.forceDefaultLicenseUri && builder.licenseUri == null));
+      this.scheme = checkNotNull(builder.scheme);
+      this.uuid = scheme;
+      this.licenseUri = builder.licenseUri;
+      this.requestHeaders = builder.licenseRequestHeaders;
+      this.licenseRequestHeaders = builder.licenseRequestHeaders;
+      this.multiSession = builder.multiSession;
+      this.forceDefaultLicenseUri = builder.forceDefaultLicenseUri;
+      this.playClearContentWithoutKey = builder.playClearContentWithoutKey;
+      this.sessionForClearTypes = builder.forcedSessionTrackTypes;
+      this.forcedSessionTrackTypes = builder.forcedSessionTrackTypes;
+      this.keySetId =
+          builder.keySetId != null
+              ? Arrays.copyOf(builder.keySetId, builder.keySetId.length)
+              : null;
     }
 
     /** Returns the key set ID of the offline license. */
     @Nullable
     public byte[] getKeySetId() {
       return keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     @Override
@@ -682,25 +763,25 @@ public final class MediaItem implements Bundleable {
       }
 
       DrmConfiguration other = (DrmConfiguration) obj;
-      return uuid.equals(other.uuid)
+      return scheme.equals(other.scheme)
           && Util.areEqual(licenseUri, other.licenseUri)
-          && Util.areEqual(requestHeaders, other.requestHeaders)
+          && Util.areEqual(licenseRequestHeaders, other.licenseRequestHeaders)
           && multiSession == other.multiSession
           && forceDefaultLicenseUri == other.forceDefaultLicenseUri
           && playClearContentWithoutKey == other.playClearContentWithoutKey
-          && sessionForClearTypes.equals(other.sessionForClearTypes)
+          && forcedSessionTrackTypes.equals(other.forcedSessionTrackTypes)
           && Arrays.equals(keySetId, other.keySetId);
     }
 
     @Override
     public int hashCode() {
-      int result = uuid.hashCode();
+      int result = scheme.hashCode();
       result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
-      result = 31 * result + requestHeaders.hashCode();
+      result = 31 * result + licenseRequestHeaders.hashCode();
       result = 31 * result + (multiSession ? 1 : 0);
       result = 31 * result + (forceDefaultLicenseUri ? 1 : 0);
       result = 31 * result + (playClearContentWithoutKey ? 1 : 0);
-      result = 31 * result + sessionForClearTypes.hashCode();
+      result = 31 * result + forcedSessionTrackTypes.hashCode();
       result = 31 * result + Arrays.hashCode(keySetId);
       return result;
     }
@@ -709,28 +790,65 @@ public final class MediaItem implements Bundleable {
   /** Configuration for playing back linear ads with a media item. */
   public static final class AdsConfiguration {
 
+    /** Builder for {@link AdsConfiguration} instances. */
+    public static final class Builder {
+
+      private Uri adTagUri;
+      @Nullable private Object adsId;
+
+      /**
+       * Constructs a new instance.
+       *
+       * @param adTagUri The ad tag URI to load.
+       */
+      public Builder(Uri adTagUri) {
+        this.adTagUri = adTagUri;
+      }
+
+      /** Sets the ad tag URI to load. */
+      public Builder setAdTagUri(Uri adTagUri) {
+        this.adTagUri = adTagUri;
+        return this;
+      }
+
+      /**
+       * Sets the ads identifier.
+       *
+       * <p>See details on {@link AdsConfiguration#adsId} for how the ads identifier is used and how
+       * it's calculated if not explicitly set.
+       */
+      public Builder setAdsId(@Nullable Object adsId) {
+        this.adsId = adsId;
+        return this;
+      }
+
+      public AdsConfiguration build() {
+        return new AdsConfiguration(this);
+      }
+    }
+
     /** The ad tag URI to load. */
     public final Uri adTagUri;
+
     /**
      * An opaque identifier for ad playback state associated with this item, or {@code null} if the
      * combination of the {@link MediaItem.Builder#setMediaId(String) media ID} and {@link #adTagUri
      * ad tag URI} should be used as the ads identifier.
+     *
+     * <p>Media items in the playlist that have the same ads identifier and ads loader share the
+     * same ad playback state. To resume ad playback when recreating the playlist on returning from
+     * the background, pass the same ads identifiers to the player.
      */
     @Nullable public final Object adsId;
 
-    /**
-     * Creates an ads configuration with the given ad tag URI and ads identifier.
-     *
-     * @param adTagUri The ad tag URI to load.
-     * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
-     *     and playback state is shared among all media items that have the same ads ID (by {@link
-     *     Object#equals(Object) equality}) and ads loader, so it is important to pass the same
-     *     identifiers when constructing playlist items each time the player returns to the
-     *     foreground.
-     */
-    private AdsConfiguration(Uri adTagUri, @Nullable Object adsId) {
-      this.adTagUri = adTagUri;
-      this.adsId = adsId;
+    private AdsConfiguration(Builder builder) {
+      this.adTagUri = builder.adTagUri;
+      this.adsId = builder.adsId;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(adTagUri).setAdsId(adsId);
     }
 
     @Override
@@ -755,7 +873,8 @@ public final class MediaItem implements Bundleable {
   }
 
   /** Properties for local playback. */
-  public static final class PlaybackProperties {
+  // TODO: Mark this final when PlaybackProperties is deleted.
+  public static class LocalConfiguration {
 
     /** The {@link Uri}. */
     public final Uri uri;
@@ -781,7 +900,9 @@ public final class MediaItem implements Bundleable {
     @Nullable public final String customCacheKey;
 
     /** Optional subtitles to be sideloaded. */
-    public final List<Subtitle> subtitles;
+    public final ImmutableList<SubtitleConfiguration> subtitleConfigurations;
+    /** @deprecated Use {@link #subtitleConfigurations} instead. */
+    @Deprecated public final List<Subtitle> subtitles;
 
     /**
      * Optional tag for custom attributes. The tag for the media source which will be published in
@@ -790,14 +911,15 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Object tag;
 
-    private PlaybackProperties(
+    @SuppressWarnings("deprecation") // Setting deprecated subtitles field.
+    private LocalConfiguration(
         Uri uri,
         @Nullable String mimeType,
         @Nullable DrmConfiguration drmConfiguration,
         @Nullable AdsConfiguration adsConfiguration,
         List<StreamKey> streamKeys,
         @Nullable String customCacheKey,
-        List<Subtitle> subtitles,
+        ImmutableList<SubtitleConfiguration> subtitleConfigurations,
         @Nullable Object tag) {
       this.uri = uri;
       this.mimeType = mimeType;
@@ -805,7 +927,12 @@ public final class MediaItem implements Bundleable {
       this.adsConfiguration = adsConfiguration;
       this.streamKeys = streamKeys;
       this.customCacheKey = customCacheKey;
-      this.subtitles = subtitles;
+      this.subtitleConfigurations = subtitleConfigurations;
+      ImmutableList.Builder<Subtitle> subtitles = ImmutableList.builder();
+      for (int i = 0; i < subtitleConfigurations.size(); i++) {
+        subtitles.add(subtitleConfigurations.get(i).buildUpon().buildSubtitle());
+      }
+      this.subtitles = subtitles.build();
       this.tag = tag;
     }
 
@@ -814,10 +941,10 @@ public final class MediaItem implements Bundleable {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof PlaybackProperties)) {
+      if (!(obj instanceof LocalConfiguration)) {
         return false;
       }
-      PlaybackProperties other = (PlaybackProperties) obj;
+      LocalConfiguration other = (LocalConfiguration) obj;
 
       return uri.equals(other.uri)
           && Util.areEqual(mimeType, other.mimeType)
@@ -825,7 +952,7 @@ public final class MediaItem implements Bundleable {
           && Util.areEqual(adsConfiguration, other.adsConfiguration)
           && streamKeys.equals(other.streamKeys)
           && Util.areEqual(customCacheKey, other.customCacheKey)
-          && subtitles.equals(other.subtitles)
+          && subtitleConfigurations.equals(other.subtitleConfigurations)
           && Util.areEqual(tag, other.tag);
     }
 
@@ -837,23 +964,132 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + (adsConfiguration == null ? 0 : adsConfiguration.hashCode());
       result = 31 * result + streamKeys.hashCode();
       result = 31 * result + (customCacheKey == null ? 0 : customCacheKey.hashCode());
-      result = 31 * result + subtitles.hashCode();
+      result = 31 * result + subtitleConfigurations.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
       return result;
+    }
+  }
+
+  /** @deprecated Use {@link LocalConfiguration}. */
+  @Deprecated
+  public static final class PlaybackProperties extends LocalConfiguration {
+
+    private PlaybackProperties(
+        Uri uri,
+        @Nullable String mimeType,
+        @Nullable DrmConfiguration drmConfiguration,
+        @Nullable AdsConfiguration adsConfiguration,
+        List<StreamKey> streamKeys,
+        @Nullable String customCacheKey,
+        ImmutableList<SubtitleConfiguration> subtitleConfigurations,
+        @Nullable Object tag) {
+      super(
+          uri,
+          mimeType,
+          drmConfiguration,
+          adsConfiguration,
+          streamKeys,
+          customCacheKey,
+          subtitleConfigurations,
+          tag);
     }
   }
 
   /** Live playback configuration. */
   public static final class LiveConfiguration implements Bundleable {
 
-    /** A live playback configuration with unset values. */
-    public static final LiveConfiguration UNSET =
-        new LiveConfiguration(
-            /* targetLiveOffsetMs= */ C.TIME_UNSET,
-            /* minLiveOffsetMs= */ C.TIME_UNSET,
-            /* maxLiveOffsetMs= */ C.TIME_UNSET,
-            /* minPlaybackSpeed= */ C.RATE_UNSET,
-            /* maxPlaybackSpeed= */ C.RATE_UNSET);
+    /** Builder for {@link LiveConfiguration} instances. */
+    public static final class Builder {
+      private long targetOffsetMs;
+      private long minOffsetMs;
+      private long maxOffsetMs;
+      private float minPlaybackSpeed;
+      private float maxPlaybackSpeed;
+
+      /** Constructs an instance. */
+      public Builder() {
+        this.targetOffsetMs = C.TIME_UNSET;
+        this.minOffsetMs = C.TIME_UNSET;
+        this.maxOffsetMs = C.TIME_UNSET;
+        this.minPlaybackSpeed = C.RATE_UNSET;
+        this.maxPlaybackSpeed = C.RATE_UNSET;
+      }
+
+      private Builder(LiveConfiguration liveConfiguration) {
+        this.targetOffsetMs = liveConfiguration.targetOffsetMs;
+        this.minOffsetMs = liveConfiguration.minOffsetMs;
+        this.maxOffsetMs = liveConfiguration.maxOffsetMs;
+        this.minPlaybackSpeed = liveConfiguration.minPlaybackSpeed;
+        this.maxPlaybackSpeed = liveConfiguration.maxPlaybackSpeed;
+      }
+
+      /**
+       * Sets the target live offset, in milliseconds.
+       *
+       * <p>See {@code Player#getCurrentLiveOffset()}.
+       *
+       * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setTargetOffsetMs(long targetOffsetMs) {
+        this.targetOffsetMs = targetOffsetMs;
+        return this;
+      }
+
+      /**
+       * Sets the minimum allowed live offset, in milliseconds.
+       *
+       * <p>See {@code Player#getCurrentLiveOffset()}.
+       *
+       * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMinOffsetMs(long minOffsetMs) {
+        this.minOffsetMs = minOffsetMs;
+        return this;
+      }
+
+      /**
+       * Sets the maximum allowed live offset, in milliseconds.
+       *
+       * <p>See {@code Player#getCurrentLiveOffset()}.
+       *
+       * <p>Defaults to {@link C#TIME_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMaxOffsetMs(long maxOffsetMs) {
+        this.maxOffsetMs = maxOffsetMs;
+        return this;
+      }
+
+      /**
+       * Sets the minimum playback speed.
+       *
+       * <p>Defaults to {@link C#RATE_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMinPlaybackSpeed(float minPlaybackSpeed) {
+        this.minPlaybackSpeed = minPlaybackSpeed;
+        return this;
+      }
+
+      /**
+       * Sets the maximum playback speed.
+       *
+       * <p>Defaults to {@link C#RATE_UNSET}, indicating the media-defined default will be used.
+       */
+      public Builder setMaxPlaybackSpeed(float maxPlaybackSpeed) {
+        this.maxPlaybackSpeed = maxPlaybackSpeed;
+        return this;
+      }
+
+      /** Creates a {@link LiveConfiguration} with the values from this builder. */
+      public LiveConfiguration build() {
+        return new LiveConfiguration(this);
+      }
+    }
+
+    /**
+     * A live playback configuration with unset values, meaning media-defined default values will be
+     * used.
+     */
+    public static final LiveConfiguration UNSET = new LiveConfiguration.Builder().build();
 
     /**
      * Target offset from the live edge, in milliseconds, or {@link C#TIME_UNSET} to use the
@@ -885,20 +1121,18 @@ public final class MediaItem implements Bundleable {
      */
     public final float maxPlaybackSpeed;
 
-    /**
-     * Creates a live playback configuration.
-     *
-     * @param targetOffsetMs Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use the
-     *     media-defined default.
-     * @param minOffsetMs The minimum allowed live offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
-     * @param maxOffsetMs The maximum allowed live offset, in milliseconds, or {@link C#TIME_UNSET}
-     *     to use the media-defined default.
-     * @param minPlaybackSpeed Minimum playback speed, or {@link C#RATE_UNSET} to use the
-     *     media-defined default.
-     * @param maxPlaybackSpeed Maximum playback speed, or {@link C#RATE_UNSET} to use the
-     *     media-defined default.
-     */
+    @SuppressWarnings("deprecation") // Using the deprecated constructor while it exists.
+    private LiveConfiguration(Builder builder) {
+      this(
+          builder.targetOffsetMs,
+          builder.minOffsetMs,
+          builder.maxOffsetMs,
+          builder.minPlaybackSpeed,
+          builder.maxPlaybackSpeed);
+    }
+
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
     public LiveConfiguration(
         long targetOffsetMs,
         long minOffsetMs,
@@ -910,6 +1144,11 @@ public final class MediaItem implements Bundleable {
       this.maxOffsetMs = maxOffsetMs;
       this.minPlaybackSpeed = minPlaybackSpeed;
       this.maxPlaybackSpeed = maxPlaybackSpeed;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     @Override
@@ -988,56 +1227,96 @@ public final class MediaItem implements Bundleable {
   }
 
   /** Properties for a text track. */
-  public static final class Subtitle {
+  // TODO: Mark this final when Subtitle is deleted.
+  public static class SubtitleConfiguration {
+
+    /** Builder for {@link SubtitleConfiguration} instances. */
+    public static final class Builder {
+      private Uri uri;
+      @Nullable private String mimeType;
+      @Nullable private String language;
+      private @C.SelectionFlags int selectionFlags;
+      private @C.RoleFlags int roleFlags;
+      @Nullable private String label;
+
+      /**
+       * Constructs an instance.
+       *
+       * @param uri The {@link Uri} to the subtitle file.
+       */
+      public Builder(Uri uri) {
+        this.uri = uri;
+      }
+
+      private Builder(SubtitleConfiguration subtitleConfiguration) {
+        this.uri = subtitleConfiguration.uri;
+        this.mimeType = subtitleConfiguration.mimeType;
+        this.language = subtitleConfiguration.language;
+        this.selectionFlags = subtitleConfiguration.selectionFlags;
+        this.roleFlags = subtitleConfiguration.roleFlags;
+        this.label = subtitleConfiguration.label;
+      }
+
+      /** Sets the {@link Uri} to the subtitle file. */
+      public Builder setUri(Uri uri) {
+        this.uri = uri;
+        return this;
+      }
+
+      /** Sets the MIME type. */
+      public Builder setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+        return this;
+      }
+
+      /** Sets the optional language of the subtitle file. */
+      public Builder setLanguage(@Nullable String language) {
+        this.language = language;
+        return this;
+      }
+
+      /** Sets the flags used for track selection. */
+      public Builder setSelectionFlags(@C.SelectionFlags int selectionFlags) {
+        this.selectionFlags = selectionFlags;
+        return this;
+      }
+
+      /** Sets the role flags. These are used for track selection. */
+      public Builder setRoleFlags(@C.RoleFlags int roleFlags) {
+        this.roleFlags = roleFlags;
+        return this;
+      }
+
+      /** Sets the optional label for this subtitle track. */
+      public Builder setLabel(@Nullable String label) {
+        this.label = label;
+        return this;
+      }
+
+      /** Creates a {@link SubtitleConfiguration} from the values of this builder. */
+      public SubtitleConfiguration build() {
+        return new SubtitleConfiguration(this);
+      }
+
+      private Subtitle buildSubtitle() {
+        return new Subtitle(this);
+      }
+    }
 
     /** The {@link Uri} to the subtitle file. */
     public final Uri uri;
-    /** The MIME type. */
-    public final String mimeType;
+    /** The optional MIME type of the subtitle file, or {@code null} if unspecified. */
+    @Nullable public final String mimeType;
     /** The language. */
     @Nullable public final String language;
     /** The selection flags. */
-    @C.SelectionFlags public final int selectionFlags;
+    public final @C.SelectionFlags int selectionFlags;
     /** The role flags. */
-    @C.RoleFlags public final int roleFlags;
+    public final @C.RoleFlags int roleFlags;
     /** The label. */
     @Nullable public final String label;
 
-    /**
-     * Creates an instance.
-     *
-     * @param uri The {@link Uri URI} to the subtitle file.
-     * @param mimeType The MIME type.
-     * @param language The optional language.
-     */
-    public Subtitle(Uri uri, String mimeType, @Nullable String language) {
-      this(uri, mimeType, language, /* selectionFlags= */ 0);
-    }
-
-    /**
-     * Creates an instance.
-     *
-     * @param uri The {@link Uri URI} to the subtitle file.
-     * @param mimeType The MIME type.
-     * @param language The optional language.
-     * @param selectionFlags The selection flags.
-     */
-    public Subtitle(
-        Uri uri, String mimeType, @Nullable String language, @C.SelectionFlags int selectionFlags) {
-      this(uri, mimeType, language, selectionFlags, /* roleFlags= */ 0, /* label= */ null);
-    }
-
-    /**
-     * Creates an instance.
-     *
-     * @param uri The {@link Uri URI} to the subtitle file.
-     * @param mimeType The MIME type.
-     * @param language The optional language.
-     * @param selectionFlags The selection flags.
-     * @param roleFlags The role flags.
-     * @param label The optional label.
-     */
-    public Subtitle(
+    private SubtitleConfiguration(
         Uri uri,
         String mimeType,
         @Nullable String language,
@@ -1052,19 +1331,33 @@ public final class MediaItem implements Bundleable {
       this.label = label;
     }
 
+    private SubtitleConfiguration(Builder builder) {
+      this.uri = builder.uri;
+      this.mimeType = builder.mimeType;
+      this.language = builder.language;
+      this.selectionFlags = builder.selectionFlags;
+      this.roleFlags = builder.roleFlags;
+      this.label = builder.label;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof Subtitle)) {
+      if (!(obj instanceof SubtitleConfiguration)) {
         return false;
       }
 
-      Subtitle other = (Subtitle) obj;
+      SubtitleConfiguration other = (SubtitleConfiguration) obj;
 
       return uri.equals(other.uri)
-          && mimeType.equals(other.mimeType)
+          && Util.areEqual(mimeType, other.mimeType)
           && Util.areEqual(language, other.language)
           && selectionFlags == other.selectionFlags
           && roleFlags == other.roleFlags
@@ -1074,7 +1367,7 @@ public final class MediaItem implements Bundleable {
     @Override
     public int hashCode() {
       int result = uri.hashCode();
-      result = 31 * result + mimeType.hashCode();
+      result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + selectionFlags;
       result = 31 * result + roleFlags;
@@ -1083,10 +1376,134 @@ public final class MediaItem implements Bundleable {
     }
   }
 
+  /** @deprecated Use {@link MediaItem.SubtitleConfiguration} instead */
+  @Deprecated
+  public static final class Subtitle extends SubtitleConfiguration {
+
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
+    public Subtitle(Uri uri, String mimeType, @Nullable String language) {
+      this(uri, mimeType, language, /* selectionFlags= */ 0);
+    }
+
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
+    public Subtitle(
+        Uri uri, String mimeType, @Nullable String language, @C.SelectionFlags int selectionFlags) {
+      this(uri, mimeType, language, selectionFlags, /* roleFlags= */ 0, /* label= */ null);
+    }
+
+    /** @deprecated Use {@link Builder} instead. */
+    @Deprecated
+    public Subtitle(
+        Uri uri,
+        String mimeType,
+        @Nullable String language,
+        @C.SelectionFlags int selectionFlags,
+        @C.RoleFlags int roleFlags,
+        @Nullable String label) {
+      super(uri, mimeType, language, selectionFlags, roleFlags, label);
+    }
+
+    private Subtitle(Builder builder) {
+      super(builder);
+    }
+  }
+
   /** Optionally clips the media item to a custom start and end position. */
-  public static final class ClippingProperties implements Bundleable {
+  // TODO: Mark this final when ClippingProperties is deleted.
+  public static class ClippingConfiguration implements Bundleable {
+
+    /** A clipping configuration with default values. */
+    public static final ClippingConfiguration UNSET = new ClippingConfiguration.Builder().build();
+
+    /** Builder for {@link ClippingConfiguration} instances. */
+    public static final class Builder {
+      private long startPositionMs;
+      private long endPositionMs;
+      private boolean relativeToLiveWindow;
+      private boolean relativeToDefaultPosition;
+      private boolean startsAtKeyFrame;
+
+      /** Constructs an instance. */
+      public Builder() {
+        endPositionMs = C.TIME_END_OF_SOURCE;
+      }
+
+      private Builder(ClippingConfiguration clippingConfiguration) {
+        startPositionMs = clippingConfiguration.startPositionMs;
+        endPositionMs = clippingConfiguration.endPositionMs;
+        relativeToLiveWindow = clippingConfiguration.relativeToLiveWindow;
+        relativeToDefaultPosition = clippingConfiguration.relativeToDefaultPosition;
+        startsAtKeyFrame = clippingConfiguration.startsAtKeyFrame;
+      }
+
+      /**
+       * Sets the optional start position in milliseconds which must be a value larger than or equal
+       * to zero (Default: 0).
+       */
+      public Builder setStartPositionMs(@IntRange(from = 0) long startPositionMs) {
+        Assertions.checkArgument(startPositionMs >= 0);
+        this.startPositionMs = startPositionMs;
+        return this;
+      }
+
+      /**
+       * Sets the optional end position in milliseconds which must be a value larger than or equal
+       * to zero, or {@link C#TIME_END_OF_SOURCE} to end when playback reaches the end of media
+       * (Default: {@link C#TIME_END_OF_SOURCE}).
+       */
+      public Builder setEndPositionMs(long endPositionMs) {
+        Assertions.checkArgument(endPositionMs == C.TIME_END_OF_SOURCE || endPositionMs >= 0);
+        this.endPositionMs = endPositionMs;
+        return this;
+      }
+
+      /**
+       * Sets whether the start/end positions should move with the live window for live streams. If
+       * {@code false}, live streams end when playback reaches the end position in live window seen
+       * when the media is first loaded (Default: {@code false}).
+       */
+      public Builder setRelativeToLiveWindow(boolean relativeToLiveWindow) {
+        this.relativeToLiveWindow = relativeToLiveWindow;
+        return this;
+      }
+
+      /**
+       * Sets whether the start position and the end position are relative to the default position
+       * in the window (Default: {@code false}).
+       */
+      public Builder setRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
+        this.relativeToDefaultPosition = relativeToDefaultPosition;
+        return this;
+      }
+
+      /**
+       * Sets whether the start point is guaranteed to be a key frame. If {@code false}, the
+       * playback transition into the clip may not be seamless (Default: {@code false}).
+       */
+      public Builder setStartsAtKeyFrame(boolean startsAtKeyFrame) {
+        this.startsAtKeyFrame = startsAtKeyFrame;
+        return this;
+      }
+
+      /**
+       * Returns a {@link ClippingConfiguration} instance initialized with the values of this
+       * builder.
+       */
+      public ClippingConfiguration build() {
+        return buildClippingProperties();
+      }
+
+      /** @deprecated Use {@link #build()} instead. */
+      @Deprecated
+      public ClippingProperties buildClippingProperties() {
+        return new ClippingProperties(this);
+      }
+    }
 
     /** The start position in milliseconds. This is a value larger than or equal to zero. */
+    @IntRange(from = 0)
     public final long startPositionMs;
 
     /**
@@ -1110,17 +1527,17 @@ public final class MediaItem implements Bundleable {
     /** Sets whether the start point is guaranteed to be a key frame. */
     public final boolean startsAtKeyFrame;
 
-    private ClippingProperties(
-        long startPositionMs,
-        long endPositionMs,
-        boolean relativeToLiveWindow,
-        boolean relativeToDefaultPosition,
-        boolean startsAtKeyFrame) {
-      this.startPositionMs = startPositionMs;
-      this.endPositionMs = endPositionMs;
-      this.relativeToLiveWindow = relativeToLiveWindow;
-      this.relativeToDefaultPosition = relativeToDefaultPosition;
-      this.startsAtKeyFrame = startsAtKeyFrame;
+    private ClippingConfiguration(Builder builder) {
+      this.startPositionMs = builder.startPositionMs;
+      this.endPositionMs = builder.endPositionMs;
+      this.relativeToLiveWindow = builder.relativeToLiveWindow;
+      this.relativeToDefaultPosition = builder.relativeToDefaultPosition;
+      this.startsAtKeyFrame = builder.startsAtKeyFrame;
+    }
+
+    /** Returns a {@link Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
 
     @Override
@@ -1128,11 +1545,11 @@ public final class MediaItem implements Bundleable {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof ClippingProperties)) {
+      if (!(obj instanceof ClippingConfiguration)) {
         return false;
       }
 
-      ClippingProperties other = (ClippingProperties) obj;
+      ClippingConfiguration other = (ClippingConfiguration) obj;
 
       return startPositionMs == other.startPositionMs
           && endPositionMs == other.endPositionMs
@@ -1181,19 +1598,37 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore {@link ClippingProperties} from a {@link Bundle}. */
+    /** Object that can restore {@link ClippingConfiguration} from a {@link Bundle}. */
     public static final Creator<ClippingProperties> CREATOR =
         bundle ->
-            new ClippingProperties(
-                bundle.getLong(keyForField(FIELD_START_POSITION_MS), /* defaultValue= */ 0),
-                bundle.getLong(
-                    keyForField(FIELD_END_POSITION_MS), /* defaultValue= */ C.TIME_END_OF_SOURCE),
-                bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), false),
-                bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), false),
-                bundle.getBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), false));
+            new ClippingConfiguration.Builder()
+                .setStartPositionMs(
+                    bundle.getLong(keyForField(FIELD_START_POSITION_MS), /* defaultValue= */ 0))
+                .setEndPositionMs(
+                    bundle.getLong(
+                        keyForField(FIELD_END_POSITION_MS),
+                        /* defaultValue= */ C.TIME_END_OF_SOURCE))
+                .setRelativeToLiveWindow(
+                    bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), false))
+                .setRelativeToDefaultPosition(
+                    bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), false))
+                .setStartsAtKeyFrame(
+                    bundle.getBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), false))
+                .buildClippingProperties();
 
-    private static String keyForField(@ClippingProperties.FieldNumber int field) {
+    private static String keyForField(@ClippingConfiguration.FieldNumber int field) {
       return Integer.toString(field, Character.MAX_RADIX);
+    }
+  }
+
+  /** @deprecated Use {@link ClippingConfiguration} instead. */
+  @Deprecated
+  public static final class ClippingProperties extends ClippingConfiguration {
+    public static final ClippingProperties UNSET =
+        new ClippingConfiguration.Builder().buildClippingProperties();
+
+    private ClippingProperties(Builder builder) {
+      super(builder);
     }
   }
 
@@ -1209,8 +1644,13 @@ public final class MediaItem implements Bundleable {
   /** Identifies the media item. */
   public final String mediaId;
 
-  /** Optional playback properties. May be {@code null} if shared over process boundaries. */
-  @Nullable public final PlaybackProperties playbackProperties;
+  /**
+   * Optional configuration for local playback. May be {@code null} if shared over process
+   * boundaries.
+   */
+  @Nullable public final LocalConfiguration localConfiguration;
+  /** @deprecated Use {@link #localConfiguration} instead. */
+  @Deprecated @Nullable public final PlaybackProperties playbackProperties;
 
   /** The live playback configuration. */
   public final LiveConfiguration liveConfiguration;
@@ -1219,19 +1659,25 @@ public final class MediaItem implements Bundleable {
   public final MediaMetadata mediaMetadata;
 
   /** The clipping properties. */
-  public final ClippingProperties clippingProperties;
+  public final ClippingConfiguration clippingConfiguration;
+  /** @deprecated Use {@link #clippingConfiguration} instead. */
+  @Deprecated public final ClippingProperties clippingProperties;
 
+  // Using PlaybackProperties and ClippingProperties until they're deleted.
+  @SuppressWarnings("deprecation")
   private MediaItem(
       String mediaId,
-      ClippingProperties clippingProperties,
-      @Nullable PlaybackProperties playbackProperties,
+      ClippingProperties clippingConfiguration,
+      @Nullable PlaybackProperties localConfiguration,
       LiveConfiguration liveConfiguration,
       MediaMetadata mediaMetadata) {
     this.mediaId = mediaId;
-    this.playbackProperties = playbackProperties;
+    this.localConfiguration = localConfiguration;
+    this.playbackProperties = localConfiguration;
     this.liveConfiguration = liveConfiguration;
     this.mediaMetadata = mediaMetadata;
-    this.clippingProperties = clippingProperties;
+    this.clippingConfiguration = clippingConfiguration;
+    this.clippingProperties = clippingConfiguration;
   }
 
   /** Returns a {@link Builder} initialized with the values of this instance. */
@@ -1251,8 +1697,8 @@ public final class MediaItem implements Bundleable {
     MediaItem other = (MediaItem) obj;
 
     return Util.areEqual(mediaId, other.mediaId)
-        && clippingProperties.equals(other.clippingProperties)
-        && Util.areEqual(playbackProperties, other.playbackProperties)
+        && clippingConfiguration.equals(other.clippingConfiguration)
+        && Util.areEqual(localConfiguration, other.localConfiguration)
         && Util.areEqual(liveConfiguration, other.liveConfiguration)
         && Util.areEqual(mediaMetadata, other.mediaMetadata);
   }
@@ -1260,9 +1706,9 @@ public final class MediaItem implements Bundleable {
   @Override
   public int hashCode() {
     int result = mediaId.hashCode();
-    result = 31 * result + (playbackProperties != null ? playbackProperties.hashCode() : 0);
+    result = 31 * result + (localConfiguration != null ? localConfiguration.hashCode() : 0);
     result = 31 * result + liveConfiguration.hashCode();
-    result = 31 * result + clippingProperties.hashCode();
+    result = 31 * result + clippingConfiguration.hashCode();
     result = 31 * result + mediaMetadata.hashCode();
     return result;
   }
@@ -1287,7 +1733,7 @@ public final class MediaItem implements Bundleable {
   /**
    * {@inheritDoc}
    *
-   * <p>It omits the {@link #playbackProperties} field. The {@link #playbackProperties} of an
+   * <p>It omits the {@link #localConfiguration} field. The {@link #localConfiguration} of an
    * instance restored by {@link #CREATOR} will always be {@code null}.
    */
   @Override
@@ -1296,17 +1742,18 @@ public final class MediaItem implements Bundleable {
     bundle.putString(keyForField(FIELD_MEDIA_ID), mediaId);
     bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
     bundle.putBundle(keyForField(FIELD_MEDIA_METADATA), mediaMetadata.toBundle());
-    bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingProperties.toBundle());
+    bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingConfiguration.toBundle());
     return bundle;
   }
 
   /**
    * Object that can restore {@link MediaItem} from a {@link Bundle}.
    *
-   * <p>The {@link #playbackProperties} of a restored instance will always be {@code null}.
+   * <p>The {@link #localConfiguration} of a restored instance will always be {@code null}.
    */
   public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
 
+  @SuppressWarnings("deprecation") // Unbundling to ClippingProperties while it still exists.
   private static MediaItem fromBundle(Bundle bundle) {
     String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID), DEFAULT_MEDIA_ID));
     @Nullable
@@ -1325,22 +1772,16 @@ public final class MediaItem implements Bundleable {
       mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
     }
     @Nullable
-    Bundle clippingPropertiesBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
-    ClippingProperties clippingProperties;
-    if (clippingPropertiesBundle == null) {
-      clippingProperties =
-          new ClippingProperties(
-              /* startPositionMs= */ 0,
-              /* endPositionMs= */ C.TIME_END_OF_SOURCE,
-              /* relativeToLiveWindow= */ false,
-              /* relativeToDefaultPosition= */ false,
-              /* startsAtKeyFrame= */ false);
+    Bundle clippingConfigurationBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
+    ClippingProperties clippingConfiguration;
+    if (clippingConfigurationBundle == null) {
+      clippingConfiguration = ClippingProperties.UNSET;
     } else {
-      clippingProperties = ClippingProperties.CREATOR.fromBundle(clippingPropertiesBundle);
+      clippingConfiguration = ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
     }
     return new MediaItem(
         mediaId,
-        clippingProperties,
+        clippingConfiguration,
         /* playbackProperties= */ null,
         liveConfiguration,
         mediaMetadata);

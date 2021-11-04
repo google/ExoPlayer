@@ -230,7 +230,7 @@ audio when your app is in the background:
    from killing your process to free up resources.
 1. You need to hold a [`WifiLock`][] and a [`WakeLock`][]. These ensure that the
    system keeps the WiFi radio and CPU awake. This can be easily done if using
-   [`SimpleExoPlayer`][] by calling [`setWakeMode`][], which will automatically
+   [`ExoPlayer`][] by calling [`setWakeMode`][], which will automatically
    acquire and release the required locks at the correct times.
 
 It's important that you release the locks (if not using `setWakeMode`) and stop
@@ -335,8 +335,8 @@ is the official way to play YouTube videos on Android.
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
 [`WifiLock`]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
 [`WakeLock`]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
-[`SimpleExoPlayer`]: {{ site.exo_sdk }}/SimpleExoPlayer.html
-[`setWakeMode`]: {{ site.exo_sdk }}/SimpleExoPlayer.html#setWakeMode(int)
+[`ExoPlayer`]: {{ site.exo_sdk }}/ExoPlayer.html
+[`setWakeMode`]: {{ site.exo_sdk }}/ExoPlayer.html#setWakeMode(int)
 [A note on threading]: {{ site.base_url }}/hello-world.html#a-note-on-threading
 [OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp
 [CORS enabled]: https://www.w3.org/wiki/CORS_Enabled

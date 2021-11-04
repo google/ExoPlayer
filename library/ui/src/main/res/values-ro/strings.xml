@@ -49,12 +49,6 @@
   <string name="exo_controls_cc_disabled_description">Activați subtitrările</string>
   <string name="exo_controls_playback_speed">Viteză</string>
   <string name="exo_controls_playback_speed_normal">Normală</string>
-  <string name="exo_download_description">Descărcați</string>
-  <string name="exo_download_notification_channel_name">Descărcări</string>
-  <string name="exo_download_downloading">Se descarcă</string>
-  <string name="exo_download_completed">Descărcarea a fost finalizată</string>
-  <string name="exo_download_failed">Descărcarea nu a reușit</string>
-  <string name="exo_download_removing">Se elimină descărcările</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Text</string>

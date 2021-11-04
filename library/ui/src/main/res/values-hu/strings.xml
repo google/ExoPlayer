@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Feliratok bekapcsolása</string>
   <string name="exo_controls_playback_speed">Sebesség</string>
   <string name="exo_controls_playback_speed_normal">Normál</string>
-  <string name="exo_download_description">Letöltés</string>
-  <string name="exo_download_notification_channel_name">Letöltések</string>
-  <string name="exo_download_downloading">Letöltés folyamatban</string>
-  <string name="exo_download_completed">A letöltés befejeződött</string>
-  <string name="exo_download_failed">Nem sikerült a letöltés</string>
-  <string name="exo_download_removing">Letöltések törlése folyamatban</string>
   <string name="exo_track_selection_title_video">Videó</string>
   <string name="exo_track_selection_title_audio">Hang</string>
   <string name="exo_track_selection_title_text">Szöveg</string>

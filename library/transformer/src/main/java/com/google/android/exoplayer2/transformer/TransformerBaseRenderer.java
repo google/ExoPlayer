@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.util.MediaClock;
@@ -33,6 +34,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
   protected final Transformation transformation;
 
   protected boolean isRendererStarted;
+  protected long streamOffsetUs;
 
   public TransformerBaseRenderer(
       int trackType,
@@ -46,12 +48,26 @@ import com.google.android.exoplayer2.util.MimeTypes;
   }
 
   @Override
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
+    this.streamOffsetUs = offsetUs;
+  }
+
+  @Override
   @C.FormatSupport
   public final int supportsFormat(Format format) {
     @Nullable String sampleMimeType = format.sampleMimeType;
     if (MimeTypes.getTrackType(sampleMimeType) != getTrackType()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
-    } else if (muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
+    } else if ((MimeTypes.isAudio(sampleMimeType)
+            && muxerWrapper.supportsSampleMimeType(
+                transformation.audioMimeType == null
+                    ? sampleMimeType
+                    : transformation.audioMimeType))
+        || (MimeTypes.isVideo(sampleMimeType)
+            && muxerWrapper.supportsSampleMimeType(
+                transformation.videoMimeType == null
+                    ? sampleMimeType
+                    : transformation.videoMimeType))) {
       return RendererCapabilities.create(C.FORMAT_HANDLED);
     } else {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
@@ -75,7 +91,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
   }
 
   @Override
-  protected final void onStarted() {
+  protected void onStarted() throws ExoPlaybackException {
     isRendererStarted = true;
   }
 

@@ -49,7 +49,7 @@ By default, the player's renderers will be created using
 none of them will be removed by code shrinking. If you know that your app only
 needs a subset of renderers, you can specify your own `RenderersFactory`
 instead. For example, an app that only plays audio can define a factory like
-this when instantiating `SimpleExoPlayer` instances:
+this when instantiating `ExoPlayer` instances:
 
 ~~~
 RenderersFactory audioOnlyRenderersFactory =
@@ -58,8 +58,8 @@ RenderersFactory audioOnlyRenderersFactory =
             new MediaCodecAudioRenderer(
                 context, MediaCodecSelector.DEFAULT, handler, audioListener)
            };
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, audioOnlyRenderersFactory).build();
+ExoPlayer player =
+    new ExoPlayer.Builder(context, audioOnlyRenderersFactory).build();
 ~~~
 {: .language-java}
 
@@ -80,37 +80,50 @@ an app that only needs to play mp4 files can provide a factory like:
 ~~~
 ExtractorsFactory mp4ExtractorFactory =
     () -> new Extractor[] {new Mp4Extractor()};
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, mp4ExtractorFactory).build();
+ExoPlayer player =
+    new ExoPlayer.Builder(
+           context,
+           new DefaultMediaSourceFactory(context, mp4ExtractorFactory))
+        .build();
 ~~~
 {: .language-java}
 
 This will allow other `Extractor` implementations to be removed by code
 shrinking, which can result in a significant reduction in size.
 
-You should pass `ExtractorsFactory.EMPTY` to the `SimpleExoPlayer.Builder`
-constructor, if your app is doing one of the following:
-
-* Not playing progressive media at all, for example because it only
-  plays DASH, HLS or SmoothStreaming content
-* Providing a customized `DefaultMediaSourceFactory`
-* Using `MediaSource`s directly instead of `MediaItem`s
+If your app is not playing progressive content at all, you should pass
+`ExtractorsFactory.EMPTY` to the `DefaultMediaSourceFactory` constructor, then
+pass that `mediaSourceFactory` to the `ExoPlayer.Builder` constructor.
 
 ~~~
-// Only playing DASH, HLS or SmoothStreaming.
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
+ExoPlayer player =
+    new ExoPlayer.Builder(
+             context,
+             new DefaultMediaSourceFactory(context, ExtractorsFactory.EMPTY))
+         .build();
+~~~
+{: .language-java}
 
-// Providing a customized `DefaultMediaSourceFactory`
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY)
-        .setMediaSourceFactory(
-            new DefaultMediaSourceFactory(context, customExtractorsFactory))
-        .build();
+## Custom `MediaSource` instantiation ##
 
-// Using a MediaSource directly.
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
+If your app is using a custom `MediaSourceFactory` and you want
+`DefaultMediaSourceFactory` to be removed by code stripping, you should pass
+your `MediaSourceFactory` directly to the `ExoPlayer.Builder` constructor.
+
+~~~
+ExoPlayer player =
+    new ExoPlayer.Builder(context, customMediaSourceFactory).build();
+~~~
+{: .language-java}
+
+If your app is using `MediaSource`s directly instead of `MediaItem`s you should
+pass `MediaSourceFactory.UNSUPPORTED` to the `ExoPlayer.Builder` constructor, to
+ensure `DefaultMediaSourceFactory` and `DefaultExtractorsFactory` can be
+stripped by code shrinking.
+
+~~~
+ExoPlayer player =
+    new ExoPlayer.Builder(context, MediaSourceFactory.UNSUPPORTED).build();
 ProgressiveMediaSource mediaSource =
     new ProgressiveMediaSource.Factory(
             dataSourceFactory, customExtractorsFactory)

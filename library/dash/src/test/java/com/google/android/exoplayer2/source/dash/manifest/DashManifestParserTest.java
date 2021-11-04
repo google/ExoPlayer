@@ -36,13 +36,11 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 /** Unit tests for {@link DashManifestParser}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DashManifestParserTest {
 
   private static final String SAMPLE_MPD_LIVE = "media/mpd/sample_mpd_live";
@@ -50,6 +48,7 @@ public class DashManifestParserTest {
       "media/mpd/sample_mpd_unknown_mime_type";
   private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "media/mpd/sample_mpd_segment_template";
   private static final String SAMPLE_MPD_EVENT_STREAM = "media/mpd/sample_mpd_event_stream";
+  private static final String SAMPLE_MPD_IMAGES = "media/mpd/sample_mpd_images";
   private static final String SAMPLE_MPD_LABELS = "media/mpd/sample_mpd_labels";
   private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "media/mpd/sample_mpd_asset_identifier";
   private static final String SAMPLE_MPD_TEXT = "media/mpd/sample_mpd_text";
@@ -192,6 +191,23 @@ public class DashManifestParserTest {
         new ProgramInformation(
             "MediaTitle", "MediaSource", "MediaCopyright", "www.example.com", "enUs");
     assertThat(manifest.programInformation).isEqualTo(expectedProgramInformation);
+  }
+
+  @Test
+  public void parseMediaPresentationDescription_images() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_IMAGES));
+
+    AdaptationSet adaptationSet = manifest.getPeriod(0).adaptationSets.get(0);
+    Format format = adaptationSet.representations.get(0).format;
+
+    assertThat(format.sampleMimeType).isEqualTo("image/jpeg");
+    assertThat(format.width).isEqualTo(320);
+    assertThat(format.height).isEqualTo(180);
   }
 
   @Test

@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Ενεργοποίηση υπότιτλων</string>
   <string name="exo_controls_playback_speed">Ταχύτητα</string>
   <string name="exo_controls_playback_speed_normal">Κανονική</string>
-  <string name="exo_download_description">Λήψη</string>
-  <string name="exo_download_notification_channel_name">Λήψεις</string>
-  <string name="exo_download_downloading">Λήψη</string>
-  <string name="exo_download_completed">Η λήψη ολοκληρώθηκε</string>
-  <string name="exo_download_failed">Η λήψη απέτυχε</string>
-  <string name="exo_download_removing">Κατάργηση λήψεων</string>
   <string name="exo_track_selection_title_video">Βίντεο</string>
   <string name="exo_track_selection_title_audio">Ήχος</string>
   <string name="exo_track_selection_title_text">Κείμενο</string>

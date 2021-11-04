@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Įgalinti subtitrus</string>
   <string name="exo_controls_playback_speed">Sparta</string>
   <string name="exo_controls_playback_speed_normal">Įprasta</string>
-  <string name="exo_download_description">Atsisiųsti</string>
-  <string name="exo_download_notification_channel_name">Atsisiuntimai</string>
-  <string name="exo_download_downloading">Atsisiunčiama</string>
-  <string name="exo_download_completed">Atsisiuntimo procesas baigtas</string>
-  <string name="exo_download_failed">Nepavyko atsisiųsti</string>
-  <string name="exo_download_removing">Pašalinami atsisiuntimai</string>
   <string name="exo_track_selection_title_video">Vaizdo įrašas</string>
   <string name="exo_track_selection_title_audio">Garso įrašas</string>
   <string name="exo_track_selection_title_text">Tekstas</string>

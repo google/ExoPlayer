@@ -25,18 +25,15 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link AmrExtractor} seeking behaviour. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class AmrExtractorSeekTest {
 
   private static final Random random = new Random(1234L);
@@ -53,7 +50,7 @@ public final class AmrExtractorSeekTest {
   @Before
   public void setUp() {
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
+        new DefaultDataSource.Factory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

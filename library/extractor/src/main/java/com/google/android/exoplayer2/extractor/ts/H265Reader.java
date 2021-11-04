@@ -247,10 +247,20 @@ public final class H265Reader implements ElementaryStreamReader {
     bitArray.skipBits(40 + 4); // NAL header, sps_video_parameter_set_id
     int maxSubLayersMinus1 = bitArray.readBits(3);
     bitArray.skipBit(); // sps_temporal_id_nesting_flag
-
-    // profile_tier_level(1, sps_max_sub_layers_minus1)
-    bitArray.skipBits(88); // if (profilePresentFlag) {...}
-    bitArray.skipBits(8); // general_level_idc
+    int generalProfileSpace = bitArray.readBits(2);
+    boolean generalTierFlag = bitArray.readBit();
+    int generalProfileIdc = bitArray.readBits(5);
+    int generalProfileCompatibilityFlags = 0;
+    for (int i = 0; i < 32; i++) {
+      if (bitArray.readBit()) {
+        generalProfileCompatibilityFlags |= (1 << i);
+      }
+    }
+    int[] constraintBytes = new int[6];
+    for (int i = 0; i < constraintBytes.length; ++i) {
+      constraintBytes[i] = bitArray.readBits(8);
+    }
+    int generalLevelIdc = bitArray.readBits(8);
     int toSkip = 0;
     for (int i = 0; i < maxSubLayersMinus1; i++) {
       if (bitArray.readBit()) { // sub_layer_profile_present_flag[i]
@@ -360,10 +370,14 @@ public final class H265Reader implements ElementaryStreamReader {
       }
     }
 
-    // Parse the SPS to derive an RFC 6381 codecs string.
-    bitArray.reset(sps.nalData, 0, sps.nalLength);
-    bitArray.skipBits(24); // Skip start code.
-    String codecs = CodecSpecificDataUtil.buildHevcCodecStringFromSps(bitArray);
+    String codecs =
+        CodecSpecificDataUtil.buildHevcCodecString(
+            generalProfileSpace,
+            generalTierFlag,
+            generalProfileIdc,
+            generalProfileCompatibilityFlags,
+            constraintBytes,
+            generalLevelIdc);
 
     return new Format.Builder()
         .setId(formatId)

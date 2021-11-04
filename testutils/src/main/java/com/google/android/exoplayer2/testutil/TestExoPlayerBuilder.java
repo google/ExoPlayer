@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.util.Clock;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A builder of {@link SimpleExoPlayer} instances for testing. */
+@SuppressWarnings("deprecation") // Returning deprecated type for backwards compatibility.
 public class TestExoPlayerBuilder {
 
   private final Context context;
@@ -44,6 +46,7 @@ public class TestExoPlayerBuilder {
   private BandwidthMeter bandwidthMeter;
   @Nullable private Renderer[] renderers;
   @Nullable private RenderersFactory renderersFactory;
+  @Nullable private MediaSourceFactory mediaSourceFactory;
   private boolean useLazyPreparation;
   private @MonotonicNonNull Looper looper;
   private long seekBackIncrementMs;
@@ -219,6 +222,26 @@ public class TestExoPlayerBuilder {
   }
 
   /**
+   * Returns the {@link MediaSourceFactory} that will be used by the player, or null if no {@link
+   * MediaSourceFactory} has been set yet and no default is available.
+   */
+  @Nullable
+  public MediaSourceFactory getMediaSourceFactory() {
+    return mediaSourceFactory;
+  }
+
+  /**
+   * Sets the {@link MediaSourceFactory} to be used by the player.
+   *
+   * @param mediaSourceFactory The {@link MediaSourceFactory} to be used by the player.
+   * @return This builder.
+   */
+  public TestExoPlayerBuilder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+    this.mediaSourceFactory = mediaSourceFactory;
+    return this;
+  }
+
+  /**
    * Sets the seek back increment to be used by the player.
    *
    * @param seekBackIncrementMs The seek back increment to be used by the player.
@@ -250,11 +273,7 @@ public class TestExoPlayerBuilder {
     return seekForwardIncrementMs;
   }
 
-  /**
-   * Builds an {@link SimpleExoPlayer} using the provided values or their defaults.
-   *
-   * @return The built {@link ExoPlayerTestRunner}.
-   */
+  /** Builds an {@link SimpleExoPlayer} using the provided values or their defaults. */
   public SimpleExoPlayer build() {
     Assertions.checkNotNull(
         looper, "TestExoPlayer builder run on a thread without Looper and no Looper specified.");
@@ -276,16 +295,20 @@ public class TestExoPlayerBuilder {
                   };
     }
 
-    return new SimpleExoPlayer.Builder(context, playerRenderersFactory)
-        .setTrackSelector(trackSelector)
-        .setLoadControl(loadControl)
-        .setBandwidthMeter(bandwidthMeter)
-        .setAnalyticsCollector(new AnalyticsCollector(clock))
-        .setClock(clock)
-        .setUseLazyPreparation(useLazyPreparation)
-        .setLooper(looper)
-        .setSeekBackIncrementMs(seekBackIncrementMs)
-        .setSeekForwardIncrementMs(seekForwardIncrementMs)
-        .build();
+    SimpleExoPlayer.Builder builder =
+        new SimpleExoPlayer.Builder(context, playerRenderersFactory)
+            .setTrackSelector(trackSelector)
+            .setLoadControl(loadControl)
+            .setBandwidthMeter(bandwidthMeter)
+            .setAnalyticsCollector(new AnalyticsCollector(clock))
+            .setClock(clock)
+            .setUseLazyPreparation(useLazyPreparation)
+            .setLooper(looper)
+            .setSeekBackIncrementMs(seekBackIncrementMs)
+            .setSeekForwardIncrementMs(seekForwardIncrementMs);
+    if (mediaSourceFactory != null) {
+      builder.setMediaSourceFactory(mediaSourceFactory);
+    }
+    return builder.build();
   }
 }

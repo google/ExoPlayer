@@ -35,7 +35,7 @@ ext {
 apply from: '../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-testutils'
+    releaseArtifactId = 'exoplayer-testutils'
     releaseDescription = 'Test utils for ExoPlayer.'
 }
 apply from: '../publish.gradle'

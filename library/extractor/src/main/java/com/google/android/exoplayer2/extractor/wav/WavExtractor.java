@@ -19,6 +19,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.util.Pair;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -34,8 +35,14 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** Extracts data from WAV byte streams. */
 public final class WavExtractor implements Extractor {
@@ -50,20 +57,39 @@ public final class WavExtractor implements Extractor {
   /** Factory for {@link WavExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new WavExtractor()};
 
+  /** Parser state. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({ElementType.TYPE_USE})
+  @IntDef({
+    STATE_READING_FILE_TYPE,
+    STATE_READING_FORMAT,
+    STATE_SKIPPING_TO_SAMPLE_DATA,
+    STATE_READING_SAMPLE_DATA
+  })
+  private @interface State {}
+
+  private static final int STATE_READING_FILE_TYPE = 0;
+  private static final int STATE_READING_FORMAT = 1;
+  private static final int STATE_SKIPPING_TO_SAMPLE_DATA = 2;
+  private static final int STATE_READING_SAMPLE_DATA = 3;
+
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @MonotonicNonNull TrackOutput trackOutput;
+  private @State int state;
   private @MonotonicNonNull OutputWriter outputWriter;
   private int dataStartPosition;
   private long dataEndPosition;
 
   public WavExtractor() {
+    state = STATE_READING_FILE_TYPE;
     dataStartPosition = C.POSITION_UNSET;
     dataEndPosition = C.POSITION_UNSET;
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return WavHeaderReader.peek(input) != null;
+    return WavHeaderReader.checkFileType(input);
   }
 
   @Override
@@ -75,6 +101,7 @@ public final class WavExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
+    state = position == 0 ? STATE_READING_FILE_TYPE : STATE_READING_SAMPLE_DATA;
     if (outputWriter != null) {
       outputWriter.reset(timeUs);
     }
@@ -86,65 +113,99 @@ public final class WavExtractor implements Extractor {
   }
 
   @Override
+  @ReadResult
   public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     assertInitialized();
-    if (outputWriter == null) {
-      WavHeader header = WavHeaderReader.peek(input);
-      if (header == null) {
-        // Should only happen if the media wasn't sniffed.
-        throw ParserException.createForMalformedContainer(
-            "Unsupported or unrecognized wav header.", /* cause= */ null);
-      }
-
-      if (header.formatType == WavUtil.TYPE_IMA_ADPCM) {
-        outputWriter = new ImaAdPcmOutputWriter(extractorOutput, trackOutput, header);
-      } else if (header.formatType == WavUtil.TYPE_ALAW) {
-        outputWriter =
-            new PassthroughOutputWriter(
-                extractorOutput,
-                trackOutput,
-                header,
-                MimeTypes.AUDIO_ALAW,
-                /* pcmEncoding= */ Format.NO_VALUE);
-      } else if (header.formatType == WavUtil.TYPE_MLAW) {
-        outputWriter =
-            new PassthroughOutputWriter(
-                extractorOutput,
-                trackOutput,
-                header,
-                MimeTypes.AUDIO_MLAW,
-                /* pcmEncoding= */ Format.NO_VALUE);
-      } else {
-        @C.PcmEncoding
-        int pcmEncoding = WavUtil.getPcmEncodingForType(header.formatType, header.bitsPerSample);
-        if (pcmEncoding == C.ENCODING_INVALID) {
-          throw ParserException.createForUnsupportedContainerFeature(
-              "Unsupported WAV format type: " + header.formatType);
-        }
-        outputWriter =
-            new PassthroughOutputWriter(
-                extractorOutput, trackOutput, header, MimeTypes.AUDIO_RAW, pcmEncoding);
-      }
+    switch (state) {
+      case STATE_READING_FILE_TYPE:
+        readFileType(input);
+        return Extractor.RESULT_CONTINUE;
+      case STATE_READING_FORMAT:
+        readFormat(input);
+        return Extractor.RESULT_CONTINUE;
+      case STATE_SKIPPING_TO_SAMPLE_DATA:
+        skipToSampleData(input);
+        return Extractor.RESULT_CONTINUE;
+      case STATE_READING_SAMPLE_DATA:
+        return readSampleData(input);
+      default:
+        throw new IllegalStateException();
     }
-
-    if (dataStartPosition == C.POSITION_UNSET) {
-      Pair<Long, Long> dataBounds = WavHeaderReader.skipToData(input);
-      dataStartPosition = dataBounds.first.intValue();
-      dataEndPosition = dataBounds.second;
-      outputWriter.init(dataStartPosition, dataEndPosition);
-    } else if (input.getPosition() == 0) {
-      input.skipFully(dataStartPosition);
-    }
-
-    Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
-    long bytesLeft = dataEndPosition - input.getPosition();
-    return outputWriter.sampleData(input, bytesLeft) ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }
 
   @EnsuresNonNull({"extractorOutput", "trackOutput"})
   private void assertInitialized() {
     Assertions.checkStateNotNull(trackOutput);
     Util.castNonNull(extractorOutput);
+  }
+
+  private void readFileType(ExtractorInput input) throws IOException {
+    Assertions.checkState(input.getPosition() == 0);
+    if (dataStartPosition != C.POSITION_UNSET) {
+      input.skipFully(dataStartPosition);
+      state = STATE_READING_SAMPLE_DATA;
+      return;
+    }
+    if (!WavHeaderReader.checkFileType(input)) {
+      // Should only happen if the media wasn't sniffed.
+      throw ParserException.createForMalformedContainer(
+          "Unsupported or unrecognized wav file type.", /* cause= */ null);
+    }
+    input.skipFully((int) (input.getPeekPosition() - input.getPosition()));
+    state = STATE_READING_FORMAT;
+  }
+
+  @RequiresNonNull({"extractorOutput", "trackOutput"})
+  private void readFormat(ExtractorInput input) throws IOException {
+    WavFormat wavFormat = WavHeaderReader.readFormat(input);
+    if (wavFormat.formatType == WavUtil.TYPE_IMA_ADPCM) {
+      outputWriter = new ImaAdPcmOutputWriter(extractorOutput, trackOutput, wavFormat);
+    } else if (wavFormat.formatType == WavUtil.TYPE_ALAW) {
+      outputWriter =
+          new PassthroughOutputWriter(
+              extractorOutput,
+              trackOutput,
+              wavFormat,
+              MimeTypes.AUDIO_ALAW,
+              /* pcmEncoding= */ Format.NO_VALUE);
+    } else if (wavFormat.formatType == WavUtil.TYPE_MLAW) {
+      outputWriter =
+          new PassthroughOutputWriter(
+              extractorOutput,
+              trackOutput,
+              wavFormat,
+              MimeTypes.AUDIO_MLAW,
+              /* pcmEncoding= */ Format.NO_VALUE);
+    } else {
+      @C.PcmEncoding
+      int pcmEncoding =
+          WavUtil.getPcmEncodingForType(wavFormat.formatType, wavFormat.bitsPerSample);
+      if (pcmEncoding == C.ENCODING_INVALID) {
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Unsupported WAV format type: " + wavFormat.formatType);
+      }
+      outputWriter =
+          new PassthroughOutputWriter(
+              extractorOutput, trackOutput, wavFormat, MimeTypes.AUDIO_RAW, pcmEncoding);
+    }
+    state = STATE_SKIPPING_TO_SAMPLE_DATA;
+  }
+
+  private void skipToSampleData(ExtractorInput input) throws IOException {
+    Pair<Long, Long> dataBounds = WavHeaderReader.skipToSampleData(input);
+    dataStartPosition = dataBounds.first.intValue();
+    dataEndPosition = dataBounds.second;
+    Assertions.checkNotNull(outputWriter).init(dataStartPosition, dataEndPosition);
+    state = STATE_READING_SAMPLE_DATA;
+  }
+
+  @ReadResult
+  private int readSampleData(ExtractorInput input) throws IOException {
+    Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
+    long bytesLeft = dataEndPosition - input.getPosition();
+    return Assertions.checkNotNull(outputWriter).sampleData(input, bytesLeft)
+        ? RESULT_END_OF_INPUT
+        : RESULT_CONTINUE;
   }
 
   /** Writes to the extractor's output. */
@@ -186,7 +247,7 @@ public final class WavExtractor implements Extractor {
 
     private final ExtractorOutput extractorOutput;
     private final TrackOutput trackOutput;
-    private final WavHeader header;
+    private final WavFormat wavFormat;
     private final Format format;
     /** The target size of each output sample, in bytes. */
     private final int targetSampleSizeBytes;
@@ -208,33 +269,33 @@ public final class WavExtractor implements Extractor {
     public PassthroughOutputWriter(
         ExtractorOutput extractorOutput,
         TrackOutput trackOutput,
-        WavHeader header,
+        WavFormat wavFormat,
         String mimeType,
         @C.PcmEncoding int pcmEncoding)
         throws ParserException {
       this.extractorOutput = extractorOutput;
       this.trackOutput = trackOutput;
-      this.header = header;
+      this.wavFormat = wavFormat;
 
-      int bytesPerFrame = header.numChannels * header.bitsPerSample / 8;
-      // Validate the header. Blocks are expected to correspond to single frames.
-      if (header.blockSize != bytesPerFrame) {
+      int bytesPerFrame = wavFormat.numChannels * wavFormat.bitsPerSample / 8;
+      // Validate the WAV format. Blocks are expected to correspond to single frames.
+      if (wavFormat.blockSize != bytesPerFrame) {
         throw ParserException.createForMalformedContainer(
-            "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize,
+            "Expected block size: " + bytesPerFrame + "; got: " + wavFormat.blockSize,
             /* cause= */ null);
       }
 
-      int constantBitrate = header.frameRateHz * bytesPerFrame * 8;
+      int constantBitrate = wavFormat.frameRateHz * bytesPerFrame * 8;
       targetSampleSizeBytes =
-          max(bytesPerFrame, header.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
+          max(bytesPerFrame, wavFormat.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
       format =
           new Format.Builder()
               .setSampleMimeType(mimeType)
               .setAverageBitrate(constantBitrate)
               .setPeakBitrate(constantBitrate)
               .setMaxInputSize(targetSampleSizeBytes)
-              .setChannelCount(header.numChannels)
-              .setSampleRate(header.frameRateHz)
+              .setChannelCount(wavFormat.numChannels)
+              .setSampleRate(wavFormat.frameRateHz)
               .setPcmEncoding(pcmEncoding)
               .build();
     }
@@ -249,7 +310,7 @@ public final class WavExtractor implements Extractor {
     @Override
     public void init(int dataStartPosition, long dataEndPosition) {
       extractorOutput.seekMap(
-          new WavSeekMap(header, /* framesPerBlock= */ 1, dataStartPosition, dataEndPosition));
+          new WavSeekMap(wavFormat, /* framesPerBlock= */ 1, dataStartPosition, dataEndPosition));
       trackOutput.format(format);
     }
 
@@ -270,13 +331,13 @@ public final class WavExtractor implements Extractor {
       // Write the corresponding sample metadata. Samples must be a whole number of frames. It's
       // possible that the number of pending output bytes is not a whole number of frames if the
       // stream ended unexpectedly.
-      int bytesPerFrame = header.blockSize;
+      int bytesPerFrame = wavFormat.blockSize;
       int pendingFrames = pendingOutputBytes / bytesPerFrame;
       if (pendingFrames > 0) {
         long timeUs =
             startTimeUs
                 + Util.scaleLargeTimestamp(
-                    outputFrameCount, C.MICROS_PER_SECOND, header.frameRateHz);
+                    outputFrameCount, C.MICROS_PER_SECOND, wavFormat.frameRateHz);
         int size = pendingFrames * bytesPerFrame;
         int offset = pendingOutputBytes - size;
         trackOutput.sampleMetadata(
@@ -306,7 +367,7 @@ public final class WavExtractor implements Extractor {
 
     private final ExtractorOutput extractorOutput;
     private final TrackOutput trackOutput;
-    private final WavHeader header;
+    private final WavFormat wavFormat;
 
     /** Number of frames per block of the input (yet to be decoded) data. */
     private final int framesPerBlock;
@@ -336,23 +397,26 @@ public final class WavExtractor implements Extractor {
     private long outputFrameCount;
 
     public ImaAdPcmOutputWriter(
-        ExtractorOutput extractorOutput, TrackOutput trackOutput, WavHeader header)
+        ExtractorOutput extractorOutput, TrackOutput trackOutput, WavFormat wavFormat)
         throws ParserException {
       this.extractorOutput = extractorOutput;
       this.trackOutput = trackOutput;
-      this.header = header;
-      targetSampleSizeFrames = max(1, header.frameRateHz / TARGET_SAMPLES_PER_SECOND);
+      this.wavFormat = wavFormat;
+      targetSampleSizeFrames = max(1, wavFormat.frameRateHz / TARGET_SAMPLES_PER_SECOND);
 
-      ParsableByteArray scratch = new ParsableByteArray(header.extraData);
+      ParsableByteArray scratch = new ParsableByteArray(wavFormat.extraData);
       scratch.readLittleEndianUnsignedShort();
       framesPerBlock = scratch.readLittleEndianUnsignedShort();
 
-      int numChannels = header.numChannels;
-      // Validate the header. This calculation is defined in "Microsoft Multimedia Standards Update
+      int numChannels = wavFormat.numChannels;
+      // Validate the WAV format. This calculation is defined in "Microsoft Multimedia Standards
+      // Update
       // - New Multimedia Types and Data Techniques" (1994). See the "IMA ADPCM Wave Type" and "DVI
       // ADPCM Wave Type" sections, and the calculation of wSamplesPerBlock in the latter.
       int expectedFramesPerBlock =
-          (((header.blockSize - (4 * numChannels)) * 8) / (header.bitsPerSample * numChannels)) + 1;
+          (((wavFormat.blockSize - (4 * numChannels)) * 8)
+                  / (wavFormat.bitsPerSample * numChannels))
+              + 1;
       if (framesPerBlock != expectedFramesPerBlock) {
         throw ParserException.createForMalformedContainer(
             "Expected frames per block: " + expectedFramesPerBlock + "; got: " + framesPerBlock,
@@ -362,22 +426,22 @@ public final class WavExtractor implements Extractor {
       // Calculate the number of blocks we'll need to decode to obtain an output sample of the
       // target sample size, and allocate suitably sized buffers for input and decoded data.
       int maxBlocksToDecode = Util.ceilDivide(targetSampleSizeFrames, framesPerBlock);
-      inputData = new byte[maxBlocksToDecode * header.blockSize];
+      inputData = new byte[maxBlocksToDecode * wavFormat.blockSize];
       decodedData =
           new ParsableByteArray(
               maxBlocksToDecode * numOutputFramesToBytes(framesPerBlock, numChannels));
 
       // Create the format. We calculate the bitrate of the data before decoding, since this is the
       // bitrate of the stream itself.
-      int constantBitrate = header.frameRateHz * header.blockSize * 8 / framesPerBlock;
+      int constantBitrate = wavFormat.frameRateHz * wavFormat.blockSize * 8 / framesPerBlock;
       format =
           new Format.Builder()
               .setSampleMimeType(MimeTypes.AUDIO_RAW)
               .setAverageBitrate(constantBitrate)
               .setPeakBitrate(constantBitrate)
               .setMaxInputSize(numOutputFramesToBytes(targetSampleSizeFrames, numChannels))
-              .setChannelCount(header.numChannels)
-              .setSampleRate(header.frameRateHz)
+              .setChannelCount(wavFormat.numChannels)
+              .setSampleRate(wavFormat.frameRateHz)
               .setPcmEncoding(C.ENCODING_PCM_16BIT)
               .build();
     }
@@ -393,7 +457,7 @@ public final class WavExtractor implements Extractor {
     @Override
     public void init(int dataStartPosition, long dataEndPosition) {
       extractorOutput.seekMap(
-          new WavSeekMap(header, framesPerBlock, dataStartPosition, dataEndPosition));
+          new WavSeekMap(wavFormat, framesPerBlock, dataStartPosition, dataEndPosition));
       trackOutput.format(format);
     }
 
@@ -405,7 +469,7 @@ public final class WavExtractor implements Extractor {
           targetSampleSizeFrames - numOutputBytesToFrames(pendingOutputBytes);
       // Calculate the whole number of blocks that we need to decode to obtain this many frames.
       int blocksToDecode = Util.ceilDivide(targetFramesRemaining, framesPerBlock);
-      int targetReadBytes = blocksToDecode * header.blockSize;
+      int targetReadBytes = blocksToDecode * wavFormat.blockSize;
 
       // Read input data until we've reached the target number of blocks, or the end of the data.
       boolean endOfSampleData = bytesLeft == 0;
@@ -419,11 +483,11 @@ public final class WavExtractor implements Extractor {
         }
       }
 
-      int pendingBlockCount = pendingInputBytes / header.blockSize;
+      int pendingBlockCount = pendingInputBytes / wavFormat.blockSize;
       if (pendingBlockCount > 0) {
         // We have at least one whole block to decode.
         decode(inputData, pendingBlockCount, decodedData);
-        pendingInputBytes -= pendingBlockCount * header.blockSize;
+        pendingInputBytes -= pendingBlockCount * wavFormat.blockSize;
 
         // Write all of the decoded data to the track output.
         int decodedDataSize = decodedData.limit();
@@ -451,7 +515,8 @@ public final class WavExtractor implements Extractor {
     private void writeSampleMetadata(int sampleFrames) {
       long timeUs =
           startTimeUs
-              + Util.scaleLargeTimestamp(outputFrameCount, C.MICROS_PER_SECOND, header.frameRateHz);
+              + Util.scaleLargeTimestamp(
+                  outputFrameCount, C.MICROS_PER_SECOND, wavFormat.frameRateHz);
       int size = numOutputFramesToBytes(sampleFrames);
       int offset = pendingOutputBytes - size;
       trackOutput.sampleMetadata(
@@ -469,7 +534,7 @@ public final class WavExtractor implements Extractor {
      */
     private void decode(byte[] input, int blockCount, ParsableByteArray output) {
       for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-        for (int channelIndex = 0; channelIndex < header.numChannels; channelIndex++) {
+        for (int channelIndex = 0; channelIndex < wavFormat.numChannels; channelIndex++) {
           decodeBlockForChannel(input, blockIndex, channelIndex, output.getData());
         }
       }
@@ -480,8 +545,8 @@ public final class WavExtractor implements Extractor {
 
     private void decodeBlockForChannel(
         byte[] input, int blockIndex, int channelIndex, byte[] output) {
-      int blockSize = header.blockSize;
-      int numChannels = header.numChannels;
+      int blockSize = wavFormat.blockSize;
+      int numChannels = wavFormat.numChannels;
 
       // The input data consists for a four byte header [Ci] for each of the N channels, followed
       // by interleaved data segments [Ci-DATAj], each of which are four bytes long.
@@ -542,11 +607,11 @@ public final class WavExtractor implements Extractor {
     }
 
     private int numOutputBytesToFrames(int bytes) {
-      return bytes / (2 * header.numChannels);
+      return bytes / (2 * wavFormat.numChannels);
     }
 
     private int numOutputFramesToBytes(int frames) {
-      return numOutputFramesToBytes(frames, header.numChannels);
+      return numOutputFramesToBytes(frames, wavFormat.numChannels);
     }
 
     private static int numOutputFramesToBytes(int frames, int numChannels) {

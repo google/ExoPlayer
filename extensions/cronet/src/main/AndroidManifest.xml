@@ -17,5 +17,6 @@
     package="com.google.android.exoplayer2.ext.cronet">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-sdk />
 
 </manifest>

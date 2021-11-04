@@ -105,7 +105,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         int periodIndex,
         int[] adaptationSetIndices,
         ExoTrackSelection trackSelection,
-        int trackType,
+        @C.TrackType int trackType,
         long elapsedRealtimeOffsetMs,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
@@ -136,7 +136,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final BaseUrlExclusionList baseUrlExclusionList;
   private final int[] adaptationSetIndices;
-  private final int trackType;
+  private final @C.TrackType int trackType;
   private final DataSource dataSource;
   private final long elapsedRealtimeOffsetMs;
   private final int maxSegmentsPerLoad;
@@ -159,7 +159,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param periodIndex The index of the period in the manifest.
    * @param adaptationSetIndices The indices of the adaptation sets in the period.
    * @param trackSelection The track selection.
-   * @param trackType The type of the tracks in the selection.
+   * @param trackType The {@link C.TrackType type} of the tracks in the selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
@@ -180,7 +180,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       int periodIndex,
       int[] adaptationSetIndices,
       ExoTrackSelection trackSelection,
-      int trackType,
+      @C.TrackType int trackType,
       DataSource dataSource,
       long elapsedRealtimeOffsetMs,
       int maxSegmentsPerLoad,
@@ -305,8 +305,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long presentationPositionUs =
-        C.msToUs(manifest.availabilityStartTimeMs)
-            + C.msToUs(manifest.getPeriod(periodIndex).startMs)
+        Util.msToUs(manifest.availabilityStartTimeMs)
+            + Util.msToUs(manifest.getPeriod(periodIndex).startMs)
             + loadPositionUs;
 
     if (playerTrackEmsgHandler != null
@@ -315,7 +315,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
+    long nowUnixTimeUs = Util.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
     long nowPeriodTimeUs = getNowPeriodTimeUs(nowUnixTimeUs);
     MediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
@@ -338,6 +338,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         if (segmentNum < firstAvailableSegmentNum) {
           chunkIterators[i] = MediaChunkIterator.EMPTY;
         } else {
+          representationHolder = updateSelectedBaseUrl(/* trackIndex= */ i);
           chunkIterators[i] =
               new RepresentationSegmentIterator(
                   representationHolder, segmentNum, lastAvailableSegmentNum, nowPeriodTimeUs);
@@ -507,7 +508,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
         createFallbackOptions(trackSelection, representationHolder.representation.baseUrls);
     if (!fallbackOptions.isFallbackAvailable(LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK)
         && !fallbackOptions.isFallbackAvailable(LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION)) {
-      // No more alternatives remaining.
       return false;
     }
     @Nullable
@@ -600,15 +600,16 @@ public class DefaultDashChunkSource implements DashChunkSource {
     return manifest.availabilityStartTimeMs == C.TIME_UNSET
         ? C.TIME_UNSET
         : nowUnixTimeUs
-            - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
+            - Util.msToUs(
+                manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
   }
 
   protected Chunk newInitializationChunk(
       RepresentationHolder representationHolder,
       DataSource dataSource,
       Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
+      @C.SelectionReason int trackSelectionReason,
+      @Nullable Object trackSelectionData,
       @Nullable RangedUri initializationUri,
       @Nullable RangedUri indexUri) {
     Representation representation = representationHolder.representation;
@@ -639,9 +640,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
   protected Chunk newMediaChunk(
       RepresentationHolder representationHolder,
       DataSource dataSource,
-      int trackType,
+      @C.TrackType int trackType,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       Object trackSelectionData,
       long firstSegmentNum,
       int maxSegmentCount,

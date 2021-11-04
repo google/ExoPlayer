@@ -39,6 +39,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -334,6 +337,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Processes RTSP messages line-by-line. */
   private static final class MessageParser {
 
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({STATE_READING_FIRST_LINE, STATE_READING_HEADER, STATE_READING_BODY})
     @interface ReadingState {}
 

@@ -122,7 +122,7 @@ public class TimelineTest {
     otherWindow.positionInFirstPeriodUs = C.TIME_UNSET;
     assertThat(window).isNotEqualTo(otherWindow);
 
-    window = populateWindow(mediaItem, mediaItem.playbackProperties.tag);
+    window = populateWindow(mediaItem, mediaItem.localConfiguration.tag);
     otherWindow =
         otherWindow.set(
             window.uid,

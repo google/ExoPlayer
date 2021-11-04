@@ -11,7 +11,7 @@ it to the player.
 
 ~~~
 // Create a player instance.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+ExoPlayer player = new ExoPlayer.Builder(context).build();
 // Set the media item to be played.
 player.setMediaItem(MediaItem.fromUri(progressiveUri));
 // Prepare the player.
@@ -31,7 +31,7 @@ DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
 MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
     .createMediaSource(MediaItem.fromUri(progressiveUri));
 // Create a player instance.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+ExoPlayer player = new ExoPlayer.Builder(context).build();
 // Set the media source to be played.
 player.setMediaSource(mediaSource);
 // Prepare the player.

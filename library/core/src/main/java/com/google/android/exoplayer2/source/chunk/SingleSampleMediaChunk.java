@@ -22,14 +22,14 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** A {@link BaseMediaChunk} for chunks consisting of a single raw sample. */
 public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
-  private final int trackType;
+  private final @C.TrackType int trackType;
   private final Format sampleFormat;
 
   private long nextLoadPosition;
@@ -44,20 +44,19 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk, or {@link C#INDEX_UNSET} if it is not known.
-   * @param trackType The type of the chunk. Typically one of the {@link C} {@code TRACK_TYPE_*}
-   *     constants.
+   * @param trackType The {@link C.TrackType track type} of the chunk.
    * @param sampleFormat The {@link Format} of the sample in the chunk.
    */
   public SingleSampleMediaChunk(
       DataSource dataSource,
       DataSpec dataSpec,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,
       long chunkIndex,
-      int trackType,
+      @C.TrackType int trackType,
       Format sampleFormat) {
     super(
         dataSource,
@@ -111,7 +110,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       int sampleSize = (int) nextLoadPosition;
       trackOutput.sampleMetadata(startTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
     } finally {
-      Util.closeQuietly(dataSource);
+      DataSourceUtil.closeQuietly(dataSource);
     }
     loadCompleted = true;
   }

@@ -114,7 +114,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
-<h2 title="Class DecoderAudioRenderer" class="title">Class DecoderAudioRenderer&lt;T extends <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;? extends <a href="../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;? extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</h2>
+<h2 title="Class DecoderAudioRenderer" class="title">Class DecoderAudioRenderer&lt;T extends <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;? extends <a href="../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;? extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -142,7 +142,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a></code>, <code><a href="../ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a></code>, <code><a href="../ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">DecoderAudioRenderer&lt;T extends <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;? extends <a href="../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;? extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</span>
+<pre>public abstract class <span class="typeNameLabel">DecoderAudioRenderer&lt;T extends <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;? extends <a href="../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;? extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</span>
 extends <a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>
 implements <a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></pre>
 <div class="block">Decodes and renders audio using a <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.
@@ -154,8 +154,8 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
    <li>Message with type <a href="../Renderer.html#MSG_SET_VOLUME"><code>Renderer.MSG_SET_VOLUME</code></a> to set the volume. The message payload should be
        a <a href="https://developer.android.com/reference/java/lang/Float.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Float</code></a> with 0 being silence and 1 being unity gain.
    <li>Message with type <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES"><code>Renderer.MSG_SET_AUDIO_ATTRIBUTES</code></a> to set the audio attributes. The
-       message payload should be an <a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>
-       instance that will configure the underlying audio track.
+       message payload should be an <a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> instance that will configure the
+       underlying audio track.
    <li>Message with type <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO"><code>Renderer.MSG_SET_AUX_EFFECT_INFO</code></a> to set the auxiliary effect. The message
        payload should be an <a href="AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio"><code>AuxEffectInfo</code></a> instance that will configure the underlying
        audio track.
@@ -183,7 +183,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="../Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a>, <a href="../Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">Renderer.VideoScalingMode</a>, <a href="../Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2">Renderer.WakeupListener</a></code></li>
+<code><a href="../Renderer.MessageType.html" title="annotation in com.google.android.exoplayer2">Renderer.MessageType</a>, <a href="../Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a>, <a href="../Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2">Renderer.WakeupListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -207,7 +207,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a>, <a href="../Renderer.html#VIDEO_SCALING_MODE_DEFAULT">VIDEO_SCALING_MODE_DEFAULT</a>, <a href="../Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT">VIDEO_SCALING_MODE_SCALE_TO_FIT</a>, <a href="../Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</a></code></li>
+<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -284,8 +284,8 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="DecoderAudioRenderer.html" title="type parameter in DecoderAudioRenderer">T</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.drm.ExoMediaCrypto)">createDecoder</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-             <a href="../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;mediaCrypto)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.CryptoConfig)">createDecoder</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+             <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;cryptoConfig)</code></th>
 <td class="colLast">
 <div class="block">Creates a decoder for the given format.</div>
 </td>
@@ -446,7 +446,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></h3>
-<code><a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,int)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,int)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#onReset()">onReset</a>, <a href="../BaseRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readSource</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#setIndex(int)">setIndex</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a>, <a href="../BaseRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a></code></li>
+<code><a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#onReset()">onReset</a>, <a href="../BaseRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readSource</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#setIndex(int)">setIndex</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a>, <a href="../BaseRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -724,7 +724,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <div class="block">See <a href="AudioSink.Listener.html#onPositionDiscontinuity()"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a>.</div>
 </li>
 </ul>
-<a id="createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.drm.ExoMediaCrypto)">
+<a id="createDecoder(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.CryptoConfig)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -732,14 +732,14 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <h4>createDecoder</h4>
 <pre class="methodSignature">protected abstract&nbsp;<a href="DecoderAudioRenderer.html" title="type parameter in DecoderAudioRenderer">T</a>&nbsp;createDecoder&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                    @Nullable
-                                   <a href="../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;mediaCrypto)
+                                   <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;cryptoConfig)
                             throws <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Creates a decoder for the given format.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The format for which a decoder is required.</dd>
-<dd><code>mediaCrypto</code> - The <a href="../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> object required for decoding encrypted content.
-     Maybe null and can be ignored if decoder does not handle encrypted content.</dd>
+<dd><code>cryptoConfig</code> - The <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> object required for decoding encrypted content.
+     May be null and can be ignored if decoder does not handle encrypted content.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The decoder.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -990,7 +990,8 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>handleMessage</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;handleMessage&#8203;(int&nbsp;messageType,
+<pre class="methodSignature">public&nbsp;void&nbsp;handleMessage&#8203;(<a href="../Renderer.MessageType.html" title="annotation in com.google.android.exoplayer2">@MessageType</a>
+                          int&nbsp;messageType,
                           @Nullable
                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)
                    throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>

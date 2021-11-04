@@ -32,25 +32,25 @@ where `PreferredHttpDataSource.Factory` is the factory corresponding to your
 preferred network stack. The `DefaultDataSourceFactory` layer adds in support
 for non-http(s) sources such as local files.
 
-The example below shows how to build a `SimpleExoPlayer` that will use
-the Cronet network stack and also support playback of non-http(s) content.
+The example below shows how to build an `ExoPlayer` that will use the Cronet
+network stack and also support playback of non-http(s) content.
 
 ~~~
 // Given a CronetEngine and Executor, build a CronetDataSource.Factory.
 CronetDataSource.Factory cronetDataSourceFactory =
     new CronetDataSource.Factory(cronetEngine, executor);
 
-// Wrap the CronetDataSource.Factory in a DefaultDataSourceFactory, which adds
+// Wrap the CronetDataSource.Factory in a DefaultDataSource.Factory, which adds
 // in support for requesting data from other sources (e.g., files, resources,
 // etc).
-DefaultDataSourceFactory dataSourceFactory =
-    new DefaultDataSourceFactory(
+DefaultDataSource.Factory dataSourceFactory =
+    new DefaultDataSource.Factory(
         context,
         /* baseDataSourceFactory= */ cronetDataSourceFactory);
 
 // Inject the DefaultDataSourceFactory when creating the player.
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+ExoPlayer player =
+    new ExoPlayer.Builder(context)
         .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
         .build();
 ~~~

@@ -48,7 +48,7 @@ public final class AdditionalFailureInfo implements TestRule {
   }
 
   /**
-   * Set the additional info to be added to any test failures. Pass {@code null} to skip adding any
+   * Sets the additional info to be added to any test failures. Pass {@code null} to skip adding any
    * additional info.
    *
    * <p>Can be called from any thread.

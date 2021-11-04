@@ -15,7 +15,8 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
     implementation project(modulePrefix + 'library-common')
-    implementation 'net.butterflytv.utils:rtmp-client:3.1.0'
+    implementation project(modulePrefix + 'library-datasource')
+    implementation 'io.antmedia:rtmp-client:3.2.0'
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'library-core')
@@ -29,7 +30,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'extension-rtmp'
+    releaseArtifactId = 'extension-rtmp'
     releaseDescription = 'RTMP extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'

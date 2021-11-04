@@ -1,4 +1,3 @@
-# ExoPlayer test data #
+# Test data module
 
-Provides sample data for ExoPlayer unit and instrumentation tests.
-
+Provides sample data for media unit and instrumentation tests.

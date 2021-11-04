@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -115,6 +116,36 @@ public final class MimeTypesTest {
   }
 
   @Test
+  public void isImage_returnsCorrectResult() {
+    assertThat(MimeTypes.isImage(MimeTypes.IMAGE_JPEG)).isTrue();
+    assertThat(MimeTypes.isImage("image/custom")).isTrue();
+
+    assertThat(MimeTypes.isImage(MimeTypes.VIDEO_MP4)).isFalse();
+    assertThat(MimeTypes.isImage("application/custom")).isFalse();
+  }
+
+  @Test
+  public void getTrackType_returnsCorrectResult() {
+    assertThat(MimeTypes.getTrackType(MimeTypes.VIDEO_H264)).isEqualTo(C.TRACK_TYPE_VIDEO);
+    assertThat(MimeTypes.getTrackType("video/custom")).isEqualTo(C.TRACK_TYPE_VIDEO);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.AUDIO_AAC)).isEqualTo(C.TRACK_TYPE_AUDIO);
+    assertThat(MimeTypes.getTrackType("audio/custom")).isEqualTo(C.TRACK_TYPE_AUDIO);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.TEXT_SSA)).isEqualTo(C.TRACK_TYPE_TEXT);
+    assertThat(MimeTypes.getTrackType("text/custom")).isEqualTo(C.TRACK_TYPE_TEXT);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.IMAGE_JPEG)).isEqualTo(C.TRACK_TYPE_IMAGE);
+    assertThat(MimeTypes.getTrackType("image/custom")).isEqualTo(C.TRACK_TYPE_IMAGE);
+
+    assertThat(MimeTypes.getTrackType(MimeTypes.APPLICATION_CEA608)).isEqualTo(C.TRACK_TYPE_TEXT);
+    assertThat(MimeTypes.getTrackType(MimeTypes.APPLICATION_EMSG)).isEqualTo(C.TRACK_TYPE_METADATA);
+    assertThat(MimeTypes.getTrackType(MimeTypes.APPLICATION_CAMERA_MOTION))
+        .isEqualTo(C.TRACK_TYPE_CAMERA_MOTION);
+    assertThat(MimeTypes.getTrackType("application/custom")).isEqualTo(C.TRACK_TYPE_UNKNOWN);
+  }
+
+  @Test
   public void getMediaMimeType_fromValidCodecs_returnsCorrectMimeType() {
     assertThat(MimeTypes.getMediaMimeType("avc1")).isEqualTo(MimeTypes.VIDEO_H264);
     assertThat(MimeTypes.getMediaMimeType("avc1.42E01E")).isEqualTo(MimeTypes.VIDEO_H264);
@@ -140,7 +171,7 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.getMediaMimeType("dtse")).isEqualTo(MimeTypes.AUDIO_DTS_EXPRESS);
     assertThat(MimeTypes.getMediaMimeType("dtsh")).isEqualTo(MimeTypes.AUDIO_DTS_HD);
     assertThat(MimeTypes.getMediaMimeType("dtsl")).isEqualTo(MimeTypes.AUDIO_DTS_HD);
-    assertThat(MimeTypes.getMediaMimeType("dtsx")).isEqualTo(MimeTypes.AUDIO_DTS_UHD);
+    assertThat(MimeTypes.getMediaMimeType("dtsx")).isEqualTo(MimeTypes.AUDIO_DTS_X);
     assertThat(MimeTypes.getMediaMimeType("opus")).isEqualTo(MimeTypes.AUDIO_OPUS);
     assertThat(MimeTypes.getMediaMimeType("vorbis")).isEqualTo(MimeTypes.AUDIO_VORBIS);
     assertThat(MimeTypes.getMediaMimeType("mp4a")).isEqualTo(MimeTypes.AUDIO_AAC);

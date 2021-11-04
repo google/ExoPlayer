@@ -24,11 +24,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link MotionPhotoDescription}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class MotionPhotoDescriptionTest {
 
   private static final long TEST_PRESENTATION_TIMESTAMP_US = 5L;

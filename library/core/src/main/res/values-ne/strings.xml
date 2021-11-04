@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_download_description">डाउनलोड गर्नुहोस्</string>
+  <string name="exo_download_notification_channel_name">डाउनलोडहरू</string>
+  <string name="exo_download_downloading">डाउनलोड गरिँदै छ</string>
+  <string name="exo_download_completed">डाउनलोड सम्पन्न भयो</string>
+  <string name="exo_download_failed">डाउनलोड गर्न सकिएन</string>
+  <string name="exo_download_removing">डाउनलोडहरू हटाउँदै</string>
+  <string name="exo_download_paused">डाउनलोड गर्ने कार्य पज गरियो</string>
+  <string name="exo_download_paused_for_network">इन्टरनेटमा कनेक्ट भएपछि डाउनलोड गरिने छ</string>
+  <string name="exo_download_paused_for_wifi">WiFi मा कनेक्ट भएपछि डाउनलोड गरिने छ</string>
+</resources>

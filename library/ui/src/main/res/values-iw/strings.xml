@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">הפעלת כתוביות</string>
   <string name="exo_controls_playback_speed">מהירות</string>
   <string name="exo_controls_playback_speed_normal">רגילה</string>
-  <string name="exo_download_description">הורדה</string>
-  <string name="exo_download_notification_channel_name">הורדות</string>
-  <string name="exo_download_downloading">ההורדה מתבצעת</string>
-  <string name="exo_download_completed">ההורדה הושלמה</string>
-  <string name="exo_download_failed">ההורדה לא הושלמה</string>
-  <string name="exo_download_removing">מסיר הורדות</string>
   <string name="exo_track_selection_title_video">סרטון</string>
   <string name="exo_track_selection_title_audio">אודיו</string>
   <string name="exo_track_selection_title_text">טקסט</string>

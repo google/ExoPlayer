@@ -15,14 +15,22 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.List;
 
 /** An immutable array of {@link TrackGroup}s. */
-public final class TrackGroupArray implements Parcelable {
+public final class TrackGroupArray implements Bundleable {
 
   /** The empty array. */
   public static final TrackGroupArray EMPTY = new TrackGroupArray();
@@ -35,18 +43,10 @@ public final class TrackGroupArray implements Parcelable {
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /** @param trackGroups The groups. May be empty. */
+  /** Construct a {@code TrackGroupArray} from an array of (possibly empty) trackGroups. */
   public TrackGroupArray(TrackGroup... trackGroups) {
     this.trackGroups = trackGroups;
     this.length = trackGroups.length;
-  }
-
-  /* package */ TrackGroupArray(Parcel in) {
-    length = in.readInt();
-    trackGroups = new TrackGroup[length];
-    for (int i = 0; i < length; i++) {
-      trackGroups[i] = in.readParcelable(TrackGroup.class.getClassLoader());
-    }
   }
 
   /**
@@ -102,32 +102,38 @@ public final class TrackGroupArray implements Parcelable {
     return length == other.length && Arrays.equals(trackGroups, other.trackGroups);
   }
 
-  // Parcelable implementation.
+  // Bundleable implementation.
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_TRACK_GROUPS,
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_TRACK_GROUPS = 0;
 
   @Override
-  public int describeContents() {
-    return 0;
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putParcelableArrayList(
+        keyForField(FIELD_TRACK_GROUPS),
+        BundleableUtil.toBundleArrayList(Lists.newArrayList(trackGroups)));
+    return bundle;
   }
 
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(length);
-    for (int i = 0; i < length; i++) {
-      dest.writeParcelable(trackGroups[i], 0);
-    }
-  }
-
-  public static final Parcelable.Creator<TrackGroupArray> CREATOR =
-      new Parcelable.Creator<TrackGroupArray>() {
-
-        @Override
-        public TrackGroupArray createFromParcel(Parcel in) {
-          return new TrackGroupArray(in);
-        }
-
-        @Override
-        public TrackGroupArray[] newArray(int size) {
-          return new TrackGroupArray[size];
-        }
+  /** Object that can restores a TrackGroupArray from a {@link Bundle}. */
+  public static final Creator<TrackGroupArray> CREATOR =
+      bundle -> {
+        List<TrackGroup> trackGroups =
+            BundleableUtil.fromBundleNullableList(
+                TrackGroup.CREATOR,
+                bundle.getParcelableArrayList(keyForField(FIELD_TRACK_GROUPS)),
+                /* defaultValue= */ ImmutableList.of());
+        return new TrackGroupArray(trackGroups.toArray(new TrackGroup[0]));
       };
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
+  }
 }

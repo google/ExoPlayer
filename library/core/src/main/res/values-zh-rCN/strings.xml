@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_download_description">下载</string>
+  <string name="exo_download_notification_channel_name">下载内容</string>
+  <string name="exo_download_downloading">正在下载</string>
+  <string name="exo_download_completed">下载完毕</string>
+  <string name="exo_download_failed">下载失败</string>
+  <string name="exo_download_removing">正在移除下载内容</string>
+  <string name="exo_download_paused">下载已暂停</string>
+  <string name="exo_download_paused_for_network">正在等待连接到网络以进行下载</string>
+  <string name="exo_download_paused_for_wifi">正在等待连接到 WLAN 网络以进行下载</string>
+</resources>

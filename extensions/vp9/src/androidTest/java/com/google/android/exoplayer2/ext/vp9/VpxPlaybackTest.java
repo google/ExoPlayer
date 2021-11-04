@@ -24,16 +24,16 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
 import org.junit.Before;
@@ -106,7 +106,7 @@ public class VpxPlaybackTest {
     private final Context context;
     private final Uri uri;
 
-    @Nullable private SimpleExoPlayer player;
+    @Nullable private ExoPlayer player;
     @Nullable private PlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context) {
@@ -130,11 +130,11 @@ public class VpxPlaybackTest {
                     videoRendererEventListener,
                     /* maxDroppedFramesToNotify= */ -1)
               };
-      player = new SimpleExoPlayer.Builder(context, renderersFactory).build();
+      player = new ExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context), MatroskaExtractor.FACTORY)
+                  new DefaultDataSource.Factory(context), MatroskaExtractor.FACTORY)
               .createMediaSource(MediaItem.fromUri(uri));
       player.setVideoSurfaceView(new VideoDecoderGLSurfaceView(context));
       player.setMediaSource(mediaSource);

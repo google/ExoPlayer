@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -57,7 +58,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     public static final int REASON_START_EXCEEDS_END = 2;
 
     /** The reason clipping failed. */
-    public final @Reason int reason;
+    @Reason public final int reason;
 
     /** @param reason The reason clipping failed. */
     public IllegalClippingException(@Reason int reason) {
@@ -275,6 +276,11 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       clippingTimeline = new ClippingTimeline(timeline, windowStartUs, windowEndUs);
     } catch (IllegalClippingException e) {
       clippingError = e;
+      // The clipping error won't be propagated while we have existing MediaPeriods. Setting the
+      // error at the MediaPeriods ensures it will be thrown as soon as possible.
+      for (int i = 0; i < mediaPeriods.size(); i++) {
+        mediaPeriods.get(i).setClippingError(clippingError);
+      }
       return;
     }
     refreshSourceInfo(clippingTimeline);
@@ -338,7 +344,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
             endUs == C.TIME_UNSET ? window.defaultPositionUs : min(window.defaultPositionUs, endUs);
         window.defaultPositionUs -= startUs;
       }
-      long startMs = C.usToMs(startUs);
+      long startMs = Util.usToMs(startUs);
       if (window.presentationStartTimeMs != C.TIME_UNSET) {
         window.presentationStartTimeMs += startMs;
       }

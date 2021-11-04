@@ -24,7 +24,8 @@ outlined in the sections below.
 ### Key rotation ###
 
 To play streams with rotating keys, pass `true` to
-`MediaItem.Builder.setDrmMultiSession` when building the media item.
+`MediaItem.DrmConfiguration.Builder.setMultiSession` when building the media
+item.
 
 ### Multi-key content ###
 
@@ -49,8 +50,9 @@ to access the different streams.
 
 In this case, the license server is configured to respond with only the key
 specified in the request. Multi-key content can be played with this license
-server configuration by passing `true` to `MediaItem.Builder.setDrmMultiSession`
-when building the media item.
+server configuration by passing `true` to
+`MediaItem.DrmConfiguration.Builder.setMultiSession` when building the media
+item.
 
 We do not recommend configuring your license server to behave in this way. It
 requires extra license requests to play multi-key content, which is less
@@ -59,9 +61,9 @@ efficient and robust than the alternative described above.
 ### Offline keys ###
 
 An offline key set can be loaded by passing the key set ID to
-`MediaItem.Builder.setDrmKeySetId` when building the media item. This
-allows playback using the keys stored in the offline key set with the specified
-ID.
+`MediaItem.DrmConfiguration.Builder.setKeySetId` when building the media item.
+This allows playback using the keys stored in the offline key set with the
+specified ID.
 
 {% include known-issue-box.html issue-id="3872" description="Only one offline
 key set can be specified per playback. As a result, offline playback of
@@ -75,8 +77,9 @@ clear content as are used when playing encrypted content. When media contains
 both clear and encrypted sections, you may want to use placeholder `DrmSessions`
 to avoid re-creation of decoders when transitions between clear and encrypted
 sections occur. Use of placeholder `DrmSessions` for audio and video tracks can
-be enabled by passing `true` to `MediaItem.Builder.setDrmSessionForClearPeriods`
-when building the media item.
+be enabled by passing `true` to
+`MediaItem.DrmConfiguration.Builder.forceSessionsForAudioAndVideoTracks` when
+building the media item.
 
 ### Using a custom DrmSessionManager ###
 

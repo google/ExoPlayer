@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Bật phụ đề</string>
   <string name="exo_controls_playback_speed">Tốc độ</string>
   <string name="exo_controls_playback_speed_normal">Bình thường</string>
-  <string name="exo_download_description">Tải xuống</string>
-  <string name="exo_download_notification_channel_name">Tài nguyên đã tải xuống</string>
-  <string name="exo_download_downloading">Đang tải xuống</string>
-  <string name="exo_download_completed">Đã hoàn tất tải xuống</string>
-  <string name="exo_download_failed">Không tải xuống được</string>
-  <string name="exo_download_removing">Đang xóa các mục đã tải xuống</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Âm thanh</string>
   <string name="exo_track_selection_title_text">Văn bản</string>

@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">啟用字幕</string>
   <string name="exo_controls_playback_speed">速度</string>
   <string name="exo_controls_playback_speed_normal">正常</string>
-  <string name="exo_download_description">下載</string>
-  <string name="exo_download_notification_channel_name">下載內容</string>
-  <string name="exo_download_downloading">正在下載</string>
-  <string name="exo_download_completed">下載完畢</string>
-  <string name="exo_download_failed">下載失敗</string>
-  <string name="exo_download_removing">正在移除下載內容</string>
   <string name="exo_track_selection_title_video">影片</string>
   <string name="exo_track_selection_title_audio">音訊</string>
   <string name="exo_track_selection_title_text">文字</string>

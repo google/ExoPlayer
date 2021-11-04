@@ -27,7 +27,7 @@ import org.chromium.net.CronetProvider;
  *     href="https://developer.android.com/guide/topics/connectivity/cronet/start">Android developer
  *     guide</a> to learn how to instantiate a {@link CronetEngine} for use by your application. You
  *     can also use {@link CronetUtil#buildCronetEngine} to build a {@link CronetEngine} suitable
- *     for use by ExoPlayer.
+ *     for use with {@link CronetDataSource}.
  */
 @Deprecated
 public final class CronetEngineWrapper {

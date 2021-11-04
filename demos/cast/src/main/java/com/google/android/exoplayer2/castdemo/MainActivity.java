@@ -27,7 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,8 +36,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Assertions;
@@ -48,8 +47,8 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
 
 /**
- * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
- * Cast extension.
+ * An activity that plays video using {@link ExoPlayer} and supports casting using ExoPlayer's Cast
+ * extension.
  */
 public class MainActivity extends AppCompatActivity
     implements OnClickListener, PlayerManager.Listener {
@@ -199,7 +198,6 @@ public class MainActivity extends AppCompatActivity
   private class MediaQueueListAdapter extends RecyclerView.Adapter<QueueItemViewHolder> {
 
     @Override
-    @NonNull
     public QueueItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       TextView v =
           (TextView)
@@ -240,9 +238,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onMove(
-        @NonNull RecyclerView list,
-        RecyclerView.ViewHolder origin,
-        RecyclerView.ViewHolder target) {
+        RecyclerView list, RecyclerView.ViewHolder origin, RecyclerView.ViewHolder target) {
       int fromPosition = origin.getAdapterPosition();
       int toPosition = target.getAdapterPosition();
       if (draggingFromPosition == C.INDEX_UNSET) {
@@ -266,7 +262,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void clearView(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder) {
+    public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
       super.clearView(recyclerView, viewHolder);
       if (draggingFromPosition != C.INDEX_UNSET) {
         QueueItemViewHolder queueItemHolder = (QueueItemViewHolder) viewHolder;
@@ -306,8 +302,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    @NonNull
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(int position, @Nullable View convertView, ViewGroup parent) {
       View view = super.getView(position, convertView, parent);
       ((TextView) view).setText(Util.castNonNull(getItem(position)).mediaMetadata.title);
       return view;

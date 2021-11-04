@@ -1,10 +1,10 @@
-# ExoPlayer common library module #
+# Common module
 
-Common code used by other ExoPlayer modules.
+Provides common code and utilities used by other media modules. Application code
+will not normally need to depend on this module directly.
 
-## Links ##
+## Links
 
-* [Javadoc][]: Note that this Javadoc is combined with that of other modules.
+*   [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html
-

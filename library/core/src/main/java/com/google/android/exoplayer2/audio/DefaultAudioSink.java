@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -27,7 +28,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -1619,31 +1619,42 @@ public final class DefaultAudioSink implements AudioSink {
       return false;
     }
     AudioFormat audioFormat = getAudioFormat(format.sampleRate, channelConfig, encoding);
-    if (!AudioManager.isOffloadedPlaybackSupported(
-        audioFormat, audioAttributes.getAudioAttributesV21())) {
-      return false;
+
+    switch (getOffloadedPlaybackSupport(audioFormat, audioAttributes.getAudioAttributesV21())) {
+      case C.PLAYBACK_OFFLOAD_NOT_SUPPORTED:
+        return false;
+      case C.PLAYBACK_OFFLOAD_SUPPORTED:
+        boolean isGapless = format.encoderDelay != 0 || format.encoderPadding != 0;
+        boolean gaplessSupportRequired = offloadMode == OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED;
+        return !isGapless || !gaplessSupportRequired;
+      case C.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED:
+        return true;
+      default:
+        throw new IllegalStateException();
     }
-    boolean isGapless = format.encoderDelay != 0 || format.encoderPadding != 0;
-    boolean offloadRequiresGaplessSupport = offloadMode == OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED;
-    if (isGapless && offloadRequiresGaplessSupport && !isOffloadedGaplessPlaybackSupported()) {
-      return false;
+  }
+
+  @RequiresApi(29)
+  // Return values of AudioManager.getPlaybackOffloadSupport are equal to C.AudioManagerOffloadMode.
+  @SuppressLint("WrongConstant")
+  @C.AudioManagerOffloadMode
+  private int getOffloadedPlaybackSupport(
+      AudioFormat audioFormat, android.media.AudioAttributes audioAttributes) {
+    if (Util.SDK_INT >= 31) {
+      return AudioManager.getPlaybackOffloadSupport(audioFormat, audioAttributes);
     }
-    return true;
+    if (!AudioManager.isOffloadedPlaybackSupported(audioFormat, audioAttributes)) {
+      return C.PLAYBACK_OFFLOAD_NOT_SUPPORTED;
+    }
+    // Manual testing has shown that Pixels on Android 11 support gapless offload.
+    if (Util.SDK_INT == 30 && Util.MODEL.startsWith("Pixel")) {
+      return C.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
+    }
+    return C.PLAYBACK_OFFLOAD_SUPPORTED;
   }
 
   private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
     return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
-  }
-
-  /**
-   * Returns whether the device supports gapless in offload playback.
-   *
-   * <p>Gapless offload is not supported by all devices and there is no API to query its support. As
-   * a result this detection is currently based on manual testing.
-   */
-  // TODO(internal b/158191844): Add an SDK API to query offload gapless support.
-  private static boolean isOffloadedGaplessPlaybackSupported() {
-    return Util.SDK_INT >= 30 && Util.MODEL.startsWith("Pixel");
   }
 
   private static int getMaximumEncodedRateBytesPerSecond(@C.Encoding int encoding) {
@@ -1820,7 +1831,7 @@ public final class DefaultAudioSink implements AudioSink {
             }
 
             @Override
-            public void onTearDown(@NonNull AudioTrack track) {
+            public void onTearDown(AudioTrack track) {
               Assertions.checkState(track == audioTrack);
               if (listener != null && playing) {
                 // The audio track was destroyed while in use. Thus a new AudioTrack needs to be

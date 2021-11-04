@@ -22,18 +22,17 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.FlacMetadataReader.FlacStreamMetadataHolder;
+import com.google.android.exoplayer2.extractor.flac.FlacConstants;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.flac.VorbisComment;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
  * Unit tests for {@link FlacMetadataReader}.
@@ -42,7 +41,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  * href="https://xiph.org/flac/documentation_tools_metaflac.html">metaflac</a> command.
  */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class FlacMetadataReaderTest {
 
   @Test

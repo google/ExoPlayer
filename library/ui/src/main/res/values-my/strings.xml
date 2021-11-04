@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">စာတန်းထိုး ဖွင့်ပါ</string>
   <string name="exo_controls_playback_speed">မြန်နှုန်း</string>
   <string name="exo_controls_playback_speed_normal">ပုံမှန်</string>
-  <string name="exo_download_description">ဒေါင်းလုဒ် လုပ်ရန်</string>
-  <string name="exo_download_notification_channel_name">ဒေါင်းလုဒ်များ</string>
-  <string name="exo_download_downloading">ဒေါင်းလုဒ်လုပ်နေသည်</string>
-  <string name="exo_download_completed">ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ</string>
-  <string name="exo_download_failed">ဒေါင်းလုဒ်လုပ်၍ မရပါ</string>
-  <string name="exo_download_removing">ဒေါင်းလုဒ်များ ဖယ်ရှားနေသည်</string>
   <string name="exo_track_selection_title_video">ဗီဒီယို</string>
   <string name="exo_track_selection_title_audio">အသံ</string>
   <string name="exo_track_selection_title_text">စာသား</string>

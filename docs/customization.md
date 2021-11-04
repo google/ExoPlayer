@@ -4,13 +4,13 @@ title: Customization
 
 At the core of the ExoPlayer library is the `Player` interface. A `Player`
 exposes traditional high-level media player functionality such as the ability to
-buffer media, play, pause and seek. The default implementations `ExoPlayer` and
-`SimpleExoPlayer` are designed to make few assumptions about (and hence impose
-few restrictions on) the type of media being played, how and where it is stored,
-and how it is rendered. Rather than implementing the loading and rendering of
-media directly, `ExoPlayer` implementations delegate this work to components
-that are injected when a player is created or when new media sources are passed
-to the player. Components common to all `ExoPlayer` implementations are:
+buffer media, play, pause and seek. The default implementation `ExoPlayer` is
+designed to make few assumptions about (and hence impose few restrictions on)
+the type of media being played, how and where it is stored, and how it is
+rendered. Rather than implementing the loading and rendering of media directly,
+`ExoPlayer` implementations delegate this work to components that are injected
+when a player is created or when new media sources are passed to the player.
+Components common to all `ExoPlayer` implementations are:
 
 * `MediaSource` instances that define media to be played, load the media, and
   from which the loaded media can be read. `MediaSource` instances are created
@@ -53,14 +53,14 @@ default network stack with cross-protocol redirects enabled:
 HttpDataSource.Factory httpDataSourceFactory =
     new DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true);
 
-// Wrap the HttpDataSource.Factory in a DefaultDataSourceFactory, which adds in
+// Wrap the HttpDataSource.Factory in a DefaultDataSource.Factory, which adds in
 // support for requesting data from other sources (e.g., files, resources, etc).
-DefaultDataSourceFactory dataSourceFactory =
-    new DefaultDataSourceFactory(context, httpDataSourceFactory);
+DefaultDataSource.Factory dataSourceFactory =
+    new DefaultDataSource.Factory(context, httpDataSourceFactory);
 
 // Inject the DefaultDataSourceFactory when creating the player.
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+ExoPlayer player =
+    new ExoPlayer.Builder(context)
         .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
         .build();
 ~~~
@@ -82,7 +82,7 @@ DataSource.Factory cacheDataSourceFactory =
         .setCache(simpleCache)
         .setUpstreamDataSourceFactory(httpDataSourceFactory);
 
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+ExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(
         new DefaultMediaSourceFactory(cacheDataSourceFactory))
     .build();
@@ -107,7 +107,7 @@ DataSource.Factory dataSourceFactory = () -> {
   return dataSource;
 };
 
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+ExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
     .build();
 ~~~
@@ -157,8 +157,8 @@ LoadErrorHandlingPolicy loadErrorHandlingPolicy =
       }
     };
 
-SimpleExoPlayer player =
-    new SimpleExoPlayer.Builder(context)
+ExoPlayer player =
+    new ExoPlayer.Builder(context)
         .setMediaSourceFactory(
             new DefaultMediaSourceFactory(context)
                 .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy))
@@ -181,7 +181,7 @@ DefaultExtractorsFactory extractorsFactory =
     new DefaultExtractorsFactory()
         .setMp3ExtractorFlags(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING);
 
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+ExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(
         new DefaultMediaSourceFactory(context, extractorsFactory))
     .build();

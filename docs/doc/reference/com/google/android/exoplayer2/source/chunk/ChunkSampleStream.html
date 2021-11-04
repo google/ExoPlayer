@@ -205,7 +205,7 @@ implements <a href="../SampleStream.html" title="interface in com.google.android
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#primaryTrackType">primaryTrackType</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -234,7 +234,7 @@ implements <a href="../SampleStream.html" title="interface in com.google.android
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int%5B%5D,com.google.android.exoplayer2.Format%5B%5D,T,com.google.android.exoplayer2.source.SequenceableLoader.Callback,com.google.android.exoplayer2.upstream.Allocator,long,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher)">ChunkSampleStream</a></span>&#8203;(int&nbsp;primaryTrackType,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.C.TrackTypeint,int%5B%5D,com.google.android.exoplayer2.Format%5B%5D,T,com.google.android.exoplayer2.source.SequenceableLoader.Callback,com.google.android.exoplayer2.upstream.Allocator,long,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher)">ChunkSampleStream</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                  int[]&nbsp;embeddedTrackTypes,
                  <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;embeddedTrackFormats,
                  <a href="ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&nbsp;chunkSource,
@@ -453,7 +453,7 @@ implements <a href="../SampleStream.html" title="interface in com.google.android
 <ul class="blockListLast">
 <li class="blockList">
 <h4>primaryTrackType</h4>
-<pre>public final&nbsp;int primaryTrackType</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.TrackType int primaryTrackType</pre>
 </li>
 </ul>
 </li>
@@ -466,15 +466,15 @@ implements <a href="../SampleStream.html" title="interface in com.google.android
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,int[],com.google.android.exoplayer2.Format[],com.google.android.exoplayer2.source.chunk.ChunkSource,com.google.android.exoplayer2.source.SequenceableLoader.Callback,com.google.android.exoplayer2.upstream.Allocator,long,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher)">
+<a id="&lt;init&gt;(@com.google.android.exoplayer2.C.TrackTypeint,int[],com.google.android.exoplayer2.Format[],com.google.android.exoplayer2.source.chunk.ChunkSource,com.google.android.exoplayer2.source.SequenceableLoader.Callback,com.google.android.exoplayer2.upstream.Allocator,long,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher)">
 <!--   -->
-</a><a id="&lt;init&gt;(int,int[],com.google.android.exoplayer2.Format[],T,com.google.android.exoplayer2.source.SequenceableLoader.Callback,com.google.android.exoplayer2.upstream.Allocator,long,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher)">
+</a><a id="&lt;init&gt;(@com.google.android.exoplayer2.C.TrackTypeint,int[],com.google.android.exoplayer2.Format[],T,com.google.android.exoplayer2.source.SequenceableLoader.Callback,com.google.android.exoplayer2.upstream.Allocator,long,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ChunkSampleStream</h4>
-<pre>public&nbsp;ChunkSampleStream&#8203;(int&nbsp;primaryTrackType,
+<pre>public&nbsp;ChunkSampleStream&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                          @Nullable
                          int[]&nbsp;embeddedTrackTypes,
                          @Nullable
@@ -490,8 +490,7 @@ implements <a href="../SampleStream.html" title="interface in com.google.android
 <div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>primaryTrackType</code> - The type of the primary track. One of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>
-     TRACK_TYPE_*</code> constants.</dd>
+<dd><code>primaryTrackType</code> - The <a href="../../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of the primary track.</dd>
 <dd><code>embeddedTrackTypes</code> - The types of any embedded tracks, or null.</dd>
 <dd><code>embeddedTrackFormats</code> - The formats of the embedded tracks, or null.</dd>
 <dd><code>chunkSource</code> - A <a href="ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkSource</code></a> from which chunks to load are obtained.</dd>
