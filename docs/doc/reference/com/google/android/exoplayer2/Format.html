@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":42,"i2":42,"i3":10,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":41,"i13":41,"i14":41,"i15":41,"i16":41,"i17":41,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":9,"i24":10,"i25":10,"i26":10};
+var data = {"i0":10,"i1":42,"i2":10,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":41,"i13":41,"i14":41,"i15":41,"i16":41,"i17":41,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":9,"i24":10,"i25":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -130,12 +130,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
+<dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">Format</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></pre>
+implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
 <div class="block">Represents a media format.
 
  <p>When building formats, populate all fields whose values are known and relevant to the type of
@@ -236,11 +236,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a id="nested.classes.inherited.from.class.android.os.Parcelable">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
 <!--   -->
 </a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></h3>
-<code><a href="https://developer.android.com/reference/android/os/Parcelable.ClassLoaderCreator.html" title="class or interface in android.os" class="externalLink">Parcelable.ClassLoaderCreator</a>&lt;<a href="https://developer.android.com/reference/android/os/Parcelable.ClassLoaderCreator.html?is-external=true" title="class or interface in android.os" class="externalLink">T</a> extends <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink">Object</a>&gt;, <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html?is-external=true" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html?is-external=true" title="class or interface in android.os" class="externalLink">T</a> extends <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</code></li>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></h3>
+<code><a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Bundleable.Creator.html" title="type parameter in Bundleable.Creator">T</a> extends <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;</code></li>
 </ul>
 </li>
 </ul>
@@ -309,18 +309,27 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Object that can restore <code>Format</code> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.CryptoType int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cryptoType">cryptoType</a></span></code></th>
+<td class="colLast">
+<div class="block">The type of crypto that must be used to decode samples associated with this format, or <a href="C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if the content is not encrypted.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#drmInitData">drmInitData</a></span></code></th>
 <td class="colLast">
 <div class="block">DRM initialization data if the stream is protected, or null otherwise.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encoderDelay">encoderDelay</a></span></code></th>
 <td class="colLast">
@@ -328,19 +337,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  applicable.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encoderPadding">encoderPadding</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#exoMediaCryptoType">exoMediaCryptoType</a></span></code></th>
-<td class="colLast">
-<div class="block">The type of <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> that will be associated with the content this format
- describes, or <code>null</code> if the content is not encrypted.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -444,7 +445,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#roleFlags">roleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">Track role flags.</div>
@@ -473,7 +474,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectionFlags">selectionFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">Track selection flags.</div>
@@ -502,13 +503,6 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a id="fields.inherited.from.class.android.os.Parcelable">
-<!--   -->
-</a>
-<h3>Fields inherited from interface&nbsp;android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></h3>
-<code><a href="https://developer.android.com/reference/android/os/Parcelable.html#CONTENTS_FILE_DESCRIPTOR" title="class or interface in android.os" class="externalLink">CONTENTS_FILE_DESCRIPTOR</a>, <a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true#PARCELABLE_WRITE_RETURN_VALUE" title="class or interface in android.os" class="externalLink" target="_top">PARCELABLE_WRITE_RETURN_VALUE</a></code></li>
-</ul>
 </li>
 </ul>
 </section>
@@ -544,18 +538,18 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithCryptoType(@com.google.android.exoplayer2.C.CryptoTypeint)">copyWithCryptoType</a></span>&#8203;(@com.google.android.exoplayer2.C.CryptoType int&nbsp;cryptoType)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of this format with the specified <a href="#cryptoType"><code>cryptoType</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)">copyWithDrmInitData</a></span>&#8203;(<a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="#buildUpon()"><code>buildUpon()</code></a> and <a href="Format.Builder.html#setDrmInitData(com.google.android.exoplayer2.drm.DrmInitData)"><code>Format.Builder.setDrmInitData(DrmInitData)</code></a>.</div>
 </div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithExoMediaCryptoType(java.lang.Class)">copyWithExoMediaCryptoType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</code></th>
-<td class="colLast">
-<div class="block">Returns a copy of this format with the specified <a href="#exoMediaCryptoType"><code>exoMediaCryptoType</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -634,7 +628,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                        int&nbsp;bitrate,
@@ -644,7 +638,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        int&nbsp;pcmEncoding,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                        <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
-                       int&nbsp;selectionFlags,
+                       @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;selectionFlags,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
@@ -654,7 +648,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                        int&nbsp;bitrate,
@@ -663,7 +657,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                        int&nbsp;sampleRate,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                        <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
-                       int&nbsp;selectionFlags,
+                       @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;selectionFlags,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
@@ -673,14 +667,14 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">createContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,@com.google.android.exoplayer2.C.SelectionFlagsint,@com.google.android.exoplayer2.C.RoleFlagsint,java.lang.String)">createContainerFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;containerMimeType,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                      int&nbsp;bitrate,
-                     int&nbsp;selectionFlags,
-                     int&nbsp;roleFlags,
+                     @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;selectionFlags,
+                     @com.google.android.exoplayer2.C.RoleFlags int&nbsp;roleFlags,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
@@ -737,16 +731,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr id="i18" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i19" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPixelCount()">getPixelCount</a></span>()</code></th>
 <td class="colLast">
@@ -754,17 +743,24 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
  are known, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> otherwise</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializationDataEquals(com.google.android.exoplayer2.Format)">initializationDataEquals</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;other)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the <a href="#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
  equal.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
@@ -782,12 +778,6 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withManifestFormatInfo(com.google.android.exoplayer2.Format)">withManifestFormatInfo</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i26" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
-             int&nbsp;flags)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -883,7 +873,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>selectionFlags</h4>
 <pre><a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-public final&nbsp;int selectionFlags</pre>
+public final&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int selectionFlags</pre>
 <div class="block">Track selection flags.</div>
 </li>
 </ul>
@@ -894,7 +884,7 @@ public final&nbsp;int selectionFlags</pre>
 <li class="blockList">
 <h4>roleFlags</h4>
 <pre><a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-public final&nbsp;int roleFlags</pre>
+public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int roleFlags</pre>
 <div class="block">Track role flags.</div>
 </li>
 </ul>
@@ -1197,16 +1187,16 @@ public final&nbsp;int pcmEncoding</pre>
 <div class="block">The Accessibility channel, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not known or applicable.</div>
 </li>
 </ul>
-<a id="exoMediaCryptoType">
+<a id="cryptoType">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>exoMediaCryptoType</h4>
-<pre>@Nullable
-public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt; exoMediaCryptoType</pre>
-<div class="block">The type of <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> that will be associated with the content this format
- describes, or <code>null</code> if the content is not encrypted. Cannot be null if <a href="#drmInitData"><code>drmInitData</code></a> is non-null.</div>
+<h4>cryptoType</h4>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.CryptoType int cryptoType</pre>
+<div class="block">The type of crypto that must be used to decode samples associated with this format, or <a href="C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if the content is not encrypted. Cannot be <a href="C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if
+ <a href="#drmInitData"><code>drmInitData</code></a> is non-null, but may be <a href="C.html#CRYPTO_TYPE_UNSUPPORTED"><code>C.CRYPTO_TYPE_UNSUPPORTED</code></a> to indicate that
+ the samples are encrypted using an unsupported crypto type.</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -1215,7 +1205,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cla
 <ul class="blockListLast">
 <li class="blockList">
 <h4>CREATOR</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt; CREATOR</pre>
+<pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt; CREATOR</pre>
+<div class="block">Object that can restore <code>Format</code> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -1284,7 +1275,7 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
 </div>
 </li>
 </ul>
-<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">
+<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1306,7 +1297,7 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
                                              @Nullable
                                              <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                              <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                             int&nbsp;selectionFlags,
+                                             @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;selectionFlags,
                                              @Nullable
                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
@@ -1314,7 +1305,7 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
 </div>
 </li>
 </ul>
-<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,int,java.lang.String)">
+<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1338,7 +1329,7 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
                                              @Nullable
                                              <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                              <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                             int&nbsp;selectionFlags,
+                                             @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;selectionFlags,
                                              @Nullable
                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
@@ -1346,7 +1337,7 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
 </div>
 </li>
 </ul>
-<a id="createContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,java.lang.String)">
+<a id="createContainerFormat(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,@com.google.android.exoplayer2.C.SelectionFlagsint,@com.google.android.exoplayer2.C.RoleFlagsint,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1365,9 +1356,9 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                                            int&nbsp;bitrate,
                                            <a href="C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
-                                           int&nbsp;selectionFlags,
+                                           @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;selectionFlags,
                                            <a href="C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
-                                           int&nbsp;roleFlags,
+                                           @com.google.android.exoplayer2.C.RoleFlags int&nbsp;roleFlags,
                                            @Nullable
                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
@@ -1545,15 +1536,14 @@ public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2"
 </div>
 </li>
 </ul>
-<a id="copyWithExoMediaCryptoType(java.lang.Class)">
+<a id="copyWithCryptoType(@com.google.android.exoplayer2.C.CryptoTypeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>copyWithExoMediaCryptoType</h4>
-<pre class="methodSignature">public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithExoMediaCryptoType&#8203;(@Nullable
-                                         <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;&nbsp;exoMediaCryptoType)</pre>
-<div class="block">Returns a copy of this format with the specified <a href="#exoMediaCryptoType"><code>exoMediaCryptoType</code></a>.</div>
+<h4>copyWithCryptoType</h4>
+<pre class="methodSignature">public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithCryptoType&#8203;(@com.google.android.exoplayer2.C.CryptoType int&nbsp;cryptoType)</pre>
+<div class="block">Returns a copy of this format with the specified <a href="#cryptoType"><code>cryptoType</code></a>.</div>
 </li>
 </ul>
 <a id="getPixelCount()">
@@ -1636,30 +1626,18 @@ public&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2"
 <div class="block">Returns a prettier <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> than <a href="#toString()" target="_top"><code>toString()</code></a>, intended for logging.</div>
 </li>
 </ul>
-<a id="describeContents()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>describeContents</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;describeContents()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#describeContents()" title="class or interface in android.os" class="externalLink">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
-</dl>
-</li>
-</ul>
-<a id="writeToParcel(android.os.Parcel,int)">
+<a id="toBundle()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>writeToParcel</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;writeToParcel&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
-                          int&nbsp;flags)</pre>
+<h4>toBundle</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Bundleable.html#toBundle()">Bundleable</a></code></span></div>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#writeToParcel(android.os.Parcel,int)" title="class or interface in android.os" class="externalLink">writeToParcel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
+<dd><code><a href="Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 </li>
 </ul>

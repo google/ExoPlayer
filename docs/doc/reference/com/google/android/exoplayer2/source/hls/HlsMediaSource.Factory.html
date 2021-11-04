@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -147,6 +147,23 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.source.MediaSourceFactory">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></h3>
+<code><a href="../MediaSourceFactory.html#UNSUPPORTED">UNSUPPORTED</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -274,7 +291,7 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMetadataType(int)">setMetadataType</a></span>&#8203;(int&nbsp;metadataType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMetadataType(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint)">setMetadataType</a></span>&#8203;(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType)</code></th>
 <td class="colLast">
 <div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="HlsMediaSource.html#METADATA_TYPE_ID3"><code>HlsMediaSource.METADATA_TYPE_ID3</code></a>).</div>
 </td>
@@ -503,14 +520,13 @@ public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.and
 </dl>
 </li>
 </ul>
-<a id="setMetadataType(int)">
+<a id="setMetadataType(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMetadataType</h4>
-<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setMetadataType&#8203;(<a href="HlsMediaSource.MetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls">@MetadataType</a>
-                                              int&nbsp;metadataType)</pre>
+<pre class="methodSignature">public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setMetadataType&#8203;(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType)</pre>
 <div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="HlsMediaSource.html#METADATA_TYPE_ID3"><code>HlsMediaSource.METADATA_TYPE_ID3</code></a>).
 
  <p>HLS supports in-band ID3 in both TS and fMP4 streams, but in the fMP4 case the data is
@@ -618,7 +634,7 @@ public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.and
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../../upstream/DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSourceFactory</code></a>.</dd>
+<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -706,7 +722,7 @@ public&nbsp;<a href="HlsMediaSource.html" title="class in com.google.android.exo
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The new <a href="HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls"><code>HlsMediaSource</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink">NullPointerException</a></code> - if <a href="../../MediaItem.html#playbackProperties" target="_top"><code>MediaItem.playbackProperties</code></a> is <code>null</code>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink">NullPointerException</a></code> - if <a href="../../MediaItem.html#localConfiguration" target="_top"><code>MediaItem.localConfiguration</code></a> is <code>null</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -778,7 +794,7 @@ public&nbsp;<a href="HlsMediaSource.html" title="class in com.google.android.exo
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

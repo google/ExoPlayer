@@ -207,6 +207,20 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaItem">mediaItem</a></span></code></th>
+<td class="colLast">
+<div class="block">The media item, or <code>null</code> if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaItemIndex">mediaItemIndex</a></span></code></th>
+<td class="colLast">
+<div class="block">The media item index.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#periodIndex">periodIndex</a></span></code></th>
 <td class="colLast">
@@ -217,7 +231,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#periodUid">periodUid</a></span></code></th>
 <td class="colLast">
-<div class="block">The UID of the period, or <code>null</code>, if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
+<div class="block">The UID of the period, or <code>null</code> if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -231,14 +245,16 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowIndex">windowIndex</a></span></code></th>
 <td class="colLast">
-<div class="block">The window index.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#mediaItemIndex"><code>mediaItemIndex</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowUid">windowUid</a></span></code></th>
 <td class="colLast">
-<div class="block">The UID of the window, or <code>null</code>, if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
+<div class="block">The UID of the window, or <code>null</code> if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -259,8 +275,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,int,java.lang.Object,int,long,long,int,int)">PositionInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowUid,
-            int&nbsp;windowIndex,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,int,com.google.android.exoplayer2.MediaItem,java.lang.Object,int,long,long,int,int)">PositionInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowUid,
+            int&nbsp;mediaItemIndex,
+            <a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
             int&nbsp;periodIndex,
             long&nbsp;positionMs,
@@ -269,6 +286,22 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
             int&nbsp;adIndexInAdGroup)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,int,java.lang.Object,int,long,long,int,int)">PositionInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowUid,
+            int&nbsp;mediaItemIndex,
+            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
+            int&nbsp;periodIndex,
+            long&nbsp;positionMs,
+            long&nbsp;contentPositionMs,
+            int&nbsp;adGroupIndex,
+            int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.Object,int,com.google.android.exoplayer2.MediaItem,java.lang.Object,int,long,long,int,int)"><code>PositionInfo(Object, int, MediaItem, Object, int, long, long, int,
+     int)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -338,7 +371,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <h4>windowUid</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> windowUid</pre>
-<div class="block">The UID of the window, or <code>null</code>, if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
+<div class="block">The UID of the window, or <code>null</code> if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
 </li>
 </ul>
 <a id="windowIndex">
@@ -347,8 +380,32 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <ul class="blockList">
 <li class="blockList">
 <h4>windowIndex</h4>
-<pre>public final&nbsp;int windowIndex</pre>
-<div class="block">The window index.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;int windowIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#mediaItemIndex"><code>mediaItemIndex</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="mediaItemIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mediaItemIndex</h4>
+<pre>public final&nbsp;int mediaItemIndex</pre>
+<div class="block">The media item index.</div>
+</li>
+</ul>
+<a id="mediaItem">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mediaItem</h4>
+<pre>@Nullable
+public final&nbsp;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a> mediaItem</pre>
+<div class="block">The media item, or <code>null</code> if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
 </li>
 </ul>
 <a id="periodUid">
@@ -359,7 +416,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>periodUid</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> periodUid</pre>
-<div class="block">The UID of the period, or <code>null</code>, if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
+<div class="block">The UID of the period, or <code>null</code> if the timeline is <a href="Timeline.html#isEmpty()"><code>empty</code></a>.</div>
 </li>
 </ul>
 <a id="periodIndex">
@@ -437,12 +494,37 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <a id="&lt;init&gt;(java.lang.Object,int,java.lang.Object,int,long,long,int,int)">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PositionInfo</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;PositionInfo&#8203;(@Nullable
+                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowUid,
+                    int&nbsp;mediaItemIndex,
+                    @Nullable
+                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
+                    int&nbsp;periodIndex,
+                    long&nbsp;positionMs,
+                    long&nbsp;contentPositionMs,
+                    int&nbsp;adGroupIndex,
+                    int&nbsp;adIndexInAdGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(java.lang.Object,int,com.google.android.exoplayer2.MediaItem,java.lang.Object,int,long,long,int,int)"><code>PositionInfo(Object, int, MediaItem, Object, int, long, long, int,
+     int)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.Object,int,com.google.android.exoplayer2.MediaItem,java.lang.Object,int,long,long,int,int)">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PositionInfo</h4>
 <pre>public&nbsp;PositionInfo&#8203;(@Nullable
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowUid,
-                    int&nbsp;windowIndex,
+                    int&nbsp;mediaItemIndex,
+                    @Nullable
+                    <a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                     @Nullable
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
                     int&nbsp;periodIndex,

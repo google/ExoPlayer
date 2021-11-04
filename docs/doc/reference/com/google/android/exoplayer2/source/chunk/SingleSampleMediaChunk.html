@@ -202,7 +202,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,long,int,com.google.android.exoplayer2.Format)">SingleSampleMediaChunk</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,long,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format)">SingleSampleMediaChunk</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                       <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                       <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                       int&nbsp;trackSelectionReason,
@@ -210,7 +210,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
                       long&nbsp;startTimeUs,
                       long&nbsp;endTimeUs,
                       long&nbsp;chunkIndex,
-                      int&nbsp;trackType,
+                      @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                       <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;sampleFormat)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -298,7 +298,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,long,int,com.google.android.exoplayer2.Format)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,long,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -307,13 +307,14 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <pre>public&nbsp;SingleSampleMediaChunk&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                               <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                               <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                              <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
                               int&nbsp;trackSelectionReason,
                               @Nullable
                               <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                               long&nbsp;startTimeUs,
                               long&nbsp;endTimeUs,
                               long&nbsp;chunkIndex,
-                              int&nbsp;trackType,
+                              @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                               <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;sampleFormat)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -325,8 +326,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <dd><code>startTimeUs</code> - The start time of the media contained by the chunk, in microseconds.</dd>
 <dd><code>endTimeUs</code> - The end time of the media contained by the chunk, in microseconds.</dd>
 <dd><code>chunkIndex</code> - The index of the chunk, or <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</dd>
-<dd><code>trackType</code> - The type of the chunk. Typically one of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code>
-     constants.</dd>
+<dd><code>trackType</code> - The <a href="../../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track type</code></a> of the chunk.</dd>
 <dd><code>sampleFormat</code> - The <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the sample in the chunk.</dd>
 </dl>
 </li>

@@ -161,6 +161,13 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></h3>
 <code><a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>, <a href="ExoTrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Factory</a></code></li>
 </ul>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelection">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></h3>
+<code><a href="TrackSelection.Type.html" title="annotation in com.google.android.exoplayer2.trackselection">TrackSelection.Type</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -207,15 +214,15 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int,int)">FixedTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint)">FixedTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                    int&nbsp;track,
-                   int&nbsp;type)</code></th>
+                   @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int,int,int,java.lang.Object)">FixedTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,int,java.lang.Object)">FixedTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                    int&nbsp;track,
-                   int&nbsp;type,
+                   @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                    int&nbsp;reason,
                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;data)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -323,7 +330,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int,int)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -331,7 +338,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h4>FixedTrackSelection</h4>
 <pre>public&nbsp;FixedTrackSelection&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                            int&nbsp;track,
-                           int&nbsp;type)</pre>
+                           @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>group</code> - The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be null.</dd>
@@ -340,7 +347,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int,int,int,java.lang.Object)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,int,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -348,7 +355,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h4>FixedTrackSelection</h4>
 <pre>public&nbsp;FixedTrackSelection&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                            int&nbsp;track,
-                           int&nbsp;type,
+                           @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                            int&nbsp;reason,
                            @Nullable
                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;data)</pre>

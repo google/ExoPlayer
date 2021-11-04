@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":38,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":38,"i7":6,"i8":6};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,8 +129,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dd>
 </dl>
 <hr>
-<pre>public static interface <span class="typeNameLabel">ExoPlayer.DeviceComponent</span></pre>
-<div class="block">The device component of an <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static interface <span class="typeNameLabel">ExoPlayer.DeviceComponent</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>, as the <a href="ExoPlayer.DeviceComponent.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer.DeviceComponent</code></a> methods are defined by that
+     interface.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -153,69 +157,65 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addDeviceListener(com.google.android.exoplayer2.device.DeviceListener)">addDeviceListener</a></span>&#8203;(<a href="device/DeviceListener.html" title="interface in com.google.android.exoplayer2.device">DeviceListener</a>&nbsp;listener)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decreaseDeviceVolume()">decreaseDeviceVolume</a></span>()</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
+<div class="deprecationComment">Use <a href="Player.html#decreaseDeviceVolume()"><code>Player.decreaseDeviceVolume()</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decreaseDeviceVolume()">decreaseDeviceVolume</a></span>()</code></th>
+<td class="colFirst"><code><a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDeviceInfo()">getDeviceInfo</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Decreases the volume of the device.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getDeviceInfo()"><code>Player.getDeviceInfo()</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="device/DeviceInfo.html" title="class in com.google.android.exoplayer2.device">DeviceInfo</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDeviceInfo()">getDeviceInfo</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the device information.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDeviceVolume()">getDeviceVolume</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Gets the current volume of the device.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getDeviceVolume()"><code>Player.getDeviceVolume()</code></a> instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#increaseDeviceVolume()">increaseDeviceVolume</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Increases the volume of the device.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#increaseDeviceVolume()"><code>Player.increaseDeviceVolume()</code></a> instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isDeviceMuted()">isDeviceMuted</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Gets whether the device is muted or not.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#isDeviceMuted()"><code>Player.isDeviceMuted()</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeviceMuted(boolean)">setDeviceMuted</a></span>&#8203;(boolean&nbsp;muted)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setDeviceMuted(boolean)"><code>Player.setDeviceMuted(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeDeviceListener(com.google.android.exoplayer2.device.DeviceListener)">removeDeviceListener</a></span>&#8203;(<a href="device/DeviceListener.html" title="interface in com.google.android.exoplayer2.device">DeviceListener</a>&nbsp;listener)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeviceMuted(boolean)">setDeviceMuted</a></span>&#8203;(boolean&nbsp;muted)</code></th>
-<td class="colLast">
-<div class="block">Sets the mute state of the device.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDeviceVolume(int)">setDeviceVolume</a></span>&#8203;(int&nbsp;volume)</code></th>
 <td class="colLast">
-<div class="block">Sets the volume of the device.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setDeviceVolume(int)"><code>Player.setDeviceVolume(int)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -235,42 +235,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="addDeviceListener(com.google.android.exoplayer2.device.DeviceListener)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>addDeviceListener</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-void&nbsp;addDeviceListener&#8203;(<a href="device/DeviceListener.html" title="interface in com.google.android.exoplayer2.device">DeviceListener</a>&nbsp;listener)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
-</div>
-<div class="block">Adds a listener to receive device events.</div>
-</li>
-</ul>
-<a id="removeDeviceListener(com.google.android.exoplayer2.device.DeviceListener)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>removeDeviceListener</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-void&nbsp;removeDeviceListener&#8203;(<a href="device/DeviceListener.html" title="interface in com.google.android.exoplayer2.device">DeviceListener</a>&nbsp;listener)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
-</div>
-<div class="block">Removes a listener of device events.</div>
-</li>
-</ul>
 <a id="getDeviceInfo()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDeviceInfo</h4>
-<pre class="methodSignature"><a href="device/DeviceInfo.html" title="class in com.google.android.exoplayer2.device">DeviceInfo</a>&nbsp;getDeviceInfo()</pre>
-<div class="block">Gets the device information.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&nbsp;getDeviceInfo()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getDeviceInfo()"><code>Player.getDeviceInfo()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="getDeviceVolume()">
@@ -279,16 +254,11 @@ void&nbsp;removeDeviceListener&#8203;(<a href="device/DeviceListener.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>getDeviceVolume</h4>
-<pre class="methodSignature">int&nbsp;getDeviceVolume()</pre>
-<div class="block">Gets the current volume of the device.
-
- <p>For devices with <a href="device/DeviceInfo.html#PLAYBACK_TYPE_LOCAL"><code>local playback</code></a>, the volume
- returned by this method varies according to the current <a href="C.StreamType.html" title="annotation in com.google.android.exoplayer2"><code>stream type</code></a>. The
- stream type is determined by <a href="audio/AudioAttributes.html#usage"><code>AudioAttributes.usage</code></a> which can be converted to stream
- type with <a href="util/Util.html#getStreamTypeForAudioUsage(int)"><code>Util.getStreamTypeForAudioUsage(int)</code></a>.
-
- <p>For devices with <a href="device/DeviceInfo.html#PLAYBACK_TYPE_REMOTE"><code>remote playback</code></a>, the volume of
- the remote device is returned.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+int&nbsp;getDeviceVolume()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getDeviceVolume()"><code>Player.getDeviceVolume()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="isDeviceMuted()">
@@ -297,8 +267,11 @@ void&nbsp;removeDeviceListener&#8203;(<a href="device/DeviceListener.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>isDeviceMuted</h4>
-<pre class="methodSignature">boolean&nbsp;isDeviceMuted()</pre>
-<div class="block">Gets whether the device is muted or not.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+boolean&nbsp;isDeviceMuted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#isDeviceMuted()"><code>Player.isDeviceMuted()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDeviceVolume(int)">
@@ -307,12 +280,11 @@ void&nbsp;removeDeviceListener&#8203;(<a href="device/DeviceListener.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>setDeviceVolume</h4>
-<pre class="methodSignature">void&nbsp;setDeviceVolume&#8203;(int&nbsp;volume)</pre>
-<div class="block">Sets the volume of the device.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>volume</code> - The volume to set.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setDeviceVolume&#8203;(int&nbsp;volume)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setDeviceVolume(int)"><code>Player.setDeviceVolume(int)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="increaseDeviceVolume()">
@@ -321,8 +293,11 @@ void&nbsp;removeDeviceListener&#8203;(<a href="device/DeviceListener.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>increaseDeviceVolume</h4>
-<pre class="methodSignature">void&nbsp;increaseDeviceVolume()</pre>
-<div class="block">Increases the volume of the device.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;increaseDeviceVolume()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#increaseDeviceVolume()"><code>Player.increaseDeviceVolume()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="decreaseDeviceVolume()">
@@ -331,8 +306,11 @@ void&nbsp;removeDeviceListener&#8203;(<a href="device/DeviceListener.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>decreaseDeviceVolume</h4>
-<pre class="methodSignature">void&nbsp;decreaseDeviceVolume()</pre>
-<div class="block">Decreases the volume of the device.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;decreaseDeviceVolume()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#decreaseDeviceVolume()"><code>Player.decreaseDeviceVolume()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDeviceMuted(boolean)">
@@ -341,8 +319,11 @@ void&nbsp;removeDeviceListener&#8203;(<a href="device/DeviceListener.html" title
 <ul class="blockListLast">
 <li class="blockList">
 <h4>setDeviceMuted</h4>
-<pre class="methodSignature">void&nbsp;setDeviceMuted&#8203;(boolean&nbsp;muted)</pre>
-<div class="block">Sets the mute state of the device.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setDeviceMuted&#8203;(boolean&nbsp;muted)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setDeviceMuted(boolean)"><code>Player.setDeviceMuted(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </li>

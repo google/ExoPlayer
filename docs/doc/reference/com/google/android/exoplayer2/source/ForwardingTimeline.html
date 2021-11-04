@@ -265,8 +265,8 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextWindowIndex(int,int,boolean)">getNextWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
-                  int&nbsp;repeatMode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">getNextWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
+                  @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                   boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
 <div class="block">Returns the index of the window after the window at index <code>windowIndex</code> depending on the
@@ -291,8 +291,8 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreviousWindowIndex(int,int,boolean)">getPreviousWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
-                      int&nbsp;repeatMode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreviousWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">getPreviousWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
+                      @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                       boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
 <div class="block">Returns the index of the window before the window at index <code>windowIndex</code> depending on the
@@ -328,7 +328,7 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></h3>
-<code><a href="../Timeline.html#equals(java.lang.Object)">equals</a>, <a href="../Timeline.html#getNextPeriodIndex(int,com.google.android.exoplayer2.Timeline.Period,com.google.android.exoplayer2.Timeline.Window,int,boolean)">getNextPeriodIndex</a>, <a href="../Timeline.html#getPeriod(int,com.google.android.exoplayer2.Timeline.Period)">getPeriod</a>, <a href="../Timeline.html#getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">getPeriodByUid</a>, <a href="../Timeline.html#getPeriodPosition(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long)">getPeriodPosition</a>, <a href="../Timeline.html#getPeriodPosition(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long,long)">getPeriodPosition</a>, <a href="../Timeline.html#getWindow(int,com.google.android.exoplayer2.Timeline.Window)">getWindow</a>, <a href="../Timeline.html#hashCode()">hashCode</a>, <a href="../Timeline.html#isEmpty()">isEmpty</a>, <a href="../Timeline.html#isLastPeriod(int,com.google.android.exoplayer2.Timeline.Period,com.google.android.exoplayer2.Timeline.Window,int,boolean)">isLastPeriod</a>, <a href="../Timeline.html#toBundle()">toBundle</a>, <a href="../Timeline.html#toBundle(boolean)">toBundle</a></code></li>
+<code><a href="../Timeline.html#equals(java.lang.Object)">equals</a>, <a href="../Timeline.html#getNextPeriodIndex(int,com.google.android.exoplayer2.Timeline.Period,com.google.android.exoplayer2.Timeline.Window,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">getNextPeriodIndex</a>, <a href="../Timeline.html#getPeriod(int,com.google.android.exoplayer2.Timeline.Period)">getPeriod</a>, <a href="../Timeline.html#getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">getPeriodByUid</a>, <a href="../Timeline.html#getPeriodPosition(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long)">getPeriodPosition</a>, <a href="../Timeline.html#getPeriodPosition(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long,long)">getPeriodPosition</a>, <a href="../Timeline.html#getPeriodPositionUs(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long)">getPeriodPositionUs</a>, <a href="../Timeline.html#getPeriodPositionUs(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long,long)">getPeriodPositionUs</a>, <a href="../Timeline.html#getWindow(int,com.google.android.exoplayer2.Timeline.Window)">getWindow</a>, <a href="../Timeline.html#hashCode()">hashCode</a>, <a href="../Timeline.html#isEmpty()">isEmpty</a>, <a href="../Timeline.html#isLastPeriod(int,com.google.android.exoplayer2.Timeline.Period,com.google.android.exoplayer2.Timeline.Window,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">isLastPeriod</a>, <a href="../Timeline.html#toBundle()">toBundle</a>, <a href="../Timeline.html#toBundle(boolean)">toBundle</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -406,7 +406,7 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 </dl>
 </li>
 </ul>
-<a id="getNextWindowIndex(int,int,boolean)">
+<a id="getNextWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -414,14 +414,14 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <h4>getNextWindowIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getNextWindowIndex&#8203;(int&nbsp;windowIndex,
                               <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
-                              int&nbsp;repeatMode,
+                              @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                               boolean&nbsp;shuffleModeEnabled)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../Timeline.html#getNextWindowIndex(int,int,boolean)">Timeline</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../Timeline.html#getNextWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">Timeline</a></code></span></div>
 <div class="block">Returns the index of the window after the window at index <code>windowIndex</code> depending on the
  <code>repeatMode</code> and whether shuffling is enabled.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../Timeline.html#getNextWindowIndex(int,int,boolean)">getNextWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dd><code><a href="../Timeline.html#getNextWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">getNextWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - Index of a window in the timeline.</dd>
 <dd><code>repeatMode</code> - A repeat mode.</dd>
@@ -431,7 +431,7 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 </dl>
 </li>
 </ul>
-<a id="getPreviousWindowIndex(int,int,boolean)">
+<a id="getPreviousWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -439,14 +439,14 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <h4>getPreviousWindowIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getPreviousWindowIndex&#8203;(int&nbsp;windowIndex,
                                   <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
-                                  int&nbsp;repeatMode,
+                                  @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                                   boolean&nbsp;shuffleModeEnabled)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../Timeline.html#getPreviousWindowIndex(int,int,boolean)">Timeline</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../Timeline.html#getPreviousWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">Timeline</a></code></span></div>
 <div class="block">Returns the index of the window before the window at index <code>windowIndex</code> depending on the
  <code>repeatMode</code> and whether shuffling is enabled.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../Timeline.html#getPreviousWindowIndex(int,int,boolean)">getPreviousWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dd><code><a href="../Timeline.html#getPreviousWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">getPreviousWindowIndex</a></code>&nbsp;in class&nbsp;<code><a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - Index of a window in the timeline.</dd>
 <dd><code>repeatMode</code> - A repeat mode.</dd>

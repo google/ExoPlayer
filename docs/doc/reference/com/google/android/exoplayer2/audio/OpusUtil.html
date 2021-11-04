@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9};
+var data = {"i0":9,"i1":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -191,21 +191,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Parses the channel count from an Opus Identification Header.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreSkipSamples(java.util.List)">getPreSkipSamples</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
-<td class="colLast">
-<div class="block">Returns the number of pre-skip samples specified by the given Opus codec initialization data.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSeekPreRollSamples(java.util.List)">getSeekPreRollSamples</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
-<td class="colLast">
-<div class="block">Returns the number of seek per-roll samples specified by the given Opus codec initialization
- data.</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -273,7 +258,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="buildInitializationData(byte[])">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>buildInitializationData</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;buildInitializationData&#8203;(byte[]&nbsp;header)</pre>
@@ -283,39 +268,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>header</code> - An Opus Identification Header, as defined by RFC 7845.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Codec initialization data suitable for an Opus <a href="https://developer.android.com/reference/android/media/MediaCodec#initialization">MediaCodec</a>.</dd>
-</dl>
-</li>
-</ul>
-<a id="getPreSkipSamples(java.util.List)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getPreSkipSamples</h4>
-<pre class="methodSignature">public static&nbsp;int&nbsp;getPreSkipSamples&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
-<div class="block">Returns the number of pre-skip samples specified by the given Opus codec initialization data.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initializationData</code> - The codec initialization data.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of pre-skip samples.</dd>
-</dl>
-</li>
-</ul>
-<a id="getSeekPreRollSamples(java.util.List)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getSeekPreRollSamples</h4>
-<pre class="methodSignature">public static&nbsp;int&nbsp;getSeekPreRollSamples&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
-<div class="block">Returns the number of seek per-roll samples specified by the given Opus codec initialization
- data.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initializationData</code> - The codec initialization data.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of seek pre-roll samples.</dd>
 </dl>
 </li>
 </ul>

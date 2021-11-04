@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":42,"i3":42,"i4":42,"i5":42,"i6":10,"i7":42,"i8":42,"i9":42,"i10":42,"i11":10,"i12":10,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":10,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":42,"i35":10,"i36":10,"i37":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -173,7 +173,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -188,203 +188,273 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(android.net.Uri)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)">setAdsConfiguration</a></span>&#8203;(<a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.AdsConfiguration</a>&nbsp;adsConfiguration)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+<div class="block">Sets the optional <a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.AdsConfiguration</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(android.net.Uri,java.lang.Object)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri,
-           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(android.net.Uri)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> and ads identifier.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)"><code>setAdsConfiguration(AdsConfiguration)</code></a> and pass the <code>adTagUri</code>
+     to <a href="MediaItem.AdsConfiguration.Builder.html#%3Cinit%3E(android.net.Uri)"><code>Builder(Uri)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(java.lang.String)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adTagUri)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(android.net.Uri,java.lang.Object)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri,
+           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)"><code>setAdsConfiguration(AdsConfiguration)</code></a>, pass the <code>adTagUri</code> to
+     <a href="MediaItem.AdsConfiguration.Builder.html#%3Cinit%3E(android.net.Uri)"><code>Builder(Uri)</code></a> and the <code>adsId</code> to <a href="MediaItem.AdsConfiguration.Builder.html#setAdsId(java.lang.Object)"><code>MediaItem.AdsConfiguration.Builder.setAdsId(Object)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipEndPositionMs(long)">setClipEndPositionMs</a></span>&#8203;(long&nbsp;endPositionMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdTagUri(java.lang.String)">setAdTagUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adTagUri)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional end position in milliseconds which must be a value larger than or equal to
- zero, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to end when playback reaches the end of media (Default:
- <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)"><code>setAdsConfiguration(AdsConfiguration)</code></a>, parse the <code>adTagUri</code>
+     with <a href="https://developer.android.com/reference/android/net/Uri.html#parse(java.lang.String)" title="class or interface in android.net" class="externalLink"><code>Uri.parse(String)</code></a> and pass the result to <a href="MediaItem.AdsConfiguration.Builder.html#%3Cinit%3E(android.net.Uri)" target="_top"><code>Builder(Uri)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipRelativeToDefaultPosition(boolean)">setClipRelativeToDefaultPosition</a></span>&#8203;(boolean&nbsp;relativeToDefaultPosition)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipEndPositionMs(long)">setClipEndPositionMs</a></span>&#8203;(long&nbsp;endPositionMs)</code></th>
 <td class="colLast">
-<div class="block">Sets whether the start position and the end position are relative to the default position in
- the window (Default: <code>false</code>).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setEndPositionMs(long)"><code>MediaItem.ClippingConfiguration.Builder.setEndPositionMs(long)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipRelativeToLiveWindow(boolean)">setClipRelativeToLiveWindow</a></span>&#8203;(boolean&nbsp;relativeToLiveWindow)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)">setClippingConfiguration</a></span>&#8203;(<a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a>&nbsp;clippingConfiguration)</code></th>
 <td class="colLast">
-<div class="block">Sets whether the start/end positions should move with the live window for live streams.</div>
+<div class="block">Sets the <a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.ClippingConfiguration</code></a>, defaults to <a href="MediaItem.ClippingConfiguration.html#UNSET"><code>MediaItem.ClippingConfiguration.UNSET</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipStartPositionMs(long)">setClipStartPositionMs</a></span>&#8203;(long&nbsp;startPositionMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipRelativeToDefaultPosition(boolean)">setClipRelativeToDefaultPosition</a></span>&#8203;(boolean&nbsp;relativeToDefaultPosition)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional start position in milliseconds which must be a value larger than or equal
- to zero (Default: 0).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setRelativeToDefaultPosition(boolean)"><code>MediaItem.ClippingConfiguration.Builder.setRelativeToDefaultPosition(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipStartsAtKeyFrame(boolean)">setClipStartsAtKeyFrame</a></span>&#8203;(boolean&nbsp;startsAtKeyFrame)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipRelativeToLiveWindow(boolean)">setClipRelativeToLiveWindow</a></span>&#8203;(boolean&nbsp;relativeToLiveWindow)</code></th>
 <td class="colLast">
-<div class="block">Sets whether the start point is guaranteed to be a key frame.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setRelativeToLiveWindow(boolean)"><code>MediaItem.ClippingConfiguration.Builder.setRelativeToLiveWindow(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipStartPositionMs(long)">setClipStartPositionMs</a></span>&#8203;(long&nbsp;startPositionMs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setStartPositionMs(long)"><code>MediaItem.ClippingConfiguration.Builder.setStartPositionMs(long)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClipStartsAtKeyFrame(boolean)">setClipStartsAtKeyFrame</a></span>&#8203;(boolean&nbsp;startsAtKeyFrame)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setStartsAtKeyFrame(boolean)"><code>MediaItem.ClippingConfiguration.Builder.setStartsAtKeyFrame(boolean)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCustomCacheKey(java.lang.String)">setCustomCacheKey</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;customCacheKey)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional custom cache key (only used for progressive streams).</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmForceDefaultLicenseUri(boolean)">setDrmForceDefaultLicenseUri</a></span>&#8203;(boolean&nbsp;forceDefaultLicenseUri)</code></th>
-<td class="colLast">
-<div class="block">Sets whether to force use the default DRM license server URI even if the media specifies its
- own DRM license server URI.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmKeySetId(byte%5B%5D)">setDrmKeySetId</a></span>&#8203;(byte[]&nbsp;keySetId)</code></th>
-<td class="colLast">
-<div class="block">Sets the key set ID of the offline license.</div>
-</td>
-</tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseRequestHeaders(java.util.Map)">setDrmLicenseRequestHeaders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;licenseRequestHeaders)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)">setDrmConfiguration</a></span>&#8203;(<a href="MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration</a>&nbsp;drmConfiguration)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional request headers attached to the DRM license request.</div>
+<div class="block">Sets the optional DRM configuration.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseUri(android.net.Uri)">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmForceDefaultLicenseUri(boolean)">setDrmForceDefaultLicenseUri</a></span>&#8203;(boolean&nbsp;forceDefaultLicenseUri)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional default DRM license server URI.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setForceDefaultLicenseUri(boolean)"><code>MediaItem.DrmConfiguration.Builder.setForceDefaultLicenseUri(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseUri(java.lang.String)">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmKeySetId(byte%5B%5D)">setDrmKeySetId</a></span>&#8203;(byte[]&nbsp;keySetId)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional default DRM license server URI.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setKeySetId(byte%5B%5D)"><code>MediaItem.DrmConfiguration.Builder.setKeySetId(byte[])</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmMultiSession(boolean)">setDrmMultiSession</a></span>&#8203;(boolean&nbsp;multiSession)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseRequestHeaders(java.util.Map)">setDrmLicenseRequestHeaders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;licenseRequestHeaders)</code></th>
 <td class="colLast">
-<div class="block">Sets whether the DRM configuration is multi session enabled.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setLicenseRequestHeaders(java.util.Map)"><code>MediaItem.DrmConfiguration.Builder.setLicenseRequestHeaders(Map)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmPlayClearContentWithoutKey(boolean)">setDrmPlayClearContentWithoutKey</a></span>&#8203;(boolean&nbsp;playClearContentWithoutKey)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseUri(android.net.Uri)">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</code></th>
 <td class="colLast">
-<div class="block">Sets whether clear samples within protected content should be played when keys for the
- encrypted part of the content have yet to be loaded.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setLicenseUri(android.net.Uri)"><code>MediaItem.DrmConfiguration.Builder.setLicenseUri(Uri)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionForClearPeriods(boolean)">setDrmSessionForClearPeriods</a></span>&#8203;(boolean&nbsp;sessionForClearPeriods)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmLicenseUri(java.lang.String)">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</code></th>
 <td class="colLast">
-<div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>
- and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setLicenseUri(java.lang.String)"><code>MediaItem.DrmConfiguration.Builder.setLicenseUri(String)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionForClearTypes(java.util.List)">setDrmSessionForClearTypes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;sessionForClearTypes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmMultiSession(boolean)">setDrmMultiSession</a></span>&#8203;(boolean&nbsp;multiSession)</code></th>
 <td class="colLast">
-<div class="block">Sets a list of <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constants for which to use a DRM session even
- when the tracks are in the clear.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setMultiSession(boolean)"><code>MediaItem.DrmConfiguration.Builder.setMultiSession(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmUuid(java.util.UUID)">setDrmUuid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmPlayClearContentWithoutKey(boolean)">setDrmPlayClearContentWithoutKey</a></span>&#8203;(boolean&nbsp;playClearContentWithoutKey)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top"><code>UUID</code></a> of the protection scheme.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setPlayClearContentWithoutKey(boolean)"><code>MediaItem.DrmConfiguration.Builder.setPlayClearContentWithoutKey(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxOffsetMs(long)">setLiveMaxOffsetMs</a></span>&#8203;(long&nbsp;liveMaxOffsetMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionForClearPeriods(boolean)">setDrmSessionForClearPeriods</a></span>&#8203;(boolean&nbsp;sessionForClearPeriods)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional maximum offset from the live edge for live streams, in milliseconds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#forceSessionsForAudioAndVideoTracks(boolean)"><code>MediaItem.DrmConfiguration.Builder.forceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxPlaybackSpeed(float)">setLiveMaxPlaybackSpeed</a></span>&#8203;(float&nbsp;maxPlaybackSpeed)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionForClearTypes(java.util.List)">setDrmSessionForClearTypes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2">@TrackType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;sessionForClearTypes)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional maximum playback speed for live stream speed adjustment.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setForcedSessionTrackTypes(java.util.List)"><code>MediaItem.DrmConfiguration.Builder.setForcedSessionTrackTypes(List)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinOffsetMs(long)">setLiveMinOffsetMs</a></span>&#8203;(long&nbsp;liveMinOffsetMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmUuid(java.util.UUID)">setDrmUuid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional minimum offset from the live edge for live streams, in milliseconds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and pass the <code>uuid</code> to
+     <a href="MediaItem.DrmConfiguration.Builder.html#%3Cinit%3E(java.util.UUID)"><code>Builder(UUID)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinPlaybackSpeed(float)">setLiveMinPlaybackSpeed</a></span>&#8203;(float&nbsp;minPlaybackSpeed)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">setLiveConfiguration</a></span>&#8203;(<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional minimum playback speed for live stream speed adjustment.</div>
+<div class="block">Sets the <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration</code></a>.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveTargetOffsetMs(long)">setLiveTargetOffsetMs</a></span>&#8203;(long&nbsp;liveTargetOffsetMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxOffsetMs(long)">setLiveMaxOffsetMs</a></span>&#8203;(long&nbsp;liveMaxOffsetMs)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional target offset from the live edge for live streams, in milliseconds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMaxOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setMaxOffsetMs(long)</code></a>.</div>
+</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMaxPlaybackSpeed(float)">setLiveMaxPlaybackSpeed</a></span>&#8203;(float&nbsp;maxPlaybackSpeed)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMaxPlaybackSpeed(float)"><code>MediaItem.LiveConfiguration.Builder.setMaxPlaybackSpeed(float)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinOffsetMs(long)">setLiveMinOffsetMs</a></span>&#8203;(long&nbsp;liveMinOffsetMs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMinOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setMinOffsetMs(long)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveMinPlaybackSpeed(float)">setLiveMinPlaybackSpeed</a></span>&#8203;(float&nbsp;minPlaybackSpeed)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMinPlaybackSpeed(float)"><code>MediaItem.LiveConfiguration.Builder.setMinPlaybackSpeed(float)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveTargetOffsetMs(long)">setLiveTargetOffsetMs</a></span>&#8203;(long&nbsp;liveTargetOffsetMs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setTargetOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setTargetOffsetMs(long)</code></a>.</div>
+</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaId(java.lang.String)">setMediaId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaId)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional media ID which identifies the media item.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaMetadata(com.google.android.exoplayer2.MediaMetadata)">setMediaMetadata</a></span>&#8203;(<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</code></th>
 <td class="colLast">
 <div class="block">Sets the media metadata.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMimeType(java.lang.String)">setMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional MIME type.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStreamKeys(java.util.List)">setStreamKeys</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">
@@ -392,28 +462,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  streams).</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSubtitles(java.util.List)">setSubtitles</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.Subtitle</a>&gt;&nbsp;subtitles)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSubtitleConfigurations(java.util.List)">setSubtitleConfigurations</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.SubtitleConfiguration.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.SubtitleConfiguration</a>&gt;&nbsp;subtitleConfigurations)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional subtitles.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i34" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSubtitles(java.util.List)">setSubtitles</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.Subtitle</a>&gt;&nbsp;subtitles)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setSubtitleConfigurations(java.util.List)"><code>setSubtitleConfigurations(List)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTag(java.lang.Object)">setTag</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;tag)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional tag for custom attributes.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(android.net.Uri)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
 <div class="block">Sets the optional URI.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUri(java.lang.String)">setUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</code></th>
 <td class="colLast">
@@ -486,8 +565,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
 <div class="block">Sets the optional URI.
 
- <p>If <code>uri</code> is null or unset then no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created
- during <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> should be called.</div>
+ <p>If <code>uri</code> is null or unset then no <a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LocalConfiguration</code></a> object is created
+ during <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.html#localConfiguration"><code>MediaItem.localConfiguration</code></a> should be called.</div>
 </li>
 </ul>
 <a id="setUri(android.net.Uri)">
@@ -500,8 +579,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                 <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
 <div class="block">Sets the optional URI.
 
- <p>If <code>uri</code> is null or unset then no <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object is created
- during <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.html#playbackProperties"><code>MediaItem.playbackProperties</code></a> should be called.</div>
+ <p>If <code>uri</code> is null or unset then no <a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LocalConfiguration</code></a> object is created
+ during <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.html#localConfiguration"><code>MediaItem.localConfiguration</code></a> should be called.</div>
 </li>
 </ul>
 <a id="setMimeType(java.lang.String)">
@@ -523,15 +602,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a id="setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setClippingConfiguration</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClippingConfiguration&#8203;(<a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a>&nbsp;clippingConfiguration)</pre>
+<div class="block">Sets the <a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.ClippingConfiguration</code></a>, defaults to <a href="MediaItem.ClippingConfiguration.html#UNSET"><code>MediaItem.ClippingConfiguration.UNSET</code></a>.</div>
+</li>
+</ul>
 <a id="setClipStartPositionMs(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setClipStartPositionMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipStartPositionMs&#8203;(long&nbsp;startPositionMs)</pre>
-<div class="block">Sets the optional start position in milliseconds which must be a value larger than or equal
- to zero (Default: 0).</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipStartPositionMs&#8203;(@IntRange(from=0L)
+                                                long&nbsp;startPositionMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setStartPositionMs(long)"><code>MediaItem.ClippingConfiguration.Builder.setStartPositionMs(long)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setClipEndPositionMs(long)">
@@ -540,10 +632,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setClipEndPositionMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipEndPositionMs&#8203;(long&nbsp;endPositionMs)</pre>
-<div class="block">Sets the optional end position in milliseconds which must be a value larger than or equal to
- zero, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to end when playback reaches the end of media (Default:
- <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>).</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipEndPositionMs&#8203;(long&nbsp;endPositionMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setEndPositionMs(long)"><code>MediaItem.ClippingConfiguration.Builder.setEndPositionMs(long)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setClipRelativeToLiveWindow(boolean)">
@@ -552,10 +645,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setClipRelativeToLiveWindow</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipRelativeToLiveWindow&#8203;(boolean&nbsp;relativeToLiveWindow)</pre>
-<div class="block">Sets whether the start/end positions should move with the live window for live streams. If
- <code>false</code>, live streams end when playback reaches the end position in live window seen
- when the media is first loaded (Default: <code>false</code>).</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipRelativeToLiveWindow&#8203;(boolean&nbsp;relativeToLiveWindow)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setRelativeToLiveWindow(boolean)"><code>MediaItem.ClippingConfiguration.Builder.setRelativeToLiveWindow(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setClipRelativeToDefaultPosition(boolean)">
@@ -564,9 +658,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setClipRelativeToDefaultPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipRelativeToDefaultPosition&#8203;(boolean&nbsp;relativeToDefaultPosition)</pre>
-<div class="block">Sets whether the start position and the end position are relative to the default position in
- the window (Default: <code>false</code>).</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipRelativeToDefaultPosition&#8203;(boolean&nbsp;relativeToDefaultPosition)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setRelativeToDefaultPosition(boolean)"><code>MediaItem.ClippingConfiguration.Builder.setRelativeToDefaultPosition(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setClipStartsAtKeyFrame(boolean)">
@@ -575,9 +671,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setClipStartsAtKeyFrame</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipStartsAtKeyFrame&#8203;(boolean&nbsp;startsAtKeyFrame)</pre>
-<div class="block">Sets whether the start point is guaranteed to be a key frame. If <code>false</code>, the playback
- transition into the clip may not be seamless (Default: <code>false</code>).</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setClipStartsAtKeyFrame&#8203;(boolean&nbsp;startsAtKeyFrame)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setClippingConfiguration(com.google.android.exoplayer2.MediaItem.ClippingConfiguration)"><code>setClippingConfiguration(ClippingConfiguration)</code></a> and <a href="MediaItem.ClippingConfiguration.Builder.html#setStartsAtKeyFrame(boolean)"><code>MediaItem.ClippingConfiguration.Builder.setStartsAtKeyFrame(boolean)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmConfiguration</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmConfiguration&#8203;(@Nullable
+                                             <a href="MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration</a>&nbsp;drmConfiguration)</pre>
+<div class="block">Sets the optional DRM configuration.</div>
 </li>
 </ul>
 <a id="setDrmLicenseUri(android.net.Uri)">
@@ -586,12 +695,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmLicenseUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
                                           <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</pre>
-<div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setLicenseUri(android.net.Uri)"><code>MediaItem.DrmConfiguration.Builder.setLicenseUri(Uri)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmLicenseUri(java.lang.String)">
@@ -600,12 +709,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmLicenseUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</pre>
-<div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setLicenseUri(java.lang.String)"><code>MediaItem.DrmConfiguration.Builder.setLicenseUri(String)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmLicenseRequestHeaders(java.util.Map)">
@@ -614,14 +723,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmLicenseRequestHeaders</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseRequestHeaders&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseRequestHeaders&#8203;(@Nullable
                                                      <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;licenseRequestHeaders)</pre>
-<div class="block">Sets the optional request headers attached to the DRM license request.
-
- <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink" target="_top"><code>Map</code></a> can be used for a reset.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setLicenseRequestHeaders(java.util.Map)"><code>MediaItem.DrmConfiguration.Builder.setLicenseRequestHeaders(Map)</code></a> instead. Note that <a href="MediaItem.DrmConfiguration.Builder.html#setLicenseRequestHeaders(java.util.Map)"><code>MediaItem.DrmConfiguration.Builder.setLicenseRequestHeaders(Map)</code></a> doesn't accept null, use an empty
+     map to clear the headers.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmUuid(java.util.UUID)">
@@ -630,14 +738,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmUuid</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmUuid&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmUuid&#8203;(@Nullable
                                     <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid)</pre>
-<div class="block">Sets the <a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top"><code>UUID</code></a> of the protection scheme.
-
- <p>If <code>uuid</code> is null or unset then no <a href="MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.DrmConfiguration</code></a> object is created during
- <a href="#build()"><code>build()</code></a> and no other <code>Builder</code> methods that would populate <a href="MediaItem.PlaybackProperties.html#drmConfiguration"><code>MediaItem.PlaybackProperties.drmConfiguration</code></a> should be called.
-
- <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and pass the <code>uuid</code> to
+     <a href="MediaItem.DrmConfiguration.Builder.html#%3Cinit%3E(java.util.UUID)"><code>Builder(UUID)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmMultiSession(boolean)">
@@ -646,11 +753,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmMultiSession</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmMultiSession&#8203;(boolean&nbsp;multiSession)</pre>
-<div class="block">Sets whether the DRM configuration is multi session enabled.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmMultiSession&#8203;(boolean&nbsp;multiSession)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setMultiSession(boolean)"><code>MediaItem.DrmConfiguration.Builder.setMultiSession(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmForceDefaultLicenseUri(boolean)">
@@ -659,12 +766,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmForceDefaultLicenseUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmForceDefaultLicenseUri&#8203;(boolean&nbsp;forceDefaultLicenseUri)</pre>
-<div class="block">Sets whether to force use the default DRM license server URI even if the media specifies its
- own DRM license server URI.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmForceDefaultLicenseUri&#8203;(boolean&nbsp;forceDefaultLicenseUri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setForceDefaultLicenseUri(boolean)"><code>MediaItem.DrmConfiguration.Builder.setForceDefaultLicenseUri(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmPlayClearContentWithoutKey(boolean)">
@@ -673,12 +779,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmPlayClearContentWithoutKey</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmPlayClearContentWithoutKey&#8203;(boolean&nbsp;playClearContentWithoutKey)</pre>
-<div class="block">Sets whether clear samples within protected content should be played when keys for the
- encrypted part of the content have yet to be loaded.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmPlayClearContentWithoutKey&#8203;(boolean&nbsp;playClearContentWithoutKey)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setPlayClearContentWithoutKey(boolean)"><code>MediaItem.DrmConfiguration.Builder.setPlayClearContentWithoutKey(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmSessionForClearPeriods(boolean)">
@@ -687,14 +792,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionForClearPeriods</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmSessionForClearPeriods&#8203;(boolean&nbsp;sessionForClearPeriods)</pre>
-<div class="block">Sets whether a DRM session should be used for clear tracks of type <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>
- and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>.
-
- <p>This method overrides what has been set by previously calling <a href="#setDrmSessionForClearTypes(java.util.List)"><code>setDrmSessionForClearTypes(List)</code></a>.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmSessionForClearPeriods&#8203;(boolean&nbsp;sessionForClearPeriods)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#forceSessionsForAudioAndVideoTracks(boolean)"><code>MediaItem.DrmConfiguration.Builder.forceSessionsForAudioAndVideoTracks(boolean)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmSessionForClearTypes(java.util.List)">
@@ -703,19 +805,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionForClearTypes</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmSessionForClearTypes&#8203;(@Nullable
-                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;sessionForClearTypes)</pre>
-<div class="block">Sets a list of <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>.TRACK_TYPE_*</code> constants for which to use a DRM session even
- when the tracks are in the clear.
-
- <p>For the common case of using a DRM session for <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a> the <a href="#setDrmSessionForClearPeriods(boolean)"><code>setDrmSessionForClearPeriods(boolean)</code></a> can be used.
-
- <p>This method overrides what has been set by previously calling <a href="#setDrmSessionForClearPeriods(boolean)"><code>setDrmSessionForClearPeriods(boolean)</code></a>.
-
- <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmSessionForClearTypes&#8203;(@Nullable
+                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2">@TrackType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;sessionForClearTypes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setForcedSessionTrackTypes(java.util.List)"><code>MediaItem.DrmConfiguration.Builder.setForcedSessionTrackTypes(List)</code></a> instead. Note that <a href="MediaItem.DrmConfiguration.Builder.html#setForcedSessionTrackTypes(java.util.List)"><code>MediaItem.DrmConfiguration.Builder.setForcedSessionTrackTypes(List)</code></a> doesn't accept null, use an
+     empty list to clear the contents.</div>
+</div>
 </li>
 </ul>
 <a id="setDrmKeySetId(byte[])">
@@ -724,16 +820,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmKeySetId</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmKeySetId&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmKeySetId&#8203;(@Nullable
                                         byte[]&nbsp;keySetId)</pre>
-<div class="block">Sets the key set ID of the offline license.
-
- <p>The key set ID identifies an offline license. The ID is required to query, renew or
- release an existing offline license (see <code>DefaultDrmSessionManager#setMode(int
- mode,byte[] offlineLicenseKeySetId)</code>).
-
- <p>This method should only be called if both <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> and <a href="#setDrmUuid(java.util.UUID)"><code>setDrmUuid(UUID)</code></a>
- are passed non-null values.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setDrmConfiguration(com.google.android.exoplayer2.MediaItem.DrmConfiguration)"><code>setDrmConfiguration(DrmConfiguration)</code></a> and <a href="MediaItem.DrmConfiguration.Builder.html#setKeySetId(byte%5B%5D)"><code>MediaItem.DrmConfiguration.Builder.setKeySetId(byte[])</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setStreamKeys(java.util.List)">
@@ -750,7 +842,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.
 
  <p>If <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the stream keys are used to create a
- <a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise they will be ignored.</div>
+ <a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LocalConfiguration</code></a> object. Otherwise they will be ignored.</div>
 </li>
 </ul>
 <a id="setCustomCacheKey(java.lang.String)">
@@ -772,11 +864,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setSubtitles</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setSubtitles&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setSubtitles&#8203;(@Nullable
                                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.Subtitle</a>&gt;&nbsp;subtitles)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setSubtitleConfigurations(java.util.List)"><code>setSubtitleConfigurations(List)</code></a> instead. Note that <a href="#setSubtitleConfigurations(java.util.List)"><code>setSubtitleConfigurations(List)</code></a> doesn't accept null, use an empty list to clear the
+     contents.</div>
+</div>
+</li>
+</ul>
+<a id="setSubtitleConfigurations(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSubtitleConfigurations</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setSubtitleConfigurations&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaItem.SubtitleConfiguration.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem.SubtitleConfiguration</a>&gt;&nbsp;subtitleConfigurations)</pre>
 <div class="block">Sets the optional subtitles.
 
- <p><code>null</code> or an empty <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top"><code>List</code></a> can be used for a reset.
+ <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
+</li>
+</ul>
+<a id="setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdsConfiguration</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdsConfiguration&#8203;(@Nullable
+                                             <a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.AdsConfiguration</a>&nbsp;adsConfiguration)</pre>
+<div class="block">Sets the optional <a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.AdsConfiguration</code></a>.
 
  <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
 </li>
@@ -787,19 +904,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdTagUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adTagUri)</pre>
-<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.
-
- <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
- the same ad playback state. To resume ad playback when recreating the playlist on returning
- from the background, pass media items with the same ad tag URIs and media IDs to the player.
-
- <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>adTagUri</code> - The ad tag URI to load.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)"><code>setAdsConfiguration(AdsConfiguration)</code></a>, parse the <code>adTagUri</code>
+     with <a href="https://developer.android.com/reference/android/net/Uri.html#parse(java.lang.String)" title="class or interface in android.net" class="externalLink"><code>Uri.parse(String)</code></a> and pass the result to <a href="MediaItem.AdsConfiguration.Builder.html#%3Cinit%3E(android.net.Uri)" target="_top"><code>Builder(Uri)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setAdTagUri(android.net.Uri)">
@@ -808,19 +919,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdTagUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
                                      <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</pre>
-<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.
-
- <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
- the same ad playback state. To resume ad playback when recreating the playlist on returning
- from the background, pass media items with the same ad tag URIs and media IDs to the player.
-
- <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>adTagUri</code> - The ad tag URI to load.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)"><code>setAdsConfiguration(AdsConfiguration)</code></a> and pass the <code>adTagUri</code>
+     to <a href="MediaItem.AdsConfiguration.Builder.html#%3Cinit%3E(android.net.Uri)"><code>Builder(Uri)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setAdTagUri(android.net.Uri,java.lang.Object)">
@@ -829,25 +934,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdTagUri</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setAdTagUri&#8203;(@Nullable
                                      <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri,
                                      @Nullable
                                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId)</pre>
-<div class="block">Sets the optional ad tag <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> and ads identifier.
-
- <p>Media items in the playlist that have the same ads identifier and ads loader share the
- same ad playback state. To resume ad playback when recreating the playlist on returning from
- the background, pass the same ads IDs to the player.
-
- <p>This method should only be called if <a href="#setUri(java.lang.String)"><code>setUri(java.lang.String)</code></a> is passed a non-null value.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>adTagUri</code> - The ad tag URI to load.</dd>
-<dd><code>adsId</code> - An opaque identifier for ad playback state associated with this item. Ad loading
-     and playback state is shared among all media items that have the same ads ID (by <a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>equality</code></a>) and ads loader, so it is important to pass the same
-     identifiers when constructing playlist items each time the player returns to the
-     foreground.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setAdsConfiguration(com.google.android.exoplayer2.MediaItem.AdsConfiguration)"><code>setAdsConfiguration(AdsConfiguration)</code></a>, pass the <code>adTagUri</code> to
+     <a href="MediaItem.AdsConfiguration.Builder.html#%3Cinit%3E(android.net.Uri)"><code>Builder(Uri)</code></a> and the <code>adsId</code> to <a href="MediaItem.AdsConfiguration.Builder.html#setAdsId(java.lang.Object)"><code>MediaItem.AdsConfiguration.Builder.setAdsId(Object)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLiveConfiguration</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveConfiguration&#8203;(<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</pre>
+<div class="block">Sets the <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration</code></a>. Defaults to <a href="MediaItem.LiveConfiguration.html#UNSET"><code>MediaItem.LiveConfiguration.UNSET</code></a>.</div>
 </li>
 </ul>
 <a id="setLiveTargetOffsetMs(long)">
@@ -856,15 +961,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveTargetOffsetMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveTargetOffsetMs&#8203;(long&nbsp;liveTargetOffsetMs)</pre>
-<div class="block">Sets the optional target offset from the live edge for live streams, in milliseconds.
-
- <p>See <code>Player#getCurrentLiveOffset()</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>liveTargetOffsetMs</code> - The target offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to use
-     the media-defined default.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveTargetOffsetMs&#8203;(long&nbsp;liveTargetOffsetMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setTargetOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setTargetOffsetMs(long)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a id="setLiveMinOffsetMs(long)">
@@ -873,15 +974,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMinOffsetMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMinOffsetMs&#8203;(long&nbsp;liveMinOffsetMs)</pre>
-<div class="block">Sets the optional minimum offset from the live edge for live streams, in milliseconds.
-
- <p>See <code>Player#getCurrentLiveOffset()</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>liveMinOffsetMs</code> - The minimum allowed offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
-     to use the media-defined default.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMinOffsetMs&#8203;(long&nbsp;liveMinOffsetMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMinOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setMinOffsetMs(long)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a id="setLiveMaxOffsetMs(long)">
@@ -890,15 +987,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMaxOffsetMs</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMaxOffsetMs&#8203;(long&nbsp;liveMaxOffsetMs)</pre>
-<div class="block">Sets the optional maximum offset from the live edge for live streams, in milliseconds.
-
- <p>See <code>Player#getCurrentLiveOffset()</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>liveMaxOffsetMs</code> - The maximum allowed offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
-     to use the media-defined default.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMaxOffsetMs&#8203;(long&nbsp;liveMaxOffsetMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMaxOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setMaxOffsetMs(long)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a id="setLiveMinPlaybackSpeed(float)">
@@ -907,15 +1000,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMinPlaybackSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMinPlaybackSpeed&#8203;(float&nbsp;minPlaybackSpeed)</pre>
-<div class="block">Sets the optional minimum playback speed for live stream speed adjustment.
-
- <p>This value is ignored for other stream types.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>minPlaybackSpeed</code> - The minimum factor by which playback can be sped up for live streams,
-     or <a href="C.html#RATE_UNSET"><code>C.RATE_UNSET</code></a> to use the media-defined default.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMinPlaybackSpeed&#8203;(float&nbsp;minPlaybackSpeed)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMinPlaybackSpeed(float)"><code>MediaItem.LiveConfiguration.Builder.setMinPlaybackSpeed(float)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a id="setLiveMaxPlaybackSpeed(float)">
@@ -924,15 +1013,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setLiveMaxPlaybackSpeed</h4>
-<pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMaxPlaybackSpeed&#8203;(float&nbsp;maxPlaybackSpeed)</pre>
-<div class="block">Sets the optional maximum playback speed for live stream speed adjustment.
-
- <p>This value is ignored for other stream types.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>maxPlaybackSpeed</code> - The maximum factor by which playback can be sped up for live streams,
-     or <a href="C.html#RATE_UNSET"><code>C.RATE_UNSET</code></a> to use the media-defined default.</dd>
-</dl>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setLiveMaxPlaybackSpeed&#8203;(float&nbsp;maxPlaybackSpeed)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>setLiveConfiguration(LiveConfiguration)</code></a> and <a href="MediaItem.LiveConfiguration.Builder.html#setMaxPlaybackSpeed(float)"><code>MediaItem.LiveConfiguration.Builder.setMaxPlaybackSpeed(float)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a id="setTag(java.lang.Object)">

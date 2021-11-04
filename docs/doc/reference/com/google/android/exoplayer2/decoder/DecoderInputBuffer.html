@@ -135,7 +135,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a></code>, <code><a href="../text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a></code>, <code><a href="../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a></code></dd>
+<dd><code><a href="../metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a></code>, <code><a href="../text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a></code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">DecoderInputBuffer</span>
@@ -230,20 +230,27 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
+<td class="colLast">
+<div class="block">The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supplementalData">supplementalData</a></span></code></th>
 <td class="colLast">
 <div class="block">Supplemental data related to the buffer, if <a href="Buffer.html#hasSupplementalData()"><code>Buffer.hasSupplementalData()</code></a> returns true.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeUs">timeUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The time at which the sample should be presented.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitingForKeys">waitingForKeys</a></span></code></th>
 <td class="colLast">
@@ -414,6 +421,17 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT">Constant Field Values</a></dd>
 </dl>
+</li>
+</ul>
+<a id="format">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>format</h4>
+<pre>@Nullable
+public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
+<div class="block">The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </li>
 </ul>
 <a id="cryptoInfo">

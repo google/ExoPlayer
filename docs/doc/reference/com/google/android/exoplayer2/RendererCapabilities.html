@@ -353,7 +353,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackType()">getTrackType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the track type that the <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> handles.</div>
@@ -720,13 +720,13 @@ static&nbsp;int&nbsp;getTunnelingSupport&#8203;(<a href="RendererCapabilities.Ca
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackType</h4>
-<pre class="methodSignature">int&nbsp;getTrackType()</pre>
+<pre class="methodSignature">@com.google.android.exoplayer2.C.TrackType int&nbsp;getTrackType()</pre>
 <div class="block">Returns the track type that the <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> handles. For example, a video renderer will
  return <a href="C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a>, an audio renderer will return <a href="C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>, a
  text renderer will return <a href="C.html#TRACK_TYPE_TEXT"><code>C.TRACK_TYPE_TEXT</code></a>, and so on.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of the <code>TRACK_TYPE_*</code> constants defined in <a href="C.html" title="class in com.google.android.exoplayer2"><code>C</code></a>.</dd>
+<dd>The <a href="C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track type</code></a>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Renderer.html#getTrackType()"><code>Renderer.getTrackType()</code></a></dd>
 </dl>

@@ -121,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</li>
+<li><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.ext.opus.OpusDecoder</li>
@@ -135,11 +135,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">OpusDecoder</span>
-extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</pre>
+extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</pre>
 <div class="block">Opus decoder.</div>
 </li>
 </ul>
@@ -189,11 +189,11 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,java.util.List,com.google.android.exoplayer2.drm.ExoMediaCrypto,boolean)">OpusDecoder</a></span>&#8203;(int&nbsp;numInputBuffers,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,java.util.List,com.google.android.exoplayer2.decoder.CryptoConfig,boolean)">OpusDecoder</a></span>&#8203;(int&nbsp;numInputBuffers,
            int&nbsp;numOutputBuffers,
            int&nbsp;initialInputBufferSize,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
-           <a href="../../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;exoMediaCrypto,
+           <a href="../../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;cryptoConfig,
            boolean&nbsp;outputFloat)</code></th>
 <td class="colLast">
 <div class="block">Creates an Opus decoder.</div>
@@ -225,7 +225,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected <a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a></code></td>
+<td class="colFirst"><code>protected <a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createOutputBuffer()">createOutputBuffer</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Creates a new output buffer.</div>
@@ -240,8 +240,8 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected <a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.SimpleOutputBuffer,boolean)">decode</a></span>&#8203;(<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
-      <a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>&nbsp;outputBuffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.SimpleDecoderOutputBuffer,boolean)">decode</a></span>&#8203;(<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
+      <a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&nbsp;outputBuffer,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
@@ -320,7 +320,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,int,int,java.util.List,com.google.android.exoplayer2.drm.ExoMediaCrypto,boolean)">
+<a id="&lt;init&gt;(int,int,int,java.util.List,com.google.android.exoplayer2.decoder.CryptoConfig,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -331,7 +331,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
                    int&nbsp;initialInputBufferSize,
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                    @Nullable
-                   <a href="../../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;exoMediaCrypto,
+                   <a href="../../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;cryptoConfig,
                    boolean&nbsp;outputFloat)
             throws <a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a></pre>
 <div class="block">Creates an Opus decoder.</div>
@@ -343,8 +343,8 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <dd><code>initializationData</code> - Codec-specific initialization data. The first element must contain an
      opus header. Optionally, the list may contain two additional buffers, which must contain
      the encoder delay and seek pre roll values in nanoseconds, encoded as longs.</dd>
-<dd><code>exoMediaCrypto</code> - The <a href="../../drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> object required for decoding encrypted
-     content. Maybe null and can be ignored if decoder does not handle encrypted content.</dd>
+<dd><code>cryptoConfig</code> - The <a href="../../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> object required for decoding encrypted content.
+     May be null and can be ignored if decoder does not handle encrypted content.</dd>
 <dd><code>outputFloat</code> - Forces the decoder to output float PCM samples when set</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a></code> - Thrown if an exception occurs when initializing the decoder.</dd>
@@ -387,7 +387,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <div class="block">Creates a new input buffer.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#createInputBuffer()">createInputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#createInputBuffer()">createInputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -397,12 +397,12 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>createOutputBuffer</h4>
-<pre class="methodSignature">protected&nbsp;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>&nbsp;createOutputBuffer()</pre>
+<pre class="methodSignature">protected&nbsp;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&nbsp;createOutputBuffer()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#createOutputBuffer()">SimpleDecoder</a></code></span></div>
 <div class="block">Creates a new output buffer.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#createOutputBuffer()">createOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#createOutputBuffer()">createOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -417,7 +417,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <div class="block">Creates an exception to propagate for an unexpected decode error.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#createUnexpectedDecodeException(java.lang.Throwable)">createUnexpectedDecodeException</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#createUnexpectedDecodeException(java.lang.Throwable)">createUnexpectedDecodeException</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>error</code> - The unexpected decode error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -425,7 +425,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 </dl>
 </li>
 </ul>
-<a id="decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.SimpleOutputBuffer,boolean)">
+<a id="decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.SimpleDecoderOutputBuffer,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -433,13 +433,13 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <h4>decode</h4>
 <pre class="methodSignature">@Nullable
 protected&nbsp;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&nbsp;decode&#8203;(<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
-                                      <a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>&nbsp;outputBuffer,
+                                      <a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&nbsp;outputBuffer,
                                       boolean&nbsp;reset)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#decode(I,O,boolean)">SimpleDecoder</a></code></span></div>
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#decode(I,O,boolean)">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#decode(I,O,boolean)">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The buffer to decode.</dd>
 <dd><code>outputBuffer</code> - The output buffer to store decoded data. The flag <a href="../../C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> will be set if the same flag is set on <code>inputBuffer</code>, but
@@ -463,9 +463,9 @@ protected&nbsp;<a href="OpusDecoderException.html" title="class in com.google.an
 <div class="block">Releases the decoder. Must be called when the decoder is no longer needed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/Decoder.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/Decoder.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#release()">release</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#release()">release</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>

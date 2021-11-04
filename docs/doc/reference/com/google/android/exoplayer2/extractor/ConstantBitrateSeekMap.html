@@ -181,7 +181,17 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
                       int&nbsp;bitrate,
                       int&nbsp;frameSize)</code></th>
 <td class="colLast">
-<div class="block">Constructs a new instance from a stream.</div>
+<div class="block">Creates an instance with <code>allowSeeksIfLengthUnknown</code> set to <code>false</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long,int,int,boolean)">ConstantBitrateSeekMap</a></span>&#8203;(long&nbsp;inputLength,
+                      long&nbsp;firstFrameBytePosition,
+                      int&nbsp;bitrate,
+                      int&nbsp;frameSize,
+                      boolean&nbsp;allowSeeksIfLengthUnknown)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
 </td>
 </tr>
 </table>
@@ -257,14 +267,14 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <a id="&lt;init&gt;(long,long,int,int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>ConstantBitrateSeekMap</h4>
 <pre>public&nbsp;ConstantBitrateSeekMap&#8203;(long&nbsp;inputLength,
                               long&nbsp;firstFrameBytePosition,
                               int&nbsp;bitrate,
                               int&nbsp;frameSize)</pre>
-<div class="block">Constructs a new instance from a stream.</div>
+<div class="block">Creates an instance with <code>allowSeeksIfLengthUnknown</code> set to <code>false</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputLength</code> - The length of the stream in bytes, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</dd>
@@ -272,6 +282,30 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <dd><code>bitrate</code> - The bitrate (which is assumed to be constant in the stream).</dd>
 <dd><code>frameSize</code> - The size of each frame in the stream in bytes. May be <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>
      if unknown.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(long,long,int,int,boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ConstantBitrateSeekMap</h4>
+<pre>public&nbsp;ConstantBitrateSeekMap&#8203;(long&nbsp;inputLength,
+                              long&nbsp;firstFrameBytePosition,
+                              int&nbsp;bitrate,
+                              int&nbsp;frameSize,
+                              boolean&nbsp;allowSeeksIfLengthUnknown)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputLength</code> - The length of the stream in bytes, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown.</dd>
+<dd><code>firstFrameBytePosition</code> - The byte-position of the first frame in the stream.</dd>
+<dd><code>bitrate</code> - The bitrate (which is assumed to be constant in the stream).</dd>
+<dd><code>frameSize</code> - The size of each frame in the stream in bytes. May be <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>
+     if unknown.</dd>
+<dd><code>allowSeeksIfLengthUnknown</code> - Whether to allow seeking even if the length of the content is
+     unknown.</dd>
 </dl>
 </li>
 </ul>

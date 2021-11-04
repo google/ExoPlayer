@@ -169,9 +169,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertEqualNextWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,int,boolean)">assertEqualNextWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertEqualNextWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">assertEqualNextWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
                             <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;actualTimeline,
-                            int&nbsp;repeatMode,
+                            @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                             boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
 <div class="block">Asserts that next window indices for each window of the actual timeline are equal to the
@@ -180,9 +180,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertEqualPreviousWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,int,boolean)">assertEqualPreviousWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertEqualPreviousWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">assertEqualPreviousWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
                                 <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;actualTimeline,
-                                int&nbsp;repeatMode,
+                                @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                                 boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
 <div class="block">Asserts that previous window indices for each window of the actual timeline are equal to the
@@ -199,8 +199,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertNextWindowIndices(com.google.android.exoplayer2.Timeline,int,boolean,int...)">assertNextWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                       int&nbsp;repeatMode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertNextWindowIndices(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean,int...)">assertNextWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                       @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                        boolean&nbsp;shuffleModeEnabled,
                        int...&nbsp;expectedNextWindowIndices)</code></th>
 <td class="colLast">
@@ -235,8 +235,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertPreviousWindowIndices(com.google.android.exoplayer2.Timeline,int,boolean,int...)">assertPreviousWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                           int&nbsp;repeatMode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertPreviousWindowIndices(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean,int...)">assertPreviousWindowIndices</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                           @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                            boolean&nbsp;shuffleModeEnabled,
                            int...&nbsp;expectedPreviousWindowIndices)</code></th>
 <td class="colLast">
@@ -329,7 +329,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Asserts that window properties <a href="../Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>.isDynamic are set correctly.</div>
 </li>
 </ul>
-<a id="assertPreviousWindowIndices(com.google.android.exoplayer2.Timeline,int,boolean,int...)">
+<a id="assertPreviousWindowIndices(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean,int...)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -337,14 +337,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>assertPreviousWindowIndices</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertPreviousWindowIndices&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                                                <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
-                                               int&nbsp;repeatMode,
+                                               @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                                                boolean&nbsp;shuffleModeEnabled,
                                                int...&nbsp;expectedPreviousWindowIndices)</pre>
 <div class="block">Asserts that previous window indices for each window depending on the repeat mode and the
  shuffle mode are equal to the given sequence.</div>
 </li>
 </ul>
-<a id="assertNextWindowIndices(com.google.android.exoplayer2.Timeline,int,boolean,int...)">
+<a id="assertNextWindowIndices(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean,int...)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -352,14 +352,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>assertNextWindowIndices</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertNextWindowIndices&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                                            <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
-                                           int&nbsp;repeatMode,
+                                           @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                                            boolean&nbsp;shuffleModeEnabled,
                                            int...&nbsp;expectedNextWindowIndices)</pre>
 <div class="block">Asserts that next window indices for each window depending on the repeat mode and the shuffle
  mode are equal to the given sequence.</div>
 </li>
 </ul>
-<a id="assertEqualPreviousWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,int,boolean)">
+<a id="assertEqualPreviousWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -368,13 +368,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertEqualPreviousWindowIndices&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
                                                     <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;actualTimeline,
                                                     <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
-                                                    int&nbsp;repeatMode,
+                                                    @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                                                     boolean&nbsp;shuffleModeEnabled)</pre>
 <div class="block">Asserts that previous window indices for each window of the actual timeline are equal to the
  indices of the expected timeline depending on the repeat mode and the shuffle mode.</div>
 </li>
 </ul>
-<a id="assertEqualNextWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,int,boolean)">
+<a id="assertEqualNextWindowIndices(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -383,7 +383,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertEqualNextWindowIndices&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
                                                 <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;actualTimeline,
                                                 <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
-                                                int&nbsp;repeatMode,
+                                                @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                                                 boolean&nbsp;shuffleModeEnabled)</pre>
 <div class="block">Asserts that next window indices for each window of the actual timeline are equal to the
  indices of the expected timeline depending on the repeat mode and the shuffle mode.</div>
@@ -410,7 +410,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertPeriodCounts&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                                       int...&nbsp;expectedPeriodCounts)</pre>
 <div class="block">Asserts that period counts for each window are set correctly. Also asserts that <a href="../Timeline.Window.html#firstPeriodIndex"><code>Timeline.Window.firstPeriodIndex</code></a> and <a href="../Timeline.Window.html#lastPeriodIndex"><code>Timeline.Window.lastPeriodIndex</code></a> are set correctly, and it asserts
- the correct behavior of <a href="../Timeline.html#getNextWindowIndex(int,int,boolean)"><code>Timeline.getNextWindowIndex(int, int, boolean)</code></a>.</div>
+ the correct behavior of <a href="../Timeline.html#getNextWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)"><code>Timeline.getNextWindowIndex(int, int, boolean)</code></a>.</div>
 </li>
 </ul>
 <a id="assertAdGroupCounts(com.google.android.exoplayer2.Timeline,int...)">

@@ -147,7 +147,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 public final class <span class="typeNameLabel">LoopingMediaSource</span>
 extends <a href="CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://developer.android.com/reference/java/lang/Void.html" title="class or interface in java.lang" class="externalLink" target="_top">Void</a>&gt;</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">To loop a <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> indefinitely, use <a href="../Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a>
+<div class="deprecationComment">To loop a <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> indefinitely, use <a href="../Player.html#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)"><code>Player.setRepeatMode(int)</code></a>
      instead of this class. To add a <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> a specific number of times to the
      playlist, use <a href="../ExoPlayer.html#addMediaSource(com.google.android.exoplayer2.source.MediaSource)"><code>ExoPlayer.addMediaSource(com.google.android.exoplayer2.source.MediaSource)</code></a> in a loop with the same <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.
      To combine repeated <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> instances into one <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>, for example
@@ -342,7 +342,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <h4>LoopingMediaSource</h4>
 <pre>public&nbsp;LoopingMediaSource&#8203;(<a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;childSource)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Loops the provided source indefinitely. Note that it is usually better to use <a href="../Player.html#setRepeatMode(int)"><code>Player.setRepeatMode(int)</code></a>.</div>
+<div class="block">Loops the provided source indefinitely. Note that it is usually better to use <a href="../Player.html#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)"><code>Player.setRepeatMode(int)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>childSource</code> - The <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to loop.</dd>

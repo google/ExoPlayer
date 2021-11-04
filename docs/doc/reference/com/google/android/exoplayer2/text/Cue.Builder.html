@@ -214,14 +214,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.AnchorType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLineAnchor()">getLineAnchor</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Gets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<div class="block">Gets the cue box anchor positioned by <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.LineType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLineType()">getLineType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the type of the value of <a href="#getLine()"><code>getLine()</code></a>.</div>
@@ -231,12 +231,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Gets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
- box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<div class="block">Gets the fractional position of the <a href="#setPositionAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.AnchorType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionAnchor()">getPositionAnchor</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
@@ -272,14 +272,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.TextSizeType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTextSizeType()">getTextSizeType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the default text size type for this cue's text.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.text.Cue.VerticalType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVerticalType()">getVerticalType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Gets the vertical formatting for this Cue.</div>
@@ -315,8 +315,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLine(float,int)">setLine</a></span>&#8203;(float&nbsp;line,
-       int&nbsp;lineType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)">setLine</a></span>&#8203;(float&nbsp;line,
+       @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType)</code></th>
 <td class="colLast">
 <div class="block">Sets the position of the cue box within the viewport in the direction orthogonal to the
  writing direction.</div>
@@ -324,9 +324,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLineAnchor(int)">setLineAnchor</a></span>&#8203;(int&nbsp;lineAnchor)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLineAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)">setLineAnchor</a></span>&#8203;(@com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor)</code></th>
 <td class="colLast">
-<div class="block">Sets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<div class="block">Sets the cue box anchor positioned by <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
@@ -340,13 +340,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(float)">setPosition</a></span>&#8203;(float&nbsp;position)</code></th>
 <td class="colLast">
-<div class="block">Sets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
- box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<div class="block">Sets the fractional position of the <a href="#setPositionAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionAnchor(int)">setPositionAnchor</a></span>&#8203;(int&nbsp;positionAnchor)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)">setPositionAnchor</a></span>&#8203;(@com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor)</code></th>
 <td class="colLast">
 <div class="block">Sets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
 </td>
@@ -382,15 +382,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTextSize(float,int)">setTextSize</a></span>&#8203;(float&nbsp;textSize,
-           int&nbsp;textSizeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTextSize(float,@com.google.android.exoplayer2.text.Cue.TextSizeTypeint)">setTextSize</a></span>&#8203;(float&nbsp;textSize,
+           @com.google.android.exoplayer2.text.Cue.TextSizeType int&nbsp;textSizeType)</code></th>
 <td class="colLast">
 <div class="block">Sets the default text size and type for this cue's text.</div>
 </td>
 </tr>
 <tr id="i29" class="rowColor">
 <td class="colFirst"><code><a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVerticalType(int)">setVerticalType</a></span>&#8203;(int&nbsp;verticalType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVerticalType(@com.google.android.exoplayer2.text.Cue.VerticalTypeint)">setVerticalType</a></span>&#8203;(@com.google.android.exoplayer2.text.Cue.VerticalType int&nbsp;verticalType)</code></th>
 <td class="colLast">
 <div class="block">Sets the vertical formatting for this Cue.</div>
 </td>
@@ -557,7 +557,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout
 </dl>
 </li>
 </ul>
-<a id="setLine(float,int)">
+<a id="setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -565,7 +565,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/text/Layout
 <h4>setLine</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLine&#8203;(float&nbsp;line,
                            <a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
-                           int&nbsp;lineType)</pre>
+                           @com.google.android.exoplayer2.text.Cue.LineType int&nbsp;lineType)</pre>
 <div class="block">Sets the position of the cue box within the viewport in the direction orthogonal to the
  writing direction.</div>
 <dl>
@@ -599,7 +599,7 @@ public&nbsp;float&nbsp;getLine()</pre>
 <h4>getLineType</h4>
 <pre class="methodSignature">@Pure
 <a href="Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@LineType</a>
-public&nbsp;int&nbsp;getLineType()</pre>
+public&nbsp;@com.google.android.exoplayer2.text.Cue.LineType int&nbsp;getLineType()</pre>
 <div class="block">Gets the type of the value of <a href="#getLine()"><code>getLine()</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -607,15 +607,15 @@ public&nbsp;int&nbsp;getLineType()</pre>
 </dl>
 </li>
 </ul>
-<a id="setLineAnchor(int)">
+<a id="setLineAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setLineAnchor</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setLineAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-                                 int&nbsp;lineAnchor)</pre>
-<div class="block">Sets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+                                 @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;lineAnchor)</pre>
+<div class="block">Sets the cue box anchor positioned by <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Cue.html#lineAnchor"><code>Cue.lineAnchor</code></a></dd>
@@ -630,8 +630,8 @@ public&nbsp;int&nbsp;getLineType()</pre>
 <h4>getLineAnchor</h4>
 <pre class="methodSignature">@Pure
 <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-public&nbsp;int&nbsp;getLineAnchor()</pre>
-<div class="block">Gets the cue box anchor positioned by <a href="#setLine(float,int)"><code>line</code></a>.</div>
+public&nbsp;@com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;getLineAnchor()</pre>
+<div class="block">Gets the cue box anchor positioned by <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Cue.html#lineAnchor"><code>Cue.lineAnchor</code></a></dd>
@@ -645,8 +645,8 @@ public&nbsp;int&nbsp;getLineAnchor()</pre>
 <li class="blockList">
 <h4>setPosition</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPosition&#8203;(float&nbsp;position)</pre>
-<div class="block">Sets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
- box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<div class="block">Sets the fractional position of the <a href="#setPositionAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Cue.html#position"><code>Cue.position</code></a></dd>
@@ -661,22 +661,22 @@ public&nbsp;int&nbsp;getLineAnchor()</pre>
 <h4>getPosition</h4>
 <pre class="methodSignature">@Pure
 public&nbsp;float&nbsp;getPosition()</pre>
-<div class="block">Gets the fractional position of the <a href="#setPositionAnchor(int)"><code>positionAnchor</code></a> of the cue
- box within the viewport in the direction orthogonal to <a href="#setLine(float,int)"><code>line</code></a>.</div>
+<div class="block">Gets the fractional position of the <a href="#setPositionAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)"><code>positionAnchor</code></a> of the cue
+ box within the viewport in the direction orthogonal to <a href="#setLine(float,@com.google.android.exoplayer2.text.Cue.LineTypeint)"><code>line</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="Cue.html#position"><code>Cue.position</code></a></dd>
 </dl>
 </li>
 </ul>
-<a id="setPositionAnchor(int)">
+<a id="setPositionAnchor(@com.google.android.exoplayer2.text.Cue.AnchorTypeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPositionAnchor</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setPositionAnchor&#8203;(<a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-                                     int&nbsp;positionAnchor)</pre>
+                                     @com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;positionAnchor)</pre>
 <div class="block">Sets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -692,7 +692,7 @@ public&nbsp;float&nbsp;getPosition()</pre>
 <h4>getPositionAnchor</h4>
 <pre class="methodSignature">@Pure
 <a href="Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@AnchorType</a>
-public&nbsp;int&nbsp;getPositionAnchor()</pre>
+public&nbsp;@com.google.android.exoplayer2.text.Cue.AnchorType int&nbsp;getPositionAnchor()</pre>
 <div class="block">Gets the cue box anchor positioned by <a href="#setPosition(float)"><code>position</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -700,7 +700,7 @@ public&nbsp;int&nbsp;getPositionAnchor()</pre>
 </dl>
 </li>
 </ul>
-<a id="setTextSize(float,int)">
+<a id="setTextSize(float,@com.google.android.exoplayer2.text.Cue.TextSizeTypeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -708,7 +708,7 @@ public&nbsp;int&nbsp;getPositionAnchor()</pre>
 <h4>setTextSize</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setTextSize&#8203;(float&nbsp;textSize,
                                <a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
-                               int&nbsp;textSizeType)</pre>
+                               @com.google.android.exoplayer2.text.Cue.TextSizeType int&nbsp;textSizeType)</pre>
 <div class="block">Sets the default text size and type for this cue's text.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -725,7 +725,7 @@ public&nbsp;int&nbsp;getPositionAnchor()</pre>
 <h4>getTextSizeType</h4>
 <pre class="methodSignature">@Pure
 <a href="Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@TextSizeType</a>
-public&nbsp;int&nbsp;getTextSizeType()</pre>
+public&nbsp;@com.google.android.exoplayer2.text.Cue.TextSizeType int&nbsp;getTextSizeType()</pre>
 <div class="block">Gets the default text size type for this cue's text.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -866,14 +866,14 @@ public&nbsp;int&nbsp;getWindowColor()</pre>
 </dl>
 </li>
 </ul>
-<a id="setVerticalType(int)">
+<a id="setVerticalType(@com.google.android.exoplayer2.text.Cue.VerticalTypeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setVerticalType</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;setVerticalType&#8203;(<a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
-                                   int&nbsp;verticalType)</pre>
+                                   @com.google.android.exoplayer2.text.Cue.VerticalType int&nbsp;verticalType)</pre>
 <div class="block">Sets the vertical formatting for this Cue.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -899,7 +899,7 @@ public&nbsp;int&nbsp;getWindowColor()</pre>
 <h4>getVerticalType</h4>
 <pre class="methodSignature">@Pure
 <a href="Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@VerticalType</a>
-public&nbsp;int&nbsp;getVerticalType()</pre>
+public&nbsp;@com.google.android.exoplayer2.text.Cue.VerticalType int&nbsp;getVerticalType()</pre>
 <div class="block">Gets the vertical formatting for this Cue.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>

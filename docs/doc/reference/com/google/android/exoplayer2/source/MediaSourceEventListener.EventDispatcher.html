@@ -221,7 +221,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#downstreamFormatChanged(int,com.google.android.exoplayer2.Format,int,java.lang.Object,long)">downstreamFormatChanged</a></span>&#8203;(int&nbsp;trackType,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#downstreamFormatChanged(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long)">downstreamFormatChanged</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                        <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                        int&nbsp;trackSelectionReason,
                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -247,9 +247,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadCanceled(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">loadCanceled</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadCanceled(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">loadCanceled</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
             int&nbsp;dataType,
-            int&nbsp;trackType,
+            @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
             <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
             int&nbsp;trackSelectionReason,
             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -277,9 +277,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadCompleted(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">loadCompleted</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadCompleted(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">loadCompleted</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
              int&nbsp;dataType,
-             int&nbsp;trackType,
+             @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
              int&nbsp;trackSelectionReason,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -299,9 +299,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadError(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,java.io.IOException,boolean)">loadError</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadError(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,java.io.IOException,boolean)">loadError</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
          int&nbsp;dataType,
-         int&nbsp;trackType,
+         @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
          int&nbsp;trackSelectionReason,
          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -346,9 +346,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadStarted(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">loadStarted</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadStarted(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">loadStarted</a></span>&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
            int&nbsp;dataType,
-           int&nbsp;trackType,
+           @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
            <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
            int&nbsp;trackSelectionReason,
            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -539,7 +539,7 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <div class="block">Dispatches <a href="MediaSourceEventListener.html#onLoadStarted(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)"><code>MediaSourceEventListener.onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code></a>.</div>
 </li>
 </ul>
-<a id="loadStarted(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
+<a id="loadStarted(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -548,9 +548,10 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <pre class="methodSignature">public&nbsp;void&nbsp;loadStarted&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                         <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
                         int&nbsp;dataType,
-                        int&nbsp;trackType,
+                        @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                         @Nullable
                         <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                        <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
                         int&nbsp;trackSelectionReason,
                         @Nullable
                         <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -582,7 +583,7 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <div class="block">Dispatches <a href="MediaSourceEventListener.html#onLoadCompleted(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)"><code>MediaSourceEventListener.onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code></a>.</div>
 </li>
 </ul>
-<a id="loadCompleted(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
+<a id="loadCompleted(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -591,9 +592,10 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <pre class="methodSignature">public&nbsp;void&nbsp;loadCompleted&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                           <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
                           int&nbsp;dataType,
-                          int&nbsp;trackType,
+                          @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                           @Nullable
                           <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                          <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
                           int&nbsp;trackSelectionReason,
                           @Nullable
                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -625,7 +627,7 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <div class="block">Dispatches <a href="MediaSourceEventListener.html#onLoadCanceled(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)"><code>MediaSourceEventListener.onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code></a>.</div>
 </li>
 </ul>
-<a id="loadCanceled(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
+<a id="loadCanceled(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -634,9 +636,10 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <pre class="methodSignature">public&nbsp;void&nbsp;loadCanceled&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                          <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
                          int&nbsp;dataType,
-                         int&nbsp;trackType,
+                         @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                          @Nullable
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                         <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
                          int&nbsp;trackSelectionReason,
                          @Nullable
                          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -671,7 +674,7 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
  boolean)</code></a>.</div>
 </li>
 </ul>
-<a id="loadError(com.google.android.exoplayer2.source.LoadEventInfo,int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,java.io.IOException,boolean)">
+<a id="loadError(com.google.android.exoplayer2.source.LoadEventInfo,int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long,java.io.IOException,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -680,9 +683,10 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <pre class="methodSignature">public&nbsp;void&nbsp;loadError&#8203;(<a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                       <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
                       int&nbsp;dataType,
-                      int&nbsp;trackType,
+                      @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                       @Nullable
                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                      <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
                       int&nbsp;trackSelectionReason,
                       @Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -730,15 +734,16 @@ public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class
 <div class="block">Dispatches <a href="MediaSourceEventListener.html#onUpstreamDiscarded(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.source.MediaLoadData)"><code>MediaSourceEventListener.onUpstreamDiscarded(int, MediaPeriodId, MediaLoadData)</code></a>.</div>
 </li>
 </ul>
-<a id="downstreamFormatChanged(int,com.google.android.exoplayer2.Format,int,java.lang.Object,long)">
+<a id="downstreamFormatChanged(@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>downstreamFormatChanged</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;downstreamFormatChanged&#8203;(int&nbsp;trackType,
+<pre class="methodSignature">public&nbsp;void&nbsp;downstreamFormatChanged&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                                     @Nullable
                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                                    <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
                                     int&nbsp;trackSelectionReason,
                                     @Nullable
                                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,

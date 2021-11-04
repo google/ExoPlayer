@@ -114,7 +114,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.decoder</a></div>
-<h2 title="Class SimpleDecoder" class="title">Class SimpleDecoder&lt;I extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;O extends <a href="OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</h2>
+<h2 title="Class SimpleDecoder" class="title">Class SimpleDecoder&lt;I extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;O extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -137,7 +137,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../ext/flac/FlacDecoder.html" title="class in com.google.android.exoplayer2.ext.flac">FlacDecoder</a></code>, <code><a href="../ext/av1/Gav1Decoder.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1Decoder</a></code>, <code><a href="../ext/opus/OpusDecoder.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoder</a></code>, <code><a href="../text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></code>, <code><a href="../ext/vp9/VpxDecoder.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoder</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">SimpleDecoder&lt;I extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;O extends <a href="OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</span>
+<pre>public abstract class <span class="typeNameLabel">SimpleDecoder&lt;I extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;O extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;I,&#8203;O,&#8203;E&gt;</pre>
 <div class="block">Base class for <a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>s that use their own decode thread and decode each input buffer
@@ -296,7 +296,7 @@ implements <a href="Decoder.html" title="interface in com.google.android.exoplay
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.decoder.DecoderInputBuffer[],com.google.android.exoplayer2.decoder.OutputBuffer[])">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.decoder.DecoderInputBuffer[],com.google.android.exoplayer2.decoder.DecoderOutputBuffer[])">
 <!--   -->
 </a><a id="&lt;init&gt;(I[],O[])">
 <!--   -->
@@ -353,7 +353,7 @@ public final&nbsp;<a href="SimpleDecoder.html" title="type parameter in SimpleDe
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Decoder.html#dequeueInputBuffer()">dequeueInputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
+<dd><code><a href="Decoder.html#dequeueInputBuffer()">dequeueInputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The input buffer, which will have been cleared, or null if a buffer isn't available.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -376,7 +376,7 @@ public final&nbsp;<a href="SimpleDecoder.html" title="type parameter in SimpleDe
 <div class="block">Queues an input buffer to the decoder.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Decoder.html#queueInputBuffer(I)">queueInputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
+<dd><code><a href="Decoder.html#queueInputBuffer(I)">queueInputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The input buffer.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -398,7 +398,7 @@ public final&nbsp;<a href="SimpleDecoder.html" title="type parameter in SimpleDe
 <div class="block">Dequeues the next output buffer from the decoder.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Decoder.html#dequeueOutputBuffer()">dequeueOutputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
+<dd><code><a href="Decoder.html#dequeueOutputBuffer()">dequeueOutputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The output buffer, or null if an output buffer isn't available.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -407,7 +407,7 @@ public final&nbsp;<a href="SimpleDecoder.html" title="type parameter in SimpleDe
 </dl>
 </li>
 </ul>
-<a id="releaseOutputBuffer(com.google.android.exoplayer2.decoder.OutputBuffer)">
+<a id="releaseOutputBuffer(com.google.android.exoplayer2.decoder.DecoderOutputBuffer)">
 <!--   -->
 </a><a id="releaseOutputBuffer(O)">
 <!--   -->
@@ -436,7 +436,7 @@ protected&nbsp;void&nbsp;releaseOutputBuffer&#8203;(<a href="SimpleDecoder.html"
  is still responsible for releasing any dequeued output buffers.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Decoder.html#flush()">flush</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
+<dd><code><a href="Decoder.html#flush()">flush</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -452,7 +452,7 @@ public&nbsp;void&nbsp;release()</pre>
 <div class="block">Releases the decoder. Must be called when the decoder is no longer needed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Decoder.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
+<dd><code><a href="Decoder.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">I</a> extends <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">O</a> extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>,&#8203;<a href="SimpleDecoder.html" title="type parameter in SimpleDecoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -492,7 +492,7 @@ public&nbsp;void&nbsp;release()</pre>
 </dl>
 </li>
 </ul>
-<a id="decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.OutputBuffer,boolean)">
+<a id="decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.DecoderOutputBuffer,boolean)">
 <!--   -->
 </a><a id="decode(I,O,boolean)">
 <!--   -->

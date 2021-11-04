@@ -2,6 +2,13 @@
 
 ### dev-v2 (not yet released)
 
+*   Core Library:
+    *   Add protected method `DefaultRenderersFactory.getCodecAdapterFactory()`
+        so that subclasses of `DefaultRenderersFactory` that override
+        `buildVideoRenderers()` or `buildAudioRenderers()` can access the codec
+        adapter factory and pass it to `MediaCodecRenderer` instances they
+        create.
+
 ### 2.16.0 (2021-11-04)
 
 *   Core Library:

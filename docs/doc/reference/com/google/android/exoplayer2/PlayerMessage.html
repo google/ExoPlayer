@@ -187,7 +187,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.PlayerMessage.Sender,com.google.android.exoplayer2.PlayerMessage.Target,com.google.android.exoplayer2.Timeline,int,com.google.android.exoplayer2.util.Clock,android.os.Looper)">PlayerMessage</a></span>&#8203;(<a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Sender</a>&nbsp;sender,
              <a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
              <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-             int&nbsp;defaultWindowIndex,
+             int&nbsp;defaultMediaItemIndex,
              <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock,
              <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;defaultLooper)</code></th>
 <td class="colLast">
@@ -250,46 +250,46 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaItemIndex()">getMediaItemIndex</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns media item index at which the message will be delivered.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPayload()">getPayload</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the message payload forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionMs()">getPositionMs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns position in window at <a href="#getWindowIndex()"><code>getWindowIndex()</code></a> at which the message will be delivered,
- in milliseconds.</div>
+<div class="block">Returns position in the media item at <a href="#getMediaItemIndex()"><code>getMediaItemIndex()</code></a> at which the message will be
+ delivered, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTarget()">getTarget</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the target the message is sent to.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimeline()">getTimeline</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the timeline used for setting the position with <a href="#setPosition(long)"><code>setPosition(long)</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getType()">getType</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the message type forwarded to <a href="PlayerMessage.Target.html#handleMessage(int,java.lang.Object)"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindowIndex()">getWindowIndex</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns window index at which the message will be delivered.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
@@ -345,17 +345,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(int,long)">setPosition</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(int,long)">setPosition</a></span>&#8203;(int&nbsp;mediaItemIndex,
            long&nbsp;positionMs)</code></th>
 <td class="colLast">
-<div class="block">Sets a position in a window at which the message will be delivered.</div>
+<div class="block">Sets a position in a media item at which the message will be delivered.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(long)">setPosition</a></span>&#8203;(long&nbsp;positionMs)</code></th>
 <td class="colLast">
-<div class="block">Sets a position in the current window at which the message will be delivered.</div>
+<div class="block">Sets a position in the current media item at which the message will be delivered.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
@@ -398,7 +398,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;PlayerMessage&#8203;(<a href="PlayerMessage.Sender.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Sender</a>&nbsp;sender,
                      <a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
                      <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                     int&nbsp;defaultWindowIndex,
+                     int&nbsp;defaultMediaItemIndex,
                      <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock,
                      <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;defaultLooper)</pre>
 <div class="block">Creates a new message.</div>
@@ -408,8 +408,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>target</code> - The <a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a> the message is sent to.</dd>
 <dd><code>timeline</code> - The timeline used when setting the position with <a href="#setPosition(long)"><code>setPosition(long)</code></a>. If
      set to <a href="Timeline.html#EMPTY"><code>Timeline.EMPTY</code></a>, any position can be specified.</dd>
-<dd><code>defaultWindowIndex</code> - The default window index in the <code>timeline</code> when no other window
-     index is specified.</dd>
+<dd><code>defaultMediaItemIndex</code> - The default media item index in the <code>timeline</code> when no other
+     media item index is specified.</dd>
 <dd><code>clock</code> - The <a href="util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>.</dd>
 <dd><code>defaultLooper</code> - The default <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> to send the message on when no other looper is
      specified.</dd>
@@ -552,8 +552,10 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <li class="blockList">
 <h4>getPositionMs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getPositionMs()</pre>
-<div class="block">Returns position in window at <a href="#getWindowIndex()"><code>getWindowIndex()</code></a> at which the message will be delivered,
- in milliseconds. If <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the message will be delivered immediately. If <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>, the message will be delivered at the end of the window at <a href="#getWindowIndex()"><code>getWindowIndex()</code></a>.</div>
+<div class="block">Returns position in the media item at <a href="#getMediaItemIndex()"><code>getMediaItemIndex()</code></a> at which the message will be
+ delivered, in milliseconds. If <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the message will be delivered immediately.
+ If <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>, the message will be delivered at the end of the media item at
+ <a href="#getMediaItemIndex()"><code>getMediaItemIndex()</code></a>.</div>
 </li>
 </ul>
 <a id="setPosition(long)">
@@ -563,12 +565,12 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <li class="blockList">
 <h4>setPosition</h4>
 <pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(long&nbsp;positionMs)</pre>
-<div class="block">Sets a position in the current window at which the message will be delivered.</div>
+<div class="block">Sets a position in the current media item at which the message will be delivered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>positionMs</code> - The position in the current window at which the message will be sent, in
+<dd><code>positionMs</code> - The position in the current media item at which the message will be sent, in
      milliseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to deliver the message at the end of the
-     current window.</dd>
+     current media item.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This message.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -582,32 +584,32 @@ public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>setPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;setPosition&#8203;(int&nbsp;mediaItemIndex,
                                  long&nbsp;positionMs)</pre>
-<div class="block">Sets a position in a window at which the message will be delivered.</div>
+<div class="block">Sets a position in a media item at which the message will be delivered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The index of the window at which the message will be sent.</dd>
-<dd><code>positionMs</code> - The position in the window with index <code>windowIndex</code> at which the
+<dd><code>mediaItemIndex</code> - The index of the media item at which the message will be sent.</dd>
+<dd><code>positionMs</code> - The position in the media item with index <code>mediaItemIndex</code> at which the
      message will be sent, in milliseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to deliver the
-     message at the end of the window with index <code>windowIndex</code>.</dd>
+     message at the end of the media item with index <code>mediaItemIndex</code>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This message.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="IllegalSeekPositionException.html" title="class in com.google.android.exoplayer2">IllegalSeekPositionException</a></code> - If the timeline returned by <a href="#getTimeline()"><code>getTimeline()</code></a> is not
-     empty and the provided window index is not within the bounds of the timeline.</dd>
+     empty and the provided media item index is not within the bounds of the timeline.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#send()" target="_top"><code>send()</code></a> has already been called.</dd>
 </dl>
 </li>
 </ul>
-<a id="getWindowIndex()">
+<a id="getMediaItemIndex()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getWindowIndex</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getWindowIndex()</pre>
-<div class="block">Returns window index at which the message will be delivered.</div>
+<h4>getMediaItemIndex</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMediaItemIndex()</pre>
+<div class="block">Returns media item index at which the message will be delivered.</div>
 </li>
 </ul>
 <a id="setDeleteAfterDelivery(boolean)">
