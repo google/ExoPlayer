@@ -289,6 +289,7 @@ import java.nio.ByteBuffer;
 
   @Override
   public void signalEndOfInputStream() {
+    maybeBlockOnQueueing();
     codec.signalEndOfInputStream();
   }
 
