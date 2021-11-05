@@ -88,8 +88,11 @@ public class DefaultMediaItemConverter implements MediaItemConverter {
         .setMediaId(mediaId != null ? mediaId : MediaItem.DEFAULT_MEDIA_ID)
         .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
         .setTag(media2MediaItem)
-        .setClipStartPositionMs(startPositionMs)
-        .setClipEndPositionMs(endPositionMs)
+        .setClippingConfiguration(
+            new MediaItem.ClippingConfiguration.Builder()
+                .setStartPositionMs(startPositionMs)
+                .setEndPositionMs(endPositionMs)
+                .build())
         .build();
   }
 

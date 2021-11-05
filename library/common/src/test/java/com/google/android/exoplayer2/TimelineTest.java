@@ -301,12 +301,13 @@ public class TimelineTest {
     window.isSeekable = true;
     window.isDynamic = true;
     window.liveConfiguration =
-        new LiveConfiguration(
-            /* targetOffsetMs= */ 1,
-            /* minOffsetMs= */ 2,
-            /* maxOffsetMs= */ 3,
-            /* minPlaybackSpeed= */ 0.5f,
-            /* maxPlaybackSpeed= */ 1.5f);
+        new LiveConfiguration.Builder()
+            .setTargetOffsetMs(1)
+            .setMinOffsetMs(2)
+            .setMaxOffsetMs(3)
+            .setMinPlaybackSpeed(0.5f)
+            .setMaxPlaybackSpeed(1.5f)
+            .build();
     window.isPlaceholder = true;
     window.defaultPositionUs = 444;
     window.durationUs = 555;

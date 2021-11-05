@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem.SubtitleConfiguration;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -44,15 +45,16 @@ public final class ClippedPlaybackTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri("asset:///media/mp4/sample.mp4")
-            .setSubtitles(
+            .setSubtitleConfigurations(
                 ImmutableList.of(
-                    new MediaItem.Subtitle(
-                        Uri.parse("asset:///media/webvtt/typical"),
-                        MimeTypes.TEXT_VTT,
-                        "en",
-                        C.SELECTION_FLAG_DEFAULT)))
+                    new SubtitleConfiguration.Builder(Uri.parse("asset:///media/webvtt/typical"))
+                        .setMimeType(MimeTypes.TEXT_VTT)
+                        .setLanguage("en")
+                        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                        .build()))
             // Expect the clipping to affect both subtitles and video.
-            .setClipEndPositionMs(1000)
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setEndPositionMs(1000).build())
             .build();
     AtomicReference<ExoPlayer> player = new AtomicReference<>();
     TextCapturingPlaybackListener textCapturer = new TextCapturingPlaybackListener();
@@ -80,21 +82,24 @@ public final class ClippedPlaybackTest {
         ImmutableList.of(
             new MediaItem.Builder()
                 .setUri("asset:///media/mp4/sample.mp4")
-                .setSubtitles(
+                .setSubtitleConfigurations(
                     ImmutableList.of(
-                        new MediaItem.Subtitle(
-                            Uri.parse("asset:///media/webvtt/typical"),
-                            MimeTypes.TEXT_VTT,
-                            "en",
-                            C.SELECTION_FLAG_DEFAULT)))
+                        new SubtitleConfiguration.Builder(
+                                Uri.parse("asset:///media/webvtt/typical"))
+                            .setMimeType(MimeTypes.TEXT_VTT)
+                            .setLanguage("en")
+                            .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                            .build()))
                 // Expect the clipping to affect both subtitles and video.
-                .setClipEndPositionMs(1000)
+                .setClippingConfiguration(
+                    new MediaItem.ClippingConfiguration.Builder().setEndPositionMs(1000).build())
                 .build(),
             new MediaItem.Builder()
                 .setUri("asset:///media/mp4/sample.mp4")
                 // Not needed for correctness, just makes test run faster. Must be longer than the
                 // subtitle content (3.5s).
-                .setClipEndPositionMs(4_000)
+                .setClippingConfiguration(
+                    new MediaItem.ClippingConfiguration.Builder().setEndPositionMs(4_000).build())
                 .build());
     AtomicReference<ExoPlayer> player = new AtomicReference<>();
     TextCapturingPlaybackListener textCapturer = new TextCapturingPlaybackListener();
