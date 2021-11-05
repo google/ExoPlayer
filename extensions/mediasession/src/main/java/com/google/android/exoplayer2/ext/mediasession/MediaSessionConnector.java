@@ -1208,8 +1208,7 @@ public final class MediaSessionConnector {
     @Override
     public void onStop() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_STOP)) {
-        player.stop();
-        player.clearMediaItems();
+        player.stop(/* reset= */ true);
       }
     }
 
