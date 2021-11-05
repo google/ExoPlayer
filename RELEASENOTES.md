@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released)
 
 *   Core Library:
+    *   Fix track selection issue where a mixture of non-empty and empty track
+        overrides is not applied correctly
+        ([#9649](https://github.com/google/ExoPlayer/issues/9649).
     *   Add protected method `DefaultRenderersFactory.getCodecAdapterFactory()`
         so that subclasses of `DefaultRenderersFactory` that override
         `buildVideoRenderers()` or `buildAudioRenderers()` can access the codec
