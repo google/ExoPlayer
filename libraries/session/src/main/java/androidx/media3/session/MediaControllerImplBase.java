@@ -158,8 +158,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 @SuppressWarnings("FutureReturnValueIgnored") // TODO(b/138091975): Not to ignore if feasible
 /* package */ class MediaControllerImplBase implements MediaControllerImpl {
 
-  private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_INFO_SKIPPED);
-
   public static final String TAG = "MCImplBase";
 
   final MediaController instance;
@@ -383,7 +381,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       IMediaSession iSession, RemoteSessionTask task) {
     if (iSession != null) {
       SequencedFutureManager.SequencedFuture<SessionResult> result =
-          sequencedFutureManager.createSequencedFuture(RESULT_WHEN_CLOSED);
+          sequencedFutureManager.createSequencedFuture(new SessionResult(RESULT_INFO_SKIPPED));
       try {
         task.run(iSession, result.getSequenceNumber());
       } catch (RemoteException e) {
