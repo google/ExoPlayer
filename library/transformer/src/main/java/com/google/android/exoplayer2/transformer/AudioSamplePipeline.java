@@ -366,6 +366,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         errorCode);
   }
 
+  // TODO(internal b/204978301): Ensure encoder and decoder timestamps match when no speed change.
   private static long getBufferDurationUs(long bytesWritten, int bytesPerFrame, int sampleRate) {
     long framesWritten = bytesWritten / bytesPerFrame;
     return framesWritten * C.MICROS_PER_SECOND / sampleRate;
