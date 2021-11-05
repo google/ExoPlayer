@@ -644,8 +644,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return playerInfo.sessionPositionInfo.positionInfo.positionMs;
     }
     long elapsedTimeMs =
-        (instance.timeDiffMs != C.TIME_UNSET)
-            ? instance.timeDiffMs
+        (instance.getTimeDiffMs() != C.TIME_UNSET)
+            ? instance.getTimeDiffMs()
             : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
     long estimatedPositionMs =
         playerInfo.sessionPositionInfo.positionInfo.positionMs
@@ -686,8 +686,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return playerInfo.sessionPositionInfo.positionInfo.contentPositionMs;
     }
     long elapsedTimeMs =
-        (instance.timeDiffMs != C.TIME_UNSET)
-            ? instance.timeDiffMs
+        (instance.getTimeDiffMs() != C.TIME_UNSET)
+            ? instance.getTimeDiffMs()
             : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
     long estimatedPositionMs =
         playerInfo.sessionPositionInfo.positionInfo.contentPositionMs

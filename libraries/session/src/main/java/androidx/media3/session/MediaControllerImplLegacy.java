@@ -1305,14 +1305,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             controllerCompat.getFlags(),
             controllerCompat.isSessionReady(),
             controllerCompat.getRatingType(),
-            instance.timeDiffMs);
+            instance.getTimeDiffMs());
     Pair<@NullableType Integer, @NullableType Integer> reasons =
         calculateDiscontinuityAndTransitionReason(
             legacyPlayerInfo,
             controllerInfo,
             newLegacyPlayerInfo,
             newControllerInfo,
-            instance.timeDiffMs);
+            instance.getTimeDiffMs());
     updateControllerInfo(
         notifyConnected,
         newLegacyPlayerInfo,

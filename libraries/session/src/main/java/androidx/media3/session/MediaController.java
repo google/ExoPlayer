@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.annotation.VisibleForTesting.NONE;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotEmpty;
 import static androidx.media3.common.util.Assertions.checkNotNull;
@@ -343,7 +344,7 @@ public class MediaController implements Player {
 
   /* package */ final Handler applicationHandler;
 
-  @VisibleForTesting long timeDiffMs;
+  private long timeDiffMs;
 
   private boolean connectionNotified;
 
@@ -1722,10 +1723,19 @@ public class MediaController implements Player {
   }
 
   /**
-   * Sets the time diff forcefully when calculating current position.
-   *
-   * @param timeDiffMs {@code C.TIME_UNSET} for reset.
+   * Gets the optional time diff (in milliseconds) used for calculating the current position, or
+   * {@link C#TIME_UNSET} if no diff should be applied.
    */
+  /* package */ long getTimeDiffMs() {
+    return timeDiffMs;
+  }
+
+  /**
+   * Sets the time diff (in milliseconds) used when calculating the current position.
+   *
+   * @param timeDiffMs {@link C#TIME_UNSET} for reset.
+   */
+  @VisibleForTesting(otherwise = NONE)
   /* package */ void setTimeDiffMs(long timeDiffMs) {
     verifyApplicationThread();
     this.timeDiffMs = timeDiffMs;
