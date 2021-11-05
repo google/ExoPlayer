@@ -1553,7 +1553,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         || params.disabledTrackTypes.contains(rendererType)) {
       return null;
     }
-    // Per TrackGroupArray override
+    // Per TrackGroupArray overrides.
     TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
     if (params.hasSelectionOverride(rendererIndex, rendererTrackGroups)) {
       @Nullable
@@ -1564,18 +1564,27 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return new ExoTrackSelection.Definition(
           rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
     }
-    // Per TrackGroup override
+    // Per TrackGroup overrides.
     for (int j = 0; j < rendererTrackGroups.length; j++) {
       TrackGroup trackGroup = rendererTrackGroups.get(j);
       @Nullable
       TrackSelectionOverride overrideTracks =
           params.trackSelectionOverrides.getOverride(trackGroup);
       if (overrideTracks != null) {
-        return new ExoTrackSelection.Definition(
-            trackGroup, Ints.toArray(overrideTracks.trackIndexes));
+        if (overrideTracks.trackIndexes.isEmpty()) {
+          // TrackGroup is disabled. Deselect the currentDefinition if applicable. Otherwise ignore.
+          if (currentDefinition != null && currentDefinition.group.equals(trackGroup)) {
+            currentDefinition = null;
+          }
+        } else {
+          // Override current definition with new selection.
+          currentDefinition =
+              new ExoTrackSelection.Definition(
+                  trackGroup, Ints.toArray(overrideTracks.trackIndexes));
+        }
       }
     }
-    return currentDefinition; // No override
+    return currentDefinition;
   }
 
   // Track selection prior to overrides and disabled flags being applied.
