@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import android.net.Uri;
 import android.os.SystemClock;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
@@ -525,7 +524,7 @@ public class HlsMediaSourceTest {
 
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     assertThat(mediaItem.liveConfiguration.targetOffsetMs)
-        .isGreaterThan(C.usToMs(window.durationUs));
+        .isGreaterThan(Util.usToMs(window.durationUs));
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(9000);
   }
 

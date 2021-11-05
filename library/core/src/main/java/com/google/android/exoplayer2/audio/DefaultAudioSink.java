@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -27,7 +28,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -1635,6 +1635,8 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @RequiresApi(29)
+  // Return values of AudioManager.getPlaybackOffloadSupport are equal to C.AudioManagerOffloadMode.
+  @SuppressLint("WrongConstant")
   @C.AudioManagerOffloadMode
   private int getOffloadedPlaybackSupport(
       AudioFormat audioFormat, android.media.AudioAttributes audioAttributes) {
@@ -1829,7 +1831,7 @@ public final class DefaultAudioSink implements AudioSink {
             }
 
             @Override
-            public void onTearDown(@NonNull AudioTrack track) {
+            public void onTearDown(AudioTrack track) {
               Assertions.checkState(track == audioTrack);
               if (listener != null && playing) {
                 // The audio track was destroyed while in use. Thus a new AudioTrack needs to be

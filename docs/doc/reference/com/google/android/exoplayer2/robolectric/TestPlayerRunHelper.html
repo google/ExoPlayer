@@ -131,8 +131,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public class <span class="typeNameLabel">TestPlayerRunHelper</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Helper methods to block the calling thread until the provided <a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> instance
- reaches a particular state.</div>
+<div class="block">Helper methods to block the calling thread until the provided <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance reaches
+ a particular state.</div>
 </li>
 </ul>
 </div>
@@ -156,7 +156,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilPosition(com.google.android.exoplayer2.ExoPlayer,int,long)">playUntilPosition</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                 int&nbsp;windowIndex,
+                 int&nbsp;mediaItemIndex,
                  long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Calls <a href="../Player.html#play()"><code>Player.play()</code></a>, runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> until the <code>player</code>
@@ -165,11 +165,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilStartOfWindow(com.google.android.exoplayer2.ExoPlayer,int)">playUntilStartOfWindow</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                      int&nbsp;windowIndex)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilStartOfMediaItem(com.google.android.exoplayer2.ExoPlayer,int)">playUntilStartOfMediaItem</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                         int&nbsp;mediaItemIndex)</code></th>
 <td class="colLast">
 <div class="block">Calls <a href="../Player.html#play()"><code>Player.play()</code></a>, runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> until the <code>player</code>
- reaches the specified window or a playback error occurs, and then pauses the <code>player</code>.</div>
+ reaches the specified media item or a playback error occurs, and then pauses the <code>
+ player</code>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -189,8 +190,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#runUntilPlaybackState(com.google.android.exoplayer2.Player,int)">runUntilPlaybackState</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                     int&nbsp;expectedState)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#runUntilPlaybackState(com.google.android.exoplayer2.Player,@com.google.android.exoplayer2.Player.Stateint)">runUntilPlaybackState</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                     @com.google.android.exoplayer2.Player.State int&nbsp;expectedState)</code></th>
 <td class="colLast">
 <div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until <a href="../Player.html#getPlaybackState()" target="_top"><code>Player.getPlaybackState()</code></a> matches the
  expected state or a playback error occurs.</div>
@@ -207,10 +208,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#runUntilPositionDiscontinuity(com.google.android.exoplayer2.Player,int)">runUntilPositionDiscontinuity</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                             int&nbsp;expectedReason)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#runUntilPositionDiscontinuity(com.google.android.exoplayer2.Player,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">runUntilPositionDiscontinuity</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                             @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;expectedReason)</code></th>
 <td class="colLast">
-<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)" target="_top"><code>Player.Listener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a> is
+<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)" target="_top"><code>Player.Listener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a> is
  called with the specified <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a> or a playback error occurs.</div>
 </td>
 </tr>
@@ -224,9 +225,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#runUntilRenderedFirstFrame(com.google.android.exoplayer2.SimpleExoPlayer)">runUntilRenderedFirstFrame</a></span>&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#runUntilRenderedFirstFrame(com.google.android.exoplayer2.ExoPlayer)">runUntilRenderedFirstFrame</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player)</code></th>
 <td class="colLast">
-<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until the <a href="../video/VideoListener.html#onRenderedFirstFrame()" target="_top"><code>VideoListener.onRenderedFirstFrame()</code></a>
+<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until the <a href="../Player.Listener.html#onRenderedFirstFrame()" target="_top"><code>Player.Listener.onRenderedFirstFrame()</code></a>
  callback is called or a playback error occurs.</div>
 </td>
 </tr>
@@ -279,7 +280,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="runUntilPlaybackState(com.google.android.exoplayer2.Player,int)">
+<a id="runUntilPlaybackState(com.google.android.exoplayer2.Player,@com.google.android.exoplayer2.Player.Stateint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -287,7 +288,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>runUntilPlaybackState</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;runUntilPlaybackState&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                          <a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
-                                         int&nbsp;expectedState)
+                                         @com.google.android.exoplayer2.Player.State int&nbsp;expectedState)
                                   throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
 <div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until <a href="../Player.html#getPlaybackState()" target="_top"><code>Player.getPlaybackState()</code></a> matches the
  expected state or a playback error occurs.
@@ -371,7 +372,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="runUntilPositionDiscontinuity(com.google.android.exoplayer2.Player,int)">
+<a id="runUntilPositionDiscontinuity(com.google.android.exoplayer2.Player,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -379,9 +380,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>runUntilPositionDiscontinuity</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;runUntilPositionDiscontinuity&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                                  <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
-                                                 int&nbsp;expectedReason)
+                                                 @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;expectedReason)
                                           throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
-<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,int)" target="_top"><code>Player.Listener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a> is
+<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)" target="_top"><code>Player.Listener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a> is
  called with the specified <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a> or a playback error occurs.
 
  <p>If a playback error occurs it will be thrown wrapped in an <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a>.</div>
@@ -461,15 +462,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="runUntilRenderedFirstFrame(com.google.android.exoplayer2.SimpleExoPlayer)">
+<a id="runUntilRenderedFirstFrame(com.google.android.exoplayer2.ExoPlayer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>runUntilRenderedFirstFrame</h4>
-<pre class="methodSignature">public static&nbsp;void&nbsp;runUntilRenderedFirstFrame&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player)
+<pre class="methodSignature">public static&nbsp;void&nbsp;runUntilRenderedFirstFrame&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player)
                                        throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
-<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until the <a href="../video/VideoListener.html#onRenderedFirstFrame()" target="_top"><code>VideoListener.onRenderedFirstFrame()</code></a>
+<div class="block">Runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> until the <a href="../Player.Listener.html#onRenderedFirstFrame()" target="_top"><code>Player.Listener.onRenderedFirstFrame()</code></a>
  callback is called or a playback error occurs.
 
  <p>If a playback error occurs it will be thrown wrapped in an <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a>..</div>
@@ -489,7 +490,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>playUntilPosition</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;playUntilPosition&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                                     int&nbsp;windowIndex,
+                                     int&nbsp;mediaItemIndex,
                                      long&nbsp;positionMs)
                               throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
 <div class="block">Calls <a href="../Player.html#play()"><code>Player.play()</code></a>, runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> until the <code>player</code>
@@ -499,31 +500,32 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</dd>
-<dd><code>windowIndex</code> - The window.</dd>
-<dd><code>positionMs</code> - The position within the window, in milliseconds.</dd>
+<dd><code>mediaItemIndex</code> - The index of the media item.</dd>
+<dd><code>positionMs</code> - The position within the media item, in milliseconds.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink">TimeoutException</a></code> - If the <a href="RobolectricUtil.html#DEFAULT_TIMEOUT_MS" target="_top"><code>default timeout</code></a> is
      exceeded.</dd>
 </dl>
 </li>
 </ul>
-<a id="playUntilStartOfWindow(com.google.android.exoplayer2.ExoPlayer,int)">
+<a id="playUntilStartOfMediaItem(com.google.android.exoplayer2.ExoPlayer,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>playUntilStartOfWindow</h4>
-<pre class="methodSignature">public static&nbsp;void&nbsp;playUntilStartOfWindow&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                                          int&nbsp;windowIndex)
-                                   throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
+<h4>playUntilStartOfMediaItem</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;playUntilStartOfMediaItem&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                                             int&nbsp;mediaItemIndex)
+                                      throws <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
 <div class="block">Calls <a href="../Player.html#play()"><code>Player.play()</code></a>, runs tasks of the main <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> until the <code>player</code>
- reaches the specified window or a playback error occurs, and then pauses the <code>player</code>.
+ reaches the specified media item or a playback error occurs, and then pauses the <code>
+ player</code>.
 
  <p>If a playback error occurs it will be thrown wrapped in an <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</dd>
-<dd><code>windowIndex</code> - The window.</dd>
+<dd><code>mediaItemIndex</code> - The index of the media item.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink">TimeoutException</a></code> - If the <a href="RobolectricUtil.html#DEFAULT_TIMEOUT_MS" target="_top"><code>default timeout</code></a> is
      exceeded.</dd>

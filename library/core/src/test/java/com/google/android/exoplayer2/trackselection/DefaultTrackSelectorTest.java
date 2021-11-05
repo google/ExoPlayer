@@ -46,13 +46,12 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -158,12 +157,15 @@ public final class DefaultTrackSelectorTest {
 
   /** Tests that an empty override clears a track selection. */
   @Test
-  public void selectTracks_withNullOverride_clearsTrackSelection() throws ExoPlaybackException {
+  public void selectTracks_withOverrideWithoutTracks_clearsTrackSelection()
+      throws ExoPlaybackException {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
             .setTrackSelectionOverrides(
-                ImmutableMap.of(VIDEO_TRACK_GROUP, new TrackSelectionOverride(ImmutableSet.of()))));
+                new TrackSelectionOverrides.Builder()
+                    .addOverride(new TrackSelectionOverride(VIDEO_TRACK_GROUP, ImmutableList.of()))
+                    .build()));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
@@ -210,8 +212,11 @@ public final class DefaultTrackSelectorTest {
         trackSelector
             .buildUponParameters()
             .setTrackSelectionOverrides(
-                ImmutableMap.of(
-                    new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), TrackSelectionOverride.DISABLE)));
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(
+                        new TrackSelectionOverride(
+                            new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), ImmutableList.of()))
+                    .build()));
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -1745,6 +1750,19 @@ public final class DefaultTrackSelectorTest {
     assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
   }
 
+  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
+  @Test
+  public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
+    SelectionOverride selectionOverrideToBundle =
+        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
+
+    SelectionOverride selectionOverrideFromBundle =
+        DefaultTrackSelector.SelectionOverride.CREATOR.fromBundle(
+            selectionOverrideToBundle.toBundle());
+
+    assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
+  }
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
@@ -1874,9 +1892,12 @@ public final class DefaultTrackSelectorTest {
         .setRendererDisabled(3, true)
         .setRendererDisabled(5, false)
         .setTrackSelectionOverrides(
-            ImmutableMap.of(
-                AUDIO_TRACK_GROUP,
-                new TrackSelectionOverride(/* tracks= */ ImmutableSet.of(3, 4, 5))))
+            new TrackSelectionOverrides.Builder()
+                .setOverrideForType(
+                    new TrackSelectionOverride(
+                        new TrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT),
+                        /* trackIndexes= */ ImmutableList.of(0, 2, 3)))
+                .build())
         .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
         .build();
   }

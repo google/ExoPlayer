@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -220,18 +220,18 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoConfig()">getCryptoConfig</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for the open session, or null if called before the session has
+ been opened or after it's been released.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getError()">getError</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the cause of the error state, or null if <a href="DrmSession.html#getState()"><code>DrmSession.getState()</code></a> is not <a href="DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaCrypto()">getMediaCrypto</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the open session, or null if called before the session
- has been opened or after it's been released.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -276,6 +276,13 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">release</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
 <div class="block">Decrements the reference count.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requiresSecureDecoder(java.lang.String)">requiresSecureDecoder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns whether this session requires use of a secure decoder for the given MIME type.</div>
 </td>
 </tr>
 </table>
@@ -382,20 +389,20 @@ public&nbsp;<a href="DrmSession.DrmSessionException.html" title="class in com.go
 </dl>
 </li>
 </ul>
-<a id="getMediaCrypto()">
+<a id="getCryptoConfig()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getMediaCrypto</h4>
+<h4>getCryptoConfig</h4>
 <pre class="methodSignature">@Nullable
-public&nbsp;<a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;getMediaCrypto()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#getMediaCrypto()">DrmSession</a></code></span></div>
-<div class="block">Returns an <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> for the open session, or null if called before the session
- has been opened or after it's been released.</div>
+public&nbsp;<a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;getCryptoConfig()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#getCryptoConfig()">DrmSession</a></code></span></div>
+<div class="block">Returns a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for the open session, or null if called before the session has
+ been opened or after it's been released.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DrmSession.html#getMediaCrypto()">getMediaCrypto</a></code>&nbsp;in interface&nbsp;<code><a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></code></dd>
+<dd><code><a href="DrmSession.html#getCryptoConfig()">getCryptoConfig</a></code>&nbsp;in interface&nbsp;<code><a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -439,6 +446,24 @@ public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="DrmSession.html#getOfflineLicenseKeySetId()">getOfflineLicenseKeySetId</a></code>&nbsp;in interface&nbsp;<code><a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="requiresSecureDecoder(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>requiresSecureDecoder</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;requiresSecureDecoder&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#requiresSecureDecoder(java.lang.String)">DrmSession</a></code></span></div>
+<div class="block">Returns whether this session requires use of a secure decoder for the given MIME type. Assumes
+ a license policy that requires the highest level of security supported by the session.
+
+ <p>The session must be in <a href="DrmSession.html#getState()"><code>state</code></a> <a href="DrmSession.html#STATE_OPENED"><code>DrmSession.STATE_OPENED</code></a> or <a href="DrmSession.html#STATE_OPENED_WITH_KEYS"><code>DrmSession.STATE_OPENED_WITH_KEYS</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="DrmSession.html#requiresSecureDecoder(java.lang.String)">requiresSecureDecoder</a></code>&nbsp;in interface&nbsp;<code><a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></code></dd>
 </dl>
 </li>
 </ul>

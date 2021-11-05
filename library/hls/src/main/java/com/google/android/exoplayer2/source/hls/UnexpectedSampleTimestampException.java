@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.hls;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -52,7 +53,7 @@ import java.io.IOException;
       MediaChunk mediaChunk, long lastAcceptedSampleTimeUs, long rejectedSampleTimeUs) {
     super(
         "Unexpected sample timestamp: "
-            + C.usToMs(rejectedSampleTimeUs)
+            + Util.usToMs(rejectedSampleTimeUs)
             + " in chunk ["
             + mediaChunk.startTimeUs
             + ", "

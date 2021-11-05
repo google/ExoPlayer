@@ -52,7 +52,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A Truth {@link Subject} for assertions on {@link Spanned} instances containing text styling. */
-// TODO: add support for more Spans i.e. all those used in com.google.android.exoplayer2.text.
 public final class SpannedSubject extends Subject {
 
   @Nullable private final Spanned actual;

@@ -727,7 +727,8 @@ public&nbsp;int&nbsp;getNotMetRequirements()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxParallelDownloads</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setMaxParallelDownloads&#8203;(int&nbsp;maxParallelDownloads)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setMaxParallelDownloads&#8203;(@IntRange(from=1L)
+                                    int&nbsp;maxParallelDownloads)</pre>
 <div class="block">Sets the maximum number of parallel downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

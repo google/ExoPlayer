@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -41,20 +40,6 @@ public final class OpusUtilTest {
   private static final byte[] DEFAULT_SEEK_PRE_ROLL_BYTES =
       buildNativeOrderByteArray(sampleCountToNanoseconds(DEFAULT_SEEK_PRE_ROLL_SAMPLES));
 
-  private static final ImmutableList<byte[]> HEADER_ONLY_INITIALIZATION_DATA =
-      ImmutableList.of(HEADER);
-
-  private static final long CUSTOM_PRE_SKIP_SAMPLES = 28674;
-  private static final byte[] CUSTOM_PRE_SKIP_BYTES =
-      buildNativeOrderByteArray(sampleCountToNanoseconds(CUSTOM_PRE_SKIP_SAMPLES));
-
-  private static final long CUSTOM_SEEK_PRE_ROLL_SAMPLES = 7680;
-  private static final byte[] CUSTOM_SEEK_PRE_ROLL_BYTES =
-      buildNativeOrderByteArray(sampleCountToNanoseconds(CUSTOM_SEEK_PRE_ROLL_SAMPLES));
-
-  private static final ImmutableList<byte[]> FULL_INITIALIZATION_DATA =
-      ImmutableList.of(HEADER, CUSTOM_PRE_SKIP_BYTES, CUSTOM_SEEK_PRE_ROLL_BYTES);
-
   @Test
   public void buildInitializationData() {
     List<byte[]> initializationData = OpusUtil.buildInitializationData(HEADER);
@@ -68,30 +53,6 @@ public final class OpusUtilTest {
   public void getChannelCount() {
     int channelCount = OpusUtil.getChannelCount(HEADER);
     assertThat(channelCount).isEqualTo(2);
-  }
-
-  @Test
-  public void getPreSkipSamples_fullInitializationData_returnsOverrideValue() {
-    int preSkipSamples = OpusUtil.getPreSkipSamples(FULL_INITIALIZATION_DATA);
-    assertThat(preSkipSamples).isEqualTo(CUSTOM_PRE_SKIP_SAMPLES);
-  }
-
-  @Test
-  public void getPreSkipSamples_headerOnlyInitializationData_returnsHeaderValue() {
-    int preSkipSamples = OpusUtil.getPreSkipSamples(HEADER_ONLY_INITIALIZATION_DATA);
-    assertThat(preSkipSamples).isEqualTo(HEADER_PRE_SKIP_SAMPLES);
-  }
-
-  @Test
-  public void getSeekPreRollSamples_fullInitializationData_returnsInitializationDataValue() {
-    int seekPreRollSamples = OpusUtil.getSeekPreRollSamples(FULL_INITIALIZATION_DATA);
-    assertThat(seekPreRollSamples).isEqualTo(CUSTOM_SEEK_PRE_ROLL_SAMPLES);
-  }
-
-  @Test
-  public void getSeekPreRollSamples_headerOnlyInitializationData_returnsDefaultValue() {
-    int seekPreRollSamples = OpusUtil.getSeekPreRollSamples(HEADER_ONLY_INITIALIZATION_DATA);
-    assertThat(seekPreRollSamples).isEqualTo(DEFAULT_SEEK_PRE_ROLL_SAMPLES);
   }
 
   private static long sampleCountToNanoseconds(long sampleCount) {

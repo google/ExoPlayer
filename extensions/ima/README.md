@@ -5,7 +5,7 @@ The ExoPlayer IMA module provides an [AdsLoader][] implementation wrapping the
 content played using ExoPlayer.
 
 [IMA]: https://developers.google.com/interactive-media-ads/docs/sdks/android/
-[AdsLoader]: https://exoplayer.dev/doc/reference/index.html?com/google/android/exoplayer2/source/ads/AdsLoader.html
+[AdsLoader]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/source/ads/AdsLoader.html
 
 ## Getting the module
 
@@ -53,8 +53,7 @@ player position when backgrounded during ad playback.
 ## Links
 
 * [ExoPlayer documentation on ad insertion][]
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ima.*`
-  belong to this module.
+* [Javadoc][]
 
 [ExoPlayer documentation on ad insertion]: https://exoplayer.dev/ad-insertion.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

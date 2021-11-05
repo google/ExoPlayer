@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 
 /**
@@ -42,11 +43,13 @@ import java.nio.ByteBuffer;
    * <p>The value of this constant has been chosen based on the interleaving observed in a few media
    * files, where continuous chunks of the same track were about 0.5 seconds long.
    */
-  private static final long MAX_TRACK_WRITE_AHEAD_US = C.msToUs(500);
+  private static final long MAX_TRACK_WRITE_AHEAD_US = Util.msToUs(500);
 
   private final Muxer muxer;
+  private final Muxer.Factory muxerFactory;
   private final SparseIntArray trackTypeToIndex;
   private final SparseLongArray trackTypeToTimeUs;
+  private final String containerMimeType;
 
   private int trackCount;
   private int trackFormatCount;
@@ -54,8 +57,10 @@ import java.nio.ByteBuffer;
   private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
 
-  public MuxerWrapper(Muxer muxer) {
+  public MuxerWrapper(Muxer muxer, Muxer.Factory muxerFactory, String containerMimeType) {
     this.muxer = muxer;
+    this.muxerFactory = muxerFactory;
+    this.containerMimeType = containerMimeType;
     trackTypeToIndex = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
@@ -78,7 +83,7 @@ import java.nio.ByteBuffer;
 
   /** Returns whether the sample {@link MimeTypes MIME type} is supported. */
   public boolean supportsSampleMimeType(@Nullable String mimeType) {
-    return muxer.supportsSampleMimeType(mimeType);
+    return muxerFactory.supportsSampleMimeType(mimeType, containerMimeType);
   }
 
   /**

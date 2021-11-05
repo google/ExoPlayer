@@ -124,11 +124,12 @@ public final class ServerSideInsertedAdsUtil {
     if (player.isPlayingAd()) {
       int adGroupIndex = player.getCurrentAdGroupIndex();
       int adIndexInAdGroup = player.getCurrentAdIndexInAdGroup();
-      long adPositionUs = C.msToUs(player.getCurrentPosition());
+      long adPositionUs = Util.msToUs(player.getCurrentPosition());
       return getStreamPositionUsForAd(
           adPositionUs, adGroupIndex, adIndexInAdGroup, adPlaybackState);
     }
-    long periodPositionUs = C.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs();
+    long periodPositionUs =
+        Util.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs();
     return getStreamPositionUsForContent(
         periodPositionUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
   }

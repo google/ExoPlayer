@@ -686,7 +686,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
 
       playbackEventListener.onPlaybackStarted(
-          C.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
+          Util.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
       pendingSeekPositionUs = C.TIME_UNSET;
     }
 
@@ -695,7 +695,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       rtspState = RTSP_STATE_READY;
       if (pendingSeekPositionUs != C.TIME_UNSET) {
-        startPlayback(C.usToMs(pendingSeekPositionUs));
+        startPlayback(Util.usToMs(pendingSeekPositionUs));
       }
     }
   }

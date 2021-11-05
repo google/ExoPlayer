@@ -15,6 +15,13 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -29,7 +36,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -126,6 +132,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
@@ -268,8 +275,10 @@ public final class C {
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link
    * #STREAM_TYPE_DTMF}, {@link #STREAM_TYPE_MUSIC}, {@link #STREAM_TYPE_NOTIFICATION}, {@link
-   * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM} or {@link #STREAM_TYPE_VOICE_CALL}.
+   * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM}, {@link #STREAM_TYPE_VOICE_CALL} or {@link
+   * #STREAM_TYPE_DEFAULT}.
    */
+  @SuppressLint("UniqueConstants") // Intentional duplication to set STREAM_TYPE_DEFAULT.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
@@ -279,7 +288,8 @@ public final class C {
     STREAM_TYPE_NOTIFICATION,
     STREAM_TYPE_RING,
     STREAM_TYPE_SYSTEM,
-    STREAM_TYPE_VOICE_CALL
+    STREAM_TYPE_VOICE_CALL,
+    STREAM_TYPE_DEFAULT
   })
   public @interface StreamType {}
   /** @see AudioManager#STREAM_ALARM */
@@ -306,6 +316,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     CONTENT_TYPE_MOVIE,
     CONTENT_TYPE_MUSIC,
@@ -334,6 +345,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {FLAG_AUDIBILITY_ENFORCED})
@@ -354,6 +366,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     USAGE_ALARM,
     USAGE_ASSISTANCE_ACCESSIBILITY,
@@ -422,6 +435,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({ALLOW_CAPTURE_BY_ALL, ALLOW_CAPTURE_BY_NONE, ALLOW_CAPTURE_BY_SYSTEM})
   public @interface AudioAllowedCapturePolicy {}
   /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_ALL}. */
@@ -527,11 +541,17 @@ public final class C {
 
   /**
    * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
-   * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
+   * #VIDEO_SCALING_MODE_SCALE_TO_FIT}, {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING} or
+   * {@link #VIDEO_SCALING_MODE_DEFAULT}.
    */
+  @SuppressLint("UniqueConstants") // Intentional duplication to set VIDEO_SCALING_MODE_DEFAULT.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+  @IntDef({
+    VIDEO_SCALING_MODE_SCALE_TO_FIT,
+    VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING,
+    VIDEO_SCALING_MODE_DEFAULT
+  })
   public @interface VideoScalingMode {}
   /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
@@ -565,6 +585,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
@@ -680,7 +701,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
@@ -976,6 +997,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({WAKE_MODE_NONE, WAKE_MODE_LOCAL, WAKE_MODE_NETWORK})
   public @interface WakeMode {}
   /**
@@ -1012,6 +1034,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {

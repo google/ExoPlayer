@@ -61,39 +61,6 @@ public class OpusUtil {
     return initializationData;
   }
 
-  /**
-   * Returns the number of pre-skip samples specified by the given Opus codec initialization data.
-   *
-   * @param initializationData The codec initialization data.
-   * @return The number of pre-skip samples.
-   */
-  public static int getPreSkipSamples(List<byte[]> initializationData) {
-    if (initializationData.size() == FULL_CODEC_INITIALIZATION_DATA_BUFFER_COUNT) {
-      long codecDelayNs =
-          ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.nativeOrder()).getLong();
-      return (int) nanosecondsToSampleCount(codecDelayNs);
-    }
-    // Fall back to parsing directly from the Opus Identification header.
-    return getPreSkipSamples(initializationData.get(0));
-  }
-
-  /**
-   * Returns the number of seek per-roll samples specified by the given Opus codec initialization
-   * data.
-   *
-   * @param initializationData The codec initialization data.
-   * @return The number of seek pre-roll samples.
-   */
-  public static int getSeekPreRollSamples(List<byte[]> initializationData) {
-    if (initializationData.size() == FULL_CODEC_INITIALIZATION_DATA_BUFFER_COUNT) {
-      long seekPreRollNs =
-          ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.nativeOrder()).getLong();
-      return (int) nanosecondsToSampleCount(seekPreRollNs);
-    }
-    // Fall back to returning the default seek pre-roll.
-    return DEFAULT_SEEK_PRE_ROLL_SAMPLES;
-  }
-
   private static int getPreSkipSamples(byte[] header) {
     return ((header[11] & 0xFF) << 8) | (header[10] & 0xFF);
   }
@@ -104,9 +71,5 @@ public class OpusUtil {
 
   private static long sampleCountToNanoseconds(long sampleCount) {
     return (sampleCount * C.NANOS_PER_SECOND) / SAMPLE_RATE;
-  }
-
-  private static long nanosecondsToSampleCount(long nanoseconds) {
-    return (nanoseconds * SAMPLE_RATE) / C.NANOS_PER_SECOND;
   }
 }

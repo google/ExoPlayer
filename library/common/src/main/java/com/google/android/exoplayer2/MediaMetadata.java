@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
@@ -26,6 +32,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 
@@ -383,6 +390,108 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Populates all the fields from {@code mediaMetadata}, provided they are non-null. */
+    public Builder populate(@Nullable MediaMetadata mediaMetadata) {
+      if (mediaMetadata == null) {
+        return this;
+      }
+      if (mediaMetadata.title != null) {
+        setTitle(mediaMetadata.title);
+      }
+      if (mediaMetadata.artist != null) {
+        setArtist(mediaMetadata.artist);
+      }
+      if (mediaMetadata.albumTitle != null) {
+        setAlbumTitle(mediaMetadata.albumTitle);
+      }
+      if (mediaMetadata.albumArtist != null) {
+        setAlbumArtist(mediaMetadata.albumArtist);
+      }
+      if (mediaMetadata.displayTitle != null) {
+        setDisplayTitle(mediaMetadata.displayTitle);
+      }
+      if (mediaMetadata.subtitle != null) {
+        setSubtitle(mediaMetadata.subtitle);
+      }
+      if (mediaMetadata.description != null) {
+        setDescription(mediaMetadata.description);
+      }
+      if (mediaMetadata.mediaUri != null) {
+        setMediaUri(mediaMetadata.mediaUri);
+      }
+      if (mediaMetadata.userRating != null) {
+        setUserRating(mediaMetadata.userRating);
+      }
+      if (mediaMetadata.overallRating != null) {
+        setOverallRating(mediaMetadata.overallRating);
+      }
+      if (mediaMetadata.artworkData != null) {
+        setArtworkData(mediaMetadata.artworkData, mediaMetadata.artworkDataType);
+      }
+      if (mediaMetadata.artworkUri != null) {
+        setArtworkUri(mediaMetadata.artworkUri);
+      }
+      if (mediaMetadata.trackNumber != null) {
+        setTrackNumber(mediaMetadata.trackNumber);
+      }
+      if (mediaMetadata.totalTrackCount != null) {
+        setTotalTrackCount(mediaMetadata.totalTrackCount);
+      }
+      if (mediaMetadata.folderType != null) {
+        setFolderType(mediaMetadata.folderType);
+      }
+      if (mediaMetadata.isPlayable != null) {
+        setIsPlayable(mediaMetadata.isPlayable);
+      }
+      if (mediaMetadata.year != null) {
+        setRecordingYear(mediaMetadata.year);
+      }
+      if (mediaMetadata.recordingYear != null) {
+        setRecordingYear(mediaMetadata.recordingYear);
+      }
+      if (mediaMetadata.recordingMonth != null) {
+        setRecordingMonth(mediaMetadata.recordingMonth);
+      }
+      if (mediaMetadata.recordingDay != null) {
+        setRecordingDay(mediaMetadata.recordingDay);
+      }
+      if (mediaMetadata.releaseYear != null) {
+        setReleaseYear(mediaMetadata.releaseYear);
+      }
+      if (mediaMetadata.releaseMonth != null) {
+        setReleaseMonth(mediaMetadata.releaseMonth);
+      }
+      if (mediaMetadata.releaseDay != null) {
+        setReleaseDay(mediaMetadata.releaseDay);
+      }
+      if (mediaMetadata.writer != null) {
+        setWriter(mediaMetadata.writer);
+      }
+      if (mediaMetadata.composer != null) {
+        setComposer(mediaMetadata.composer);
+      }
+      if (mediaMetadata.conductor != null) {
+        setConductor(mediaMetadata.conductor);
+      }
+      if (mediaMetadata.discNumber != null) {
+        setDiscNumber(mediaMetadata.discNumber);
+      }
+      if (mediaMetadata.totalDiscCount != null) {
+        setTotalDiscCount(mediaMetadata.totalDiscCount);
+      }
+      if (mediaMetadata.genre != null) {
+        setGenre(mediaMetadata.genre);
+      }
+      if (mediaMetadata.compilation != null) {
+        setCompilation(mediaMetadata.compilation);
+      }
+      if (mediaMetadata.extras != null) {
+        setExtras(mediaMetadata.extras);
+      }
+
+      return this;
+    }
+
     /** Returns a new {@link MediaMetadata} instance with the current builder values. */
     public MediaMetadata build() {
       return new MediaMetadata(/* builder= */ this);
@@ -398,6 +507,7 @@ public final class MediaMetadata implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     FOLDER_TYPE_NONE,
     FOLDER_TYPE_MIXED,
@@ -435,6 +545,7 @@ public final class MediaMetadata implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     PICTURE_TYPE_OTHER,
     PICTURE_TYPE_FILE_ICON,
@@ -512,7 +623,7 @@ public final class MediaMetadata implements Bundleable {
   /** Optional artwork data as a compressed byte array. */
   @Nullable public final byte[] artworkData;
   /** Optional {@link PictureType} of the artwork data. */
-  @Nullable @PictureType public final Integer artworkDataType;
+  @Nullable public final @PictureType Integer artworkDataType;
   /** Optional artwork {@link Uri}. */
   @Nullable public final Uri artworkUri;
   /** Optional track number. */
@@ -520,7 +631,7 @@ public final class MediaMetadata implements Bundleable {
   /** Optional total number of tracks. */
   @Nullable public final Integer totalTrackCount;
   /** Optional {@link FolderType}. */
-  @Nullable @FolderType public final Integer folderType;
+  @Nullable public final @FolderType Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
   /** @deprecated Use {@link #recordingYear} instead. */

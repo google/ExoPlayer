@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import static com.google.android.exoplayer2.C.usToMs;
 import static java.lang.Math.max;
 
 import android.util.Base64;
@@ -141,7 +140,7 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
         contentSession.isCreated = true;
         eventTime.timeline.getPeriodByUid(eventTime.mediaPeriodId.periodUid, period);
         long adGroupPositionMs =
-            usToMs(period.getAdGroupTimeUs(eventTime.mediaPeriodId.adGroupIndex))
+            Util.usToMs(period.getAdGroupTimeUs(eventTime.mediaPeriodId.adGroupIndex))
                 + period.getPositionInWindowMs();
         // getAdGroupTimeUs may return 0 for prerolls despite period offset.
         adGroupPositionMs = max(0, adGroupPositionMs);

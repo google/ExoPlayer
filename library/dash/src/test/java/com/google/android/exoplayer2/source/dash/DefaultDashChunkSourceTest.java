@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -96,7 +97,7 @@ public class DefaultDashChunkSourceTest {
             /* closedCaptionFormats */ ImmutableList.of(),
             /* playerTrackEmsgHandler= */ null);
 
-    long nowInPeriodUs = C.msToUs(nowMs - manifest.availabilityStartTimeMs);
+    long nowInPeriodUs = Util.msToUs(nowMs - manifest.availabilityStartTimeMs);
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(

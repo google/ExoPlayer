@@ -129,7 +129,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public static final class <span class="typeNameLabel">NalUnitUtil.SpsData</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Holds data parsed from a sequence parameter set NAL unit.</div>
+<div class="block">Holds data parsed from a H.264 sequence parameter set NAL unit.</div>
 </li>
 </ul>
 </div>
@@ -192,7 +192,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>float</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pixelWidthAspectRatio">pixelWidthAspectRatio</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -239,7 +239,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
        int&nbsp;seqParameterSetId,
        int&nbsp;width,
        int&nbsp;height,
-       float&nbsp;pixelWidthAspectRatio,
+       float&nbsp;pixelWidthHeightRatio,
        boolean&nbsp;separateColorPlaneFlag,
        boolean&nbsp;frameMbsOnlyFlag,
        int&nbsp;frameNumLength,
@@ -336,13 +336,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public final&nbsp;int height</pre>
 </li>
 </ul>
-<a id="pixelWidthAspectRatio">
+<a id="pixelWidthHeightRatio">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>pixelWidthAspectRatio</h4>
-<pre>public final&nbsp;float pixelWidthAspectRatio</pre>
+<h4>pixelWidthHeightRatio</h4>
+<pre>public final&nbsp;float pixelWidthHeightRatio</pre>
 </li>
 </ul>
 <a id="separateColorPlaneFlag">
@@ -421,7 +421,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                int&nbsp;seqParameterSetId,
                int&nbsp;width,
                int&nbsp;height,
-               float&nbsp;pixelWidthAspectRatio,
+               float&nbsp;pixelWidthHeightRatio,
                boolean&nbsp;separateColorPlaneFlag,
                boolean&nbsp;frameMbsOnlyFlag,
                int&nbsp;frameNumLength,

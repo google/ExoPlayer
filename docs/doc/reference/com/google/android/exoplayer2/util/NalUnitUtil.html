@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -154,16 +154,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a></span></code></th>
+<td class="colLast">
+<div class="block">Holds data parsed from a H.265 sequence parameter set NAL unit.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></span></code></th>
 <td class="colLast">
 <div class="block">Holds data parsed from a picture parameter set NAL unit.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></span></code></th>
 <td class="colLast">
-<div class="block">Holds data parsed from a sequence parameter set NAL unit.</div>
+<div class="block">Holds data parsed from a H.264 sequence parameter set NAL unit.</div>
 </td>
 </tr>
 </table>
@@ -274,6 +281,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseH265SpsNalUnit(byte%5B%5D,int,int)">parseH265SpsNalUnit</a></span>&#8203;(byte[]&nbsp;nalData,
+                   int&nbsp;nalOffset,
+                   int&nbsp;nalLimit)</code></th>
+<td class="colLast">
+<div class="block">Parses a H.265 SPS NAL unit using the syntax defined in ITU-T Recommendation H.265 (2019)
+ subsection 7.3.2.2.1.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static <a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseH265SpsNalUnitPayload(byte%5B%5D,int,int)">parseH265SpsNalUnitPayload</a></span>&#8203;(byte[]&nbsp;nalData,
+                          int&nbsp;nalOffset,
+                          int&nbsp;nalLimit)</code></th>
+<td class="colLast">
+<div class="block">Parses a H.265 SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in
+ ITU-T Recommendation H.265 (2019) subsection 7.3.2.2.1.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static <a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parsePpsNalUnit(byte%5B%5D,int,int)">parsePpsNalUnit</a></span>&#8203;(byte[]&nbsp;nalData,
                int&nbsp;nalOffset,
@@ -283,17 +310,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  7.3.2.2.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static <a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parsePpsNalUnitPayload(byte%5B%5D,int,int)">parsePpsNalUnitPayload</a></span>&#8203;(byte[]&nbsp;nalData,
+                      int&nbsp;nalOffset,
+                      int&nbsp;nalLimit)</code></th>
+<td class="colLast">
+<div class="block">Parses a PPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
+ Recommendation H.264 (2013) subsection 7.3.2.2.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>static <a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSpsNalUnit(byte%5B%5D,int,int)">parseSpsNalUnit</a></span>&#8203;(byte[]&nbsp;nalData,
                int&nbsp;nalOffset,
                int&nbsp;nalLimit)</code></th>
 <td class="colLast">
-<div class="block">Parses an SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+<div class="block">Parses a SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
  7.3.2.1.1.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>static <a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSpsNalUnitPayload(byte%5B%5D,int,int)">parseSpsNalUnitPayload</a></span>&#8203;(byte[]&nbsp;nalData,
+                      int&nbsp;nalOffset,
+                      int&nbsp;nalLimit)</code></th>
+<td class="colLast">
+<div class="block">Parses a SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
+ Recommendation H.264 (2013) subsection 7.3.2.1.1.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unescapeStream(byte%5B%5D,int)">unescapeStream</a></span>&#8203;(byte[]&nbsp;data,
               int&nbsp;limit)</code></th>
@@ -478,12 +525,75 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a>&nbsp;parseSpsNalUnit&#8203;(byte[]&nbsp;nalData,
                                                   int&nbsp;nalOffset,
                                                   int&nbsp;nalLimit)</pre>
-<div class="block">Parses an SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
+<div class="block">Parses a SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
  7.3.2.1.1.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>nalData</code> - A buffer containing escaped SPS data.</dd>
 <dd><code>nalOffset</code> - The offset of the NAL unit header in <code>nalData</code>.</dd>
+<dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A parsed representation of the SPS data.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseSpsNalUnitPayload(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseSpsNalUnitPayload</h4>
+<pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a>&nbsp;parseSpsNalUnitPayload&#8203;(byte[]&nbsp;nalData,
+                                                         int&nbsp;nalOffset,
+                                                         int&nbsp;nalLimit)</pre>
+<div class="block">Parses a SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
+ Recommendation H.264 (2013) subsection 7.3.2.1.1.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>nalData</code> - A buffer containing escaped SPS data.</dd>
+<dd><code>nalOffset</code> - The offset of the NAL unit payload in <code>nalData</code>.</dd>
+<dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A parsed representation of the SPS data.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseH265SpsNalUnit(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseH265SpsNalUnit</h4>
+<pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a>&nbsp;parseH265SpsNalUnit&#8203;(byte[]&nbsp;nalData,
+                                                          int&nbsp;nalOffset,
+                                                          int&nbsp;nalLimit)</pre>
+<div class="block">Parses a H.265 SPS NAL unit using the syntax defined in ITU-T Recommendation H.265 (2019)
+ subsection 7.3.2.2.1.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>nalData</code> - A buffer containing escaped SPS data.</dd>
+<dd><code>nalOffset</code> - The offset of the NAL unit header in <code>nalData</code>.</dd>
+<dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A parsed representation of the SPS data.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseH265SpsNalUnitPayload(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseH265SpsNalUnitPayload</h4>
+<pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a>&nbsp;parseH265SpsNalUnitPayload&#8203;(byte[]&nbsp;nalData,
+                                                                 int&nbsp;nalOffset,
+                                                                 int&nbsp;nalLimit)</pre>
+<div class="block">Parses a H.265 SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in
+ ITU-T Recommendation H.265 (2019) subsection 7.3.2.2.1.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>nalData</code> - A buffer containing escaped SPS data.</dd>
+<dd><code>nalOffset</code> - The offset of the NAL unit payload in <code>nalData</code>.</dd>
 <dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A parsed representation of the SPS data.</dd>
@@ -505,6 +615,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>nalData</code> - A buffer containing escaped PPS data.</dd>
 <dd><code>nalOffset</code> - The offset of the NAL unit header in <code>nalData</code>.</dd>
+<dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A parsed representation of the PPS data.</dd>
+</dl>
+</li>
+</ul>
+<a id="parsePpsNalUnitPayload(byte[],int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parsePpsNalUnitPayload</h4>
+<pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a>&nbsp;parsePpsNalUnitPayload&#8203;(byte[]&nbsp;nalData,
+                                                         int&nbsp;nalOffset,
+                                                         int&nbsp;nalLimit)</pre>
+<div class="block">Parses a PPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
+ Recommendation H.264 (2013) subsection 7.3.2.2.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>nalData</code> - A buffer containing escaped PPS data.</dd>
+<dd><code>nalOffset</code> - The offset of the NAL unit payload in <code>nalData</code>.</dd>
 <dd><code>nalLimit</code> - The limit of the NAL unit in <code>nalData</code>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A parsed representation of the PPS data.</dd>

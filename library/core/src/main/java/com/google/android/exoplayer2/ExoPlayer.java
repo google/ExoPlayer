@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
@@ -59,6 +60,7 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import com.google.common.base.Supplier;
 import java.util.List;
 
 /**
@@ -363,15 +365,15 @@ public interface ExoPlayer extends Player {
   final class Builder {
 
     /* package */ final Context context;
-    /* package */ final RenderersFactory renderersFactory;
 
     /* package */ Clock clock;
     /* package */ long foregroundModeTimeoutMs;
-    /* package */ TrackSelector trackSelector;
-    /* package */ MediaSourceFactory mediaSourceFactory;
-    /* package */ LoadControl loadControl;
-    /* package */ BandwidthMeter bandwidthMeter;
-    /* package */ AnalyticsCollector analyticsCollector;
+    /* package */ Supplier<RenderersFactory> renderersFactorySupplier;
+    /* package */ Supplier<MediaSourceFactory> mediaSourceFactorySupplier;
+    /* package */ Supplier<TrackSelector> trackSelectorSupplier;
+    /* package */ Supplier<LoadControl> loadControlSupplier;
+    /* package */ Supplier<BandwidthMeter> bandwidthMeterSupplier;
+    /* package */ Supplier<AnalyticsCollector> analyticsCollectorSupplier;
     /* package */ Looper looper;
     @Nullable /* package */ PriorityTaskManager priorityTaskManager;
     /* package */ AudioAttributes audioAttributes;
@@ -395,10 +397,11 @@ public interface ExoPlayer extends Player {
      * Creates a builder.
      *
      * <p>Use {@link #Builder(Context, RenderersFactory)}, {@link #Builder(Context,
-     * RenderersFactory)} or {@link #Builder(Context, RenderersFactory, ExtractorsFactory)} instead,
-     * if you intend to provide a custom {@link RenderersFactory} or a custom {@link
-     * ExtractorsFactory}. This is to ensure that ProGuard or R8 can remove ExoPlayer's {@link
-     * DefaultRenderersFactory} and {@link DefaultExtractorsFactory} from the APK.
+     * MediaSourceFactory)} or {@link #Builder(Context, RenderersFactory, MediaSourceFactory)}
+     * instead, if you intend to provide a custom {@link RenderersFactory}, {@link
+     * ExtractorsFactory} or {@link DefaultMediaSourceFactory}. This is to ensure that ProGuard or
+     * R8 can remove ExoPlayer's {@link DefaultRenderersFactory}, {@link DefaultExtractorsFactory}
+     * and {@link DefaultMediaSourceFactory} from the APK.
      *
      * <p>The builder uses the following default values:
      *
@@ -434,7 +437,10 @@ public interface ExoPlayer extends Player {
      * @param context A {@link Context}.
      */
     public Builder(Context context) {
-      this(context, new DefaultRenderersFactory(context), new DefaultExtractorsFactory());
+      this(
+          context,
+          () -> new DefaultRenderersFactory(context),
+          () -> new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
     }
 
     /**
@@ -442,48 +448,55 @@ public interface ExoPlayer extends Player {
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
      *
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+     * DefaultRenderersFactory} can be removed by ProGuard or R8.
+     *
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
      *     player.
      */
     public Builder(Context context, RenderersFactory renderersFactory) {
-      this(context, renderersFactory, new DefaultExtractorsFactory());
+      this(
+          context,
+          () -> renderersFactory,
+          () -> new DefaultMediaSourceFactory(context, new DefaultExtractorsFactory()));
     }
 
     /**
-     * Creates a builder with a custom {@link ExtractorsFactory}.
+     * Creates a builder with a custom {@link MediaSourceFactory}.
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+     * DefaultMediaSourceFactory} (and therefore {@link DefaultExtractorsFactory}) can be removed by
+     * ProGuard or R8.
      *
      * @param context A {@link Context}.
-     * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
-     *     its container.
+     * @param mediaSourceFactory A factory for creating a {@link MediaSource} from a {@link
+     *     MediaItem}.
      */
-    public Builder(Context context, ExtractorsFactory extractorsFactory) {
-      this(context, new DefaultRenderersFactory(context), extractorsFactory);
+    public Builder(Context context, MediaSourceFactory mediaSourceFactory) {
+      this(context, () -> new DefaultRenderersFactory(context), () -> mediaSourceFactory);
     }
 
     /**
-     * Creates a builder with a custom {@link RenderersFactory} and {@link ExtractorsFactory}.
+     * Creates a builder with a custom {@link RenderersFactory} and {@link MediaSourceFactory}.
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's {@link
+     * DefaultRenderersFactory}, {@link DefaultMediaSourceFactory} (and therefore {@link
+     * DefaultExtractorsFactory}) can be removed by ProGuard or R8.
      *
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
      *     player.
-     * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
-     *     its container.
+     * @param mediaSourceFactory A factory for creating a {@link MediaSource} from a {@link
+     *     MediaItem}.
      */
     public Builder(
-        Context context, RenderersFactory renderersFactory, ExtractorsFactory extractorsFactory) {
-      this(
-          context,
-          renderersFactory,
-          new DefaultTrackSelector(context),
-          new DefaultMediaSourceFactory(context, extractorsFactory),
-          new DefaultLoadControl(),
-          DefaultBandwidthMeter.getSingletonInstance(context),
-          new AnalyticsCollector(Clock.DEFAULT));
+        Context context, RenderersFactory renderersFactory, MediaSourceFactory mediaSourceFactory) {
+      this(context, () -> renderersFactory, () -> mediaSourceFactory);
     }
 
     /**
@@ -495,8 +508,8 @@ public interface ExoPlayer extends Player {
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
      *     player.
-     * @param trackSelector A {@link TrackSelector}.
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
+     * @param trackSelector A {@link TrackSelector}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
      * @param analyticsCollector An {@link AnalyticsCollector}.
@@ -504,18 +517,53 @@ public interface ExoPlayer extends Player {
     public Builder(
         Context context,
         RenderersFactory renderersFactory,
-        TrackSelector trackSelector,
         MediaSourceFactory mediaSourceFactory,
+        TrackSelector trackSelector,
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         AnalyticsCollector analyticsCollector) {
+      this(
+          context,
+          () -> renderersFactory,
+          () -> mediaSourceFactory,
+          () -> trackSelector,
+          () -> loadControl,
+          () -> bandwidthMeter,
+          () -> analyticsCollector);
+    }
+
+    private Builder(
+        Context context,
+        Supplier<RenderersFactory> renderersFactorySupplier,
+        Supplier<MediaSourceFactory> mediaSourceFactorySupplier) {
+      this(
+          context,
+          renderersFactorySupplier,
+          mediaSourceFactorySupplier,
+          () -> new DefaultTrackSelector(context),
+          DefaultLoadControl::new,
+          () -> DefaultBandwidthMeter.getSingletonInstance(context),
+          /* analyticsCollectorSupplier= */ null);
+    }
+
+    private Builder(
+        Context context,
+        Supplier<RenderersFactory> renderersFactorySupplier,
+        Supplier<MediaSourceFactory> mediaSourceFactorySupplier,
+        Supplier<TrackSelector> trackSelectorSupplier,
+        Supplier<LoadControl> loadControlSupplier,
+        Supplier<BandwidthMeter> bandwidthMeterSupplier,
+        @Nullable Supplier<AnalyticsCollector> analyticsCollectorSupplier) {
       this.context = context;
-      this.renderersFactory = renderersFactory;
-      this.trackSelector = trackSelector;
-      this.mediaSourceFactory = mediaSourceFactory;
-      this.loadControl = loadControl;
-      this.bandwidthMeter = bandwidthMeter;
-      this.analyticsCollector = analyticsCollector;
+      this.renderersFactorySupplier = renderersFactorySupplier;
+      this.mediaSourceFactorySupplier = mediaSourceFactorySupplier;
+      this.trackSelectorSupplier = trackSelectorSupplier;
+      this.loadControlSupplier = loadControlSupplier;
+      this.bandwidthMeterSupplier = bandwidthMeterSupplier;
+      this.analyticsCollectorSupplier =
+          analyticsCollectorSupplier != null
+              ? analyticsCollectorSupplier
+              : () -> new AnalyticsCollector(checkNotNull(clock));
       looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
@@ -547,15 +595,15 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Sets the {@link TrackSelector} that will be used by the player.
+     * Sets the {@link RenderersFactory} that will be used by the player.
      *
-     * @param trackSelector A {@link TrackSelector}.
+     * @param renderersFactory A {@link RenderersFactory}.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
-    public Builder setTrackSelector(TrackSelector trackSelector) {
+    public Builder setRenderersFactory(RenderersFactory renderersFactory) {
       checkState(!buildCalled);
-      this.trackSelector = trackSelector;
+      this.renderersFactorySupplier = () -> renderersFactory;
       return this;
     }
 
@@ -568,7 +616,20 @@ public interface ExoPlayer extends Player {
      */
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
       checkState(!buildCalled);
-      this.mediaSourceFactory = mediaSourceFactory;
+      this.mediaSourceFactorySupplier = () -> mediaSourceFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link TrackSelector} that will be used by the player.
+     *
+     * @param trackSelector A {@link TrackSelector}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setTrackSelector(TrackSelector trackSelector) {
+      checkState(!buildCalled);
+      this.trackSelectorSupplier = () -> trackSelector;
       return this;
     }
 
@@ -581,7 +642,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setLoadControl(LoadControl loadControl) {
       checkState(!buildCalled);
-      this.loadControl = loadControl;
+      this.loadControlSupplier = () -> loadControl;
       return this;
     }
 
@@ -594,7 +655,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       checkState(!buildCalled);
-      this.bandwidthMeter = bandwidthMeter;
+      this.bandwidthMeterSupplier = () -> bandwidthMeter;
       return this;
     }
 
@@ -621,7 +682,7 @@ public interface ExoPlayer extends Player {
      */
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       checkState(!buildCalled);
-      this.analyticsCollector = analyticsCollector;
+      this.analyticsCollectorSupplier = () -> analyticsCollector;
       return this;
     }
 
@@ -1065,7 +1126,7 @@ public interface ExoPlayer extends Player {
    * @param mediaSources The new {@link MediaSource MediaSources}.
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
-   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   *     by {@link #getCurrentMediaItemIndex()} and {@link #getCurrentPosition()}.
    */
   void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition);
 
@@ -1073,14 +1134,15 @@ public interface ExoPlayer extends Player {
    * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
    *
    * @param mediaSources The new {@link MediaSource MediaSources}.
-   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
-   *     passed, the current position is not reset.
+   * @param startMediaItemIndex The media item index to start playback from. If {@link
+   *     C#INDEX_UNSET} is passed, the current position is not reset.
    * @param startPositionMs The position in milliseconds to start playback from. If {@link
-   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
-   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
-   *     position is not reset at all.
+   *     C#TIME_UNSET} is passed, the default position of the given media item is used. In any case,
+   *     if {@code startMediaItemIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored
+   *     and the position is not reset at all.
    */
-  void setMediaSources(List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs);
+  void setMediaSources(
+      List<MediaSource> mediaSources, int startMediaItemIndex, long startPositionMs);
 
   /**
    * Clears the playlist, adds the specified {@link MediaSource} and resets the position to the
@@ -1103,7 +1165,7 @@ public interface ExoPlayer extends Player {
    *
    * @param mediaSource The new {@link MediaSource}.
    * @param resetPosition Whether the playback position should be reset to the default position. If
-   *     false, playback will start from the position defined by {@link #getCurrentWindowIndex()}
+   *     false, playback will start from the position defined by {@link #getCurrentMediaItemIndex()}
    *     and {@link #getCurrentPosition()}.
    */
   void setMediaSource(MediaSource mediaSource, boolean resetPosition);
@@ -1270,9 +1332,9 @@ public interface ExoPlayer extends Player {
    * will be delivered immediately without blocking on the playback thread. The default {@link
    * PlayerMessage#getType()} is 0 and the default {@link PlayerMessage#getPayload()} is null. If a
    * position is specified with {@link PlayerMessage#setPosition(long)}, the message will be
-   * delivered at this position in the current window defined by {@link #getCurrentWindowIndex()}.
-   * Alternatively, the message can be sent at a specific window using {@link
-   * PlayerMessage#setPosition(int, long)}.
+   * delivered at this position in the current media item defined by {@link
+   * #getCurrentMediaItemIndex()}. Alternatively, the message can be sent at a specific mediaItem
+   * using {@link PlayerMessage#setPosition(int, long)}.
    */
   PlayerMessage createMessage(PlayerMessage.Target target);
 

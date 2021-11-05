@@ -46,7 +46,6 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
-import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -209,10 +208,8 @@ public final class Transformer {
     }
 
     /**
-     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. The
-     * output MIME type should be supported by the {@link
-     * Muxer.Factory#supportsOutputMimeType(String) muxer}. Values supported by the default {@link
-     * FrameworkMuxer} are:
+     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. Supported
+     * values are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_MP4}
@@ -301,7 +298,13 @@ public final class Transformer {
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
       Transformation transformation =
-          new Transformation(removeAudio, removeVideo, flattenForSlowMotion, outputMimeType);
+          new Transformation(
+              removeAudio,
+              removeVideo,
+              flattenForSlowMotion,
+              outputMimeType,
+              /* audioMimeType= */ null,
+              /* videoMimeType= */ null);
       return new Transformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
     }
@@ -464,7 +467,8 @@ public final class Transformer {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
 
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer);
+    MuxerWrapper muxerWrapper =
+        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
@@ -491,7 +495,7 @@ public final class Transformer {
             .setClock(clock)
             .build();
     player.setMediaItem(mediaItem);
-    player.addAnalyticsListener(new TransformerAnalyticsListener(mediaItem, muxerWrapper));
+    player.addListener(new TransformerPlayerListener(mediaItem, muxerWrapper));
     player.prepare();
 
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
@@ -601,30 +605,30 @@ public final class Transformer {
     }
   }
 
-  private final class TransformerAnalyticsListener implements AnalyticsListener {
+  private final class TransformerPlayerListener implements Player.Listener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
 
-    public TransformerAnalyticsListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
+    public TransformerPlayerListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
       this.mediaItem = mediaItem;
       this.muxerWrapper = muxerWrapper;
     }
 
     @Override
-    public void onPlaybackStateChanged(EventTime eventTime, int state) {
+    public void onPlaybackStateChanged(int state) {
       if (state == Player.STATE_ENDED) {
         handleTransformationEnded(/* exception= */ null);
       }
     }
 
     @Override
-    public void onTimelineChanged(EventTime eventTime, int reason) {
+    public void onTimelineChanged(Timeline timeline, int reason) {
       if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
         return;
       }
       Timeline.Window window = new Timeline.Window();
-      eventTime.timeline.getWindow(/* windowIndex= */ 0, window);
+      timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
         long durationUs = window.durationUs;
         // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
@@ -639,7 +643,7 @@ public final class Transformer {
     }
 
     @Override
-    public void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
       if (muxerWrapper.getTrackCount() == 0) {
         handleTransformationEnded(
             new IllegalStateException(
@@ -649,7 +653,7 @@ public final class Transformer {
     }
 
     @Override
-    public void onPlayerError(EventTime eventTime, PlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       handleTransformationEnded(error);
     }
 

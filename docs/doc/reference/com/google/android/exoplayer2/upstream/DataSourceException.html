@@ -189,7 +189,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.PlaybackException.ErrorCode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reason">reason</a></span></code></th>
 <td class="colLast">
 <div class="block">The reason of this <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a>, should be one of the <code>ERROR_CODE_IO_*</code> in
@@ -214,29 +214,29 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int)">DataSourceException</a></span>&#8203;(int&nbsp;reason)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">DataSourceException</a></span>&#8203;(@com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Constructs a DataSourceException.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,int)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
-                   int&nbsp;reason)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                   @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Constructs a DataSourceException.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,int)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                    <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                   int&nbsp;reason)</code></th>
+                   @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Constructs a DataSourceException.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Throwable,int)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                   int&nbsp;reason)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">DataSourceException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                   @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Constructs a DataSourceException.</div>
 </td>
@@ -325,7 +325,7 @@ public static final&nbsp;int POSITION_OUT_OF_RANGE</pre>
 <li class="blockList">
 <h4>reason</h4>
 <pre><a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-public final&nbsp;int reason</pre>
+public final&nbsp;@com.google.android.exoplayer2.PlaybackException.ErrorCode int reason</pre>
 <div class="block">The reason of this <a href="DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a>, should be one of the <code>ERROR_CODE_IO_*</code> in
  <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</div>
 </li>
@@ -340,14 +340,14 @@ public final&nbsp;int reason</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int)">
+<a id="&lt;init&gt;(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSourceException</h4>
 <pre>public&nbsp;DataSourceException&#8203;(<a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                           int&nbsp;reason)</pre>
+                           @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</pre>
 <div class="block">Constructs a DataSourceException.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -355,7 +355,7 @@ public final&nbsp;int reason</pre>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.Throwable,int)">
+<a id="&lt;init&gt;(java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -364,7 +364,7 @@ public final&nbsp;int reason</pre>
 <pre>public&nbsp;DataSourceException&#8203;(@Nullable
                            <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                            <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                           int&nbsp;reason)</pre>
+                           @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</pre>
 <div class="block">Constructs a DataSourceException.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -373,7 +373,7 @@ public final&nbsp;int reason</pre>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,int)">
+<a id="&lt;init&gt;(java.lang.String,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -382,7 +382,7 @@ public final&nbsp;int reason</pre>
 <pre>public&nbsp;DataSourceException&#8203;(@Nullable
                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                            <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                           int&nbsp;reason)</pre>
+                           @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</pre>
 <div class="block">Constructs a DataSourceException.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -391,7 +391,7 @@ public final&nbsp;int reason</pre>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,int)">
+<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -402,7 +402,7 @@ public final&nbsp;int reason</pre>
                            @Nullable
                            <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                            <a href="../PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                           int&nbsp;reason)</pre>
+                           @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;reason)</pre>
 <div class="block">Constructs a DataSourceException.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

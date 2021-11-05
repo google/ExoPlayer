@@ -37,8 +37,10 @@ android {
 dependencies {
     api project(modulePrefix + 'library-common')
     // TODO(b/203754886): Revisit which modules are exported as API dependencies.
+    api project(modulePrefix + 'library-datasource')
     api project(modulePrefix + 'library-decoder')
     api project(modulePrefix + 'library-extractor')
+    api project(modulePrefix + 'library-database')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'androidx.core:core:' + androidxCoreVersion
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version

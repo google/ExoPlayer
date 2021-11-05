@@ -184,6 +184,13 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></h3>
 <code><a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a></code></li>
 </ul>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelection">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></h3>
+<code><a href="TrackSelection.Type.html" title="annotation in com.google.android.exoplayer2.trackselection">TrackSelection.Type</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -214,6 +221,16 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS">DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_HEIGHT_TO_DISCARD">DEFAULT_MAX_HEIGHT_TO_DISCARD</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_WIDTH_TO_DISCARD">DEFAULT_MAX_WIDTH_TO_DISCARD</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -260,13 +277,15 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int%5B%5D,int,com.google.android.exoplayer2.upstream.BandwidthMeter,long,long,long,float,float,java.util.List,com.google.android.exoplayer2.util.Clock)">AdaptiveTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int%5B%5D,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,com.google.android.exoplayer2.upstream.BandwidthMeter,long,long,long,int,int,float,float,java.util.List,com.google.android.exoplayer2.util.Clock)">AdaptiveTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                       int[]&nbsp;tracks,
-                      int&nbsp;type,
+                      @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                       <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                       long&nbsp;minDurationForQualityIncreaseMs,
                       long&nbsp;maxDurationForQualityDecreaseMs,
                       long&nbsp;minDurationToRetainAfterDiscardMs,
+                      int&nbsp;maxWidthToDiscard,
+                      int&nbsp;maxHeightToDiscard,
                       float&nbsp;bandwidthFraction,
                       float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptiveTrackSelection.AdaptationCheckpoint.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">AdaptiveTrackSelection.AdaptationCheckpoint</a>&gt;&nbsp;adaptationCheckpoints,
@@ -462,6 +481,32 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </dl>
 </li>
 </ul>
+<a id="DEFAULT_MAX_WIDTH_TO_DISCARD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_MAX_WIDTH_TO_DISCARD</h4>
+<pre>public static final&nbsp;int DEFAULT_MAX_WIDTH_TO_DISCARD</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="DEFAULT_MAX_HEIGHT_TO_DISCARD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_MAX_HEIGHT_TO_DISCARD</h4>
+<pre>public static final&nbsp;int DEFAULT_MAX_HEIGHT_TO_DISCARD</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="DEFAULT_BANDWIDTH_FRACTION">
 <!--   -->
 </a>
@@ -516,7 +561,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int[],int,com.google.android.exoplayer2.upstream.BandwidthMeter,long,long,long,float,float,java.util.List,com.google.android.exoplayer2.util.Clock)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int[],@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,com.google.android.exoplayer2.upstream.BandwidthMeter,long,long,long,int,int,float,float,java.util.List,com.google.android.exoplayer2.util.Clock)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -524,11 +569,13 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h4>AdaptiveTrackSelection</h4>
 <pre>protected&nbsp;AdaptiveTrackSelection&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                                  int[]&nbsp;tracks,
-                                 int&nbsp;type,
+                                 @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                                  <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                                  long&nbsp;minDurationForQualityIncreaseMs,
                                  long&nbsp;maxDurationForQualityDecreaseMs,
                                  long&nbsp;minDurationToRetainAfterDiscardMs,
+                                 int&nbsp;maxWidthToDiscard,
+                                 int&nbsp;maxHeightToDiscard,
                                  float&nbsp;bandwidthFraction,
                                  float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptiveTrackSelection.AdaptationCheckpoint.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">AdaptiveTrackSelection.AdaptationCheckpoint</a>&gt;&nbsp;adaptationCheckpoints,
@@ -544,10 +591,14 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
      selected track to switch to one of higher quality.</dd>
 <dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
      selected track to switch to one of lower quality.</dd>
-<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a track of significantly higher
-     quality, the selection may indicate that media already buffered at the lower quality can be
-     discarded to speed up the switch. This is the minimum duration of media that must be
-     retained at the lower quality. It must be at least <code>minDurationForQualityIncreaseMs</code>.</dd>
+<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a video track of higher quality, the
+     selection may indicate that media already buffered at the lower quality can be discarded to
+     speed up the switch. This is the minimum duration of media that must be retained at the
+     lower quality. It must be at least <code>minDurationForQualityIncreaseMs</code>.</dd>
+<dd><code>maxWidthToDiscard</code> - The maximum video width that the selector may discard from the buffer
+     to speed up switching to a higher quality.</dd>
+<dd><code>maxHeightToDiscard</code> - The maximum video height that the selector may discard from the
+     buffer to speed up switching to a higher quality.</dd>
 <dd><code>bandwidthFraction</code> - The fraction of the available bandwidth that the selection should
      consider available for use. Setting to a value less than 1 is recommended to account for
      inaccuracies in the bandwidth estimator.</dd>

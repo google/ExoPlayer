@@ -25,7 +25,6 @@ Use of the Transformer module is documented in the
 
 ## Links
 
-*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.transformer.*` belong to this
-    module.
+*   [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

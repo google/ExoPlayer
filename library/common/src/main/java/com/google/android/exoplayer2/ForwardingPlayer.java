@@ -69,9 +69,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void setMediaItems(
-      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
-    player.setMediaItems(mediaItems, startWindowIndex, startPositionMs);
+  public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+    player.setMediaItems(mediaItems, startIndex, startPositionMs);
   }
 
   @Override
@@ -226,8 +225,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    player.seekToDefaultPosition(windowIndex);
+  public void seekToDefaultPosition(int mediaItemIndex) {
+    player.seekToDefaultPosition(mediaItemIndex);
   }
 
   @Override
@@ -236,8 +235,8 @@ public class ForwardingPlayer implements Player {
   }
 
   @Override
-  public void seekTo(int windowIndex, long positionMs) {
-    player.seekTo(windowIndex, positionMs);
+  public void seekTo(int mediaItemIndex, long positionMs) {
+    player.seekTo(mediaItemIndex, positionMs);
   }
 
   @Override

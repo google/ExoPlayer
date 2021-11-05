@@ -174,7 +174,7 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,int,boolean)">HlsMediaPeriod</a></span>&#8203;(<a href="HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint,boolean)">HlsMediaPeriod</a></span>&#8203;(<a href="HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
               <a href="playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker,
               <a href="HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
               <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
@@ -185,7 +185,7 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
               <a href="../../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
               <a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
               boolean&nbsp;allowChunklessPreparation,
-              int&nbsp;metadataType,
+              @com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType,
               boolean&nbsp;useSessionKeys)</code></th>
 <td class="colLast">
 <div class="block">Creates an HLS media period.</div>
@@ -384,7 +384,7 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,int,boolean)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.hls.HlsExtractorFactory,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker,com.google.android.exoplayer2.source.hls.HlsDataSourceFactory,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory,boolean,@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -402,8 +402,7 @@ implements <a href="../MediaPeriod.html" title="interface in com.google.android.
                       <a href="../../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                       <a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
                       boolean&nbsp;allowChunklessPreparation,
-                      <a href="HlsMediaSource.MetadataType.html" title="annotation in com.google.android.exoplayer2.source.hls">@MetadataType</a>
-                      int&nbsp;metadataType,
+                      @com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType,
                       boolean&nbsp;useSessionKeys)</pre>
 <div class="block">Creates an HLS media period.</div>
 <dl>

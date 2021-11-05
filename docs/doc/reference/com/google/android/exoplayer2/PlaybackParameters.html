@@ -382,7 +382,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PlaybackParameters</h4>
-<pre>public&nbsp;PlaybackParameters&#8203;(float&nbsp;speed,
+<pre>public&nbsp;PlaybackParameters&#8203;(@FloatRange(from=0.0,fromInclusive=false)
+                          float&nbsp;speed,
+                          @FloatRange(from=0.0,fromInclusive=false)
                           float&nbsp;pitch)</pre>
 <div class="block">Creates new playback parameters that set the playback speed/pitch.</div>
 <dl>
@@ -428,11 +430,12 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>withSpeed</h4>
 <pre class="methodSignature">@CheckResult
-public&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;withSpeed&#8203;(float&nbsp;speed)</pre>
+public&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;withSpeed&#8203;(@FloatRange(from=0.0,fromInclusive=false)
+                                    float&nbsp;speed)</pre>
 <div class="block">Returns a copy with the given speed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>speed</code> - The new speed.</dd>
+<dd><code>speed</code> - The new speed. Must be greater than zero.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The copied playback parameters.</dd>
 </dl>

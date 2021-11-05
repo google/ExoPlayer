@@ -128,8 +128,8 @@ public final class Format implements Bundleable {
     @Nullable private String id;
     @Nullable private String label;
     @Nullable private String language;
-    @C.SelectionFlags private int selectionFlags;
-    @C.RoleFlags private int roleFlags;
+    private @C.SelectionFlags int selectionFlags;
+    private @C.RoleFlags int roleFlags;
     private int averageBitrate;
     private int peakBitrate;
     @Nullable private String codecs;
@@ -620,9 +620,9 @@ public final class Format implements Bundleable {
   /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
   @Nullable public final String language;
   /** Track selection flags. */
-  @C.SelectionFlags public final int selectionFlags;
+  public final @C.SelectionFlags int selectionFlags;
   /** Track role flags. */
-  @C.RoleFlags public final int roleFlags;
+  public final @C.RoleFlags int roleFlags;
   /**
    * The average bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. The
    * way in which this field is populated depends on the type of media to which the format

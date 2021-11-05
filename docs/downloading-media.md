@@ -63,7 +63,7 @@ which can be returned by `getDownloadManager()` in your `DownloadService`:
 
 ~~~
 // Note: This should be a singleton in your app.
-databaseProvider = new ExoDatabaseProvider(context);
+databaseProvider = new StandaloneDatabaseProvider(context);
 
 // A download cache should not evict media, so should use a NoopCacheEvictor.
 downloadCache = new SimpleCache(

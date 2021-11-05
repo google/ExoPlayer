@@ -1235,8 +1235,8 @@ public final class MediaItem implements Bundleable {
       private Uri uri;
       @Nullable private String mimeType;
       @Nullable private String language;
-      @C.SelectionFlags private int selectionFlags;
-      @C.RoleFlags private int roleFlags;
+      private @C.SelectionFlags int selectionFlags;
+      private @C.RoleFlags int roleFlags;
       @Nullable private String label;
 
       /**
@@ -1310,9 +1310,9 @@ public final class MediaItem implements Bundleable {
     /** The language. */
     @Nullable public final String language;
     /** The selection flags. */
-    @C.SelectionFlags public final int selectionFlags;
+    public final @C.SelectionFlags int selectionFlags;
     /** The role flags. */
-    @C.RoleFlags public final int roleFlags;
+    public final @C.RoleFlags int roleFlags;
     /** The label. */
     @Nullable public final String label;
 

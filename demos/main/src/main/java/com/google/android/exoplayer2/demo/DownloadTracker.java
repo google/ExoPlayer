@@ -23,7 +23,6 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentManager;
@@ -142,9 +141,7 @@ public class DownloadTracker {
 
     @Override
     public void onDownloadChanged(
-        @NonNull DownloadManager downloadManager,
-        @NonNull Download download,
-        @Nullable Exception finalException) {
+        DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
       downloads.put(download.request.uri, download);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
@@ -152,8 +149,7 @@ public class DownloadTracker {
     }
 
     @Override
-    public void onDownloadRemoved(
-        @NonNull DownloadManager downloadManager, @NonNull Download download) {
+    public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
       downloads.remove(download.request.uri);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
@@ -196,7 +192,7 @@ public class DownloadTracker {
     // DownloadHelper.Callback implementation.
 
     @Override
-    public void onPrepared(@NonNull DownloadHelper helper) {
+    public void onPrepared(DownloadHelper helper) {
       @Nullable Format format = getFirstFormatWithDrmInitData(helper);
       if (format == null) {
         onDownloadPrepared(helper);
@@ -231,7 +227,7 @@ public class DownloadTracker {
     }
 
     @Override
-    public void onPrepareError(@NonNull DownloadHelper helper, @NonNull IOException e) {
+    public void onPrepareError(DownloadHelper helper, IOException e) {
       boolean isLiveContent = e instanceof LiveContentUnsupportedException;
       int toastStringId =
           isLiveContent ? R.string.download_live_unsupported : R.string.download_start_error;

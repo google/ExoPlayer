@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
   protected final Transformation transformation;
 
   protected boolean isRendererStarted;
+  protected long streamOffsetUs;
 
   public TransformerBaseRenderer(
       int trackType,
@@ -47,12 +48,26 @@ import com.google.android.exoplayer2.util.MimeTypes;
   }
 
   @Override
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
+    this.streamOffsetUs = offsetUs;
+  }
+
+  @Override
   @C.FormatSupport
   public final int supportsFormat(Format format) {
     @Nullable String sampleMimeType = format.sampleMimeType;
     if (MimeTypes.getTrackType(sampleMimeType) != getTrackType()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
-    } else if (muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
+    } else if ((MimeTypes.isAudio(sampleMimeType)
+            && muxerWrapper.supportsSampleMimeType(
+                transformation.audioMimeType == null
+                    ? sampleMimeType
+                    : transformation.audioMimeType))
+        || (MimeTypes.isVideo(sampleMimeType)
+            && muxerWrapper.supportsSampleMimeType(
+                transformation.videoMimeType == null
+                    ? sampleMimeType
+                    : transformation.videoMimeType))) {
       return RendererCapabilities.create(C.FORMAT_HANDLED);
     } else {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);

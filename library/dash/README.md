@@ -36,9 +36,8 @@ instances and pass them directly to the player. For advanced download use cases,
 
 ## Links
 
-* [Developer Guide][].
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.source.dash.*`
-  belong to this module.
+* [Developer Guide][]
+* [Javadoc][]
 
 [Developer Guide]: https://exoplayer.dev/dash.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

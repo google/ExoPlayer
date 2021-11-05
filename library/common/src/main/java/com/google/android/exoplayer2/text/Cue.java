@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2.text;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -32,6 +38,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Contains information about a specific cue, including textual content and formatting data. */
@@ -53,6 +60,7 @@ public final class Cue implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TYPE_UNSET, ANCHOR_TYPE_START, ANCHOR_TYPE_MIDDLE, ANCHOR_TYPE_END})
   public @interface AnchorType {}
 
@@ -80,6 +88,7 @@ public final class Cue implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TYPE_UNSET, LINE_TYPE_FRACTION, LINE_TYPE_NUMBER})
   public @interface LineType {}
 
@@ -96,6 +105,7 @@ public final class Cue implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     TYPE_UNSET,
     TEXT_SIZE_TYPE_FRACTIONAL,
@@ -119,6 +129,7 @@ public final class Cue implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     TYPE_UNSET,
     VERTICAL_TYPE_RL,
@@ -545,16 +556,16 @@ public final class Cue implements Bundleable {
     @Nullable private Alignment multiRowAlignment;
     private float line;
     @LineType private int lineType;
-    @AnchorType private int lineAnchor;
+    private @AnchorType int lineAnchor;
     private float position;
-    @AnchorType private int positionAnchor;
-    @TextSizeType private int textSizeType;
+    private @AnchorType int positionAnchor;
+    private @TextSizeType int textSizeType;
     private float textSize;
     private float size;
     private float bitmapHeight;
     private boolean windowColorSet;
     @ColorInt private int windowColor;
-    @VerticalType private int verticalType;
+    private @VerticalType int verticalType;
     private float shearDegrees;
 
     public Builder() {

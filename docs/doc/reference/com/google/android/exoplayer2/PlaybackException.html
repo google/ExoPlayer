@@ -471,7 +471,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.PlaybackException.ErrorCode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#errorCode">errorCode</a></span></code></th>
 <td class="colLast">
 <div class="block">An error code which identifies the cause of the playback failure.</div>
@@ -519,18 +519,18 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>&nbsp;</code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,int)">PlaybackException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">PlaybackException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                 int&nbsp;errorCode)</code></th>
+                 @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,int,long)">PlaybackException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint,long)">PlaybackException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                 int&nbsp;errorCode,
+                 @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode,
                  long&nbsp;timestampMs)</code></th>
 <td class="colLast">
 <div class="block">Creates a new instance using the given values.</div>
@@ -566,12 +566,12 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeName()">getErrorCodeName</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Equivalent to <a href="#getErrorCodeName(int)"><code>PlaybackException.getErrorCodeName(this.errorCode)</code></a>.</div>
+<div class="block">Equivalent to <a href="#getErrorCodeName(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)"><code>PlaybackException.getErrorCodeName(this.errorCode)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeName(int)">getErrorCodeName</a></span>&#8203;(int&nbsp;errorCode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeName(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">getErrorCodeName</a></span>&#8203;(@com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
 <div class="block">Returns the name of a given <code>errorCode</code>.</div>
 </td>
@@ -1148,7 +1148,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>errorCode</h4>
 <pre><a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-public final&nbsp;int errorCode</pre>
+public final&nbsp;@com.google.android.exoplayer2.PlaybackException.ErrorCode int errorCode</pre>
 <div class="block">An error code which identifies the cause of the playback failure.</div>
 </li>
 </ul>
@@ -1200,7 +1200,7 @@ public final&nbsp;int errorCode</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,int)">
+<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1211,7 +1211,7 @@ public final&nbsp;int errorCode</pre>
                          @Nullable
                          <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                          <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                         int&nbsp;errorCode)</pre>
+                         @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</pre>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1231,7 +1231,7 @@ public final&nbsp;int errorCode</pre>
 <div class="block">Creates a new instance using the fields obtained from the given <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,int,long)">
+<a id="&lt;init&gt;(java.lang.String,java.lang.Throwable,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -1242,7 +1242,7 @@ public final&nbsp;int errorCode</pre>
                             @Nullable
                             <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                             <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
-                            int&nbsp;errorCode,
+                            @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode,
                             long&nbsp;timestampMs)</pre>
 <div class="block">Creates a new instance using the given values.</div>
 </li>
@@ -1257,14 +1257,14 @@ public final&nbsp;int errorCode</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getErrorCodeName(int)">
+<a id="getErrorCodeName(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getErrorCodeName</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getErrorCodeName&#8203;(<a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2" target="_top">@ErrorCode</a>
-                                      int&nbsp;errorCode)</pre>
+                                      @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</pre>
 <div class="block">Returns the name of a given <code>errorCode</code>.</div>
 </li>
 </ul>
@@ -1275,7 +1275,7 @@ public final&nbsp;int errorCode</pre>
 <li class="blockList">
 <h4>getErrorCodeName</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getErrorCodeName()</pre>
-<div class="block">Equivalent to <a href="#getErrorCodeName(int)"><code>PlaybackException.getErrorCodeName(this.errorCode)</code></a>.</div>
+<div class="block">Equivalent to <a href="#getErrorCodeName(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)"><code>PlaybackException.getErrorCodeName(this.errorCode)</code></a>.</div>
 </li>
 </ul>
 <a id="errorInfoEquals(com.google.android.exoplayer2.PlaybackException)">
