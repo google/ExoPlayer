@@ -950,12 +950,12 @@ public class PlayerControlView extends FrameLayout {
     int adGroupCount = 0;
     Timeline timeline = player.getCurrentTimeline();
     if (!timeline.isEmpty()) {
-      int currentWindowIndex = player.getCurrentWindowIndex();
+      int currentWindowIndex = player.getCurrentMediaItemIndex();
       int firstWindowIndex = multiWindowTimeBar ? 0 : currentWindowIndex;
       int lastWindowIndex = multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
       for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
         if (i == currentWindowIndex) {
-          currentWindowOffset = C.usToMs(durationUs);
+          currentWindowOffset = Util.usToMs(durationUs);
         }
         timeline.getWindow(i, window);
         if (window.durationUs == C.TIME_UNSET) {
@@ -982,7 +982,7 @@ public class PlayerControlView extends FrameLayout {
                 adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);
                 playedAdGroups = Arrays.copyOf(playedAdGroups, newLength);
               }
-              adGroupTimesMs[adGroupCount] = C.usToMs(durationUs + adGroupTimeInWindowUs);
+              adGroupTimesMs[adGroupCount] = Util.usToMs(durationUs + adGroupTimeInWindowUs);
               playedAdGroups[adGroupCount] = period.hasPlayedAdGroup(adGroupIndex);
               adGroupCount++;
             }
@@ -991,7 +991,7 @@ public class PlayerControlView extends FrameLayout {
         durationUs += window.durationUs;
       }
     }
-    long durationMs = C.usToMs(durationUs);
+    long durationMs = Util.usToMs(durationUs);
     if (durationView != null) {
       durationView.setText(Util.getStringForTime(formatBuilder, formatter, durationMs));
     }
@@ -1110,7 +1110,7 @@ public class PlayerControlView extends FrameLayout {
         windowIndex++;
       }
     } else {
-      windowIndex = player.getCurrentWindowIndex();
+      windowIndex = player.getCurrentMediaItemIndex();
     }
     seekTo(player, windowIndex, positionMs);
     updateProgress();
@@ -1228,7 +1228,7 @@ public class PlayerControlView extends FrameLayout {
     if (state == Player.STATE_IDLE) {
       player.prepare();
     } else if (state == Player.STATE_ENDED) {
-      seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+      seekTo(player, player.getCurrentMediaItemIndex(), C.TIME_UNSET);
     }
     player.play();
   }

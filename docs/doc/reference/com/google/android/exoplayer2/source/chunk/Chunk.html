@@ -215,7 +215,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionReason">trackSelectionReason</a></span></code></th>
 <td class="colLast">
-<div class="block">One of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>SELECTION_REASON_*</code> constants if the chunk belongs to a track.</div>
+<div class="block">One of the <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the chunk belongs to a track.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -377,10 +377,10 @@ public final&nbsp;int type</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>trackSelectionReason</h4>
-<pre>public final&nbsp;int trackSelectionReason</pre>
-<div class="block">One of the <a href="../../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>SELECTION_REASON_*</code> constants if the chunk belongs to a track.
- <a href="../../C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> if the chunk does not belong to a track, or if the selection
- reason is unknown.</div>
+<pre><a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
+public final&nbsp;int trackSelectionReason</pre>
+<div class="block">One of the <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the chunk belongs to a track. <a href="../../C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> if the chunk does not belong to a track, or if the selection reason
+ is unknown.</div>
 </li>
 </ul>
 <a id="trackSelectionData">
@@ -447,6 +447,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
              <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
              int&nbsp;type,
              <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+             <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
              int&nbsp;trackSelectionReason,
              @Nullable
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,

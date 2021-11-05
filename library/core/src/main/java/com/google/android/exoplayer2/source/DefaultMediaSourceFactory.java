@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -119,6 +120,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private final DataSource.Factory dataSourceFactory;
   private final DelegateFactoryLoader delegateFactoryLoader;
 
+  @Nullable private final MediaSourceFactory serverSideDaiMediaSourceFactory;
   @Nullable private AdsLoaderProvider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -146,7 +148,10 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     its container.
    */
   public DefaultMediaSourceFactory(Context context, ExtractorsFactory extractorsFactory) {
-    this(new DefaultDataSource.Factory(context), extractorsFactory);
+    this(
+        new DefaultDataSource.Factory(context),
+        extractorsFactory,
+        /* serverSideDaiMediaSourceFactory= */ null);
   }
 
   /**
@@ -156,7 +161,10 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     for requesting media data.
    */
   public DefaultMediaSourceFactory(DataSource.Factory dataSourceFactory) {
-    this(dataSourceFactory, new DefaultExtractorsFactory());
+    this(
+        dataSourceFactory,
+        new DefaultExtractorsFactory(),
+        /* serverSideDaiMediaSourceFactory= */ null);
   }
 
   /**
@@ -166,10 +174,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     for requesting media data.
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
    *     its container.
+   * @param serverSideDaiMediaSourceFactory A {@link MediaSourceFactory} for creating server side
+   *     inserted ad media sources.
    */
   public DefaultMediaSourceFactory(
-      DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
+      DataSource.Factory dataSourceFactory,
+      ExtractorsFactory extractorsFactory,
+      @Nullable MediaSourceFactory serverSideDaiMediaSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
+    // Temporary until factory registration is agreed upon.
+    this.serverSideDaiMediaSourceFactory = serverSideDaiMediaSourceFactory;
+
     delegateFactoryLoader = new DelegateFactoryLoader(dataSourceFactory, extractorsFactory);
     liveTargetOffsetMs = C.TIME_UNSET;
     liveMinOffsetMs = C.TIME_UNSET;
@@ -333,7 +348,11 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public MediaSource createMediaSource(MediaItem mediaItem) {
-    checkNotNull(mediaItem.localConfiguration);
+    Assertions.checkNotNull(mediaItem.localConfiguration);
+    @Nullable String scheme = mediaItem.localConfiguration.uri.getScheme();
+    if (scheme != null && scheme.equals("imadai")) {
+      return checkNotNull(serverSideDaiMediaSourceFactory).createMediaSource(mediaItem);
+    }
     @C.ContentType
     int type =
         Util.inferContentTypeForUriAndMimeType(

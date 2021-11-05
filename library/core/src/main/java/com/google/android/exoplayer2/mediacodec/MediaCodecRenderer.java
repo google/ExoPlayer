@@ -1240,7 +1240,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
       } catch (CryptoException e) {
         throw createRendererException(
-            e, inputFormat, C.getErrorCodeForMediaDrmErrorCode(e.getErrorCode()));
+            e, inputFormat, Util.getErrorCodeForMediaDrmErrorCode(e.getErrorCode()));
       }
       return false;
     }
@@ -1312,7 +1312,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     } catch (CryptoException e) {
       throw createRendererException(
-          e, inputFormat, C.getErrorCodeForMediaDrmErrorCode(e.getErrorCode()));
+          e, inputFormat, Util.getErrorCodeForMediaDrmErrorCode(e.getErrorCode()));
     }
 
     resetInputBuffer();

@@ -510,8 +510,8 @@ public class ChunkSampleStream<T extends ChunkSource>
             loadable.trackFormat,
             loadable.trackSelectionReason,
             loadable.trackSelectionData,
-            C.usToMs(loadable.startTimeUs),
-            C.usToMs(loadable.endTimeUs));
+            Util.usToMs(loadable.startTimeUs),
+            Util.usToMs(loadable.endTimeUs));
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
 

@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,6 +128,35 @@ import java.util.Set;
       this.adUiElements = adUiElements;
       this.companionAdSlots = companionAdSlots;
       this.applicationAdErrorListener = applicationAdErrorListener;
+      this.applicationAdEventListener = applicationAdEventListener;
+      this.applicationVideoAdPlayerCallback = applicationVideoAdPlayerCallback;
+      this.imaSdkSettings = imaSdkSettings;
+      this.debugModeEnabled = debugModeEnabled;
+    }
+  }
+
+  /** Stores configuration for DAI ad playback. */
+  static final class DaiConfiguration {
+
+    public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
+    public final boolean debugModeEnabled;
+
+    @Nullable public final List<CompanionAdSlot> companionAdSlots;
+    @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
+    @Nullable public final VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback;
+    @Nullable public final ImaSdkSettings imaSdkSettings;
+
+    public DaiConfiguration(
+        AdErrorEvent.AdErrorListener applicationAdErrorListener,
+        @Nullable List<CompanionAdSlot> companionAdSlots,
+        @Nullable AdEvent.AdEventListener applicationAdEventListener,
+        @Nullable VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback,
+        @Nullable ImaSdkSettings imaSdkSettings,
+        boolean debugModeEnabled) {
+
+      this.applicationAdErrorListener = applicationAdErrorListener;
+      this.companionAdSlots =
+          companionAdSlots != null ? ImmutableList.copyOf(companionAdSlots) : null;
       this.applicationAdEventListener = applicationAdEventListener;
       this.applicationVideoAdPlayerCallback = applicationVideoAdPlayerCallback;
       this.imaSdkSettings = imaSdkSettings;

@@ -25,9 +25,9 @@ import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import io.antmedia.rtmp_client.RtmpClient;
+import io.antmedia.rtmp_client.RtmpClient.RtmpIOException;
 import java.io.IOException;
-import net.butterflytv.rtmp_client.RtmpClient;
-import net.butterflytv.rtmp_client.RtmpClient.RtmpIOException;
 
 /** A Real-Time Messaging Protocol (RTMP) {@link DataSource}. */
 public final class RtmpDataSource extends BaseDataSource {

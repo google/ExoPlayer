@@ -81,36 +81,49 @@ an app that only needs to play mp4 files can provide a factory like:
 ExtractorsFactory mp4ExtractorFactory =
     () -> new Extractor[] {new Mp4Extractor()};
 ExoPlayer player =
-    new ExoPlayer.Builder(context, mp4ExtractorFactory).build();
+    new ExoPlayer.Builder(
+           context,
+           new DefaultMediaSourceFactory(context, mp4ExtractorFactory))
+        .build();
 ~~~
 {: .language-java}
 
 This will allow other `Extractor` implementations to be removed by code
 shrinking, which can result in a significant reduction in size.
 
-You should pass `ExtractorsFactory.EMPTY` to the `ExoPlayer.Builder`
-constructor, if your app is doing one of the following:
-
-* Not playing progressive media at all, for example because it only
-  plays DASH, HLS or SmoothStreaming content
-* Providing a customized `DefaultMediaSourceFactory`
-* Using `MediaSource`s directly instead of `MediaItem`s
+If your app is not playing progressive content at all, you should pass
+`ExtractorsFactory.EMPTY` to the `DefaultMediaSourceFactory` constructor, then
+pass that `mediaSourceFactory` to the `ExoPlayer.Builder` constructor.
 
 ~~~
-// Only playing DASH, HLS or SmoothStreaming.
 ExoPlayer player =
-    new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
+    new ExoPlayer.Builder(
+             context,
+             new DefaultMediaSourceFactory(context, ExtractorsFactory.EMPTY))
+         .build();
+~~~
+{: .language-java}
 
-// Providing a customized `DefaultMediaSourceFactory`
-ExoPlayer player =
-    new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY)
-        .setMediaSourceFactory(
-            new DefaultMediaSourceFactory(context, customExtractorsFactory))
-        .build();
+## Custom `MediaSource` instantiation ##
 
-// Using a MediaSource directly.
+If your app is using a custom `MediaSourceFactory` and you want
+`DefaultMediaSourceFactory` to be removed by code stripping, you should pass
+your `MediaSourceFactory` directly to the `ExoPlayer.Builder` constructor.
+
+~~~
 ExoPlayer player =
-    new ExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
+    new ExoPlayer.Builder(context, customMediaSourceFactory).build();
+~~~
+{: .language-java}
+
+If your app is using `MediaSource`s directly instead of `MediaItem`s you should
+pass `MediaSourceFactory.UNSUPPORTED` to the `ExoPlayer.Builder` constructor, to
+ensure `DefaultMediaSourceFactory` and `DefaultExtractorsFactory` can be
+stripped by code shrinking.
+
+~~~
+ExoPlayer player =
+    new ExoPlayer.Builder(context, MediaSourceFactory.UNSUPPORTED).build();
 ProgressiveMediaSource mediaSource =
     new ProgressiveMediaSource.Factory(
             dataSourceFactory, customExtractorsFactory)

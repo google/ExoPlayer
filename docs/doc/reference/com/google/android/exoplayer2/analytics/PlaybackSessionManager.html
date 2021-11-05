@@ -222,8 +222,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)">updateSessionsWithDiscontinuity</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                               int&nbsp;reason)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">updateSessionsWithDiscontinuity</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                               @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Updates or creates sessions based on a position discontinuity at <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
@@ -313,7 +313,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;updateSessions&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
 <div class="block">Updates or creates sessions based on a player <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
- <p>Call <a href="#updateSessionsWithTimelineChange(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)"><code>updateSessionsWithTimelineChange(EventTime)</code></a> or <a href="#updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)"><code>updateSessionsWithDiscontinuity(EventTime, int)</code></a> if the event is a <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change or
+ <p>Call <a href="#updateSessionsWithTimelineChange(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)"><code>updateSessionsWithTimelineChange(EventTime)</code></a> or <a href="#updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)"><code>updateSessionsWithDiscontinuity(EventTime, int)</code></a> if the event is a <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change or
  a position discontinuity respectively.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -338,7 +338,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)">
+<a id="updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -346,7 +346,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>updateSessionsWithDiscontinuity</h4>
 <pre class="methodSignature">void&nbsp;updateSessionsWithDiscontinuity&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                      <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
-                                     int&nbsp;reason)</pre>
+                                     @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</pre>
 <div class="block">Updates or creates sessions based on a position discontinuity at <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
  <p>Should be called instead of <a href="#updateSessions(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)"><code>updateSessions(EventTime)</code></a> if a position discontinuity

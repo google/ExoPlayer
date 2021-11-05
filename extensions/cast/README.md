@@ -3,7 +3,7 @@
 This module provides a [Player][] implementation that controls a Cast receiver
 app.
 
-[Player]: https://exoplayer.dev/doc/reference/index.html?com/google/android/exoplayer2/Player.html
+[Player]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Player.html
 
 ## Getting the module
 
@@ -30,7 +30,6 @@ UI module.
 
 ## Links
 
-*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.cast.*` belong to this
-    module.
+*   [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

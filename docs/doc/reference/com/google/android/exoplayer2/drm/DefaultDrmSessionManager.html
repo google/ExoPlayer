@@ -345,10 +345,10 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm" target="_top">ExoMediaCrypto</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getExoMediaCryptoType(com.google.android.exoplayer2.Format)">getExoMediaCryptoType</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.CryptoType int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoType(com.google.android.exoplayer2.Format)">getCryptoType</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type associated to sessions acquired for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+<div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the DRM session manager will use for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -765,26 +765,26 @@ public&nbsp;<a href="DrmSession.html" title="interface in com.google.android.exo
 </dl>
 </li>
 </ul>
-<a id="getExoMediaCryptoType(com.google.android.exoplayer2.Format)">
+<a id="getCryptoType(com.google.android.exoplayer2.Format)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getExoMediaCryptoType</h4>
-<pre class="methodSignature">@Nullable
-public&nbsp;<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;getExoMediaCryptoType&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&nbsp;format)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#getExoMediaCryptoType(com.google.android.exoplayer2.Format)">DrmSessionManager</a></code></span></div>
-<div class="block">Returns the <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type associated to sessions acquired for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns the <a href="UnsupportedMediaCrypto.html" title="class in com.google.android.exoplayer2.drm"><code>UnsupportedMediaCrypto</code></a> type if this DRM session manager does not
- support any of the DRM schemes defined in the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns null if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="DrmSessionManager.html#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>DrmSessionManager.acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> would return null for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
+<h4>getCryptoType</h4>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.C.CryptoType int&nbsp;getCryptoType&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#getCryptoType(com.google.android.exoplayer2.Format)">DrmSessionManager</a></code></span></div>
+<div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the DRM session manager will use for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_UNSUPPORTED"><code>C.CRYPTO_TYPE_UNSUPPORTED</code></a> if the manager does not support any of the
+ DRM schemes defined in the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="DrmSessionManager.html#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>DrmSessionManager.acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return <code>null</code> for the given
+ <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DrmSessionManager.html#getExoMediaCryptoType(com.google.android.exoplayer2.Format)">getExoMediaCryptoType</a></code>&nbsp;in interface&nbsp;<code><a href="DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a></code></dd>
+<dd><code><a href="DrmSessionManager.html#getCryptoType(com.google.android.exoplayer2.Format)">getCryptoType</a></code>&nbsp;in interface&nbsp;<code><a href="DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for which to return the <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type.</dd>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type associated to sessions acquired using the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, or <a href="UnsupportedMediaCrypto.html" title="class in com.google.android.exoplayer2.drm"><code>UnsupportedMediaCrypto</code></a> if this DRM session manager does not support any
-     of the DRM schemes defined in the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. May be null if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="DrmSessionManager.html#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>DrmSessionManager.acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> would return null for the given
-     <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
+<dd>The <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the manager will use, or @link C#CRYPTO_TYPE_UNSUPPORTED}
+     if the manager does not support any of the DRM schemes defined in the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Will
+     be <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="DrmSessionManager.html#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>DrmSessionManager.acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return null for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
 </dl>
 </li>
 </ul>

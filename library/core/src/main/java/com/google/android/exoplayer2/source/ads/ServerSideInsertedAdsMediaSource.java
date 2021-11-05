@@ -512,7 +512,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
     if (mediaPositionMs == C.TIME_UNSET) {
       return C.TIME_UNSET;
     }
-    long mediaPositionUs = C.msToUs(mediaPositionMs);
+    long mediaPositionUs = Util.msToUs(mediaPositionMs);
     MediaPeriodId id = mediaPeriod.mediaPeriodId;
     long correctedPositionUs =
         id.isAd()
@@ -522,7 +522,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
             // content pieces (beyond nextAdGroupIndex).
             : getMediaPeriodPositionUsForContent(
                 mediaPositionUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
-    return C.usToMs(correctedPositionUs);
+    return Util.usToMs(correctedPositionUs);
   }
 
   private static final class SharedMediaPeriod implements MediaPeriod.Callback {
@@ -591,7 +591,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
           MediaPeriodImpl mediaPeriod = mediaPeriods.get(i);
           long startTimeInPeriodUs =
               getMediaPeriodPositionUs(
-                  C.msToUs(mediaLoadData.mediaStartTimeMs),
+                  Util.msToUs(mediaLoadData.mediaStartTimeMs),
                   mediaPeriod.mediaPeriodId,
                   adPlaybackState);
           long mediaPeriodEndPositionUs = getMediaPeriodEndPositionUs(mediaPeriod, adPlaybackState);

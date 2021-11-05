@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -282,7 +283,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             C.SELECTION_REASON_UNKNOWN,
             /* trackSelectionData= */ null,
             /* mediaStartTimeMs= */ 0,
-            C.usToMs(durationUs));
+            Util.usToMs(durationUs));
     long retryDelay =
         loadErrorHandlingPolicy.getRetryDelayMsFor(
             new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount));

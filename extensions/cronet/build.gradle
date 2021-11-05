@@ -22,6 +22,7 @@ android {
 dependencies {
     api "com.google.android.gms:play-services-cronet:17.0.1"
     implementation project(modulePrefix + 'library-common')
+    implementation project(modulePrefix + 'library-datasource')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion

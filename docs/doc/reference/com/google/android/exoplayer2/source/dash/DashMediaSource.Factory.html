@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -147,6 +147,23 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.source.MediaSourceFactory">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></h3>
+<code><a href="../MediaSourceFactory.html#UNSUPPORTED">UNSUPPORTED</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -283,7 +300,8 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
                           boolean&nbsp;overridesManifest)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../MediaItem.Builder.html#setLiveTargetOffsetMs(long)"><code>MediaItem.Builder.setLiveTargetOffsetMs(long)</code></a> to override the
+<div class="deprecationComment">Use <a href="../../MediaItem.Builder.html#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>MediaItem.Builder.setLiveConfiguration(MediaItem.LiveConfiguration)</code></a>
+     and <a href="../../MediaItem.LiveConfiguration.Builder.html#setTargetOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setTargetOffsetMs(long)</code></a> to override the
      manifest, or <a href="#setFallbackTargetLiveOffsetMs(long)"><code>setFallbackTargetLiveOffsetMs(long)</code></a> to provide a fallback value.</div>
 </div>
 </td>
@@ -487,7 +505,7 @@ public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.an
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../../upstream/DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSourceFactory</code></a>.</dd>
+<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -553,7 +571,8 @@ public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.an
 public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setLivePresentationDelayMs&#8203;(long&nbsp;livePresentationDelayMs,
                                                           boolean&nbsp;overridesManifest)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../../MediaItem.Builder.html#setLiveTargetOffsetMs(long)"><code>MediaItem.Builder.setLiveTargetOffsetMs(long)</code></a> to override the
+<div class="deprecationComment">Use <a href="../../MediaItem.Builder.html#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>MediaItem.Builder.setLiveConfiguration(MediaItem.LiveConfiguration)</code></a>
+     and <a href="../../MediaItem.LiveConfiguration.Builder.html#setTargetOffsetMs(long)"><code>MediaItem.LiveConfiguration.Builder.setTargetOffsetMs(long)</code></a> to override the
      manifest, or <a href="#setFallbackTargetLiveOffsetMs(long)"><code>setFallbackTargetLiveOffsetMs(long)</code></a> to provide a fallback value.</div>
 </div>
 </li>
@@ -686,7 +705,7 @@ public&nbsp;<a href="DashMediaSource.html" title="class in com.google.android.ex
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The new <a href="DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink">NullPointerException</a></code> - if <a href="../../MediaItem.html#playbackProperties" target="_top"><code>MediaItem.playbackProperties</code></a> is <code>null</code>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink">NullPointerException</a></code> - if <a href="../../MediaItem.html#localConfiguration" target="_top"><code>MediaItem.localConfiguration</code></a> is <code>null</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -758,7 +777,7 @@ public&nbsp;<a href="DashMediaSource.html" title="class in com.google.android.ex
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

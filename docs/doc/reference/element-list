@@ -3,14 +3,12 @@ com.google.android.exoplayer2.analytics
 com.google.android.exoplayer2.audio
 com.google.android.exoplayer2.database
 com.google.android.exoplayer2.decoder
-com.google.android.exoplayer2.device
 com.google.android.exoplayer2.drm
 com.google.android.exoplayer2.ext.av1
 com.google.android.exoplayer2.ext.cast
 com.google.android.exoplayer2.ext.cronet
 com.google.android.exoplayer2.ext.ffmpeg
 com.google.android.exoplayer2.ext.flac
-com.google.android.exoplayer2.ext.gvr
 com.google.android.exoplayer2.ext.ima
 com.google.android.exoplayer2.ext.leanback
 com.google.android.exoplayer2.ext.media2

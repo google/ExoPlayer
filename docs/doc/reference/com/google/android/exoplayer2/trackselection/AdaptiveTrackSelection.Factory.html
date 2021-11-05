@@ -186,6 +186,30 @@ implements <a href="ExoTrackSelection.Factory.html" title="interface in com.goog
 <div class="block">Creates an adaptive track selection factory.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,int,int,float)">Factory</a></span>&#8203;(int&nbsp;minDurationForQualityIncreaseMs,
+       int&nbsp;maxDurationForQualityDecreaseMs,
+       int&nbsp;minDurationToRetainAfterDiscardMs,
+       int&nbsp;maxWidthToDiscard,
+       int&nbsp;maxHeightToDiscard,
+       float&nbsp;bandwidthFraction)</code></th>
+<td class="colLast">
+<div class="block">Creates an adaptive track selection factory.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,int,int,float,float,com.google.android.exoplayer2.util.Clock)">Factory</a></span>&#8203;(int&nbsp;minDurationForQualityIncreaseMs,
+       int&nbsp;maxDurationForQualityDecreaseMs,
+       int&nbsp;minDurationToRetainAfterDiscardMs,
+       int&nbsp;maxWidthToDiscard,
+       int&nbsp;maxHeightToDiscard,
+       float&nbsp;bandwidthFraction,
+       float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
+       <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code></th>
+<td class="colLast">
+<div class="block">Creates an adaptive track selection factory.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -276,11 +300,45 @@ implements <a href="ExoTrackSelection.Factory.html" title="interface in com.goog
      selected track to switch to one of higher quality.</dd>
 <dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
      selected track to switch to one of lower quality.</dd>
-<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a track of significantly higher
-     quality, the selection may indicate that media already buffered at the lower quality can
-     be discarded to speed up the switch. This is the minimum duration of media that must be
+<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a video track of higher quality,
+     the selection may indicate that media already buffered at the lower quality can be
+     discarded to speed up the switch. This is the minimum duration of media that must be
      retained at the lower quality. It must be at least <code>
      minDurationForQualityIncreaseMs</code>.</dd>
+<dd><code>bandwidthFraction</code> - The fraction of the available bandwidth that the selection should
+     consider available for use. Setting to a value less than 1 is recommended to account for
+     inaccuracies in the bandwidth estimator.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(int,int,int,int,int,float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Factory</h4>
+<pre>public&nbsp;Factory&#8203;(int&nbsp;minDurationForQualityIncreaseMs,
+               int&nbsp;maxDurationForQualityDecreaseMs,
+               int&nbsp;minDurationToRetainAfterDiscardMs,
+               int&nbsp;maxWidthToDiscard,
+               int&nbsp;maxHeightToDiscard,
+               float&nbsp;bandwidthFraction)</pre>
+<div class="block">Creates an adaptive track selection factory.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for the
+     selected track to switch to one of higher quality.</dd>
+<dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
+     selected track to switch to one of lower quality.</dd>
+<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a video track of higher quality,
+     the selection may indicate that media already buffered at the lower quality can be
+     discarded to speed up the switch. This is the minimum duration of media that must be
+     retained at the lower quality. It must be at least <code>
+     minDurationForQualityIncreaseMs</code>.</dd>
+<dd><code>maxWidthToDiscard</code> - The maximum video width that the selector may discard from the
+     buffer to speed up switching to a higher quality.</dd>
+<dd><code>maxHeightToDiscard</code> - The maximum video height that the selector may discard from the
+     buffer to speed up switching to a higher quality.</dd>
 <dd><code>bandwidthFraction</code> - The fraction of the available bandwidth that the selection should
      consider available for use. Setting to a value less than 1 is recommended to account for
      inaccuracies in the bandwidth estimator.</dd>
@@ -290,7 +348,7 @@ implements <a href="ExoTrackSelection.Factory.html" title="interface in com.goog
 <a id="&lt;init&gt;(int,int,int,float,float,com.google.android.exoplayer2.util.Clock)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>Factory</h4>
 <pre>public&nbsp;Factory&#8203;(int&nbsp;minDurationForQualityIncreaseMs,
@@ -306,11 +364,54 @@ implements <a href="ExoTrackSelection.Factory.html" title="interface in com.goog
      selected track to switch to one of higher quality.</dd>
 <dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
      selected track to switch to one of lower quality.</dd>
-<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a track of significantly higher
-     quality, the selection may indicate that media already buffered at the lower quality can
-     be discarded to speed up the switch. This is the minimum duration of media that must be
+<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a video track of higher quality,
+     the selection may indicate that media already buffered at the lower quality can be
+     discarded to speed up the switch. This is the minimum duration of media that must be
      retained at the lower quality. It must be at least <code>
      minDurationForQualityIncreaseMs</code>.</dd>
+<dd><code>bandwidthFraction</code> - The fraction of the available bandwidth that the selection should
+     consider available for use. Setting to a value less than 1 is recommended to account for
+     inaccuracies in the bandwidth estimator.</dd>
+<dd><code>bufferedFractionToLiveEdgeForQualityIncrease</code> - For live streaming, the fraction of the
+     duration from current playback position to the live edge that has to be buffered before
+     the selected track can be switched to one of higher quality. This parameter is only
+     applied when the playback position is closer to the live edge than <code>
+     minDurationForQualityIncreaseMs</code>, which would otherwise prevent switching to a higher
+     quality from happening.</dd>
+<dd><code>clock</code> - A <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(int,int,int,int,int,float,float,com.google.android.exoplayer2.util.Clock)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Factory</h4>
+<pre>public&nbsp;Factory&#8203;(int&nbsp;minDurationForQualityIncreaseMs,
+               int&nbsp;maxDurationForQualityDecreaseMs,
+               int&nbsp;minDurationToRetainAfterDiscardMs,
+               int&nbsp;maxWidthToDiscard,
+               int&nbsp;maxHeightToDiscard,
+               float&nbsp;bandwidthFraction,
+               float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
+               <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<div class="block">Creates an adaptive track selection factory.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for the
+     selected track to switch to one of higher quality.</dd>
+<dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
+     selected track to switch to one of lower quality.</dd>
+<dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a video track of higher quality,
+     the selection may indicate that media already buffered at the lower quality can be
+     discarded to speed up the switch. This is the minimum duration of media that must be
+     retained at the lower quality. It must be at least <code>
+     minDurationForQualityIncreaseMs</code>.</dd>
+<dd><code>maxWidthToDiscard</code> - The maximum video width that the selector may discard from the
+     buffer to speed up switching to a higher quality.</dd>
+<dd><code>maxHeightToDiscard</code> - The maximum video height that the selector may discard from the
+     buffer to speed up switching to a higher quality.</dd>
 <dd><code>bandwidthFraction</code> - The fraction of the available bandwidth that the selection should
      consider available for use. Setting to a value less than 1 is recommended to account for
      inaccuracies in the bandwidth estimator.</dd>

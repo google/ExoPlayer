@@ -14,18 +14,10 @@
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-
     buildTypes {
         debug {
             testCoverageEnabled = true
         }
-    }
-
-    sourceSets {
-        androidTest.assets.srcDir '../../testdata/src/test/assets/'
     }
 }
 
@@ -56,9 +48,7 @@ dependencies {
     testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
-    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
-    testImplementation project(modulePrefix + 'library-core')
     testImplementation project(modulePrefix + 'testutils')
 }
 

@@ -536,7 +536,7 @@ public final class DefaultHlsPlaylistTracker
         return false;
       }
       long currentTimeMs = SystemClock.elapsedRealtime();
-      long snapshotValidityDurationMs = max(30000, C.usToMs(playlistSnapshot.durationUs));
+      long snapshotValidityDurationMs = max(30000, Util.usToMs(playlistSnapshot.durationUs));
       return playlistSnapshot.hasEndTag
           || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
           || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
@@ -726,7 +726,7 @@ public final class DefaultHlsPlaylistTracker
           forceRetry = true;
           playlistError = new PlaylistResetException(playlistUrl);
         } else if (currentTimeMs - lastSnapshotChangeMs
-            > C.usToMs(playlistSnapshot.targetDurationUs)
+            > Util.usToMs(playlistSnapshot.targetDurationUs)
                 * playlistStuckTargetDurationCoefficient) {
           // TODO: Allow customization of stuck playlists handling.
           playlistError = new PlaylistStuckException(playlistUrl);
@@ -752,7 +752,7 @@ public final class DefaultHlsPlaylistTracker
                 ? playlistSnapshot.targetDurationUs
                 : (playlistSnapshot.targetDurationUs / 2);
       }
-      earliestNextLoadTimeMs = currentTimeMs + C.usToMs(durationUntilNextLoadUs);
+      earliestNextLoadTimeMs = currentTimeMs + Util.usToMs(durationUntilNextLoadUs);
       // Schedule a load if this is the primary playlist or a playlist of a low-latency stream and
       // it doesn't have an end tag. Else the next load will be scheduled when refreshPlaylist is
       // called, or when this playlist becomes the primary.

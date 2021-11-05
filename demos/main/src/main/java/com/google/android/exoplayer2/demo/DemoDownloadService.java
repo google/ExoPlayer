@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.demo.DemoUtil.DOWNLOAD_NOTIFICATION_
 
 import android.app.Notification;
 import android.content.Context;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -48,7 +47,6 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  @NonNull
   protected DownloadManager getDownloadManager() {
     // This will only happen once, because getDownloadManager is guaranteed to be called only once
     // in the life cycle of the process.
@@ -67,9 +65,8 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  @NonNull
   protected Notification getForegroundNotification(
-      @NonNull List<Download> downloads, @Requirements.RequirementFlags int notMetRequirements) {
+      List<Download> downloads, @Requirements.RequirementFlags int notMetRequirements) {
     return DemoUtil.getDownloadNotificationHelper(/* context= */ this)
         .buildProgressNotification(
             /* context= */ this,

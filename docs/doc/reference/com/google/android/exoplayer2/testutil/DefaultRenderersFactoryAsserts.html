@@ -175,8 +175,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertExtensionRendererCreated(java.lang.Class,int)">assertExtensionRendererCreated</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="../Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;clazz,
-                              int&nbsp;type)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertExtensionRendererCreated(java.lang.Class,@com.google.android.exoplayer2.C.TrackTypeint)">assertExtensionRendererCreated</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="../Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;clazz,
+                              @com.google.android.exoplayer2.C.TrackType int&nbsp;type)</code></th>
 <td class="colLast">
 <div class="block">Asserts that an extension renderer of type <code>clazz</code> is not instantiated for <a href="../DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_OFF"><code>DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF</code></a>, and that it's instantiated in the correct
  position relative to other renderers of the same type for <a href="../DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_ON"><code>DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON</code></a> and <a href="../DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_PREFER"><code>DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER</code></a>, assuming no other extension renderers
@@ -226,14 +226,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="assertExtensionRendererCreated(java.lang.Class,int)">
+<a id="assertExtensionRendererCreated(java.lang.Class,@com.google.android.exoplayer2.C.TrackTypeint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>assertExtensionRendererCreated</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;assertExtensionRendererCreated&#8203;(<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="../Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;clazz,
-                                                  int&nbsp;type)</pre>
+                                                  @com.google.android.exoplayer2.C.TrackType int&nbsp;type)</pre>
 <div class="block">Asserts that an extension renderer of type <code>clazz</code> is not instantiated for <a href="../DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_OFF"><code>DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF</code></a>, and that it's instantiated in the correct
  position relative to other renderers of the same type for <a href="../DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_ON"><code>DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON</code></a> and <a href="../DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_PREFER"><code>DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER</code></a>, assuming no other extension renderers
  can be loaded.</div>

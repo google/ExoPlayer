@@ -22,7 +22,6 @@ import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -398,7 +397,7 @@ public final class FakeClockTest {
     }
 
     @Override
-    public boolean handleMessage(@NonNull Message msg) {
+    public boolean handleMessage(Message msg) {
       messages.add(new MessageData(msg.what, msg.arg1, msg.arg2, msg.obj));
       return true;
     }

@@ -135,7 +135,6 @@ GL rendering mode has better performance, so should be preferred
 
 ## Links
 
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.av1.*`
-  belong to this module.
+* [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import javax.net.SocketFactory;
 
@@ -292,7 +293,7 @@ public final class RtspMediaSource extends BaseMediaSource {
         rtpDataChannelFactory,
         uri,
         /* listener= */ timing -> {
-          timelineDurationUs = C.msToUs(timing.getDurationMs());
+          timelineDurationUs = Util.msToUs(timing.getDurationMs());
           timelineIsSeekable = !timing.isLive();
           timelineIsLive = timing.isLive();
           timelineIsPlaceholder = false;

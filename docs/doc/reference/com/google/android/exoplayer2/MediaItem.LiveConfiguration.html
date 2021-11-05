@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -154,6 +154,21 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.LiveConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration.Builder</a></span></code></th>
+<td class="colLast">
+<div class="block">Builder for <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration</code></a> instances.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
 <!--   -->
@@ -229,7 +244,8 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNSET">UNSET</a></span></code></th>
 <td class="colLast">
-<div class="block">A live playback configuration with unset values.</div>
+<div class="block">A live playback configuration with unset values, meaning media-defined default values will be
+ used.</div>
 </td>
 </tr>
 </table>
@@ -256,7 +272,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
                  float&nbsp;minPlaybackSpeed,
                  float&nbsp;maxPlaybackSpeed)</code></th>
 <td class="colLast">
-<div class="block">Creates a live playback configuration.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="MediaItem.LiveConfiguration.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration.Builder</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -278,16 +296,23 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="MediaItem.LiveConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="MediaItem.LiveConfiguration.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration.Builder</code></a> initialized with the values of this instance.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -325,7 +350,8 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>UNSET</h4>
 <pre>public static final&nbsp;<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a> UNSET</pre>
-<div class="block">A live playback configuration with unset values.</div>
+<div class="block">A live playback configuration with unset values, meaning media-defined default values will be
+ used.</div>
 </li>
 </ul>
 <a id="targetOffsetMs">
@@ -409,25 +435,15 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockListLast">
 <li class="blockList">
 <h4>LiveConfiguration</h4>
-<pre>public&nbsp;LiveConfiguration&#8203;(long&nbsp;targetOffsetMs,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;LiveConfiguration&#8203;(long&nbsp;targetOffsetMs,
                          long&nbsp;minOffsetMs,
                          long&nbsp;maxOffsetMs,
                          float&nbsp;minPlaybackSpeed,
                          float&nbsp;maxPlaybackSpeed)</pre>
-<div class="block">Creates a live playback configuration.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>targetOffsetMs</code> - Target live offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to use the
-     media-defined default.</dd>
-<dd><code>minOffsetMs</code> - The minimum allowed live offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
-     to use the media-defined default.</dd>
-<dd><code>maxOffsetMs</code> - The maximum allowed live offset, in milliseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
-     to use the media-defined default.</dd>
-<dd><code>minPlaybackSpeed</code> - Minimum playback speed, or <a href="C.html#RATE_UNSET"><code>C.RATE_UNSET</code></a> to use the
-     media-defined default.</dd>
-<dd><code>maxPlaybackSpeed</code> - Maximum playback speed, or <a href="C.html#RATE_UNSET"><code>C.RATE_UNSET</code></a> to use the
-     media-defined default.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="MediaItem.LiveConfiguration.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration.Builder</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </li>
@@ -440,6 +456,16 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="buildUpon()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildUpon</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaItem.LiveConfiguration.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration.Builder</a>&nbsp;buildUpon()</pre>
+<div class="block">Returns a <a href="MediaItem.LiveConfiguration.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LiveConfiguration.Builder</code></a> initialized with the values of this instance.</div>
+</li>
+</ul>
 <a id="equals(java.lang.Object)">
 <!--   -->
 </a>

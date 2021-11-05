@@ -34,6 +34,56 @@ import java.util.List;
 /** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
 public interface MediaSourceFactory {
 
+  /**
+   * An instance that throws {@link UnsupportedOperationException} from {@link #createMediaSource}
+   * and {@link #getSupportedTypes()}.
+   */
+  MediaSourceFactory UNSUPPORTED =
+      new MediaSourceFactory() {
+        @Override
+        public MediaSourceFactory setDrmSessionManagerProvider(
+            @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+          return this;
+        }
+
+        @Deprecated
+        @Override
+        public MediaSourceFactory setDrmSessionManager(
+            @Nullable DrmSessionManager drmSessionManager) {
+          return this;
+        }
+
+        @Deprecated
+        @Override
+        public MediaSourceFactory setDrmHttpDataSourceFactory(
+            @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
+          return this;
+        }
+
+        @Deprecated
+        @Override
+        public MediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
+          return this;
+        }
+
+        @Override
+        public MediaSourceFactory setLoadErrorHandlingPolicy(
+            @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+          return this;
+        }
+
+        @Override
+        @C.ContentType
+        public int[] getSupportedTypes() {
+          throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public MediaSource createMediaSource(MediaItem mediaItem) {
+          throw new UnsupportedOperationException();
+        }
+      };
+
   /** @deprecated Use {@link MediaItem.LocalConfiguration#streamKeys} instead. */
   @Deprecated
   default MediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {

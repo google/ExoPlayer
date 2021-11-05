@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.MediaQueue;
@@ -52,7 +53,7 @@ public class CastTimelineTrackerTest {
     TimelineAsserts.assertPeriodDurations(
         tracker.getCastTimeline(remoteMediaClient),
         C.TIME_UNSET,
-        C.msToUs(DURATION_2_MS),
+        Util.msToUs(DURATION_2_MS),
         C.TIME_UNSET,
         C.TIME_UNSET,
         C.TIME_UNSET);
@@ -65,8 +66,8 @@ public class CastTimelineTrackerTest {
     TimelineAsserts.assertPeriodDurations(
         tracker.getCastTimeline(remoteMediaClient),
         C.TIME_UNSET,
-        C.msToUs(DURATION_2_MS),
-        C.msToUs(DURATION_3_MS));
+        Util.msToUs(DURATION_2_MS),
+        Util.msToUs(DURATION_3_MS));
 
     remoteMediaClient =
         mockRemoteMediaClient(
@@ -74,7 +75,7 @@ public class CastTimelineTrackerTest {
             /* currentItemId= */ 3,
             /* currentDurationMs= */ DURATION_3_MS);
     TimelineAsserts.assertPeriodDurations(
-        tracker.getCastTimeline(remoteMediaClient), C.TIME_UNSET, C.msToUs(DURATION_3_MS));
+        tracker.getCastTimeline(remoteMediaClient), C.TIME_UNSET, Util.msToUs(DURATION_3_MS));
 
     remoteMediaClient =
         mockRemoteMediaClient(
@@ -85,8 +86,8 @@ public class CastTimelineTrackerTest {
         tracker.getCastTimeline(remoteMediaClient),
         C.TIME_UNSET,
         C.TIME_UNSET,
-        C.msToUs(DURATION_3_MS),
-        C.msToUs(DURATION_4_MS),
+        Util.msToUs(DURATION_3_MS),
+        Util.msToUs(DURATION_4_MS),
         C.TIME_UNSET);
 
     remoteMediaClient =
@@ -98,9 +99,9 @@ public class CastTimelineTrackerTest {
         tracker.getCastTimeline(remoteMediaClient),
         C.TIME_UNSET,
         C.TIME_UNSET,
-        C.msToUs(DURATION_3_MS),
-        C.msToUs(DURATION_4_MS),
-        C.msToUs(DURATION_5_MS));
+        Util.msToUs(DURATION_3_MS),
+        Util.msToUs(DURATION_4_MS),
+        Util.msToUs(DURATION_5_MS));
   }
 
   private static RemoteMediaClient mockRemoteMediaClient(

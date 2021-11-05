@@ -17,21 +17,11 @@ package com.google.android.exoplayer2.trackselection;
 
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.TracksInfo;
-import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
-import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection.Definition;
-import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.TrackSelectionOverride;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
-import org.checkerframework.dataflow.qual.Pure;
 
 /** Track selection related utility methods. */
 public final class TrackSelectionUtil {
@@ -133,68 +123,5 @@ public final class TrackSelectionUtil {
         /* numberOfExcludedLocations= */ 0,
         numberOfTracks,
         numberOfExcludedTracks);
-  }
-
-  /**
-   * Forces tracks in a {@link TrackGroup} to be the only ones selected for a {@link C.TrackType}.
-   * No other tracks of that type will be selectable. If the forced tracks are not supported, then
-   * no tracks of that type will be selected.
-   *
-   * @param trackSelectionOverrides The current {@link TrackSelectionOverride overrides}.
-   * @param tracksInfo The current {@link TracksInfo}.
-   * @param forcedTrackGroupIndex The index of the {@link TrackGroup} in {@code tracksInfo} that
-   *     should have its track selected.
-   * @param forcedTrackSelectionOverride The tracks to force selection of.
-   * @return The updated {@link TrackSelectionOverride overrides}.
-   */
-  @Pure
-  public static ImmutableMap<TrackGroup, TrackSelectionOverride> forceTrackSelection(
-      ImmutableMap<TrackGroup, TrackSelectionOverride> trackSelectionOverrides,
-      TracksInfo tracksInfo,
-      int forcedTrackGroupIndex,
-      TrackSelectionOverride forcedTrackSelectionOverride) {
-    @C.TrackType
-    int trackType = tracksInfo.getTrackGroupInfos().get(forcedTrackGroupIndex).getTrackType();
-    ImmutableMap.Builder<TrackGroup, TrackSelectionOverride> overridesBuilder =
-        new ImmutableMap.Builder<>();
-    // Maintain overrides for the other track types.
-    for (Map.Entry<TrackGroup, TrackSelectionOverride> entry : trackSelectionOverrides.entrySet()) {
-      if (MimeTypes.getTrackType(entry.getKey().getFormat(0).sampleMimeType) != trackType) {
-        overridesBuilder.put(entry);
-      }
-    }
-    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    for (int i = 0; i < trackGroupInfos.size(); i++) {
-      TrackGroup trackGroup = trackGroupInfos.get(i).getTrackGroup();
-      if (i == forcedTrackGroupIndex) {
-        overridesBuilder.put(trackGroup, forcedTrackSelectionOverride);
-      } else {
-        overridesBuilder.put(trackGroup, TrackSelectionOverride.DISABLE);
-      }
-    }
-    return overridesBuilder.build();
-  }
-
-  /**
-   * Removes all {@link TrackSelectionOverride overrides} associated with {@link TrackGroup
-   * TrackGroups} of type {@code trackType}.
-   *
-   * @param trackType The {@link C.TrackType} of all overrides to remove.
-   * @param trackSelectionOverrides The current {@link TrackSelectionOverride overrides}.
-   * @return The updated {@link TrackSelectionOverride overrides}.
-   */
-  @Pure
-  public static ImmutableMap<TrackGroup, TrackSelectionOverride>
-      clearTrackSelectionOverridesForType(
-          @C.TrackType int trackType,
-          ImmutableMap<TrackGroup, TrackSelectionOverride> trackSelectionOverrides) {
-    ImmutableMap.Builder<TrackGroup, TrackSelectionOverride> overridesBuilder =
-        ImmutableMap.builder();
-    for (Map.Entry<TrackGroup, TrackSelectionOverride> entry : trackSelectionOverrides.entrySet()) {
-      if (MimeTypes.getTrackType(entry.getKey().getFormat(0).sampleMimeType) != trackType) {
-        overridesBuilder.put(entry);
-      }
-    }
-    return overridesBuilder.build();
   }
 }

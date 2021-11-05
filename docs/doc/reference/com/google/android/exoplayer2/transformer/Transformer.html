@@ -435,12 +435,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <p>Concurrent transformations on the same Transformer object are not allowed.
 
  <p>The output can contain at most one video track and one audio track. Other track types are
- ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media
- sources</code></a>, the highest bitrate video and audio streams are selected.</div>
+ ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media sources</code></a>, the highest bitrate video and
+ audio streams are selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to transform. The supported sample formats depend on the
-     output container format and are described in <a href="https://developer.android.com/reference/android/media/MediaMuxer.html#addTrack(android.media.MediaFormat)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaMuxer.addTrack(MediaFormat)</code></a>.</dd>
+     <code>Muxer</code> and on the output container format. For the <code>FrameworkMuxer</code>, they are
+     described in <a href="https://developer.android.com/reference/android/media/MediaMuxer.html#addTrack(android.media.MediaFormat)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaMuxer.addTrack(MediaFormat)</code></a>.</dd>
 <dd><code>path</code> - The path to the output file.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If the path is invalid.</dd>
@@ -467,12 +468,13 @@ public&nbsp;void&nbsp;startTransformation&#8203;(<a href="../MediaItem.html" tit
  <p>Concurrent transformations on the same Transformer object are not allowed.
 
  <p>The output can contain at most one video track and one audio track. Other track types are
- ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media
- sources</code></a>, the highest bitrate video and audio streams are selected.</div>
+ ignored. For adaptive bitrate <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>media sources</code></a>, the highest bitrate video and
+ audio streams are selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to transform. The supported sample formats depend on the
-     output container format and are described in <a href="https://developer.android.com/reference/android/media/MediaMuxer.html#addTrack(android.media.MediaFormat)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaMuxer.addTrack(MediaFormat)</code></a>.</dd>
+     <code>Muxer</code> and on the output container format. For the <code>FrameworkMuxer</code>, they are
+     described in <a href="https://developer.android.com/reference/android/media/MediaMuxer.html#addTrack(android.media.MediaFormat)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaMuxer.addTrack(MediaFormat)</code></a>.</dd>
 <dd><code>parcelFileDescriptor</code> - A readable and writable <a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top"><code>ParcelFileDescriptor</code></a> of the output.
      The file referenced by this ParcelFileDescriptor should not be used before the
      transformation is completed. It is the responsibility of the caller to close the

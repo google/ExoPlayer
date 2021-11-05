@@ -914,7 +914,7 @@ public class AnalyticsCollector
     long eventPositionMs;
     boolean isInCurrentWindow =
         timeline.equals(player.getCurrentTimeline())
-            && windowIndex == player.getCurrentWindowIndex();
+            && windowIndex == player.getCurrentMediaItemIndex();
     if (mediaPeriodId != null && mediaPeriodId.isAd()) {
       boolean isCurrentAd =
           isInCurrentWindow
@@ -939,7 +939,7 @@ public class AnalyticsCollector
         mediaPeriodId,
         eventPositionMs,
         player.getCurrentTimeline(),
-        player.getCurrentWindowIndex(),
+        player.getCurrentMediaItemIndex(),
         currentMediaPeriodId,
         player.getCurrentPosition(),
         player.getTotalBufferedDuration());
@@ -962,7 +962,7 @@ public class AnalyticsCollector
             ? null
             : mediaPeriodQueueTracker.getMediaPeriodIdTimeline(mediaPeriodId);
     if (mediaPeriodId == null || knownTimeline == null) {
-      int windowIndex = player.getCurrentWindowIndex();
+      int windowIndex = player.getCurrentMediaItemIndex();
       Timeline timeline = player.getCurrentTimeline();
       boolean windowIsInTimeline = windowIndex < timeline.getWindowCount();
       return generateEventTime(
@@ -1157,7 +1157,7 @@ public class AnalyticsCollector
               : playerTimeline
                   .getPeriod(playerPeriodIndex, period)
                   .getAdGroupIndexAfterPositionUs(
-                      C.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs());
+                      Util.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs());
       for (int i = 0; i < mediaPeriodQueue.size(); i++) {
         MediaPeriodId mediaPeriodId = mediaPeriodQueue.get(i);
         if (isMatchingMediaPeriod(

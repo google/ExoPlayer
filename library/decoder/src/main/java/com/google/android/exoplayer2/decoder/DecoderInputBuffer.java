@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.decoder;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -27,6 +28,10 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /** Holds input for a decoder. */
 public class DecoderInputBuffer extends Buffer {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.decoder");
+  }
 
   /**
    * Thrown when an attempt is made to write into a {@link DecoderInputBuffer} whose {@link

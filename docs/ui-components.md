@@ -73,8 +73,8 @@ When a player has been initialized, it can be attached to the view by calling
 player = new ExoPlayer.Builder(context).build();
 // Attach player to the view.
 playerView.setPlayer(player);
-// Set the media source to be played.
-player.setMediaSource(createMediaSource());
+// Set the media item to be played.
+player.setMediaItem(mediaItem);
 // Prepare the player.
 player.prepare();
 ~~~
@@ -160,8 +160,10 @@ private void initializePlayer() {
   player = new ExoPlayer.Builder(context).build();
   // Attach player to the view.
   playerControlView.setPlayer(player);
-  // Prepare the player with the dash media source.
-  player.prepare(createMediaSource());
+  // Set the media item to be played.
+  player.setMediaItem(mediaItem);
+  // Prepare the player.
+  player.prepare();
 }
 ~~~
 {: .language-java}

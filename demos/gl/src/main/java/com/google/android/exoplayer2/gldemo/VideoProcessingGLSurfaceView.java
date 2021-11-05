@@ -23,7 +23,6 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.view.Surface;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -290,7 +289,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
     public void onVideoFrameAboutToBeRendered(
         long presentationTimeUs,
         long releaseTimeNs,
-        @NonNull Format format,
+        Format format,
         @Nullable MediaFormat mediaFormat) {
       sampleTimestampQueue.add(releaseTimeNs, presentationTimeUs);
     }

@@ -26,6 +26,6 @@ get started.
 
 ## Links
 
-*   [Javadoc][]: Note that this Javadoc is combined with that of other modules.
+*   [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

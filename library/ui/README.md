@@ -20,8 +20,8 @@ locally. Instructions for doing this can be found in the [top level README][].
 
 ## Links
 
-*   [Developer Guide][].
-*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.ui.*` belong to this module.
+*   [Developer Guide][]
+*   [Javadoc][]
 
 [Developer Guide]: https://exoplayer.dev/ui-components.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

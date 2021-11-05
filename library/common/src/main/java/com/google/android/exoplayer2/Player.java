@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.Surface;
@@ -40,6 +46,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,7 +148,11 @@ public interface Player {
      *
      * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
      * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
-     * selections' formats} and {@link Listener#onMetadata(Metadata)}.
+     * selections' formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in
+     * the {@link MediaItem#mediaMetadata}, it will be prioritised above the same field coming from
+     * static or dynamic metadata.
+     *
+     * <p>This method may be called multiple times in quick succession.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -443,8 +454,7 @@ public interface Player {
      * @return The {@link Event} at the given index.
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
-    @Event
-    public int get(int index) {
+    public @Event int get(int index) {
       return flags.get(index);
     }
 
@@ -859,8 +869,7 @@ public interface Player {
      * @return The {@link Command} at the given index.
      * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
-    @Command
-    public int get(int index) {
+    public @Command int get(int index) {
       return flags.get(index);
     }
 
@@ -1075,6 +1084,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
   @interface State {}
   /** The player is idle, and must be {@link #prepare() prepared} before it will play the media. */
@@ -1103,6 +1113,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
     PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS,
@@ -1129,6 +1140,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     PLAYBACK_SUPPRESSION_REASON_NONE,
     PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
@@ -1145,6 +1157,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
   @interface RepeatMode {}
   /**
@@ -1176,6 +1189,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     DISCONTINUITY_REASON_AUTO_TRANSITION,
     DISCONTINUITY_REASON_SEEK,
@@ -1214,6 +1228,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED, TIMELINE_CHANGE_REASON_SOURCE_UPDATE})
   @interface TimelineChangeReason {}
   /** Timeline changed as a result of a change of the playlist items or the order of the items. */
@@ -1234,6 +1249,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     MEDIA_ITEM_TRANSITION_REASON_REPEAT,
     MEDIA_ITEM_TRANSITION_REASON_AUTO,
@@ -1266,6 +1282,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     EVENT_TIMELINE_CHANGED,
     EVENT_MEDIA_ITEM_TRANSITION,
@@ -1351,6 +1368,7 @@ public interface Player {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     COMMAND_INVALID,
     COMMAND_PLAY_PAUSE,
@@ -1503,16 +1521,16 @@ public interface Player {
    * Clears the playlist and adds the specified {@link MediaItem MediaItems}.
    *
    * @param mediaItems The new {@link MediaItem MediaItems}.
-   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
-   *     passed, the current position is not reset.
+   * @param startIndex The {@link MediaItem} index to start playback from. If {@link C#INDEX_UNSET}
+   *     is passed, the current position is not reset.
    * @param startPositionMs The position in milliseconds to start playback from. If {@link
-   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
-   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
-   *     position is not reset at all.
-   * @throws IllegalSeekPositionException If the provided {@code startWindowIndex} is not within the
+   *     C#TIME_UNSET} is passed, the default position of the given {@link MediaItem} is used. In
+   *     any case, if {@code startIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored
+   *     and the position is not reset at all.
+   * @throws IllegalSeekPositionException If the provided {@code startIndex} is not within the
    *     bounds of the list of media items.
    */
-  void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs);
+  void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs);
 
   /**
    * Clears the playlist, adds the specified {@link MediaItem} and resets the position to the
@@ -1639,9 +1657,9 @@ public interface Player {
    * Listener#onAvailableCommandsChanged(Commands)} to get an update when the available commands
    * change.
    *
-   * <p>Executing a command that is not available (for example, calling {@link #seekToNextWindow()}
-   * if {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will neither throw an exception nor
-   * generate a {@link #getPlayerError()} player error}.
+   * <p>Executing a command that is not available (for example, calling {@link
+   * #seekToNextMediaItem()} if {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will
+   * neither throw an exception nor generate a {@link #getPlayerError()} player error}.
    *
    * <p>{@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} and {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}
    * are unavailable if there is no such {@link MediaItem}.
@@ -1746,14 +1764,14 @@ public interface Player {
   int getRepeatMode();
 
   /**
-   * Sets whether shuffling of windows is enabled.
+   * Sets whether shuffling of media items is enabled.
    *
    * @param shuffleModeEnabled Whether shuffling is enabled.
    */
   void setShuffleModeEnabled(boolean shuffleModeEnabled);
 
   /**
-   * Returns whether shuffling of windows is enabled.
+   * Returns whether shuffling of media items is enabled.
    *
    * @see Listener#onShuffleModeEnabledChanged(boolean)
    */
@@ -1768,42 +1786,42 @@ public interface Player {
   boolean isLoading();
 
   /**
-   * Seeks to the default position associated with the current window. The position can depend on
-   * the type of media being played. For live streams it will typically be the live edge of the
-   * window. For other streams it will typically be the start of the window.
+   * Seeks to the default position associated with the current {@link MediaItem}. The position can
+   * depend on the type of media being played. For live streams it will typically be the live edge.
+   * For other streams it will typically be the start.
    */
   void seekToDefaultPosition();
 
   /**
-   * Seeks to the default position associated with the specified window. The position can depend on
-   * the type of media being played. For live streams it will typically be the live edge of the
-   * window. For other streams it will typically be the start of the window.
+   * Seeks to the default position associated with the specified {@link MediaItem}. The position can
+   * depend on the type of media being played. For live streams it will typically be the live edge.
+   * For other streams it will typically be the start.
    *
-   * @param windowIndex The index of the window whose associated default position should be seeked
-   *     to.
+   * @param mediaItemIndex The index of the {@link MediaItem} whose associated default position
+   *     should be seeked to.
    * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
-   *     {@code windowIndex} is not within the bounds of the current timeline.
+   *     {@code mediaItemIndex} is not within the bounds of the current timeline.
    */
-  void seekToDefaultPosition(int windowIndex);
+  void seekToDefaultPosition(int mediaItemIndex);
 
   /**
-   * Seeks to a position specified in milliseconds in the current window.
+   * Seeks to a position specified in milliseconds in the current {@link MediaItem}.
    *
-   * @param positionMs The seek position in the current window, or {@link C#TIME_UNSET} to seek to
-   *     the window's default position.
+   * @param positionMs The seek position in the current {@link MediaItem}, or {@link C#TIME_UNSET}
+   *     to seek to the media item's default position.
    */
   void seekTo(long positionMs);
 
   /**
-   * Seeks to a position specified in milliseconds in the specified window.
+   * Seeks to a position specified in milliseconds in the specified {@link MediaItem}.
    *
-   * @param windowIndex The index of the window.
-   * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek to
-   *     the window's default position.
+   * @param mediaItemIndex The index of the {@link MediaItem}.
+   * @param positionMs The seek position in the specified {@link MediaItem}, or {@link C#TIME_UNSET}
+   *     to seek to the media item's default position.
    * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
-   *     {@code windowIndex} is not within the bounds of the current timeline.
+   *     {@code mediaItemIndex} is not within the bounds of the current timeline.
    */
-  void seekTo(int windowIndex, long positionMs);
+  void seekTo(int mediaItemIndex, long positionMs);
 
   /**
    * Returns the {@link #seekBack()} increment.
@@ -1813,7 +1831,9 @@ public interface Player {
    */
   long getSeekBackIncrement();
 
-  /** Seeks back in the current window by {@link #getSeekBackIncrement()} milliseconds. */
+  /**
+   * Seeks back in the current {@link MediaItem} by {@link #getSeekBackIncrement()} milliseconds.
+   */
   void seekBack();
 
   /**
@@ -1824,7 +1844,10 @@ public interface Player {
    */
   long getSeekForwardIncrement();
 
-  /** Seeks forward in the current window by {@link #getSeekForwardIncrement()} milliseconds. */
+  /**
+   * Seeks forward in the current {@link MediaItem} by {@link #getSeekForwardIncrement()}
+   * milliseconds.
+   */
   void seekForward();
 
   /** @deprecated Use {@link #hasPreviousMediaItem()} instead. */
@@ -1904,8 +1927,8 @@ public interface Player {
   boolean hasNextWindow();
 
   /**
-   * Returns whether a next window exists, which may depend on the current repeat mode and whether
-   * shuffle mode is enabled.
+   * Returns whether a next {@link MediaItem} exists, which may depend on the current repeat mode
+   * and whether shuffle mode is enabled.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
@@ -1922,9 +1945,9 @@ public interface Player {
   void seekToNextWindow();
 
   /**
-   * Seeks to the default position of the next window, which may depend on the current repeat mode
-   * and whether shuffle mode is enabled. Does nothing if {@link #hasNextMediaItem()} is {@code
-   * false}.
+   * Seeks to the default position of the next {@link MediaItem}, which may depend on the current
+   * repeat mode and whether shuffle mode is enabled. Does nothing if {@link #hasNextMediaItem()} is
+   * {@code false}.
    *
    * <p>Note: When the repeat mode is {@link #REPEAT_MODE_ONE}, this method behaves the same as when
    * the current repeat mode is {@link #REPEAT_MODE_OFF}. See {@link #REPEAT_MODE_ONE} for more
@@ -1940,8 +1963,8 @@ public interface Player {
    *   <li>If the timeline is empty or seeking is not possible, does nothing.
    *   <li>Otherwise, if {@link #hasNextMediaItem() a next media item exists}, seeks to the default
    *       position of the next {@link MediaItem}.
-   *   <li>Otherwise, if the current window is {@link #isCurrentMediaItemLive() live} and has not
-   *       ended, seeks to the live edge of the current {@link MediaItem}.
+   *   <li>Otherwise, if the current {@link MediaItem} is {@link #isCurrentMediaItemLive() live} and
+   *       has not ended, seeks to the live edge of the current {@link MediaItem}.
    *   <li>Otherwise, does nothing.
    * </ul>
    */
@@ -2065,7 +2088,9 @@ public interface Player {
    *
    * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
    * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
-   * formats} and {@link Listener#onMetadata(Metadata)}.
+   * formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in the {@link
+   * MediaItem#mediaMetadata}, it will be prioritised above the same field coming from static or
+   * dynamic metadata.
    */
   MediaMetadata getMediaMetadata();
 
@@ -2149,7 +2174,7 @@ public interface Player {
   int getMediaItemCount();
 
   /** Returns the {@link MediaItem} at the given index. */
-  MediaItem getMediaItemAt(@IntRange(from = 0) int index);
+  MediaItem getMediaItemAt(int index);
 
   /**
    * Returns the duration of the current content or ad in milliseconds, or {@link C#TIME_UNSET} if

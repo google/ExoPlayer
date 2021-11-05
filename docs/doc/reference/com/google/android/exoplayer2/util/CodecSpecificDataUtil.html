@@ -170,10 +170,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildHevcCodecStringFromSps(com.google.android.exoplayer2.util.ParsableNalUnitBitArray)">buildHevcCodecStringFromSps</a></span>&#8203;(<a href="ParsableNalUnitBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableNalUnitBitArray</a>&nbsp;bitArray)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildHevcCodecString(int,boolean,int,int,int%5B%5D,int)">buildHevcCodecString</a></span>&#8203;(int&nbsp;generalProfileSpace,
+                    boolean&nbsp;generalTierFlag,
+                    int&nbsp;generalProfileIdc,
+                    int&nbsp;generalProfileCompatibilityFlags,
+                    int[]&nbsp;constraintBytes,
+                    int&nbsp;generalLevelIdc)</code></th>
 <td class="colLast">
-<div class="block">Returns an RFC 6381 HEVC codec string based on the SPS NAL unit read from the provided bit
- array.</div>
+<div class="block">Builds an RFC 6381 HEVC codec string using the provided parameters.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -303,16 +307,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="buildHevcCodecStringFromSps(com.google.android.exoplayer2.util.ParsableNalUnitBitArray)">
+<a id="buildHevcCodecString(int,boolean,int,int,int[],int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>buildHevcCodecStringFromSps</h4>
-<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;buildHevcCodecStringFromSps&#8203;(<a href="ParsableNalUnitBitArray.html" title="class in com.google.android.exoplayer2.util" target="_top">ParsableNalUnitBitArray</a>&nbsp;bitArray)</pre>
-<div class="block">Returns an RFC 6381 HEVC codec string based on the SPS NAL unit read from the provided bit
- array. The position of the bit array must be the start of an SPS NALU (nal_unit_header), and
- the position may be modified by this method.</div>
+<h4>buildHevcCodecString</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;buildHevcCodecString&#8203;(int&nbsp;generalProfileSpace,
+                                          boolean&nbsp;generalTierFlag,
+                                          int&nbsp;generalProfileIdc,
+                                          int&nbsp;generalProfileCompatibilityFlags,
+                                          int[]&nbsp;constraintBytes,
+                                          int&nbsp;generalLevelIdc)</pre>
+<div class="block">Builds an RFC 6381 HEVC codec string using the provided parameters.</div>
 </li>
 </ul>
 <a id="buildNalUnit(byte[],int,int)">

@@ -38,7 +38,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -46,7 +45,6 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
-import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -100,6 +98,8 @@ public final class TranscodingTransformer {
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
     private String outputMimeType;
+    @Nullable private String audioMimeType;
+    @Nullable private String videoMimeType;
     private TranscodingTransformer.Listener listener;
     private Looper looper;
     private Clock clock;
@@ -122,6 +122,8 @@ public final class TranscodingTransformer {
       this.removeVideo = transcodingTransformer.transformation.removeVideo;
       this.flattenForSlowMotion = transcodingTransformer.transformation.flattenForSlowMotion;
       this.outputMimeType = transcodingTransformer.transformation.outputMimeType;
+      this.audioMimeType = transcodingTransformer.transformation.audioMimeType;
+      this.videoMimeType = transcodingTransformer.transformation.videoMimeType;
       this.listener = transcodingTransformer.listener;
       this.looper = transcodingTransformer.looper;
       this.clock = transcodingTransformer.clock;
@@ -212,10 +214,8 @@ public final class TranscodingTransformer {
     }
 
     /**
-     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. The
-     * output MIME type should be supported by the {@link
-     * Muxer.Factory#supportsOutputMimeType(String) muxer}. Values supported by the default {@link
-     * FrameworkMuxer} are:
+     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. Supported
+     * values are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_MP4}
@@ -227,6 +227,58 @@ public final class TranscodingTransformer {
      */
     public Builder setOutputMimeType(String outputMimeType) {
       this.outputMimeType = outputMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the video MIME type of the output. The default value is to use the same MIME type as the
+     * input. Supported values are:
+     *
+     * <ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
+     *       <ul>
+     *         <li>{@link MimeTypes#VIDEO_H263}
+     *         <li>{@link MimeTypes#VIDEO_H264}
+     *         <li>{@link MimeTypes#VIDEO_H265} from API level 24
+     *         <li>{@link MimeTypes#VIDEO_MP4V}
+     *       </ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
+     *       <ul>
+     *         <li>{@link MimeTypes#VIDEO_VP8}
+     *         <li>{@link MimeTypes#VIDEO_VP9} from API level 24
+     *       </ul>
+     * </ul>
+     *
+     * @param videoMimeType The MIME type of the video samples in the output.
+     * @return This builder.
+     */
+    public Builder setVideoMimeType(String videoMimeType) {
+      this.videoMimeType = videoMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
+     * input. Supported values are:
+     *
+     * <ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
+     *       <ul>
+     *         <li>{@link MimeTypes#AUDIO_AAC}
+     *         <li>{@link MimeTypes#AUDIO_AMR_NB}
+     *         <li>{@link MimeTypes#AUDIO_AMR_WB}
+     *       </ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
+     *       <ul>
+     *         <li>{@link MimeTypes#AUDIO_VORBIS}
+     *       </ul>
+     * </ul>
+     *
+     * @param audioMimeType The MIME type of the audio samples in the output.
+     * @return This builder.
+     */
+    public Builder setAudioMimeType(String audioMimeType) {
+      this.audioMimeType = audioMimeType;
       return this;
     }
 
@@ -290,6 +342,7 @@ public final class TranscodingTransformer {
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
      * @throws IllegalStateException If the muxer doesn't support the requested output MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
      */
     public TranscodingTransformer build() {
       checkStateNotNull(context);
@@ -303,10 +356,31 @@ public final class TranscodingTransformer {
       checkState(
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
+      if (audioMimeType != null) {
+        checkSampleMimeType(audioMimeType);
+      }
+      if (videoMimeType != null) {
+        checkSampleMimeType(videoMimeType);
+      }
       Transformation transformation =
-          new Transformation(removeAudio, removeVideo, flattenForSlowMotion, outputMimeType);
+          new Transformation(
+              removeAudio,
+              removeVideo,
+              flattenForSlowMotion,
+              outputMimeType,
+              audioMimeType,
+              videoMimeType);
       return new TranscodingTransformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
+    }
+
+    private void checkSampleMimeType(String sampleMimeType) {
+      checkState(
+          muxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType),
+          "Unsupported sample MIME type "
+              + sampleMimeType
+              + " for container MIME type "
+              + outputMimeType);
     }
   }
 
@@ -469,7 +543,8 @@ public final class TranscodingTransformer {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
 
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer);
+    MuxerWrapper muxerWrapper =
+        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
@@ -497,8 +572,7 @@ public final class TranscodingTransformer {
             .setClock(clock)
             .build();
     player.setMediaItem(mediaItem);
-    player.addAnalyticsListener(
-        new TranscodingTransformerAnalyticsListener(mediaItem, muxerWrapper));
+    player.addListener(new TranscodingTransformerPlayerListener(mediaItem, muxerWrapper));
     player.prepare();
 
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
@@ -603,47 +677,39 @@ public final class TranscodingTransformer {
         index++;
       }
       if (!transformation.removeVideo) {
-        Format encoderOutputFormat =
-            new Format.Builder()
-                .setSampleMimeType(MimeTypes.VIDEO_H264)
-                .setWidth(480)
-                .setHeight(360)
-                .setAverageBitrate(413_000)
-                .setFrameRate(30)
-                .build();
         renderers[index] =
             new TransformerTranscodingVideoRenderer(
-                context, muxerWrapper, mediaClock, transformation, encoderOutputFormat);
+                context, muxerWrapper, mediaClock, transformation);
         index++;
       }
       return renderers;
     }
   }
 
-  private final class TranscodingTransformerAnalyticsListener implements AnalyticsListener {
+  private final class TranscodingTransformerPlayerListener implements Player.Listener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
 
-    public TranscodingTransformerAnalyticsListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
+    public TranscodingTransformerPlayerListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
       this.mediaItem = mediaItem;
       this.muxerWrapper = muxerWrapper;
     }
 
     @Override
-    public void onPlaybackStateChanged(EventTime eventTime, int state) {
+    public void onPlaybackStateChanged(int state) {
       if (state == Player.STATE_ENDED) {
         handleTransformationEnded(/* exception= */ null);
       }
     }
 
     @Override
-    public void onTimelineChanged(EventTime eventTime, int reason) {
+    public void onTimelineChanged(Timeline timeline, int reason) {
       if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
         return;
       }
       Timeline.Window window = new Timeline.Window();
-      eventTime.timeline.getWindow(/* windowIndex= */ 0, window);
+      timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
         long durationUs = window.durationUs;
         // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
@@ -658,7 +724,7 @@ public final class TranscodingTransformer {
     }
 
     @Override
-    public void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
       if (muxerWrapper.getTrackCount() == 0) {
         handleTransformationEnded(
             new IllegalStateException(
@@ -668,7 +734,7 @@ public final class TranscodingTransformer {
     }
 
     @Override
-    public void onPlayerError(EventTime eventTime, PlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       handleTransformationEnded(error);
     }
 

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,10 +133,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">PriorityDataSourceFactory</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">PriorityDataSourceFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></pre>
-<div class="block">A <a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> that produces <a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>PriorityDataSource</code></a> instances.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="PriorityDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>PriorityDataSource.Factory</code></a>.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -160,7 +163,9 @@ implements <a href="DataSource.Factory.html" title="interface in com.google.andr
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource.Factory,com.google.android.exoplayer2.util.PriorityTaskManager,int)">PriorityDataSourceFactory</a></span>&#8203;(<a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
                          <a href="../util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
                          int&nbsp;priority)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -174,7 +179,7 @@ implements <a href="DataSource.Factory.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -184,6 +189,7 @@ implements <a href="DataSource.Factory.html" title="interface in com.google.andr
 <td class="colFirst"><code><a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDataSource()">createDataSource</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
 </td>
 </tr>
@@ -220,6 +226,7 @@ implements <a href="DataSource.Factory.html" title="interface in com.google.andr
 <pre>public&nbsp;PriorityDataSourceFactory&#8203;(<a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;upstreamFactory,
                                  <a href="../util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
                                  int&nbsp;priority)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>upstreamFactory</code> - A <a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> to be used to create an upstream <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for <a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>PriorityDataSource</code></a>.</dd>
@@ -245,6 +252,7 @@ implements <a href="DataSource.Factory.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>createDataSource</h4>
 <pre class="methodSignature">public&nbsp;<a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource</a>&nbsp;createDataSource()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DataSource.Factory.html#createDataSource()">DataSource.Factory</a></code></span></div>
 <div class="block">Creates a <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instance.</div>
 <dl>

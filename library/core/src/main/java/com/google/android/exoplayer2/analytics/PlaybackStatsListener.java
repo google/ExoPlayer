@@ -333,7 +333,7 @@ public final class PlaybackStatsListener
                   eventTime.mediaPeriodId.periodUid,
                   eventTime.mediaPeriodId.windowSequenceNumber,
                   eventTime.mediaPeriodId.adGroupIndex),
-              /* eventPlaybackPositionMs= */ C.usToMs(contentWindowPositionUs),
+              /* eventPlaybackPositionMs= */ Util.usToMs(contentWindowPositionUs),
               eventTime.timeline,
               eventTime.currentWindowIndex,
               eventTime.currentMediaPeriodId,
