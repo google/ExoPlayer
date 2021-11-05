@@ -23,11 +23,13 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaItem.ClippingConfiguration;
+import com.google.android.exoplayer2.MediaItem.SubtitleConfiguration;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,36 +120,46 @@ public class IntentUtil {
     @Nullable String mimeType = intent.getStringExtra(MIME_TYPE_EXTRA + extrasKeySuffix);
     @Nullable String title = intent.getStringExtra(TITLE_EXTRA + extrasKeySuffix);
     @Nullable String adTagUri = intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix);
+    @Nullable
+    SubtitleConfiguration subtitleConfiguration =
+        createSubtitleConfiguration(intent, extrasKeySuffix);
     MediaItem.Builder builder =
         new MediaItem.Builder()
             .setUri(uri)
             .setMimeType(mimeType)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
-            .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix))
-            .setClipStartPositionMs(
-                intent.getLongExtra(CLIP_START_POSITION_MS_EXTRA + extrasKeySuffix, 0))
-            .setClipEndPositionMs(
-                intent.getLongExtra(
-                    CLIP_END_POSITION_MS_EXTRA + extrasKeySuffix, C.TIME_END_OF_SOURCE));
+            .setClippingConfiguration(
+                new ClippingConfiguration.Builder()
+                    .setStartPositionMs(
+                        intent.getLongExtra(CLIP_START_POSITION_MS_EXTRA + extrasKeySuffix, 0))
+                    .setEndPositionMs(
+                        intent.getLongExtra(
+                            CLIP_END_POSITION_MS_EXTRA + extrasKeySuffix, C.TIME_END_OF_SOURCE))
+                    .build());
     if (adTagUri != null) {
       builder.setAdsConfiguration(
           new MediaItem.AdsConfiguration.Builder(Uri.parse(adTagUri)).build());
+    }
+    if (subtitleConfiguration != null) {
+      builder.setSubtitleConfigurations(ImmutableList.of(subtitleConfiguration));
     }
 
     return populateDrmPropertiesFromIntent(builder, intent, extrasKeySuffix).build();
   }
 
-  private static List<MediaItem.Subtitle> createSubtitlesFromIntent(
+  @Nullable
+  private static MediaItem.SubtitleConfiguration createSubtitleConfiguration(
       Intent intent, String extrasKeySuffix) {
     if (!intent.hasExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix)) {
-      return Collections.emptyList();
+      return null;
     }
-    return Collections.singletonList(
-        new MediaItem.Subtitle(
-            Uri.parse(intent.getStringExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix)),
-            checkNotNull(intent.getStringExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix)),
-            intent.getStringExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix),
-            C.SELECTION_FLAG_DEFAULT));
+    return new MediaItem.SubtitleConfiguration.Builder(
+            Uri.parse(intent.getStringExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix)))
+        .setMimeType(
+            checkNotNull(intent.getStringExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix)))
+        .setLanguage(intent.getStringExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix))
+        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+        .build();
   }
 
   private static MediaItem.Builder populateDrmPropertiesFromIntent(
