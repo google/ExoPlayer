@@ -15,7 +15,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.media3.test.session">
-  <uses-sdk android:minSdkVersion="16"/>
+  <uses-sdk/>
 
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
