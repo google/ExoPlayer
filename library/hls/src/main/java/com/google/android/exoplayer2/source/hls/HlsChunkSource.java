@@ -257,8 +257,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       mediaPlaylist = playlistTracker.getPlaylistSnapshot(playlistUrls[selectedIndex], /* isForPlayback= */ true);
     }
 
-    // Resolve to a segment boundary, current track is fine (all should be same).
-    // and, segments must start with sync (EXT-X-INDEPENDENT-SEGMENTS must be present)
+    // If segments must start with sync (EXT-X-INDEPENDENT-SEGMENTS is set) and the playlist is not empty
+    // resolve using the nearest segment start and the next segment (if any) start as the first and second
+    // sync points.
+    // Note, the position returned is normalized to the period, so it will work if a track selection changes
+    // variants before the seek is executed. It is possible it may not land exactly on a segment sync point in the rare
+    // case the segment boundaries do not align across variants.
+    //
     if (mediaPlaylist != null && mediaPlaylist.hasIndependentSegments && !mediaPlaylist.segments.isEmpty()) {
       long startOfPlaylistInPeriodUs = mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
       long targetPositionInPlaylistUs = positionUs - startOfPlaylistInPeriodUs;
