@@ -206,6 +206,43 @@ public final class DefaultTrackSelectorTest {
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
 
+  @Test
+  public void selectTrack_withMixedEmptyAndNonEmptyTrackOverrides_appliesNonEmptyOverride()
+      throws Exception {
+    TrackGroup videoGroupHighBitrate =
+        new TrackGroup(VIDEO_FORMAT.buildUpon().setAverageBitrate(1_000_000).build());
+    TrackGroup videoGroupMidBitrate =
+        new TrackGroup(VIDEO_FORMAT.buildUpon().setAverageBitrate(500_000).build());
+    TrackGroup videoGroupLowBitrate =
+        new TrackGroup(VIDEO_FORMAT.buildUpon().setAverageBitrate(100_000).build());
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .addOverride(
+                        new TrackSelectionOverride(
+                            videoGroupHighBitrate, /* trackIndexes= */ ImmutableList.of()))
+                    .addOverride(
+                        new TrackSelectionOverride(
+                            videoGroupMidBitrate, /* trackIndexes= */ ImmutableList.of(0)))
+                    .addOverride(
+                        new TrackSelectionOverride(
+                            videoGroupLowBitrate, /* trackIndexes= */ ImmutableList.of()))
+                    .build()));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(videoGroupHighBitrate, videoGroupMidBitrate, videoGroupLowBitrate),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(new FixedTrackSelection(videoGroupMidBitrate, /* track= */ 0), null);
+  }
+
   /** Tests that an empty override is not applied for a different set of available track groups. */
   @Test
   public void selectTracks_withEmptyTrackOverrideForDifferentTracks_hasNoEffect()
