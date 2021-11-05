@@ -89,8 +89,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    samplePipeline =
-        new AudioSamplePipeline(checkNotNull(formatHolder.format), transformation, getIndex());
+    Format decoderInputFormat = checkNotNull(formatHolder.format);
+    if ((transformation.audioMimeType != null
+            && !transformation.audioMimeType.equals(decoderInputFormat.sampleMimeType))
+        || transformation.flattenForSlowMotion) {
+      samplePipeline = new AudioSamplePipeline(decoderInputFormat, transformation, getIndex());
+    } else {
+      samplePipeline = new PassthroughSamplePipeline(decoderInputFormat);
+    }
     return true;
   }
 
