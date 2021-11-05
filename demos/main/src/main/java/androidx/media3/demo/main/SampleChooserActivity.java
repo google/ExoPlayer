@@ -43,6 +43,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaItem.ClippingConfiguration;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Log;
@@ -53,6 +54,7 @@ import androidx.media3.datasource.DataSourceUtil;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.offline.DownloadService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.InputStream;
@@ -351,6 +353,8 @@ public class SampleChooserActivity extends AppCompatActivity
       boolean drmSessionForClearContent = false;
       boolean drmMultiSession = false;
       boolean drmForceDefaultLicenseUri = false;
+      MediaItem.ClippingConfiguration.Builder clippingConfiguration =
+          new ClippingConfiguration.Builder();
 
       MediaItem.Builder mediaItem = new MediaItem.Builder();
       reader.beginObject();
@@ -367,10 +371,10 @@ public class SampleChooserActivity extends AppCompatActivity
             extension = reader.nextString();
             break;
           case "clip_start_position_ms":
-            mediaItem.setClipStartPositionMs(reader.nextLong());
+            clippingConfiguration.setStartPositionMs(reader.nextLong());
             break;
           case "clip_end_position_ms":
-            mediaItem.setClipEndPositionMs(reader.nextLong());
+            clippingConfiguration.setEndPositionMs(reader.nextLong());
             break;
           case "ad_tag_uri":
             mediaItem.setAdsConfiguration(
@@ -439,7 +443,8 @@ public class SampleChooserActivity extends AppCompatActivity
         mediaItem
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
-            .setMimeType(adaptiveMimeType);
+            .setMimeType(adaptiveMimeType)
+            .setClippingConfiguration(clippingConfiguration.build());
         if (drmUuid != null) {
           mediaItem.setDrmConfiguration(
               new MediaItem.DrmConfiguration.Builder(drmUuid)
@@ -463,13 +468,15 @@ public class SampleChooserActivity extends AppCompatActivity
               "drm_uuid is required if drm_force_default_license_uri is set.");
         }
         if (subtitleUri != null) {
-          MediaItem.Subtitle subtitle =
-              new MediaItem.Subtitle(
-                  subtitleUri,
-                  checkNotNull(
-                      subtitleMimeType, "subtitle_mime_type is required if subtitle_uri is set."),
-                  subtitleLanguage);
-          mediaItem.setSubtitles(Collections.singletonList(subtitle));
+          MediaItem.SubtitleConfiguration subtitleConfiguration =
+              new MediaItem.SubtitleConfiguration.Builder(subtitleUri)
+                  .setMimeType(
+                      checkNotNull(
+                          subtitleMimeType,
+                          "subtitle_mime_type is required if subtitle_uri is set."))
+                  .setLanguage(subtitleLanguage)
+                  .build();
+          mediaItem.setSubtitleConfigurations(ImmutableList.of(subtitleConfiguration));
         }
         return new PlaylistHolder(title, Collections.singletonList(mediaItem.build()));
       }
