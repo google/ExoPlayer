@@ -465,7 +465,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   /**
    * Returns initial bitrate group assignments for a {@code country}. The initial bitrate is a list
-   * of indexes for [Wifi, 2G, 3G, 4G, 5G_NSA, 5G_SA].
+   * of indices for [Wifi, 2G, 3G, 4G, 5G_NSA, 5G_SA].
    */
   private static int[] getInitialBitrateCountryGroupAssignment(String country) {
     switch (country) {
