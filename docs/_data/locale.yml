@@ -18,7 +18,7 @@ en: &EN
   FOLLOW_US               : "Follow us on [NAME]."
   EMAIL_ME                : "Send me Email."
   EMAIL_US                : "Send us Email."
-  COPYRIGHT_DATES         : "2019"
+  COPYRIGHT_DATES         : "2021"
 
 en-GB:
   <<: *EN
@@ -49,7 +49,7 @@ zh-Hans: &ZH_HANS
   FOLLOW_US               : "在 [NAME] 上关注我们。"
   EMAIL_ME                : "给我发邮件。"
   EMAIL_US                : "给我们发邮件。"
-  COPYRIGHT_DATES         : "2019"
+  COPYRIGHT_DATES         : "2021"
 
 zh:
   <<: *ZH_HANS
@@ -78,7 +78,7 @@ zh-Hant: &ZH_HANT
   FOLLOW_US               : "在 [NAME] 上關注我們。"
   EMAIL_ME                : "給我發郵件。"
   EMAIL_US                : "給我們發郵件。"
-  COPYRIGHT_DATES         : "2019"
+  COPYRIGHT_DATES         : "2021"
 
 zh-TW:
   <<: *ZH_HANT
@@ -105,7 +105,7 @@ ko: &KO
   FOLLOW_US               : "[NAME]에서 팔로우하기"
   EMAIL_ME                : "이메일 보내기"
   EMAIL_US                : "이메일 보내기"
-  COPYRIGHT_DATES         : "2019"
+  COPYRIGHT_DATES         : "2021"
 
 ko-KR:
   <<: *KO
