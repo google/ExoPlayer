@@ -296,6 +296,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  @Deprecated
   @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
@@ -303,12 +304,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  @Deprecated
   @Override
   public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
     delegateFactoryLoader.setDrmUserAgent(userAgent);
     return this;
   }
 
+  @Deprecated
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {

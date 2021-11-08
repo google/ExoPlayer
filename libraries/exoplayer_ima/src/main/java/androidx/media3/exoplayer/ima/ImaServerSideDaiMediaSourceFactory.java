@@ -323,17 +323,20 @@ public final class ImaServerSideDaiMediaSourceFactory implements MediaSourceFact
     return this;
   }
 
+  @Deprecated
   @Override
   public MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
     return this;
   }
 
+  @Deprecated
   @Override
   public MediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
     return this;
   }
 
+  @Deprecated
   @Override
   public MediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
     return this;
