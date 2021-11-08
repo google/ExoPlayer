@@ -45,7 +45,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaItem.ClippingConfiguration;
 import com.google.android.exoplayer2.MediaMetadata;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -329,8 +328,7 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.nextString(); // Ignore.
             break;
           default:
-            throw ParserException.createForMalformedManifest(
-                "Unsupported name: " + name, /* cause= */ null);
+            throw new IOException("Unsupported name: " + name, /* cause= */ null);
         }
       }
       reader.endObject();
@@ -424,8 +422,7 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.endArray();
             break;
           default:
-            throw ParserException.createForMalformedManifest(
-                "Unsupported attribute name: " + name, /* cause= */ null);
+            throw new IOException("Unsupported attribute name: " + name, /* cause= */ null);
         }
       }
       reader.endObject();
