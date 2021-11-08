@@ -220,13 +220,13 @@ public final class DefaultTrackSelectorTest {
                 new TrackSelectionOverrides.Builder()
                     .addOverride(
                         new TrackSelectionOverride(
-                            videoGroupHighBitrate, /* trackIndexes= */ ImmutableList.of()))
+                            videoGroupHighBitrate, /* trackIndices= */ ImmutableList.of()))
                     .addOverride(
                         new TrackSelectionOverride(
-                            videoGroupMidBitrate, /* trackIndexes= */ ImmutableList.of(0)))
+                            videoGroupMidBitrate, /* trackIndices= */ ImmutableList.of(0)))
                     .addOverride(
                         new TrackSelectionOverride(
-                            videoGroupLowBitrate, /* trackIndexes= */ ImmutableList.of()))
+                            videoGroupLowBitrate, /* trackIndices= */ ImmutableList.of()))
                     .build()));
 
     TrackSelectorResult result =
@@ -1933,7 +1933,7 @@ public final class DefaultTrackSelectorTest {
                 .setOverrideForType(
                     new TrackSelectionOverride(
                         new TrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT),
-                        /* trackIndexes= */ ImmutableList.of(0, 2, 3)))
+                        /* trackIndices= */ ImmutableList.of(0, 2, 3)))
                 .build())
         .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
         .build();

@@ -113,7 +113,7 @@ public final class TrackSelectionOverrides implements Bundleable {
   }
 
   /**
-   * Forces the selection of {@link #trackIndexes} for a {@link TrackGroup}.
+   * Forces the selection of {@link #trackIndices} for a {@link TrackGroup}.
    *
    * <p>If multiple {link #tracks} are overridden, as many as possible will be selected depending on
    * the player capabilities.
@@ -126,10 +126,10 @@ public final class TrackSelectionOverrides implements Bundleable {
    */
   public static final class TrackSelectionOverride implements Bundleable {
 
-    /** The {@link TrackGroup} whose {@link #trackIndexes} are forced to be selected. */
+    /** The {@link TrackGroup} whose {@link #trackIndices} are forced to be selected. */
     public final TrackGroup trackGroup;
-    /** The index of tracks in a {@link TrackGroup} to be selected. */
-    public final ImmutableList<Integer> trackIndexes;
+    /** The indices of tracks in a {@link TrackGroup} to be selected. */
+    public final ImmutableList<Integer> trackIndices;
 
     /** Constructs an instance to force all tracks in {@code trackGroup} to be selected. */
     public TrackSelectionOverride(TrackGroup trackGroup) {
@@ -138,23 +138,23 @@ public final class TrackSelectionOverrides implements Bundleable {
       for (int i = 0; i < trackGroup.length; i++) {
         builder.add(i);
       }
-      this.trackIndexes = builder.build();
+      this.trackIndices = builder.build();
     }
 
     /**
-     * Constructs an instance to force {@code trackIndexes} in {@code trackGroup} to be selected.
+     * Constructs an instance to force {@code trackIndices} in {@code trackGroup} to be selected.
      *
      * @param trackGroup The {@link TrackGroup} for which to override the track selection.
-     * @param trackIndexes The indexes of the tracks in the {@link TrackGroup} to select.
+     * @param trackIndices The indices of the tracks in the {@link TrackGroup} to select.
      */
-    public TrackSelectionOverride(TrackGroup trackGroup, List<Integer> trackIndexes) {
-      if (!trackIndexes.isEmpty()) {
-        if (min(trackIndexes) < 0 || max(trackIndexes) >= trackGroup.length) {
+    public TrackSelectionOverride(TrackGroup trackGroup, List<Integer> trackIndices) {
+      if (!trackIndices.isEmpty()) {
+        if (min(trackIndices) < 0 || max(trackIndices) >= trackGroup.length) {
           throw new IndexOutOfBoundsException();
         }
       }
       this.trackGroup = trackGroup;
-      this.trackIndexes = ImmutableList.copyOf(trackIndexes);
+      this.trackIndices = ImmutableList.copyOf(trackIndices);
     }
 
     @Override
@@ -166,12 +166,12 @@ public final class TrackSelectionOverrides implements Bundleable {
         return false;
       }
       TrackSelectionOverride that = (TrackSelectionOverride) obj;
-      return trackGroup.equals(that.trackGroup) && trackIndexes.equals(that.trackIndexes);
+      return trackGroup.equals(that.trackGroup) && trackIndices.equals(that.trackIndices);
     }
 
     @Override
     public int hashCode() {
-      return trackGroup.hashCode() + 31 * trackIndexes.hashCode();
+      return trackGroup.hashCode() + 31 * trackIndices.hashCode();
     }
 
     private @C.TrackType int getTrackType() {
@@ -195,7 +195,7 @@ public final class TrackSelectionOverrides implements Bundleable {
     public Bundle toBundle() {
       Bundle bundle = new Bundle();
       bundle.putBundle(keyForField(FIELD_TRACK_GROUP), trackGroup.toBundle());
-      bundle.putIntArray(keyForField(FIELD_TRACKS), Ints.toArray(trackIndexes));
+      bundle.putIntArray(keyForField(FIELD_TRACKS), Ints.toArray(trackIndices));
       return bundle;
     }
 

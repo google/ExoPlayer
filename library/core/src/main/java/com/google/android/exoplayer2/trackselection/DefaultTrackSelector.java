@@ -307,7 +307,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       rendererDisabledFlags =
           makeSparseBooleanArrayFromTrueKeys(
               bundle.getIntArray(
-                  Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDEXES)));
+                  Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDICES)));
     }
 
     @Override
@@ -825,9 +825,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     private void setSelectionOverridesFromBundle(Bundle bundle) {
       @Nullable
-      int[] rendererIndexes =
+      int[] rendererIndices =
           bundle.getIntArray(
-              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES));
+              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDICES));
       List<TrackGroupArray> trackGroupArrays =
           BundleableUtil.fromBundleNullableList(
               TrackGroupArray.CREATOR,
@@ -841,11 +841,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                   Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES)),
               /* defaultValue= */ new SparseArray<>());
 
-      if (rendererIndexes == null || rendererIndexes.length != trackGroupArrays.size()) {
+      if (rendererIndices == null || rendererIndices.length != trackGroupArrays.size()) {
         return; // Incorrect format, ignore all overrides.
       }
-      for (int i = 0; i < rendererIndexes.length; i++) {
-        int rendererIndex = rendererIndexes[i];
+      for (int i = 0; i < rendererIndices.length; i++) {
+        int rendererIndex = rendererIndices[i];
         TrackGroupArray groups = trackGroupArrays.get(i);
         @Nullable SelectionOverride selectionOverride = selectionOverrides.get(i);
         setSelectionOverride(rendererIndex, groups, selectionOverride);
@@ -1107,10 +1107,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY,
       FIELD_TUNNELING_ENABLED,
       FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS,
-      FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES,
+      FIELD_SELECTION_OVERRIDES_RENDERER_INDICES,
       FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS,
       FIELD_SELECTION_OVERRIDES,
-      FIELD_RENDERER_DISABLED_INDEXES,
+      FIELD_RENDERER_DISABLED_INDICES,
     })
     private @interface FieldNumber {}
 
@@ -1126,10 +1126,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private static final int FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY = 1008;
     private static final int FIELD_TUNNELING_ENABLED = 1009;
     private static final int FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS = 1010;
-    private static final int FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES = 1011;
+    private static final int FIELD_SELECTION_OVERRIDES_RENDERER_INDICES = 1011;
     private static final int FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS = 1012;
     private static final int FIELD_SELECTION_OVERRIDES = 1013;
-    private static final int FIELD_RENDERER_DISABLED_INDEXES = 1014;
+    private static final int FIELD_RENDERER_DISABLED_INDICES = 1014;
 
     @Override
     public Bundle toBundle() {
@@ -1172,7 +1172,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       putSelectionOverridesToBundle(bundle, selectionOverrides);
       // Only true values are put into rendererDisabledFlags.
       bundle.putIntArray(
-          keyForField(FIELD_RENDERER_DISABLED_INDEXES),
+          keyForField(FIELD_RENDERER_DISABLED_INDICES),
           getKeysFromSparseBooleanArray(rendererDisabledFlags));
 
       return bundle;
@@ -1194,7 +1194,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private static void putSelectionOverridesToBundle(
         Bundle bundle,
         SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides) {
-      ArrayList<Integer> rendererIndexes = new ArrayList<>();
+      ArrayList<Integer> rendererIndices = new ArrayList<>();
       ArrayList<TrackGroupArray> trackGroupArrays = new ArrayList<>();
       SparseArray<SelectionOverride> selections = new SparseArray<>();
 
@@ -1207,10 +1207,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             selections.put(trackGroupArrays.size(), selection);
           }
           trackGroupArrays.add(override.getKey());
-          rendererIndexes.add(rendererIndex);
+          rendererIndices.add(rendererIndex);
         }
         bundle.putIntArray(
-            keyForField(FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES), Ints.toArray(rendererIndexes));
+            keyForField(FIELD_SELECTION_OVERRIDES_RENDERER_INDICES), Ints.toArray(rendererIndices));
         bundle.putParcelableArrayList(
             keyForField(FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS),
             BundleableUtil.toBundleArrayList(trackGroupArrays));
@@ -1571,7 +1571,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       TrackSelectionOverride overrideTracks =
           params.trackSelectionOverrides.getOverride(trackGroup);
       if (overrideTracks != null) {
-        if (overrideTracks.trackIndexes.isEmpty()) {
+        if (overrideTracks.trackIndices.isEmpty()) {
           // TrackGroup is disabled. Deselect the currentDefinition if applicable. Otherwise ignore.
           if (currentDefinition != null && currentDefinition.group.equals(trackGroup)) {
             currentDefinition = null;
@@ -1580,7 +1580,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           // Override current definition with new selection.
           currentDefinition =
               new ExoTrackSelection.Definition(
-                  trackGroup, Ints.toArray(overrideTracks.trackIndexes));
+                  trackGroup, Ints.toArray(overrideTracks.trackIndices));
         }
       }
     }
