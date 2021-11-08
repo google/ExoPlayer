@@ -78,6 +78,7 @@ public class HlsMediaPlaylistParserTest {
             + "#EXTINF:7.975,\n"
             + "https://priv.example.com/fileSequence2683.ts\n"
             + "\n"
+            // 2.002 tests correct rounding, see https://github.com/google/ExoPlayer/issues/9575.
             + "#EXTINF:2.002,\n"
             + "https://priv.example.com/fileSequence2684.ts\n"
             + "#EXT-X-ENDLIST";
@@ -395,7 +396,7 @@ public class HlsMediaPlaylistParserTest {
                 .parse(playlistUri, inputStream);
 
     assertThat(playlist.segments).hasSize(3);
-    assertThat(playlist.segments.get(1).relativeStartTimeUs).isEqualTo(4000079);
+    assertThat(playlist.segments.get(1).relativeStartTimeUs).isEqualTo(4000080);
     assertThat(previousPlaylist.segments.get(0).relativeDiscontinuitySequence).isEqualTo(0);
     assertThat(previousPlaylist.segments.get(1).relativeDiscontinuitySequence).isEqualTo(1);
     assertThat(previousPlaylist.segments.get(2).relativeDiscontinuitySequence).isEqualTo(1);
@@ -454,12 +455,12 @@ public class HlsMediaPlaylistParserTest {
     assertThat(playlist.segments.get(0).parts.get(0).relativeDiscontinuitySequence).isEqualTo(1);
     assertThat(playlist.segments.get(0).parts.get(1).relativeStartTimeUs).isEqualTo(2000000);
     assertThat(playlist.segments.get(0).parts.get(1).relativeDiscontinuitySequence).isEqualTo(1);
-    assertThat(playlist.segments.get(1).relativeStartTimeUs).isEqualTo(4000079);
-    assertThat(playlist.segments.get(1).parts.get(0).relativeStartTimeUs).isEqualTo(4000079);
+    assertThat(playlist.segments.get(1).relativeStartTimeUs).isEqualTo(4000080);
+    assertThat(playlist.segments.get(1).parts.get(0).relativeStartTimeUs).isEqualTo(4000080);
     assertThat(playlist.segments.get(1).parts.get(1).relativeDiscontinuitySequence).isEqualTo(1);
-    assertThat(playlist.segments.get(1).parts.get(1).relativeStartTimeUs).isEqualTo(6000079);
+    assertThat(playlist.segments.get(1).parts.get(1).relativeStartTimeUs).isEqualTo(6000080);
     assertThat(playlist.segments.get(1).parts.get(1).relativeDiscontinuitySequence).isEqualTo(1);
-    assertThat(playlist.trailingParts.get(0).relativeStartTimeUs).isEqualTo(8000158);
+    assertThat(playlist.trailingParts.get(0).relativeStartTimeUs).isEqualTo(8000160);
     assertThat(playlist.trailingParts.get(0).relativeDiscontinuitySequence).isEqualTo(1);
   }
 
