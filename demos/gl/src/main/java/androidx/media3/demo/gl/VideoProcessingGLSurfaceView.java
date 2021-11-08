@@ -73,7 +73,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
 
   @Nullable private SurfaceTexture surfaceTexture;
   @Nullable private Surface surface;
-  @Nullable private ExoPlayer.VideoComponent videoComponent;
+  @Nullable private ExoPlayer player;
 
   /**
    * Creates a new instance. Pass {@code true} for {@code requireSecureContext} if the {@link
@@ -147,25 +147,24 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
   }
 
   /**
-   * Attaches or detaches (if {@code newVideoComponent} is {@code null}) this view from the video
-   * component of the player.
+   * Attaches or detaches (if {@code player} is {@code null}) this view from the player.
    *
-   * @param newVideoComponent The new video component, or {@code null} to detach this view.
+   * @param player The new player, or {@code null} to detach this view.
    */
-  public void setVideoComponent(@Nullable ExoPlayer.VideoComponent newVideoComponent) {
-    if (newVideoComponent == videoComponent) {
+  public void setPlayer(@Nullable ExoPlayer player) {
+    if (player == this.player) {
       return;
     }
-    if (videoComponent != null) {
+    if (this.player != null) {
       if (surface != null) {
-        videoComponent.clearVideoSurface(surface);
+        this.player.clearVideoSurface(surface);
       }
-      videoComponent.clearVideoFrameMetadataListener(renderer);
+      this.player.clearVideoFrameMetadataListener(renderer);
     }
-    videoComponent = newVideoComponent;
-    if (videoComponent != null) {
-      videoComponent.setVideoFrameMetadataListener(renderer);
-      videoComponent.setVideoSurface(surface);
+    this.player = player;
+    if (this.player != null) {
+      this.player.setVideoFrameMetadataListener(renderer);
+      this.player.setVideoSurface(surface);
     }
   }
 
@@ -176,8 +175,8 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
     mainHandler.post(
         () -> {
           if (surface != null) {
-            if (videoComponent != null) {
-              videoComponent.setVideoSurface(null);
+            if (player != null) {
+              player.setVideoSurface(null);
             }
             releaseSurface(surfaceTexture, surface);
             surfaceTexture = null;
@@ -194,8 +193,8 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
           this.surfaceTexture = surfaceTexture;
           this.surface = new Surface(surfaceTexture);
           releaseSurface(oldSurfaceTexture, oldSurface);
-          if (videoComponent != null) {
-            videoComponent.setVideoSurface(surface);
+          if (player != null) {
+            player.setVideoSurface(surface);
           }
         });
   }
