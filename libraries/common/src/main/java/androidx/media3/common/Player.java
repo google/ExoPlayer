@@ -2136,7 +2136,7 @@ public interface Player {
   /** Returns the index of the period currently being played. */
   int getCurrentPeriodIndex();
 
-  /** @deprecated Use {@link #getCurrentMediaItem()} instead. */
+  /** @deprecated Use {@link #getCurrentMediaItemIndex()} instead. */
   @UnstableApi
   @Deprecated
   int getCurrentWindowIndex();
