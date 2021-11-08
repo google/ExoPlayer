@@ -31,7 +31,9 @@ import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.common.math.LongMath;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -62,6 +64,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull AudioFormat encoderInputAudioFormat;
   private @MonotonicNonNull MediaCodecAdapterWrapper encoder;
   private long nextEncoderInputBufferTimeUs;
+  private long encoderBufferDurationRemainder;
 
   private ByteBuffer sonicOutputBuffer;
   private boolean drainingSonicForSpeedChange;
@@ -82,6 +85,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sonicAudioProcessor = new SonicAudioProcessor();
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
     nextEncoderInputBufferTimeUs = 0;
+    encoderBufferDurationRemainder = 0;
     speedProvider = new SegmentSpeedProvider(decoderInputFormat);
     currentSpeed = speedProvider.getSpeed(0);
     try {
@@ -269,7 +273,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     encoderInputBufferData.put(inputBuffer);
     encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
     nextEncoderInputBufferTimeUs +=
-        getBufferDurationUs(
+        getEncoderBufferDurationUs(
             /* bytesWritten= */ encoderInputBufferData.position(),
             encoderInputAudioFormat.bytesPerFrame,
             encoderInputAudioFormat.sampleRate);
@@ -366,9 +370,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         errorCode);
   }
 
-  // TODO(internal b/204978301): Ensure encoder and decoder timestamps match when no speed change.
-  private static long getBufferDurationUs(long bytesWritten, int bytesPerFrame, int sampleRate) {
-    long framesWritten = bytesWritten / bytesPerFrame;
-    return framesWritten * C.MICROS_PER_SECOND / sampleRate;
+  private long getEncoderBufferDurationUs(long bytesWritten, int bytesPerFrame, int sampleRate) {
+    // The calculation below accounts for remainders and rounding. Without that it corresponds to
+    // the following:
+    // bufferDurationUs = numberOfFramesInBuffer * sampleDurationUs
+    //     where numberOfFramesInBuffer = bytesWritten / bytesPerFrame
+    //     and   sampleDurationUs       = C.MICROS_PER_SECOND / sampleRate
+    long framesWrittenMicrosPerSecond =
+        bytesWritten * C.MICROS_PER_SECOND / bytesPerFrame + encoderBufferDurationRemainder;
+    long bufferDurationUs =
+        LongMath.divide(framesWrittenMicrosPerSecond, sampleRate, RoundingMode.CEILING);
+    encoderBufferDurationRemainder = framesWrittenMicrosPerSecond - bufferDurationUs * sampleRate;
+    return bufferDurationUs;
   }
 }
