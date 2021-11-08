@@ -45,7 +45,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaItem.ClippingConfiguration;
 import androidx.media3.common.MediaMetadata;
-import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
@@ -329,8 +328,7 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.nextString(); // Ignore.
             break;
           default:
-            throw ParserException.createForMalformedManifest(
-                "Unsupported name: " + name, /* cause= */ null);
+            throw new IOException("Unsupported name: " + name, /* cause= */ null);
         }
       }
       reader.endObject();
@@ -424,8 +422,7 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.endArray();
             break;
           default:
-            throw ParserException.createForMalformedManifest(
-                "Unsupported attribute name: " + name, /* cause= */ null);
+            throw new IOException("Unsupported attribute name: " + name, /* cause= */ null);
         }
       }
       reader.endObject();
