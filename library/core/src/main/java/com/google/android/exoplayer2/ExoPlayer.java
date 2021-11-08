@@ -982,6 +982,7 @@ public interface ExoPlayer extends Player {
    * {@link ExoPlaybackException}.
    */
   @Override
+  @Nullable
   ExoPlaybackException getPlayerError();
 
   /**
