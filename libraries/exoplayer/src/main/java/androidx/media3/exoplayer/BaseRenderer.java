@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
@@ -25,10 +26,12 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.decoder.DecoderInputBuffer.InsufficientCapacityException;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.exoplayer.source.SampleStream.ReadFlags;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** An abstract base class suitable for most {@link Renderer} implementations. */
 @UnstableApi
@@ -39,6 +42,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @Nullable private RendererConfiguration configuration;
   private int index;
+  private @MonotonicNonNull PlayerId playerId;
   private int state;
   @Nullable private SampleStream stream;
   @Nullable private Format[] streamFormats;
@@ -69,8 +73,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void setIndex(int index) {
+  public final void init(int index, PlayerId playerId) {
     this.index = index;
+    this.playerId = playerId;
   }
 
   @Override
@@ -332,9 +337,22 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return Assertions.checkNotNull(configuration);
   }
 
-  /** Returns the index of the renderer within the player. */
+  /**
+   * Returns the index of the renderer within the player.
+   *
+   * <p>Must only be used after the renderer has been initialized by the player.
+   */
   protected final int getIndex() {
     return index;
+  }
+
+  /**
+   * Returns the {@link PlayerId} of the player using this renderer.
+   *
+   * <p>Must only be used after the renderer has been initialized by the player.
+   */
+  protected final PlayerId getPlayerId() {
+    return checkNotNull(playerId);
   }
 
   /**

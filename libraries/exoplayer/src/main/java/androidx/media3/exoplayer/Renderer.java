@@ -27,6 +27,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.PlayerMessage.Target;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.video.VideoDecoderOutputBufferRenderer;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
@@ -252,11 +253,12 @@ public interface Renderer extends PlayerMessage.Target {
   RendererCapabilities getCapabilities();
 
   /**
-   * Sets the index of this renderer within the player.
+   * Initializes the renderer for playback with a player.
    *
-   * @param index The renderer index.
+   * @param index The renderer index within the player.
+   * @param playerId The {@link PlayerId} of the player.
    */
-  void setIndex(int index);
+  void init(int index, PlayerId playerId);
 
   /**
    * If the renderer advances its own playback position then this method returns a corresponding

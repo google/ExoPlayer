@@ -22,6 +22,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
+import android.media.metrics.LogSessionId;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
@@ -30,6 +31,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.BasePlayer;
 import androidx.media3.common.C;
@@ -60,6 +62,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer.AudioOffloadListener;
 import androidx.media3.exoplayer.PlayerMessage.Target;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.MediaSourceFactory;
@@ -259,6 +262,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       addListener(analyticsCollector);
       bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
     }
+    PlayerId playerId = Util.SDK_INT < 31 ? new PlayerId() : Api31.createPlayerId();
     internalPlayer =
         new ExoPlayerImplInternal(
             renderers,
@@ -275,7 +279,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
             pauseAtEndOfMediaItems,
             applicationLooper,
             clock,
-            playbackInfoUpdateListener);
+            playbackInfoUpdateListener,
+            playerId);
   }
 
   /**
@@ -1867,6 +1872,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
     @Override
     public Timeline getTimeline() {
       return timeline;
+    }
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    private Api31() {}
+
+    public static PlayerId createPlayerId() {
+      // TODO: Create a MediaMetricsListener and obtain LogSessionId from it.
+      return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);
     }
   }
 }

@@ -52,6 +52,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSourceException;
 import androidx.media3.exoplayer.DefaultMediaClock.PlaybackParametersListener;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.source.BehindLiveWindowException;
 import androidx.media3.exoplayer.source.MediaPeriod;
@@ -237,7 +238,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean pauseAtEndOfWindow,
       Looper applicationLooper,
       Clock clock,
-      PlaybackInfoUpdateListener playbackInfoUpdateListener) {
+      PlaybackInfoUpdateListener playbackInfoUpdateListener,
+      PlayerId playerId) {
     this.playbackInfoUpdateListener = playbackInfoUpdateListener;
     this.renderers = renderers;
     this.trackSelector = trackSelector;
@@ -260,7 +262,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfoUpdate = new PlaybackInfoUpdate(playbackInfo);
     rendererCapabilities = new RendererCapabilities[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
-      renderers[i].setIndex(i);
+      renderers[i].init(/* index= */ i, playerId);
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
     mediaClock = new DefaultMediaClock(this, clock);
