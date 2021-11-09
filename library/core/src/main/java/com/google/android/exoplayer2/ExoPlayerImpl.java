@@ -22,6 +22,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
+import android.media.metrics.LogSessionId;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
@@ -30,9 +31,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -246,6 +249,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       addListener(analyticsCollector);
       bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
     }
+    PlayerId playerId = Util.SDK_INT < 31 ? new PlayerId() : Api31.createPlayerId();
     internalPlayer =
         new ExoPlayerImplInternal(
             renderers,
@@ -262,7 +266,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
             pauseAtEndOfMediaItems,
             applicationLooper,
             clock,
-            playbackInfoUpdateListener);
+            playbackInfoUpdateListener,
+            playerId);
   }
 
   /**
@@ -1854,6 +1859,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
     @Override
     public Timeline getTimeline() {
       return timeline;
+    }
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    private Api31() {}
+
+    public static PlayerId createPlayerId() {
+      // TODO: Create a MediaMetricsListener and obtain LogSessionId from it.
+      return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);
     }
   }
 }

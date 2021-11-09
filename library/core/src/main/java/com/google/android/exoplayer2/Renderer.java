@@ -20,6 +20,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -248,11 +249,12 @@ public interface Renderer extends PlayerMessage.Target {
   RendererCapabilities getCapabilities();
 
   /**
-   * Sets the index of this renderer within the player.
+   * Initializes the renderer for playback with a player.
    *
-   * @param index The renderer index.
+   * @param index The renderer index within the player.
+   * @param playerId The {@link PlayerId} of the player.
    */
-  void setIndex(int index);
+  void init(int index, PlayerId playerId);
 
   /**
    * If the renderer advances its own playback position then this method returns a corresponding

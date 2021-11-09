@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -229,7 +230,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean pauseAtEndOfWindow,
       Looper applicationLooper,
       Clock clock,
-      PlaybackInfoUpdateListener playbackInfoUpdateListener) {
+      PlaybackInfoUpdateListener playbackInfoUpdateListener,
+      PlayerId playerId) {
     this.playbackInfoUpdateListener = playbackInfoUpdateListener;
     this.renderers = renderers;
     this.trackSelector = trackSelector;
@@ -252,7 +254,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfoUpdate = new PlaybackInfoUpdate(playbackInfo);
     rendererCapabilities = new RendererCapabilities[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
-      renderers[i].setIndex(i);
+      renderers[i].init(/* index= */ i, playerId);
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
     mediaClock = new DefaultMediaClock(this, clock);
