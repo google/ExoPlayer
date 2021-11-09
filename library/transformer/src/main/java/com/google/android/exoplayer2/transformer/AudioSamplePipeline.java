@@ -31,9 +31,7 @@ import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.common.math.LongMath;
 import java.io.IOException;
-import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -84,8 +82,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     sonicAudioProcessor = new SonicAudioProcessor();
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
-    nextEncoderInputBufferTimeUs = 0;
-    encoderBufferDurationRemainder = 0;
     speedProvider = new SegmentSpeedProvider(decoderInputFormat);
     currentSpeed = speedProvider.getSpeed(0);
     try {
@@ -272,11 +268,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     inputBuffer.limit(min(bufferLimit, inputBuffer.position() + encoderInputBufferData.capacity()));
     encoderInputBufferData.put(inputBuffer);
     encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
-    nextEncoderInputBufferTimeUs +=
-        getEncoderBufferDurationUs(
-            /* bytesWritten= */ encoderInputBufferData.position(),
-            encoderInputAudioFormat.bytesPerFrame,
-            encoderInputAudioFormat.sampleRate);
+    computeNextEncoderInputBufferTimeUs(
+        /* bytesWritten= */ encoderInputBufferData.position(),
+        encoderInputAudioFormat.bytesPerFrame,
+        encoderInputAudioFormat.sampleRate);
     encoderInputBuffer.setFlags(0);
     encoderInputBuffer.flip();
     inputBuffer.limit(bufferLimit);
@@ -370,17 +365,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         errorCode);
   }
 
-  private long getEncoderBufferDurationUs(long bytesWritten, int bytesPerFrame, int sampleRate) {
+  private void computeNextEncoderInputBufferTimeUs(
+      long bytesWritten, int bytesPerFrame, int sampleRate) {
     // The calculation below accounts for remainders and rounding. Without that it corresponds to
     // the following:
     // bufferDurationUs = numberOfFramesInBuffer * sampleDurationUs
     //     where numberOfFramesInBuffer = bytesWritten / bytesPerFrame
     //     and   sampleDurationUs       = C.MICROS_PER_SECOND / sampleRate
-    long framesWrittenMicrosPerSecond =
-        bytesWritten * C.MICROS_PER_SECOND / bytesPerFrame + encoderBufferDurationRemainder;
-    long bufferDurationUs =
-        LongMath.divide(framesWrittenMicrosPerSecond, sampleRate, RoundingMode.CEILING);
-    encoderBufferDurationRemainder = framesWrittenMicrosPerSecond - bufferDurationUs * sampleRate;
-    return bufferDurationUs;
+    long numerator = bytesWritten * C.MICROS_PER_SECOND + encoderBufferDurationRemainder;
+    long denominator = (long) bytesPerFrame * sampleRate;
+    long bufferDurationUs = numerator / denominator;
+    encoderBufferDurationRemainder = numerator - bufferDurationUs * denominator;
+    if (encoderBufferDurationRemainder > 0) { // Ceil division result.
+      bufferDurationUs += 1;
+      encoderBufferDurationRemainder -= denominator;
+    }
+    nextEncoderInputBufferTimeUs += bufferDurationUs;
   }
 }
