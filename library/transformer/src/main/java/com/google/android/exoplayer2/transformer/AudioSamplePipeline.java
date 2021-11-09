@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.media.MediaCodec.BufferInfo;
@@ -157,9 +158,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void releaseOutputBuffer() {
-    if (encoder != null) {
-      encoder.releaseOutputBuffer();
-    }
+    checkStateNotNull(encoder).releaseOutputBuffer();
   }
 
   /**
