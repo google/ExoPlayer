@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.media.MediaCodec.BufferInfo;
@@ -157,9 +158,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void releaseOutputBuffer() {
-    if (encoder != null) {
-      encoder.releaseOutputBuffer();
-    }
+    checkStateNotNull(encoder).releaseOutputBuffer();
   }
 
   /**

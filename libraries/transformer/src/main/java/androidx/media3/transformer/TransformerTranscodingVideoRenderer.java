@@ -17,32 +17,17 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
 import android.content.Context;
-import android.graphics.SurfaceTexture;
-import android.media.MediaCodec;
-import android.opengl.EGL14;
-import android.opengl.EGLContext;
-import android.opengl.EGLDisplay;
-import android.opengl.EGLExt;
-import android.opengl.EGLSurface;
-import android.opengl.GLES20;
-import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.PlaybackException;
-import androidx.media3.common.util.GlUtil;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
-import androidx.media3.exoplayer.source.SampleStream;
-import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -50,42 +35,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 @RequiresApi(18)
 /* package */ final class TransformerTranscodingVideoRenderer extends TransformerBaseRenderer {
 
-  static {
-    GlUtil.glAssertionsEnabled = true;
-  }
-
   private static final String TAG = "TransformerTranscodingVideoRenderer";
 
-  // Predefined shader values.
-  private static final String VERTEX_SHADER_FILE_PATH = "shaders/blit_vertex_shader.glsl";
-  private static final String FRAGMENT_SHADER_FILE_PATH =
-      "shaders/copy_external_fragment_shader.glsl";
-  private static final int EXPECTED_NUMBER_OF_ATTRIBUTES = 2;
-  private static final int EXPECTED_NUMBER_OF_UNIFORMS = 2;
-
   private final Context context;
-
   private final DecoderInputBuffer decoderInputBuffer;
-  private final float[] decoderTextureTransformMatrix;
 
-  private @MonotonicNonNull Format decoderInputFormat;
-
-  @Nullable private EGLDisplay eglDisplay;
-  @Nullable private EGLContext eglContext;
-  @Nullable private EGLSurface eglSurface;
-
-  private int decoderTextureId;
-  @Nullable private SurfaceTexture decoderSurfaceTexture;
-  @Nullable private Surface decoderSurface;
-  @Nullable private MediaCodecAdapterWrapper decoder;
-  private volatile boolean isDecoderSurfacePopulated;
-  private boolean waitingForPopulatedDecoderSurface;
-  @Nullable private GlUtil.Uniform decoderTextureTransformUniform;
-
-  @Nullable private MediaCodecAdapterWrapper encoder;
-  /** Whether encoder's actual output format is obtained. */
-  private boolean hasEncoderActualOutputFormat;
-
+  private @MonotonicNonNull SamplePipeline samplePipeline;
+  private boolean muxerWrapperTrackAdded;
   private boolean muxerWrapperTrackEnded;
 
   public TransformerTranscodingVideoRenderer(
@@ -95,42 +51,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Transformation transformation) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformation);
     this.context = context;
-    decoderInputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
-    decoderTextureTransformMatrix = new float[16];
-    decoderTextureId = GlUtil.TEXTURE_ID_UNSET;
+    decoderInputBuffer =
+        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
   }
 
   @Override
   public String getName() {
     return TAG;
-  }
-
-  @Override
-  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (!isRendererStarted || isEnded() || !ensureInputFormatRead()) {
-      return;
-    }
-    ensureEncoderConfigured();
-    MediaCodecAdapterWrapper encoder = this.encoder;
-    ensureOpenGlConfigured();
-    EGLDisplay eglDisplay = this.eglDisplay;
-    EGLSurface eglSurface = this.eglSurface;
-    GlUtil.Uniform decoderTextureTransformUniform = this.decoderTextureTransformUniform;
-    if (!ensureDecoderConfigured()) {
-      return;
-    }
-    MediaCodecAdapterWrapper decoder = this.decoder;
-    SurfaceTexture decoderSurfaceTexture = this.decoderSurfaceTexture;
-
-    while (feedMuxerFromEncoder(encoder)) {}
-    while (feedEncoderFromDecoder(
-        decoder,
-        encoder,
-        decoderSurfaceTexture,
-        eglDisplay,
-        eglSurface,
-        decoderTextureTransformUniform)) {}
-    while (feedDecoderFromInput(decoder)) {}
   }
 
   @Override
@@ -140,272 +67,107 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void onReset() {
-    decoderInputBuffer.clear();
-    decoderInputBuffer.data = null;
-    GlUtil.destroyEglContext(eglDisplay, eglContext);
-    eglDisplay = null;
-    eglContext = null;
-    eglSurface = null;
-    if (decoderTextureId != GlUtil.TEXTURE_ID_UNSET) {
-      GlUtil.deleteTexture(decoderTextureId);
+    if (samplePipeline != null) {
+      samplePipeline.release();
     }
-    if (decoderSurfaceTexture != null) {
-      decoderSurfaceTexture.release();
-      decoderSurfaceTexture = null;
-    }
-    if (decoderSurface != null) {
-      decoderSurface.release();
-      decoderSurface = null;
-    }
-    if (decoder != null) {
-      decoder.release();
-      decoder = null;
-    }
-    isDecoderSurfacePopulated = false;
-    waitingForPopulatedDecoderSurface = false;
-    decoderTextureTransformUniform = null;
-    if (encoder != null) {
-      encoder.release();
-      encoder = null;
-    }
-    hasEncoderActualOutputFormat = false;
+    muxerWrapperTrackAdded = false;
     muxerWrapperTrackEnded = false;
   }
 
-  @EnsuresNonNullIf(expression = "decoderInputFormat", result = true)
-  private boolean ensureInputFormatRead() {
-    if (decoderInputFormat != null) {
+  @Override
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    if (!isRendererStarted || isEnded() || !ensureRendererConfigured()) {
+      return;
+    }
+
+    while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
+  }
+
+  /** Attempts to read the input format and to initialize the sample pipeline. */
+  @EnsuresNonNullIf(expression = "samplePipeline", result = true)
+  private boolean ensureRendererConfigured() throws ExoPlaybackException {
+    if (samplePipeline != null) {
       return true;
     }
     FormatHolder formatHolder = getFormatHolder();
-    @SampleStream.ReadDataResult
-    int result =
-        readSource(
-            formatHolder, decoderInputBuffer, /* readFlags= */ SampleStream.FLAG_REQUIRE_FORMAT);
+    @ReadDataResult
+    int result = readSource(formatHolder, decoderInputBuffer, /* readFlags= */ FLAG_REQUIRE_FORMAT);
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    decoderInputFormat = checkNotNull(formatHolder.format);
+    Format decoderInputFormat = checkNotNull(formatHolder.format);
+    if (transformation.videoMimeType != null
+        && !transformation.videoMimeType.equals(decoderInputFormat.sampleMimeType)) {
+      samplePipeline =
+          new VideoSamplePipeline(context, decoderInputFormat, transformation, getIndex());
+    } else {
+      samplePipeline = new PassthroughSamplePipeline(decoderInputFormat);
+    }
     return true;
   }
 
-  @RequiresNonNull({"decoderInputFormat"})
-  @EnsuresNonNull({"encoder"})
-  private void ensureEncoderConfigured() throws ExoPlaybackException {
-    if (encoder != null) {
-      return;
-    }
-
-    try {
-      encoder =
-          MediaCodecAdapterWrapper.createForVideoEncoding(
-              new Format.Builder()
-                  .setWidth(decoderInputFormat.width)
-                  .setHeight(decoderInputFormat.height)
-                  .setSampleMimeType(
-                      transformation.videoMimeType != null
-                          ? transformation.videoMimeType
-                          : decoderInputFormat.sampleMimeType)
-                  .build(),
-              ImmutableMap.of());
-    } catch (IOException e) {
-      throw createRendererException(
-          // TODO(claincly): should be "ENCODER_INIT_FAILED"
-          e, decoderInputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
-    }
-  }
-
-  @RequiresNonNull({"encoder", "decoderInputFormat"})
-  @EnsuresNonNull({"eglDisplay", "eglSurface", "decoderTextureTransformUniform"})
-  private void ensureOpenGlConfigured() {
-    if (eglDisplay != null && eglSurface != null && decoderTextureTransformUniform != null) {
-      return;
-    }
-
-    MediaCodecAdapterWrapper encoder = this.encoder;
-    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-    EGLContext eglContext;
-    try {
-      eglContext = GlUtil.createEglContext(eglDisplay);
-      this.eglContext = eglContext;
-    } catch (GlUtil.UnsupportedEglVersionException e) {
-      throw new IllegalStateException("EGL version is unsupported", e);
-    }
-    EGLSurface eglSurface =
-        GlUtil.getEglSurface(eglDisplay, checkNotNull(encoder.getInputSurface()));
-    GlUtil.focusSurface(
-        eglDisplay, eglContext, eglSurface, decoderInputFormat.width, decoderInputFormat.height);
-    decoderTextureId = GlUtil.createExternalTexture();
-    GlUtil.Program copyProgram;
-    try {
-      copyProgram = new GlUtil.Program(context, VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH);
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-
-    copyProgram.use();
-    GlUtil.Attribute[] copyAttributes = copyProgram.getAttributes();
-    checkState(
-        copyAttributes.length == EXPECTED_NUMBER_OF_ATTRIBUTES,
-        "Expected program to have " + EXPECTED_NUMBER_OF_ATTRIBUTES + " vertex attributes.");
-    for (GlUtil.Attribute copyAttribute : copyAttributes) {
-      if (copyAttribute.name.equals("a_position")) {
-        copyAttribute.setBuffer(
-            new float[] {
-              -1.0f, -1.0f, 0.0f, 1.0f,
-              1.0f, -1.0f, 0.0f, 1.0f,
-              -1.0f, 1.0f, 0.0f, 1.0f,
-              1.0f, 1.0f, 0.0f, 1.0f,
-            },
-            /* size= */ 4);
-      } else if (copyAttribute.name.equals("a_texcoord")) {
-        copyAttribute.setBuffer(
-            new float[] {
-              0.0f, 0.0f, 0.0f, 1.0f,
-              1.0f, 0.0f, 0.0f, 1.0f,
-              0.0f, 1.0f, 0.0f, 1.0f,
-              1.0f, 1.0f, 0.0f, 1.0f,
-            },
-            /* size= */ 4);
-      } else {
-        throw new IllegalStateException("Unexpected attribute name.");
-      }
-      copyAttribute.bind();
-    }
-    GlUtil.Uniform[] copyUniforms = copyProgram.getUniforms();
-    checkState(
-        copyUniforms.length == EXPECTED_NUMBER_OF_UNIFORMS,
-        "Expected program to have " + EXPECTED_NUMBER_OF_UNIFORMS + " uniforms.");
-    for (GlUtil.Uniform copyUniform : copyUniforms) {
-      if (copyUniform.name.equals("tex_sampler")) {
-        copyUniform.setSamplerTexId(decoderTextureId, 0);
-        copyUniform.bind();
-      } else if (copyUniform.name.equals("tex_transform")) {
-        decoderTextureTransformUniform = copyUniform;
-      } else {
-        throw new IllegalStateException("Unexpected uniform name.");
-      }
-    }
-    checkNotNull(decoderTextureTransformUniform);
-    this.eglDisplay = eglDisplay;
-    this.eglSurface = eglSurface;
-  }
-
-  @RequiresNonNull({"decoderInputFormat"})
-  @EnsuresNonNullIf(
-      expression = {"decoder", "decoderSurfaceTexture"},
-      result = true)
-  private boolean ensureDecoderConfigured() throws ExoPlaybackException {
-    if (decoder != null && decoderSurfaceTexture != null) {
-      return true;
-    }
-
-    checkState(decoderTextureId != GlUtil.TEXTURE_ID_UNSET);
-    SurfaceTexture decoderSurfaceTexture = new SurfaceTexture(decoderTextureId);
-    decoderSurfaceTexture.setOnFrameAvailableListener(
-        surfaceTexture -> isDecoderSurfacePopulated = true);
-    decoderSurface = new Surface(decoderSurfaceTexture);
-    try {
-      decoder = MediaCodecAdapterWrapper.createForVideoDecoding(decoderInputFormat, decoderSurface);
-    } catch (IOException e) {
-      throw createRendererException(
-          e, decoderInputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
-    }
-    this.decoderSurfaceTexture = decoderSurfaceTexture;
-    return true;
-  }
-
-  private boolean feedDecoderFromInput(MediaCodecAdapterWrapper decoder) {
-    if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
-      return false;
-    }
-
-    decoderInputBuffer.clear();
-    @SampleStream.ReadDataResult
-    int result = readSource(getFormatHolder(), decoderInputBuffer, /* readFlags= */ 0);
-    switch (result) {
-      case C.RESULT_FORMAT_READ:
-        throw new IllegalStateException("Format changes are not supported.");
-      case C.RESULT_BUFFER_READ:
-        mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
-        decoderInputBuffer.timeUs -= streamOffsetUs;
-        ByteBuffer data = checkNotNull(decoderInputBuffer.data);
-        data.flip();
-        decoder.queueInputBuffer(decoderInputBuffer);
-        return !decoderInputBuffer.isEndOfStream();
-      case C.RESULT_NOTHING_READ:
-      default:
-        return false;
-    }
-  }
-
-  private boolean feedEncoderFromDecoder(
-      MediaCodecAdapterWrapper decoder,
-      MediaCodecAdapterWrapper encoder,
-      SurfaceTexture decoderSurfaceTexture,
-      EGLDisplay eglDisplay,
-      EGLSurface eglSurface,
-      GlUtil.Uniform decoderTextureTransformUniform) {
-    if (decoder.isEnded()) {
-      return false;
-    }
-
-    if (!isDecoderSurfacePopulated) {
-      if (!waitingForPopulatedDecoderSurface) {
-        if (decoder.getOutputBufferInfo() != null) {
-          decoder.releaseOutputBuffer(/* render= */ true);
-          waitingForPopulatedDecoderSurface = true;
-        }
-        if (decoder.isEnded()) {
-          encoder.signalEndOfInputStream();
-        }
-      }
-      return false;
-    }
-
-    waitingForPopulatedDecoderSurface = false;
-    decoderSurfaceTexture.updateTexImage();
-    decoderSurfaceTexture.getTransformMatrix(decoderTextureTransformMatrix);
-    decoderTextureTransformUniform.setFloats(decoderTextureTransformMatrix);
-    decoderTextureTransformUniform.bind();
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-    long decoderSurfaceTextureTimestampNs = decoderSurfaceTexture.getTimestamp();
-    EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, decoderSurfaceTextureTimestampNs);
-    EGL14.eglSwapBuffers(eglDisplay, eglSurface);
-    isDecoderSurfacePopulated = false;
-    return true;
-  }
-
-  private boolean feedMuxerFromEncoder(MediaCodecAdapterWrapper encoder) {
-    if (!hasEncoderActualOutputFormat) {
-      @Nullable Format encoderOutputFormat = encoder.getOutputFormat();
-      if (encoderOutputFormat == null) {
+  /**
+   * Attempts to write sample pipeline output data to the muxer, and returns whether it may be
+   * possible to write more data immediately by calling this method again.
+   */
+  @RequiresNonNull("samplePipeline")
+  private boolean feedMuxerFromPipeline() {
+    if (!muxerWrapperTrackAdded) {
+      @Nullable Format samplePipelineOutputFormat = samplePipeline.getOutputFormat();
+      if (samplePipelineOutputFormat == null) {
         return false;
       }
-      hasEncoderActualOutputFormat = true;
-      muxerWrapper.addTrackFormat(encoderOutputFormat);
+      muxerWrapperTrackAdded = true;
+      muxerWrapper.addTrackFormat(samplePipelineOutputFormat);
     }
 
-    if (encoder.isEnded()) {
+    if (samplePipeline.isEnded()) {
       muxerWrapper.endTrack(getTrackType());
       muxerWrapperTrackEnded = true;
       return false;
     }
 
-    @Nullable ByteBuffer encoderOutputBuffer = encoder.getOutputBuffer();
-    if (encoderOutputBuffer == null) {
+    @Nullable DecoderInputBuffer samplePipelineOutputBuffer = samplePipeline.getOutputBuffer();
+    if (samplePipelineOutputBuffer == null) {
       return false;
     }
 
-    MediaCodec.BufferInfo encoderOutputBufferInfo = checkNotNull(encoder.getOutputBufferInfo());
     if (!muxerWrapper.writeSample(
         getTrackType(),
-        encoderOutputBuffer,
-        /* isKeyFrame= */ (encoderOutputBufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) > 0,
-        encoderOutputBufferInfo.presentationTimeUs)) {
+        samplePipelineOutputBuffer.data,
+        samplePipelineOutputBuffer.isKeyFrame(),
+        samplePipelineOutputBuffer.timeUs)) {
       return false;
     }
-    encoder.releaseOutputBuffer();
+    samplePipeline.releaseOutputBuffer();
     return true;
+  }
+
+  /**
+   * Attempts to pass input data to the sample pipeline, and returns whether it may be possible to
+   * pass more data immediately by calling this method again.
+   */
+  @RequiresNonNull("samplePipeline")
+  private boolean feedPipelineFromInput() {
+    @Nullable DecoderInputBuffer samplePipelineInputBuffer = samplePipeline.dequeueInputBuffer();
+    if (samplePipelineInputBuffer == null) {
+      return false;
+    }
+
+    @ReadDataResult
+    int result = readSource(getFormatHolder(), samplePipelineInputBuffer, /* readFlags= */ 0);
+    switch (result) {
+      case C.RESULT_BUFFER_READ:
+        mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
+        samplePipelineInputBuffer.timeUs -= streamOffsetUs;
+        samplePipelineInputBuffer.flip();
+        samplePipeline.queueInputBuffer();
+        return !samplePipelineInputBuffer.isEndOfStream();
+      case C.RESULT_FORMAT_READ:
+        throw new IllegalStateException("Format changes are not supported.");
+      case C.RESULT_NOTHING_READ:
+      default:
+        return false;
+    }
   }
 }
