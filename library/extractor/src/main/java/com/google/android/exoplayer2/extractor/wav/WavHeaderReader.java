@@ -71,14 +71,8 @@ import java.io.IOException;
   public static WavFormat readFormat(ExtractorInput input) throws IOException {
     // Allocate a scratch buffer large enough to store the format chunk.
     ParsableByteArray scratch = new ParsableByteArray(16);
-
     // Skip chunks until we find the format chunk.
-    ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    while (chunkHeader.id != WavUtil.FMT_FOURCC) {
-      input.skipFully(ChunkHeader.SIZE_IN_BYTES + (int) chunkHeader.size);
-      chunkHeader = ChunkHeader.peek(input, scratch);
-    }
-
+    ChunkHeader chunkHeader = skipToChunk(/* chunkId= */ WavUtil.FMT_FOURCC, input, scratch);
     Assertions.checkState(chunkHeader.size >= 16);
     input.peekFully(scratch.getData(), 0, 16);
     scratch.setPosition(0);
@@ -112,7 +106,8 @@ import java.io.IOException;
   /**
    * Skips to the data in the given WAV input stream, and returns its bounds. After calling, the
    * input stream's position will point to the start of sample data in the WAV. If an exception is
-   * thrown, the input position will be left pointing to a chunk header.
+   * thrown, the input position will be left pointing to a chunk header (that may not be the data
+   * chunk header).
    *
    * @param input The input stream, whose read position must be pointing to a valid chunk header.
    * @return The byte positions at which the data starts (inclusive) and ends (exclusive).
@@ -125,17 +120,7 @@ import java.io.IOException;
 
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
     // Skip all chunks until we find the data header.
-    ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    while (chunkHeader.id != WavUtil.DATA_FOURCC) {
-      Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
-      long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
-      if (bytesToSkip > Integer.MAX_VALUE) {
-        throw ParserException.createForUnsupportedContainerFeature(
-            "Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
-      }
-      input.skipFully((int) bytesToSkip);
-      chunkHeader = ChunkHeader.peek(input, scratch);
-    }
+    ChunkHeader chunkHeader = skipToChunk(/* chunkId= */ WavUtil.DATA_FOURCC, input, scratch);
     // Skip past the "data" header.
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
@@ -147,6 +132,35 @@ import java.io.IOException;
       dataEndPosition = inputLength;
     }
     return Pair.create(dataStartPosition, dataEndPosition);
+  }
+
+  /**
+   * Skips to the chunk header corresponding to the {@code chunkId} provided. After calling, the
+   * input stream's position will point to the chunk header with provided {@code chunkId} and the
+   * peek position to the chunk body. If an exception is thrown, the input position will be left
+   * pointing to a chunk header (that may not be the one corresponding to the {@code chunkId}).
+   *
+   * @param chunkId The ID of the chunk to skip to.
+   * @param input The input stream, whose read position must be pointing to a valid chunk header.
+   * @param scratch A scratch buffer to read the chunk headers.
+   * @return The {@link ChunkHeader} corresponding to the {@code chunkId} provided.
+   * @throws ParserException If an error occurs parsing chunks.
+   * @throws IOException If reading from the input fails.
+   */
+  private static ChunkHeader skipToChunk(
+      int chunkId, ExtractorInput input, ParsableByteArray scratch) throws IOException {
+    ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
+    while (chunkHeader.id != chunkId) {
+      Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
+      long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
+      if (bytesToSkip > Integer.MAX_VALUE) {
+        throw ParserException.createForUnsupportedContainerFeature(
+            "Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
+      }
+      input.skipFully((int) bytesToSkip);
+      chunkHeader = ChunkHeader.peek(input, scratch);
+    }
+    return chunkHeader;
   }
 
   private WavHeaderReader() {
