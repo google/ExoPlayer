@@ -1009,7 +1009,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param rendererIndex The renderer index.
      * @param groups The {@link TrackGroupArray}.
      * @return Whether there is an override.
+     * @deprecated Only works to retrieve the overrides set with the deprecated {@link
+     *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
+     *     {@link TrackSelectionParameters#trackSelectionOverrides} instead.
      */
+    @Deprecated
     public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
           selectionOverrides.get(rendererIndex);
@@ -1022,7 +1026,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param rendererIndex The renderer index.
      * @param groups The {@link TrackGroupArray}.
      * @return The override, or null if no override exists.
+     * @deprecated Only works to retrieve the overrides set with the deprecated {@link
+     *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
+     *     {@link TrackSelectionParameters#trackSelectionOverrides} instead.
      */
+    @Deprecated
     @Nullable
     public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
