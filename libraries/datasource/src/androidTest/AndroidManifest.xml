@@ -18,10 +18,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.media3.datasource.test">
 
+  <uses-permission android:name="android.permission.INTERNET"/>
   <uses-sdk/>
 
   <application
       android:allowBackup="false"
+      android:usesCleartextTraffic="true"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <provider
       android:authorities="androidx.media3.test.utils.AssetContentProvider"
