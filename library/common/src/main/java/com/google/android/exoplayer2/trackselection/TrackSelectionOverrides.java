@@ -115,14 +115,14 @@ public final class TrackSelectionOverrides implements Bundleable {
   /**
    * Forces the selection of {@link #trackIndices} for a {@link TrackGroup}.
    *
-   * <p>If multiple {link #tracks} are overridden, as many as possible will be selected depending on
-   * the player capabilities.
+   * <p>If multiple tracks in {@link #trackGroup} are overridden, as many as possible will be
+   * selected depending on the player capabilities.
    *
-   * <p>If a {@link TrackSelectionOverride} has no tracks ({@code tracks.isEmpty()}), no tracks will
-   * be played. This is similar to {@link TrackSelectionParameters#disabledTrackTypes}, except it
-   * will only affect the playback of the associated {@link TrackGroup}. For example, if the only
-   * {@link C#TRACK_TYPE_VIDEO} {@link TrackGroup} is associated with no tracks, no video will play
-   * until the next video starts.
+   * <p>If {@link #trackIndices} is empty, no tracks from {@link #trackGroup} will be played. This
+   * is similar to {@link TrackSelectionParameters#disabledTrackTypes}, except it will only affect
+   * the playback of the associated {@link TrackGroup}. For example, if the only {@link
+   * C#TRACK_TYPE_VIDEO} {@link TrackGroup} is associated with no tracks, no video will play until
+   * the next video starts.
    */
   public static final class TrackSelectionOverride implements Bundleable {
 
@@ -232,7 +232,7 @@ public final class TrackSelectionOverrides implements Bundleable {
     return new Builder(overrides);
   }
 
-  /** Returns all {@link TrackSelectionOverride} contained. */
+  /** Returns a list of the {@link TrackSelectionOverride overrides}. */
   public ImmutableList<TrackSelectionOverride> asList() {
     return ImmutableList.copyOf(overrides.values());
   }
