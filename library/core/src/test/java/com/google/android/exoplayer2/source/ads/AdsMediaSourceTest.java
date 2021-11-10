@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
@@ -117,7 +118,8 @@ public final class AdsMediaSourceTest {
             adMediaSourceFactory,
             mockAdsLoader,
             mockAdViewProvider);
-    adsMediaSource.prepareSource(mockMediaSourceCaller, /* mediaTransferListener= */ null);
+    adsMediaSource.prepareSource(
+        mockMediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     shadowOf(Looper.getMainLooper()).idle();
     verify(mockAdsLoader)
         .start(

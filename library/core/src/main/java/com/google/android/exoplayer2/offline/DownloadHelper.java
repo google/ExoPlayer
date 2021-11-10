@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -956,7 +957,8 @@ public final class DownloadHelper {
     public boolean handleMessage(Message msg) {
       switch (msg.what) {
         case MESSAGE_PREPARE_SOURCE:
-          mediaSource.prepareSource(/* caller= */ this, /* mediaTransferListener= */ null);
+          mediaSource.prepareSource(
+              /* caller= */ this, /* mediaTransferListener= */ null, PlayerId.UNSET);
           mediaSourceHandler.sendEmptyMessage(MESSAGE_CHECK_FOR_FAILURE);
           return true;
         case MESSAGE_CHECK_FOR_FAILURE:

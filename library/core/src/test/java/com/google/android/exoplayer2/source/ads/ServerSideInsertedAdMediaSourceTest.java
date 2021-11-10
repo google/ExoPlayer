@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -104,7 +105,9 @@ public final class ServerSideInsertedAdMediaSourceTest {
 
     mediaSource.setAdPlaybackState(adPlaybackState);
     mediaSource.prepareSource(
-        (source, timeline) -> timelineReference.set(timeline), /* mediaTransferListener= */ null);
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
     runMainLooperUntil(() -> timelineReference.get() != null);
 
     Timeline timeline = timelineReference.get();

@@ -268,7 +268,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     Handler eventHandler = new Handler(applicationLooper);
     queue = new MediaPeriodQueue(analyticsCollector, eventHandler);
-    mediaSourceList = new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler);
+    mediaSourceList =
+        new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler, playerId);
 
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.

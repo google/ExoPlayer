@@ -15,10 +15,13 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -41,6 +44,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Nullable private Looper looper;
   @Nullable private Timeline timeline;
+  @Nullable private PlayerId playerId;
 
   public BaseMediaSource() {
     mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
@@ -51,7 +55,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   /**
    * Starts source preparation and enables the source, see {@link #prepareSource(MediaSourceCaller,
-   * TransferListener)}. This method is called at most once until the next call to {@link
+   * TransferListener, PlayerId)}. This method is called at most once until the next call to {@link
    * #releaseSourceInternal()}.
    *
    * @param mediaTransferListener The transfer listener which should be informed of any media data
@@ -160,6 +164,16 @@ public abstract class BaseMediaSource implements MediaSource {
     return !enabledMediaSourceCallers.isEmpty();
   }
 
+  /**
+   * Returns the {@link PlayerId} of the player using this media source.
+   *
+   * <p>Must only be used when the media source is {@link #prepareSourceInternal(TransferListener)
+   * prepared}.
+   */
+  protected final PlayerId getPlayerId() {
+    return checkStateNotNull(playerId);
+  }
+
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
     Assertions.checkNotNull(handler);
@@ -186,9 +200,12 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void prepareSource(
-      MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
+      MediaSourceCaller caller,
+      @Nullable TransferListener mediaTransferListener,
+      PlayerId playerId) {
     Looper looper = Looper.myLooper();
     Assertions.checkArgument(this.looper == null || this.looper == looper);
+    this.playerId = playerId;
     @Nullable Timeline timeline = this.timeline;
     mediaSourceCallers.add(caller);
     if (this.looper == null) {
@@ -226,6 +243,7 @@ public abstract class BaseMediaSource implements MediaSource {
     if (mediaSourceCallers.isEmpty()) {
       looper = null;
       timeline = null;
+      playerId = null;
       enabledMediaSourceCallers.clear();
       releaseSourceInternal();
     } else {

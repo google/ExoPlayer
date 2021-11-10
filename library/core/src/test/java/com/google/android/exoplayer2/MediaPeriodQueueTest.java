@@ -23,7 +23,9 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.SinglePeriodAdTimeline;
@@ -78,7 +80,8 @@ public final class MediaPeriodQueueTest {
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
             /* analyticsCollector= */ null,
-            new Handler(Looper.getMainLooper()));
+            new Handler(Looper.getMainLooper()),
+            PlayerId.UNSET);
     rendererCapabilities = new RendererCapabilities[0];
     trackSelector = mock(TrackSelector.class);
     allocator = mock(Allocator.class);
@@ -738,7 +741,8 @@ public final class MediaPeriodQueueTest {
         new MediaSourceList.MediaSourceHolder(fakeMediaSource, /* useLazyPreparation= */ false);
     mediaSourceList.setMediaSources(
         ImmutableList.of(mediaSourceHolder), new FakeShuffleOrder(/* length= */ 1));
-    mediaSourceHolder.mediaSource.prepareSourceInternal(/* mediaTransferListener */ null);
+    mediaSourceHolder.mediaSource.prepareSource(
+        mock(MediaSourceCaller.class), /* mediaTransferListener */ null, PlayerId.UNSET);
 
     Timeline playlistTimeline = mediaSourceList.createTimeline();
     firstPeriodUid = playlistTimeline.getUidOfPeriod(/* periodIndex= */ 0);
