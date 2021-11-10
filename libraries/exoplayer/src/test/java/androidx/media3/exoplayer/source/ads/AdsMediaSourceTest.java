@@ -31,6 +31,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Timeline;
 import androidx.media3.datasource.DataSpec;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.MediaSource.MediaSourceCaller;
@@ -118,7 +119,8 @@ public final class AdsMediaSourceTest {
             adMediaSourceFactory,
             mockAdsLoader,
             mockAdViewProvider);
-    adsMediaSource.prepareSource(mockMediaSourceCaller, /* mediaTransferListener= */ null);
+    adsMediaSource.prepareSource(
+        mockMediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     shadowOf(Looper.getMainLooper()).idle();
     verify(mockAdsLoader)
         .start(

@@ -27,6 +27,7 @@ import androidx.media3.common.StreamKey;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist;
 import androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -752,7 +753,7 @@ public class HlsMediaSourceTest {
     List<Timeline> timelines = new ArrayList<>();
     MediaSource.MediaSourceCaller mediaSourceCaller = (source, timeline) -> timelines.add(timeline);
 
-    mediaSource.prepareSource(mediaSourceCaller, null);
+    mediaSource.prepareSource(mediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     runMainLooperUntil(() -> timelines.size() == 1);
     mediaSource.onPrimaryPlaylistRefreshed(secondPlaylist);
     runMainLooperUntil(() -> timelines.size() == 2);
@@ -785,7 +786,9 @@ public class HlsMediaSourceTest {
       throws TimeoutException {
     AtomicReference<Timeline> receivedTimeline = new AtomicReference<>();
     mediaSource.prepareSource(
-        (source, timeline) -> receivedTimeline.set(timeline), /* mediaTransferListener= */ null);
+        (source, timeline) -> receivedTimeline.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
     runMainLooperUntil(() -> receivedTimeline.get() != null);
     return receivedTimeline.get();
   }

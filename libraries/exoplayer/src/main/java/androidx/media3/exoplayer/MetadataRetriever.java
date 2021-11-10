@@ -30,6 +30,7 @@ import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -145,7 +146,8 @@ public final class MetadataRetriever {
           case MESSAGE_PREPARE_SOURCE:
             MediaItem mediaItem = (MediaItem) msg.obj;
             mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
-            mediaSource.prepareSource(mediaSourceCaller, /* mediaTransferListener= */ null);
+            mediaSource.prepareSource(
+                mediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
             mediaSourceHandler.sendEmptyMessage(MESSAGE_CHECK_FOR_FAILURE);
             return true;
           case MESSAGE_CHECK_FOR_FAILURE:

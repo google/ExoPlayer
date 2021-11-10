@@ -39,6 +39,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.test.utils.CapturingRenderersFactory;
 import androidx.media3.test.utils.DumpFileAsserts;
@@ -105,7 +106,9 @@ public final class ServerSideInsertedAdMediaSourceTest {
 
     mediaSource.setAdPlaybackState(adPlaybackState);
     mediaSource.prepareSource(
-        (source, timeline) -> timelineReference.set(timeline), /* mediaTransferListener= */ null);
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
     runMainLooperUntil(() -> timelineReference.get() != null);
 
     Timeline timeline = timelineReference.get();

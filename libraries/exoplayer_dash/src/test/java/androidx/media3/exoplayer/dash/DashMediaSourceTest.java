@@ -30,6 +30,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.ByteArrayDataSource;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.FileDataSource;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaSourceCaller;
 import androidx.media3.exoplayer.upstream.ParsingLoadable;
@@ -484,7 +485,7 @@ public final class DashMediaSourceTest {
             countDownLatch.countDown();
           }
         };
-    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null);
+    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     while (!countDownLatch.await(/* timeout= */ 10, MILLISECONDS)) {
       ShadowLooper.idleMainLooper();
     }

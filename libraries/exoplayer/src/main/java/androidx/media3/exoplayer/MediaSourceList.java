@@ -26,6 +26,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.source.LoadEventInfo;
@@ -71,6 +72,7 @@ import java.util.Set;
 
   private static final String TAG = "MediaSourceList";
 
+  private final PlayerId playerId;
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final IdentityHashMap<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
@@ -94,11 +96,14 @@ import java.util.Set;
    *     source events.
    * @param analyticsCollectorHandler The {@link Handler} to call {@link AnalyticsCollector} methods
    *     on.
+   * @param playerId The {@link PlayerId} of the player using this list.
    */
   public MediaSourceList(
       MediaSourceListInfoRefreshListener listener,
       @Nullable AnalyticsCollector analyticsCollector,
-      Handler analyticsCollectorHandler) {
+      Handler analyticsCollectorHandler,
+      PlayerId playerId) {
+    this.playerId = playerId;
     mediaSourceListInfoListener = listener;
     shuffleOrder = new DefaultShuffleOrder(0);
     mediaSourceByMediaPeriod = new IdentityHashMap<>();
@@ -441,7 +446,7 @@ import java.util.Set;
     childSources.put(holder, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Util.createHandlerForCurrentOrMainLooper(), eventListener);
     mediaSource.addDrmEventListener(Util.createHandlerForCurrentOrMainLooper(), eventListener);
-    mediaSource.prepareSource(caller, mediaTransferListener);
+    mediaSource.prepareSource(caller, mediaTransferListener, playerId);
   }
 
   private void maybeReleaseChildSource(MediaSourceHolder mediaSourceHolder) {

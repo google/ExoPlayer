@@ -171,7 +171,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
     }
     mediaSource.addEventListener(handler, /* eventListener= */ this);
     mediaSource.addDrmEventListener(handler, /* eventListener= */ this);
-    mediaSource.prepareSource(/* caller= */ this, mediaTransferListener);
+    mediaSource.prepareSource(/* caller= */ this, mediaTransferListener, getPlayerId());
   }
 
   @Override

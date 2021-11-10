@@ -29,6 +29,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.LoadEventInfo;
 import androidx.media3.exoplayer.source.MediaLoadData;
 import androidx.media3.exoplayer.source.MediaPeriod;
@@ -117,7 +118,8 @@ public class MediaSourceTestRunner {
     final IOException[] prepareError = new IOException[1];
     runOnPlaybackThread(
         () -> {
-          mediaSource.prepareSource(mediaSourceListener, /* mediaTransferListener= */ null);
+          mediaSource.prepareSource(
+              mediaSourceListener, /* mediaTransferListener= */ null, PlayerId.UNSET);
           try {
             // TODO: This only catches errors that are set synchronously in prepareSource. To
             // capture async errors we'll need to poll maybeThrowSourceInfoRefreshError until the

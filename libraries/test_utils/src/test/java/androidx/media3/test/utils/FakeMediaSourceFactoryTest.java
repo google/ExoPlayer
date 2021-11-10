@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Timeline.Window;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.concurrent.atomic.AtomicReference;
@@ -42,7 +43,8 @@ public class FakeMediaSourceFactoryTest {
           int firstWindowIndex = timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ false);
           reportedMediaItem.set(timeline.getWindow(firstWindowIndex, new Window()).mediaItem);
         },
-        /* mediaTransferListener= */ null);
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
 
     assertThat(reportedMediaItem.get()).isSameInstanceAs(mediaItem);
     assertThat(mediaSource.getMediaItem()).isSameInstanceAs(mediaItem);

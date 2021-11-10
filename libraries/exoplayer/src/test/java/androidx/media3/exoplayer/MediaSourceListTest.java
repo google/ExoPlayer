@@ -29,6 +29,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ShuffleOrder;
 import androidx.media3.test.utils.FakeMediaSource;
@@ -57,7 +58,8 @@ public class MediaSourceListTest {
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
             /* analyticsCollector= */ null,
-            Util.createHandlerForCurrentOrMainLooper());
+            Util.createHandlerForCurrentOrMainLooper(),
+            PlayerId.UNSET);
   }
 
   @Test
@@ -95,30 +97,30 @@ public class MediaSourceListTest {
     // Verify prepare is called once on prepare.
     verify(mockMediaSource1, times(0))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     verify(mockMediaSource2, times(0))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
 
     mediaSourceList.prepare(/* mediaTransferListener= */ null);
     assertThat(mediaSourceList.isPrepared()).isTrue();
     // Verify prepare is called once on prepare.
     verify(mockMediaSource1, times(1))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     verify(mockMediaSource2, times(1))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
 
     mediaSourceList.release();
     mediaSourceList.prepare(/* mediaTransferListener= */ null);
     // Verify prepare is called a second time on re-prepare.
     verify(mockMediaSource1, times(2))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     verify(mockMediaSource2, times(2))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
   }
 
   @Test
@@ -185,10 +187,10 @@ public class MediaSourceListTest {
     // Verify sources are prepared.
     verify(mockMediaSource1, times(1))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     verify(mockMediaSource2, times(1))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
 
     // Set media items again. The second holder is re-used.
     MediaSource mockMediaSource3 = mock(MediaSource.class);
@@ -206,7 +208,7 @@ public class MediaSourceListTest {
     assertThat(mediaSources.get(1).isRemoved).isFalse();
     verify(mockMediaSource2, times(2))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
   }
 
   @Test
@@ -225,10 +227,10 @@ public class MediaSourceListTest {
     // Verify lazy initialization does not call prepare on sources.
     verify(mockMediaSource1, times(0))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     verify(mockMediaSource2, times(0))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
 
     for (int i = 0; i < mediaSources.size(); i++) {
       assertThat(mediaSources.get(i).firstWindowIndexInChild).isEqualTo(i);
@@ -262,10 +264,10 @@ public class MediaSourceListTest {
     // Verify prepare is called on sources when added.
     verify(mockMediaSource1, times(1))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     verify(mockMediaSource2, times(1))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
   }
 
   @Test
@@ -390,7 +392,7 @@ public class MediaSourceListTest {
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 1));
     verify(mockMediaSource, times(0))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     mediaSourceList.release();
     verify(mockMediaSource, times(0)).releaseSource(any(MediaSource.MediaSourceCaller.class));
     assertThat(mediaSourceHolder.isRemoved).isFalse();
@@ -409,7 +411,7 @@ public class MediaSourceListTest {
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 1));
     verify(mockMediaSource, times(1))
         .prepareSource(
-            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
+            any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull(), any());
     mediaSourceList.release();
     verify(mockMediaSource, times(1)).releaseSource(any(MediaSource.MediaSourceCaller.class));
     assertThat(mediaSourceHolder.isRemoved).isFalse();

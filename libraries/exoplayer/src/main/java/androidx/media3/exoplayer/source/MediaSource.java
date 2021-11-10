@@ -22,6 +22,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.upstream.Allocator;
 import java.io.IOException;
@@ -35,7 +36,7 @@ import java.io.IOException;
  *       provide a new timeline whenever the structure of the media changes. The MediaSource
  *       provides these timelines by calling {@link MediaSourceCaller#onSourceInfoRefreshed} on the
  *       {@link MediaSourceCaller}s passed to {@link #prepareSource(MediaSourceCaller,
- *       TransferListener)}.
+ *       TransferListener, PlayerId)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
  *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator, long)}, and provide a
  *       way for the player to load and read the media.
@@ -174,6 +175,16 @@ public interface MediaSource {
   MediaItem getMediaItem();
 
   /**
+   * @deprecated Implement {@link #prepareSource(MediaSourceCaller, TransferListener, PlayerId)}
+   *     instead.
+   */
+  @Deprecated
+  default void prepareSource(
+      MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
+    prepareSource(caller, mediaTransferListener, PlayerId.UNSET);
+  }
+
+  /**
    * Registers a {@link MediaSourceCaller}. Starts source preparation if needed and enables the
    * source for the creation of {@link MediaPeriod MediaPerods}.
    *
@@ -190,15 +201,20 @@ public interface MediaSource {
    *     transfers. May be null if no listener is available. Note that this listener should be only
    *     informed of transfers related to the media loads and not of auxiliary loads for manifests
    *     and other data.
+   * @param playerId The {@link PlayerId} of the player using this media source.
    */
-  void prepareSource(MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener);
+  void prepareSource(
+      MediaSourceCaller caller,
+      @Nullable TransferListener mediaTransferListener,
+      PlayerId playerId);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener,
+   * PlayerId)}.
    */
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
@@ -207,7 +223,8 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener,
+   * PlayerId)}.
    *
    * @param caller The {@link MediaSourceCaller} enabling the source.
    */
