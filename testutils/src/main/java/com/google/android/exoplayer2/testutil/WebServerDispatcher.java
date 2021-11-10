@@ -261,7 +261,7 @@ public class WebServerDispatcher extends Dispatcher {
     Resource resource = checkNotNull(resourcesByPath.get(requestPath));
     byte[] resourceData = resource.getData();
     if (resource.supportsRangeRequests()) {
-      response.setHeader("Accept-ranges", "bytes");
+      response.setHeader("Accept-Ranges", "bytes");
     }
     @Nullable ImmutableMap<String, Float> acceptEncodingHeader = getAcceptEncodingHeader(request);
     @Nullable String preferredContentCoding;
