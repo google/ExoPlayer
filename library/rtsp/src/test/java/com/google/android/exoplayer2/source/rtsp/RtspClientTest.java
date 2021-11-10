@@ -190,7 +190,7 @@ public final class RtspClientTest {
             EMPTY_PLAYBACK_LISTENER,
             /* userAgent= */ "ExoPlayer:RtspClientTest",
             RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
-            /* socketFactory */ null,
+            /* socketFactory */ SocketFactory.getDefault(),
             /* debugLoggingEnabled= */ false);
     rtspClient.start();
     RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);

@@ -102,8 +102,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param uri The RTSP playback {@link Uri}.
    * @param listener A {@link Listener} to receive session information updates.
    * @param userAgent The user agent.
-   * @param debugLoggingEnabled Whether to log RTSP messages.
    * @param socketFactory A socket factory for {@link RtspClient}'s connection.
+   * @param debugLoggingEnabled Whether to log RTSP messages.
    */
   public RtspMediaPeriod(
       Allocator allocator,
