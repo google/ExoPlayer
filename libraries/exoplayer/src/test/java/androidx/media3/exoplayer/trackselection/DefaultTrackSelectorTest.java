@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.trackselection;
 import static androidx.media3.common.C.FORMAT_EXCEEDS_CAPABILITIES;
 import static androidx.media3.common.C.FORMAT_HANDLED;
 import static androidx.media3.common.C.FORMAT_UNSUPPORTED_SUBTYPE;
+import static androidx.media3.common.C.FORMAT_UNSUPPORTED_TYPE;
 import static androidx.media3.exoplayer.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
 import static androidx.media3.exoplayer.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static androidx.media3.exoplayer.RendererConfiguration.DEFAULT;
@@ -54,6 +55,7 @@ import androidx.media3.test.utils.FakeTimeline;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -240,7 +242,8 @@ public final class DefaultTrackSelectorTest {
 
     assertThat(result.selections)
         .asList()
-        .containsExactly(new FixedTrackSelection(videoGroupMidBitrate, /* track= */ 0), null);
+        .containsExactly(new FixedTrackSelection(videoGroupMidBitrate, /* track= */ 0), null)
+        .inOrder();
   }
 
   /** Tests that an empty override is not applied for a different set of available track groups. */
@@ -267,6 +270,97 @@ public final class DefaultTrackSelectorTest {
     assertThat(result.selections).asList().containsExactlyElementsIn(TRACK_SELECTIONS).inOrder();
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  @Test
+  public void selectTrack_withOverrideForDifferentRenderer_clearsDefaultSelectionOfSameType()
+      throws Exception {
+    Format videoFormatH264 =
+        VIDEO_FORMAT.buildUpon().setId("H264").setSampleMimeType(MimeTypes.VIDEO_H264).build();
+    Format videoFormatAv1 =
+        VIDEO_FORMAT.buildUpon().setId("AV1").setSampleMimeType(MimeTypes.VIDEO_AV1).build();
+    TrackGroup videoGroupH264 = new TrackGroup(videoFormatH264);
+    TrackGroup videoGroupAv1 = new TrackGroup(videoFormatAv1);
+    Map<String, Integer> rendererCapabilitiesMap =
+        ImmutableMap.of(
+            videoFormatH264.id, FORMAT_HANDLED, videoFormatAv1.id, FORMAT_UNSUPPORTED_TYPE);
+    RendererCapabilities rendererCapabilitiesH264 =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            videoFormatH264.id, FORMAT_UNSUPPORTED_TYPE, videoFormatAv1.id, FORMAT_HANDLED);
+    RendererCapabilities rendererCapabilitiesAv1 =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+
+    // Try to force selection of one TrackGroup in both directions to ensure the default gets
+    // overridden without having to know what the default is.
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(new TrackSelectionOverride(videoGroupH264))
+                    .build()));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
+            new TrackGroupArray(videoGroupH264, videoGroupAv1),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(new FixedTrackSelection(videoGroupH264, /* track= */ 0), null)
+        .inOrder();
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(new TrackSelectionOverride(videoGroupAv1))
+                    .build()));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
+            new TrackGroupArray(videoGroupH264, videoGroupAv1),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(null, new FixedTrackSelection(videoGroupAv1, /* track= */ 0))
+        .inOrder();
+  }
+
+  @Test
+  public void selectTracks_withOverrideForUnmappedGroup_disablesAllRenderersOfSameType()
+      throws Exception {
+    Format audioSupported = AUDIO_FORMAT.buildUpon().setId("supported").build();
+    Format audioUnsupported = AUDIO_FORMAT.buildUpon().setId("unsupported").build();
+    TrackGroup audioGroupSupported = new TrackGroup(audioSupported);
+    TrackGroup audioGroupUnsupported = new TrackGroup(audioUnsupported);
+    Map<String, Integer> audioRendererCapabilitiesMap =
+        ImmutableMap.of(
+            audioSupported.id, FORMAT_HANDLED, audioUnsupported.id, FORMAT_UNSUPPORTED_TYPE);
+    RendererCapabilities audioRendererCapabilties =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, audioRendererCapabilitiesMap);
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(new TrackSelectionOverride(audioGroupUnsupported))
+                    .build()));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, audioRendererCapabilties},
+            new TrackGroupArray(VIDEO_TRACK_GROUP, audioGroupSupported, audioGroupUnsupported),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactly(VIDEO_TRACK_SELECTION, null).inOrder();
   }
 
   /** Tests that an override is not applied for a different set of available track groups. */

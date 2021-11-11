@@ -83,7 +83,6 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * A view for controlling {@link Player} instances.
@@ -2168,12 +2167,11 @@ public class StyledPlayerControlView extends FrameLayout {
               TrackSelectionParameters trackSelectionParameters =
                   player.getTrackSelectionParameters();
               TrackSelectionOverrides overrides =
-                  forceTrackSelection(
-                      trackSelectionParameters.trackSelectionOverrides,
-                      track.tracksInfo,
-                      track.trackGroupIndex,
-                      new TrackSelectionOverride(
-                          track.trackGroup, ImmutableList.of(track.trackIndex)));
+                  new TrackSelectionOverrides.Builder()
+                      .setOverrideForType(
+                          new TrackSelectionOverride(
+                              track.trackGroup, ImmutableList.of(track.trackIndex)))
+                      .build();
               checkNotNull(player)
                   .setTrackSelectionParameters(
                       trackSelectionParameters
@@ -2210,42 +2208,5 @@ public class StyledPlayerControlView extends FrameLayout {
       textView = itemView.findViewById(R.id.exo_text);
       checkView = itemView.findViewById(R.id.exo_check);
     }
-  }
-
-  /**
-   * Forces tracks in a {@link TrackGroup} to be the only ones selected for a {@link C.TrackType}.
-   * No other tracks of that type will be selectable. If the forced tracks are not supported, then
-   * no tracks of that type will be selected.
-   *
-   * @param trackSelectionOverrides The current {@link TrackSelectionOverride overrides}.
-   * @param tracksInfo The current {@link TracksInfo}.
-   * @param forcedTrackGroupIndex The index of the {@link TrackGroup} in {@code tracksInfo} that
-   *     should have its track selected.
-   * @param forcedTrackSelectionOverride The tracks to force selection of.
-   * @return The updated {@link TrackSelectionOverride overrides}.
-   */
-  @Pure
-  private static TrackSelectionOverrides forceTrackSelection(
-      TrackSelectionOverrides trackSelectionOverrides,
-      TracksInfo tracksInfo,
-      int forcedTrackGroupIndex,
-      TrackSelectionOverride forcedTrackSelectionOverride) {
-    TrackSelectionOverrides.Builder overridesBuilder = trackSelectionOverrides.buildUpon();
-
-    @C.TrackType
-    int trackType = tracksInfo.getTrackGroupInfos().get(forcedTrackGroupIndex).getTrackType();
-    overridesBuilder.setOverrideForType(forcedTrackSelectionOverride);
-    // TrackSelectionOverride doesn't currently guarantee that only overwritten track
-    // group of a given type are selected, so the others have to be explicitly disabled.
-    // This guarantee is provided in the following patch that removes the need for this method.
-    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    for (int i = 0; i < trackGroupInfos.size(); i++) {
-      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(i);
-      if (i != forcedTrackGroupIndex && trackGroupInfo.getTrackType() == trackType) {
-        TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
-        overridesBuilder.addOverride(new TrackSelectionOverride(trackGroup, ImmutableList.of()));
-      }
-    }
-    return overridesBuilder.build();
   }
 }
