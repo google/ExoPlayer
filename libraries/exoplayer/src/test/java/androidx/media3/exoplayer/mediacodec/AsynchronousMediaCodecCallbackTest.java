@@ -437,6 +437,24 @@ public class AsynchronousMediaCodecCallbackTest {
     assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(outInfo)).isEqualTo(1);
   }
 
+  @Test
+  public void flush_withPendingError_resetsError() throws Exception {
+    asynchronousMediaCodecCallback.onError(codec, createCodecException());
+    // Calling flush should clear any pending error.
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+
+    assertThat(asynchronousMediaCodecCallback.dequeueInputBufferIndex())
+        .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
+  }
+
+  @Test
+  public void shutdown_withPendingError_doesNotThrow() throws Exception {
+    asynchronousMediaCodecCallback.onError(codec, createCodecException());
+
+    // Calling shutdown() should not throw.
+    asynchronousMediaCodecCallback.shutdown();
+  }
+
   /** Reflectively create a {@link MediaCodec.CodecException}. */
   private static MediaCodec.CodecException createCodecException() throws Exception {
     Constructor<MediaCodec.CodecException> constructor =
