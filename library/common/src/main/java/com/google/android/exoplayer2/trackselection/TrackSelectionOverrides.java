@@ -174,7 +174,8 @@ public final class TrackSelectionOverrides implements Bundleable {
       return trackGroup.hashCode() + 31 * trackIndices.hashCode();
     }
 
-    private @C.TrackType int getTrackType() {
+    /** Returns the {@link C.TrackType} of the overriden track group. */
+    public @C.TrackType int getTrackType() {
       return MimeTypes.getTrackType(trackGroup.getFormat(0).sampleMimeType);
     }
 
