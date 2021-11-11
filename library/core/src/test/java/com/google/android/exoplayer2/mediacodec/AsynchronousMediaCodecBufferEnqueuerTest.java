@@ -191,6 +191,25 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
   }
 
   @Test
+  public void flush_withPendingError_doesNotResetError() {
+    enqueuer.start();
+    enqueuer.setPendingRuntimeException(
+        new MediaCodec.CryptoException(/* errorCode= */ 0, /* detailMessage= */ null));
+
+    enqueuer.flush();
+
+    assertThrows(
+        MediaCodec.CryptoException.class,
+        () ->
+            enqueuer.queueInputBuffer(
+                /* index= */ 0,
+                /* offset= */ 0,
+                /* size= */ 0,
+                /* presentationTimeUs= */ 0,
+                /* flags= */ 0));
+  }
+
+  @Test
   public void shutdown_withoutStart_works() {
     enqueuer.shutdown();
   }
@@ -217,6 +236,16 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     enqueuer.start();
 
     assertThrows(IllegalStateException.class, () -> enqueuer.shutdown());
+  }
+
+  @Test
+  public void shutdown_withPendingError_doesNotThrow() {
+    enqueuer.start();
+    enqueuer.setPendingRuntimeException(
+        new MediaCodec.CryptoException(/* errorCode= */ 0, /* detailMessage= */ null));
+
+    // Shutting down with a pending error set should not throw .
+    enqueuer.shutdown();
   }
 
   private static CryptoInfo createCryptoInfo() {
