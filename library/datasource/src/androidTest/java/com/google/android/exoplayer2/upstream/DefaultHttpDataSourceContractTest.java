@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.testutil.HttpDataSourceTestEnv;
 import com.google.common.collect.ImmutableList;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
@@ -43,4 +44,8 @@ public class DefaultHttpDataSourceContractTest extends DataSourceContractTest {
   protected Uri getNotFoundUri() {
     return Uri.parse(httpDataSourceTestEnv.getNonexistentUrl());
   }
+
+  @Override
+  @Ignore("internal b/205811776")
+  public void getResponseHeaders_noNullKeysOrValues() {}
 }

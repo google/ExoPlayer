@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
@@ -484,7 +485,7 @@ public final class DashMediaSourceTest {
             countDownLatch.countDown();
           }
         };
-    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null);
+    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     while (!countDownLatch.await(/* timeout= */ 10, MILLISECONDS)) {
       ShadowLooper.idleMainLooper();
     }

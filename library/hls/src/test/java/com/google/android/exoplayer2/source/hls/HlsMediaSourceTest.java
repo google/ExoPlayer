@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
@@ -752,7 +753,7 @@ public class HlsMediaSourceTest {
     List<Timeline> timelines = new ArrayList<>();
     MediaSource.MediaSourceCaller mediaSourceCaller = (source, timeline) -> timelines.add(timeline);
 
-    mediaSource.prepareSource(mediaSourceCaller, null);
+    mediaSource.prepareSource(mediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     runMainLooperUntil(() -> timelines.size() == 1);
     mediaSource.onPrimaryPlaylistRefreshed(secondPlaylist);
     runMainLooperUntil(() -> timelines.size() == 2);
@@ -785,7 +786,9 @@ public class HlsMediaSourceTest {
       throws TimeoutException {
     AtomicReference<Timeline> receivedTimeline = new AtomicReference<>();
     mediaSource.prepareSource(
-        (source, timeline) -> receivedTimeline.set(timeline), /* mediaTransferListener= */ null);
+        (source, timeline) -> receivedTimeline.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
     runMainLooperUntil(() -> receivedTimeline.get() != null);
     return receivedTimeline.get();
   }

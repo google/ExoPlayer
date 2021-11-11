@@ -54,7 +54,8 @@ public class AsynchronousMediaCodecAdapterTest {
         new AsynchronousMediaCodecAdapter.Factory(
                 /* callbackThreadSupplier= */ () -> callbackThread,
                 /* queueingThreadSupplier= */ () -> queueingThread,
-                /* synchronizeCodecInteractionsWithQueueing= */ false)
+                /* synchronizeCodecInteractionsWithQueueing= */ false,
+                /* enableImmediateCodecStartAfterFlush= */ false)
             .createAdapter(configuration);
     bufferInfo = new MediaCodec.BufferInfo();
     // After starting the MediaCodec, the ShadowMediaCodec offers input buffer 0. We advance the

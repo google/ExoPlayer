@@ -117,7 +117,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     childSources.put(id, new MediaSourceAndListener<>(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);
     mediaSource.addDrmEventListener(Assertions.checkNotNull(eventHandler), eventListener);
-    mediaSource.prepareSource(caller, mediaTransferListener);
+    mediaSource.prepareSource(caller, mediaTransferListener, getPlayerId());
     if (!isEnabled()) {
       mediaSource.disable(caller);
     }

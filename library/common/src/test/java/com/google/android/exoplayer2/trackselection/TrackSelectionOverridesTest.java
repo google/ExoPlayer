@@ -49,7 +49,7 @@ public final class TrackSelectionOverridesTest {
         new TrackSelectionOverride(newTrackGroupWithIds(1, 2));
 
     assertThat(trackSelectionOverride.trackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
-    assertThat(trackSelectionOverride.trackIndexes).containsExactly(0, 1).inOrder();
+    assertThat(trackSelectionOverride.trackIndices).containsExactly(0, 1).inOrder();
   }
 
   @Test
@@ -58,7 +58,7 @@ public final class TrackSelectionOverridesTest {
         new TrackSelectionOverride(newTrackGroupWithIds(1, 2), ImmutableList.of(1));
 
     assertThat(trackSelectionOverride.trackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
-    assertThat(trackSelectionOverride.trackIndexes).containsExactly(1);
+    assertThat(trackSelectionOverride.trackIndices).containsExactly(1);
   }
 
   @Test
@@ -67,7 +67,7 @@ public final class TrackSelectionOverridesTest {
         new TrackSelectionOverride(newTrackGroupWithIds(1, 2), ImmutableList.of());
 
     assertThat(trackSelectionOverride.trackGroup).isEqualTo(newTrackGroupWithIds(1, 2));
-    assertThat(trackSelectionOverride.trackIndexes).isEmpty();
+    assertThat(trackSelectionOverride.trackIndices).isEmpty();
   }
 
   @Test
@@ -118,9 +118,9 @@ public final class TrackSelectionOverridesTest {
   public void addOverride_onSameGroup_replacesOverride() {
     TrackGroup trackGroup = newTrackGroupWithIds(1, 2, 3);
     TrackSelectionOverride override1 =
-        new TrackSelectionOverride(trackGroup, /* trackIndexes= */ ImmutableList.of(0));
+        new TrackSelectionOverride(trackGroup, /* trackIndices= */ ImmutableList.of(0));
     TrackSelectionOverride override2 =
-        new TrackSelectionOverride(trackGroup, /* trackIndexes= */ ImmutableList.of(1));
+        new TrackSelectionOverride(trackGroup, /* trackIndices= */ ImmutableList.of(1));
 
     TrackSelectionOverrides trackSelectionOverrides =
         new TrackSelectionOverrides.Builder().addOverride(override1).addOverride(override2).build();

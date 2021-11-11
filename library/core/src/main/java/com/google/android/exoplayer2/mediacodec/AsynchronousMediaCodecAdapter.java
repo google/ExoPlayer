@@ -50,11 +50,7 @@ import java.nio.ByteBuffer;
     private final Supplier<HandlerThread> callbackThreadSupplier;
     private final Supplier<HandlerThread> queueingThreadSupplier;
     private final boolean synchronizeCodecInteractionsWithQueueing;
-
-    /** Creates a factory for codecs handling the specified {@link C.TrackType track type}. */
-    public Factory(@C.TrackType int trackType) {
-      this(trackType, /* synchronizeCodecInteractionsWithQueueing= */ false);
-    }
+    private final boolean enableImmediateCodecStartAfterFlush;
 
     /**
      * Creates an factory for {@link AsynchronousMediaCodecAdapter} instances.
@@ -66,23 +62,29 @@ import java.nio.ByteBuffer;
      *     interactions will wait until all input buffers pending queueing wil be submitted to the
      *     {@link MediaCodec}.
      */
-    public Factory(@C.TrackType int trackType, boolean synchronizeCodecInteractionsWithQueueing) {
+    public Factory(
+        @C.TrackType int trackType,
+        boolean synchronizeCodecInteractionsWithQueueing,
+        boolean enableImmediateCodecStartAfterFlush) {
       this(
           /* callbackThreadSupplier= */ () ->
               new HandlerThread(createCallbackThreadLabel(trackType)),
           /* queueingThreadSupplier= */ () ->
               new HandlerThread(createQueueingThreadLabel(trackType)),
-          synchronizeCodecInteractionsWithQueueing);
+          synchronizeCodecInteractionsWithQueueing,
+          enableImmediateCodecStartAfterFlush);
     }
 
     @VisibleForTesting
     /* package */ Factory(
         Supplier<HandlerThread> callbackThreadSupplier,
         Supplier<HandlerThread> queueingThreadSupplier,
-        boolean synchronizeCodecInteractionsWithQueueing) {
+        boolean synchronizeCodecInteractionsWithQueueing,
+        boolean enableImmediateCodecStartAfterFlush) {
       this.callbackThreadSupplier = callbackThreadSupplier;
       this.queueingThreadSupplier = queueingThreadSupplier;
       this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
+      this.enableImmediateCodecStartAfterFlush = enableImmediateCodecStartAfterFlush;
     }
 
     @Override
@@ -99,7 +101,8 @@ import java.nio.ByteBuffer;
                 codec,
                 callbackThreadSupplier.get(),
                 queueingThreadSupplier.get(),
-                synchronizeCodecInteractionsWithQueueing);
+                synchronizeCodecInteractionsWithQueueing,
+                enableImmediateCodecStartAfterFlush);
         TraceUtil.endSection();
         codecAdapter.initialize(
             configuration.mediaFormat,
@@ -132,6 +135,7 @@ import java.nio.ByteBuffer;
   private final AsynchronousMediaCodecCallback asynchronousMediaCodecCallback;
   private final AsynchronousMediaCodecBufferEnqueuer bufferEnqueuer;
   private final boolean synchronizeCodecInteractionsWithQueueing;
+  private final boolean enableImmediateCodecStartAfterFlush;
   private boolean codecReleased;
   @State private int state;
   @Nullable private Surface inputSurface;
@@ -140,11 +144,13 @@ import java.nio.ByteBuffer;
       MediaCodec codec,
       HandlerThread callbackThread,
       HandlerThread enqueueingThread,
-      boolean synchronizeCodecInteractionsWithQueueing) {
+      boolean synchronizeCodecInteractionsWithQueueing,
+      boolean enableImmediateCodecStartAfterFlush) {
     this.codec = codec;
     this.asynchronousMediaCodecCallback = new AsynchronousMediaCodecCallback(callbackThread);
     this.bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, enqueueingThread);
     this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
+    this.enableImmediateCodecStartAfterFlush = enableImmediateCodecStartAfterFlush;
     this.state = STATE_CREATED;
   }
 
@@ -231,13 +237,20 @@ import java.nio.ByteBuffer;
   @Override
   public void flush() {
     // The order of calls is important:
-    // First, flush the bufferEnqueuer to stop queueing input buffers.
-    // Second, flush the codec to stop producing available input/output buffers.
-    // Third, flush the callback after flushing the codec so that in-flight callbacks are discarded.
+    // 1. Flush the bufferEnqueuer to stop queueing input buffers.
+    // 2. Flush the codec to stop producing available input/output buffers.
+    // 3. Flush the callback after flushing the codec so that in-flight callbacks are discarded.
     bufferEnqueuer.flush();
     codec.flush();
-    // When flushAsync() is completed, start the codec again.
-    asynchronousMediaCodecCallback.flushAsync(/* onFlushCompleted= */ codec::start);
+    if (enableImmediateCodecStartAfterFlush) {
+      // The asynchronous callback will drop pending callbacks but we can start the codec now.
+      asynchronousMediaCodecCallback.flush(/* codec= */ null);
+      codec.start();
+    } else {
+      // Let the asynchronous callback start the codec in the callback thread after pending
+      // callbacks are handled.
+      asynchronousMediaCodecCallback.flush(codec);
+    }
   }
 
   @Override
@@ -289,6 +302,7 @@ import java.nio.ByteBuffer;
 
   @Override
   public void signalEndOfInputStream() {
+    maybeBlockOnQueueing();
     codec.signalEndOfInputStream();
   }
 

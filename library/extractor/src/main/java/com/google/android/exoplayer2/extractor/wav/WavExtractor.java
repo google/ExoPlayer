@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -46,6 +47,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** Extracts data from WAV byte streams. */
 public final class WavExtractor implements Extractor {
+
+  private static final String TAG = "WavExtractor";
 
   /**
    * When outputting PCM data to a {@link TrackOutput}, we can choose how many frames are grouped
@@ -63,6 +66,7 @@ public final class WavExtractor implements Extractor {
   @Target({ElementType.TYPE_USE})
   @IntDef({
     STATE_READING_FILE_TYPE,
+    STATE_READING_RF64_SAMPLE_DATA_SIZE,
     STATE_READING_FORMAT,
     STATE_SKIPPING_TO_SAMPLE_DATA,
     STATE_READING_SAMPLE_DATA
@@ -70,19 +74,22 @@ public final class WavExtractor implements Extractor {
   private @interface State {}
 
   private static final int STATE_READING_FILE_TYPE = 0;
-  private static final int STATE_READING_FORMAT = 1;
-  private static final int STATE_SKIPPING_TO_SAMPLE_DATA = 2;
-  private static final int STATE_READING_SAMPLE_DATA = 3;
+  private static final int STATE_READING_RF64_SAMPLE_DATA_SIZE = 1;
+  private static final int STATE_READING_FORMAT = 2;
+  private static final int STATE_SKIPPING_TO_SAMPLE_DATA = 3;
+  private static final int STATE_READING_SAMPLE_DATA = 4;
 
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @MonotonicNonNull TrackOutput trackOutput;
   private @State int state;
+  private long rf64SampleDataSize;
   private @MonotonicNonNull OutputWriter outputWriter;
   private int dataStartPosition;
   private long dataEndPosition;
 
   public WavExtractor() {
     state = STATE_READING_FILE_TYPE;
+    rf64SampleDataSize = C.LENGTH_UNSET;
     dataStartPosition = C.POSITION_UNSET;
     dataEndPosition = C.POSITION_UNSET;
   }
@@ -120,6 +127,9 @@ public final class WavExtractor implements Extractor {
       case STATE_READING_FILE_TYPE:
         readFileType(input);
         return Extractor.RESULT_CONTINUE;
+      case STATE_READING_RF64_SAMPLE_DATA_SIZE:
+        readRf64SampleDataSize(input);
+        return Extractor.RESULT_CONTINUE;
       case STATE_READING_FORMAT:
         readFormat(input);
         return Extractor.RESULT_CONTINUE;
@@ -152,6 +162,11 @@ public final class WavExtractor implements Extractor {
           "Unsupported or unrecognized wav file type.", /* cause= */ null);
     }
     input.skipFully((int) (input.getPeekPosition() - input.getPosition()));
+    state = STATE_READING_RF64_SAMPLE_DATA_SIZE;
+  }
+
+  private void readRf64SampleDataSize(ExtractorInput input) throws IOException {
+    rf64SampleDataSize = WavHeaderReader.readRf64SampleDataSize(input);
     state = STATE_READING_FORMAT;
   }
 
@@ -194,7 +209,18 @@ public final class WavExtractor implements Extractor {
   private void skipToSampleData(ExtractorInput input) throws IOException {
     Pair<Long, Long> dataBounds = WavHeaderReader.skipToSampleData(input);
     dataStartPosition = dataBounds.first.intValue();
-    dataEndPosition = dataBounds.second;
+    long dataSize = dataBounds.second;
+    if (rf64SampleDataSize != C.LENGTH_UNSET && dataSize == 0xFFFFFFFFL) {
+      // Following EBU - Tech 3306-2007, the data size indicated in the ds64 chunk should only be
+      // used if the size of the data chunk is unset.
+      dataSize = rf64SampleDataSize;
+    }
+    dataEndPosition = dataStartPosition + dataSize;
+    long inputLength = input.getLength();
+    if (inputLength != C.LENGTH_UNSET && dataEndPosition > inputLength) {
+      Log.w(TAG, "Data exceeds input length: " + dataEndPosition + ", " + inputLength);
+      dataEndPosition = inputLength;
+    }
     Assertions.checkNotNull(outputWriter).init(dataStartPosition, dataEndPosition);
     state = STATE_READING_SAMPLE_DATA;
   }

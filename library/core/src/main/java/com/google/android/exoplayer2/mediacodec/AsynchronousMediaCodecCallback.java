@@ -34,8 +34,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @RequiresApi(23)
 /* package */ final class AsynchronousMediaCodecCallback extends MediaCodec.Callback {
   private final Object lock;
-
   private final HandlerThread callbackThread;
+
   private @MonotonicNonNull Handler handler;
 
   @GuardedBy("lock")
@@ -192,14 +192,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Initiates a flush asynchronously, which will be completed on the callback thread. When the
    * flush is complete, it will trigger {@code onFlushCompleted} from the callback thread.
    *
-   * @param onFlushCompleted A {@link Runnable} that will be called when flush is completed. {@code
-   *     onFlushCompleted} will be called from the scallback thread, therefore it should execute
-   *     synchronized and thread-safe code.
+   * @param codec A {@link MediaCodec} to {@link MediaCodec#start start} after all pending callbacks
+   *     are handled, or {@code null} if starting the {@link MediaCodec} is performed elsewhere.
    */
-  public void flushAsync(Runnable onFlushCompleted) {
+  public void flush(@Nullable MediaCodec codec) {
     synchronized (lock) {
       ++pendingFlushCount;
-      Util.castNonNull(handler).post(() -> this.onFlushCompleted(onFlushCompleted));
+      Util.castNonNull(handler).post(() -> this.onFlushCompleted(codec));
     }
   }
 
@@ -239,34 +238,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void onFlushCompleted(Runnable onFlushCompleted) {
+  private void onFlushCompleted(@Nullable MediaCodec codec) {
     synchronized (lock) {
-      onFlushCompletedSynchronized(onFlushCompleted);
-    }
-  }
+      if (shutDown) {
+        return;
+      }
 
-  @GuardedBy("lock")
-  private void onFlushCompletedSynchronized(Runnable onFlushCompleted) {
-    if (shutDown) {
-      return;
-    }
-
-    --pendingFlushCount;
-    if (pendingFlushCount > 0) {
-      // Another flush() has been called.
-      return;
-    } else if (pendingFlushCount < 0) {
-      // This should never happen.
-      setInternalException(new IllegalStateException());
-      return;
-    }
-    flushInternal();
-    try {
-      onFlushCompleted.run();
-    } catch (IllegalStateException e) {
-      setInternalException(e);
-    } catch (Exception e) {
-      setInternalException(new IllegalStateException(e));
+      --pendingFlushCount;
+      if (pendingFlushCount > 0) {
+        // Another flush() has been called.
+        return;
+      } else if (pendingFlushCount < 0) {
+        // This should never happen.
+        setInternalException(new IllegalStateException());
+        return;
+      }
+      flushInternal();
+      if (codec != null) {
+        try {
+          codec.start();
+        } catch (IllegalStateException e) {
+          setInternalException(e);
+        } catch (Exception e) {
+          setInternalException(new IllegalStateException(e));
+        }
+      }
     }
   }
 
@@ -275,10 +271,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void flushInternal() {
     if (!formats.isEmpty()) {
       pendingOutputFormat = formats.getLast();
-    } else {
-      // pendingOutputFormat may already be non-null following a previous flush, and remains set in
-      // this case.
     }
+    // else, pendingOutputFormat may already be non-null following a previous flush, and remains
+    // set in this case.
+
     availableInputBuffers.clear();
     availableOutputBuffers.clear();
     bufferInfos.clear();

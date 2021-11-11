@@ -192,6 +192,25 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
+   * Enable calling {@link MediaCodec#start} immediately after {@link MediaCodec#flush} on the
+   * playback thread, when operating the codec in asynchronous mode. If disabled, {@link
+   * MediaCodec#start} will be called by the callback thread after pending callbacks are handled.
+   *
+   * <p>By default, this feature is disabled.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param enabled Whether {@link MediaCodec#start} will be called on the playback thread
+   *     immediately after {@link MediaCodec#flush}.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory experimentalSetImmediateCodecStartAfterFlushEnabled(
+      boolean enabled) {
+    codecAdapterFactory.experimentalSetImmediateCodecStartAfterFlushEnabled(enabled);
+    return this;
+  }
+
+  /**
    * Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.
    * This may result in using a decoder that is less efficient or slower than the primary decoder.
    *

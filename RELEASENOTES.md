@@ -3,11 +3,17 @@
 ### dev-v2 (not yet released)
 
 *   Core Library:
+    *   Fix track selection issue where a mixture of non-empty and empty track
+        overrides is not applied correctly
+        ([#9649](https://github.com/google/ExoPlayer/issues/9649).
     *   Add protected method `DefaultRenderersFactory.getCodecAdapterFactory()`
         so that subclasses of `DefaultRenderersFactory` that override
         `buildVideoRenderers()` or `buildAudioRenderers()` can access the codec
         adapter factory and pass it to `MediaCodecRenderer` instances they
         create.
+*   Extractors:
+    *   WAV: Add support for RF64 streams
+        ([#9543](https://github.com/google/ExoPlayer/issues/9543).
 *   RTSP
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).

@@ -178,6 +178,7 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
+    @Deprecated
     @Override
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
       if (drmSessionManager == null) {
@@ -188,6 +189,7 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
+    @Deprecated
     @Override
     public Factory setDrmHttpDataSourceFactory(
         @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
@@ -198,6 +200,7 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
+    @Deprecated
     @Override
     public Factory setDrmUserAgent(@Nullable String userAgent) {
       if (!usingCustomDrmSessionManagerProvider) {
@@ -1053,8 +1056,13 @@ public final class DashMediaSource extends BaseMediaSource {
       maxPlaybackSpeed = manifest.serviceDescription.maxPlaybackSpeed;
     }
     liveConfiguration =
-        new MediaItem.LiveConfiguration(
-            targetOffsetMs, minLiveOffsetMs, maxLiveOffsetMs, minPlaybackSpeed, maxPlaybackSpeed);
+        new MediaItem.LiveConfiguration.Builder()
+            .setTargetOffsetMs(targetOffsetMs)
+            .setMinOffsetMs(minLiveOffsetMs)
+            .setMaxOffsetMs(maxLiveOffsetMs)
+            .setMinPlaybackSpeed(minPlaybackSpeed)
+            .setMaxPlaybackSpeed(maxPlaybackSpeed)
+            .build();
   }
 
   private void scheduleManifestRefresh(long delayUntilNextLoadMs) {

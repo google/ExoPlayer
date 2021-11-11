@@ -93,12 +93,22 @@ public final class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withSubtitle_isMergingMediaSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
-    List<MediaItem.Subtitle> subtitles =
+    List<MediaItem.SubtitleConfiguration> subtitleConfigurations =
         Arrays.asList(
-            new MediaItem.Subtitle(Uri.parse(URI_TEXT), MimeTypes.APPLICATION_TTML, "en"),
-            new MediaItem.Subtitle(
-                Uri.parse(URI_TEXT), MimeTypes.APPLICATION_TTML, "de", C.SELECTION_FLAG_DEFAULT));
-    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).setSubtitles(subtitles).build();
+            new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_TEXT))
+                .setMimeType(MimeTypes.APPLICATION_TTML)
+                .setLanguage("en")
+                .build(),
+            new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_TEXT))
+                .setMimeType(MimeTypes.APPLICATION_TTML)
+                .setLanguage("de")
+                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                .build());
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setSubtitleConfigurations(subtitleConfigurations)
+            .build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -110,7 +120,11 @@ public final class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(URI_MEDIA).setClipStartPositionMs(1000L).build();
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(1000L).build())
+            .build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -122,7 +136,11 @@ public final class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(URI_MEDIA).setClipEndPositionMs(1000L).build();
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setEndPositionMs(1000L).build())
+            .build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -134,7 +152,13 @@ public final class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(URI_MEDIA).setClipRelativeToDefaultPosition(true).build();
+        new MediaItem.Builder()
+            .setUri(URI_MEDIA)
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setRelativeToDefaultPosition(true)
+                    .build())
+            .build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -148,7 +172,10 @@ public final class DefaultMediaSourceFactoryTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(URI_MEDIA)
-            .setClipEndPositionMs(C.TIME_END_OF_SOURCE)
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setEndPositionMs(C.TIME_END_OF_SOURCE)
+                    .build())
             .build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);

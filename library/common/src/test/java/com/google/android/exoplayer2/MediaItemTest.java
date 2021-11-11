@@ -268,8 +268,8 @@ public class MediaItemTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation") // Using deprecated Subtitle type
-  public void builderSetSubtitles_setsSubtitles() {
+  @SuppressWarnings("deprecation") // Reading deprecated subtitles field
+  public void builderSetSubtitleConfigurations() {
     List<MediaItem.SubtitleConfiguration> subtitleConfigurations =
         ImmutableList.of(
             new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/es"))
@@ -278,7 +278,24 @@ public class MediaItemTest {
                 .setSelectionFlags(C.SELECTION_FLAG_FORCED)
                 .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
                 .setLabel("label")
-                .build(),
+                .build());
+
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setSubtitleConfigurations(subtitleConfigurations)
+            .build();
+
+    assertThat(mediaItem.localConfiguration.subtitleConfigurations)
+        .isEqualTo(subtitleConfigurations);
+    assertThat(mediaItem.localConfiguration.subtitles).isEqualTo(subtitleConfigurations);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Using deprecated Subtitle type
+  public void builderSetSubtitles() {
+    List<MediaItem.Subtitle> subtitles =
+        ImmutableList.of(
             new MediaItem.Subtitle(
                 Uri.parse(URI_STRING + "/en"), MimeTypes.APPLICATION_TTML, /* language= */ "en"),
             new MediaItem.Subtitle(
@@ -295,14 +312,10 @@ public class MediaItemTest {
                 "label"));
 
     MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri(URI_STRING)
-            .setSubtitleConfigurations(subtitleConfigurations)
-            .build();
+        new MediaItem.Builder().setUri(URI_STRING).setSubtitles(subtitles).build();
 
-    assertThat(mediaItem.localConfiguration.subtitleConfigurations)
-        .isEqualTo(subtitleConfigurations);
-    assertThat(mediaItem.localConfiguration.subtitles).isEqualTo(subtitleConfigurations);
+    assertThat(mediaItem.localConfiguration.subtitleConfigurations).isEqualTo(subtitles);
+    assertThat(mediaItem.localConfiguration.subtitles).isEqualTo(subtitles);
   }
 
   @Test

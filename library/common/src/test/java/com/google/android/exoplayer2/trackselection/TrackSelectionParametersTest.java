@@ -77,7 +77,7 @@ public final class TrackSelectionParametersTest {
                     new TrackGroup(
                         new Format.Builder().setId(4).build(),
                         new Format.Builder().setId(5).build()),
-                    /* trackIndexes= */ ImmutableList.of(1)))
+                    /* trackIndices= */ ImmutableList.of(1)))
             .build();
     TrackSelectionParameters parameters =
         TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT

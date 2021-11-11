@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -140,7 +141,8 @@ public final class MetadataRetriever {
           case MESSAGE_PREPARE_SOURCE:
             MediaItem mediaItem = (MediaItem) msg.obj;
             mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
-            mediaSource.prepareSource(mediaSourceCaller, /* mediaTransferListener= */ null);
+            mediaSource.prepareSource(
+                mediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
             mediaSourceHandler.sendEmptyMessage(MESSAGE_CHECK_FOR_FAILURE);
             return true;
           case MESSAGE_CHECK_FOR_FAILURE:

@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
@@ -644,7 +645,7 @@ public final class ConcatenatingMediaSourceTest {
           () -> {
             MediaSourceCaller caller = mock(MediaSourceCaller.class);
             mediaSource.addMediaSources(Arrays.asList(createMediaSources(2)));
-            mediaSource.prepareSource(caller, /* mediaTransferListener= */ null);
+            mediaSource.prepareSource(caller, /* mediaTransferListener= */ null, PlayerId.UNSET);
             mediaSource.moveMediaSource(
                 /* currentIndex= */ 0,
                 /* newIndex= */ 1,
