@@ -60,7 +60,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:' + androidxCoreVersion
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.material:material:' + androidxMaterialVersion
     implementation project(modulePrefix + ':lib-exoplayer')
     implementation project(modulePrefix + ':lib-exoplayer-dash')
     implementation project(modulePrefix + ':lib-exoplayer-hls')
