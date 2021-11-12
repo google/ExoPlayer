@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     setContentView(R.layout.main_activity);
-
     localPlayerView = findViewById(R.id.local_player_view);
     localPlayerView.requestFocus();
 
