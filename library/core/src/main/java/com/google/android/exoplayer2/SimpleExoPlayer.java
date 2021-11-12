@@ -396,7 +396,6 @@ public class SimpleExoPlayer extends BasePlayer
 
   /** @deprecated Use the {@link ExoPlayer.Builder}. */
   @Deprecated
-  @SuppressWarnings("deprecation")
   protected SimpleExoPlayer(
       Context context,
       RenderersFactory renderersFactory,
@@ -428,7 +427,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   /** @param builder The {@link ExoPlayer.Builder} to obtain all construction parameters. */
-  @SuppressWarnings("deprecation")
   /* package */ SimpleExoPlayer(ExoPlayer.Builder builder) {
     constructorFinished = new ConditionVariable();
     try {
