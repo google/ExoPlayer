@@ -136,8 +136,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     return player.getPlaybackState() == Player.STATE_IDLE ? -1 : player.getCurrentPosition();
   }
 
-  // Calls deprecated method to provide backwards compatibility.
-  @SuppressWarnings("deprecation")
   @Override
   public void play() {
     if (player.getPlaybackState() == Player.STATE_IDLE) {

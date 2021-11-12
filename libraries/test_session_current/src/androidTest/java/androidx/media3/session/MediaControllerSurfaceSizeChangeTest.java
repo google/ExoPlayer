@@ -52,9 +52,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 /**
- * A class that tests whether {@link MediaController.Listener#onSurfaceSizeChanged(int, int)} is
- * called when calling {@link MediaController#setVideoSurface(Surface)} and other surface related
- * methods.
+ * A class that tests whether {@link Player.Listener#onSurfaceSizeChanged(int, int)} is called when
+ * calling {@link MediaController#setVideoSurface(Surface)} and other surface related methods.
  */
 @RunWith(Parameterized.class)
 @LargeTest

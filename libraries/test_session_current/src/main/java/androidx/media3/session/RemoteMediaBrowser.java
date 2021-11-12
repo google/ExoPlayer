@@ -96,14 +96,8 @@ public class RemoteMediaBrowser extends RemoteMediaController {
   // Non-public methods
   ////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Create a {@link MediaBrowser} in the client app. Should be used after successful connection
-   * through {@link #connect()}.
-   *
-   * @param connectionHints connection hints
-   * @param waitForConnection true if this method needs to wait for the connection,
-   */
-  void create(SessionToken token, Bundle connectionHints, boolean waitForConnection)
+  @Override
+  protected void create(SessionToken token, Bundle connectionHints, boolean waitForConnection)
       throws RemoteException {
     binder.create(
         /* isBrowser= */ true, controllerId, token.toBundle(), connectionHints, waitForConnection);

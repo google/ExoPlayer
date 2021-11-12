@@ -366,7 +366,6 @@ public final class Cue implements Bundleable {
    * @deprecated Use {@link Builder}.
    */
   @UnstableApi
-  @SuppressWarnings("deprecation")
   @Deprecated
   public Cue(
       CharSequence text,

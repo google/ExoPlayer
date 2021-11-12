@@ -340,7 +340,7 @@ public class RemoteMediaController {
    * @param connectionHints connection hints
    * @param waitForConnection true if this method needs to wait for the connection,
    */
-  void create(SessionToken token, Bundle connectionHints, boolean waitForConnection)
+  protected void create(SessionToken token, Bundle connectionHints, boolean waitForConnection)
       throws RemoteException {
     binder.create(
         /* isBrowser= */ false, controllerId, token.toBundle(), connectionHints, waitForConnection);
