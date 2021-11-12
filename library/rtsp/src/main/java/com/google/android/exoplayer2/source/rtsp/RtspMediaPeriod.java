@@ -239,7 +239,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public long seekToUs(long positionUs) {
+  public long seekToUs(long positionUs) { // remove entirely
     if (isSeekPending()) {
       // TODO(internal b/172331505) Allow seek when a seek is pending.
       // Does not allow another seek if a seek is pending.

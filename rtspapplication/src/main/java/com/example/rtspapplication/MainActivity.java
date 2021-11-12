@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
             .createMediaSource(MediaItem.fromUri(Uri.parse(url)));
 
     player.setMediaSource(mediaSource);
-
+    playerView.setUseController(false);
     playerView.setPlayer(player);
     player.prepare();
     player.setPlayWhenReady(true);
