@@ -2165,7 +2165,9 @@ public class StyledPlayerControlView extends FrameLayout {
               TrackSelectionParameters trackSelectionParameters =
                   player.getTrackSelectionParameters();
               TrackSelectionOverrides overrides =
-                  new TrackSelectionOverrides.Builder()
+                  trackSelectionParameters
+                      .trackSelectionOverrides
+                      .buildUpon()
                       .setOverrideForType(
                           new TrackSelectionOverride(
                               track.trackGroup, ImmutableList.of(track.trackIndex)))
