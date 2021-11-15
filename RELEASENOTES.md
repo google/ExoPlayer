@@ -2,7 +2,12 @@
 
 ### dev-v2 (not yet released)
 
+### 2.16.1 (2021-11-11)
+
 *   Core Library:
+    *   Fix track selection issue where overriding one track group did not
+        disable other track groups of the same type
+        ([#9675](https://github.com/google/ExoPlayer/issues/9675)).
     *   Fix track selection issue where a mixture of non-empty and empty track
         overrides is not applied correctly
         ([#9649](https://github.com/google/ExoPlayer/issues/9649).
