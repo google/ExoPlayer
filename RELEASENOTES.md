@@ -2,7 +2,12 @@
 
 ### dev-v2 (not yet released)
 
+### 2.16.1 (2021-11-11)
+
 *   Core Library:
+    *   Fix track selection issue where overriding one track group did not
+        disable other track groups of the same type
+        ([#9675](https://github.com/google/ExoPlayer/issues/9675)).
     *   Fix track selection issue where a mixture of non-empty and empty track
         overrides is not applied correctly
         ([#9649](https://github.com/google/ExoPlayer/issues/9649).
@@ -14,6 +19,9 @@
 *   Extractors:
     *   WAV: Add support for RF64 streams
         ([#9543](https://github.com/google/ExoPlayer/issues/9543).
+*   DASH:
+    *   Add parsed essential and supplemental properties to the `Representation`
+        ([#9579](https://github.com/google/ExoPlayer/issues/9579)).
 *   RTSP
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).

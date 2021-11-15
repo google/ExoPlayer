@@ -262,7 +262,6 @@ public class DefaultLoadControl implements LoadControl {
   private boolean isLoading;
 
   /** Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class. */
-  @SuppressWarnings("deprecation")
   public DefaultLoadControl() {
     this(
         new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE),

@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
     // Instrumentation tests assume that an app-packaged version of cronet is
     // available.
-    androidTestImplementation 'org.chromium.net:cronet-embedded:94.4606.61'
+    androidTestImplementation 'org.chromium.net:cronet-embedded:95.4638.50'
     androidTestImplementation project(modulePrefix + 'testutils')
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion

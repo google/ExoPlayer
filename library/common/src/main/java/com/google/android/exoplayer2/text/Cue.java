@@ -362,7 +362,6 @@ public final class Cue implements Bundleable {
    * @param textSize See {@link #textSize}.
    * @deprecated Use {@link Builder}.
    */
-  @SuppressWarnings("deprecation")
   @Deprecated
   public Cue(
       CharSequence text,
