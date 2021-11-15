@@ -1417,7 +1417,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Player.html#getCurrentWindowIndex()">com.google.android.exoplayer2.Player.getCurrentWindowIndex()</a></th>
 <td class="colLast">
-<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#getCurrentMediaItem()"><code>Player.getCurrentMediaItem()</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#getCurrentMediaItemIndex()"><code>Player.getCurrentMediaItemIndex()</code></a> instead.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -1698,6 +1698,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.setDrmHttpDataSourceFactory&#8203;(HttpDataSource.Factory)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.setDrmSessionManager&#8203;(DrmSessionManager)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setDrmUserAgent(java.lang.String)">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.setDrmUserAgent&#8203;(String)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLivePresentationDelayMs(long,boolean)">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.setLivePresentationDelayMs&#8203;(long, boolean)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>MediaItem.Builder.setLiveConfiguration(MediaItem.LiveConfiguration)</code></a>
@@ -1705,17 +1717,29 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
      manifest, or <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setFallbackTargetLiveOffsetMs(long)"><code>DashMediaSource.Factory.setFallbackTargetLiveOffsetMs(long)</code></a> to provide a fallback value.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setStreamKeys(java.util.List)">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.setStreamKeys&#8203;(List&lt;StreamKey&gt;)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setStreamKeys(java.util.List)"><code>MediaItem.Builder.setStreamKeys(List)</code></a> and <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>DashMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setTag(java.lang.Object)">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.setTag&#8203;(Object)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setTag(java.lang.Object)"><code>MediaItem.Builder.setTag(Object)</code></a> and <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>DashMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/DefaultMediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">com.google.android.exoplayer2.source.DefaultMediaSourceFactory.setDrmHttpDataSourceFactory&#8203;(HttpDataSource.Factory)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/DefaultMediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">com.google.android.exoplayer2.source.DefaultMediaSourceFactory.setDrmSessionManager&#8203;(DrmSessionManager)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/DefaultMediaSourceFactory.html#setDrmUserAgent(java.lang.String)">com.google.android.exoplayer2.source.DefaultMediaSourceFactory.setDrmUserAgent&#8203;(String)</a></th>
+<td class="colLast"></td>
 </tr>
 <tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/DefaultMediaSourceFactory.html#setStreamKeys(java.util.List)">com.google.android.exoplayer2.source.DefaultMediaSourceFactory.setStreamKeys&#8203;(List&lt;StreamKey&gt;)</a></th>
@@ -1730,24 +1754,36 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">com.google.android.exoplayer2.source.hls.HlsMediaSource.Factory.setDrmHttpDataSourceFactory&#8203;(HttpDataSource.Factory)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">com.google.android.exoplayer2.source.hls.HlsMediaSource.Factory.setDrmSessionManager&#8203;(DrmSessionManager)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setDrmUserAgent(java.lang.String)">com.google.android.exoplayer2.source.hls.HlsMediaSource.Factory.setDrmUserAgent&#8203;(String)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setStreamKeys(java.util.List)">com.google.android.exoplayer2.source.hls.HlsMediaSource.Factory.setStreamKeys&#8203;(List&lt;StreamKey&gt;)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setStreamKeys(java.util.List)"><code>MediaItem.Builder.setStreamKeys(List)</code></a> and <a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>HlsMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setTag(java.lang.Object)">com.google.android.exoplayer2.source.hls.HlsMediaSource.Factory.setTag&#8203;(Object)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setTag(java.lang.Object)"><code>MediaItem.Builder.setTag(Object)</code></a> and <a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>HlsMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#createMediaSource(android.net.Uri)">com.google.android.exoplayer2.source.MediaSourceFactory.createMediaSource&#8203;(Uri)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>MediaSourceFactory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">com.google.android.exoplayer2.source.MediaSourceFactory.setDrmHttpDataSourceFactory&#8203;(HttpDataSource.Factory)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)"><code>MediaSourceFactory.setDrmSessionManagerProvider(DrmSessionManagerProvider)</code></a> and pass an
@@ -1755,14 +1791,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
      <a href="com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">com.google.android.exoplayer2.source.MediaSourceFactory.setDrmSessionManager&#8203;(DrmSessionManager)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)"><code>MediaSourceFactory.setDrmSessionManagerProvider(DrmSessionManagerProvider)</code></a> and pass an
      implementation that always returns the same instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmUserAgent(java.lang.String)">com.google.android.exoplayer2.source.MediaSourceFactory.setDrmUserAgent&#8203;(String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)"><code>MediaSourceFactory.setDrmSessionManagerProvider(DrmSessionManagerProvider)</code></a> and pass an
@@ -1770,23 +1806,35 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
      <code>userAgent</code>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/MediaSourceFactory.html#setStreamKeys(java.util.List)">com.google.android.exoplayer2.source.MediaSourceFactory.setStreamKeys&#8203;(List&lt;StreamKey&gt;)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.LocalConfiguration.html#streamKeys"><code>MediaItem.LocalConfiguration.streamKeys</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#createMediaSource(android.net.Uri)">com.google.android.exoplayer2.source.ProgressiveMediaSource.Factory.createMediaSource&#8203;(Uri)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>ProgressiveMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#setCustomCacheKey(java.lang.String)">com.google.android.exoplayer2.source.ProgressiveMediaSource.Factory.setCustomCacheKey&#8203;(String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setCustomCacheKey(java.lang.String)"><code>MediaItem.Builder.setCustomCacheKey(String)</code></a> and <a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>ProgressiveMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
+</tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">com.google.android.exoplayer2.source.ProgressiveMediaSource.Factory.setDrmHttpDataSourceFactory&#8203;(HttpDataSource.Factory)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">com.google.android.exoplayer2.source.ProgressiveMediaSource.Factory.setDrmSessionManager&#8203;(DrmSessionManager)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#setDrmUserAgent(java.lang.String)">com.google.android.exoplayer2.source.ProgressiveMediaSource.Factory.setDrmUserAgent&#8203;(String)</a></th>
+<td class="colLast"></td>
 </tr>
 <tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/ProgressiveMediaSource.Factory.html#setExtractorsFactory(com.google.android.exoplayer2.extractor.ExtractorsFactory)">com.google.android.exoplayer2.source.ProgressiveMediaSource.Factory.setExtractorsFactory&#8203;(ExtractorsFactory)</a></th>
@@ -1827,110 +1875,136 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.Factory.setDrmHttpDataSourceFactory&#8203;(HttpDataSource.Factory)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.Factory.setDrmSessionManager&#8203;(DrmSessionManager)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setDrmUserAgent(java.lang.String)">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.Factory.setDrmUserAgent&#8203;(String)</a></th>
+<td class="colLast"></td>
+</tr>
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setStreamKeys(java.util.List)">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.Factory.setStreamKeys&#8203;(List&lt;StreamKey&gt;)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setStreamKeys(java.util.List)"><code>MediaItem.Builder.setStreamKeys(List)</code></a> and <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>SsMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setTag(java.lang.Object)">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.Factory.setTag&#8203;(Object)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/MediaItem.Builder.html#setTag(java.lang.Object)"><code>MediaItem.Builder.setTag(Object)</code></a> and <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource(com.google.android.exoplayer2.MediaItem)"><code>SsMediaSource.Factory.createMediaSource(MediaItem)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/FakeMediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">com.google.android.exoplayer2.testutil.FakeMediaSourceFactory.setDrmHttpDataSourceFactory&#8203;(HttpDataSource.Factory)</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/FakeMediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">com.google.android.exoplayer2.testutil.FakeMediaSourceFactory.setDrmSessionManager&#8203;(DrmSessionManager)</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/FakeMediaSourceFactory.html#setDrmUserAgent(java.lang.String)">com.google.android.exoplayer2.testutil.FakeMediaSourceFactory.setDrmUserAgent&#8203;(String)</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#getAudioComponent()">com.google.android.exoplayer2.testutil.StubExoPlayer.getAudioComponent()</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#getDeviceComponent()">com.google.android.exoplayer2.testutil.StubExoPlayer.getDeviceComponent()</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#getTextComponent()">com.google.android.exoplayer2.testutil.StubExoPlayer.getTextComponent()</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#getVideoComponent()">com.google.android.exoplayer2.testutil.StubExoPlayer.getVideoComponent()</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare(com.google.android.exoplayer2.source.MediaSource)">com.google.android.exoplayer2.testutil.StubExoPlayer.prepare&#8203;(MediaSource)</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#retry()">com.google.android.exoplayer2.testutil.StubExoPlayer.retry()</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#setHandleWakeLock(boolean)">com.google.android.exoplayer2.testutil.StubExoPlayer.setHandleWakeLock&#8203;(boolean)</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubExoPlayer.html#setThrowsWhenUsingWrongThread(boolean)">com.google.android.exoplayer2.testutil.StubExoPlayer.setThrowsWhenUsingWrongThread&#8203;(boolean)</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/testutil/StubPlayer.html#stop(boolean)">com.google.android.exoplayer2.testutil.StubPlayer.stop&#8203;(boolean)</a></th>
 <td class="colLast"></td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Timeline.html#getPeriodPosition(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long)">com.google.android.exoplayer2.Timeline.getPeriodPosition&#8203;(Timeline.Window, Timeline.Period, int, long)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Timeline.html#getPeriodPositionUs(com.google.android.exoplayer2.Timeline.Window,com.google.android.exoplayer2.Timeline.Period,int,long)"><code>Timeline.getPeriodPositionUs(Window, Period, int, long)</code></a> instead.</div>
 </td>
 </tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray)">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters.getSelectionOverride&#8203;(int, TrackGroupArray)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Only works to retrieve the overrides set with the deprecated <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)"><code>DefaultTrackSelector.ParametersBuilder.setSelectionOverride(int, TrackGroupArray, SelectionOverride)</code></a>. Use
+     <a href="com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#trackSelectionOverrides"><code>TrackSelectionParameters.trackSelectionOverrides</code></a> instead.</div>
+</td>
+</tr>
 <tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#hasSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray)">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters.hasSelectionOverride&#8203;(int, TrackGroupArray)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Only works to retrieve the overrides set with the deprecated <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)"><code>DefaultTrackSelector.ParametersBuilder.setSelectionOverride(int, TrackGroupArray, SelectionOverride)</code></a>. Use
+     <a href="com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#trackSelectionOverrides"><code>TrackSelectionParameters.trackSelectionOverrides</code></a> instead.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#clearSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray)">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder.clearSelectionOverride&#8203;(int, TrackGroupArray)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setTrackSelectionOverrides(com.google.android.exoplayer2.trackselection.TrackSelectionOverrides)"><code>TrackSelectionParameters.Builder.setTrackSelectionOverrides(com.google.android.exoplayer2.trackselection.TrackSelectionOverrides)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#clearSelectionOverrides(int)">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder.clearSelectionOverrides&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setTrackSelectionOverrides(com.google.android.exoplayer2.trackselection.TrackSelectionOverrides)"><code>TrackSelectionParameters.Builder.setTrackSelectionOverrides(com.google.android.exoplayer2.trackselection.TrackSelectionOverrides)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder.setSelectionOverride&#8203;(int, TrackGroupArray, DefaultTrackSelector.SelectionOverride)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/TrackSelectionParameters.Builder.html#setTrackSelectionOverrides(com.google.android.exoplayer2.trackselection.TrackSelectionOverrides)"><code>TrackSelectionParameters.Builder.setTrackSelectionOverrides(com.google.android.exoplayer2.trackselection.TrackSelectionOverrides)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildProgressNotification(android.content.Context,int,android.app.PendingIntent,java.lang.String,java.util.List)">com.google.android.exoplayer2.ui.DownloadNotificationHelper.buildProgressNotification&#8203;(Context, int, PendingIntent, String, List&lt;Download&gt;)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildProgressNotification(android.content.Context,int,android.app.PendingIntent,java.lang.String,java.util.List,int)"><code>DownloadNotificationHelper.buildProgressNotification(Context, int, PendingIntent, String, List,
      int)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#setContentTypePredicate(com.google.common.base.Predicate)">com.google.android.exoplayer2.upstream.DefaultHttpDataSource.setContentTypePredicate&#8203;(Predicate&lt;String&gt;)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/DefaultHttpDataSource.Factory.html#setContentTypePredicate(com.google.common.base.Predicate)"><code>DefaultHttpDataSource.Factory.setContentTypePredicate(Predicate)</code></a>
      instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/video/VideoDecoderGLSurfaceView.html#getVideoDecoderOutputBufferRenderer()">com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView.getVideoDecoderOutputBufferRenderer()</a></th>
 <td class="colLast">
 <div class="deprecationComment">This class implements <a href="com/google/android/exoplayer2/video/VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video"><code>VideoDecoderOutputBufferRenderer</code></a> directly.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoInputFormatChanged(com.google.android.exoplayer2.Format)">com.google.android.exoplayer2.video.VideoRendererEventListener.onVideoInputFormatChanged&#8203;(Format)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>VideoRendererEventListener.onVideoInputFormatChanged(Format, DecoderReuseEvaluation)</code></a>.</div>

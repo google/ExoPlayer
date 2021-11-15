@@ -730,7 +730,7 @@ extends <a href="../BasePlayer.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Stops playback without resetting the player.</div>
+<div class="block">Stops playback without resetting the playlist.</div>
 </td>
 </tr>
 <tr id="i69" class="rowColor">
@@ -902,7 +902,10 @@ public&nbsp;@com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&
 <h4>prepare</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;prepare()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#prepare()">Player</a></code></span></div>
-<div class="block">Prepares the player.</div>
+<div class="block">Prepares the player.
+
+ <p>This will move the player out of <a href="../Player.html#STATE_IDLE"><code>idle state</code></a> and the player will start
+ loading media and acquire resources needed for playback.</div>
 </li>
 </ul>
 <a id="setMediaItems(java.util.List,boolean)">
@@ -1254,12 +1257,13 @@ public&nbsp;@com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&
 <h4>stop</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;stop()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Player.html#stop()">Player</a></code></span></div>
-<div class="block">Stops playback without resetting the player. Use <a href="../Player.html#pause()"><code>Player.pause()</code></a> rather than this method if
+<div class="block">Stops playback without resetting the playlist. Use <a href="../Player.html#pause()"><code>Player.pause()</code></a> rather than this method if
  the intention is to pause playback.
 
- <p>Calling this method will cause the playback state to transition to <a href="../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a>. The
- player instance can still be used, and <a href="../Player.html#release()"><code>Player.release()</code></a> must still be called on the player if
- it's no longer required.
+ <p>Calling this method will cause the playback state to transition to <a href="../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> and
+ the player will release the loaded media and resources required for playback. The player
+ instance can still be used by calling <a href="../Player.html#prepare()"><code>Player.prepare()</code></a> again, and <a href="../Player.html#release()"><code>Player.release()</code></a> must
+ still be called on the player if it's no longer required.
 
  <p>Calling this method does not clear the playlist, reset the playback position or the playback
  error.</div>

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":6,"i9":10,"i10":10,"i11":6,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10};
+var data = {"i0":6,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":6,"i9":10,"i10":10,"i11":10,"i12":10,"i13":6,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -289,22 +289,32 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders_isEmptyWhileNotOpen()">getResponseHeaders_isEmptyWhileNotOpen</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders_caseInsensitive()">getResponseHeaders_caseInsensitive</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders_resourceNotFound_isEmptyWhileNotOpen()">getResponseHeaders_resourceNotFound_isEmptyWhileNotOpen</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders_isEmptyWhileNotOpen()">getResponseHeaders_isEmptyWhileNotOpen</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders_noNullKeysOrValues()">getResponseHeaders_noNullKeysOrValues</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders_resourceNotFound_isEmptyWhileNotOpen()">getResponseHeaders_resourceNotFound_isEmptyWhileNotOpen</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.TestResource</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTestResources()">getTestResources</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns <a href="DataSourceContractTest.TestResource.html" title="class in com.google.android.exoplayer2.testutil"><code>DataSourceContractTest.TestResource</code></a> instances.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTransferListenerDataSource()">getTransferListenerDataSource</a></span>()</code></th>
 <td class="colLast">
@@ -312,37 +322,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  for the <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> most recently created by <a href="#createDataSource()"><code>createDataSource()</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUri_resourceNotFound_returnsNullIfNotOpened()">getUri_resourceNotFound_returnsNullIfNotOpened</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUri_returnsNonNullValueOnlyWhileOpen()">getUri_returnsNonNullValueOnlyWhileOpen</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resourceNotFound()">resourceNotFound</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resourceNotFound_transferListenerCallbacks()">resourceNotFound_transferListenerCallbacks</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#transferListenerCallbacks()">transferListenerCallbacks</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unboundedDataSpec_readUntilEnd()">unboundedDataSpec_readUntilEnd</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unboundedDataSpecWithGzipFlag_readUntilEnd()">unboundedDataSpecWithGzipFlag_readUntilEnd</a></span>()</code></th>
 <td class="colLast">
@@ -350,7 +360,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  implementations, or correctly handled (i.e.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unboundedReadsAreIndefinite()">unboundedReadsAreIndefinite</a></span>()</code></th>
 <td class="colLast">
@@ -682,6 +692,34 @@ protected&nbsp;<a href="../upstream/DataSource.html" title="interface in com.goo
 <h4>getUri_resourceNotFound_returnsNullIfNotOpened</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;getUri_resourceNotFound_returnsNullIfNotOpened()
                                                     throws <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getResponseHeaders_noNullKeysOrValues()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getResponseHeaders_noNullKeysOrValues</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;getResponseHeaders_noNullKeysOrValues()
+                                           throws <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getResponseHeaders_caseInsensitive()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getResponseHeaders_caseInsensitive</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;getResponseHeaders_caseInsensitive()
+                                        throws <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></code></dd>
