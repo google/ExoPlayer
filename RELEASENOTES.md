@@ -14,6 +14,9 @@
 *   Extractors:
     *   WAV: Add support for RF64 streams
         ([#9543](https://github.com/google/ExoPlayer/issues/9543).
+*   DASH:
+    *   Add parsed essential and supplemental properties to the `Representation`
+        ([#9579](https://github.com/google/ExoPlayer/issues/9579)).
 
 ### 2.16.0 (2021-11-04)
 

@@ -753,6 +753,8 @@ public class DashManifestParser extends DefaultHandler
         drmSchemeType,
         drmSchemeDatas,
         inbandEventStreams,
+        essentialProperties,
+        supplementalProperties,
         Representation.REVISION_ID_DEFAULT);
   }
 
@@ -841,7 +843,10 @@ public class DashManifestParser extends DefaultHandler
         formatBuilder.build(),
         representationInfo.baseUrls,
         representationInfo.segmentBase,
-        inbandEventStreams);
+        inbandEventStreams,
+        representationInfo.essentialProperties,
+        representationInfo.supplementalProperties,
+        /* cacheKey= */ null);
   }
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
@@ -1910,6 +1915,8 @@ public class DashManifestParser extends DefaultHandler
     public final ArrayList<SchemeData> drmSchemeDatas;
     public final ArrayList<Descriptor> inbandEventStreams;
     public final long revisionId;
+    public final List<Descriptor> essentialProperties;
+    public final List<Descriptor> supplementalProperties;
 
     public RepresentationInfo(
         Format format,
@@ -1918,6 +1925,8 @@ public class DashManifestParser extends DefaultHandler
         @Nullable String drmSchemeType,
         ArrayList<SchemeData> drmSchemeDatas,
         ArrayList<Descriptor> inbandEventStreams,
+        List<Descriptor> essentialProperties,
+        List<Descriptor> supplementalProperties,
         long revisionId) {
       this.format = format;
       this.baseUrls = ImmutableList.copyOf(baseUrls);
@@ -1925,6 +1934,8 @@ public class DashManifestParser extends DefaultHandler
       this.drmSchemeType = drmSchemeType;
       this.drmSchemeDatas = drmSchemeDatas;
       this.inbandEventStreams = inbandEventStreams;
+      this.essentialProperties = essentialProperties;
+      this.supplementalProperties = supplementalProperties;
       this.revisionId = revisionId;
     }
   }

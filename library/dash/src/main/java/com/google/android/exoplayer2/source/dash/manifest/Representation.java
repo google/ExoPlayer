@@ -50,6 +50,10 @@ public abstract class Representation {
   public final long presentationTimeOffsetUs;
   /** The in-band event streams in the representation. May be empty. */
   public final List<Descriptor> inbandEventStreams;
+  /** Essential properties in the representation. May be empty. */
+  public final List<Descriptor> essentialProperties;
+  /** Supplemental properties in the adaptation set. May be empty. */
+  public final List<Descriptor> supplementalProperties;
 
   private final RangedUri initializationUri;
 
@@ -64,27 +68,15 @@ public abstract class Representation {
    */
   public static Representation newInstance(
       long revisionId, Format format, List<BaseUrl> baseUrls, SegmentBase segmentBase) {
-    return newInstance(revisionId, format, baseUrls, segmentBase, /* inbandEventStreams= */ null);
-  }
-
-  /**
-   * Constructs a new instance.
-   *
-   * @param revisionId Identifies the revision of the content.
-   * @param format The format of the representation.
-   * @param baseUrls The list of base URLs of the representation.
-   * @param segmentBase A segment base element for the representation.
-   * @param inbandEventStreams The in-band event streams in the representation. May be null.
-   * @return The constructed instance.
-   */
-  public static Representation newInstance(
-      long revisionId,
-      Format format,
-      List<BaseUrl> baseUrls,
-      SegmentBase segmentBase,
-      @Nullable List<Descriptor> inbandEventStreams) {
     return newInstance(
-        revisionId, format, baseUrls, segmentBase, inbandEventStreams, /* cacheKey= */ null);
+        revisionId,
+        format,
+        baseUrls,
+        segmentBase,
+        /* inbandEventStreams= */ null,
+        /* essentialProperties= */ ImmutableList.of(),
+        /* supplementalProperties= */ ImmutableList.of(),
+        /* cacheKey= */ null);
   }
 
   /**
@@ -95,6 +87,8 @@ public abstract class Representation {
    * @param baseUrls The list of base URLs of the representation.
    * @param segmentBase A segment base element for the representation.
    * @param inbandEventStreams The in-band event streams in the representation. May be null.
+   * @param essentialProperties Essential properties in the representation. May be empty.
+   * @param supplementalProperties Supplemental properties in the representation. May be empty.
    * @param cacheKey An optional key to be returned from {@link #getCacheKey()}, or null. This
    *     parameter is ignored if {@code segmentBase} consists of multiple segments.
    * @return The constructed instance.
@@ -105,6 +99,8 @@ public abstract class Representation {
       List<BaseUrl> baseUrls,
       SegmentBase segmentBase,
       @Nullable List<Descriptor> inbandEventStreams,
+      List<Descriptor> essentialProperties,
+      List<Descriptor> supplementalProperties,
       @Nullable String cacheKey) {
     if (segmentBase instanceof SingleSegmentBase) {
       return new SingleSegmentRepresentation(
@@ -113,11 +109,19 @@ public abstract class Representation {
           baseUrls,
           (SingleSegmentBase) segmentBase,
           inbandEventStreams,
+          essentialProperties,
+          supplementalProperties,
           cacheKey,
-          C.LENGTH_UNSET);
+          /* contentLength= */ C.LENGTH_UNSET);
     } else if (segmentBase instanceof MultiSegmentBase) {
       return new MultiSegmentRepresentation(
-          revisionId, format, baseUrls, (MultiSegmentBase) segmentBase, inbandEventStreams);
+          revisionId,
+          format,
+          baseUrls,
+          (MultiSegmentBase) segmentBase,
+          inbandEventStreams,
+          essentialProperties,
+          supplementalProperties);
     } else {
       throw new IllegalArgumentException(
           "segmentBase must be of type SingleSegmentBase or " + "MultiSegmentBase");
@@ -129,7 +133,9 @@ public abstract class Representation {
       Format format,
       List<BaseUrl> baseUrls,
       SegmentBase segmentBase,
-      @Nullable List<Descriptor> inbandEventStreams) {
+      @Nullable List<Descriptor> inbandEventStreams,
+      List<Descriptor> essentialProperties,
+      List<Descriptor> supplementalProperties) {
     checkArgument(!baseUrls.isEmpty());
     this.revisionId = revisionId;
     this.format = format;
@@ -138,6 +144,8 @@ public abstract class Representation {
         inbandEventStreams == null
             ? Collections.emptyList()
             : Collections.unmodifiableList(inbandEventStreams);
+    this.essentialProperties = essentialProperties;
+    this.supplementalProperties = supplementalProperties;
     initializationUri = segmentBase.getInitialization(this);
     presentationTimeOffsetUs = segmentBase.getPresentationTimeOffsetUs();
   }
@@ -207,7 +215,15 @@ public abstract class Representation {
           new SingleSegmentBase(rangedUri, 1, 0, indexStart, indexEnd - indexStart + 1);
       List<BaseUrl> baseUrls = ImmutableList.of(new BaseUrl(uri));
       return new SingleSegmentRepresentation(
-          revisionId, format, baseUrls, segmentBase, inbandEventStreams, cacheKey, contentLength);
+          revisionId,
+          format,
+          baseUrls,
+          segmentBase,
+          inbandEventStreams,
+          /* essentialProperties= */ ImmutableList.of(),
+          /* supplementalProperties= */ ImmutableList.of(),
+          cacheKey,
+          contentLength);
     }
 
     /**
@@ -216,6 +232,8 @@ public abstract class Representation {
      * @param baseUrls The base urls of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param inbandEventStreams The in-band event streams in the representation. May be null.
+     * @param essentialProperties Essential properties in the representation. May be empty.
+     * @param supplementalProperties Supplemental properties in the representation. May be empty.
      * @param cacheKey An optional key to be returned from {@link #getCacheKey()}, or null.
      * @param contentLength The content length, or {@link C#LENGTH_UNSET} if unknown.
      */
@@ -225,9 +243,18 @@ public abstract class Representation {
         List<BaseUrl> baseUrls,
         SingleSegmentBase segmentBase,
         @Nullable List<Descriptor> inbandEventStreams,
+        List<Descriptor> essentialProperties,
+        List<Descriptor> supplementalProperties,
         @Nullable String cacheKey,
         long contentLength) {
-      super(revisionId, format, baseUrls, segmentBase, inbandEventStreams);
+      super(
+          revisionId,
+          format,
+          baseUrls,
+          segmentBase,
+          inbandEventStreams,
+          essentialProperties,
+          supplementalProperties);
       this.uri = Uri.parse(baseUrls.get(0).url);
       this.indexUri = segmentBase.getIndex();
       this.cacheKey = cacheKey;
@@ -271,14 +298,25 @@ public abstract class Representation {
      * @param baseUrls The base URLs of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param inbandEventStreams The in-band event streams in the representation. May be null.
+     * @param essentialProperties Essential properties in the representation. May be empty.
+     * @param supplementalProperties Supplemental properties in the representation. May be empty.
      */
     public MultiSegmentRepresentation(
         long revisionId,
         Format format,
         List<BaseUrl> baseUrls,
         MultiSegmentBase segmentBase,
-        @Nullable List<Descriptor> inbandEventStreams) {
-      super(revisionId, format, baseUrls, segmentBase, inbandEventStreams);
+        @Nullable List<Descriptor> inbandEventStreams,
+        List<Descriptor> essentialProperties,
+        List<Descriptor> supplementalProperties) {
+      super(
+          revisionId,
+          format,
+          baseUrls,
+          segmentBase,
+          inbandEventStreams,
+          essentialProperties,
+          supplementalProperties);
       this.segmentBase = segmentBase;
     }
 
