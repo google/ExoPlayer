@@ -837,7 +837,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_IDLE">STATE_IDLE</a></span></code></th>
 <td class="colLast">
-<div class="block">The player is idle, and must be <a href="#prepare()"><code>prepared</code></a> before it will play the media.</div>
+<div class="block">The player is idle, meaning it holds only limited resources.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -1141,7 +1141,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentWindowIndex()">getCurrentWindowIndex</a></span>()</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getCurrentMediaItem()"><code>getCurrentMediaItem()</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#getCurrentMediaItemIndex()"><code>getCurrentMediaItemIndex()</code></a> instead.</div>
 </div>
 </td>
 </tr>
@@ -1803,7 +1803,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Stops playback without resetting the player.</div>
+<div class="block">Stops playback without resetting the playlist.</div>
 </td>
 </tr>
 <tr id="i122" class="altColor">
@@ -1840,7 +1840,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_IDLE</h4>
 <pre>static final&nbsp;int STATE_IDLE</pre>
-<div class="block">The player is idle, and must be <a href="#prepare()"><code>prepared</code></a> before it will play the media.</div>
+<div class="block">The player is idle, meaning it holds only limited resources. The player must be <a href="#prepare()"><code>prepared</code></a> before it will play the media.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.STATE_IDLE">Constant Field Values</a></dd>
@@ -3371,7 +3371,10 @@ static final&nbsp;int COMMAND_SEEK_TO_WINDOW</pre>
 <li class="blockList">
 <h4>prepare</h4>
 <pre class="methodSignature">void&nbsp;prepare()</pre>
-<div class="block">Prepares the player.</div>
+<div class="block">Prepares the player.
+
+ <p>This will move the player out of <a href="#STATE_IDLE"><code>idle state</code></a> and the player will start
+ loading media and acquire resources needed for playback.</div>
 </li>
 </ul>
 <a id="getPlaybackState()">
@@ -3987,12 +3990,13 @@ void&nbsp;seekToNextWindow()</pre>
 <li class="blockList">
 <h4>stop</h4>
 <pre class="methodSignature">void&nbsp;stop()</pre>
-<div class="block">Stops playback without resetting the player. Use <a href="#pause()"><code>pause()</code></a> rather than this method if
+<div class="block">Stops playback without resetting the playlist. Use <a href="#pause()"><code>pause()</code></a> rather than this method if
  the intention is to pause playback.
 
- <p>Calling this method will cause the playback state to transition to <a href="#STATE_IDLE"><code>STATE_IDLE</code></a>. The
- player instance can still be used, and <a href="#release()"><code>release()</code></a> must still be called on the player if
- it's no longer required.
+ <p>Calling this method will cause the playback state to transition to <a href="#STATE_IDLE"><code>STATE_IDLE</code></a> and
+ the player will release the loaded media and resources required for playback. The player
+ instance can still be used by calling <a href="#prepare()"><code>prepare()</code></a> again, and <a href="#release()"><code>release()</code></a> must
+ still be called on the player if it's no longer required.
 
  <p>Calling this method does not clear the playlist, reset the playback position or the playback
  error.</div>
@@ -4196,7 +4200,7 @@ void&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 int&nbsp;getCurrentWindowIndex()</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#getCurrentMediaItem()"><code>getCurrentMediaItem()</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#getCurrentMediaItemIndex()"><code>getCurrentMediaItemIndex()</code></a> instead.</div>
 </div>
 </li>
 </ul>
