@@ -83,7 +83,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
   }
 
-  /** Attempts to read the input format and to initialize the sample pipeline. */
+  /** Attempts to read the input format and to initialize the sample or passthrough pipeline. */
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
   private boolean ensureRendererConfigured() throws ExoPlaybackException {
     if (samplePipeline != null) {
@@ -96,8 +96,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format decoderInputFormat = checkNotNull(formatHolder.format);
-    if (transformation.videoMimeType != null
-        && !transformation.videoMimeType.equals(decoderInputFormat.sampleMimeType)) {
+    if ((transformation.videoMimeType != null
+            && !transformation.videoMimeType.equals(decoderInputFormat.sampleMimeType))
+        || (transformation.outputHeight != Transformation.NO_VALUE
+            && transformation.outputHeight != decoderInputFormat.height)) {
       samplePipeline =
           new VideoSamplePipeline(context, decoderInputFormat, transformation, getIndex());
     } else {

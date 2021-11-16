@@ -304,6 +304,7 @@ public final class Transformer {
               removeAudio,
               removeVideo,
               flattenForSlowMotion,
+              /* outputHeight= */ Transformation.NO_VALUE,
               outputMimeType,
               /* audioMimeType= */ null,
               /* videoMimeType= */ null);

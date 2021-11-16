@@ -57,12 +57,22 @@ import java.io.IOException;
 
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+
+    int outputWidth = decoderInputFormat.width;
+    int outputHeight = decoderInputFormat.height;
+    if (transformation.outputHeight != Transformation.NO_VALUE
+        && transformation.outputHeight != decoderInputFormat.height) {
+      outputWidth =
+          decoderInputFormat.width * transformation.outputHeight / decoderInputFormat.height;
+      outputHeight = transformation.outputHeight;
+    }
+
     try {
       encoder =
           MediaCodecAdapterWrapper.createForVideoEncoding(
               new Format.Builder()
-                  .setWidth(decoderInputFormat.width)
-                  .setHeight(decoderInputFormat.height)
+                  .setWidth(outputWidth)
+                  .setHeight(outputHeight)
                   .setSampleMimeType(
                       transformation.videoMimeType != null
                           ? transformation.videoMimeType
@@ -77,7 +87,8 @@ import java.io.IOException;
     openGlFrameEditor =
         OpenGlFrameEditor.create(
             context,
-            decoderInputFormat,
+            outputWidth,
+            outputHeight,
             /* outputSurface= */ checkNotNull(encoder.getInputSurface()));
     try {
       decoder =
