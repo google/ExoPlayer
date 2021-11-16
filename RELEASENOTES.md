@@ -2,11 +2,7 @@
 
 ### dev-v2 (not yet released)
 
-*   HLS:
-    *   Correctly populate `Format.label` for audio only HLS streams
-        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
-
-### 2.16.1 (2021-11-16)
+### 2.16.1 (2021-11-11)
 
 *   Core Library:
     *   Fix track selection issue where overriding one track group did not
@@ -31,6 +27,9 @@
 *   DASH:
     *   Add parsed essential and supplemental properties to the `Representation`
         ([#9579](https://github.com/google/ExoPlayer/issues/9579)).
+*   HLS:
+    *   Correctly populate `Format.label` for audio only HLS streams
+        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
 
 ### 2.16.0 (2021-11-04)
 
