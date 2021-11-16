@@ -6,7 +6,7 @@
     *   Correctly populate `Format.label` for audio only HLS streams
         ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
 
-### 2.16.1 (2021-11-11)
+### 2.16.1 (2021-11-16)
 
 *   Core Library:
     *   Fix track selection issue where overriding one track group did not
