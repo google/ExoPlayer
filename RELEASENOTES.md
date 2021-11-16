@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released)
 
+*   HLS:
+    *   Correctly populate `Format.label` for audio only HLS streams
+        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
+
 ### 2.16.1 (2021-11-11)
 
 *   Core Library:
