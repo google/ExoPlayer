@@ -259,7 +259,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       fuScratchBuffer.setPosition(1);
     } else {
       // Check that this packet is in the sequence of the previous packet.
-      int expectedSequenceNumber = (previousSequenceNumber + 1) % RtpPacket.MAX_SEQUENCE_NUMBER;
+      int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
       if (packetSequenceNumber != expectedSequenceNumber) {
         Log.w(
             TAG,

@@ -24,6 +24,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.math.IntMath;
 import java.nio.ByteBuffer;
 
 /**
@@ -133,6 +134,16 @@ public final class RtpPacket {
   public static final int MIN_SEQUENCE_NUMBER = 0;
   public static final int MAX_SEQUENCE_NUMBER = 0xFFFF;
   public static final int CSRC_SIZE = 4;
+
+  /** Returns the next sequence number of the {@code sequenceNumber}. */
+  public static int getNextSequenceNumber(int sequenceNumber) {
+    return IntMath.mod(sequenceNumber + 1, MAX_SEQUENCE_NUMBER + 1);
+  }
+
+  /** Returns the previous sequence number from the {@code sequenceNumber}. */
+  public static int getPreviousSequenceNumber(int sequenceNumber) {
+    return IntMath.mod(sequenceNumber - 1, MAX_SEQUENCE_NUMBER + 1);
+  }
 
   private static final byte[] EMPTY = new byte[0];
 
