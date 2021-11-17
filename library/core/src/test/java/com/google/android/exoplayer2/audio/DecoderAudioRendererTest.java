@@ -30,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -84,6 +85,7 @@ public class DecoderAudioRendererTest {
             return FORMAT;
           }
         };
+    audioRenderer.init(/* index= */ 0, PlayerId.UNSET);
   }
 
   @Config(sdk = 19)
