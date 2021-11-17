@@ -27,6 +27,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlaybackException;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -284,6 +285,13 @@ public interface AudioSink {
    * @param listener The listener for sink events, which should be the audio renderer.
    */
   void setListener(Listener listener);
+
+  /**
+   * Sets the {@link PlayerId} of the player using this audio sink.
+   *
+   * @param playerId The {@link PlayerId}, or null to clear a previously set id.
+   */
+  default void setPlayerId(@Nullable PlayerId playerId) {}
 
   /**
    * Returns whether the sink supports a given {@link Format}.

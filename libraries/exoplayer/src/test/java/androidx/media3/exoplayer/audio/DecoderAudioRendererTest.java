@@ -35,6 +35,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.decoder.SimpleDecoder;
 import androidx.media3.decoder.SimpleDecoderOutputBuffer;
 import androidx.media3.exoplayer.RendererConfiguration;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
@@ -84,6 +85,7 @@ public class DecoderAudioRendererTest {
             return FORMAT;
           }
         };
+    audioRenderer.init(/* index= */ 0, PlayerId.UNSET);
   }
 
   @Config(sdk = 19)
