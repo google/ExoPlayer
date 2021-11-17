@@ -75,6 +75,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer totalDiscCount;
     @Nullable private CharSequence genre;
     @Nullable private CharSequence compilation;
+    @Nullable private CharSequence station;
     @Nullable private Bundle extras;
 
     public Builder() {}
@@ -110,6 +111,7 @@ public final class MediaMetadata implements Bundleable {
       this.totalDiscCount = mediaMetadata.totalDiscCount;
       this.genre = mediaMetadata.genre;
       this.compilation = mediaMetadata.compilation;
+      this.station = mediaMetadata.station;
       this.extras = mediaMetadata.extras;
     }
 
@@ -346,6 +348,12 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Sets the name of the station streaming the media. */
+    public Builder setStation(@Nullable CharSequence station) {
+      this.station = station;
+      return this;
+    }
+
     /** Sets the extras {@link Bundle}. */
     public Builder setExtras(@Nullable Bundle extras) {
       this.extras = extras;
@@ -484,6 +492,9 @@ public final class MediaMetadata implements Bundleable {
       }
       if (mediaMetadata.compilation != null) {
         setCompilation(mediaMetadata.compilation);
+      }
+      if (mediaMetadata.station != null) {
+        setStation(mediaMetadata.station);
       }
       if (mediaMetadata.extras != null) {
         setExtras(mediaMetadata.extras);
@@ -679,6 +690,8 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final CharSequence genre;
   /** Optional compilation. */
   @Nullable public final CharSequence compilation;
+  /** Optional name of the station streaming the media. */
+  @Nullable public final CharSequence station;
 
   /**
    * Optional extras {@link Bundle}.
@@ -720,6 +733,7 @@ public final class MediaMetadata implements Bundleable {
     this.totalDiscCount = builder.totalDiscCount;
     this.genre = builder.genre;
     this.compilation = builder.compilation;
+    this.station = builder.station;
     this.extras = builder.extras;
   }
 
@@ -766,7 +780,8 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(discNumber, that.discNumber)
         && Util.areEqual(totalDiscCount, that.totalDiscCount)
         && Util.areEqual(genre, that.genre)
-        && Util.areEqual(compilation, that.compilation);
+        && Util.areEqual(compilation, that.compilation)
+        && Util.areEqual(station, that.station);
   }
 
   @Override
@@ -801,7 +816,8 @@ public final class MediaMetadata implements Bundleable {
         discNumber,
         totalDiscCount,
         genre,
-        compilation);
+        compilation,
+        station);
   }
 
   // Bundleable implementation.
@@ -839,6 +855,7 @@ public final class MediaMetadata implements Bundleable {
     FIELD_TOTAL_DISC_COUNT,
     FIELD_GENRE,
     FIELD_COMPILATION,
+    FIELD_STATION,
     FIELD_EXTRAS
   })
   private @interface FieldNumber {}
@@ -873,6 +890,7 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_GENRE = 27;
   private static final int FIELD_COMPILATION = 28;
   private static final int FIELD_ARTWORK_DATA_TYPE = 29;
+  private static final int FIELD_STATION = 30;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -893,6 +911,7 @@ public final class MediaMetadata implements Bundleable {
     bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
     bundle.putCharSequence(keyForField(FIELD_GENRE), genre);
     bundle.putCharSequence(keyForField(FIELD_COMPILATION), compilation);
+    bundle.putCharSequence(keyForField(FIELD_STATION), station);
 
     if (userRating != null) {
       bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
@@ -970,6 +989,7 @@ public final class MediaMetadata implements Bundleable {
         .setConductor(bundle.getCharSequence(keyForField(FIELD_CONDUCTOR)))
         .setGenre(bundle.getCharSequence(keyForField(FIELD_GENRE)))
         .setCompilation(bundle.getCharSequence(keyForField(FIELD_COMPILATION)))
+        .setStation(bundle.getCharSequence(keyForField(FIELD_STATION)))
         .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)));
 
     if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {

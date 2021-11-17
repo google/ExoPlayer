@@ -2,6 +2,12 @@
 
 ### dev-v2 (not yet released)
 
+*   Metadata:
+    *   Propagate ICY header fields `name` and `genre` to
+        `MediaMetadata.station` and `MediaMetadata.genre` respectively so that
+        they reach the app via `Player.Listener.onMediaMetadataChanged()`
+        ((#9677)[https://github.com/google/ExoPlayer/issues/9677]).
+
 *   HLS:
     *   Correctly populate `Format.label` for audio only HLS streams
         ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
