@@ -734,8 +734,7 @@ public final class TranscodingTransformer {
       }
       if (!transformation.removeVideo) {
         renderers[index] =
-            new TransformerTranscodingVideoRenderer(
-                context, muxerWrapper, mediaClock, transformation);
+            new TransformerVideoRenderer(context, muxerWrapper, mediaClock, transformation);
         index++;
       }
       return renderers;

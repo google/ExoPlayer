@@ -507,7 +507,7 @@ public final class Transformer {
             .build();
     player =
         new ExoPlayer.Builder(
-                context, new TransformerRenderersFactory(muxerWrapper, transformation))
+                context, new TransformerRenderersFactory(context, muxerWrapper, transformation))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -592,11 +592,14 @@ public final class Transformer {
 
   private static final class TransformerRenderersFactory implements RenderersFactory {
 
+    private final Context context;
     private final MuxerWrapper muxerWrapper;
     private final TransformerMediaClock mediaClock;
     private final Transformation transformation;
 
-    public TransformerRenderersFactory(MuxerWrapper muxerWrapper, Transformation transformation) {
+    public TransformerRenderersFactory(
+        Context context, MuxerWrapper muxerWrapper, Transformation transformation) {
+      this.context = context;
       this.muxerWrapper = muxerWrapper;
       this.transformation = transformation;
       mediaClock = new TransformerMediaClock();
@@ -618,7 +621,7 @@ public final class Transformer {
       }
       if (!transformation.removeVideo) {
         renderers[index] =
-            new TransformerMuxingVideoRenderer(muxerWrapper, mediaClock, transformation);
+            new TransformerVideoRenderer(context, muxerWrapper, mediaClock, transformation);
         index++;
       }
       return renderers;
