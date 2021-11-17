@@ -102,7 +102,7 @@ public final class TranscodingTransformer {
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
     private int outputHeight;
-    private String outputMimeType;
+    private String containerMimeType;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
     private TranscodingTransformer.Listener listener;
@@ -113,7 +113,7 @@ public final class TranscodingTransformer {
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
       outputHeight = Transformation.NO_VALUE;
-      outputMimeType = MimeTypes.VIDEO_MP4;
+      containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
@@ -128,7 +128,7 @@ public final class TranscodingTransformer {
       this.removeVideo = transcodingTransformer.transformation.removeVideo;
       this.flattenForSlowMotion = transcodingTransformer.transformation.flattenForSlowMotion;
       this.outputHeight = transcodingTransformer.transformation.outputHeight;
-      this.outputMimeType = transcodingTransformer.transformation.outputMimeType;
+      this.containerMimeType = transcodingTransformer.transformation.containerMimeType;
       this.audioMimeType = transcodingTransformer.transformation.audioMimeType;
       this.videoMimeType = transcodingTransformer.transformation.videoMimeType;
       this.listener = transcodingTransformer.listener;
@@ -260,11 +260,30 @@ public final class TranscodingTransformer {
      *   <li>{@link MimeTypes#VIDEO_WEBM} from API level 21
      * </ul>
      *
-     * @param outputMimeType The MIME type of the output.
+     * @param outputMimeType The MIME type of the container.
+     * @return This builder.
+     * @deprecated Use {@link #setContainerMimeType} instead.
+     */
+    @Deprecated
+    public Builder setOutputMimeType(String outputMimeType) {
+      this.containerMimeType = outputMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the MIME type of the output container. The default value is {@link MimeTypes#VIDEO_MP4}.
+     * Supported values are:
+     *
+     * <ul>
+     *   <li>{@link MimeTypes#VIDEO_MP4}
+     *   <li>{@link MimeTypes#VIDEO_WEBM} from API level 21
+     * </ul>
+     *
+     * @param containerMimeType The MIME type of the container.
      * @return This builder.
      */
-    public Builder setOutputMimeType(String outputMimeType) {
-      this.outputMimeType = outputMimeType;
+    public Builder setContainerMimeType(String containerMimeType) {
+      this.containerMimeType = containerMimeType;
       return this;
     }
 
@@ -379,7 +398,7 @@ public final class TranscodingTransformer {
      * @throws IllegalStateException If the {@link Context} has not been provided.
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
-     * @throws IllegalStateException If the muxer doesn't support the requested output MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested container MIME type.
      * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
      */
     public TranscodingTransformer build() {
@@ -392,8 +411,8 @@ public final class TranscodingTransformer {
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
       checkState(
-          muxerFactory.supportsOutputMimeType(outputMimeType),
-          "Unsupported output MIME type: " + outputMimeType);
+          muxerFactory.supportsOutputMimeType(containerMimeType),
+          "Unsupported container MIME type: " + containerMimeType);
       if (audioMimeType != null) {
         checkSampleMimeType(audioMimeType);
       }
@@ -406,7 +425,7 @@ public final class TranscodingTransformer {
               removeVideo,
               flattenForSlowMotion,
               outputHeight,
-              outputMimeType,
+              containerMimeType,
               audioMimeType,
               videoMimeType);
       return new TranscodingTransformer(
@@ -415,11 +434,11 @@ public final class TranscodingTransformer {
 
     private void checkSampleMimeType(String sampleMimeType) {
       checkState(
-          muxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType),
+          muxerFactory.supportsSampleMimeType(sampleMimeType, containerMimeType),
           "Unsupported sample MIME type "
               + sampleMimeType
               + " for container MIME type "
-              + outputMimeType);
+              + containerMimeType);
     }
   }
 
@@ -542,7 +561,7 @@ public final class TranscodingTransformer {
    * @throws IOException If an error occurs opening the output file for writing.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
-    startTransformation(mediaItem, muxerFactory.create(path, transformation.outputMimeType));
+    startTransformation(mediaItem, muxerFactory.create(path, transformation.containerMimeType));
   }
 
   /**
@@ -573,7 +592,7 @@ public final class TranscodingTransformer {
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
       throws IOException {
     startTransformation(
-        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.outputMimeType));
+        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.containerMimeType));
   }
 
   private void startTransformation(MediaItem mediaItem, Muxer muxer) {
@@ -583,7 +602,7 @@ public final class TranscodingTransformer {
     }
 
     MuxerWrapper muxerWrapper =
-        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
+        new MuxerWrapper(muxer, muxerFactory, transformation.containerMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
