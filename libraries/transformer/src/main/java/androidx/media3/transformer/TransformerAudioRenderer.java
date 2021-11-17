@@ -101,8 +101,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Attempts to write sample pipeline output data to the muxer, and returns whether it may be
-   * possible to write more data immediately by calling this method again.
+   * Attempts to write sample pipeline output data to the muxer.
+   *
+   * @return Whether it may be possible to write more data immediately by calling this method again.
    */
   @RequiresNonNull("samplePipeline")
   private boolean feedMuxerFromPipeline() {
@@ -136,8 +137,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Attempts to pass input data to the sample pipeline, and returns whether it may be possible to
-   * pass more data immediately by calling this method again.
+   * Attempts to pass input data to the sample pipeline.
+   *
+   * @return Whether it may be possible to pass more data immediately by calling this method again.
    */
   @RequiresNonNull("samplePipeline")
   private boolean feedPipelineFromInput() {
