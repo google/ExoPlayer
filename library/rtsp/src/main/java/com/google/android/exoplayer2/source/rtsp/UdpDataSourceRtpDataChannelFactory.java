@@ -46,7 +46,7 @@ import java.io.IOException;
       // the higher or the lower.
 
       // Using port zero will cause the system to generate a port.
-      firstChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ 0));
+      firstChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ 0)); // TODO: Port number is hardcoded here to 0. We can try 1 if this is indeed a bug
       int firstPort = firstChannel.getLocalPort();
       boolean isFirstPortEven = firstPort % 2 == 0;
       int portToOpen = isFirstPortEven ? firstPort + 1 : firstPort - 1;

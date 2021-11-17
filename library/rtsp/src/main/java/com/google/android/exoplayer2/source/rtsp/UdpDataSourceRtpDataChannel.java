@@ -53,7 +53,7 @@ import java.io.IOException;
   public String getTransport() {
     int dataPortNumber = getLocalPort();
     checkState(dataPortNumber != C.INDEX_UNSET); // Assert open() is called.
-    return Util.formatInvariant(DEFAULT_UDP_TRANSPORT_FORMAT, dataPortNumber, dataPortNumber + 1);
+    return Util.formatInvariant(DEFAULT_UDP_TRANSPORT_FORMAT, dataPortNumber, dataPortNumber + 1); // Can I set this to only dataPortNumber?
   }
 
   @Override
