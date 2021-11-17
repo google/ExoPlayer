@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     MediaSource mediaSource =
         new RtspMediaSource.Factory()
-            .createMediaSource(MediaItem.fromUri(Uri.parse(url)));
+            .createMediaSource(MediaItem.fromUri(Uri.parse(url))); // UDPdatsource Directory
 
     player.setMediaSource(mediaSource);
     playerView.setUseController(false);

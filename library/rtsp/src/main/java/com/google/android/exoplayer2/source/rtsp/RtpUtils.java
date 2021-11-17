@@ -22,12 +22,12 @@ import com.google.android.exoplayer2.util.Util;
 /** Utility methods for RTP. */
 public final class RtpUtils {
 
-  private static final String RTP_ANY_INCOMING_IPV4 = "rtp://0.0.0.0";
+  private static final String RTP_ANY_INCOMING_IPV4 = "rtp://0.0.0.0"; // TODO: Do we need to modify the ip here?
 
   /** Returns the {@link DataSpec} with the {@link Uri} for incoming RTP connection. */
   public static DataSpec getIncomingRtpDataSpec(int portNumber) {
     return new DataSpec(
-        Uri.parse(Util.formatInvariant("%s:%d", RTP_ANY_INCOMING_IPV4, portNumber)));
+        Uri.parse(Util.formatInvariant("%s:%d", RTP_ANY_INCOMING_IPV4, portNumber))); // print resultant . LOG.
   }
 
   private RtpUtils() {}

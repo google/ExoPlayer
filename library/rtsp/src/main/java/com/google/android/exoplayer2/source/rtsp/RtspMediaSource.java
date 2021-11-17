@@ -195,7 +195,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @throws NullPointerException if {@link MediaItem#localConfiguration} is {@code null}.
      */
     @Override
-    public RtspMediaSource createMediaSource(MediaItem mediaItem) {
+    public RtspMediaSource createMediaSource(MediaItem mediaItem) { // remove tcp and remove timeout
       checkNotNull(mediaItem.localConfiguration);
       return new RtspMediaSource(
           mediaItem,
