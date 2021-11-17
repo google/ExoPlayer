@@ -18,6 +18,7 @@ package androidx.media3.extractor.metadata.icy;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
+import androidx.media3.common.MediaMetadata;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,5 +45,24 @@ public final class IcyHeadersTest {
     IcyHeaders fromParcelIcyHeaders = IcyHeaders.CREATOR.createFromParcel(parcel);
     // Assert equals.
     assertThat(fromParcelIcyHeaders).isEqualTo(icyHeaders);
+  }
+
+  @Test
+  public void populateMediaMetadata() {
+    IcyHeaders headers =
+        new IcyHeaders(
+            /* bitrate= */ 1234,
+            /* genre= */ "pop",
+            /* name= */ "radio station",
+            /* url= */ "url",
+            /* isPublic= */ true,
+            /* metadataInterval= */ 5678);
+    MediaMetadata.Builder builder = new MediaMetadata.Builder();
+
+    headers.populateMediaMetadata(builder);
+    MediaMetadata mediaMetadata = builder.build();
+
+    assertThat(mediaMetadata.station.toString()).isEqualTo("radio station");
+    assertThat(mediaMetadata.genre.toString()).isEqualTo("pop");
   }
 }

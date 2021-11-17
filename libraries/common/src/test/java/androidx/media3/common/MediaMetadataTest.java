@@ -64,6 +64,7 @@ public class MediaMetadataTest {
     assertThat(mediaMetadata.totalDiscCount).isNull();
     assertThat(mediaMetadata.genre).isNull();
     assertThat(mediaMetadata.compilation).isNull();
+    assertThat(mediaMetadata.station).isNull();
     assertThat(mediaMetadata.extras).isNull();
   }
 
@@ -149,6 +150,7 @@ public class MediaMetadataTest {
         .setTotalDiscCount(3)
         .setGenre("Pop")
         .setCompilation("Amazing songs.")
+        .setStation("radio station")
         .setExtras(extras)
         .build();
   }

@@ -20,6 +20,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
@@ -169,6 +170,16 @@ public final class IcyHeaders implements Metadata.Entry {
     url = in.readString();
     isPublic = Util.readBoolean(in);
     metadataInterval = in.readInt();
+  }
+
+  @Override
+  public void populateMediaMetadata(MediaMetadata.Builder builder) {
+    if (name != null) {
+      builder.setStation(name);
+    }
+    if (genre != null) {
+      builder.setGenre(genre);
+    }
   }
 
   @Override
