@@ -69,6 +69,7 @@ object MediaItemTree {
     artist: String? = null,
     genre: String? = null,
     sourceUri: Uri? = null,
+    imageUri: Uri? = null,
   ): MediaItem {
     // TODO(b/194280027): add artwork
     val metadata =
@@ -79,6 +80,7 @@ object MediaItemTree {
         .setGenre(genre)
         .setFolderType(folderType)
         .setIsPlayable(isPlayable)
+        .setArtworkUri(imageUri)
         .build()
     return MediaItem.Builder()
       .setMediaId(mediaId)
@@ -155,6 +157,7 @@ object MediaItemTree {
     val artist = mediaObject.getString("artist")
     val genre = mediaObject.getString("genre")
     val sourceUri = Uri.parse(mediaObject.getString("source"))
+    val imageUri = Uri.parse(mediaObject.getString("image"))
     // key of such items in tree
     val idInTree = ITEM_PREFIX + id
     val albumFolderIdInTree = ALBUM_PREFIX + album
@@ -171,6 +174,7 @@ object MediaItemTree {
           artist = artist,
           genre = genre,
           sourceUri = sourceUri,
+          imageUri = imageUri,
           folderType = FOLDER_TYPE_NONE
         )
       )
