@@ -53,6 +53,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
 
   public DefaultMediaCodecAdapterFactory() {
     asynchronousMode = MODE_DEFAULT;
+    enableImmediateCodecStartAfterFlush = true;
   }
 
   /**
@@ -94,7 +95,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
    * playback thread, when operating the codec in asynchronous mode. If disabled, {@link
    * MediaCodec#start} will be called by the callback thread after pending callbacks are handled.
    *
-   * <p>By default, this feature is disabled.
+   * <p>By default, this feature is enabled.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
    *
