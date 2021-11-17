@@ -37,6 +37,7 @@ import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaFormat;
+import android.media.metrics.LogSessionId;
 import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
@@ -63,6 +64,7 @@ import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.DecoderReuseEvaluation.DecoderDiscardReasons;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
 import androidx.media3.exoplayer.drm.FrameworkCryptoConfig;
@@ -1062,6 +1064,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     TraceUtil.beginSection("createCodec:" + codecName);
     MediaCodecAdapter.Configuration configuration =
         getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
+    if (Util.SDK_INT >= 31) {
+      Api31.setLogSessionIdToMediaCodecFormat(configuration, getPlayerId());
+    }
     codec = codecAdapterFactory.createAdapter(configuration);
     codecInitializedTimestamp = SystemClock.elapsedRealtime();
 
@@ -2422,5 +2427,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT <= 18
         && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    private Api31() {}
+
+    public static void setLogSessionIdToMediaCodecFormat(
+        MediaCodecAdapter.Configuration codecConfiguration, PlayerId playerId) {
+      LogSessionId logSessionId = playerId.getLogSessionId();
+      if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {
+        codecConfiguration.mediaFormat.setString("log-session-id", logSessionId.getStringId());
+      }
+    }
   }
 }
