@@ -37,6 +37,7 @@ import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaFormat;
+import android.media.metrics.LogSessionId;
 import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
@@ -50,6 +51,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -1060,6 +1062,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     TraceUtil.beginSection("createCodec:" + codecName);
     MediaCodecAdapter.Configuration configuration =
         getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
+    if (Util.SDK_INT >= 31) {
+      Api31.setLogSessionIdToMediaCodecFormat(configuration, getPlayerId());
+    }
     codec = codecAdapterFactory.createAdapter(configuration);
     codecInitializedTimestamp = SystemClock.elapsedRealtime();
 
@@ -2420,5 +2425,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return Util.SDK_INT <= 18
         && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    private Api31() {}
+
+    public static void setLogSessionIdToMediaCodecFormat(
+        MediaCodecAdapter.Configuration codecConfiguration, PlayerId playerId) {
+      LogSessionId logSessionId = playerId.getLogSessionId();
+      if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {
+        codecConfiguration.mediaFormat.setString("log-session-id", logSessionId.getStringId());
+      }
+    }
   }
 }
