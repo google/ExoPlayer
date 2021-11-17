@@ -29,6 +29,9 @@ import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ForwardingMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.common.net.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,10 +42,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.NoRouteToHostException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -310,7 +313,18 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
   @Override
   public Map<String, List<String>> getResponseHeaders() {
-    return connection == null ? Collections.emptyMap() : connection.getHeaderFields();
+    if (connection == null) {
+      return ImmutableMap.of();
+    }
+    // connection.getHeaderFields() always contains a null key with a value like
+    // ["HTTP/1.1 200 OK"]. The response code is available from HttpURLConnection#getResponseCode()
+    // and the HTTP version is fixed when establishing the connection.
+    // DataSource#getResponseHeaders() doesn't allow null keys in the returned map, so we need to
+    // remove it.
+    // connection.getHeaderFields() returns a special unmodifiable case-insensitive Map
+    // so we can't just remove the null key or make a copy without the null key. Instead we wrap it
+    // in a ForwardingMap subclass that ignores and filters out null keys in the read methods.
+    return new NullFilteringHeadersMap(connection.getHeaderFields());
   }
 
   @Override
@@ -814,5 +828,65 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private static boolean isCompressed(HttpURLConnection connection) {
     String contentEncoding = connection.getHeaderField("Content-Encoding");
     return "gzip".equalsIgnoreCase(contentEncoding);
+  }
+
+  private static class NullFilteringHeadersMap extends ForwardingMap<String, List<String>> {
+
+    private final Map<String, List<String>> headers;
+
+    public NullFilteringHeadersMap(Map<String, List<String>> headers) {
+      this.headers = headers;
+    }
+
+    @Override
+    protected Map<String, List<String>> delegate() {
+      return headers;
+    }
+
+    @Override
+    public boolean containsKey(@Nullable Object key) {
+      return key != null && super.containsKey(key);
+    }
+
+    @Nullable
+    @Override
+    public List<String> get(@Nullable Object key) {
+      return key == null ? null : super.get(key);
+    }
+
+    @Override
+    public Set<String> keySet() {
+      return Sets.filter(super.keySet(), key -> key != null);
+    }
+
+    @Override
+    public Set<Entry<String, List<String>>> entrySet() {
+      return Sets.filter(super.entrySet(), entry -> entry.getKey() != null);
+    }
+
+    @Override
+    public int size() {
+      return super.size() - (super.containsKey(null) ? 1 : 0);
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return super.isEmpty() || (super.size() == 1 && super.containsKey(null));
+    }
+
+    @Override
+    public boolean containsValue(@Nullable Object value) {
+      return super.standardContainsValue(value);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object object) {
+      return object != null && super.standardEquals(object);
+    }
+
+    @Override
+    public int hashCode() {
+      return super.standardHashCode();
+    }
   }
 }

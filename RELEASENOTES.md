@@ -26,6 +26,7 @@
         `buildVideoRenderers()` or `buildAudioRenderers()` can access the codec
         adapter factory and pass it to `MediaCodecRenderer` instances they
         create.
+    *   Remove null keys from `DefaultHttpDataSource#getResponseHeaders`.
 *   Extractors:
     *   WAV: Add support for RF64 streams
         ([#9543](https://github.com/google/ExoPlayer/issues/9543).
