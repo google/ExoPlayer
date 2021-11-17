@@ -1,5 +1,11 @@
 # Release notes
 
+### dev-v2 (not yet released)
+
+*   HLS:
+    *   Correctly populate `Format.label` for audio only HLS streams
+        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
+
 ### 2.16.1 (2021-11-16)
 
 *   Core Library:
@@ -14,6 +20,11 @@
         `buildVideoRenderers()` or `buildAudioRenderers()` can access the codec
         adapter factory and pass it to `MediaCodecRenderer` instances they
         create.
+*   Metadata:
+    *   Propagate ICY header fields `name` and `genre` to
+        `MediaMetadata.station` and `MediaMetadata.genre` respectively so that
+        they reach the app via `Player.Listener.onMediaMetadataChanged()`
+        ((#9677)[https://github.com/google/ExoPlayer/issues/9677]).
 *   Extractors:
     *   WAV: Add support for RF64 streams
         ([#9543](https://github.com/google/ExoPlayer/issues/9543).
