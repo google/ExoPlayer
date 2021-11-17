@@ -30,10 +30,10 @@ import org.junit.runner.RunWith;
 public class TransformerBuilderTest {
 
   @Test
-  public void setOutputMimeType_unsupportedMimeType_throws() {
+  public void setContainerMimeType_unsupportedMimeType_throws() {
     assertThrows(
         IllegalStateException.class,
-        () -> new Transformer.Builder().setOutputMimeType(MimeTypes.VIDEO_FLV).build());
+        () -> new Transformer.Builder().setContainerMimeType(MimeTypes.VIDEO_FLV).build());
   }
 
   @Test

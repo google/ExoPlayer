@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
   public final boolean removeVideo;
   public final boolean flattenForSlowMotion;
   public final int outputHeight;
-  public final String outputMimeType;
+  public final String containerMimeType;
   @Nullable public final String audioMimeType;
   @Nullable public final String videoMimeType;
 
@@ -37,14 +37,14 @@ import androidx.annotation.Nullable;
       boolean removeVideo,
       boolean flattenForSlowMotion,
       int outputHeight,
-      String outputMimeType,
+      String containerMimeType,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType) {
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.outputHeight = outputHeight;
-    this.outputMimeType = outputMimeType;
+    this.containerMimeType = containerMimeType;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
   }

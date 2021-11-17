@@ -95,7 +95,7 @@ public final class Transformer {
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
-    private String outputMimeType;
+    private String containerMimeType;
     private Transformer.Listener listener;
     private Looper looper;
     private Clock clock;
@@ -103,7 +103,7 @@ public final class Transformer {
     /** Creates a builder with default values. */
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
-      outputMimeType = MimeTypes.VIDEO_MP4;
+      containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
@@ -117,7 +117,7 @@ public final class Transformer {
       this.removeAudio = transformer.transformation.removeAudio;
       this.removeVideo = transformer.transformation.removeVideo;
       this.flattenForSlowMotion = transformer.transformation.flattenForSlowMotion;
-      this.outputMimeType = transformer.transformation.outputMimeType;
+      this.containerMimeType = transformer.transformation.containerMimeType;
       this.listener = transformer.listener;
       this.looper = transformer.looper;
       this.clock = transformer.clock;
@@ -216,11 +216,30 @@ public final class Transformer {
      *   <li>{@link MimeTypes#VIDEO_WEBM} from API level 21
      * </ul>
      *
-     * @param outputMimeType The MIME type of the output.
+     * @param outputMimeType The MIME type of the container.
+     * @return This builder.
+     * @deprecated Use {@link #setContainerMimeType} instead.
+     */
+    @Deprecated
+    public Builder setOutputMimeType(String outputMimeType) {
+      this.containerMimeType = outputMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the MIME type of the output container. The default value is {@link MimeTypes#VIDEO_MP4}.
+     * Supported values are:
+     *
+     * <ul>
+     *   <li>{@link MimeTypes#VIDEO_MP4}
+     *   <li>{@link MimeTypes#VIDEO_WEBM} from API level 21
+     * </ul>
+     *
+     * @param containerMimeType The MIME type of the output.
      * @return This builder.
      */
-    public Builder setOutputMimeType(String outputMimeType) {
-      this.outputMimeType = outputMimeType;
+    public Builder setContainerMimeType(String containerMimeType) {
+      this.containerMimeType = containerMimeType;
       return this;
     }
 
@@ -283,7 +302,7 @@ public final class Transformer {
      * @throws IllegalStateException If the {@link Context} has not been provided.
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
-     * @throws IllegalStateException If the muxer doesn't support the requested output MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested container MIME type.
      */
     public Transformer build() {
       checkStateNotNull(context);
@@ -295,15 +314,15 @@ public final class Transformer {
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
       checkState(
-          muxerFactory.supportsOutputMimeType(outputMimeType),
-          "Unsupported output MIME type: " + outputMimeType);
+          muxerFactory.supportsOutputMimeType(containerMimeType),
+          "Unsupported container MIME type: " + containerMimeType);
       Transformation transformation =
           new Transformation(
               removeAudio,
               removeVideo,
               flattenForSlowMotion,
               /* outputHeight= */ Transformation.NO_VALUE,
-              outputMimeType,
+              containerMimeType,
               /* audioMimeType= */ null,
               /* videoMimeType= */ null);
       return new Transformer(
@@ -428,7 +447,7 @@ public final class Transformer {
    * @throws IOException If an error occurs opening the output file for writing.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
-    startTransformation(mediaItem, muxerFactory.create(path, transformation.outputMimeType));
+    startTransformation(mediaItem, muxerFactory.create(path, transformation.containerMimeType));
   }
 
   /**
@@ -459,7 +478,7 @@ public final class Transformer {
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
       throws IOException {
     startTransformation(
-        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.outputMimeType));
+        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.containerMimeType));
   }
 
   private void startTransformation(MediaItem mediaItem, Muxer muxer) {
@@ -469,7 +488,7 @@ public final class Transformer {
     }
 
     MuxerWrapper muxerWrapper =
-        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
+        new MuxerWrapper(muxer, muxerFactory, transformation.containerMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(

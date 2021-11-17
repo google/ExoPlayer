@@ -37,7 +37,7 @@ Transformer transformer =
    new Transformer.Builder()
        .setContext(context)
        .setRemoveAudio(true)
-       .setOutputMimeType(MimeTypes.VIDEO_WEBM)
+       .setContainerMimeType(MimeTypes.VIDEO_WEBM)
        .setListener(transformerListener)
        .build();
 // Start the transformation.
