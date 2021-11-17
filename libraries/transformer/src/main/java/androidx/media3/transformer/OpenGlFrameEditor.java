@@ -118,7 +118,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     return new OpenGlFrameEditor(
-        eglDisplay, eglContext, eglSurface, textureId, checkNotNull(textureTransformUniform));
+        eglDisplay,
+        eglContext,
+        eglSurface,
+        textureId,
+        checkNotNull(textureTransformUniform),
+        copyProgram,
+        copyAttributes,
+        copyUniforms);
   }
 
   // Predefined shader values.
@@ -137,6 +144,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Surface inputSurface;
   private final GlUtil.Uniform textureTransformUniform;
 
+  // TODO(internal: b/206631334): These fields ensure buffers passed to GL are not GC'ed. Implement
+  // a better way of doing this so they aren't just unused fields.
+  @SuppressWarnings("unused")
+  private final GlUtil.Program copyProgram;
+
+  @SuppressWarnings("unused")
+  private final GlUtil.Attribute[] copyAttributes;
+
+  @SuppressWarnings("unused")
+  private final GlUtil.Uniform[] copyUniforms;
+
   private volatile boolean hasInputData;
 
   private OpenGlFrameEditor(
@@ -144,12 +162,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLContext eglContext,
       EGLSurface eglSurface,
       int textureId,
-      GlUtil.Uniform textureTransformUniform) {
+      GlUtil.Uniform textureTransformUniform,
+      GlUtil.Program copyProgram,
+      GlUtil.Attribute[] copyAttributes,
+      GlUtil.Uniform[] copyUniforms) {
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.eglSurface = eglSurface;
     this.textureId = textureId;
     this.textureTransformUniform = textureTransformUniform;
+    this.copyProgram = copyProgram;
+    this.copyAttributes = copyAttributes;
+    this.copyUniforms = copyUniforms;
     textureTransformMatrix = new float[16];
     inputSurfaceTexture = new SurfaceTexture(textureId);
     inputSurfaceTexture.setOnFrameAvailableListener(surfaceTexture -> hasInputData = true);
