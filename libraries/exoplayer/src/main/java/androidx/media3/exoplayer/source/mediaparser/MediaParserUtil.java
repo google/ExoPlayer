@@ -17,8 +17,11 @@ package androidx.media3.exoplayer.source.mediaparser;
 
 import android.media.MediaFormat;
 import android.media.MediaParser;
+import android.media.metrics.LogSessionId;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.analytics.PlayerId;
 
 /**
  * Miscellaneous constants and utility methods related to the {@link MediaParser} integration.
@@ -58,5 +61,28 @@ public final class MediaParserUtil {
       mediaFormat.setInteger(MediaFormat.KEY_CAPTION_SERVICE_NUMBER, format.accessibilityChannel);
     }
     return mediaFormat;
+  }
+
+  /**
+   * Calls {@link MediaParser#setLogSessionId(LogSessionId)}.
+   *
+   * @param mediaParser The {@link MediaParser} to call the method on.
+   * @param playerId The {@link PlayerId} to obtain the {@link LogSessionId} from.
+   */
+  @RequiresApi(31)
+  public static void setLogSessionIdOnMediaParser(MediaParser mediaParser, PlayerId playerId) {
+    Api31.setLogSessionIdOnMediaParser(mediaParser, playerId);
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    private Api31() {}
+
+    public static void setLogSessionIdOnMediaParser(MediaParser mediaParser, PlayerId playerId) {
+      LogSessionId logSessionId = playerId.getLogSessionId();
+      if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {
+        mediaParser.setLogSessionId(logSessionId);
+      }
+    }
   }
 }

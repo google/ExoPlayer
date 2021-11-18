@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.datasource.AssetDataSource;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
@@ -48,7 +49,8 @@ public final class ProgressiveMediaPeriodTest {
   @Test
   public void prepareUsingMediaParser_updatesSourceInfoBeforeOnPreparedCallback()
       throws TimeoutException {
-    testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(new MediaParserExtractorAdapter());
+    testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
+        new MediaParserExtractorAdapter(PlayerId.UNSET));
   }
 
   private static void testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(

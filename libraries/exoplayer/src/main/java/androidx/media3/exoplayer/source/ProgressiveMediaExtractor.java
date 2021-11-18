@@ -19,6 +19,7 @@ import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.DataReader;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
@@ -33,8 +34,12 @@ public interface ProgressiveMediaExtractor {
   /** Creates {@link ProgressiveMediaExtractor} instances. */
   interface Factory {
 
-    /** Returns a new {@link ProgressiveMediaExtractor} instance. */
-    ProgressiveMediaExtractor createProgressiveMediaExtractor();
+    /**
+     * Returns a new {@link ProgressiveMediaExtractor} instance.
+     *
+     * @param playerId The {@link PlayerId} of the player this extractor is used for.
+     */
+    ProgressiveMediaExtractor createProgressiveMediaExtractor(PlayerId playerId);
   }
 
   /**

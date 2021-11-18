@@ -28,7 +28,10 @@ import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.DataReader;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.mediaparser.InputReaderAdapterV30;
+import androidx.media3.exoplayer.source.mediaparser.MediaParserUtil;
 import androidx.media3.exoplayer.source.mediaparser.OutputConsumerAdapterV30;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorOutput;
@@ -54,7 +57,7 @@ public final class MediaParserExtractorAdapter implements ProgressiveMediaExtrac
   private String parserName;
 
   @SuppressLint("WrongConstant")
-  public MediaParserExtractorAdapter() {
+  public MediaParserExtractorAdapter(PlayerId playerId) {
     // TODO: Add support for injecting the desired extractor list.
     outputConsumerAdapter = new OutputConsumerAdapterV30();
     inputReaderAdapter = new InputReaderAdapterV30();
@@ -63,6 +66,9 @@ public final class MediaParserExtractorAdapter implements ProgressiveMediaExtrac
     mediaParser.setParameter(PARAMETER_IN_BAND_CRYPTO_INFO, true);
     mediaParser.setParameter(PARAMETER_INCLUDE_SUPPLEMENTAL_DATA, true);
     parserName = MediaParser.PARSER_NAME_UNKNOWN;
+    if (Util.SDK_INT >= 31) {
+      MediaParserUtil.setLogSessionIdOnMediaParser(mediaParser, playerId);
+    }
   }
 
   @Override
