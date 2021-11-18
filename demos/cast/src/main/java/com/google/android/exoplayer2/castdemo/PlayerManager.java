@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
 import android.view.KeyEvent;
-import android.view.View;
+import androidx.core.content.res.ResourcesCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -28,8 +28,9 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
-import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerControlView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
@@ -50,8 +51,8 @@ import java.util.ArrayList;
     void onUnsupportedTrack(int trackType);
   }
 
-  private final PlayerView localPlayerView;
-  private final PlayerControlView castControlView;
+  private final Context context;
+  private final StyledPlayerView playerView;
   private final Player localPlayer;
   private final CastPlayer castPlayer;
   private final ArrayList<MediaItem> mediaQueue;
@@ -64,32 +65,25 @@ import java.util.ArrayList;
   /**
    * Creates a new manager for {@link ExoPlayer} and {@link CastPlayer}.
    *
-   * @param listener A {@link Listener} for queue position changes.
-   * @param localPlayerView The {@link PlayerView} for local playback.
-   * @param castControlView The {@link PlayerControlView} to control remote playback.
    * @param context A {@link Context}.
+   * @param listener A {@link Listener} for queue position changes.
+   * @param playerView The {@link PlayerView} for playback.
    * @param castContext The {@link CastContext}.
    */
   public PlayerManager(
-      Listener listener,
-      PlayerView localPlayerView,
-      PlayerControlView castControlView,
-      Context context,
-      CastContext castContext) {
+      Context context, Listener listener, StyledPlayerView playerView, CastContext castContext) {
+    this.context = context;
     this.listener = listener;
-    this.localPlayerView = localPlayerView;
-    this.castControlView = castControlView;
+    this.playerView = playerView;
     mediaQueue = new ArrayList<>();
     currentItemIndex = C.INDEX_UNSET;
 
     localPlayer = new ExoPlayer.Builder(context).build();
     localPlayer.addListener(this);
-    localPlayerView.setPlayer(localPlayer);
 
     castPlayer = new CastPlayer(castContext);
     castPlayer.addListener(this);
     castPlayer.setSessionAvailabilityListener(this);
-    castControlView.setPlayer(castPlayer);
 
     setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : localPlayer);
   }
@@ -192,11 +186,7 @@ import java.util.ArrayList;
    * @return Whether the event was handled by the target view.
    */
   public boolean dispatchKeyEvent(KeyEvent event) {
-    if (currentPlayer == localPlayer) {
-      return localPlayerView.dispatchKeyEvent(event);
-    } else /* currentPlayer == castPlayer */ {
-      return castControlView.dispatchKeyEvent(event);
-    }
+    return playerView.dispatchKeyEvent(event);
   }
 
   /** Releases the manager and the players that it holds. */
@@ -205,7 +195,7 @@ import java.util.ArrayList;
     mediaQueue.clear();
     castPlayer.setSessionAvailabilityListener(null);
     castPlayer.release();
-    localPlayerView.setPlayer(null);
+    playerView.setPlayer(null);
     localPlayer.release();
   }
 
@@ -270,13 +260,19 @@ import java.util.ArrayList;
       return;
     }
 
-    // View management.
-    if (currentPlayer == localPlayer) {
-      localPlayerView.setVisibility(View.VISIBLE);
-      castControlView.hide();
-    } else /* currentPlayer == castPlayer */ {
-      localPlayerView.setVisibility(View.GONE);
-      castControlView.show();
+    playerView.setPlayer(currentPlayer);
+    playerView.setControllerHideOnTouch(currentPlayer == localPlayer);
+    if (currentPlayer == castPlayer) {
+      playerView.setControllerShowTimeoutMs(0);
+      playerView.showController();
+      playerView.setDefaultArtwork(
+          ResourcesCompat.getDrawable(
+              context.getResources(),
+              R.drawable.ic_baseline_cast_connected_400,
+              /* theme= */ null));
+    } else { // currentPlayer == localPlayer
+      playerView.setControllerShowTimeoutMs(StyledPlayerControlView.DEFAULT_SHOW_TIMEOUT_MS);
+      playerView.setDefaultArtwork(null);
     }
 
     // Player state management.
