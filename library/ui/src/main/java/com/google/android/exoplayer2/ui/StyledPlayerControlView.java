@@ -2075,6 +2075,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
     @Override
     public void init(List<TrackInformation> trackInformations) {
+      this.tracks = trackInformations;
       // Update subtext in settings menu with current audio track selection.
       TrackSelectionParameters params = checkNotNull(player).getTrackSelectionParameters();
       if (trackInformations.isEmpty()) {
@@ -2097,7 +2098,6 @@ public class StyledPlayerControlView extends FrameLayout {
           }
         }
       }
-      this.tracks = trackInformations;
     }
   }
 
