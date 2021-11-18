@@ -148,8 +148,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         "Missing SVC extension prefix NAL unit.");
     int layer = (scratch[3] & 0xFF) >> 5;
     boolean shouldKeepFrame = processCurrentFrame(layer, buffer.timeUs);
+    // Update buffer timestamp regardless of whether the frame is dropped because the buffer might
+    // still be passed to a decoder if it contains an end of stream flag.
+    buffer.timeUs = getCurrentFrameOutputTimeUs(/* inputTimeUs= */ buffer.timeUs);
     if (shouldKeepFrame) {
-      buffer.timeUs = getCurrentFrameOutputTimeUs(/* inputTimeUs= */ buffer.timeUs);
       skipToNextNalUnit(data); // Skip over prefix_nal_unit_svc.
     } else {
       buffer.data = null;
