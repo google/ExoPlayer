@@ -22,6 +22,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -48,7 +49,8 @@ public final class ProgressiveMediaPeriodTest {
   @Test
   public void prepareUsingMediaParser_updatesSourceInfoBeforeOnPreparedCallback()
       throws TimeoutException {
-    testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(new MediaParserExtractorAdapter());
+    testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
+        new MediaParserExtractorAdapter(PlayerId.UNSET));
   }
 
   private static void testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(

@@ -77,7 +77,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      * Factory(dataSourceFactory, () -> new BundledExtractorsAdapter(extractorsFactory)}.
      */
     public Factory(DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
-      this(dataSourceFactory, () -> new BundledExtractorsAdapter(extractorsFactory));
+      this(dataSourceFactory, playerId -> new BundledExtractorsAdapter(extractorsFactory));
     }
 
     /**
@@ -105,7 +105,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     @Deprecated
     public Factory setExtractorsFactory(@Nullable ExtractorsFactory extractorsFactory) {
       this.progressiveMediaExtractorFactory =
-          () ->
+          playerId ->
               new BundledExtractorsAdapter(
                   extractorsFactory != null ? extractorsFactory : new DefaultExtractorsFactory());
       return this;
@@ -313,7 +313,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     return new ProgressiveMediaPeriod(
         localConfiguration.uri,
         dataSource,
-        progressiveMediaExtractorFactory.createProgressiveMediaExtractor(),
+        progressiveMediaExtractorFactory.createProgressiveMediaExtractor(getPlayerId()),
         drmSessionManager,
         createDrmEventDispatcher(id),
         loadableLoadErrorHandlingPolicy,
