@@ -88,6 +88,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
+    program.use();
     GlUtil.Attribute[] attributes = program.getAttributes();
     for (GlUtil.Attribute attribute : attributes) {
       if (attribute.name.equals("a_position")) {
@@ -142,7 +143,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Run the shader program.
     GlUtil.Uniform[] uniforms = checkNotNull(this.uniforms);
     GlUtil.Attribute[] attributes = checkNotNull(this.attributes);
-    checkNotNull(program).use();
     for (GlUtil.Uniform uniform : uniforms) {
       switch (uniform.name) {
         case "tex_sampler_0":
