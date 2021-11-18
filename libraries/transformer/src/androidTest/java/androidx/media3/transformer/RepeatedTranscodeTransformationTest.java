@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 
 /** Tests repeated transcoding operations (as a stress test and to help reproduce flakiness). */
 @RunWith(AndroidJUnit4.class)
-@Ignore("Internal - b/206914753")
+@Ignore("Internal - b/206917996")
 public final class RepeatedTranscodeTransformationTest {
 
   private static final int TRANSCODE_COUNT = 10;
