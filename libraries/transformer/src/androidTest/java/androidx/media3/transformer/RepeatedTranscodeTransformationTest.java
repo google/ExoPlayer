@@ -23,11 +23,13 @@ import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests repeated transcoding operations (as a stress test and to help reproduce flakiness). */
 @RunWith(AndroidJUnit4.class)
+@Ignore("Internal - b/206914753")
 public final class RepeatedTranscodeTransformationTest {
 
   private static final int TRANSCODE_COUNT = 10;
