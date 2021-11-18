@@ -36,8 +36,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.ui.PlayerControlView;
-import androidx.media3.ui.PlayerView;
+import androidx.media3.ui.StyledPlayerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,8 +52,7 @@ import com.google.android.gms.dynamite.DynamiteModule;
 public class MainActivity extends AppCompatActivity
     implements OnClickListener, PlayerManager.Listener {
 
-  private PlayerView localPlayerView;
-  private PlayerControlView castControlView;
+  private StyledPlayerView playerView;
   private PlayerManager playerManager;
   private RecyclerView mediaQueueList;
   private MediaQueueListAdapter mediaQueueListAdapter;
@@ -83,10 +81,8 @@ public class MainActivity extends AppCompatActivity
 
     setContentView(R.layout.main_activity);
 
-    localPlayerView = findViewById(R.id.local_player_view);
-    localPlayerView.requestFocus();
-
-    castControlView = findViewById(R.id.cast_control_view);
+    playerView = findViewById(R.id.player_view);
+    playerView.requestFocus();
 
     mediaQueueList = findViewById(R.id.sample_list);
     ItemTouchHelper helper = new ItemTouchHelper(new RecyclerViewCallback());
@@ -114,12 +110,7 @@ public class MainActivity extends AppCompatActivity
       return;
     }
     playerManager =
-        new PlayerManager(
-            /* listener= */ this,
-            localPlayerView,
-            castControlView,
-            /* context= */ this,
-            castContext);
+        new PlayerManager(/* listener= */ this, this, playerView, /* context= */ castContext);
     mediaQueueList.setAdapter(mediaQueueListAdapter);
   }
 
