@@ -1,8 +1,6 @@
 # Release notes
 
-### dev-v2 (not yet released)
-
-### 2.16.1 (2021-11-16)
+### 2.16.1 (2021-11-18)
 
 *   Core Library:
     *   Fix track selection issue where overriding one track group did not

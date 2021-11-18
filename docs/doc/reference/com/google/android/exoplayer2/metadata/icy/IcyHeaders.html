@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -308,11 +308,18 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">populateMediaMetadata</a></span>&#8203;(<a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a>&nbsp;builder)</code></th>
+<td class="colLast">
+<div class="block">Updates the <a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type specific values stored in this Entry.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code></th>
@@ -331,7 +338,7 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.metadata.<a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a></h3>
-<code><a href="../Metadata.Entry.html#getWrappedMetadataBytes()">getWrappedMetadataBytes</a>, <a href="../Metadata.Entry.html#getWrappedMetadataFormat()">getWrappedMetadataFormat</a>, <a href="../Metadata.Entry.html#populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">populateMediaMetadata</a></code></li>
+<code><a href="../Metadata.Entry.html#getWrappedMetadataBytes()">getWrappedMetadataBytes</a>, <a href="../Metadata.Entry.html#getWrappedMetadataFormat()">getWrappedMetadataFormat</a></code></li>
 </ul>
 </li>
 </ul>
@@ -510,6 +517,26 @@ public static&nbsp;<a href="IcyHeaders.html" title="class in com.google.android.
 <dd><code>responseHeaders</code> - The response headers.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The parsed <a href="IcyHeaders.html" title="class in com.google.android.exoplayer2.metadata.icy"><code>IcyHeaders</code></a>, or <code>null</code> if no ICY headers were present.</dd>
+</dl>
+</li>
+</ul>
+<a id="populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>populateMediaMetadata</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;populateMediaMetadata&#8203;(<a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a>&nbsp;builder)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Metadata.Entry.html#populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">Metadata.Entry</a></code></span></div>
+<div class="block">Updates the <a href="../../MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> with the type specific values stored in this Entry.
+
+ <p>The order of the <a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata"><code>Metadata.Entry</code></a> objects in the <a href="../Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> matters. If two <a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata"><code>Metadata.Entry</code></a> entries attempt to populate the same <a href="../../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> field, then the last one in
+ the list is used.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../Metadata.Entry.html#populateMediaMetadata(com.google.android.exoplayer2.MediaMetadata.Builder)">populateMediaMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>builder</code> - The builder to be updated.</dd>
 </dl>
 </li>
 </ul>
