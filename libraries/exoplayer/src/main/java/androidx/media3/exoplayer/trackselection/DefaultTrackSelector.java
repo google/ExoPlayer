@@ -572,6 +572,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Sets whether to enable tunneling if possible. Tunneling will only be enabled if it's
      * supported by the audio and video renderers for the selected tracks.
      *
+     * <p>Tunneling is known to have many device specific issues and limitations. Manual testing is
+     * strongly recomended to check that the media plays correctly when this option is enabled. See
+     * [#9661](https://github.com/google/ExoPlayer/issues/9661),
+     * [#9133](https://github.com/google/ExoPlayer/issues/9133),
+     * [#9317](https://github.com/google/ExoPlayer/issues/9317),
+     * [#9502](https://github.com/google/ExoPlayer/issues/9502).
+     *
      * @param tunnelingEnabled Whether to enable tunneling if possible.
      * @return This builder.
      */
