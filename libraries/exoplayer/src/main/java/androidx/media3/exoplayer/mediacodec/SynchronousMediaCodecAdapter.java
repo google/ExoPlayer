@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in synchronous mode.
  */
 @UnstableApi
-public class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
+public final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
 
   /** A factory for {@link SynchronousMediaCodecAdapter} instances. */
   public static class Factory implements MediaCodecAdapter.Factory {
