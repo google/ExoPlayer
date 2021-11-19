@@ -16,7 +16,10 @@
 package com.google.android.exoplayer2.source.ads;
 
 import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_AVAILABLE;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_ERROR;
 import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_PLAYED;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_SKIPPED;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_UNAVAILABLE;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
@@ -252,6 +255,60 @@ public class AdPlaybackStateTest {
     state = state.withSkippedAdGroup(1);
     assertThat(state.getAdGroup(0).count).isEqualTo(0);
     assertThat(state.getAdGroup(1).count).isEqualTo(0);
+  }
+
+  @Test
+  public void withResetAdGroup_beforeSetAdCount_doesNothing() {
+    AdPlaybackState state = new AdPlaybackState(TEST_ADS_ID, TEST_AD_GROUP_TIMES_US);
+
+    state = state.withResetAdGroup(/* adGroupIndex= */ 1);
+
+    assertThat(state.getAdGroup(1).count).isEqualTo(C.LENGTH_UNSET);
+  }
+
+  @Test
+  public void withResetAdGroup_resetsAdsInFinalStates() {
+    AdPlaybackState state = new AdPlaybackState(TEST_ADS_ID, TEST_AD_GROUP_TIMES_US);
+    state = state.withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 5);
+    state =
+        state.withAdDurationsUs(
+            /* adGroupIndex= */ 1, /* adDurationsUs...= */ 1_000L, 2_000L, 3_000L, 4_000L, 5_000L);
+    state = state.withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 1, Uri.EMPTY);
+    state = state.withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 2, Uri.EMPTY);
+    state = state.withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 3, Uri.EMPTY);
+    state = state.withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 4, Uri.EMPTY);
+    state = state.withPlayedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 2);
+    state = state.withSkippedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 3);
+    state = state.withAdLoadError(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 4);
+    // Verify setup.
+    assertThat(state.getAdGroup(/* adGroupIndex= */ 1).states)
+        .asList()
+        .containsExactly(
+            AD_STATE_UNAVAILABLE,
+            AD_STATE_AVAILABLE,
+            AD_STATE_PLAYED,
+            AD_STATE_SKIPPED,
+            AD_STATE_ERROR)
+        .inOrder();
+
+    state = state.withResetAdGroup(/* adGroupIndex= */ 1);
+
+    assertThat(state.getAdGroup(/* adGroupIndex= */ 1).states)
+        .asList()
+        .containsExactly(
+            AD_STATE_UNAVAILABLE,
+            AD_STATE_AVAILABLE,
+            AD_STATE_AVAILABLE,
+            AD_STATE_AVAILABLE,
+            AD_STATE_AVAILABLE)
+        .inOrder();
+    assertThat(state.getAdGroup(/* adGroupIndex= */ 1).uris)
+        .asList()
+        .containsExactly(null, Uri.EMPTY, Uri.EMPTY, Uri.EMPTY, Uri.EMPTY)
+        .inOrder();
+    assertThat(state.getAdGroup(/* adGroupIndex= */ 1).durationsUs)
+        .asList()
+        .containsExactly(1_000L, 2_000L, 3_000L, 4_000L, 5_000L);
   }
 
   @Test

@@ -7,6 +7,10 @@
         When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
         the `playbackLooper` needs to be passed to `DrmSessionManager.setPlayer`
         instead.
+*   IMA:
+    *   Add a method to `AdPlaybackState` to allow resetting an ad group so that
+        it can be played again
+        ([#9615](https://github.com/google/ExoPlayer/issues/9615)).
 
 ### 2.16.1 (2021-11-18)
 
