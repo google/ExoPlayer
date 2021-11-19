@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -91,7 +92,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable HlsMediaChunk previousChunk,
       @Nullable byte[] mediaSegmentKey,
       @Nullable byte[] initSegmentKey,
-      boolean shouldSpliceIn) {
+      boolean shouldSpliceIn,
+      PlayerId playerId) {
     // Media segment.
     HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
     DataSpec dataSpec =
@@ -184,7 +186,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         previousExtractor,
         id3Decoder,
         scratchId3Data,
-        shouldSpliceIn);
+        shouldSpliceIn,
+        playerId);
   }
 
   /**
@@ -256,6 +259,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ParsableByteArray scratchId3Data;
   private final boolean mediaSegmentEncrypted;
   private final boolean initSegmentEncrypted;
+  private final PlayerId playerId;
 
   private @MonotonicNonNull HlsMediaChunkExtractor extractor;
   private @MonotonicNonNull HlsSampleStreamWrapper output;
@@ -295,7 +299,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable HlsMediaChunkExtractor previousExtractor,
       Id3Decoder id3Decoder,
       ParsableByteArray scratchId3Data,
-      boolean shouldSpliceIn) {
+      boolean shouldSpliceIn,
+      PlayerId playerId) {
     super(
         mediaDataSource,
         dataSpec,
@@ -324,6 +329,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.id3Decoder = id3Decoder;
     this.scratchId3Data = scratchId3Data;
     this.shouldSpliceIn = shouldSpliceIn;
+    this.playerId = playerId;
     sampleQueueFirstSampleIndices = ImmutableList.of();
     uid = uidSource.getAndIncrement();
   }
@@ -497,7 +503,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                   muxedCaptionFormats,
                   timestampAdjuster,
                   dataSource.getResponseHeaders(),
-                  extractorInput);
+                  extractorInput,
+                  playerId);
       if (extractor.isPackedAudioExtractor()) {
         output.setSampleOffsetUs(
             id3Timestamp != C.TIME_UNSET

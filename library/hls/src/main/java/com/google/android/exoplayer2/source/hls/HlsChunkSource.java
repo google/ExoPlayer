@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
@@ -122,6 +123,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final TrackGroup trackGroup;
   @Nullable private final List<Format> muxedCaptionFormats;
   private final FullSegmentEncryptionKeyCache keyCache;
+  private final PlayerId playerId;
 
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
@@ -161,13 +163,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
-      @Nullable List<Format> muxedCaptionFormats) {
+      @Nullable List<Format> muxedCaptionFormats,
+      PlayerId playerId) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
     this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
+    this.playerId = playerId;
     keyCache = new FullSegmentEncryptionKeyCache(KEY_CACHE_SIZE);
     scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
@@ -453,7 +457,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             previous,
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
-            shouldSpliceIn);
+            shouldSpliceIn,
+            playerId);
   }
 
   @Nullable

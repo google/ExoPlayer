@@ -497,7 +497,8 @@ public final class HlsMediaSource extends BaseMediaSource
         compositeSequenceableLoaderFactory,
         allowChunklessPreparation,
         metadataType,
-        useSessionKeys);
+        useSessionKeys,
+        getPlayerId());
   }
 
   @Override

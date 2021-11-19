@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
@@ -92,7 +93,8 @@ public final class HlsMediaPeriodTest {
               mock(CompositeSequenceableLoaderFactory.class),
               /* allowChunklessPreparation= */ true,
               HlsMediaSource.METADATA_TYPE_ID3,
-              /* useSessionKeys= */ false);
+              /* useSessionKeys= */ false,
+              PlayerId.UNSET);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
