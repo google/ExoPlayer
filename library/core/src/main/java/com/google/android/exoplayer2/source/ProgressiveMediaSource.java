@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -296,6 +297,8 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     drmSessionManager.prepare();
+    drmSessionManager.setPlayer(
+        /* playbackLooper= */ checkNotNull(Looper.myLooper()), getPlayerId());
     notifySourceInfoRefreshed();
   }
 

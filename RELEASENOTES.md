@@ -2,6 +2,12 @@
 
 ### dev-v2 (not yet released)
 
+*   DRM:
+    *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
+        When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
+        the `playbackLooper` needs to be passed to `DrmSessionManager.setPlayer`
+        instead.
+
 ### 2.16.1 (2021-11-18)
 
 *   Core Library:

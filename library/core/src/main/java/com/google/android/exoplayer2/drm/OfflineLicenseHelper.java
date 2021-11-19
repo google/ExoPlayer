@@ -23,6 +23,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -235,6 +236,7 @@ public final class OfflineLicenseHelper {
   public synchronized Pair<Long, Long> getLicenseDurationRemainingSec(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
+    drmSessionManager.setPlayer(handlerThread.getLooper(), PlayerId.UNSET);
     drmSessionManager.prepare();
     DrmSession drmSession =
         openBlockingKeyRequest(
@@ -263,6 +265,7 @@ public final class OfflineLicenseHelper {
   private byte[] blockingKeyRequest(
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format)
       throws DrmSessionException {
+    drmSessionManager.setPlayer(handlerThread.getLooper(), PlayerId.UNSET);
     drmSessionManager.prepare();
     DrmSession drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId, format);
     DrmSessionException error = drmSession.getError();
@@ -280,8 +283,7 @@ public final class OfflineLicenseHelper {
     Assertions.checkNotNull(format.drmInitData);
     drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
     conditionVariable.close();
-    DrmSession drmSession =
-        drmSessionManager.acquireSession(handlerThread.getLooper(), eventDispatcher, format);
+    DrmSession drmSession = drmSessionManager.acquireSession(eventDispatcher, format);
     // Block current thread until key loading is finished
     conditionVariable.block();
     return Assertions.checkNotNull(drmSession);

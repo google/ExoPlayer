@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.net.Uri;
+import android.os.Looper;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -466,6 +467,8 @@ public final class HlsMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
     drmSessionManager.prepare();
+    drmSessionManager.setPlayer(
+        /* playbackLooper= */ checkNotNull(Looper.myLooper()), getPlayerId());
     MediaSourceEventListener.EventDispatcher eventDispatcher =
         createEventDispatcher(/* mediaPeriodId= */ null);
     playlistTracker.start(
