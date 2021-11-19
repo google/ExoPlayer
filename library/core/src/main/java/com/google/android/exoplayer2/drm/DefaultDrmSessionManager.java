@@ -304,6 +304,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private @MonotonicNonNull Handler playbackHandler;
   private int mode;
   @Nullable private byte[] offlineLicenseKeySetId;
+  private @MonotonicNonNull PlayerId playerId;
 
   /* package */ volatile @Nullable MediaDrmHandler mediaDrmHandler;
 
@@ -492,6 +493,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Override
   public void setPlayer(Looper playbackLooper, PlayerId playerId) {
     initPlaybackLooper(playbackLooper);
+    this.playerId = playerId;
   }
 
   @Override
@@ -777,7 +779,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
             keyRequestParameters,
             callback,
             checkNotNull(playbackLooper),
-            loadErrorHandlingPolicy);
+            loadErrorHandlingPolicy,
+            checkNotNull(playerId));
     // Acquire the session once on behalf of the caller to DrmSessionManager - this is the
     // reference 'assigned' to the caller which they're responsible for releasing. Do this first,
     // to ensure that eventDispatcher receives all events related to the initial
