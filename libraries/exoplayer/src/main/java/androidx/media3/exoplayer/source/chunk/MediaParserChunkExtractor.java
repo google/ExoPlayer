@@ -34,6 +34,8 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.mediaparser.InputReaderAdapterV30;
 import androidx.media3.exoplayer.source.mediaparser.MediaParserUtil;
 import androidx.media3.exoplayer.source.mediaparser.OutputConsumerAdapterV30;
@@ -60,10 +62,12 @@ public final class MediaParserChunkExtractor implements ChunkExtractor {
           format,
           enableEventMessageTrack,
           closedCaptionFormats,
-          playerEmsgTrackOutput) -> {
+          playerEmsgTrackOutput,
+          playerId) -> {
         if (!MimeTypes.isText(format.containerMimeType)) {
           // Container is either Matroska or Fragmented MP4.
-          return new MediaParserChunkExtractor(primaryTrackType, format, closedCaptionFormats);
+          return new MediaParserChunkExtractor(
+              primaryTrackType, format, closedCaptionFormats, playerId);
         } else {
           // This is either RAWCC (unsupported) or a text track that does not require an extractor.
           Log.w(TAG, "Ignoring an unsupported text track.");
@@ -88,10 +92,14 @@ public final class MediaParserChunkExtractor implements ChunkExtractor {
    * @param manifestFormat The chunks {@link Format} as obtained from the manifest.
    * @param closedCaptionFormats A list containing the {@link Format Formats} of the closed-caption
    *     tracks in the chunks.
+   * @param playerId The {@link PlayerId} of the player this chunk extractor is used for.
    */
   @SuppressLint("WrongConstant")
   public MediaParserChunkExtractor(
-      @C.TrackType int primaryTrackType, Format manifestFormat, List<Format> closedCaptionFormats) {
+      @C.TrackType int primaryTrackType,
+      Format manifestFormat,
+      List<Format> closedCaptionFormats,
+      PlayerId playerId) {
     outputConsumerAdapter =
         new OutputConsumerAdapterV30(
             manifestFormat, primaryTrackType, /* expectDummySeekMap= */ true);
@@ -116,6 +124,9 @@ public final class MediaParserChunkExtractor implements ChunkExtractor {
           MediaParserUtil.toCaptionsMediaFormat(closedCaptionFormats.get(i)));
     }
     mediaParser.setParameter(PARAMETER_EXPOSE_CAPTION_FORMATS, closedCaptionMediaFormats);
+    if (Util.SDK_INT >= 31) {
+      MediaParserUtil.setLogSessionIdOnMediaParser(mediaParser, playerId);
+    }
     outputConsumerAdapter.setMuxedCaptionFormats(closedCaptionFormats);
     trackOutputProviderAdapter = new TrackOutputProviderAdapter();
     dummyTrackOutput = new DummyTrackOutput();

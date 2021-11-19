@@ -600,7 +600,8 @@ public final class DashMediaSource extends BaseMediaSource {
             manifestLoadErrorThrower,
             allocator,
             compositeSequenceableLoaderFactory,
-            playerEmsgCallback);
+            playerEmsgCallback,
+            getPlayerId());
     periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
   }

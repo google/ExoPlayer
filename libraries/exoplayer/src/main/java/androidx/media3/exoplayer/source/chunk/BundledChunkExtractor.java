@@ -53,7 +53,8 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
           format,
           enableEventMessageTrack,
           closedCaptionFormats,
-          playerEmsgTrackOutput) -> {
+          playerEmsgTrackOutput,
+          playerId) -> {
         @Nullable String containerMimeType = format.containerMimeType;
         Extractor extractor;
         if (MimeTypes.isText(containerMimeType)) {

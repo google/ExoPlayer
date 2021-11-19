@@ -23,6 +23,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.dash.PlayerEmsgHandler.PlayerEmsgCallback;
 import androidx.media3.exoplayer.dash.manifest.AdaptationSet;
 import androidx.media3.exoplayer.dash.manifest.DashManifest;
@@ -212,7 +213,8 @@ public final class DashMediaPeriodTest {
         mock(LoaderErrorThrower.class),
         mock(Allocator.class),
         mock(CompositeSequenceableLoaderFactory.class),
-        mock(PlayerEmsgCallback.class));
+        mock(PlayerEmsgCallback.class),
+        PlayerId.UNSET);
   }
 
   private static DashManifest parseManifest(String fileName) throws IOException {

@@ -21,6 +21,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import androidx.media3.exoplayer.dash.manifest.DashManifest;
 import androidx.media3.exoplayer.source.chunk.ChunkSource;
@@ -51,6 +52,7 @@ public interface DashChunkSource extends ChunkSource {
      * @param closedCaptionFormats The {@link Format Formats} of closed caption tracks to be output.
      * @param transferListener The transfer listener which should be informed of any data transfers.
      *     May be null if no listener is available.
+     * @param playerId The {@link PlayerId} of the player using this chunk source.
      * @return The created {@link DashChunkSource}.
      */
     DashChunkSource createDashChunkSource(
@@ -65,7 +67,8 @@ public interface DashChunkSource extends ChunkSource {
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
         @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
-        @Nullable TransferListener transferListener);
+        @Nullable TransferListener transferListener,
+        PlayerId playerId);
   }
 
   /**

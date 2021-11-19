@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.extractor.ChunkIndex;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.TrackOutput;
@@ -44,6 +45,8 @@ public interface ChunkExtractor {
      * @param representationFormat The format of the representation to extract from.
      * @param enableEventMessageTrack Whether to enable the event message track.
      * @param closedCaptionFormats The {@link Format Formats} of the Closed-Caption tracks.
+     * @param playerEmsgTrackOutput The {@link TrackOutput} for extracted EMSG messages, or null.
+     * @param playerId The {@link PlayerId} of the player using this chunk extractor.
      * @return A new {@link ChunkExtractor} instance, or null if not applicable.
      */
     @Nullable
@@ -52,7 +55,8 @@ public interface ChunkExtractor {
         Format representationFormat,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
-        @Nullable TrackOutput playerEmsgTrackOutput);
+        @Nullable TrackOutput playerEmsgTrackOutput,
+        PlayerId playerId);
   }
 
   /** Provides {@link TrackOutput} instances to be written to during extraction. */

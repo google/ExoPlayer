@@ -29,6 +29,7 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.HttpDataSource;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.dash.manifest.DashManifest;
 import androidx.media3.exoplayer.dash.manifest.DashManifestParser;
 import androidx.media3.exoplayer.source.LoadEventInfo;
@@ -95,7 +96,8 @@ public class DefaultDashChunkSourceTest {
             /* maxSegmentsPerLoad= */ 1,
             /* enableEventMessageTrack= */ false,
             /* closedCaptionFormats */ ImmutableList.of(),
-            /* playerTrackEmsgHandler= */ null);
+            /* playerTrackEmsgHandler= */ null,
+            PlayerId.UNSET);
 
     long nowInPeriodUs = Util.msToUs(nowMs - manifest.availabilityStartTimeMs);
     ChunkHolder output = new ChunkHolder();
@@ -143,7 +145,8 @@ public class DefaultDashChunkSourceTest {
             /* maxSegmentsPerLoad= */ 1,
             /* enableEventMessageTrack= */ false,
             /* closedCaptionFormats */ ImmutableList.of(),
-            /* playerTrackEmsgHandler= */ null);
+            /* playerTrackEmsgHandler= */ null,
+            PlayerId.UNSET);
 
     ChunkHolder output = new ChunkHolder();
     chunkSource.getNextChunk(
@@ -326,7 +329,8 @@ public class DefaultDashChunkSourceTest {
         /* maxSegmentsPerLoad= */ 1,
         /* enableEventMessageTrack= */ false,
         /* closedCaptionFormats */ ImmutableList.of(),
-        /* playerTrackEmsgHandler= */ null);
+        /* playerTrackEmsgHandler= */ null,
+        PlayerId.UNSET);
   }
 
   private LoadErrorHandlingPolicy.LoadErrorInfo createFakeLoadErrorInfo(
