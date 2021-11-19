@@ -37,8 +37,8 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscode_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    TranscodingTransformer transcodingTransformer =
-        new TranscodingTransformer.Builder()
+    Transformer transformer =
+        new Transformer.Builder()
             .setVideoMimeType(MimeTypes.VIDEO_H265)
             .setContext(context)
             .build();
@@ -47,8 +47,7 @@ public final class RepeatedTranscodeTransformationTest {
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
       long outputSizeBytes =
-          runTransformer(
-                  context, transcodingTransformer, AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING)
+          runTransformer(context, transformer, AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING)
               .outputSizeBytes;
       if (previousOutputSizeBytes != C.LENGTH_UNSET) {
         assertWithMessage("Unexpected output size on transcode " + i + " out of " + TRANSCODE_COUNT)
