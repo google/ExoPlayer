@@ -36,10 +36,10 @@ import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
@@ -146,12 +146,7 @@ public final class SampleQueueTest {
     mockDrmSession = Mockito.mock(DrmSession.class);
     mockDrmSessionManager = new MockDrmSessionManager(mockDrmSession);
     eventDispatcher = new DrmSessionEventListener.EventDispatcher();
-    sampleQueue =
-        new SampleQueue(
-            allocator,
-            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
-            mockDrmSessionManager,
-            eventDispatcher);
+    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager, eventDispatcher);
     formatHolder = new FormatHolder();
     inputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
@@ -424,12 +419,7 @@ public final class SampleQueueTest {
   public void isReadyReturnsTrueForClearSampleAndPlayClearSamplesWithoutKeysIsTrue() {
     when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
-    sampleQueue =
-        new SampleQueue(
-            allocator,
-            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
-            mockDrmSessionManager,
-            eventDispatcher);
+    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager, eventDispatcher);
     writeTestDataWithEncryptedSections();
     assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
   }
@@ -574,12 +564,7 @@ public final class SampleQueueTest {
   public void allowPlayClearSamplesWithoutKeysReadsClearSamples() {
     when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
-    sampleQueue =
-        new SampleQueue(
-            allocator,
-            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
-            mockDrmSessionManager,
-            eventDispatcher);
+    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager, eventDispatcher);
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
     writeTestDataWithEncryptedSections();
 
@@ -1246,11 +1231,7 @@ public final class SampleQueueTest {
   public void adjustUpstreamFormat() {
     String label = "label";
     sampleQueue =
-        new SampleQueue(
-            allocator,
-            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
-            mockDrmSessionManager,
-            eventDispatcher) {
+        new SampleQueue(allocator, mockDrmSessionManager, eventDispatcher) {
           @Override
           public Format getAdjustedUpstreamFormat(Format format) {
             return super.getAdjustedUpstreamFormat(copyWithLabel(format, label));
@@ -1266,11 +1247,7 @@ public final class SampleQueueTest {
   public void invalidateUpstreamFormatAdjustment() {
     AtomicReference<String> label = new AtomicReference<>("label1");
     sampleQueue =
-        new SampleQueue(
-            allocator,
-            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
-            mockDrmSessionManager,
-            eventDispatcher) {
+        new SampleQueue(allocator, mockDrmSessionManager, eventDispatcher) {
           @Override
           public Format getAdjustedUpstreamFormat(Format format) {
             return super.getAdjustedUpstreamFormat(copyWithLabel(format, label.get()));
@@ -1771,11 +1748,12 @@ public final class SampleQueueTest {
     }
 
     @Override
+    public void setPlayer(Looper playbackLooper, PlayerId playerId) {}
+
+    @Override
     @Nullable
     public DrmSession acquireSession(
-        Looper playbackLooper,
-        @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-        Format format) {
+        @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format) {
       return format.drmInitData != null ? mockDrmSession : mockPlaceholderDrmSession;
     }
 

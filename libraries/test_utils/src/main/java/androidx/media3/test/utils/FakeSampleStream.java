@@ -17,7 +17,6 @@ package androidx.media3.test.utils;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
-import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -138,12 +137,7 @@ public class FakeSampleStream implements SampleStream {
       DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       Format initialFormat,
       List<FakeSampleStreamItem> fakeSampleStreamItems) {
-    this.sampleQueue =
-        SampleQueue.createWithDrm(
-            allocator,
-            /* playbackLooper= */ checkNotNull(Looper.myLooper()),
-            drmSessionManager,
-            drmEventDispatcher);
+    this.sampleQueue = SampleQueue.createWithDrm(allocator, drmSessionManager, drmEventDispatcher);
     this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.sampleStreamItems = new ArrayList<>();
     sampleStreamItems.add(FakeSampleStreamItem.format(initialFormat));

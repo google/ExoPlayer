@@ -21,6 +21,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.analytics.PlayerId;
 
 /** Manages a DRM session. */
 @UnstableApi
@@ -48,11 +49,12 @@ public interface DrmSessionManager {
       new DrmSessionManager() {
 
         @Override
+        public void setPlayer(Looper playbackLooper, PlayerId playerId) {}
+
+        @Override
         @Nullable
         public DrmSession acquireSession(
-            Looper playbackLooper,
-            @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-            Format format) {
+            @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format) {
           if (format.drmInitData == null) {
             return null;
           } else {
@@ -103,24 +105,32 @@ public interface DrmSessionManager {
   }
 
   /**
+   * Sets information about the player using this DRM session manager.
+   *
+   * @param playbackLooper The {@link Looper} associated with the player's playback thread.
+   * @param playerId The {@link PlayerId} of the player.
+   */
+  void setPlayer(Looper playbackLooper, PlayerId playerId);
+
+  /**
    * Pre-acquires a DRM session for the specified {@link Format}.
    *
-   * <p>This notifies the manager that a subsequent call to {@link #acquireSession(Looper,
+   * <p>This notifies the manager that a subsequent call to {@link #acquireSession(
    * DrmSessionEventListener.EventDispatcher, Format)} with the same {@link Format} is likely,
    * allowing a manager that supports pre-acquisition to get the required {@link DrmSession} ready
    * in the background.
    *
    * <p>The caller must call {@link DrmSessionReference#release()} on the returned instance when
    * they no longer require the pre-acquisition (i.e. they know they won't be making a matching call
-   * to {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)} in the near
+   * to {@link #acquireSession(DrmSessionEventListener.EventDispatcher, Format)} in the near
    * future).
    *
    * <p>This manager may silently release the underlying session in order to allow another operation
-   * to complete. This will result in a subsequent call to {@link #acquireSession(Looper,
+   * to complete. This will result in a subsequent call to {@link #acquireSession(
    * DrmSessionEventListener.EventDispatcher, Format)} re-initializing a new session, including
    * repeating key loads and other async initialization steps.
    *
-   * <p>The caller must separately call {@link #acquireSession(Looper,
+   * <p>The caller must separately call {@link #acquireSession(
    * DrmSessionEventListener.EventDispatcher, Format)} in order to obtain a session suitable for
    * playback. The pre-acquired {@link DrmSessionReference} and full {@link DrmSession} instances
    * are distinct. The caller must release both, and can release the {@link DrmSessionReference}
@@ -131,19 +141,15 @@ public interface DrmSessionManager {
    * <p>Implementations that do not support pre-acquisition always return an empty {@link
    * DrmSessionReference} instance.
    *
-   * @param playbackLooper The looper associated with the media playback thread.
    * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} used to distribute
    *     events, and passed on to {@link
    *     DrmSession#acquire(DrmSessionEventListener.EventDispatcher)}.
    * @param format The {@link Format} for which to pre-acquire a {@link DrmSession}.
    * @return A releaser for the pre-acquired session. Guaranteed to be non-null even if the matching
-   *     {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)} would
-   *     return null.
+   *     {@link #acquireSession(DrmSessionEventListener.EventDispatcher, Format)} would return null.
    */
   default DrmSessionReference preacquireSession(
-      Looper playbackLooper,
-      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-      Format format) {
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format) {
     return DrmSessionReference.EMPTY;
   }
 
@@ -160,7 +166,6 @@ public interface DrmSessionManager {
    * used to configure secure decoders for playback of clear content periods, which can reduce the
    * cost of transitioning between clear and encrypted content.
    *
-   * @param playbackLooper The looper associated with the media playback thread.
    * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} used to distribute
    *     events, and passed on to {@link
    *     DrmSession#acquire(DrmSessionEventListener.EventDispatcher)}.
@@ -169,9 +174,7 @@ public interface DrmSessionManager {
    */
   @Nullable
   DrmSession acquireSession(
-      Looper playbackLooper,
-      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-      Format format);
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format);
 
   /**
    * Returns the {@link C.CryptoType} that the DRM session manager will use for a given {@link

@@ -23,7 +23,6 @@ import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -1100,12 +1099,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
     HlsSampleQueue sampleQueue =
-        new HlsSampleQueue(
-            allocator,
-            /* playbackLooper= */ handler.getLooper(),
-            drmSessionManager,
-            drmEventDispatcher,
-            overridingDrmInitData);
+        new HlsSampleQueue(allocator, drmSessionManager, drmEventDispatcher, overridingDrmInitData);
     sampleQueue.setStartTimeUs(lastSeekPositionUs);
     if (isAudioVideo) {
       sampleQueue.setDrmInitData(drmInitData);
@@ -1639,11 +1633,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     private HlsSampleQueue(
         Allocator allocator,
-        Looper playbackLooper,
         DrmSessionManager drmSessionManager,
         DrmSessionEventListener.EventDispatcher eventDispatcher,
         Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator, playbackLooper, drmSessionManager, eventDispatcher);
+      super(allocator, drmSessionManager, eventDispatcher);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 

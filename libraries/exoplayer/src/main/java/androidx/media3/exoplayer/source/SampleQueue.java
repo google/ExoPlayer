@@ -40,8 +40,10 @@ import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
+import androidx.media3.exoplayer.drm.DrmSessionEventListener.EventDispatcher;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.drm.DrmSessionManager.DrmSessionReference;
 import androidx.media3.exoplayer.source.SampleStream.ReadFlags;
@@ -73,7 +75,6 @@ public class SampleQueue implements TrackOutput {
   private final SpannedData<SharedSampleMetadata> sharedSampleMetadata;
   @Nullable private final DrmSessionManager drmSessionManager;
   @Nullable private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
-  @Nullable private final Looper playbackLooper;
   @Nullable private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
   @Nullable private Format downstreamFormat;
@@ -115,10 +116,7 @@ public class SampleQueue implements TrackOutput {
    */
   public static SampleQueue createWithoutDrm(Allocator allocator) {
     return new SampleQueue(
-        allocator,
-        /* playbackLooper= */ null,
-        /* drmSessionManager= */ null,
-        /* drmEventDispatcher= */ null);
+        allocator, /* drmSessionManager= */ null, /* drmEventDispatcher= */ null);
   }
 
   /**
@@ -128,7 +126,6 @@ public class SampleQueue implements TrackOutput {
    * keys needed to decrypt it.
    *
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
-   * @param playbackLooper The looper associated with the media playback thread.
    * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
    *     from. The created instance does not take ownership of this {@link DrmSessionManager}.
    * @param drmEventDispatcher A {@link DrmSessionEventListener.EventDispatcher} to notify of events
@@ -136,22 +133,36 @@ public class SampleQueue implements TrackOutput {
    */
   public static SampleQueue createWithDrm(
       Allocator allocator,
-      Looper playbackLooper,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
     return new SampleQueue(
         allocator,
-        Assertions.checkNotNull(playbackLooper),
+        Assertions.checkNotNull(drmSessionManager),
+        Assertions.checkNotNull(drmEventDispatcher));
+  }
+
+  /**
+   * @deprecated Use {@link #createWithDrm(Allocator, DrmSessionManager, EventDispatcher)} instead.
+   *     The {@code playbackLooper} should be configured on the {@link DrmSessionManager} with
+   *     {@link DrmSessionManager#setPlayer(Looper, PlayerId)}.
+   */
+  @Deprecated
+  public static SampleQueue createWithDrm(
+      Allocator allocator,
+      Looper playbackLooper,
+      DrmSessionManager drmSessionManager,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
+    drmSessionManager.setPlayer(playbackLooper, PlayerId.UNSET);
+    return new SampleQueue(
+        allocator,
         Assertions.checkNotNull(drmSessionManager),
         Assertions.checkNotNull(drmEventDispatcher));
   }
 
   protected SampleQueue(
       Allocator allocator,
-      @Nullable Looper playbackLooper,
       @Nullable DrmSessionManager drmSessionManager,
       @Nullable DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
-    this.playbackLooper = playbackLooper;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
     sampleDataQueue = new SampleDataQueue(allocator);
@@ -805,8 +816,7 @@ public class SampleQueue implements TrackOutput {
         || !sharedSampleMetadata.getEndValue().format.equals(upstreamFormat)) {
       DrmSessionReference drmSessionReference =
           drmSessionManager != null
-              ? drmSessionManager.preacquireSession(
-                  checkNotNull(playbackLooper), drmEventDispatcher, upstreamFormat)
+              ? drmSessionManager.preacquireSession(drmEventDispatcher, upstreamFormat)
               : DrmSessionReference.EMPTY;
 
       sharedSampleMetadata.appendSpan(
@@ -915,9 +925,7 @@ public class SampleQueue implements TrackOutput {
     // Ensure we acquire the new session before releasing the previous one in case the same session
     // is being used for both DrmInitData.
     @Nullable DrmSession previousSession = currentDrmSession;
-    currentDrmSession =
-        drmSessionManager.acquireSession(
-            Assertions.checkNotNull(playbackLooper), drmEventDispatcher, newFormat);
+    currentDrmSession = drmSessionManager.acquireSession(drmEventDispatcher, newFormat);
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {
