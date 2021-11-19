@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.TimestampAdjuster;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.PositionHolder;
@@ -46,6 +47,7 @@ public interface HlsExtractorFactory {
    * @param sniffingExtractorInput The first extractor input that will be passed to the returned
    *     extractor's {@link Extractor#read(ExtractorInput, PositionHolder)}. Must only be used to
    *     call {@link Extractor#sniff(ExtractorInput)}.
+   * @param playerId The {@link PlayerId} of the player using this extractors factory.
    * @return An {@link HlsMediaChunkExtractor}.
    * @throws IOException If an I/O error is encountered while sniffing.
    */
@@ -55,6 +57,7 @@ public interface HlsExtractorFactory {
       @Nullable List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
-      ExtractorInput sniffingExtractorInput)
+      ExtractorInput sniffingExtractorInput,
+      PlayerId playerId)
       throws IOException;
 }

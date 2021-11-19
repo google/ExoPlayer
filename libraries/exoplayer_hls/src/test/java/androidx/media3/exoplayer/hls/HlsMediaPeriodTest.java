@@ -24,6 +24,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.hls.playlist.HlsMasterPlaylist;
@@ -92,7 +93,8 @@ public final class HlsMediaPeriodTest {
               mock(CompositeSequenceableLoaderFactory.class),
               /* allowChunklessPreparation= */ true,
               HlsMediaSource.METADATA_TYPE_ID3,
-              /* useSessionKeys= */ false);
+              /* useSessionKeys= */ false,
+              PlayerId.UNSET);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
