@@ -89,6 +89,9 @@ import java.util.Map;
       // We're only interested in metadata.
       return false;
     }
+    if (data.getData().length <= data.getPosition()) {
+      return false;
+    }
     int type = readAmfType(data);
     if (type != AMF_TYPE_ECMA_ARRAY) {
       // We're not interested in this metadata.
