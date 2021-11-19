@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,13 +91,19 @@ public final class Transformer {
   /** A builder for {@link Transformer} instances. */
   public static final class Builder {
 
+    // Mandatory field.
     private @MonotonicNonNull Context context;
+
+    // Optional fields.
     private @MonotonicNonNull MediaSourceFactory mediaSourceFactory;
     private Muxer.Factory muxerFactory;
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
+    private int outputHeight;
     private String containerMimeType;
+    @Nullable private String audioMimeType;
+    @Nullable private String videoMimeType;
     private Transformer.Listener listener;
     private Looper looper;
     private Clock clock;
@@ -105,6 +111,7 @@ public final class Transformer {
     /** Creates a builder with default values. */
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
+      outputHeight = Transformation.NO_VALUE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
@@ -119,7 +126,10 @@ public final class Transformer {
       this.removeAudio = transformer.transformation.removeAudio;
       this.removeVideo = transformer.transformation.removeVideo;
       this.flattenForSlowMotion = transformer.transformation.flattenForSlowMotion;
+      this.outputHeight = transformer.transformation.outputHeight;
       this.containerMimeType = transformer.transformation.containerMimeType;
+      this.audioMimeType = transformer.transformation.audioMimeType;
+      this.videoMimeType = transformer.transformation.videoMimeType;
       this.listener = transformer.listener;
       this.looper = transformer.looper;
       this.clock = transformer.clock;
@@ -210,12 +220,95 @@ public final class Transformer {
     }
 
     /**
+     * Sets the output resolution using the output height. The default value is {@link
+     * Transformation#NO_VALUE}, which will use the same height as the input. Output width will
+     * scale to preserve the input video's aspect ratio.
+     *
+     * <p>For now, only "popular" heights like 240, 360, 480, 720, 1080, 1440, or 2160 are
+     * supported, to ensure compatibility on different devices.
+     *
+     * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
+     *
+     * @param outputHeight The output height in pixels.
+     * @return This builder.
+     */
+    public Builder setResolution(int outputHeight) {
+      // TODO(Internal b/201293185): Restructure to input a Presentation class.
+      // TODO(Internal b/201293185): Check encoder codec capabilities in order to allow arbitrary
+      // resolutions and reasonable fallbacks.
+      if (outputHeight != 240
+          && outputHeight != 360
+          && outputHeight != 480
+          && outputHeight != 720
+          && outputHeight != 1080
+          && outputHeight != 1440
+          && outputHeight != 2160) {
+        throw new IllegalArgumentException(
+            "Please use a height of 240, 360, 480, 720, 1080, 1440, or 2160.");
+      }
+      this.outputHeight = outputHeight;
+      return this;
+    }
+
+    /**
      * @deprecated This feature will be removed in a following release and the MIME type of the
      *     output will always be MP4.
      */
     @Deprecated
     public Builder setOutputMimeType(String outputMimeType) {
       this.containerMimeType = outputMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the video MIME type of the output. The default value is to use the same MIME type as the
+     * input. Supported values are:
+     *
+     * <ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
+     *       <ul>
+     *         <li>{@link MimeTypes#VIDEO_H263}
+     *         <li>{@link MimeTypes#VIDEO_H264}
+     *         <li>{@link MimeTypes#VIDEO_H265} from API level 24
+     *         <li>{@link MimeTypes#VIDEO_MP4V}
+     *       </ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
+     *       <ul>
+     *         <li>{@link MimeTypes#VIDEO_VP8}
+     *         <li>{@link MimeTypes#VIDEO_VP9} from API level 24
+     *       </ul>
+     * </ul>
+     *
+     * @param videoMimeType The MIME type of the video samples in the output.
+     * @return This builder.
+     */
+    public Builder setVideoMimeType(String videoMimeType) {
+      this.videoMimeType = videoMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
+     * input. Supported values are:
+     *
+     * <ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
+     *       <ul>
+     *         <li>{@link MimeTypes#AUDIO_AAC}
+     *         <li>{@link MimeTypes#AUDIO_AMR_NB}
+     *         <li>{@link MimeTypes#AUDIO_AMR_WB}
+     *       </ul>
+     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
+     *       <ul>
+     *         <li>{@link MimeTypes#AUDIO_VORBIS}
+     *       </ul>
+     * </ul>
+     *
+     * @param audioMimeType The MIME type of the audio samples in the output.
+     * @return This builder.
+     */
+    public Builder setAudioMimeType(String audioMimeType) {
+      this.audioMimeType = audioMimeType;
       return this;
     }
 
@@ -279,6 +372,8 @@ public final class Transformer {
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
      * @throws IllegalStateException If the muxer doesn't support the requested container MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested video MIME type.
      */
     public Transformer build() {
       checkStateNotNull(context);
@@ -292,17 +387,32 @@ public final class Transformer {
       checkState(
           muxerFactory.supportsOutputMimeType(containerMimeType),
           "Unsupported container MIME type: " + containerMimeType);
+      if (audioMimeType != null) {
+        checkSampleMimeType(audioMimeType);
+      }
+      if (videoMimeType != null) {
+        checkSampleMimeType(videoMimeType);
+      }
       Transformation transformation =
           new Transformation(
               removeAudio,
               removeVideo,
               flattenForSlowMotion,
-              /* outputHeight= */ Transformation.NO_VALUE,
+              outputHeight,
               containerMimeType,
-              /* audioMimeType= */ null,
-              /* videoMimeType= */ null);
+              audioMimeType,
+              videoMimeType);
       return new Transformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
+    }
+
+    private void checkSampleMimeType(String sampleMimeType) {
+      checkState(
+          muxerFactory.supportsSampleMimeType(sampleMimeType, containerMimeType),
+          "Unsupported sample MIME type "
+              + sampleMimeType
+              + " for container MIME type "
+              + containerMimeType);
     }
   }
 

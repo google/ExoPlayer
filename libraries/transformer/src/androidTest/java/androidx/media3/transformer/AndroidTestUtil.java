@@ -92,57 +92,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  // TODO(internal b/202131097): Deduplicate with the other overload when TranscodingTransformer is
-  // merged into Transformer.
-  /** Transforms the {@code uriString} with the {@link TranscodingTransformer}. */
-  public static TransformationResult runTransformer(
-      Context context, TranscodingTransformer transformer, String uriString) throws Exception {
-    AtomicReference<@NullableType Exception> exceptionReference = new AtomicReference<>();
-    CountDownLatch countDownLatch = new CountDownLatch(1);
-
-    TranscodingTransformer testTransformer =
-        transformer
-            .buildUpon()
-            .setListener(
-                new TranscodingTransformer.Listener() {
-                  @Override
-                  public void onTransformationCompleted(MediaItem inputMediaItem) {
-                    countDownLatch.countDown();
-                  }
-
-                  @Override
-                  public void onTransformationError(MediaItem inputMediaItem, Exception exception) {
-                    exceptionReference.set(exception);
-                    countDownLatch.countDown();
-                  }
-                })
-            .build();
-
-    Uri uri = Uri.parse(uriString);
-    File externalCacheFile = createExternalCacheFile(uri, context);
-    try {
-      InstrumentationRegistry.getInstrumentation()
-          .runOnMainSync(
-              () -> {
-                try {
-                  testTransformer.startTransformation(
-                      MediaItem.fromUri(uri), externalCacheFile.getAbsolutePath());
-                } catch (IOException e) {
-                  exceptionReference.set(e);
-                }
-              });
-      countDownLatch.await();
-      @Nullable Exception exception = exceptionReference.get();
-      if (exception != null) {
-        throw exception;
-      }
-      long outputSizeBytes = externalCacheFile.length();
-      return new TransformationResult(outputSizeBytes);
-    } finally {
-      externalCacheFile.delete();
-    }
-  }
-
   private static File createExternalCacheFile(Uri uri, Context context) throws IOException {
     File file = new File(context.getExternalCacheDir(), "transformer-" + uri.hashCode());
     Assertions.checkState(
