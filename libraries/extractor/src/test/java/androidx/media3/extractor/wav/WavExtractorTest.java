@@ -53,4 +53,10 @@ public final class WavExtractorTest {
     ExtractorAsserts.assertBehavior(
         WavExtractor::new, "media/wav/sample_ima_adpcm.wav", simulationConfig);
   }
+
+  @Test
+  public void sample_rf64() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        WavExtractor::new, "media/wav/sample_rf64.wav", simulationConfig);
+  }
 }
