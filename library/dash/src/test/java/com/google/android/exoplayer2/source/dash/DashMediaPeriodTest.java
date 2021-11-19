@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
@@ -212,7 +213,8 @@ public final class DashMediaPeriodTest {
         mock(LoaderErrorThrower.class),
         mock(Allocator.class),
         mock(CompositeSequenceableLoaderFactory.class),
-        mock(PlayerEmsgCallback.class));
+        mock(PlayerEmsgCallback.class),
+        PlayerId.UNSET);
   }
 
   private static DashManifest parseManifest(String fileName) throws IOException {
