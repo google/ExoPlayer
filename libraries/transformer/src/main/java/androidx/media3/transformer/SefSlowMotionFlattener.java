@@ -18,7 +18,6 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.extractor.NalUnitUtil.NAL_START_CODE;
 import static java.lang.Math.min;
 
@@ -40,7 +39,7 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * {@link SampleTransformer} that flattens SEF slow motion video samples.
+ * Sample transformer that flattens SEF slow motion video samples.
  *
  * <p>Such samples follow the ITU-T Recommendation H.264 with temporal SVC.
  *
@@ -50,7 +49,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>The mathematical formulas used in this class are explained in [Internal ref:
  * http://go/exoplayer-sef-slomo-video-flattening].
  */
-/* package */ final class SefSlowMotionVideoSampleTransformer implements SampleTransformer {
+/* package */ final class SefSlowMotionFlattener {
 
   /**
    * The frame rate of SEF slow motion videos, in fps.
@@ -109,7 +108,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private long frameTimeDeltaUs;
 
-  public SefSlowMotionVideoSampleTransformer(Format format) {
+  public SefSlowMotionFlattener(Format format) {
     scratch = new byte[NAL_START_CODE_LENGTH];
     MetadataInfo metadataInfo = getMetadataInfo(format.metadata);
     slowMotionData = metadataInfo.slowMotionData;
@@ -130,14 +129,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  @Override
-  public void transformSample(DecoderInputBuffer buffer) {
+  /**
+   * Applies slow motion flattening by either indicating that the buffer's data should be dropped or
+   * transforming it in place.
+   *
+   * @return Whether the buffer should be dropped.
+   */
+  @RequiresNonNull("#1.data")
+  public boolean dropOrTransformSample(DecoderInputBuffer buffer) {
     if (slowMotionData == null) {
       // The input is not an SEF slow motion video.
-      return;
+      return false;
     }
 
-    ByteBuffer data = castNonNull(buffer.data);
+    ByteBuffer data = buffer.data;
     int originalPosition = data.position();
     data.position(originalPosition + NAL_START_CODE_LENGTH);
     data.get(scratch, 0, 4); // Read nal_unit_header_svc_extension.
@@ -148,14 +153,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         "Missing SVC extension prefix NAL unit.");
     int layer = (scratch[3] & 0xFF) >> 5;
     boolean shouldKeepFrame = processCurrentFrame(layer, buffer.timeUs);
-    // Update buffer timestamp regardless of whether the frame is dropped because the buffer might
-    // still be passed to a decoder if it contains an end of stream flag.
+    // Update the timestamp regardless of whether the buffer is dropped as the timestamp may be
+    // reused for the empty end-of-stream buffer.
     buffer.timeUs = getCurrentFrameOutputTimeUs(/* inputTimeUs= */ buffer.timeUs);
     if (shouldKeepFrame) {
       skipToNextNalUnit(data); // Skip over prefix_nal_unit_svc.
-    } else {
-      buffer.data = null;
+      return false;
     }
+    return true;
   }
 
   /**

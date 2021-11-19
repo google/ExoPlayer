@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
 import android.content.Context;
@@ -28,6 +29,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -40,7 +42,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final Context context;
   private final DecoderInputBuffer decoderInputBuffer;
 
-  private @MonotonicNonNull SampleTransformer slowMotionSampleTransformer;
+  private @MonotonicNonNull SefSlowMotionFlattener sefSlowMotionFlattener;
   private @MonotonicNonNull SamplePipeline samplePipeline;
   private boolean muxerWrapperTrackAdded;
   private boolean muxerWrapperTrackEnded;
@@ -107,7 +109,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       samplePipeline = new PassthroughSamplePipeline(decoderInputFormat);
     }
     if (transformation.flattenForSlowMotion) {
-      slowMotionSampleTransformer = new SefSlowMotionVideoSampleTransformer(decoderInputFormat);
+      sefSlowMotionFlattener = new SefSlowMotionFlattener(decoderInputFormat);
     }
     return true;
   }
@@ -141,7 +143,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (!muxerWrapper.writeSample(
         getTrackType(),
-        samplePipelineOutputBuffer.data,
+        checkStateNotNull(samplePipelineOutputBuffer.data),
         samplePipelineOutputBuffer.isKeyFrame(),
         samplePipelineOutputBuffer.timeUs)) {
       return false;
@@ -172,17 +174,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int result = readSource(getFormatHolder(), samplePipelineInputBuffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
-        if (samplePipelineInputBuffer.data != null
-            && samplePipelineInputBuffer.data.position() > 0) {
-          mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-          samplePipelineInputBuffer.timeUs -= streamOffsetUs;
-          samplePipelineInputBuffer.flip();
-          if (slowMotionSampleTransformer != null) {
-            slowMotionSampleTransformer.transformSample(samplePipelineInputBuffer);
+        if (samplePipelineInputBuffer.isEndOfStream()) {
+          samplePipeline.queueInputBuffer();
+          return false;
+        }
+        mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
+        samplePipelineInputBuffer.timeUs -= streamOffsetUs;
+        samplePipelineInputBuffer.flip();
+        if (sefSlowMotionFlattener != null) {
+          ByteBuffer data = checkStateNotNull(samplePipelineInputBuffer.data);
+          boolean shouldDropSample =
+              sefSlowMotionFlattener.dropOrTransformSample(samplePipelineInputBuffer);
+          if (shouldDropSample) {
+            data.clear();
+            return true;
           }
         }
         samplePipeline.queueInputBuffer();
-        return !samplePipelineInputBuffer.isEndOfStream();
+        return true;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
       case C.RESULT_NOTHING_READ:

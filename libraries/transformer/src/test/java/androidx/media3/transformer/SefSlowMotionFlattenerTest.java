@@ -16,7 +16,7 @@
 
 package androidx.media3.transformer;
 
-import static androidx.media3.transformer.SefSlowMotionVideoSampleTransformer.INPUT_FRAME_RATE;
+import static androidx.media3.transformer.SefSlowMotionFlattener.INPUT_FRAME_RATE;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
@@ -32,9 +32,9 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link SefSlowMotionVideoSampleTransformer}. */
+/** Unit tests for {@link SefSlowMotionFlattener}. */
 @RunWith(AndroidJUnit4.class)
-public class SefSlowMotionVideoSampleTransformerTest {
+public class SefSlowMotionFlattenerTest {
 
   /**
    * Sequence of temporal SVC layers in an SEF slow motion video track with a maximum layer of 3.
@@ -56,10 +56,9 @@ public class SefSlowMotionVideoSampleTransformerTest {
         createSefSlowMotionFormat(
             captureFrameRate, inputMaxLayer, Arrays.asList(segment1, segment2));
 
-    SefSlowMotionVideoSampleTransformer sampleTransformer =
-        new SefSlowMotionVideoSampleTransformer(format);
+    SefSlowMotionFlattener sefSlowMotionFlattener = new SefSlowMotionFlattener(format);
     List<Integer> outputLayers =
-        getKeptOutputLayers(sampleTransformer, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
+        getKeptOutputLayers(sefSlowMotionFlattener, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
 
     List<Integer> expectedLayers = Arrays.asList(0, 0, 1, 0, 0, 1, 2, 3, 0, 3, 2, 3, 1, 3, 0);
     assertThat(outputLayers).isEqualTo(expectedLayers);
@@ -78,10 +77,9 @@ public class SefSlowMotionVideoSampleTransformerTest {
         createSefSlowMotionFormat(
             captureFrameRate, inputMaxLayer, Arrays.asList(segment1, segment2));
 
-    SefSlowMotionVideoSampleTransformer sampleTransformer =
-        new SefSlowMotionVideoSampleTransformer(format);
+    SefSlowMotionFlattener sefSlowMotionFlattener = new SefSlowMotionFlattener(format);
     List<Integer> outputLayers =
-        getKeptOutputLayers(sampleTransformer, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
+        getKeptOutputLayers(sefSlowMotionFlattener, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
 
     List<Integer> expectedLayers =
         Arrays.asList(0, 1, 0, 3, 2, 3, 1, 3, 2, 3, 0, 1, 0, 1, 2, 3, 0, 3, 2, 3, 1, 3, 0, 1);
@@ -101,10 +99,9 @@ public class SefSlowMotionVideoSampleTransformerTest {
         createSefSlowMotionFormat(
             captureFrameRate, inputMaxLayer, Arrays.asList(segment1, segment2));
 
-    SefSlowMotionVideoSampleTransformer sampleTransformer =
-        new SefSlowMotionVideoSampleTransformer(format);
+    SefSlowMotionFlattener sefSlowMotionFlattener = new SefSlowMotionFlattener(format);
     List<Integer> outputLayers =
-        getKeptOutputLayers(sampleTransformer, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
+        getKeptOutputLayers(sefSlowMotionFlattener, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
 
     List<Integer> expectedLayers = Arrays.asList(0, 0, 1, 0, 2, 3, 1, 3, 0);
     assertThat(outputLayers).isEqualTo(expectedLayers);
@@ -129,10 +126,9 @@ public class SefSlowMotionVideoSampleTransformerTest {
             inputMaxLayer,
             Arrays.asList(segmentWithNoFrame1, segmentWithNoFrame2, segmentWithFrame));
 
-    SefSlowMotionVideoSampleTransformer sampleTransformer =
-        new SefSlowMotionVideoSampleTransformer(format);
+    SefSlowMotionFlattener sefSlowMotionFlattener = new SefSlowMotionFlattener(format);
     List<Integer> outputLayers =
-        getKeptOutputLayers(sampleTransformer, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
+        getKeptOutputLayers(sefSlowMotionFlattener, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
 
     List<Integer> expectedLayers = Arrays.asList(0, 0, 1);
     assertThat(outputLayers).isEqualTo(expectedLayers);
@@ -153,10 +149,9 @@ public class SefSlowMotionVideoSampleTransformerTest {
         createSefSlowMotionFormat(
             captureFrameRate, inputMaxLayer, Arrays.asList(segment1, segment2));
 
-    SefSlowMotionVideoSampleTransformer sampleTransformer =
-        new SefSlowMotionVideoSampleTransformer(format);
+    SefSlowMotionFlattener sefSlowMotionFlattener = new SefSlowMotionFlattener(format);
     List<Long> outputTimesUs =
-        getOutputTimesUs(sampleTransformer, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
+        getOutputTimesUs(sefSlowMotionFlattener, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
 
     // Test frame inside segment.
     assertThat(outputTimesUs.get(9))
@@ -181,10 +176,9 @@ public class SefSlowMotionVideoSampleTransformerTest {
         createSefSlowMotionFormat(
             captureFrameRate, inputMaxLayer, Arrays.asList(segment1, segment2));
 
-    SefSlowMotionVideoSampleTransformer sampleTransformer =
-        new SefSlowMotionVideoSampleTransformer(format);
+    SefSlowMotionFlattener sefSlowMotionFlattener = new SefSlowMotionFlattener(format);
     List<Long> outputTimesUs =
-        getOutputTimesUs(sampleTransformer, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
+        getOutputTimesUs(sefSlowMotionFlattener, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
 
     // Test frame inside segment.
     assertThat(outputTimesUs.get(9))
@@ -209,10 +203,9 @@ public class SefSlowMotionVideoSampleTransformerTest {
         createSefSlowMotionFormat(
             captureFrameRate, inputMaxLayer, Arrays.asList(segment1, segment2));
 
-    SefSlowMotionVideoSampleTransformer sampleTransformer =
-        new SefSlowMotionVideoSampleTransformer(format);
+    SefSlowMotionFlattener sefSlowMotionFlattener = new SefSlowMotionFlattener(format);
     List<Long> outputTimesUs =
-        getOutputTimesUs(sampleTransformer, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
+        getOutputTimesUs(sefSlowMotionFlattener, LAYER_SEQUENCE_MAX_LAYER_THREE, frameCount);
 
     // Test frame inside second segment.
     assertThat(outputTimesUs.get(9)).isEqualTo(136_250);
@@ -249,20 +242,20 @@ public class SefSlowMotionVideoSampleTransformerTest {
 
   /**
    * Returns a list containing the temporal SVC layers of the frames that should be kept according
-   * to {@link SefSlowMotionVideoSampleTransformer#processCurrentFrame(int, long)}.
+   * to {@link SefSlowMotionFlattener#processCurrentFrame(int, long)}.
    *
-   * @param sampleTransformer The {@link SefSlowMotionVideoSampleTransformer}.
+   * @param sefSlowMotionFlattener The {@link SefSlowMotionFlattener}.
    * @param layerSequence The sequence of layer values in the input.
    * @param frameCount The number of video frames in the input.
    * @return The output layers.
    */
   private static List<Integer> getKeptOutputLayers(
-      SefSlowMotionVideoSampleTransformer sampleTransformer, int[] layerSequence, int frameCount) {
+      SefSlowMotionFlattener sefSlowMotionFlattener, int[] layerSequence, int frameCount) {
     List<Integer> outputLayers = new ArrayList<>();
     for (int i = 0; i < frameCount; i++) {
       int layer = layerSequence[i % layerSequence.length];
       long timeUs = i * C.MICROS_PER_SECOND / INPUT_FRAME_RATE;
-      if (sampleTransformer.processCurrentFrame(layer, timeUs)) {
+      if (sefSlowMotionFlattener.processCurrentFrame(layer, timeUs)) {
         outputLayers.add(layer);
       }
     }
@@ -271,24 +264,24 @@ public class SefSlowMotionVideoSampleTransformerTest {
 
   /**
    * Returns a list containing the frame output times obtained using {@link
-   * SefSlowMotionVideoSampleTransformer#getCurrentFrameOutputTimeUs(long)}.
+   * SefSlowMotionFlattener#getCurrentFrameOutputTimeUs(long)}.
    *
    * <p>The output contains the output times for all the input frames, regardless of whether they
    * should be kept or not.
    *
-   * @param sampleTransformer The {@link SefSlowMotionVideoSampleTransformer}.
+   * @param sefSlowMotionFlattener The {@link SefSlowMotionFlattener}.
    * @param layerSequence The sequence of layer values in the input.
    * @param frameCount The number of video frames in the input.
    * @return The frame output times, in microseconds.
    */
   private static List<Long> getOutputTimesUs(
-      SefSlowMotionVideoSampleTransformer sampleTransformer, int[] layerSequence, int frameCount) {
+      SefSlowMotionFlattener sefSlowMotionFlattener, int[] layerSequence, int frameCount) {
     List<Long> outputTimesUs = new ArrayList<>();
     for (int i = 0; i < frameCount; i++) {
       int layer = layerSequence[i % layerSequence.length];
       long inputTimeUs = i * C.MICROS_PER_SECOND / INPUT_FRAME_RATE;
-      sampleTransformer.processCurrentFrame(layer, inputTimeUs);
-      outputTimesUs.add(sampleTransformer.getCurrentFrameOutputTimeUs(inputTimeUs));
+      sefSlowMotionFlattener.processCurrentFrame(layer, inputTimeUs);
+      outputTimesUs.add(sefSlowMotionFlattener.getCurrentFrameOutputTimeUs(inputTimeUs));
     }
     return outputTimesUs;
   }

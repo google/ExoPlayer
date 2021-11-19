@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
 import androidx.annotation.Nullable;
@@ -127,7 +128,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     if (!muxerWrapper.writeSample(
         getTrackType(),
-        samplePipelineOutputBuffer.data,
+        checkStateNotNull(samplePipelineOutputBuffer.data),
         /* isKeyFrame= */ true,
         samplePipelineOutputBuffer.timeUs)) {
       return false;
@@ -152,11 +153,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int result = readSource(getFormatHolder(), samplePipelineInputBuffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
+        if (samplePipelineInputBuffer.isEndOfStream()) {
+          samplePipeline.queueInputBuffer();
+          return false;
+        }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
         samplePipelineInputBuffer.timeUs -= streamOffsetUs;
         samplePipelineInputBuffer.flip();
         samplePipeline.queueInputBuffer();
-        return !samplePipelineInputBuffer.isEndOfStream();
+        return true;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
       case C.RESULT_NOTHING_READ:
