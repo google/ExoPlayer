@@ -13,8 +13,8 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.16.0'
-    releaseVersionCode = 2016000
+    releaseVersion = '2.16.1'
+    releaseVersionCode = 2016001
     minSdkVersion = 16
     appTargetSdkVersion = 29
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
@@ -26,33 +26,32 @@ project.ext {
     // Use the same Guava version as the Android repo:
     // https://cs.android.com/android/platform/superproject/+/master:external/guava/METADATA
     guavaVersion = '27.1-android'
-    mockitoVersion = '3.4.0'
-    mockWebServerVersion = '3.12.0'
+    mockitoVersion = '3.12.4'
     robolectricVersion = '4.6.1'
     // Keep this in sync with Google's internal Checker Framework version.
-    checkerframeworkVersion = '3.5.0'
-    checkerframeworkCompatVersion = '2.5.0'
-    errorProneVersion = '2.9.0'
+    checkerframeworkVersion = '3.13.0'
+    checkerframeworkCompatVersion = '2.5.5'
+    errorProneVersion = '2.10.0'
     jsr305Version = '3.0.2'
-    kotlinAnnotationsVersion = '1.5.20'
-    androidxAnnotationVersion = '1.2.0'
-    androidxAppCompatVersion = '1.3.0'
+    kotlinAnnotationsVersion = '1.5.31'
+    androidxAnnotationVersion = '1.3.0'
+    androidxAppCompatVersion = '1.3.1'
     androidxCollectionVersion = '1.1.0'
-    androidxCoreVersion = '1.6.0'
+    androidxCoreVersion = '1.7.0'
     androidxFuturesVersion = '1.1.0'
     androidxMediaVersion = '1.4.3'
-    androidxMedia2Version = '1.1.3'
+    androidxMedia2Version = '1.2.0'
     androidxMultidexVersion = '2.0.1'
     androidxRecyclerViewVersion = '1.2.1'
-    androidxMaterialVersion = '1.3.0'
-    androidxTestCoreVersion = '1.3.0'
-    androidxTestJUnitVersion = '1.1.2'
-    androidxTestRunnerVersion = '1.3.0'
-    androidxTestRulesVersion = '1.3.0'
-    androidxTestServicesStorageVersion = '1.3.0'
-    androidxTestTruthVersion = '1.3.0'
+    androidxMaterialVersion = '1.4.0'
+    androidxTestCoreVersion = '1.4.0'
+    androidxTestJUnitVersion = '1.1.3'
+    androidxTestRunnerVersion = '1.4.0'
+    androidxTestRulesVersion = '1.4.0'
+    androidxTestServicesStorageVersion = '1.4.0'
+    androidxTestTruthVersion = '1.4.0'
     truthVersion = '1.1.3'
-    okhttpVersion = '4.9.1'
+    okhttpVersion = '4.9.2'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
         modulePrefix += gradle.ext.exoplayerModulePrefix

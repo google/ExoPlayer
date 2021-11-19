@@ -392,7 +392,6 @@ public class CastPlayerTest {
     assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
-  @SuppressWarnings("deprecation") // Verifies deprecated callback being called correctly.
   @Test
   public void setMediaItems_replaceExistingPlaylist_notifiesMediaItemTransition() {
     List<MediaItem> firstPlaylist = new ArrayList<>();

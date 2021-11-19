@@ -27,7 +27,7 @@ H264 and VP9 videos). They may even be of different types (e.g., it’s fine for
 playlist to contain both videos and audio only streams). It's allowed to use the
 same `MediaItem` multiple times within a playlist.
 
-## Modifying the playlist ##
+## Modifying the playlist
 
 It's possible to dynamically modify a playlist by adding, moving and removing
 media items. This can be done both before and during playback by calling the
@@ -63,13 +63,60 @@ currently playing `MediaItem` is removed, the player will automatically move to
 playing the first remaining successor, or transition to the ended state if no
 such successor exists.
 
-## Querying the playlist ##
+## Querying the playlist
 
 The playlist can be queried using `Player.getMediaItemCount` and
 `Player.getMediaItemAt`. The currently playing media item can be queried
-by calling `Player.getCurrentMediaItem`.
+by calling `Player.getCurrentMediaItem`. There are also other convenience
+methods like `Player.hasNextMediaItem` or `Player.getNextMediaItemIndex` to
+simplify navigation in the playlist.
 
-## Identifying playlist items ##
+## Repeat modes
+
+The player supports 3 repeat modes that can be set at any time with
+`Player.setRepeatMode`:
+
+* `Player.REPEAT_MODE_OFF`: The playlist isn't repeated and the player will
+   transition to `Player.STATE_ENDED` once the last item in the playlist has
+   been played.
+* `Player.REPEAT_MODE_ONE`: The current item is repeated in an endless loop.
+   Methods like `Player.seekToNextMediaItem` will ignore this and seek to the
+   next item in the list, which will then be repeated in an endless loop.
+* `Player.REPEAT_MODE_ALL`: The entire playlist is repeated in an endless loop.
+
+## Shuffle mode
+
+Shuffle mode can be enabled or disabled at any time with
+`Player.setShuffleModeEnabled`. When in shuffle mode, the player will play the
+playlist in a precomputed, randomized order. All items will be played once and
+the shuffle mode can also be combined with `Player.REPEAT_MODE_ALL` to repeat
+the same randomized order in an endless loop. When shuffle mode is turned off,
+playback continues from the current item at its original position in the
+playlist.
+
+Note that the indices as returned by methods like
+`Player.getCurrentMediaItemIndex` always refer to the original, unshuffled
+order. Similarly, `Player.seekToNextMediaItem` will not play the item at
+`player.getCurrentMediaItemIndex() + 1`, but the next item according to the
+shuffle order. Inserting new items in the playlist or removing items will keep
+the existing shuffled order unchanged as far as possible.
+
+### Setting a custom shuffle order
+
+By default the player supports shuffling by using the `DefaultShuffleOrder`.
+This can be customized by providing a custom shuffle order implementation, or by
+setting a custom order in the `DefaultShuffleOrder` constructor:
+
+~~~
+// Set a custom shuffle order for the 5 items currently in the playlist:
+exoPlayer.setShuffleOrder(
+    new DefaultShuffleOrder(new int[] {3, 1, 0, 4, 2}, randomSeed));
+// Enable shuffle mode.
+exoPlayer.setShuffleModeEnabled(/* shuffleModeEnabled= */ true);
+~~~
+{: .language-java}
+
+## Identifying playlist items
 
 To identify playlist items, `MediaItem.mediaId` can be set when building the
 item:
@@ -84,7 +131,7 @@ MediaItem mediaItem =
 If an app does not explicitly define a media ID for a media item, the string
 representation of the URI is used.
 
-## Associating app data with playlist items ##
+## Associating app data with playlist items
 
 In addition to an ID, each media item can also be configured with a custom tag,
 which can be any app provided object. One use of custom tags is to attach
@@ -98,7 +145,7 @@ MediaItem mediaItem =
 {: .language-java}
 
 
-## Detecting when playback transitions to another media item ##
+## Detecting when playback transitions to another media item
 
 When playback transitions to another media item, or starts repeating the same
 media item, `Listener.onMediaItemTransition(MediaItem,
@@ -132,7 +179,7 @@ public void onMediaItemTransition(
 ~~~
 {: .language-java}
 
-## Detecting when the playlist changes ##
+## Detecting when the playlist changes
 
 When a media item is added, removed or moved,
 `Listener.onTimelineChanged(Timeline, @TimelineChangeReason)` is called
@@ -158,19 +205,3 @@ timeline update include:
 
 * A manifest becoming available after preparing an adaptive media item.
 * A manifest being updated periodically during playback of a live stream.
-
-## Setting a custom shuffle order ##
-
-By default the playlist supports shuffling by using the `DefaultShuffleOrder`.
-This can be customized by providing a custom shuffle order implementation:
-
-~~~
-// Set the custom shuffle order.
-exoPlayer.setShuffleOrder(shuffleOrder);
-// Enable shuffle mode.
-exoPlayer.setShuffleModeEnabled(/* shuffleModeEnabled= */ true);
-~~~
-{: .language-java}
-
-If the repeat mode of the player is set to `REPEAT_MODE_ALL`, the custom shuffle
-order is played in an endless loop.

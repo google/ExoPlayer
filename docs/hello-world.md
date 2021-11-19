@@ -126,7 +126,7 @@ may result in unexpected or obscure errors. It will be removed in ExoPlayer
 2.16.
 {:.info}
 
-For more information about ExoPlayer's treading model, see the
+For more information about ExoPlayer's threading model, see the
 ["Threading model" section of the ExoPlayer Javadoc][].
 
 ## Attaching the player to a view ##

@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -39,10 +40,12 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -504,6 +507,57 @@ public abstract class DataSourceContractTest {
   }
 
   @Test
+  public void getResponseHeaders_noNullKeysOrValues() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        dataSource.open(new DataSpec(resource.getUri()));
+
+        Map<String, List<String>> responseHeaders = dataSource.getResponseHeaders();
+        assertThat(responseHeaders).doesNotContainKey(null);
+        assertThat(responseHeaders.values()).doesNotContain(null);
+        for (List<String> value : responseHeaders.values()) {
+          assertThat(value).doesNotContain(null);
+        }
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void getResponseHeaders_caseInsensitive() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        dataSource.open(new DataSpec(resource.getUri()));
+
+        Map<String, List<String>> responseHeaders = dataSource.getResponseHeaders();
+        for (String key : responseHeaders.keySet()) {
+          String caseFlippedKey = invertAsciiCaseOfEveryOtherCharacter(key);
+          assertWithMessage("key='%s', caseFlippedKey='%s'", key, caseFlippedKey)
+              .that(responseHeaders.get(caseFlippedKey))
+              .isEqualTo(responseHeaders.get(key));
+        }
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
   public void getResponseHeaders_isEmptyWhileNotOpen() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
@@ -545,6 +599,28 @@ public abstract class DataSourceContractTest {
       return "resource name: " + resources.get(i).getName();
     } else {
       return String.format("resource[%s]", i);
+    }
+  }
+
+  private static String invertAsciiCaseOfEveryOtherCharacter(String input) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < input.length(); i++) {
+      result.append(i % 2 == 0 ? invertAsciiCase(input.charAt(i)) : input.charAt(i));
+    }
+    return result.toString();
+  }
+
+  /**
+   * Returns {@code c} in the opposite case if it's an ASCII character, otherwise returns {@code c}
+   * unchanged.
+   */
+  private static char invertAsciiCase(char c) {
+    if (Ascii.isUpperCase(c)) {
+      return Ascii.toLowerCase(c);
+    } else if (Ascii.isLowerCase(c)) {
+      return Ascii.toUpperCase(c);
+    } else {
+      return c;
     }
   }
 

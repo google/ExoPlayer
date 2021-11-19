@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink.DefaultAudioProcessorChain;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.mediacodec.DefaultMediaCodecAdapterFactory;
+import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -187,6 +188,25 @@ public class DefaultRenderersFactory implements RenderersFactory {
   public DefaultRenderersFactory experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
       boolean enabled) {
     codecAdapterFactory.experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(enabled);
+    return this;
+  }
+
+  /**
+   * Enable calling {@link MediaCodec#start} immediately after {@link MediaCodec#flush} on the
+   * playback thread, when operating the codec in asynchronous mode. If disabled, {@link
+   * MediaCodec#start} will be called by the callback thread after pending callbacks are handled.
+   *
+   * <p>By default, this feature is disabled.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param enabled Whether {@link MediaCodec#start} will be called on the playback thread
+   *     immediately after {@link MediaCodec#flush}.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory experimentalSetImmediateCodecStartAfterFlushEnabled(
+      boolean enabled) {
+    codecAdapterFactory.experimentalSetImmediateCodecStartAfterFlushEnabled(enabled);
     return this;
   }
 
@@ -368,7 +388,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     MediaCodecVideoRenderer videoRenderer =
         new MediaCodecVideoRenderer(
             context,
-            codecAdapterFactory,
+            getCodecAdapterFactory(),
             mediaCodecSelector,
             allowedVideoJoiningTimeMs,
             enableDecoderFallback,
@@ -462,7 +482,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     MediaCodecAudioRenderer audioRenderer =
         new MediaCodecAudioRenderer(
             context,
-            codecAdapterFactory,
+            getCodecAdapterFactory(),
             mediaCodecSelector,
             enableDecoderFallback,
             eventHandler,
@@ -628,5 +648,13 @@ public class DefaultRenderersFactory implements RenderersFactory {
         enableOffload
             ? DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
             : DefaultAudioSink.OFFLOAD_MODE_DISABLED);
+  }
+
+  /**
+   * Returns the {@link MediaCodecAdapter.Factory} that will be used when creating {@link
+   * com.google.android.exoplayer2.mediacodec.MediaCodecRenderer} instances.
+   */
+  protected MediaCodecAdapter.Factory getCodecAdapterFactory() {
+    return codecAdapterFactory;
   }
 }

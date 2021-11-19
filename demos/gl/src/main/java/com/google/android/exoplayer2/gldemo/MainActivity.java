@@ -179,8 +179,7 @@ public final class MainActivity extends Activity {
     player.play();
     VideoProcessingGLSurfaceView videoProcessingGLSurfaceView =
         Assertions.checkNotNull(this.videoProcessingGLSurfaceView);
-    videoProcessingGLSurfaceView.setVideoComponent(
-        Assertions.checkNotNull(player.getVideoComponent()));
+    videoProcessingGLSurfaceView.setPlayer(player);
     Assertions.checkNotNull(playerView).setPlayer(player);
     player.addAnalyticsListener(new EventLogger(/* trackSelector= */ null));
     this.player = player;
@@ -188,9 +187,9 @@ public final class MainActivity extends Activity {
 
   private void releasePlayer() {
     Assertions.checkNotNull(playerView).setPlayer(null);
+    Assertions.checkNotNull(videoProcessingGLSurfaceView).setPlayer(null);
     if (player != null) {
       player.release();
-      Assertions.checkNotNull(videoProcessingGLSurfaceView).setVideoComponent(null);
       player = null;
     }
   }

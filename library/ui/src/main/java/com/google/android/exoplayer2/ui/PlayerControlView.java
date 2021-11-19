@@ -1222,7 +1222,6 @@ public class PlayerControlView extends FrameLayout {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
     if (state == Player.STATE_IDLE) {

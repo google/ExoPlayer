@@ -1087,7 +1087,10 @@ public interface Player {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
   @interface State {}
-  /** The player is idle, and must be {@link #prepare() prepared} before it will play the media. */
+  /**
+   * The player is idle, meaning it holds only limited resources. The player must be {@link
+   * #prepare() prepared} before it will play the media.
+   */
   int STATE_IDLE = 1;
   /**
    * The player is not able to immediately play the media, but is doing work toward being able to do
@@ -1669,7 +1672,12 @@ public interface Player {
    */
   Commands getAvailableCommands();
 
-  /** Prepares the player. */
+  /**
+   * Prepares the player.
+   *
+   * <p>This will move the player out of {@link #STATE_IDLE idle state} and the player will start
+   * loading media and acquire resources needed for playback.
+   */
   void prepare();
 
   /**
@@ -2001,12 +2009,13 @@ public interface Player {
   PlaybackParameters getPlaybackParameters();
 
   /**
-   * Stops playback without resetting the player. Use {@link #pause()} rather than this method if
+   * Stops playback without resetting the playlist. Use {@link #pause()} rather than this method if
    * the intention is to pause playback.
    *
-   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
-   * player instance can still be used, and {@link #release()} must still be called on the player if
-   * it's no longer required.
+   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE} and
+   * the player will release the loaded media and resources required for playback. The player
+   * instance can still be used by calling {@link #prepare()} again, and {@link #release()} must
+   * still be called on the player if it's no longer required.
    *
    * <p>Calling this method does not clear the playlist, reset the playback position or the playback
    * error.
@@ -2119,7 +2128,7 @@ public interface Player {
   /** Returns the index of the period currently being played. */
   int getCurrentPeriodIndex();
 
-  /** @deprecated Use {@link #getCurrentMediaItem()} instead. */
+  /** @deprecated Use {@link #getCurrentMediaItemIndex()} instead. */
   @Deprecated
   int getCurrentWindowIndex();
 
