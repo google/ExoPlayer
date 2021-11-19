@@ -122,7 +122,7 @@ import java.nio.ByteBuffer;
    * Attempts to write a sample to the muxer.
    *
    * @param trackType The {@link C.TrackType track type} of the sample.
-   * @param data The sample to write, or {@code null} if the sample is empty.
+   * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
@@ -133,10 +133,7 @@ import java.nio.ByteBuffer;
    *     track of the given track type.
    */
   public boolean writeSample(
-      @C.TrackType int trackType,
-      @Nullable ByteBuffer data,
-      boolean isKeyFrame,
-      long presentationTimeUs) {
+      @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
     int trackIndex = trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET);
     checkState(
         trackIndex != C.INDEX_UNSET,
@@ -144,8 +141,6 @@ import java.nio.ByteBuffer;
 
     if (!canWriteSampleOfType(trackType)) {
       return false;
-    } else if (data == null) {
-      return true;
     }
 
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);

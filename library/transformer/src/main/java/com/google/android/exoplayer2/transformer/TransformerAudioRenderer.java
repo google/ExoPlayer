@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -127,7 +128,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     if (!muxerWrapper.writeSample(
         getTrackType(),
-        samplePipelineOutputBuffer.data,
+        checkStateNotNull(samplePipelineOutputBuffer.data),
         /* isKeyFrame= */ true,
         samplePipelineOutputBuffer.timeUs)) {
       return false;
@@ -152,11 +153,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int result = readSource(getFormatHolder(), samplePipelineInputBuffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
+        if (samplePipelineInputBuffer.isEndOfStream()) {
+          samplePipeline.queueInputBuffer();
+          return false;
+        }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
         samplePipelineInputBuffer.timeUs -= streamOffsetUs;
         samplePipelineInputBuffer.flip();
         samplePipeline.queueInputBuffer();
-        return !samplePipelineInputBuffer.isEndOfStream();
+        return true;
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
       case C.RESULT_NOTHING_READ:
