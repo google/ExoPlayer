@@ -252,38 +252,12 @@ public final class TranscodingTransformer {
     }
 
     /**
-     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. Supported
-     * values are:
-     *
-     * <ul>
-     *   <li>{@link MimeTypes#VIDEO_MP4}
-     *   <li>{@link MimeTypes#VIDEO_WEBM} from API level 21
-     * </ul>
-     *
-     * @param outputMimeType The MIME type of the container.
-     * @return This builder.
-     * @deprecated Use {@link #setContainerMimeType} instead.
+     * @deprecated This feature will be removed in a following release and the MIME type of the
+     *     output will always be MP4.
      */
     @Deprecated
     public Builder setOutputMimeType(String outputMimeType) {
       this.containerMimeType = outputMimeType;
-      return this;
-    }
-
-    /**
-     * Sets the MIME type of the output container. The default value is {@link MimeTypes#VIDEO_MP4}.
-     * Supported values are:
-     *
-     * <ul>
-     *   <li>{@link MimeTypes#VIDEO_MP4}
-     *   <li>{@link MimeTypes#VIDEO_WEBM} from API level 21
-     * </ul>
-     *
-     * @param containerMimeType The MIME type of the container.
-     * @return This builder.
-     */
-    public Builder setContainerMimeType(String containerMimeType) {
-      this.containerMimeType = containerMimeType;
       return this;
     }
 
@@ -547,9 +521,9 @@ public final class TranscodingTransformer {
    *
    * <p>Concurrent transformations on the same TranscodingTransformer object are not allowed.
    *
-   * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
-   * audio streams are selected.
+   * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
+   * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
+   * bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
    *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
@@ -572,9 +546,9 @@ public final class TranscodingTransformer {
    *
    * <p>Concurrent transformations on the same TranscodingTransformer object are not allowed.
    *
-   * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
-   * audio streams are selected.
+   * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
+   * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
+   * bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
    *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
