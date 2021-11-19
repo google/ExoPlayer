@@ -28,6 +28,7 @@ import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -2233,6 +2234,7 @@ public final class DefaultAudioSink implements AudioSink {
   private static final class Api31 {
     private Api31() {}
 
+    @DoNotInline
     public static void setLogSessionIdOnAudioTrack(AudioTrack audioTrack, PlayerId playerId) {
       LogSessionId logSessionId = playerId.getLogSessionId();
       if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {

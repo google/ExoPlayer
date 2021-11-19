@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
 import androidx.annotation.CheckResult;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -2431,6 +2432,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static final class Api31 {
     private Api31() {}
 
+    @DoNotInline
     public static void setLogSessionIdToMediaCodecFormat(
         MediaCodecAdapter.Configuration codecConfiguration, PlayerId playerId) {
       LogSessionId logSessionId = playerId.getLogSessionId();

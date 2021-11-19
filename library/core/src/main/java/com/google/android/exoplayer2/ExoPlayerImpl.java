@@ -30,6 +30,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener;
@@ -1866,6 +1867,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private static final class Api31 {
     private Api31() {}
 
+    @DoNotInline
     public static PlayerId createPlayerId() {
       // TODO: Create a MediaMetricsListener and obtain LogSessionId from it.
       return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);

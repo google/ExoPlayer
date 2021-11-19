@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.mediaparser;
 import android.media.MediaFormat;
 import android.media.MediaParser;
 import android.media.metrics.LogSessionId;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.PlayerId;
@@ -76,6 +77,7 @@ public final class MediaParserUtil {
   private static final class Api31 {
     private Api31() {}
 
+    @DoNotInline
     public static void setLogSessionIdOnMediaParser(MediaParser mediaParser, PlayerId playerId) {
       LogSessionId logSessionId = playerId.getLogSessionId();
       if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {
