@@ -28,7 +28,6 @@ import androidx.media3.common.Player.TimelineChangeReason;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.ui.PlayerView;
 import androidx.media3.ui.StyledPlayerControlView;
 import androidx.media3.ui.StyledPlayerView;
 import com.google.android.gms.cast.framework.CastContext;
@@ -67,7 +66,7 @@ import java.util.ArrayList;
    *
    * @param context A {@link Context}.
    * @param listener A {@link Listener} for queue position changes.
-   * @param playerView The {@link PlayerView} for playback.
+   * @param playerView The {@link StyledPlayerView} for playback.
    * @param castContext The {@link CastContext}.
    */
   public PlayerManager(
