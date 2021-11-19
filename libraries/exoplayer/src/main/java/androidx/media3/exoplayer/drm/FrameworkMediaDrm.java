@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer.drm;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+
 import android.annotation.SuppressLint;
 import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
@@ -23,6 +25,7 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
+import android.media.metrics.LogSessionId;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 import androidx.annotation.DoNotInline;
@@ -37,6 +40,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.extractor.mp4.PsshAtomUtil;
 import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
@@ -183,6 +187,13 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   @Override
   public void closeSession(byte[] sessionId) {
     mediaDrm.closeSession(sessionId);
+  }
+
+  @Override
+  public void setPlayerIdForSession(byte[] sessionId, PlayerId playerId) {
+    if (Util.SDK_INT >= 31) {
+      Api31.setLogSessionIdOnMediaDrmSession(mediaDrm, sessionId, playerId);
+    }
   }
 
   // Return values of MediaDrm.KeyRequest.getRequestType are equal to KeyRequest.RequestType.
@@ -507,9 +518,22 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
 
   @RequiresApi(31)
   private static class Api31 {
+    private Api31() {}
+
     @DoNotInline
     public static boolean requiresSecureDecoder(MediaDrm mediaDrm, String mimeType) {
       return mediaDrm.requiresSecureDecoder(mimeType);
+    }
+
+    @DoNotInline
+    public static void setLogSessionIdOnMediaDrmSession(
+        MediaDrm mediaDrm, byte[] drmSessionId, PlayerId playerId) {
+      LogSessionId logSessionId = playerId.getLogSessionId();
+      if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {
+        MediaDrm.PlaybackComponent playbackComponent =
+            checkNotNull(mediaDrm.getPlaybackComponent(drmSessionId));
+        playbackComponent.setLogSessionId(logSessionId);
+      }
     }
   }
 }

@@ -38,6 +38,7 @@ import androidx.media3.common.util.CopyOnWriteMultiset;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoConfig;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.ExoMediaDrm.KeyRequest;
 import androidx.media3.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
 import androidx.media3.exoplayer.source.LoadEventInfo;
@@ -133,6 +134,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final HashMap<String, String> keyRequestParameters;
   private final CopyOnWriteMultiset<DrmSessionEventListener.EventDispatcher> eventDispatchers;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+  private final PlayerId playerId;
 
   /* package */ final MediaDrmCallback callback;
   /* package */ final UUID uuid;
@@ -182,7 +184,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       HashMap<String, String> keyRequestParameters,
       MediaDrmCallback callback,
       Looper playbackLooper,
-      LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      PlayerId playerId) {
     if (mode == DefaultDrmSessionManager.MODE_QUERY
         || mode == DefaultDrmSessionManager.MODE_RELEASE) {
       Assertions.checkNotNull(offlineLicenseKeySetId);
@@ -204,6 +207,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.callback = callback;
     this.eventDispatchers = new CopyOnWriteMultiset<>();
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    this.playerId = playerId;
     state = STATE_OPENING;
     responseHandler = new ResponseHandler(playbackLooper);
   }
@@ -370,6 +374,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     try {
       sessionId = mediaDrm.openSession();
+      mediaDrm.setPlayerIdForSession(sessionId, playerId);
       cryptoConfig = mediaDrm.createCryptoConfig(sessionId);
       state = STATE_OPENED;
       // Capture state into a local so a consistent value is seen by the lambda.

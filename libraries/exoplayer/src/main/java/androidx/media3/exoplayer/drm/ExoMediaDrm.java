@@ -29,6 +29,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData.SchemeData;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.CryptoConfig;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -396,6 +397,14 @@ public interface ExoMediaDrm {
    * @param sessionId The ID of the session to close.
    */
   void closeSession(byte[] sessionId);
+
+  /**
+   * Sets the {@link PlayerId} of the player using a session.
+   *
+   * @param sessionId The ID of the session.
+   * @param playerId The {@link PlayerId} of the player using the session.
+   */
+  default void setPlayerIdForSession(byte[] sessionId, PlayerId playerId) {}
 
   /**
    * Generates a key request.
