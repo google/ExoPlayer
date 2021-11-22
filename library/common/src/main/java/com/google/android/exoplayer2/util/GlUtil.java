@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -37,6 +38,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import javax.microedition.khronos.egl.EGL10;
 
 /** GL utilities. */
@@ -53,25 +56,20 @@ public final class GlUtil {
   /** Thrown when the required EGL version is not supported by the device. */
   public static final class UnsupportedEglVersionException extends Exception {}
 
-  /** GL program. */
+  /**
+   * Represents a GLSL shader program.
+   *
+   * <p>After constructing a program, keep a reference for its lifetime and call {@link #delete()}
+   * (or release the current GL context) when it's no longer needed.
+   */
   public static final class Program {
     /** The identifier of a compiled and linked GLSL shader program. */
     private final int programId;
 
-    /**
-     * Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.
-     *
-     * @param vertexShaderGlsl The vertex shader program.
-     * @param fragmentShaderGlsl The fragment shader program.
-     */
-    public Program(String vertexShaderGlsl, String fragmentShaderGlsl) {
-      programId = GLES20.glCreateProgram();
-      checkGlError();
-
-      // Add the vertex and fragment shaders.
-      addShader(GLES20.GL_VERTEX_SHADER, vertexShaderGlsl);
-      addShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderGlsl);
-    }
+    private final Attribute[] attributes;
+    private final Uniform[] uniforms;
+    private final Map<String, Attribute> attributeByName;
+    private final Map<String, Uniform> uniformByName;
 
     /**
      * Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.
@@ -86,9 +84,21 @@ public final class GlUtil {
       this(loadAsset(context, vertexShaderFilePath), loadAsset(context, fragmentShaderFilePath));
     }
 
-    /** Uses the program. */
-    public void use() {
-      // Link and check for errors.
+    /**
+     * Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.
+     *
+     * @param vertexShaderGlsl The vertex shader program.
+     * @param fragmentShaderGlsl The fragment shader program.
+     */
+    public Program(String vertexShaderGlsl, String fragmentShaderGlsl) {
+      programId = GLES20.glCreateProgram();
+      checkGlError();
+
+      // Add the vertex and fragment shaders.
+      addShader(programId, GLES20.GL_VERTEX_SHADER, vertexShaderGlsl);
+      addShader(programId, GLES20.GL_FRAGMENT_SHADER, fragmentShaderGlsl);
+
+      // Link and use the program, and enumerate attributes/uniforms.
       GLES20.glLinkProgram(programId);
       int[] linkStatus = new int[] {GLES20.GL_FALSE};
       GLES20.glGetProgramiv(programId, GLES20.GL_LINK_STATUS, linkStatus, 0);
@@ -96,14 +106,38 @@ public final class GlUtil {
         throwGlException(
             "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
       }
-      checkGlError();
-
       GLES20.glUseProgram(programId);
+      attributeByName = new HashMap<>();
+      int[] attributeCount = new int[1];
+      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, 0);
+      attributes = new Attribute[attributeCount[0]];
+      for (int i = 0; i < attributeCount[0]; i++) {
+        Attribute attribute = Attribute.create(programId, i);
+        attributes[i] = attribute;
+        attributeByName.put(attribute.name, attribute);
+      }
+      uniformByName = new HashMap<>();
+      int[] uniformCount = new int[1];
+      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORMS, uniformCount, 0);
+      uniforms = new Uniform[uniformCount[0]];
+      for (int i = 0; i < uniformCount[0]; i++) {
+        Uniform uniform = Uniform.create(programId, i);
+        uniforms[i] = uniform;
+        uniformByName.put(uniform.name, uniform);
+      }
+      checkGlError();
+    }
+
+    /** Uses the program. */
+    public void use() {
+      GLES20.glUseProgram(programId);
+      checkGlError();
     }
 
     /** Deletes the program. Deleted programs cannot be used again. */
     public void delete() {
       GLES20.glDeleteProgram(programId);
+      checkGlError();
     }
 
     /**
@@ -119,233 +153,44 @@ public final class GlUtil {
 
     /** Returns the location of an {@link Attribute}. */
     private int getAttributeLocation(String attributeName) {
-      return GLES20.glGetAttribLocation(programId, attributeName);
+      return GlUtil.getAttributeLocation(programId, attributeName);
     }
 
     /** Returns the location of a {@link Uniform}. */
     public int getUniformLocation(String uniformName) {
-      return GLES20.glGetUniformLocation(programId, uniformName);
+      return GlUtil.getUniformLocation(programId, uniformName);
     }
 
-    /** Returns the program's {@link Attribute}s. */
-    public Attribute[] getAttributes() {
-      int[] attributeCount = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, 0);
-      if (attributeCount[0] != 2) {
-        throw new IllegalStateException("Expected two attributes but found " + attributeCount[0]);
+    /** Sets a float buffer type attribute. */
+    public void setBufferAttribute(String name, float[] values, int size) {
+      checkNotNull(attributeByName.get(name)).setBuffer(values, size);
+    }
+
+    /** Sets a texture sampler type uniform. */
+    public void setSamplerTexIdUniform(String name, int texId, int unit) {
+      checkNotNull(uniformByName.get(name)).setSamplerTexId(texId, unit);
+    }
+
+    /** Sets a float type uniform. */
+    public void setFloatUniform(String name, float value) {
+      checkNotNull(uniformByName.get(name)).setFloat(value);
+    }
+
+    /** Sets a float array type uniform. */
+    public void setFloatsUniform(String name, float[] value) {
+      checkNotNull(uniformByName.get(name)).setFloats(value);
+    }
+
+    /** Binds all attributes and uniforms in the program. */
+    public void bindAttributesAndUniforms() {
+      for (Attribute attribute : attributes) {
+        attribute.bind();
       }
-
-      Attribute[] attributes = new Attribute[attributeCount[0]];
-      for (int i = 0; i < attributeCount[0]; i++) {
-        attributes[i] = createAttribute(i);
+      for (Uniform uniform : uniforms) {
+        uniform.bind();
       }
-      return attributes;
-    }
-
-    /** Returns the program's {@link Uniform}s. */
-    public Uniform[] getUniforms() {
-      int[] uniformCount = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORMS, uniformCount, 0);
-
-      Uniform[] uniforms = new Uniform[uniformCount[0]];
-      for (int i = 0; i < uniformCount[0]; i++) {
-        uniforms[i] = createUniform(i);
-      }
-
-      return uniforms;
-    }
-
-    private Attribute createAttribute(int index) {
-      int[] length = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, 0);
-
-      int[] type = new int[1];
-      int[] size = new int[1];
-      byte[] nameBytes = new byte[length[0]];
-      int[] ignore = new int[1];
-
-      GLES20.glGetActiveAttrib(
-          programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
-      String name = new String(nameBytes, 0, strlen(nameBytes));
-      int location = getAttributeLocation(name);
-
-      return new Attribute(name, index, location);
-    }
-
-    private Uniform createUniform(int index) {
-      int[] length = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, length, 0);
-
-      int[] type = new int[1];
-      int[] size = new int[1];
-      byte[] nameBytes = new byte[length[0]];
-      int[] ignore = new int[1];
-
-      GLES20.glGetActiveUniform(
-          programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
-      String name = new String(nameBytes, 0, strlen(nameBytes));
-      int location = getUniformLocation(name);
-
-      return new Uniform(name, location, type[0]);
-    }
-
-    private void addShader(int type, String glsl) {
-      int shader = GLES20.glCreateShader(type);
-      GLES20.glShaderSource(shader, glsl);
-      GLES20.glCompileShader(shader);
-
-      int[] result = new int[] {GLES20.GL_FALSE};
-      GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
-      if (result[0] != GLES20.GL_TRUE) {
-        throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
-      }
-
-      GLES20.glAttachShader(programId, shader);
-      GLES20.glDeleteShader(shader);
-      checkGlError();
     }
   }
-
-  /**
-   * GL attribute, which can be attached to a buffer with {@link Attribute#setBuffer(float[], int)}.
-   */
-  public static final class Attribute {
-
-    /** The name of the attribute in the GLSL sources. */
-    public final String name;
-
-    private final int index;
-    private final int location;
-
-    @Nullable private Buffer buffer;
-    private int size;
-
-    /* Creates a new Attribute. */
-    public Attribute(String name, int index, int location) {
-      this.name = name;
-      this.index = index;
-      this.location = location;
-    }
-
-    /**
-     * Configures {@link #bind()} to attach vertices in {@code buffer} (each of size {@code size}
-     * elements) to this {@link Attribute}.
-     *
-     * @param buffer Buffer to bind to this attribute.
-     * @param size Number of elements per vertex.
-     */
-    public void setBuffer(float[] buffer, int size) {
-      this.buffer = createBuffer(buffer);
-      this.size = size;
-    }
-
-    /**
-     * Sets the vertex attribute to whatever was attached via {@link #setBuffer(float[], int)}.
-     *
-     * <p>Should be called before each drawing call.
-     */
-    public void bind() {
-      Buffer buffer = Assertions.checkNotNull(this.buffer, "call setBuffer before bind");
-      GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-      GLES20.glVertexAttribPointer(
-          location,
-          size, // count
-          GLES20.GL_FLOAT, // type
-          false, // normalize
-          0, // stride
-          buffer);
-      GLES20.glEnableVertexAttribArray(index);
-      checkGlError();
-    }
-  }
-
-  /**
-   * GL uniform, which can be attached to a sampler using {@link Uniform#setSamplerTexId(int, int)}.
-   */
-  public static final class Uniform {
-
-    /** The name of the uniform in the GLSL sources. */
-    public final String name;
-
-    private final int location;
-    private final int type;
-    private final float[] value;
-
-    private int texId;
-    private int unit;
-
-    /** Creates a new uniform. */
-    public Uniform(String name, int location, int type) {
-      this.name = name;
-      this.location = location;
-      this.type = type;
-      this.value = new float[16];
-    }
-
-    /**
-     * Configures {@link #bind()} to use the specified {@code texId} for this sampler uniform.
-     *
-     * @param texId The GL texture identifier from which to sample.
-     * @param unit The GL texture unit index.
-     */
-    public void setSamplerTexId(int texId, int unit) {
-      this.texId = texId;
-      this.unit = unit;
-    }
-
-    /** Configures {@link #bind()} to use the specified float {@code value} for this uniform. */
-    public void setFloat(float value) {
-      this.value[0] = value;
-    }
-
-    /** Configures {@link #bind()} to use the specified float[] {@code value} for this uniform. */
-    public void setFloats(float[] value) {
-      System.arraycopy(value, 0, this.value, 0, value.length);
-    }
-
-    /**
-     * Sets the uniform to whatever value was passed via {@link #setSamplerTexId(int, int)}, {@link
-     * #setFloat(float)} or {@link #setFloats(float[])}.
-     *
-     * <p>Should be called before each drawing call.
-     */
-    public void bind() {
-      if (type == GLES20.GL_FLOAT) {
-        GLES20.glUniform1fv(location, 1, value, 0);
-        checkGlError();
-        return;
-      }
-
-      if (type == GLES20.GL_FLOAT_MAT4) {
-        GLES20.glUniformMatrix4fv(location, 1, false, value, 0);
-        checkGlError();
-        return;
-      }
-
-      if (texId == 0) {
-        throw new IllegalStateException("Call setSamplerTexId before bind.");
-      }
-      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
-      if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES) {
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
-      } else if (type == GLES20.GL_SAMPLER_2D) {
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId);
-      } else {
-        throw new IllegalStateException("Unexpected uniform type: " + type);
-      }
-      GLES20.glUniform1i(location, unit);
-      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-      GLES20.glTexParameteri(
-          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-      GLES20.glTexParameteri(
-          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-      checkGlError();
-    }
-  }
-
-  /** Represents an unset texture ID. */
-  public static final int TEXTURE_ID_UNSET = -1;
 
   /** Whether to throw a {@link GlException} in case of an OpenGL error. */
   public static boolean glAssertionsEnabled = false;
@@ -531,6 +376,30 @@ public final class GlUtil {
     return texId[0];
   }
 
+  private static void addShader(int programId, int type, String glsl) {
+    int shader = GLES20.glCreateShader(type);
+    GLES20.glShaderSource(shader, glsl);
+    GLES20.glCompileShader(shader);
+
+    int[] result = new int[] {GLES20.GL_FALSE};
+    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
+    if (result[0] != GLES20.GL_TRUE) {
+      throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
+    }
+
+    GLES20.glAttachShader(programId, shader);
+    GLES20.glDeleteShader(shader);
+    checkGlError();
+  }
+
+  private static int getAttributeLocation(int programId, String attributeName) {
+    return GLES20.glGetAttribLocation(programId, attributeName);
+  }
+
+  private static int getUniformLocation(int programId, String uniformName) {
+    return GLES20.glGetUniformLocation(programId, uniformName);
+  }
+
   private static void throwGlException(String errorMsg) {
     Log.e(TAG, errorMsg);
     if (glAssertionsEnabled) {
@@ -552,6 +421,178 @@ public final class GlUtil {
       }
     }
     return strVal.length;
+  }
+
+  /**
+   * GL attribute, which can be attached to a buffer with {@link Attribute#setBuffer(float[], int)}.
+   */
+  private static final class Attribute {
+
+    /* Returns the attribute at the given index in the program. */
+    public static Attribute create(int programId, int index) {
+      int[] length = new int[1];
+      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, 0);
+
+      int[] type = new int[1];
+      int[] size = new int[1];
+      byte[] nameBytes = new byte[length[0]];
+      int[] ignore = new int[1];
+
+      GLES20.glGetActiveAttrib(
+          programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
+      String name = new String(nameBytes, 0, strlen(nameBytes));
+      int location = getAttributeLocation(programId, name);
+
+      return new Attribute(name, index, location);
+    }
+
+    /** The name of the attribute in the GLSL sources. */
+    public final String name;
+
+    private final int index;
+    private final int location;
+
+    @Nullable private Buffer buffer;
+    private int size;
+
+    private Attribute(String name, int index, int location) {
+      this.name = name;
+      this.index = index;
+      this.location = location;
+    }
+
+    /**
+     * Configures {@link #bind()} to attach vertices in {@code buffer} (each of size {@code size}
+     * elements) to this {@link Attribute}.
+     *
+     * @param buffer Buffer to bind to this attribute.
+     * @param size Number of elements per vertex.
+     */
+    public void setBuffer(float[] buffer, int size) {
+      this.buffer = createBuffer(buffer);
+      this.size = size;
+    }
+
+    /**
+     * Sets the vertex attribute to whatever was attached via {@link #setBuffer(float[], int)}.
+     *
+     * <p>Should be called before each drawing call.
+     */
+    public void bind() {
+      Buffer buffer = checkNotNull(this.buffer, "call setBuffer before bind");
+      GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+      GLES20.glVertexAttribPointer(
+          location,
+          size, // count
+          GLES20.GL_FLOAT, // type
+          false, // normalize
+          0, // stride
+          buffer);
+      GLES20.glEnableVertexAttribArray(index);
+      checkGlError();
+    }
+  }
+
+  /**
+   * GL uniform, which can be attached to a sampler using {@link Uniform#setSamplerTexId(int, int)}.
+   */
+  private static final class Uniform {
+
+    /** Returns the uniform at the given index in the program. */
+    public static Uniform create(int programId, int index) {
+      int[] length = new int[1];
+      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, length, 0);
+
+      int[] type = new int[1];
+      int[] size = new int[1];
+      byte[] nameBytes = new byte[length[0]];
+      int[] ignore = new int[1];
+
+      GLES20.glGetActiveUniform(
+          programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
+      String name = new String(nameBytes, 0, strlen(nameBytes));
+      int location = getUniformLocation(programId, name);
+
+      return new Uniform(name, location, type[0]);
+    }
+
+    /** The name of the uniform in the GLSL sources. */
+    public final String name;
+
+    private final int location;
+    private final int type;
+    private final float[] value;
+
+    private int texId;
+    private int unit;
+
+    private Uniform(String name, int location, int type) {
+      this.name = name;
+      this.location = location;
+      this.type = type;
+      this.value = new float[16];
+    }
+
+    /**
+     * Configures {@link #bind()} to use the specified {@code texId} for this sampler uniform.
+     *
+     * @param texId The GL texture identifier from which to sample.
+     * @param unit The GL texture unit index.
+     */
+    public void setSamplerTexId(int texId, int unit) {
+      this.texId = texId;
+      this.unit = unit;
+    }
+
+    /** Configures {@link #bind()} to use the specified float {@code value} for this uniform. */
+    public void setFloat(float value) {
+      this.value[0] = value;
+    }
+
+    /** Configures {@link #bind()} to use the specified float[] {@code value} for this uniform. */
+    public void setFloats(float[] value) {
+      System.arraycopy(value, 0, this.value, 0, value.length);
+    }
+
+    /**
+     * Sets the uniform to whatever value was passed via {@link #setSamplerTexId(int, int)}, {@link
+     * #setFloat(float)} or {@link #setFloats(float[])}.
+     *
+     * <p>Should be called before each drawing call.
+     */
+    public void bind() {
+      if (type == GLES20.GL_FLOAT) {
+        GLES20.glUniform1fv(location, 1, value, 0);
+        checkGlError();
+        return;
+      }
+
+      if (type == GLES20.GL_FLOAT_MAT4) {
+        GLES20.glUniformMatrix4fv(location, 1, false, value, 0);
+        checkGlError();
+        return;
+      }
+
+      if (texId == 0) {
+        throw new IllegalStateException("Call setSamplerTexId before bind.");
+      }
+      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
+      if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES) {
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
+      } else if (type == GLES20.GL_SAMPLER_2D) {
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId);
+      } else {
+        throw new IllegalStateException("Unexpected uniform type: " + type);
+      }
+      GLES20.glUniform1i(location, unit);
+      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+      GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+      GLES20.glTexParameteri(
+          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+      GLES20.glTexParameteri(
+          GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+      checkGlError();
+    }
   }
 
   @RequiresApi(17)

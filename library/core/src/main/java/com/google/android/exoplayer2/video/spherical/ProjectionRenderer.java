@@ -114,7 +114,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Initializes of the GL components. */
-  /* package */ void init() {
+  public void init() {
     program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
     mvpMatrixHandle = program.getUniformLocation("uMvpMatrix");
     uTexMatrixHandle = program.getUniformLocation("uTexMatrix");
@@ -132,7 +132,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param rightEye Whether the right eye view should be drawn. If {@code false}, the left eye view
    *     is drawn.
    */
-  /* package */ void draw(int textureId, float[] mvpMatrix, boolean rightEye) {
+  public void draw(int textureId, float[] mvpMatrix, boolean rightEye) {
     MeshData meshData = rightEye ? rightMeshData : leftMeshData;
     if (meshData == null) {
       return;
@@ -188,7 +188,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Cleans up GL resources. */
-  /* package */ void shutdown() {
+  public void shutdown() {
     if (program != null) {
       program.delete();
     }
