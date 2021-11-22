@@ -45,7 +45,8 @@ import java.io.IOException;
 
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
-  String TAG = "RtspMediaSource.java";
+
+  String TAG = Constants.TAG + " RtspMediaSource.java";
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.rtsp");
   }
@@ -74,9 +75,10 @@ public final class RtspMediaSource extends BaseMediaSource {
     private boolean debugLoggingEnabled;
 
     public Factory() {
+      Log.i(TAG,"Entered : MediaSourceFactory Constructor");
       timeoutMs = DEFAULT_TIMEOUT_MS;
       userAgent = ExoPlayerLibraryInfo.VERSION_SLASHY;
-      Log.i(TAG,"Entered : MediaSourceFactory Constructor");
+
     }
 
     /**
@@ -200,7 +202,10 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     @Override
     public RtspMediaSource createMediaSource(MediaItem mediaItem) { // remove tcp and remove timeout
-      Log.i(TAG,"CreateMediaSource. MediaItem  = " + mediaItem);
+      Log.i(TAG,"CreateMediaSource. MediaItem  = " + mediaItem); // TODO: why doesn't this log print?
+      Log.i(TAG," forceUseRtpTcp = " + forceUseRtpTcp); // TODO: why doesn't this log print?
+      Log.i(TAG," userAgent = " + userAgent); // TODO: why doesn't this log print?
+      Log.i(TAG," debugLoggingEnabled = " + debugLoggingEnabled); // TODO: why doesn't this log print?
       checkNotNull(mediaItem.localConfiguration);
       return new RtspMediaSource(
           mediaItem,

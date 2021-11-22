@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.min;
 
 import android.net.Uri;
+import android.provider.SyncStateContract;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -33,8 +34,7 @@ import java.net.SocketTimeoutException;
 
 /** A UDP {@link DataSource}. */
 public final class UdpDataSource extends BaseDataSource {
-  String TAG = "UdpDataSource.java";
-
+  String TAG = Constants.TAG + " UdpDataSource.java";
 
   /** Thrown when an error is encountered when trying to read from a {@link UdpDataSource}. */
   public static final class UdpDataSourceException extends DataSourceException {

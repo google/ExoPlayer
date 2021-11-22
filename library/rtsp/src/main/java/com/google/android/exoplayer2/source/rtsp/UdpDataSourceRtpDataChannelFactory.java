@@ -26,7 +26,7 @@ import java.io.IOException;
 /* package */ final class UdpDataSourceRtpDataChannelFactory implements RtpDataChannel.Factory {
 
   private final long socketTimeoutMs;
-  String TAG = "UdpDataSourceRtpDataChannelFactory.java";
+  String TAG = Constants.TAG+ " UdpDataSourceRtpDataChannelFactory.java";
   /**
    * Creates a new instance.
    *

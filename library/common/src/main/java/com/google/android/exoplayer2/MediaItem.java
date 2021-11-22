@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -42,8 +43,7 @@ import java.util.UUID;
 /** Representation of a media item. */
 public final class MediaItem implements Bundleable {
 
-  private static String TAG = "MediaItem.java";
-
+  private static String TAG = Constants.TAG + " MediaItem.java";
   /**
    * Creates a {@link MediaItem} for the given URI.
    *
@@ -51,7 +51,7 @@ public final class MediaItem implements Bundleable {
    * @return An {@link MediaItem} for the given URI.
    */
   public static MediaItem fromUri(String uri) {
-    Log.i( TAG, "Entered Creation of new MediaItem from Uri"+new MediaItem.Builder().setUri(uri).build() );
+    Log.i( TAG, "Entered Creation of new MediaItem from STRING Uri "+ (new MediaItem.Builder().setUri(uri).build()) );
     return new MediaItem.Builder().setUri(uri).build();
   }
 
@@ -62,7 +62,7 @@ public final class MediaItem implements Bundleable {
    * @return An {@link MediaItem} for the given URI.
    */
   public static MediaItem fromUri(Uri uri) {
-    Log.i(TAG, "Entered Creation of new MediaItem from Uri"+new MediaItem.Builder().setUri(uri).build() );
+    Log.i(TAG, "Entered Creation of new MediaItem from Uri   : "+new MediaItem.Builder().setUri(uri).build() );
     return new MediaItem.Builder().setUri(uri).build();
   }
 

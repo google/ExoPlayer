@@ -16,7 +16,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 
 public class MainActivity extends AppCompatActivity {
   String url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov";
-  String TAG = "MainActivity.java";
+  String TAG =  Constants.TAG + " MainActivity.java";
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -28,9 +28,10 @@ public class MainActivity extends AppCompatActivity {
 
     ExoPlayer player = new ExoPlayer.Builder(this).build();
     Log.i(TAG,"Finished creation of new Exoplayer");
-    MediaSource mediaSource =
-        new RtspMediaSource.Factory()
-            .createMediaSource(MediaItem.fromUri(Uri.parse(url))); // UDPdatsource Directory
+
+    MediaItem item = MediaItem.fromUri(Uri.parse(url));
+    Log.i(TAG,"START : Create a new MediaSource using RtspMediaSource.Factory()");
+    MediaSource mediaSource = new RtspMediaSource.Factory().createMediaSource(item); // UDPdatsource Directory
     Log.i(TAG,"Finished creation of mediaSource");
 
     player.setMediaSource(mediaSource);

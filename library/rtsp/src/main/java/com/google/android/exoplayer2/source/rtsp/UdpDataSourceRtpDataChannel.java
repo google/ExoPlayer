@@ -32,7 +32,7 @@ import java.io.IOException;
 
 /** An {@link RtpDataChannel} for UDP transport. */
 /* package */ final class UdpDataSourceRtpDataChannel implements RtpDataChannel {
-  String TAG = "UdpDataSourceRtpDataChannel.java";
+  String TAG =  Constants.TAG+ " UdpDataSourceRtpDataChannel.java";
 
   private static final String DEFAULT_UDP_TRANSPORT_FORMAT = "RTP/AVP;unicast;client_port=%d-%d";
 
