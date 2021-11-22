@@ -26,9 +26,9 @@ import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.util.Util;
 
 /** A static utility class with methods to work with server-side inserted ads. */
-public final class ServerSideInsertedAdsUtil {
+public final class ServerSideAdInsertionUtil {
 
-  private ServerSideInsertedAdsUtil() {}
+  private ServerSideAdInsertionUtil() {}
 
   /**
    * Adds a new server-side inserted ad group to an {@link AdPlaybackState}.

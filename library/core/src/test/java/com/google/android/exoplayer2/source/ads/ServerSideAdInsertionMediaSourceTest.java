@@ -19,7 +19,7 @@ import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainL
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilPosition;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
-import static com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsUtil.addAdGroupToAdPlaybackState;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -54,9 +54,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link ServerSideInsertedAdsMediaSource}. */
+/** Unit test for {@link ServerSideAdInsertionMediaSource}. */
 @RunWith(AndroidJUnit4.class)
-public final class ServerSideInsertedAdMediaSourceTest {
+public final class ServerSideAdInsertionMediaSourceTest {
 
   @Rule
   public ShadowMediaCodecConfig mediaCodecConfig =
@@ -80,8 +80,8 @@ public final class ServerSideInsertedAdMediaSourceTest {
                 /* defaultPositionUs= */ 3_000_000,
                 /* windowOffsetInFirstPeriodUs= */ 42_000_000L,
                 AdPlaybackState.NONE));
-    ServerSideInsertedAdsMediaSource mediaSource =
-        new ServerSideInsertedAdsMediaSource(new FakeMediaSource(wrappedTimeline));
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(new FakeMediaSource(wrappedTimeline));
     // Test with one ad group before the window, and the window starting within the second ad group.
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(
@@ -152,8 +152,8 @@ public final class ServerSideInsertedAdMediaSourceTest {
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
-    ServerSideInsertedAdsMediaSource mediaSource =
-        new ServerSideInsertedAdsMediaSource(
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context)
                 .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
@@ -211,8 +211,8 @@ public final class ServerSideInsertedAdMediaSourceTest {
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
-    ServerSideInsertedAdsMediaSource mediaSource =
-        new ServerSideInsertedAdsMediaSource(
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context)
                 .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
@@ -271,8 +271,8 @@ public final class ServerSideInsertedAdMediaSourceTest {
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
-    ServerSideInsertedAdsMediaSource mediaSource =
-        new ServerSideInsertedAdsMediaSource(
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context)
                 .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
@@ -325,8 +325,8 @@ public final class ServerSideInsertedAdMediaSourceTest {
         new ExoPlayer.Builder(context).setClock(new FakeClock(/* isAutoAdvancing= */ true)).build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
 
-    ServerSideInsertedAdsMediaSource mediaSource =
-        new ServerSideInsertedAdsMediaSource(
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context)
                 .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());

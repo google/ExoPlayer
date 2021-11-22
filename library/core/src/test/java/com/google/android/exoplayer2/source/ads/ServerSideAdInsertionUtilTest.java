@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.source.ads;
 
-import static com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsUtil.addAdGroupToAdPlaybackState;
-import static com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsUtil.getAdCountInGroup;
-import static com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsUtil.getMediaPeriodPositionUsForAd;
-import static com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsUtil.getMediaPeriodPositionUsForContent;
-import static com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsUtil.getStreamPositionUsForAd;
-import static com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsUtil.getStreamPositionUsForContent;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getAdCountInGroup;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForAd;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForContent;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getStreamPositionUsForAd;
+import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getStreamPositionUsForContent;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -28,9 +28,9 @@ import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link ServerSideInsertedAdsUtil}. */
+/** Unit tests for {@link ServerSideAdInsertionUtil}. */
 @RunWith(AndroidJUnit4.class)
-public final class ServerSideInsertedAdsUtilTest {
+public final class ServerSideAdInsertionUtilTest {
 
   private static final Object ADS_ID = new Object();
 
