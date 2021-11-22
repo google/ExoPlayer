@@ -41,6 +41,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
@@ -582,6 +583,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // mark the playlist as failing.
     return chunkSource.onPlaylistError(playlistUrl, exclusionDurationMs)
         && exclusionDurationMs != C.TIME_UNSET;
+  }
+
+  /** Returns whether the primary sample stream is {@link C#TRACK_TYPE_VIDEO}. */
+  public boolean isVideoSampleStream() {
+    return primarySampleQueueType == C.TRACK_TYPE_VIDEO;
+  }
+
+  /**
+   * Adjusts a seek position given the specified {@link SeekParameters}.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed.
+   * @return The adjusted seek position, in microseconds.
+   */
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    return chunkSource.getAdjustedSeekPositionUs(positionUs, seekParameters);
   }
 
   // SampleStream implementation.
