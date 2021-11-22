@@ -19,10 +19,11 @@ import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
-import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,26 +40,82 @@ public final class RepeatedTranscodeTransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder()
-            .setVideoMimeType(MimeTypes.VIDEO_H265)
             .setContext(context)
+            .setVideoMimeType(MimeTypes.VIDEO_H265)
+            .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
             .build();
 
-    long previousOutputSizeBytes = C.LENGTH_UNSET;
+    Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      long outputSizeBytes =
+      differentOutputSizesBytes.add(
           runTransformer(
                   context,
                   transformer,
                   AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
                   /* timeoutSeconds= */ 120)
-              .outputSizeBytes;
-      if (previousOutputSizeBytes != C.LENGTH_UNSET) {
-        assertWithMessage("Unexpected output size on transcode " + i + " out of " + TRANSCODE_COUNT)
-            .that(outputSizeBytes)
-            .isEqualTo(previousOutputSizeBytes);
-      }
-      previousOutputSizeBytes = outputSizeBytes;
+              .outputSizeBytes);
     }
+
+    assertWithMessage(
+            "Different transcoding output sizes detected. Sizes: " + differentOutputSizesBytes)
+        .that(differentOutputSizesBytes.size())
+        .isEqualTo(1);
+  }
+
+  @Test
+  public void repeatedTranscodeNoAudio_givesConsistentLengthOutput() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setVideoMimeType(MimeTypes.VIDEO_H265)
+            .setRemoveAudio(true)
+            .build();
+
+    Set<Long> differentOutputSizesBytes = new HashSet<>();
+    for (int i = 0; i < TRANSCODE_COUNT; i++) {
+      // Use a long video in case an error occurs a while after the start of the video.
+      differentOutputSizesBytes.add(
+          runTransformer(
+                  context,
+                  transformer,
+                  AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
+                  /* timeoutSeconds= */ 120)
+              .outputSizeBytes);
+    }
+
+    assertWithMessage(
+            "Different transcoding output sizes detected. Sizes: " + differentOutputSizesBytes)
+        .that(differentOutputSizesBytes.size())
+        .isEqualTo(1);
+  }
+
+  @Test
+  public void repeatedTranscodeNoVideo_givesConsistentLengthOutput() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transcodingTransformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
+            .setRemoveVideo(true)
+            .build();
+
+    Set<Long> differentOutputSizesBytes = new HashSet<>();
+    for (int i = 0; i < TRANSCODE_COUNT; i++) {
+      // Use a long video in case an error occurs a while after the start of the video.
+      differentOutputSizesBytes.add(
+          runTransformer(
+                  context,
+                  transcodingTransformer,
+                  AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
+                  /* timeoutSeconds= */ 120)
+              .outputSizeBytes);
+    }
+
+    assertWithMessage(
+            "Different transcoding output sizes detected. Sizes: " + differentOutputSizesBytes)
+        .that(differentOutputSizesBytes.size())
+        .isEqualTo(1);
   }
 }
