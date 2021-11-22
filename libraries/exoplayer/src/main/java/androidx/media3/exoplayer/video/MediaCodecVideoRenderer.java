@@ -1697,7 +1697,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // https://github.com/google/ExoPlayer/issues/6899.
       // https://github.com/google/ExoPlayer/issues/8014.
       // https://github.com/google/ExoPlayer/issues/8329.
+      // https://github.com/google/ExoPlayer/issues/9710.
       switch (Util.DEVICE) {
+        case "aquaman":
         case "dangal":
         case "dangalUHD":
         case "dangalFHD":
