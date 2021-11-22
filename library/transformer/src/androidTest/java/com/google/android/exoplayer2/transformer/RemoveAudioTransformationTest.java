@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
@@ -32,6 +32,6 @@ public class RemoveAudioTransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder().setContext(context).setRemoveAudio(true).build();
-    runTransformer(context, transformer, MP4_ASSET_URI);
+    runTransformer(context, transformer, MP4_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
   }
 }

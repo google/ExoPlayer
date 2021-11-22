@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.content.Context;
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -29,8 +32,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Utilities for instrumentation tests. */
 /* package */ final class AndroidTestUtil {
-  public static final String MP4_ASSET_URI = "asset:///media/mp4/sample.mp4";
-  public static final String SEF_ASSET_URI = "asset:///media/mp4/sample_sef_slow_motion.mp4";
+  public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
+  public static final String SEF_ASSET_URI_STRING = "asset:///media/mp4/sample_sef_slow_motion.mp4";
   public static final String REMOTE_MP4_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
 
@@ -43,9 +46,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  /** Transforms the {@code uriString} with the {@link Transformer}. */
+  /**
+   * Transforms the {@code uriString} with the {@link Transformer}.
+   *
+   * @param context The {@link Context}.
+   * @param transformer The {@link Transformer} that performs the transformation.
+   * @param uriString The uri (as a {@link String}) that will be transformed.
+   * @param timeoutSeconds The transformer timeout. An assertion confirms this is not exceeded.
+   * @return The {@link TransformationResult}.
+   * @throws Exception The cause of the transformation not completing.
+   */
   public static TransformationResult runTransformer(
-      Context context, Transformer transformer, String uriString) throws Exception {
+      Context context, Transformer transformer, String uriString, int timeoutSeconds)
+      throws Exception {
     AtomicReference<@NullableType Exception> exceptionReference = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
 
@@ -80,7 +93,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   exceptionReference.set(e);
                 }
               });
-      countDownLatch.await();
+
+      assertWithMessage("Transformer timed out after " + timeoutSeconds + " seconds.")
+          .that(countDownLatch.await(timeoutSeconds, SECONDS))
+          .isTrue();
       @Nullable Exception exception = exceptionReference.get();
       if (exception != null) {
         throw exception;

@@ -47,7 +47,11 @@ public final class RepeatedTranscodeTransformationTest {
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
       long outputSizeBytes =
-          runTransformer(context, transformer, AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING)
+          runTransformer(
+                  context,
+                  transformer,
+                  AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
+                  /* timeoutSeconds= */ 120)
               .outputSizeBytes;
       if (previousOutputSizeBytes != C.LENGTH_UNSET) {
         assertWithMessage("Unexpected output size on transcode " + i + " out of " + TRANSCODE_COUNT)
