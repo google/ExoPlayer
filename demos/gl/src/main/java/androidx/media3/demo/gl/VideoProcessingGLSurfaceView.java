@@ -64,6 +64,9 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
      * @param transformMatrix The 4 * 4 transform matrix to be applied to the texture.
      */
     void draw(int frameTexture, long frameTimestampUs, float[] transformMatrix);
+
+    /** Releases any resources associated with this {@link VideoProcessor}. */
+    void release();
   }
 
   private static final int EGL_PROTECTED_CONTENT_EXT = 0x32C0;

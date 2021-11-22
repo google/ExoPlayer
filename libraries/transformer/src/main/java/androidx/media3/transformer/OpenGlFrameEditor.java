@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.media3.transformer;
-
-import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -31,7 +27,6 @@ import android.view.Surface;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * OpenGlFrameEditor applies changes to individual video frames using OpenGL. Changes include just
@@ -67,73 +62,38 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int textureId = GlUtil.createExternalTexture();
     GlUtil.Program copyProgram;
     try {
+      // TODO(internal b/205002913): check the loaded program is consistent with the attributes
+      // and uniforms expected in the code.
       copyProgram = new GlUtil.Program(context, VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-
-    copyProgram.use();
-    GlUtil.Attribute[] copyAttributes = copyProgram.getAttributes();
-    checkState(
-        copyAttributes.length == EXPECTED_NUMBER_OF_ATTRIBUTES,
-        "Expected program to have " + EXPECTED_NUMBER_OF_ATTRIBUTES + " vertex attributes.");
-    for (GlUtil.Attribute copyAttribute : copyAttributes) {
-      if (copyAttribute.name.equals("a_position")) {
-        copyAttribute.setBuffer(
-            new float[] {
-              -1.0f, -1.0f, 0.0f, 1.0f,
-              1.0f, -1.0f, 0.0f, 1.0f,
-              -1.0f, 1.0f, 0.0f, 1.0f,
-              1.0f, 1.0f, 0.0f, 1.0f,
-            },
-            /* size= */ 4);
-      } else if (copyAttribute.name.equals("a_texcoord")) {
-        copyAttribute.setBuffer(
-            new float[] {
-              0.0f, 0.0f, 0.0f, 1.0f,
-              1.0f, 0.0f, 0.0f, 1.0f,
-              0.0f, 1.0f, 0.0f, 1.0f,
-              1.0f, 1.0f, 0.0f, 1.0f,
-            },
-            /* size= */ 4);
-      } else {
-        throw new IllegalStateException("Unexpected attribute name.");
-      }
-      copyAttribute.bind();
-    }
-    GlUtil.Uniform[] copyUniforms = copyProgram.getUniforms();
-    checkState(
-        copyUniforms.length == EXPECTED_NUMBER_OF_UNIFORMS,
-        "Expected program to have " + EXPECTED_NUMBER_OF_UNIFORMS + " uniforms.");
-    GlUtil.@MonotonicNonNull Uniform textureTransformUniform = null;
-    for (GlUtil.Uniform copyUniform : copyUniforms) {
-      if (copyUniform.name.equals("tex_sampler")) {
-        copyUniform.setSamplerTexId(textureId, 0);
-        copyUniform.bind();
-      } else if (copyUniform.name.equals("tex_transform")) {
-        textureTransformUniform = copyUniform;
-      } else {
-        throw new IllegalStateException("Unexpected uniform name.");
-      }
-    }
-
-    return new OpenGlFrameEditor(
-        eglDisplay,
-        eglContext,
-        eglSurface,
-        textureId,
-        checkNotNull(textureTransformUniform),
-        copyProgram,
-        copyAttributes,
-        copyUniforms);
+    copyProgram.setBufferAttribute(
+        "a_position",
+        new float[] {
+          -1.0f, -1.0f, 0.0f, 1.0f,
+          1.0f, -1.0f, 0.0f, 1.0f,
+          -1.0f, 1.0f, 0.0f, 1.0f,
+          1.0f, 1.0f, 0.0f, 1.0f,
+        },
+        /* size= */ 4);
+    copyProgram.setBufferAttribute(
+        "a_texcoord",
+        new float[] {
+          0.0f, 0.0f, 0.0f, 1.0f,
+          1.0f, 0.0f, 0.0f, 1.0f,
+          0.0f, 1.0f, 0.0f, 1.0f,
+          1.0f, 1.0f, 0.0f, 1.0f,
+        },
+        /* size= */ 4);
+    copyProgram.setSamplerTexIdUniform("tex_sampler", textureId, /* unit= */ 0);
+    return new OpenGlFrameEditor(eglDisplay, eglContext, eglSurface, textureId, copyProgram);
   }
 
   // Predefined shader values.
   private static final String VERTEX_SHADER_FILE_PATH = "shaders/blit_vertex_shader.glsl";
   private static final String FRAGMENT_SHADER_FILE_PATH =
       "shaders/copy_external_fragment_shader.glsl";
-  private static final int EXPECTED_NUMBER_OF_ATTRIBUTES = 2;
-  private static final int EXPECTED_NUMBER_OF_UNIFORMS = 2;
 
   private final float[] textureTransformMatrix;
   private final EGLDisplay eglDisplay;
@@ -142,18 +102,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final int textureId;
   private final SurfaceTexture inputSurfaceTexture;
   private final Surface inputSurface;
-  private final GlUtil.Uniform textureTransformUniform;
 
-  // TODO(internal: b/206631334): These fields ensure buffers passed to GL are not GC'ed. Implement
-  // a better way of doing this so they aren't just unused fields.
-  @SuppressWarnings("unused")
   private final GlUtil.Program copyProgram;
-
-  @SuppressWarnings("unused")
-  private final GlUtil.Attribute[] copyAttributes;
-
-  @SuppressWarnings("unused")
-  private final GlUtil.Uniform[] copyUniforms;
 
   private volatile boolean hasInputData;
 
@@ -162,38 +112,37 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLContext eglContext,
       EGLSurface eglSurface,
       int textureId,
-      GlUtil.Uniform textureTransformUniform,
-      GlUtil.Program copyProgram,
-      GlUtil.Attribute[] copyAttributes,
-      GlUtil.Uniform[] copyUniforms) {
+      GlUtil.Program copyProgram) {
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.eglSurface = eglSurface;
     this.textureId = textureId;
-    this.textureTransformUniform = textureTransformUniform;
     this.copyProgram = copyProgram;
-    this.copyAttributes = copyAttributes;
-    this.copyUniforms = copyUniforms;
     textureTransformMatrix = new float[16];
     inputSurfaceTexture = new SurfaceTexture(textureId);
     inputSurfaceTexture.setOnFrameAvailableListener(surfaceTexture -> hasInputData = true);
     inputSurface = new Surface(inputSurfaceTexture);
   }
 
-  /** Releases all resources. */
-  public void release() {
-    GlUtil.destroyEglContext(eglDisplay, eglContext);
-    GlUtil.deleteTexture(textureId);
-    inputSurfaceTexture.release();
-    inputSurface.release();
+  /** Returns the input {@link Surface}. */
+  public Surface getInputSurface() {
+    return inputSurface;
   }
 
-  /** Informs the editor that there is new input data available for it to process asynchronously. */
+  /**
+   * Returns whether there is pending input data that can be processed by calling {@link
+   * #processData()}.
+   */
+  public boolean hasInputData() {
+    return hasInputData;
+  }
+
+  /** Processes pending input data. */
   public void processData() {
     inputSurfaceTexture.updateTexImage();
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-    textureTransformUniform.setFloats(textureTransformMatrix);
-    textureTransformUniform.bind();
+    copyProgram.setFloatsUniform("tex_transform", textureTransformMatrix);
+    copyProgram.bindAttributesAndUniforms();
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
@@ -201,15 +150,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     hasInputData = false;
   }
 
-  /**
-   * Returns the input {@link Surface} after configuring the editor if it has not previously been
-   * configured.
-   */
-  public Surface getInputSurface() {
-    return inputSurface;
-  }
-
-  public boolean hasInputData() {
-    return hasInputData;
+  /** Releases all resources. */
+  public void release() {
+    copyProgram.delete();
+    GlUtil.deleteTexture(textureId);
+    GlUtil.destroyEglContext(eglDisplay, eglContext);
+    inputSurfaceTexture.release();
+    inputSurface.release();
   }
 }
