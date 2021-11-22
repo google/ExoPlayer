@@ -14,6 +14,11 @@
 *   HLS:
     *   Support key-frame accurate seeking in HLS
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
+    *   Correctly populate `Format.label` for audio only HLS streams
+        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
+*   MediaSession extension
+    *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
+        opt-out flag for apps that don't want to clear the playlist on stop.
 
 ### 2.16.1 (2021-11-18)
 
