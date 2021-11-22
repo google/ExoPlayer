@@ -15,7 +15,7 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.transformer.AndroidTestUtil.SEF_ASSET_URI;
+import static androidx.media3.transformer.AndroidTestUtil.SEF_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
@@ -32,6 +32,6 @@ public class SefTransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder().setContext(context).setFlattenForSlowMotion(true).build();
-    runTransformer(context, transformer, SEF_ASSET_URI);
+    runTransformer(context, transformer, SEF_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
   }
 }

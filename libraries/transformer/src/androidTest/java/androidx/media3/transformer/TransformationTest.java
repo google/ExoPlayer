@@ -15,7 +15,7 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
@@ -31,6 +31,6 @@ public class TransformationTest {
   public void transform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder().setContext(context).build();
-    runTransformer(context, transformer, MP4_ASSET_URI);
+    runTransformer(context, transformer, MP4_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
   }
 }
