@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
@@ -31,6 +32,7 @@ import java.io.IOException;
 
 /** An {@link RtpDataChannel} for UDP transport. */
 /* package */ final class UdpDataSourceRtpDataChannel implements RtpDataChannel {
+  String TAG = "UdpDataSourceRtpDataChannel.java";
 
   private static final String DEFAULT_UDP_TRANSPORT_FORMAT = "RTP/AVP;unicast;client_port=%d-%d";
 
@@ -45,6 +47,7 @@ import java.io.IOException;
    * @param socketTimeoutMs The timeout for {@link #read} in milliseconds.
    */
   public UdpDataSourceRtpDataChannel(long socketTimeoutMs) {
+    Log.i(TAG, "Entered Constructor. Creating UdpDataSource");
     dataSource =
         new UdpDataSource(UdpDataSource.DEFAULT_MAX_PACKET_SIZE, Ints.checkedCast(socketTimeoutMs));
   }
@@ -59,6 +62,8 @@ import java.io.IOException;
   @Override
   public int getLocalPort() {
     int port = dataSource.getLocalPort();
+    Log.i(TAG, "getLocalPort(). datasource.localPort = " + port );
+
     return port == UdpDataSource.UDP_PORT_UNSET ? C.INDEX_UNSET : port;
   }
 
@@ -75,19 +80,21 @@ import java.io.IOException;
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
+    Log.i(TAG, "open() is called for dataSource (UdpDataSource)" );
     return dataSource.open(dataSpec);
   }
 
   @Nullable
   @Override
   public Uri getUri() {
+    Log.i(TAG, "getUri() = " + dataSource.getUri());
     return dataSource.getUri();
   }
 
   @Override
   public void close() {
     dataSource.close();
-
+    // TODO: Remove this?
     if (rtcpChannel != null) {
       rtcpChannel.close();
     }
@@ -96,6 +103,7 @@ import java.io.IOException;
   @Override
   public int read(byte[] buffer, int offset, int length) throws IOException {
     try {
+      Log.i(TAG, "Reading data from buffer.");
       return dataSource.read(buffer, offset, length);
     } catch (UdpDataSource.UdpDataSourceException e) {
       if (e.reason == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT) {
@@ -107,6 +115,7 @@ import java.io.IOException;
   }
 
   public void setRtcpChannel(UdpDataSourceRtpDataChannel rtcpChannel) {
+    Log.i(TAG, "Setting to RTCP Channel!");
     checkArgument(this != rtcpChannel);
     this.rtcpChannel = rtcpChannel;
   }

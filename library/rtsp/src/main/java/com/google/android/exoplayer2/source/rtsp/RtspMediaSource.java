@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
+import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -44,7 +45,7 @@ import java.io.IOException;
 
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
-
+  String TAG = "RtspMediaSource.java";
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.rtsp");
   }
@@ -66,7 +67,7 @@ public final class RtspMediaSource extends BaseMediaSource {
    * </ul>
    */
   public static final class Factory implements MediaSourceFactory {
-
+    String TAG = "RtspMediaSource.Factory";
     private long timeoutMs;
     private String userAgent;
     private boolean forceUseRtpTcp;
@@ -75,6 +76,7 @@ public final class RtspMediaSource extends BaseMediaSource {
     public Factory() {
       timeoutMs = DEFAULT_TIMEOUT_MS;
       userAgent = ExoPlayerLibraryInfo.VERSION_SLASHY;
+      Log.i(TAG,"Entered : MediaSourceFactory Constructor");
     }
 
     /**
@@ -90,6 +92,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     public Factory setForceUseRtpTcp(boolean forceUseRtpTcp) { //TODO: likely needed
       this.forceUseRtpTcp = forceUseRtpTcp;
+      Log.i(TAG,"forceUseRtpTcp =  " +  this.forceUseRtpTcp);
       return this;
     }
 
@@ -100,6 +103,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @return This Factory, for convenience.
      */
     public Factory setUserAgent(String userAgent) {
+
       this.userAgent = userAgent;
       return this;
     }
@@ -196,6 +200,7 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     @Override
     public RtspMediaSource createMediaSource(MediaItem mediaItem) { // remove tcp and remove timeout
+      Log.i(TAG,"CreateMediaSource. MediaItem  = " + mediaItem);
       checkNotNull(mediaItem.localConfiguration);
       return new RtspMediaSource(
           mediaItem,
@@ -239,6 +244,7 @@ public final class RtspMediaSource extends BaseMediaSource {
       RtpDataChannel.Factory rtpDataChannelFactory,
       String userAgent,
       boolean debugLoggingEnabled) {
+    Log.i(TAG,"Enter Constructor RtspMediaSource" );
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.userAgent = userAgent;
@@ -246,7 +252,10 @@ public final class RtspMediaSource extends BaseMediaSource {
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.timelineDurationUs = C.TIME_UNSET;
     this.timelineIsPlaceholder = true;
+
   }
+
+
 
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {

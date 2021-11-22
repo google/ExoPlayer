@@ -15,14 +15,18 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import android.util.Log;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import java.io.IOException;
 
 /** Factory for {@link UdpDataSourceRtpDataChannel}. */
+
+
+
 /* package */ final class UdpDataSourceRtpDataChannelFactory implements RtpDataChannel.Factory {
 
   private final long socketTimeoutMs;
-
+  String TAG = "UdpDataSourceRtpDataChannelFactory.java";
   /**
    * Creates a new instance.
    *
@@ -30,11 +34,13 @@ import java.io.IOException;
    *     packets is treated as the end of input.
    */
   public UdpDataSourceRtpDataChannelFactory(long socketTimeoutMs) {
+    Log.i(TAG, "Entered Constructor. socketTimeoutMS = " + socketTimeoutMs);
     this.socketTimeoutMs = socketTimeoutMs;
   }
 
   @Override
   public RtpDataChannel createAndOpenDataChannel(int trackId) throws IOException {
+    Log.i(TAG, "createAndOpenDataChannel(). Track Id => " + trackId);
     UdpDataSourceRtpDataChannel firstChannel = new UdpDataSourceRtpDataChannel(socketTimeoutMs);
     UdpDataSourceRtpDataChannel secondChannel = new UdpDataSourceRtpDataChannel(socketTimeoutMs);
 
@@ -46,16 +52,23 @@ import java.io.IOException;
       // the higher or the lower.
 
       // Using port zero will cause the system to generate a port.
+
       firstChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ 0)); // TODO: Port number is hardcoded here to 0. We can try 1 if this is indeed a bug
       int firstPort = firstChannel.getLocalPort();
+      Log.i(TAG, "firstChannelPort " + firstPort);
       boolean isFirstPortEven = firstPort % 2 == 0;
       int portToOpen = isFirstPortEven ? firstPort + 1 : firstPort - 1;
+      Log.i(TAG, "secondChannelPort " + portToOpen);
       secondChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ portToOpen));
 
       if (isFirstPortEven) {
+        Log.i(TAG, "First port found to be even ");
+        Log.i(TAG, "Returning firstChannel " + firstChannel);
         firstChannel.setRtcpChannel(secondChannel);
         return firstChannel;
       } else {
+        Log.i(TAG, "First port NOT found to be even ");
+        Log.i(TAG, "Returning secondChannel " + secondChannel);
         secondChannel.setRtcpChannel(firstChannel);
         return secondChannel;
       }

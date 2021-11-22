@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.min;
 
 import android.net.Uri;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackException;
@@ -32,9 +33,13 @@ import java.net.SocketTimeoutException;
 
 /** A UDP {@link DataSource}. */
 public final class UdpDataSource extends BaseDataSource {
+  String TAG = "UdpDataSource.java";
+
 
   /** Thrown when an error is encountered when trying to read from a {@link UdpDataSource}. */
   public static final class UdpDataSourceException extends DataSourceException {
+
+    private final String TAG = "UdpDataSourceException";
 
     /**
      * Creates a {@code UdpDataSourceException}.
@@ -45,6 +50,7 @@ public final class UdpDataSource extends BaseDataSource {
      */
     public UdpDataSourceException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
       super(cause, errorCode);
+
     }
   }
 
@@ -70,6 +76,7 @@ public final class UdpDataSource extends BaseDataSource {
 
   public UdpDataSource() {
     this(DEFAULT_MAX_PACKET_SIZE);
+    Log.i(TAG, "Entered Constructor. Creating UdpDataSource with no params.");
   }
 
   /**
@@ -79,6 +86,7 @@ public final class UdpDataSource extends BaseDataSource {
    */
   public UdpDataSource(int maxPacketSize) {
     this(maxPacketSize, DEFAULT_SOCKET_TIMEOUT_MILLIS);
+    Log.i(TAG, "Entered Constructor. Creating UdpDataSource with maxPacketSize.");
   }
 
   /**
@@ -90,6 +98,7 @@ public final class UdpDataSource extends BaseDataSource {
    */
   public UdpDataSource(int maxPacketSize, int socketTimeoutMillis) {
     super(/* isNetwork= */ true);
+    Log.i(TAG, "Entered Constructor. Creating UdpDataSource with maxpacketSize and timeout.");
     this.socketTimeoutMillis = socketTimeoutMillis;
     packetBuffer = new byte[maxPacketSize];
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);
@@ -97,12 +106,16 @@ public final class UdpDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws UdpDataSourceException {
+    Log.i(TAG, "Entered open().");
     uri = dataSpec.uri;
+    Log.i(TAG, "uri: " + uri);
     String host = checkNotNull(uri.getHost());
     int port = uri.getPort();
+    Log.i(TAG, "PORT: " + port);
     transferInitializing(dataSpec);
     try {
       address = InetAddress.getByName(host);
+      Log.i(TAG, "address: " + address);
       InetSocketAddress socketAddress = new InetSocketAddress(address, port);
       if (address.isMulticastAddress()) {
         multicastSocket = new MulticastSocket(socketAddress);
@@ -126,6 +139,7 @@ public final class UdpDataSource extends BaseDataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int length) throws UdpDataSourceException {
+    Log.i(TAG, "read() ");
     if (length == 0) {
       return 0;
     }
@@ -189,6 +203,7 @@ public final class UdpDataSource extends BaseDataSource {
     if (socket == null) {
       return UDP_PORT_UNSET;
     }
+    Log.i(TAG, "getLocalPort() " + socket.getLocalPort());
     return socket.getLocalPort();
   }
 }
