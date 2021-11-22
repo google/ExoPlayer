@@ -15,6 +15,7 @@
  */
 package androidx.media3.common;
 
+import static androidx.media3.common.AdPlaybackState.AD_STATE_UNAVAILABLE;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.max;
@@ -817,6 +818,22 @@ public abstract class Timeline implements Bundleable {
     public long getAdDurationUs(int adGroupIndex, int adIndexInAdGroup) {
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
       return adGroup.count != C.LENGTH_UNSET ? adGroup.durationsUs[adIndexInAdGroup] : C.TIME_UNSET;
+    }
+
+    /**
+     * Returns the state of the ad at index {@code adIndexInAdGroup} in the ad group at {@code
+     * adGroupIndex}, or {@link AdPlaybackState#AD_STATE_UNAVAILABLE} if not yet known.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return The state of the ad, or {@link AdPlaybackState#AD_STATE_UNAVAILABLE} if not yet
+     *     known.
+     */
+    @UnstableApi
+    public int getAdState(int adGroupIndex, int adIndexInAdGroup) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+      return adGroup.count != C.LENGTH_UNSET
+          ? adGroup.states[adIndexInAdGroup]
+          : AD_STATE_UNAVAILABLE;
     }
 
     /**

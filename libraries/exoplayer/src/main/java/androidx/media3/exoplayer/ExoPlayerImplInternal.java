@@ -28,6 +28,7 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
+import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.IllegalSeekPositionException;
@@ -2656,15 +2657,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
             && earliestCuePointIsUnchangedOrLater;
     // Drop update if the change is from/to server-side inserted ads at the same content position to
     // avoid any unintentional renderer reset.
-    timeline.getPeriodByUid(newPeriodUid, period);
     boolean isInStreamAdChange =
-        sameOldAndNewPeriodUid
-            && !isUsingPlaceholderPeriod
-            && oldContentPositionUs == newContentPositionUs
-            && ((periodIdWithAds.isAd()
-                    && period.isServerSideInsertedAdGroup(periodIdWithAds.adGroupIndex))
-                || (oldPeriodId.isAd()
-                    && period.isServerSideInsertedAdGroup(oldPeriodId.adGroupIndex)));
+        isIgnorableServerSideAdInsertionPeriodChange(
+            isUsingPlaceholderPeriod,
+            oldPeriodId,
+            oldContentPositionUs,
+            periodIdWithAds,
+            timeline.getPeriodByUid(newPeriodUid, period),
+            newContentPositionUs);
     MediaPeriodId newPeriodId =
         onlyNextAdGroupIndexIncreased || isInStreamAdChange ? oldPeriodId : periodIdWithAds;
 
@@ -2688,6 +2688,30 @@ import java.util.concurrent.atomic.AtomicBoolean;
         forceBufferingState,
         endPlayback,
         setTargetLiveOffset);
+  }
+
+  private static boolean isIgnorableServerSideAdInsertionPeriodChange(
+      boolean isUsingPlaceholderPeriod,
+      MediaPeriodId oldPeriodId,
+      long oldContentPositionUs,
+      MediaPeriodId newPeriodId,
+      Timeline.Period newPeriod,
+      long newContentPositionUs) {
+    if (isUsingPlaceholderPeriod
+        || oldContentPositionUs != newContentPositionUs
+        || !oldPeriodId.periodUid.equals(newPeriodId.periodUid)) {
+      // The period position changed.
+      return false;
+    }
+    if (oldPeriodId.isAd() && newPeriod.isServerSideInsertedAdGroup(oldPeriodId.adGroupIndex)) {
+      // Whether the old period was a server side ad that doesn't need skipping to the content.
+      return newPeriod.getAdState(oldPeriodId.adGroupIndex, oldPeriodId.adIndexInAdGroup)
+              != AdPlaybackState.AD_STATE_ERROR
+          && newPeriod.getAdState(oldPeriodId.adGroupIndex, oldPeriodId.adIndexInAdGroup)
+              != AdPlaybackState.AD_STATE_SKIPPED;
+    }
+    // If the new period is a server side inserted ad, we can just continue playing.
+    return newPeriodId.isAd() && newPeriod.isServerSideInsertedAdGroup(newPeriodId.adGroupIndex);
   }
 
   private static boolean isUsingPlaceholderPeriod(
