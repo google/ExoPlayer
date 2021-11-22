@@ -29,9 +29,9 @@ import androidx.media3.exoplayer.source.MediaPeriod;
 
 /** A static utility class with methods to work with server-side inserted ads. */
 @UnstableApi
-public final class ServerSideInsertedAdsUtil {
+public final class ServerSideAdInsertionUtil {
 
-  private ServerSideInsertedAdsUtil() {}
+  private ServerSideAdInsertionUtil() {}
 
   /**
    * Adds a new server-side inserted ad group to an {@link AdPlaybackState}.

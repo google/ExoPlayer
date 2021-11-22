@@ -15,12 +15,12 @@
  */
 package androidx.media3.exoplayer.source.ads;
 
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.addAdGroupToAdPlaybackState;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getAdCountInGroup;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getMediaPeriodPositionUsForAd;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getMediaPeriodPositionUsForContent;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getStreamPositionUsForAd;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getStreamPositionUsForContent;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getAdCountInGroup;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForAd;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForContent;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getStreamPositionUsForAd;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getStreamPositionUsForContent;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.AdPlaybackState;
@@ -29,9 +29,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link ServerSideInsertedAdsUtil}. */
+/** Unit tests for {@link ServerSideAdInsertionUtil}. */
 @RunWith(AndroidJUnit4.class)
-public final class ServerSideInsertedAdsUtilTest {
+public final class ServerSideAdInsertionUtilTest {
 
   private static final Object ADS_ID = new Object();
 

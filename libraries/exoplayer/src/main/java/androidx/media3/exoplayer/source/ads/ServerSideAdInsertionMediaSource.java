@@ -18,11 +18,11 @@ package androidx.media3.exoplayer.source.ads;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getAdCountInGroup;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getMediaPeriodPositionUs;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getMediaPeriodPositionUsForAd;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getMediaPeriodPositionUsForContent;
-import static androidx.media3.exoplayer.source.ads.ServerSideInsertedAdsUtil.getStreamPositionUs;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getAdCountInGroup;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUs;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForAd;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForContent;
+import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.getStreamPositionUs;
 
 import android.os.Handler;
 import android.util.Pair;
@@ -79,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * playback.
  */
 @UnstableApi
-public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
+public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     implements MediaSource.MediaSourceCaller, MediaSourceEventListener, DrmSessionEventListener {
 
   private final MediaSource mediaSource;
@@ -102,7 +102,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
    */
   // Calling BaseMediaSource.createEventDispatcher from the constructor.
   @SuppressWarnings("nullness:method.invocation")
-  public ServerSideInsertedAdsMediaSource(MediaSource mediaSource) {
+  public ServerSideAdInsertionMediaSource(MediaSource mediaSource) {
     this.mediaSource = mediaSource;
     mediaPeriods = ArrayListMultimap.create();
     adPlaybackState = AdPlaybackState.NONE;
@@ -151,7 +151,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
               this.adPlaybackState = adPlaybackState;
               if (contentTimeline != null) {
                 refreshSourceInfo(
-                    new ServerSideInsertedAdsTimeline(contentTimeline, adPlaybackState));
+                    new ServerSideAdInsertionTimeline(contentTimeline, adPlaybackState));
               }
             });
       }
@@ -196,7 +196,7 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
     if (AdPlaybackState.NONE.equals(adPlaybackState)) {
       return;
     }
-    refreshSourceInfo(new ServerSideInsertedAdsTimeline(timeline, adPlaybackState));
+    refreshSourceInfo(new ServerSideAdInsertionTimeline(timeline, adPlaybackState));
   }
 
   @Override
@@ -902,11 +902,11 @@ public final class ServerSideInsertedAdsMediaSource extends BaseMediaSource
     }
   }
 
-  private static final class ServerSideInsertedAdsTimeline extends ForwardingTimeline {
+  private static final class ServerSideAdInsertionTimeline extends ForwardingTimeline {
 
     private final AdPlaybackState adPlaybackState;
 
-    public ServerSideInsertedAdsTimeline(
+    public ServerSideAdInsertionTimeline(
         Timeline contentTimeline, AdPlaybackState adPlaybackState) {
       super(contentTimeline);
       Assertions.checkState(contentTimeline.getPeriodCount() == 1);
