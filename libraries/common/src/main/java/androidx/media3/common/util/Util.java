@@ -16,6 +16,15 @@
 package androidx.media3.common.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
+import static androidx.media3.common.Player.COMMAND_SEEK_BACK;
+import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
+import static androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
@@ -64,6 +73,8 @@ import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.common.Player.Commands;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import java.io.ByteArrayOutputStream;
@@ -2477,6 +2488,43 @@ public final class Util {
       default:
         throw new IllegalStateException();
     }
+  }
+
+  /**
+   * Returns the {@link Commands} available in the {@link Player}.
+   *
+   * @param player The {@link Player}.
+   * @param permanentAvailableCommands The commands permanently available in the player.
+   * @return The available {@link Commands}.
+   */
+  public static Commands getAvailableCommands(Player player, Commands permanentAvailableCommands) {
+    boolean isPlayingAd = player.isPlayingAd();
+    boolean isCurrentMediaItemSeekable = player.isCurrentMediaItemSeekable();
+    boolean hasPreviousMediaItem = player.hasPreviousMediaItem();
+    boolean hasNextMediaItem = player.hasNextMediaItem();
+    boolean isCurrentMediaItemLive = player.isCurrentMediaItemLive();
+    boolean isCurrentMediaItemDynamic = player.isCurrentMediaItemDynamic();
+    boolean isTimelineEmpty = player.getCurrentTimeline().isEmpty();
+    return new Commands.Builder()
+        .addAll(permanentAvailableCommands)
+        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd)
+        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentMediaItemSeekable && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPreviousMediaItem && !isPlayingAd)
+        .addIf(
+            COMMAND_SEEK_TO_PREVIOUS,
+            !isTimelineEmpty
+                && (hasPreviousMediaItem || !isCurrentMediaItemLive || isCurrentMediaItemSeekable)
+                && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNextMediaItem && !isPlayingAd)
+        .addIf(
+            COMMAND_SEEK_TO_NEXT,
+            !isTimelineEmpty
+                && (hasNextMediaItem || (isCurrentMediaItemLive && isCurrentMediaItemDynamic))
+                && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd)
+        .addIf(COMMAND_SEEK_BACK, isCurrentMediaItemSeekable && !isPlayingAd)
+        .addIf(COMMAND_SEEK_FORWARD, isCurrentMediaItemSeekable && !isPlayingAd)
+        .build();
   }
 
   @Nullable

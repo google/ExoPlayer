@@ -1094,7 +1094,7 @@ public final class CastPlayer extends BasePlayer {
 
   private void updateAvailableCommandsAndNotifyIfChanged() {
     Commands previousAvailableCommands = availableCommands;
-    availableCommands = getAvailableCommands(PERMANENT_AVAILABLE_COMMANDS);
+    availableCommands = Util.getAvailableCommands(/* player= */ this, PERMANENT_AVAILABLE_COMMANDS);
     if (!availableCommands.equals(previousAvailableCommands)) {
       listeners.queueEvent(
           Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
