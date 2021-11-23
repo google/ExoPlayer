@@ -79,6 +79,7 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
     private final long presentationTimeUs;
     private final boolean isKeyFrame;
     private final int sampleDataHashCode;
+    private final int sampleSize;
 
     public DumpableSample(
         int trackIndex, ByteBuffer sample, boolean isKeyFrame, long presentationTimeUs) {
@@ -86,7 +87,8 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
       this.presentationTimeUs = presentationTimeUs;
       this.isKeyFrame = isKeyFrame;
       int initialPosition = sample.position();
-      byte[] data = new byte[sample.remaining()];
+      sampleSize = sample.remaining();
+      byte[] data = new byte[sampleSize];
       sample.get(data);
       sample.position(initialPosition);
       sampleDataHashCode = Arrays.hashCode(data);
@@ -98,6 +100,7 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
           .startBlock("sample")
           .add("trackIndex", trackIndex)
           .add("dataHashCode", sampleDataHashCode)
+          .add("size", sampleSize)
           .add("isKeyFrame", isKeyFrame)
           .add("presentationTimeUs", presentationTimeUs)
           .endBlock();

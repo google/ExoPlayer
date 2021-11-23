@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":9,"i5":10,"i6":9,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
+var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":9,"i5":9,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -145,111 +145,34 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public class <span class="typeNameLabel">DefaultTrackSelector</span>
 extends <a href="MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector</a></pre>
-<div class="block">A default <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> suitable for most use cases. Track selections are made according
- to configurable <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>, which can be set by calling <a href="../Player.html#setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)"><code>Player.setTrackSelectionParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)</code></a>.
+<div class="block">A default <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> suitable for most use cases.
 
  <h2>Modifying parameters</h2>
 
- To modify only some aspects of the parameters currently used by a selector, it's possible to
- obtain a <a href="DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.ParametersBuilder</code></a> initialized with the current <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>. The desired
- modifications can be made on the builder, and the resulting <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> can then be built
- and set on the selector. For example the following code modifies the parameters to restrict video
- track selections to SD, and to select a German audio track if there is one:
-
- <pre><code>
- // Build on the current parameters.
- TrackSelectionParameters currentParameters = player.getTrackSelectionParameters();
- // Build the resulting parameters.
- TrackSelectionParameters newParameters = currentParameters
-     .buildUpon()
-     .setMaxVideoSizeSd()
-     .setPreferredAudioLanguage("deu")
-     .build();
- // Set the new parameters.
- player.setTrackSelectionParameters(newParameters);
- </code></pre>
-
- Convenience methods and chaining allow this to be written more concisely as:
+ Track selection parameters should be modified by obtaining a <a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters.Builder</code></a> initialized with the current <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>
+ from the player. The desired modifications can be made on the builder, and the resulting <a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a> can then be built and set on the player:
 
  <pre><code>
  player.setTrackSelectionParameters(
      player.getTrackSelectionParameters()
          .buildUpon()
          .setMaxVideoSizeSd()
-         .setPreferredAudioLanguage("deu")
+         .setPreferredAudioLanguage("de")
          .build());
+
  </code></pre>
 
- Selection <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> support many different options, some of which are described below.
-
- <h2>Selecting specific tracks</h2>
-
- Track selection overrides can be used to select specific tracks. To specify an override for a
- renderer, it's first necessary to obtain the tracks that have been mapped to it:
+ Some specialized parameters are only available in the extended <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> class, which
+ can be retrieved and modified in a similar way in this track selector:
 
  <pre><code>
- MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
- TrackGroupArray rendererTrackGroups = mappedTrackInfo == null ? null
-     : mappedTrackInfo.getTrackGroups(rendererIndex);
- </code></pre>
-
- If <code>rendererTrackGroups</code> is null then there aren't any currently mapped tracks, and so
- setting an override isn't possible. Note that a <a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2"><code>Player.Listener</code></a> registered on the player
- can be used to determine when the current tracks (and therefore the mapping) changes. If <code>
- rendererTrackGroups</code> is non-null then an override can be set. The next step is to query the
- properties of the available tracks to determine the <code>groupIndex</code> and the <code>
- trackIndices</code> within the group it that should be selected. The override can then be specified
- using <a href="DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)"><code>DefaultTrackSelector.ParametersBuilder.setSelectionOverride(int, com.google.android.exoplayer2.source.TrackGroupArray, com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)</code></a>:
-
- <pre><code>
- SelectionOverride selectionOverride = new SelectionOverride(groupIndex, trackIndices);
- player.setTrackSelectionParameters(
-     ((Parameters)player.getTrackSelectionParameters())
+ defaultTrackSelector.setParameters(
+     defaultTrackSelector.getParameters()
          .buildUpon()
-         .setSelectionOverride(rendererIndex, rendererTrackGroups, selectionOverride)
+         .setTunnelingEnabled(true)
          .build());
- </code></pre>
 
- <h2>Constraint based track selection</h2>
-
- Whilst track selection overrides make it possible to select specific tracks, the recommended way
- of controlling which tracks are selected is by specifying constraints. For example consider the
- case of wanting to restrict video track selections to SD, and preferring German audio tracks.
- Track selection overrides could be used to select specific tracks meeting these criteria, however
- a simpler and more flexible approach is to specify these constraints directly:
-
- <pre><code>
- player.setTrackSelectionParameters(
-     player.getTrackSelectionParameters()
-         .buildUpon()
-         .setMaxVideoSizeSd()
-         .setPreferredAudioLanguage("deu")
-         .build());
- </code></pre>
-
- There are several benefits to using constraint based track selection instead of specific track
- overrides:
-
- <ul>
-   <li>You can specify constraints before knowing what tracks the media provides. This can
-       simplify track selection code (e.g. you don't have to listen for changes in the available
-       tracks before configuring the selector).
-   <li>Constraints can be applied consistently across all periods in a complex piece of media,
-       even if those periods contain different tracks. In contrast, a specific track override is
-       only applied to periods whose tracks match those for which the override was set.
- </ul>
-
- <h2>Disabling renderers</h2>
-
- Renderers can be disabled using <a href="DefaultTrackSelector.ParametersBuilder.html#setRendererDisabled(int,boolean)"><code>DefaultTrackSelector.ParametersBuilder.setRendererDisabled(int, boolean)</code></a>. Disabling a
- renderer differs from setting a <code>null</code> override because the renderer is disabled
- unconditionally, whereas a <code>null</code> override is applied only when the track groups available
- to the renderer match the <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> for which it was specified.
-
- <h2>Tunneling</h2>
-
- Tunneled playback can be enabled in cases where the combination of renderers and selected tracks
- supports it. This can be done by using <a href="DefaultTrackSelector.ParametersBuilder.html#setTunnelingEnabled(boolean)"><code>DefaultTrackSelector.ParametersBuilder.setTunnelingEnabled(boolean)</code></a>.</div>
+ </code></pre></div>
 </li>
 </ul>
 </div>
@@ -438,24 +361,13 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>protected @NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeApplyOverride(com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection.Definition)">maybeApplyOverride</a></span>&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
-                  <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
-                  int&nbsp;rendererIndex,
-                  @NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>&nbsp;currentDefinition)</code></th>
-<td class="colLast">
-<div class="block">Returns the <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection.Definition</code></a> of a renderer after applying selection
- overriding and renderer disabling.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#normalizeUndeterminedLanguageToNull(java.lang.String)">normalizeUndeterminedLanguageToNull</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
 <td class="colLast">
 <div class="block">Normalizes the input string to null if it does not define a language, or returns it otherwise.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected @NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectAllTracks(com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,int%5B%5D%5B%5D%5B%5D,int%5B%5D,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">selectAllTracks</a></span>&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
                int[][][]&nbsp;rendererFormatSupports,
@@ -467,7 +379,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
  applied.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>,&#8203;<a href="DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.AudioTrackScore</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectAudioTrack(com.google.android.exoplayer2.source.TrackGroupArray,int%5B%5D%5B%5D,int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,boolean)">selectAudioTrack</a></span>&#8203;(<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
                 int[][]&nbsp;formatSupport,
@@ -479,7 +391,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
  <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> for an audio renderer.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectOtherTrack(int,com.google.android.exoplayer2.source.TrackGroupArray,int%5B%5D%5B%5D,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">selectOtherTrack</a></span>&#8203;(int&nbsp;trackType,
                 <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
@@ -490,7 +402,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
  <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> for a renderer whose type is neither video, audio or text.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>,&#8203;<a href="DefaultTrackSelector.TextTrackScore.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.TextTrackScore</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectTextTrack(com.google.android.exoplayer2.source.TrackGroupArray,int%5B%5D%5B%5D,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,java.lang.String)">selectTextTrack</a></span>&#8203;(<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
                int[][]&nbsp;formatSupport,
@@ -501,7 +413,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
  <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> for a text renderer.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;@NullableType <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[],&#8203;@NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection" target="_top">ExoTrackSelection</a>[]&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectTracks(com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,int%5B%5D%5B%5D%5B%5D,int%5B%5D,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)">selectTracks</a></span>&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
             int[][][]&nbsp;rendererFormatSupports,
@@ -512,7 +424,7 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
 <div class="block">Given mapped track information, returns a track selection and configuration for each renderer.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectVideoTrack(com.google.android.exoplayer2.source.TrackGroupArray,int%5B%5D%5B%5D,int,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,boolean)">selectVideoTrack</a></span>&#8203;(<a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
                 int[][]&nbsp;formatSupport,
@@ -524,14 +436,14 @@ extends <a href="MappingTrackSelector.html" title="class in com.google.android.e
  <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> for a video renderer.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParameters(com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder)">setParameters</a></span>&#8203;(<a href="DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a>&nbsp;parametersBuilder)</code></th>
 <td class="colLast">
 <div class="block">Atomically sets the provided parameters for track selection.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setParameters</a></span>&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;parameters)</code></th>
 <td class="colLast">
@@ -765,20 +677,6 @@ public&nbsp;DefaultTrackSelector&#8203;(<a href="ExoTrackSelection.Factory.html"
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs while selecting the tracks.</dd>
 </dl>
-</li>
-</ul>
-<a id="maybeApplyOverride(com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection.Definition)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>maybeApplyOverride</h4>
-<pre class="methodSignature">protected&nbsp;@NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>&nbsp;maybeApplyOverride&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
-                                                                        <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
-                                                                        int&nbsp;rendererIndex,
-                                                                        @NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>&nbsp;currentDefinition)</pre>
-<div class="block">Returns the <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection.Definition</code></a> of a renderer after applying selection
- overriding and renderer disabling.</div>
 </li>
 </ul>
 <a id="selectAllTracks(com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,int[][][],int[],com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters)">

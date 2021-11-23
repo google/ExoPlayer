@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
@@ -61,112 +60,36 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
- * A default {@link TrackSelector} suitable for most use cases. Track selections are made according
- * to configurable {@link Parameters}, which can be set by calling {@link
- * Player#setTrackSelectionParameters}.
+ * A default {@link TrackSelector} suitable for most use cases.
  *
  * <h2>Modifying parameters</h2>
  *
- * To modify only some aspects of the parameters currently used by a selector, it's possible to
- * obtain a {@link ParametersBuilder} initialized with the current {@link Parameters}. The desired
- * modifications can be made on the builder, and the resulting {@link Parameters} can then be built
- * and set on the selector. For example the following code modifies the parameters to restrict video
- * track selections to SD, and to select a German audio track if there is one:
- *
- * <pre>{@code
- * // Build on the current parameters.
- * TrackSelectionParameters currentParameters = player.getTrackSelectionParameters();
- * // Build the resulting parameters.
- * TrackSelectionParameters newParameters = currentParameters
- *     .buildUpon()
- *     .setMaxVideoSizeSd()
- *     .setPreferredAudioLanguage("deu")
- *     .build();
- * // Set the new parameters.
- * player.setTrackSelectionParameters(newParameters);
- * }</pre>
- *
- * Convenience methods and chaining allow this to be written more concisely as:
+ * Track selection parameters should be modified by obtaining a {@link
+ * TrackSelectionParameters.Builder} initialized with the current {@link TrackSelectionParameters}
+ * from the player. The desired modifications can be made on the builder, and the resulting {@link
+ * TrackSelectionParameters} can then be built and set on the player:
  *
  * <pre>{@code
  * player.setTrackSelectionParameters(
  *     player.getTrackSelectionParameters()
  *         .buildUpon()
  *         .setMaxVideoSizeSd()
- *         .setPreferredAudioLanguage("deu")
+ *         .setPreferredAudioLanguage("de")
  *         .build());
+ *
  * }</pre>
  *
- * Selection {@link Parameters} support many different options, some of which are described below.
- *
- * <h2>Selecting specific tracks</h2>
- *
- * Track selection overrides can be used to select specific tracks. To specify an override for a
- * renderer, it's first necessary to obtain the tracks that have been mapped to it:
+ * Some specialized parameters are only available in the extended {@link Parameters} class, which
+ * can be retrieved and modified in a similar way in this track selector:
  *
  * <pre>{@code
- * MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
- * TrackGroupArray rendererTrackGroups = mappedTrackInfo == null ? null
- *     : mappedTrackInfo.getTrackGroups(rendererIndex);
- * }</pre>
- *
- * If {@code rendererTrackGroups} is null then there aren't any currently mapped tracks, and so
- * setting an override isn't possible. Note that a {@link Player.Listener} registered on the player
- * can be used to determine when the current tracks (and therefore the mapping) changes. If {@code
- * rendererTrackGroups} is non-null then an override can be set. The next step is to query the
- * properties of the available tracks to determine the {@code groupIndex} and the {@code
- * trackIndices} within the group it that should be selected. The override can then be specified
- * using {@link ParametersBuilder#setSelectionOverride}:
- *
- * <pre>{@code
- * SelectionOverride selectionOverride = new SelectionOverride(groupIndex, trackIndices);
- * player.setTrackSelectionParameters(
- *     ((Parameters)player.getTrackSelectionParameters())
+ * defaultTrackSelector.setParameters(
+ *     defaultTrackSelector.getParameters()
  *         .buildUpon()
- *         .setSelectionOverride(rendererIndex, rendererTrackGroups, selectionOverride)
+ *         .setTunnelingEnabled(true)
  *         .build());
+ *
  * }</pre>
- *
- * <h2>Constraint based track selection</h2>
- *
- * Whilst track selection overrides make it possible to select specific tracks, the recommended way
- * of controlling which tracks are selected is by specifying constraints. For example consider the
- * case of wanting to restrict video track selections to SD, and preferring German audio tracks.
- * Track selection overrides could be used to select specific tracks meeting these criteria, however
- * a simpler and more flexible approach is to specify these constraints directly:
- *
- * <pre>{@code
- * player.setTrackSelectionParameters(
- *     player.getTrackSelectionParameters()
- *         .buildUpon()
- *         .setMaxVideoSizeSd()
- *         .setPreferredAudioLanguage("deu")
- *         .build());
- * }</pre>
- *
- * There are several benefits to using constraint based track selection instead of specific track
- * overrides:
- *
- * <ul>
- *   <li>You can specify constraints before knowing what tracks the media provides. This can
- *       simplify track selection code (e.g. you don't have to listen for changes in the available
- *       tracks before configuring the selector).
- *   <li>Constraints can be applied consistently across all periods in a complex piece of media,
- *       even if those periods contain different tracks. In contrast, a specific track override is
- *       only applied to periods whose tracks match those for which the override was set.
- * </ul>
- *
- * <h2>Disabling renderers</h2>
- *
- * Renderers can be disabled using {@link ParametersBuilder#setRendererDisabled}. Disabling a
- * renderer differs from setting a {@code null} override because the renderer is disabled
- * unconditionally, whereas a {@code null} override is applied only when the track groups available
- * to the renderer match the {@link TrackGroupArray} for which it was specified.
- *
- * <h2>Tunneling</h2>
- *
- * Tunneled playback can be enabled in cases where the combination of renderers and selected tracks
- * supports it. This can be done by using {@link ParametersBuilder#setTunnelingEnabled(boolean)}.
  */
 public class DefaultTrackSelector extends MappingTrackSelector {
 
@@ -307,7 +230,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       rendererDisabledFlags =
           makeSparseBooleanArrayFromTrueKeys(
               bundle.getIntArray(
-                  Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDEXES)));
+                  Parameters.keyForField(Parameters.FIELD_RENDERER_DISABLED_INDICES)));
     }
 
     @Override
@@ -825,9 +748,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     private void setSelectionOverridesFromBundle(Bundle bundle) {
       @Nullable
-      int[] rendererIndexes =
+      int[] rendererIndices =
           bundle.getIntArray(
-              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES));
+              Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES_RENDERER_INDICES));
       List<TrackGroupArray> trackGroupArrays =
           BundleableUtil.fromBundleNullableList(
               TrackGroupArray.CREATOR,
@@ -841,11 +764,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                   Parameters.keyForField(Parameters.FIELD_SELECTION_OVERRIDES)),
               /* defaultValue= */ new SparseArray<>());
 
-      if (rendererIndexes == null || rendererIndexes.length != trackGroupArrays.size()) {
+      if (rendererIndices == null || rendererIndices.length != trackGroupArrays.size()) {
         return; // Incorrect format, ignore all overrides.
       }
-      for (int i = 0; i < rendererIndexes.length; i++) {
-        int rendererIndex = rendererIndexes[i];
+      for (int i = 0; i < rendererIndices.length; i++) {
+        int rendererIndex = rendererIndices[i];
         TrackGroupArray groups = trackGroupArrays.get(i);
         @Nullable SelectionOverride selectionOverride = selectionOverrides.get(i);
         setSelectionOverride(rendererIndex, groups, selectionOverride);
@@ -1009,7 +932,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param rendererIndex The renderer index.
      * @param groups The {@link TrackGroupArray}.
      * @return Whether there is an override.
+     * @deprecated Only works to retrieve the overrides set with the deprecated {@link
+     *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
+     *     {@link TrackSelectionParameters#trackSelectionOverrides} instead.
      */
+    @Deprecated
     public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
           selectionOverrides.get(rendererIndex);
@@ -1022,7 +949,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param rendererIndex The renderer index.
      * @param groups The {@link TrackGroupArray}.
      * @return The override, or null if no override exists.
+     * @deprecated Only works to retrieve the overrides set with the deprecated {@link
+     *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
+     *     {@link TrackSelectionParameters#trackSelectionOverrides} instead.
      */
+    @Deprecated
     @Nullable
     public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
       Map<TrackGroupArray, @NullableType SelectionOverride> overrides =
@@ -1107,10 +1038,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY,
       FIELD_TUNNELING_ENABLED,
       FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS,
-      FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES,
+      FIELD_SELECTION_OVERRIDES_RENDERER_INDICES,
       FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS,
       FIELD_SELECTION_OVERRIDES,
-      FIELD_RENDERER_DISABLED_INDEXES,
+      FIELD_RENDERER_DISABLED_INDICES,
     })
     private @interface FieldNumber {}
 
@@ -1126,10 +1057,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private static final int FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY = 1008;
     private static final int FIELD_TUNNELING_ENABLED = 1009;
     private static final int FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS = 1010;
-    private static final int FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES = 1011;
+    private static final int FIELD_SELECTION_OVERRIDES_RENDERER_INDICES = 1011;
     private static final int FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS = 1012;
     private static final int FIELD_SELECTION_OVERRIDES = 1013;
-    private static final int FIELD_RENDERER_DISABLED_INDEXES = 1014;
+    private static final int FIELD_RENDERER_DISABLED_INDICES = 1014;
 
     @Override
     public Bundle toBundle() {
@@ -1172,7 +1103,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       putSelectionOverridesToBundle(bundle, selectionOverrides);
       // Only true values are put into rendererDisabledFlags.
       bundle.putIntArray(
-          keyForField(FIELD_RENDERER_DISABLED_INDEXES),
+          keyForField(FIELD_RENDERER_DISABLED_INDICES),
           getKeysFromSparseBooleanArray(rendererDisabledFlags));
 
       return bundle;
@@ -1194,7 +1125,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private static void putSelectionOverridesToBundle(
         Bundle bundle,
         SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides) {
-      ArrayList<Integer> rendererIndexes = new ArrayList<>();
+      ArrayList<Integer> rendererIndices = new ArrayList<>();
       ArrayList<TrackGroupArray> trackGroupArrays = new ArrayList<>();
       SparseArray<SelectionOverride> selections = new SparseArray<>();
 
@@ -1207,10 +1138,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             selections.put(trackGroupArrays.size(), selection);
           }
           trackGroupArrays.add(override.getKey());
-          rendererIndexes.add(rendererIndex);
+          rendererIndices.add(rendererIndex);
         }
         bundle.putIntArray(
-            keyForField(FIELD_SELECTION_OVERRIDES_RENDERER_INDEXES), Ints.toArray(rendererIndexes));
+            keyForField(FIELD_SELECTION_OVERRIDES_RENDERER_INDICES), Ints.toArray(rendererIndices));
         bundle.putParcelableArrayList(
             keyForField(FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS),
             BundleableUtil.toBundleArrayList(trackGroupArrays));
@@ -1504,9 +1435,32 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             rendererMixedMimeTypeAdaptationSupports,
             params);
 
-    // Apply track disabling and overriding.
+    // Apply per track type overrides.
+    SparseArray<Pair<TrackSelectionOverride, Integer>> applicableOverridesByTrackType =
+        getApplicableOverrides(mappedTrackInfo, params);
+    for (int i = 0; i < applicableOverridesByTrackType.size(); i++) {
+      Pair<TrackSelectionOverride, Integer> overrideAndRendererIndex =
+          applicableOverridesByTrackType.valueAt(i);
+      applyTrackTypeOverride(
+          mappedTrackInfo,
+          definitions,
+          /* trackType= */ applicableOverridesByTrackType.keyAt(i),
+          /* override= */ overrideAndRendererIndex.first,
+          /* overrideRendererIndex= */ overrideAndRendererIndex.second);
+    }
+
+    // Apply legacy per renderer overrides.
     for (int i = 0; i < rendererCount; i++) {
-      definitions[i] = maybeApplyOverride(mappedTrackInfo, params, i, definitions[i]);
+      if (hasLegacyRendererOverride(mappedTrackInfo, params, /* rendererIndex= */ i)) {
+        definitions[i] = getLegacyRendererOverride(mappedTrackInfo, params, /* rendererIndex= */ i);
+      }
+    }
+
+    // Disable renderers if needed.
+    for (int i = 0; i < rendererCount; i++) {
+      if (isRendererDisabled(mappedTrackInfo, params, /* rendererIndex= */ i)) {
+        definitions[i] = null;
+      }
     }
 
     @NullableType
@@ -1538,44 +1492,94 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     return Pair.create(rendererConfigurations, rendererTrackSelections);
   }
 
-  /**
-   * Returns the {@link ExoTrackSelection.Definition} of a renderer after applying selection
-   * overriding and renderer disabling.
-   */
-  protected ExoTrackSelection.@NullableType Definition maybeApplyOverride(
-      MappedTrackInfo mappedTrackInfo,
-      Parameters params,
-      int rendererIndex,
-      ExoTrackSelection.@NullableType Definition currentDefinition) {
-    // Per renderer and per track type disabling
+  private boolean isRendererDisabled(
+      MappedTrackInfo mappedTrackInfo, Parameters params, int rendererIndex) {
     @C.TrackType int rendererType = mappedTrackInfo.getRendererType(rendererIndex);
-    if (params.getRendererDisabled(rendererIndex)
-        || params.disabledTrackTypes.contains(rendererType)) {
+    return params.getRendererDisabled(rendererIndex)
+        || params.disabledTrackTypes.contains(rendererType);
+  }
+
+  @SuppressWarnings("deprecation") // Calling deprecated hasSelectionOverride.
+  private boolean hasLegacyRendererOverride(
+      MappedTrackInfo mappedTrackInfo, Parameters params, int rendererIndex) {
+    TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+    return params.hasSelectionOverride(rendererIndex, rendererTrackGroups);
+  }
+
+  @SuppressWarnings("deprecation") // Calling deprecated getSelectionOverride.
+  private ExoTrackSelection.@NullableType Definition getLegacyRendererOverride(
+      MappedTrackInfo mappedTrackInfo, Parameters params, int rendererIndex) {
+    TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+    @Nullable
+    SelectionOverride override = params.getSelectionOverride(rendererIndex, rendererTrackGroups);
+    if (override == null) {
       return null;
     }
-    // Per TrackGroupArray override
-    TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-    if (params.hasSelectionOverride(rendererIndex, rendererTrackGroups)) {
-      @Nullable
-      SelectionOverride override = params.getSelectionOverride(rendererIndex, rendererTrackGroups);
-      if (override == null) {
-        return null;
+    return new ExoTrackSelection.Definition(
+        rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
+  }
+
+  /**
+   * Returns applicable overrides. Mapping from track type to a pair of override and renderer index
+   * for this override.
+   */
+  private SparseArray<Pair<TrackSelectionOverride, Integer>> getApplicableOverrides(
+      MappedTrackInfo mappedTrackInfo, Parameters params) {
+    SparseArray<Pair<TrackSelectionOverride, Integer>> applicableOverrides = new SparseArray<>();
+    // Iterate through all existing track groups to ensure only overrides for those groups are used.
+    int rendererCount = mappedTrackInfo.getRendererCount();
+    for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+      TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+      for (int j = 0; j < rendererTrackGroups.length; j++) {
+        maybeUpdateApplicableOverrides(
+            applicableOverrides,
+            params.trackSelectionOverrides.getOverride(rendererTrackGroups.get(j)),
+            rendererIndex);
       }
-      return new ExoTrackSelection.Definition(
-          rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
     }
-    // Per TrackGroup override
-    for (int j = 0; j < rendererTrackGroups.length; j++) {
-      TrackGroup trackGroup = rendererTrackGroups.get(j);
-      @Nullable
-      TrackSelectionOverride overrideTracks =
-          params.trackSelectionOverrides.getOverride(trackGroup);
-      if (overrideTracks != null) {
-        return new ExoTrackSelection.Definition(
-            trackGroup, Ints.toArray(overrideTracks.trackIndexes));
+    // Also iterate unmapped groups to see if they have overrides.
+    TrackGroupArray unmappedGroups = mappedTrackInfo.getUnmappedTrackGroups();
+    for (int i = 0; i < unmappedGroups.length; i++) {
+      maybeUpdateApplicableOverrides(
+          applicableOverrides,
+          params.trackSelectionOverrides.getOverride(unmappedGroups.get(i)),
+          /* rendererIndex= */ C.INDEX_UNSET);
+    }
+    return applicableOverrides;
+  }
+
+  private void maybeUpdateApplicableOverrides(
+      SparseArray<Pair<TrackSelectionOverride, Integer>> applicableOverrides,
+      @Nullable TrackSelectionOverride override,
+      int rendererIndex) {
+    if (override == null) {
+      return;
+    }
+    @C.TrackType int trackType = override.getTrackType();
+    @Nullable
+    Pair<TrackSelectionOverride, Integer> existingOverride = applicableOverrides.get(trackType);
+    if (existingOverride == null || existingOverride.first.trackIndices.isEmpty()) {
+      // We only need to choose one non-empty override per type.
+      applicableOverrides.put(trackType, Pair.create(override, rendererIndex));
+    }
+  }
+
+  private void applyTrackTypeOverride(
+      MappedTrackInfo mappedTrackInfo,
+      ExoTrackSelection.@NullableType Definition[] definitions,
+      @C.TrackType int trackType,
+      TrackSelectionOverride override,
+      int overrideRendererIndex) {
+    for (int i = 0; i < definitions.length; i++) {
+      if (overrideRendererIndex == i) {
+        definitions[i] =
+            new ExoTrackSelection.Definition(
+                override.trackGroup, Ints.toArray(override.trackIndices));
+      } else if (mappedTrackInfo.getRendererType(i) == trackType) {
+        // Disable other renderers of the same type.
+        definitions[i] = null;
       }
     }
-    return currentDefinition; // No override
   }
 
   // Track selection prior to overrides and disabled flags being applied.

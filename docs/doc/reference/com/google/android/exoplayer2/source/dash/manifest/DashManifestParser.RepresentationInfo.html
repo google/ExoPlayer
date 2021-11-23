@@ -166,23 +166,33 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#essentialProperties">essentialProperties</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inbandEventStreams">inbandEventStreams</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#revisionId">revisionId</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#segmentBase">segmentBase</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supplementalProperties">supplementalProperties</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -203,12 +213,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.lang.String,java.util.ArrayList,java.util.ArrayList,long)">RepresentationInfo</a></span>&#8203;(<a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.lang.String,java.util.ArrayList,java.util.ArrayList,java.util.List,java.util.List,long)">RepresentationInfo</a></span>&#8203;(<a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls,
                   <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;drmSchemeType,
                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;drmSchemeDatas,
                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams,
+                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties,
                   long&nbsp;revisionId)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -304,10 +316,28 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <a id="revisionId">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>revisionId</h4>
 <pre>public final&nbsp;long revisionId</pre>
+</li>
+</ul>
+<a id="essentialProperties">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>essentialProperties</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt; essentialProperties</pre>
+</li>
+</ul>
+<a id="supplementalProperties">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>supplementalProperties</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt; supplementalProperties</pre>
 </li>
 </ul>
 </li>
@@ -320,7 +350,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.lang.String,java.util.ArrayList,java.util.ArrayList,long)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.lang.String,java.util.ArrayList,java.util.ArrayList,java.util.List,java.util.List,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -333,6 +363,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;drmSchemeType,
                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;drmSchemeDatas,
                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams,
+                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties,
                           long&nbsp;revisionId)</pre>
 </li>
 </ul>

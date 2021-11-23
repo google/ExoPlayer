@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/local_player_view"
+  <com.google.android.exoplayer2.ui.StyledPlayerView android:id="@+id/player_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1"
@@ -49,12 +49,5 @@
         android:contentDescription="@string/add_samples"/>
 
   </RelativeLayout>
-
-  <com.google.android.exoplayer2.ui.PlayerControlView android:id="@+id/cast_control_view"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:visibility="gone"
-      app:repeat_toggle_modes="all|one"
-      app:show_timeout="-1"/>
 
 </LinearLayout>

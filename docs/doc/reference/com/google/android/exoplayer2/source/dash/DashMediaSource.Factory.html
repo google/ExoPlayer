@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":42,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":42,"i12":10,"i13":10,"i14":42,"i15":42};
+var data = {"i0":42,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":42,"i7":42,"i8":10,"i9":42,"i10":10,"i11":42,"i12":10,"i13":10,"i14":42,"i15":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -261,14 +261,14 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">setDrmHttpDataSourceFactory</a></span>&#8203;(<a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> to be used for creating <a href="../../drm/HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallbacks</code></a> to execute key and provisioning requests over HTTP.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">setDrmSessionManager</a></span>&#8203;(<a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to use for all media items regardless of their <a href="../../MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.DrmConfiguration</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -283,7 +283,7 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmUserAgent(java.lang.String)">setDrmUserAgent</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional user agent to be used for DRM requests.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
@@ -472,8 +472,10 @@ public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmSessionManager</h4>
-<pre class="methodSignature">public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmSessionManager&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmSessionManager&#8203;(@Nullable
                                                     <a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSourceFactory.html#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)">MediaSourceFactory</a></code></span></div>
 <div class="block">Sets the <a href="../../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to use for all media items regardless of their <a href="../../MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.DrmConfiguration</code></a>.
 
@@ -495,8 +497,10 @@ public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmHttpDataSourceFactory</h4>
-<pre class="methodSignature">public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmHttpDataSourceFactory&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmHttpDataSourceFactory&#8203;(@Nullable
                                                            <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSourceFactory.html#setDrmHttpDataSourceFactory(com.google.android.exoplayer2.upstream.HttpDataSource.Factory)">MediaSourceFactory</a></code></span></div>
 <div class="block">Sets the <a href="../../upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> to be used for creating <a href="../../drm/HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallbacks</code></a> to execute key and provisioning requests over HTTP.
 
@@ -517,8 +521,10 @@ public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>setDrmUserAgent</h4>
-<pre class="methodSignature">public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmUserAgent&#8203;(@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmUserAgent&#8203;(@Nullable
                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSourceFactory.html#setDrmUserAgent(java.lang.String)">MediaSourceFactory</a></code></span></div>
 <div class="block">Sets the optional user agent to be used for DRM requests.
 

@@ -18,10 +18,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer2.upstream.test">
 
+  <uses-permission android:name="android.permission.INTERNET"/>
   <uses-sdk/>
 
   <application
       android:allowBackup="false"
+      android:usesCleartextTraffic="true"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <provider
       android:authorities="com.google.android.exoplayer2.testutil.AssetContentProvider"

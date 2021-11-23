@@ -79,10 +79,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Formatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * A view for controlling {@link Player} instances.
@@ -1935,19 +1936,13 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private static final class TrackInformation {
 
-    private TracksInfo tracksInfo;
-    private int trackGroupIndex;
     public final TrackGroupInfo trackGroupInfo;
-    public final TrackGroup trackGroup;
     public final int trackIndex;
     public final String trackName;
 
     public TrackInformation(
         TracksInfo tracksInfo, int trackGroupIndex, int trackIndex, String trackName) {
-      this.tracksInfo = tracksInfo;
-      this.trackGroupIndex = trackGroupIndex;
       this.trackGroupInfo = tracksInfo.getTrackGroupInfos().get(trackGroupIndex);
-      this.trackGroup = trackGroupInfo.getTrackGroup();
       this.trackIndex = trackIndex;
       this.trackName = trackName;
     }
@@ -2046,11 +2041,15 @@ public class StyledPlayerControlView extends FrameLayout {
                     .buildUpon()
                     .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
                     .build();
+            Set<@C.TrackType Integer> disabledTrackTypes =
+                new HashSet<>(trackSelectionParameters.disabledTrackTypes);
+            disabledTrackTypes.remove(C.TRACK_TYPE_AUDIO);
             castNonNull(player)
                 .setTrackSelectionParameters(
                     trackSelectionParameters
                         .buildUpon()
                         .setTrackSelectionOverrides(trackSelectionOverrides)
+                        .setDisabledTrackTypes(disabledTrackTypes)
                         .build());
             settingsAdapter.setSubTextAtPosition(
                 SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
@@ -2060,16 +2059,11 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     private boolean hasSelectionOverride(TrackSelectionOverrides trackSelectionOverrides) {
-      int previousTrackGroupIndex = C.INDEX_UNSET;
       for (int i = 0; i < tracks.size(); i++) {
-        TrackInformation track = tracks.get(i);
-        if (track.trackGroupIndex == previousTrackGroupIndex) {
-          continue;
-        }
-        if (trackSelectionOverrides.getOverride(track.trackGroup) != null) {
+        TrackGroup trackGroup = tracks.get(i).trackGroupInfo.getTrackGroup();
+        if (trackSelectionOverrides.getOverride(trackGroup) != null) {
           return true;
         }
-        previousTrackGroupIndex = track.trackGroupIndex;
       }
       return false;
     }
@@ -2081,25 +2075,16 @@ public class StyledPlayerControlView extends FrameLayout {
 
     @Override
     public void init(List<TrackInformation> trackInformations) {
+      this.tracks = trackInformations;
       // Update subtext in settings menu with current audio track selection.
-      boolean hasSelectionOverride = false;
-      for (int i = 0; i < trackInformations.size(); i++) {
-        if (checkNotNull(player)
-                .getTrackSelectionParameters()
-                .trackSelectionOverrides
-                .getOverride(trackInformations.get(i).trackGroup)
-            != null) {
-          hasSelectionOverride = true;
-          break;
-        }
-      }
+      TrackSelectionParameters params = checkNotNull(player).getTrackSelectionParameters();
       if (trackInformations.isEmpty()) {
         settingsAdapter.setSubTextAtPosition(
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_none));
         // TODO(insun) : Make the audio item in main settings (settingsAdapater)
         //  to be non-clickable.
-      } else if (!hasSelectionOverride) {
+      } else if (!hasSelectionOverride(params.trackSelectionOverrides)) {
         settingsAdapter.setSubTextAtPosition(
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_auto));
@@ -2113,7 +2098,6 @@ public class StyledPlayerControlView extends FrameLayout {
           }
         }
       }
-      this.tracks = trackInformations;
     }
   }
 
@@ -2149,13 +2133,10 @@ public class StyledPlayerControlView extends FrameLayout {
         onBindViewHolderAtZeroPosition(holder);
       } else {
         TrackInformation track = tracks.get(position - 1);
+        TrackGroup trackGroup = track.trackGroupInfo.getTrackGroup();
+        TrackSelectionParameters params = checkNotNull(player).getTrackSelectionParameters();
         boolean explicitlySelected =
-            checkNotNull(player)
-                        .getTrackSelectionParameters()
-                        .trackSelectionOverrides
-                        .getOverride(track.trackGroup)
-                    != null
-                && track.isSelected();
+            params.trackSelectionOverrides.getOverride(trackGroup) != null && track.isSelected();
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
@@ -2166,17 +2147,22 @@ public class StyledPlayerControlView extends FrameLayout {
               TrackSelectionParameters trackSelectionParameters =
                   player.getTrackSelectionParameters();
               TrackSelectionOverrides overrides =
-                  forceTrackSelection(
-                      trackSelectionParameters.trackSelectionOverrides,
-                      track.tracksInfo,
-                      track.trackGroupIndex,
-                      new TrackSelectionOverride(
-                          track.trackGroup, ImmutableList.of(track.trackIndex)));
+                  trackSelectionParameters
+                      .trackSelectionOverrides
+                      .buildUpon()
+                      .setOverrideForType(
+                          new TrackSelectionOverride(
+                              trackGroup, ImmutableList.of(track.trackIndex)))
+                      .build();
+              Set<@C.TrackType Integer> disabledTrackTypes =
+                  new HashSet<>(trackSelectionParameters.disabledTrackTypes);
+              disabledTrackTypes.remove(track.trackGroupInfo.getTrackType());
               checkNotNull(player)
                   .setTrackSelectionParameters(
                       trackSelectionParameters
                           .buildUpon()
                           .setTrackSelectionOverrides(overrides)
+                          .setDisabledTrackTypes(disabledTrackTypes)
                           .build());
               onTrackSelection(track.trackName);
               settingsWindow.dismiss();
@@ -2208,42 +2194,5 @@ public class StyledPlayerControlView extends FrameLayout {
       textView = itemView.findViewById(R.id.exo_text);
       checkView = itemView.findViewById(R.id.exo_check);
     }
-  }
-
-  /**
-   * Forces tracks in a {@link TrackGroup} to be the only ones selected for a {@link C.TrackType}.
-   * No other tracks of that type will be selectable. If the forced tracks are not supported, then
-   * no tracks of that type will be selected.
-   *
-   * @param trackSelectionOverrides The current {@link TrackSelectionOverride overrides}.
-   * @param tracksInfo The current {@link TracksInfo}.
-   * @param forcedTrackGroupIndex The index of the {@link TrackGroup} in {@code tracksInfo} that
-   *     should have its track selected.
-   * @param forcedTrackSelectionOverride The tracks to force selection of.
-   * @return The updated {@link TrackSelectionOverride overrides}.
-   */
-  @Pure
-  private static TrackSelectionOverrides forceTrackSelection(
-      TrackSelectionOverrides trackSelectionOverrides,
-      TracksInfo tracksInfo,
-      int forcedTrackGroupIndex,
-      TrackSelectionOverride forcedTrackSelectionOverride) {
-    TrackSelectionOverrides.Builder overridesBuilder = trackSelectionOverrides.buildUpon();
-
-    @C.TrackType
-    int trackType = tracksInfo.getTrackGroupInfos().get(forcedTrackGroupIndex).getTrackType();
-    overridesBuilder.setOverrideForType(forcedTrackSelectionOverride);
-    // TrackSelectionOverride doesn't currently guarantee that only overwritten track
-    // group of a given type are selected, so the others have to be explicitly disabled.
-    // This guarantee is provided in the following patch that removes the need for this method.
-    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
-    for (int i = 0; i < trackGroupInfos.size(); i++) {
-      TrackGroupInfo trackGroupInfo = trackGroupInfos.get(i);
-      if (i != forcedTrackGroupIndex && trackGroupInfo.getTrackType() == trackType) {
-        TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
-        overridesBuilder.addOverride(new TrackSelectionOverride(trackGroup, ImmutableList.of()));
-      }
-    }
-    return overridesBuilder.build();
   }
 }

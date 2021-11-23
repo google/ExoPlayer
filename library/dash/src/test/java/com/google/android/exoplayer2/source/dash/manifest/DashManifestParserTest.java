@@ -24,6 +24,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
+import com.google.android.exoplayer2.source.dash.manifest.Representation.MultiSegmentRepresentation;
+import com.google.android.exoplayer2.source.dash.manifest.Representation.SingleSegmentRepresentation;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -53,6 +55,8 @@ public class DashManifestParserTest {
   private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "media/mpd/sample_mpd_asset_identifier";
   private static final String SAMPLE_MPD_TEXT = "media/mpd/sample_mpd_text";
   private static final String SAMPLE_MPD_TRICK_PLAY = "media/mpd/sample_mpd_trick_play";
+  private static final String SAMPLE_MPD_ESSENTIAL_SUPPLEMENTAL_PROPERTIES =
+      "media/mpd/sample_mpd_essential_supplemental_properties";
   private static final String SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_BASE_URL =
       "media/mpd/sample_mpd_availabilityTimeOffset_baseUrl";
   private static final String SAMPLE_MPD_MULTIPLE_BASE_URLS =
@@ -502,6 +506,74 @@ public class DashManifestParserTest {
     assertThat(assetIdentifier.schemeIdUri).isEqualTo("urn:org:dashif:asset-id:2013");
     assertThat(assetIdentifier.value).isEqualTo("md:cid:EIDR:10.5240%2f0EFB-02CD-126E-8092-1E49-W");
     assertThat(assetIdentifier.id).isEqualTo("uniqueId");
+  }
+
+  @Test
+  public void parseEssentialAndSupplementalProperties() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_ESSENTIAL_SUPPLEMENTAL_PROPERTIES));
+
+    // Verify test setup.
+    assertThat(manifest.getPeriodCount()).isEqualTo(1);
+    assertThat(manifest.getPeriod(0).adaptationSets).hasSize(1);
+    AdaptationSet adaptationSet = manifest.getPeriod(0).adaptationSets.get(0);
+    assertThat(adaptationSet.representations).hasSize(2);
+    Representation representation0 = adaptationSet.representations.get(0);
+    Representation representation1 = adaptationSet.representations.get(1);
+    assertThat(representation0).isInstanceOf(SingleSegmentRepresentation.class);
+    assertThat(representation1).isInstanceOf(MultiSegmentRepresentation.class);
+
+    // Verify parsed properties.
+    assertThat(adaptationSet.essentialProperties).hasSize(1);
+    assertThat(adaptationSet.essentialProperties.get(0).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:essential-scheme:2050");
+    assertThat(adaptationSet.essentialProperties.get(0).value).isEqualTo("adaptationEssential");
+    assertThat(adaptationSet.supplementalProperties).hasSize(1);
+    assertThat(adaptationSet.supplementalProperties.get(0).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:supplemental-scheme:2050");
+    assertThat(adaptationSet.supplementalProperties.get(0).value)
+        .isEqualTo("adaptationSupplemental");
+
+    assertThat(representation0.essentialProperties).hasSize(2);
+    assertThat(representation0.essentialProperties.get(0).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:essential-scheme:2050");
+    assertThat(representation0.essentialProperties.get(0).value).isEqualTo("adaptationEssential");
+    assertThat(representation0.essentialProperties.get(1).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:essential-scheme:2050");
+    assertThat(representation0.essentialProperties.get(1).value)
+        .isEqualTo("representationEssential");
+    assertThat(representation0.supplementalProperties).hasSize(2);
+    assertThat(representation0.supplementalProperties.get(0).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:supplemental-scheme:2050");
+    assertThat(representation0.supplementalProperties.get(0).value)
+        .isEqualTo("adaptationSupplemental");
+    assertThat(representation0.supplementalProperties.get(1).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:supplemental-scheme:2050");
+    assertThat(representation0.supplementalProperties.get(1).value)
+        .isEqualTo("representationSupplemental");
+
+    assertThat(representation1.essentialProperties).hasSize(2);
+    assertThat(representation0.essentialProperties.get(0).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:essential-scheme:2050");
+    assertThat(representation0.essentialProperties.get(0).value).isEqualTo("adaptationEssential");
+    assertThat(representation1.essentialProperties.get(1).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:essential-scheme:2050");
+    assertThat(representation1.essentialProperties.get(1).value)
+        .isEqualTo("representationEssential");
+    assertThat(representation1.supplementalProperties).hasSize(2);
+    assertThat(representation0.supplementalProperties.get(0).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:supplemental-scheme:2050");
+    assertThat(representation0.supplementalProperties.get(0).value)
+        .isEqualTo("adaptationSupplemental");
+    assertThat(representation1.supplementalProperties.get(1).schemeIdUri)
+        .isEqualTo("urn:mpeg:dash:supplemental-scheme:2050");
+    assertThat(representation1.supplementalProperties.get(1).value)
+        .isEqualTo("representationSupplemental");
   }
 
   @Test

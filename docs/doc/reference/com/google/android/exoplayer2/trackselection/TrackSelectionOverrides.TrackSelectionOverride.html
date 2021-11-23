@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -140,16 +140,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public static final class <span class="typeNameLabel">TrackSelectionOverrides.TrackSelectionOverride</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
-<div class="block">Forces the selection of <a href="#trackIndexes"><code>trackIndexes</code></a> for a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.
+<div class="block">Forces the selection of <a href="#trackIndices"><code>trackIndices</code></a> for a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.
 
- <p>If multiple {link #tracks} are overridden, as many as possible will be selected depending on
- the player capabilities.
+ <p>If multiple tracks in <a href="#trackGroup"><code>trackGroup</code></a> are overridden, as many as possible will be
+ selected depending on the player capabilities.
 
- <p>If a <a href="TrackSelectionOverrides.TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionOverrides.TrackSelectionOverride</code></a> has no tracks (<code>tracks.isEmpty()</code>), no tracks will
- be played. This is similar to <a href="TrackSelectionParameters.html#disabledTrackTypes"><code>TrackSelectionParameters.disabledTrackTypes</code></a>, except it
- will only affect the playback of the associated <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. For example, if the only
- <a href="../C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is associated with no tracks, no video will play
- until the next video starts.</div>
+ <p>If <a href="#trackIndices"><code>trackIndices</code></a> is empty, no tracks from <a href="#trackGroup"><code>trackGroup</code></a> will be played. This
+ is similar to <a href="TrackSelectionParameters.html#disabledTrackTypes"><code>TrackSelectionParameters.disabledTrackTypes</code></a>, except it will only affect
+ the playback of the associated <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. For example, if the only <a href="../C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> is associated with no tracks, no video will play until
+ the next video starts.</div>
 </li>
 </ul>
 </div>
@@ -198,14 +197,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colFirst"><code><a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackGroup">trackGroup</a></span></code></th>
 <td class="colLast">
-<div class="block">The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> whose <a href="#trackIndexes"><code>trackIndexes</code></a> are forced to be selected.</div>
+<div class="block">The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> whose <a href="#trackIndices"><code>trackIndices</code></a> are forced to be selected.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackIndexes">trackIndexes</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackIndices">trackIndices</a></span></code></th>
 <td class="colLast">
-<div class="block">The index of tracks in a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> to be selected.</div>
+<div class="block">The indices of tracks in a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> to be selected.</div>
 </td>
 </tr>
 </table>
@@ -233,9 +232,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,java.util.List)">TrackSelectionOverride</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;trackGroup,
-                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;trackIndexes)</code></th>
+                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;trackIndices)</code></th>
 <td class="colLast">
-<div class="block">Constructs an instance to force <code>trackIndexes</code> in <code>trackGroup</code> to be selected.</div>
+<div class="block">Constructs an instance to force <code>trackIndices</code> in <code>trackGroup</code> to be selected.</div>
 </td>
 </tr>
 </table>
@@ -262,11 +261,18 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackType()">getTrackType</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the overriden track group.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -304,17 +310,17 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>trackGroup</h4>
 <pre>public final&nbsp;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a> trackGroup</pre>
-<div class="block">The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> whose <a href="#trackIndexes"><code>trackIndexes</code></a> are forced to be selected.</div>
+<div class="block">The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> whose <a href="#trackIndices"><code>trackIndices</code></a> are forced to be selected.</div>
 </li>
 </ul>
-<a id="trackIndexes">
+<a id="trackIndices">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>trackIndexes</h4>
-<pre>public final&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt; trackIndexes</pre>
-<div class="block">The index of tracks in a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> to be selected.</div>
+<h4>trackIndices</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt; trackIndices</pre>
+<div class="block">The indices of tracks in a <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> to be selected.</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -354,12 +360,12 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>TrackSelectionOverride</h4>
 <pre>public&nbsp;TrackSelectionOverride&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;trackGroup,
-                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;trackIndexes)</pre>
-<div class="block">Constructs an instance to force <code>trackIndexes</code> in <code>trackGroup</code> to be selected.</div>
+                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;trackIndices)</pre>
+<div class="block">Constructs an instance to force <code>trackIndices</code> in <code>trackGroup</code> to be selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackGroup</code> - The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> for which to override the track selection.</dd>
-<dd><code>trackIndexes</code> - The indexes of the tracks in the <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> to select.</dd>
+<dd><code>trackIndices</code> - The indices of the tracks in the <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a> to select.</dd>
 </dl>
 </li>
 </ul>
@@ -398,6 +404,16 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
 </dl>
+</li>
+</ul>
+<a id="getTrackType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTrackType</h4>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.C.TrackType int&nbsp;getTrackType()</pre>
+<div class="block">Returns the <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a> of the overriden track group.</div>
 </li>
 </ul>
 <a id="toBundle()">

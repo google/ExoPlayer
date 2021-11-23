@@ -79,6 +79,8 @@ public final class DashUtilTest {
             baseUrls,
             new SingleSegmentBase(),
             /* inbandEventStreams= */ null,
+            /* essentialProperties= */ ImmutableList.of(),
+            /* supplementalProperties= */ ImmutableList.of(),
             /* cacheKey= */ null,
             /* contentLength= */ 1);
     RangedUri rangedUri = new RangedUri("path/to/resource", /* start= */ 0, /* length= */ 1);
@@ -99,6 +101,8 @@ public final class DashUtilTest {
             baseUrls,
             new SingleSegmentBase(),
             /* inbandEventStreams= */ null,
+            /* essentialProperties= */ ImmutableList.of(),
+            /* supplementalProperties= */ ImmutableList.of(),
             "cacheKey",
             /* contentLength= */ 1);
     RangedUri rangedUri = new RangedUri("path/to/resource", /* start= */ 0, /* length= */ 1);

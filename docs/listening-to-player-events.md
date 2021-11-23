@@ -31,7 +31,8 @@ Changes in player state can be received by implementing
 `Player.Listener`. The player can be in one of four playback states:
 
 * `Player.STATE_IDLE`: This is the initial state, the state when the player is
-  stopped, and when playback failed.
+  stopped, and when playback failed. The player will hold only limited resources
+  in this state.
 * `Player.STATE_BUFFERING`: The player is not able to immediately play from its
   current position. This mostly happens because more data needs to be loaded.
 * `Player.STATE_READY`: The player is able to immediately play from its current
