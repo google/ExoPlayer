@@ -150,6 +150,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       encoderOutputBuffer.data = encoder.getOutputBuffer();
       if (encoderOutputBuffer.data != null) {
         encoderOutputBuffer.timeUs = checkNotNull(encoder.getOutputBufferInfo()).presentationTimeUs;
+        encoderOutputBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
         return encoderOutputBuffer;
       }
     }
