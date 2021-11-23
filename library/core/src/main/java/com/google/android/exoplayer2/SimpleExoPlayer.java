@@ -1351,7 +1351,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  @Nullable
   public TrackSelector getTrackSelector() {
     verifyApplicationThread();
     return player.getTrackSelector();
