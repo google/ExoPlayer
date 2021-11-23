@@ -345,7 +345,9 @@ public class PlayerNotificationManager {
      *
      * @param context The {@link Context}.
      * @param notificationId The id of the notification to be posted. Must be greater than 0.
-     * @param channelId The id of the notification channel.
+     * @param channelId The id of the notification channel of an existing notification channel or of
+     *     the channel that should be automatically created. In the latter case, {@link
+     *     #setChannelNameResourceId(int)} needs to be called as well.
      */
     public Builder(Context context, @IntRange(from = 1) int notificationId, String channelId) {
       checkArgument(notificationId > 0);
