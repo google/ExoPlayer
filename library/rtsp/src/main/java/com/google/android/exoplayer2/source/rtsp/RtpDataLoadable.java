@@ -95,6 +95,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EventListener eventListener,
       ExtractorOutput output,
       RtpDataChannel.Factory rtpDataChannelFactory) {
+
+    Log.i(TAG, "Constructor");
+    Log.i(TAG, "trackId"+ trackId);
+    Log.i(TAG, "rtspMediaTrack"+ rtspMediaTrack);
+    Log.i(TAG, "rtpDataChannelFactory"+ rtpDataChannelFactory);
+
     this.trackId = trackId;
     this.rtspMediaTrack = rtspMediaTrack;
     this.eventListener = eventListener;

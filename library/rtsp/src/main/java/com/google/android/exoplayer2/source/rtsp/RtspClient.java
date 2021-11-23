@@ -39,6 +39,7 @@ import static java.lang.Math.max;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -49,7 +50,7 @@ import com.google.android.exoplayer2.source.rtsp.RtspMediaSource.RtspPlaybackExc
 import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedBinaryDataListener;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspAuthUserInfo;
 import com.google.android.exoplayer2.source.rtsp.RtspMessageUtil.RtspSessionHeader;
-import com.google.android.exoplayer2.util.Log;
+
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -89,8 +90,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** RTSP playing state, the state after receiving PLAY response. */
   public static final int RTSP_STATE_PLAYING = 2;
 
-  private static final String TAG = "RtspClient";
   private static final long DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS = 30_000;
+
+  String TAG = Constants.TAG + "RtspClient";
 
   /** A listener for session information update. */
   public interface SessionInfoListener {
@@ -162,6 +164,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       String userAgent,
       Uri uri,
       boolean debugLoggingEnabled) {
+    Log.i(TAG,"Constructor" );
     this.sessionInfoListener = sessionInfoListener;
     this.playbackEventListener = playbackEventListener;
     this.userAgent = userAgent;
@@ -174,6 +177,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
     this.pendingSeekPositionUs = C.TIME_UNSET;
     this.rtspState = RTSP_STATE_UNINITIALIZED;
+    Log.i(TAG,"this.uri " + this.uri);
+
   }
 
   /**
