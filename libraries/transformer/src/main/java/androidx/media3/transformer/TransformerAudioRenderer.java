@@ -17,10 +17,8 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -28,9 +26,6 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 @RequiresApi(18)
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
@@ -38,10 +33,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "TransformerAudioRenderer";
 
   private final DecoderInputBuffer decoderInputBuffer;
-
-  private @MonotonicNonNull SamplePipeline samplePipeline;
-  private boolean muxerWrapperTrackAdded;
-  private boolean muxerWrapperTrackEnded;
 
   public TransformerAudioRenderer(
       MuxerWrapper muxerWrapper, TransformerMediaClock mediaClock, Transformation transformation) {
@@ -55,32 +46,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return TAG;
   }
 
+  /** Attempts to read the input format and to initialize the sample or passthrough pipeline. */
   @Override
-  public boolean isEnded() {
-    return muxerWrapperTrackEnded;
-  }
-
-  @Override
-  protected void onReset() {
-    if (samplePipeline != null) {
-      samplePipeline.release();
-    }
-    muxerWrapperTrackAdded = false;
-    muxerWrapperTrackEnded = false;
-  }
-
-  @Override
-  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (!isRendererStarted || isEnded() || !ensureRendererConfigured()) {
-      return;
-    }
-
-    while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
-  }
-
-  /** Attempts to read the input format and to initialize the sample pipeline. */
-  @EnsuresNonNullIf(expression = "samplePipeline", result = true)
-  private boolean ensureRendererConfigured() throws ExoPlaybackException {
+  protected boolean ensureConfigured() throws ExoPlaybackException {
     if (samplePipeline != null) {
       return true;
     }
@@ -99,74 +67,5 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       samplePipeline = new PassthroughSamplePipeline(decoderInputFormat);
     }
     return true;
-  }
-
-  /**
-   * Attempts to write sample pipeline output data to the muxer.
-   *
-   * @return Whether it may be possible to write more data immediately by calling this method again.
-   */
-  @RequiresNonNull("samplePipeline")
-  private boolean feedMuxerFromPipeline() {
-    if (!muxerWrapperTrackAdded) {
-      @Nullable Format samplePipelineOutputFormat = samplePipeline.getOutputFormat();
-      if (samplePipelineOutputFormat == null) {
-        return false;
-      }
-      muxerWrapperTrackAdded = true;
-      muxerWrapper.addTrackFormat(samplePipelineOutputFormat);
-    }
-
-    if (samplePipeline.isEnded()) {
-      muxerWrapper.endTrack(getTrackType());
-      muxerWrapperTrackEnded = true;
-      return false;
-    }
-    @Nullable DecoderInputBuffer samplePipelineOutputBuffer = samplePipeline.getOutputBuffer();
-    if (samplePipelineOutputBuffer == null) {
-      return false;
-    }
-    if (!muxerWrapper.writeSample(
-        getTrackType(),
-        checkStateNotNull(samplePipelineOutputBuffer.data),
-        /* isKeyFrame= */ true,
-        samplePipelineOutputBuffer.timeUs)) {
-      return false;
-    }
-    samplePipeline.releaseOutputBuffer();
-    return true;
-  }
-
-  /**
-   * Attempts to pass input data to the sample pipeline.
-   *
-   * @return Whether it may be possible to pass more data immediately by calling this method again.
-   */
-  @RequiresNonNull("samplePipeline")
-  private boolean feedPipelineFromInput() {
-    @Nullable DecoderInputBuffer samplePipelineInputBuffer = samplePipeline.dequeueInputBuffer();
-    if (samplePipelineInputBuffer == null) {
-      return false;
-    }
-
-    @ReadDataResult
-    int result = readSource(getFormatHolder(), samplePipelineInputBuffer, /* readFlags= */ 0);
-    switch (result) {
-      case C.RESULT_BUFFER_READ:
-        if (samplePipelineInputBuffer.isEndOfStream()) {
-          samplePipeline.queueInputBuffer();
-          return false;
-        }
-        mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
-        samplePipelineInputBuffer.timeUs -= streamOffsetUs;
-        samplePipelineInputBuffer.flip();
-        samplePipeline.queueInputBuffer();
-        return true;
-      case C.RESULT_FORMAT_READ:
-        throw new IllegalStateException("Format changes are not supported.");
-      case C.RESULT_NOTHING_READ:
-      default:
-        return false;
-    }
   }
 }
