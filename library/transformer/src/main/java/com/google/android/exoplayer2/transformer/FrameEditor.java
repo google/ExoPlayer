@@ -29,26 +29,26 @@ import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 
 /**
- * OpenGlFrameEditor applies changes to individual video frames using OpenGL. Changes include just
- * resolution for now, but may later include brightness, cropping, rotation, etc.
+ * FrameEditor applies changes to individual video frames. Changes include just resolution for now,
+ * but may later include brightness, cropping, rotation, etc.
  */
 @RequiresApi(18)
-/* package */ final class OpenGlFrameEditor {
+/* package */ final class FrameEditor {
 
   static {
     GlUtil.glAssertionsEnabled = true;
   }
 
   /**
-   * Returns a new OpenGlFrameEditor for applying changes to individual frames.
+   * Returns a new {@code FrameEditor} for applying changes to individual frames.
    *
    * @param context A {@link Context}.
    * @param outputWidth The output width in pixels.
    * @param outputHeight The output height in pixels.
    * @param outputSurface The {@link Surface}.
-   * @return A configured OpenGlFrameEditor.
+   * @return A configured {@code FrameEditor}.
    */
-  public static OpenGlFrameEditor create(
+  public static FrameEditor create(
       Context context, int outputWidth, int outputHeight, Surface outputSurface) {
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     EGLContext eglContext;
@@ -87,7 +87,7 @@ import java.io.IOException;
         },
         /* size= */ 4);
     copyProgram.setSamplerTexIdUniform("tex_sampler", textureId, /* unit= */ 0);
-    return new OpenGlFrameEditor(eglDisplay, eglContext, eglSurface, textureId, copyProgram);
+    return new FrameEditor(eglDisplay, eglContext, eglSurface, textureId, copyProgram);
   }
 
   // Predefined shader values.
@@ -107,7 +107,7 @@ import java.io.IOException;
 
   private volatile boolean hasInputData;
 
-  private OpenGlFrameEditor(
+  private FrameEditor(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       EGLSurface eglSurface,

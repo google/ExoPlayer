@@ -44,7 +44,7 @@ import java.io.IOException;
   private final DecoderInputBuffer decoderInputBuffer;
   private final MediaCodecAdapterWrapper decoder;
 
-  private final OpenGlFrameEditor openGlFrameEditor;
+  private final FrameEditor frameEditor;
 
   private boolean waitingForPopulatedDecoderSurface;
 
@@ -84,8 +84,8 @@ import java.io.IOException;
       throw createRendererException(
           e, rendererIndex, decoderInputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
-    openGlFrameEditor =
-        OpenGlFrameEditor.create(
+    frameEditor =
+        FrameEditor.create(
             context,
             outputWidth,
             outputHeight,
@@ -93,7 +93,7 @@ import java.io.IOException;
     try {
       decoder =
           MediaCodecAdapterWrapper.createForVideoDecoding(
-              decoderInputFormat, openGlFrameEditor.getInputSurface());
+              decoderInputFormat, frameEditor.getInputSurface());
     } catch (IOException e) {
       throw createRendererException(
           e, rendererIndex, decoderInputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
@@ -106,7 +106,7 @@ import java.io.IOException;
       return false;
     }
 
-    if (!openGlFrameEditor.hasInputData()) {
+    if (!frameEditor.hasInputData()) {
       if (!waitingForPopulatedDecoderSurface) {
         if (decoder.getOutputBufferInfo() != null) {
           decoder.releaseOutputBuffer(/* render= */ true);
@@ -120,7 +120,7 @@ import java.io.IOException;
     }
 
     waitingForPopulatedDecoderSurface = false;
-    openGlFrameEditor.processData();
+    frameEditor.processData();
     return true;
   }
 
@@ -166,7 +166,7 @@ import java.io.IOException;
 
   @Override
   public void release() {
-    openGlFrameEditor.release();
+    frameEditor.release();
     decoder.release();
     encoder.release();
   }
