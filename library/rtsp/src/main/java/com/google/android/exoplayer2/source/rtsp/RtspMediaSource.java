@@ -257,6 +257,8 @@ public final class RtspMediaSource extends BaseMediaSource {
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.timelineDurationUs = C.TIME_UNSET;
     this.timelineIsPlaceholder = true;
+    Log.i(TAG,"Is uri there? " + checkNotNull(this.mediaItem.localConfiguration).uri );
+
 
   }
 

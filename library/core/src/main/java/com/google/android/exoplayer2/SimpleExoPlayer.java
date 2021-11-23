@@ -38,6 +38,7 @@ import android.media.AudioTrack;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -69,7 +70,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
-import com.google.android.exoplayer2.util.Log;
+
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
@@ -92,6 +93,7 @@ public class SimpleExoPlayer extends BasePlayer
         ExoPlayer.VideoComponent,
         ExoPlayer.TextComponent,
         ExoPlayer.DeviceComponent {
+
 
   /** @deprecated Use {@link ExoPlayer.Builder} instead. */
   @Deprecated
@@ -1053,10 +1055,11 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void prepare() {
+    Log.i("RTP_DEBUGGING SimpleExoPlayer"," prepare() ");
     verifyApplicationThread();
     boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
-    int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, Player.STATE_BUFFERING);
+    int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, Player.STATE_BUFFERING); // TODO: remove possible use of audio here?
     updatePlayWhenReady(
         playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
     player.prepare();
@@ -1117,6 +1120,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void setMediaSource(MediaSource mediaSource) {
+    Log.i("RTP_DEBUGGING SimpleExoPlayer"," setMediaSource() ");
     verifyApplicationThread();
     player.setMediaSource(mediaSource);
   }

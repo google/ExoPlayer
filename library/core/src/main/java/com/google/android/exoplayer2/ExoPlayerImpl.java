@@ -24,6 +24,7 @@ import static java.lang.Math.min;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -52,7 +53,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
-import com.google.android.exoplayer2.util.Log;
+
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
@@ -359,6 +360,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void prepare() {
+    Log.i("RTP_DEBUGGING ExoPlayerImpl.java"," prepare() -> sets up the rest of the fields that we need to prepare the player ");
     if (playbackInfo.playbackState != Player.STATE_IDLE) {
       return;
     }
@@ -371,6 +373,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     // player after this prepare. The internal player can't change the playback info immediately
     // because it uses a callback.
     pendingOperationAcks++;
+    Log.i("RTP_DEBUGGING SimpleExoPlayer"," internalPlayer prepare() ");
     internalPlayer.prepare();
     updatePlaybackInfo(
         playbackInfo,

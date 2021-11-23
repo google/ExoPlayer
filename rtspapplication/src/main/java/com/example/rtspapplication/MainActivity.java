@@ -35,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
     Log.i(TAG,"Finished creation of mediaSource");
 
     player.setMediaSource(mediaSource);
-    Log.i(TAG,"Set Media Source");
+    Log.i(TAG,"Set Media Source DONE");
     playerView.setUseController(false);
+    Log.i(TAG,"setUseController() DONE");
     playerView.setPlayer(player);
+    Log.i(TAG,"setPlayer() DONE");
     player.prepare();
-    Log.i(TAG,"Player Prepared");
+    Log.i(TAG,"Player Prepared DONE");
     player.setPlayWhenReady(true);
     Log.i(TAG,"Set to play when the player is ready");
   }
