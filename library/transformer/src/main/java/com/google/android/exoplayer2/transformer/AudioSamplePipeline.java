@@ -47,8 +47,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "AudioSamplePipeline";
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
+  private final Format inputFormat;
+  private final Transformation transformation;
+  private final int rendererIndex;
+
   private final MediaCodecAdapterWrapper decoder;
-  private final Format decoderInputFormat;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private final SonicAudioProcessor sonicAudioProcessor;
@@ -56,9 +59,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final DecoderInputBuffer encoderInputBuffer;
   private final DecoderInputBuffer encoderOutputBuffer;
-
-  private final Transformation transformation;
-  private final int rendererIndex;
 
   private @MonotonicNonNull AudioFormat encoderInputAudioFormat;
   private @MonotonicNonNull MediaCodecAdapterWrapper encoder;
@@ -69,10 +69,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean drainingSonicForSpeedChange;
   private float currentSpeed;
 
-  public AudioSamplePipeline(
-      Format decoderInputFormat, Transformation transformation, int rendererIndex)
+  public AudioSamplePipeline(Format inputFormat, Transformation transformation, int rendererIndex)
       throws ExoPlaybackException {
-    this.decoderInputFormat = decoderInputFormat;
+    this.inputFormat = inputFormat;
     this.transformation = transformation;
     this.rendererIndex = rendererIndex;
     decoderInputBuffer =
@@ -83,17 +82,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     sonicAudioProcessor = new SonicAudioProcessor();
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
-    speedProvider = new SegmentSpeedProvider(decoderInputFormat);
+    speedProvider = new SegmentSpeedProvider(inputFormat);
     currentSpeed = speedProvider.getSpeed(0);
     try {
-      this.decoder = MediaCodecAdapterWrapper.createForAudioDecoding(decoderInputFormat);
+      this.decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
     } catch (IOException e) {
       // TODO(internal b/192864511): Assign a specific error code.
       throw ExoPlaybackException.createForRenderer(
           e,
           TAG,
           rendererIndex,
-          decoderInputFormat,
+          inputFormat,
           /* rendererFormatSupport= */ C.FORMAT_HANDLED,
           /* isRecoverable= */ false,
           PlaybackException.ERROR_CODE_UNSPECIFIED);
@@ -319,7 +318,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     String audioMimeType =
         transformation.audioMimeType == null
-            ? decoderInputFormat.sampleMimeType
+            ? inputFormat.sampleMimeType
             : transformation.audioMimeType;
     try {
       encoder =
@@ -359,7 +358,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         cause,
         TAG,
         rendererIndex,
-        decoderInputFormat,
+        inputFormat,
         /* rendererFormatSupport= */ C.FORMAT_HANDLED,
         /* isRecoverable= */ false,
         errorCode);

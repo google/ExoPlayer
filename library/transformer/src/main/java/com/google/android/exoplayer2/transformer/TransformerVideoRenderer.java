@@ -69,18 +69,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    Format decoderInputFormat = checkNotNull(formatHolder.format);
+    Format inputFormat = checkNotNull(formatHolder.format);
     if ((transformation.videoMimeType != null
-            && !transformation.videoMimeType.equals(decoderInputFormat.sampleMimeType))
+            && !transformation.videoMimeType.equals(inputFormat.sampleMimeType))
         || (transformation.outputHeight != Transformation.NO_VALUE
-            && transformation.outputHeight != decoderInputFormat.height)) {
-      samplePipeline =
-          new VideoSamplePipeline(context, decoderInputFormat, transformation, getIndex());
+            && transformation.outputHeight != inputFormat.height)) {
+      samplePipeline = new VideoSamplePipeline(context, inputFormat, transformation, getIndex());
     } else {
-      samplePipeline = new PassthroughSamplePipeline(decoderInputFormat);
+      samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
     if (transformation.flattenForSlowMotion) {
-      sefSlowMotionFlattener = new SefSlowMotionFlattener(decoderInputFormat);
+      sefSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }
     return true;
   }

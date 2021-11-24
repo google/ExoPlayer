@@ -38,32 +38,29 @@ import java.io.IOException;
 
   private static final String TAG = "VideoSamplePipeline";
 
-  private final MediaCodecAdapterWrapper encoder;
-  private final DecoderInputBuffer encoderOutputBuffer;
-
   private final DecoderInputBuffer decoderInputBuffer;
   private final MediaCodecAdapterWrapper decoder;
 
   private final FrameEditor frameEditor;
 
+  private final MediaCodecAdapterWrapper encoder;
+  private final DecoderInputBuffer encoderOutputBuffer;
+
   private boolean waitingForPopulatedDecoderSurface;
 
   public VideoSamplePipeline(
-      Context context, Format decoderInputFormat, Transformation transformation, int rendererIndex)
+      Context context, Format inputFormat, Transformation transformation, int rendererIndex)
       throws ExoPlaybackException {
-
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
-
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
-    int outputWidth = decoderInputFormat.width;
-    int outputHeight = decoderInputFormat.height;
+    int outputWidth = inputFormat.width;
+    int outputHeight = inputFormat.height;
     if (transformation.outputHeight != Transformation.NO_VALUE
-        && transformation.outputHeight != decoderInputFormat.height) {
-      outputWidth =
-          decoderInputFormat.width * transformation.outputHeight / decoderInputFormat.height;
+        && transformation.outputHeight != inputFormat.height) {
+      outputWidth = inputFormat.width * transformation.outputHeight / inputFormat.height;
       outputHeight = transformation.outputHeight;
     }
 
@@ -76,13 +73,13 @@ import java.io.IOException;
                   .setSampleMimeType(
                       transformation.videoMimeType != null
                           ? transformation.videoMimeType
-                          : decoderInputFormat.sampleMimeType)
+                          : inputFormat.sampleMimeType)
                   .build(),
               ImmutableMap.of());
     } catch (IOException e) {
       // TODO(internal b/192864511): Assign a specific error code.
       throw createRendererException(
-          e, rendererIndex, decoderInputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
+          e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
     frameEditor =
         FrameEditor.create(
@@ -93,10 +90,10 @@ import java.io.IOException;
     try {
       decoder =
           MediaCodecAdapterWrapper.createForVideoDecoding(
-              decoderInputFormat, frameEditor.getInputSurface());
+              inputFormat, frameEditor.getInputSurface());
     } catch (IOException e) {
       throw createRendererException(
-          e, rendererIndex, decoderInputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
+          e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
     }
   }
 
@@ -172,12 +169,12 @@ import java.io.IOException;
   }
 
   private static ExoPlaybackException createRendererException(
-      Throwable cause, int rendererIndex, Format decoderInputFormat, int errorCode) {
+      Throwable cause, int rendererIndex, Format inputFormat, int errorCode) {
     return ExoPlaybackException.createForRenderer(
         cause,
         TAG,
         rendererIndex,
-        decoderInputFormat,
+        inputFormat,
         /* rendererFormatSupport= */ C.FORMAT_HANDLED,
         /* isRecoverable= */ false,
         errorCode);
