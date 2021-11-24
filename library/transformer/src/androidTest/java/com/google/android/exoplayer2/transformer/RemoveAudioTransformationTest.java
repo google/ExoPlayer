@@ -31,6 +31,11 @@ public class RemoveAudioTransformationTest {
   public void removeAudioTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
-    runTransformer(context, transformer, MP4_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
+    runTransformer(
+        context,
+        /* testId= */ "removeAudioTransform",
+        transformer,
+        MP4_ASSET_URI_STRING,
+        /* timeoutSeconds= */ 120);
   }
 }

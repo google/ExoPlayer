@@ -32,7 +32,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @Ignore("Internal - b/206917996")
 public final class RepeatedTranscodeTransformationTest {
-
   private static final int TRANSCODE_COUNT = 10;
 
   @Test
@@ -50,6 +49,7 @@ public final class RepeatedTranscodeTransformationTest {
       differentOutputSizesBytes.add(
           runTransformer(
                   context,
+                  /* testId= */ "repeatedTranscode_givesConsistentLengthOutput",
                   transformer,
                   AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
                   /* timeoutSeconds= */ 120)
@@ -77,6 +77,7 @@ public final class RepeatedTranscodeTransformationTest {
       differentOutputSizesBytes.add(
           runTransformer(
                   context,
+                  /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput",
                   transformer,
                   AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
                   /* timeoutSeconds= */ 120)
@@ -104,6 +105,7 @@ public final class RepeatedTranscodeTransformationTest {
       differentOutputSizesBytes.add(
           runTransformer(
                   context,
+                  /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput",
                   transcodingTransformer,
                   AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
                   /* timeoutSeconds= */ 120)

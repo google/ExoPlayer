@@ -50,6 +50,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Transforms the {@code uriString} with the {@link Transformer}.
    *
    * @param context The {@link Context}.
+   * @param testId An identifier for the test.
    * @param transformer The {@link Transformer} that performs the transformation.
    * @param uriString The uri (as a {@link String}) that will be transformed.
    * @param timeoutSeconds The transformer timeout. An assertion confirms this is not exceeded.
@@ -57,7 +58,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @throws Exception The cause of the transformation not completing.
    */
   public static TransformationResult runTransformer(
-      Context context, Transformer transformer, String uriString, int timeoutSeconds)
+      Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
       throws Exception {
     AtomicReference<@NullableType Exception> exceptionReference = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -81,7 +82,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .build();
 
     Uri uri = Uri.parse(uriString);
-    File externalCacheFile = createExternalCacheFile(uri, context);
+    File externalCacheFile = createExternalCacheFile(context, /* filePrefix= */ testId);
     try {
       InstrumentationRegistry.getInstrumentation()
           .runOnMainSync(
@@ -108,11 +109,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  private static File createExternalCacheFile(Uri uri, Context context) throws IOException {
-    File file = new File(context.getExternalCacheDir(), "transformer-" + uri.hashCode());
+  private static File createExternalCacheFile(Context context, String filePrefix)
+      throws IOException {
+    File file = new File(context.getExternalCacheDir(), filePrefix + "-output.mp4");
     Assertions.checkState(
-        !file.exists() || file.delete(), "Could not delete the previous transformer output file");
-    Assertions.checkState(file.createNewFile(), "Could not create the transformer output file");
+        !file.exists() || file.delete(), "Could not delete the previous transformer output file.");
+    Assertions.checkState(file.createNewFile(), "Could not create the transformer output file.");
     return file;
   }
 
