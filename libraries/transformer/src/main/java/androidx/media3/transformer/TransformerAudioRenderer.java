@@ -58,13 +58,13 @@ import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    Format decoderInputFormat = checkNotNull(formatHolder.format);
+    Format inputFormat = checkNotNull(formatHolder.format);
     if ((transformation.audioMimeType != null
-            && !transformation.audioMimeType.equals(decoderInputFormat.sampleMimeType))
+            && !transformation.audioMimeType.equals(inputFormat.sampleMimeType))
         || transformation.flattenForSlowMotion) {
-      samplePipeline = new AudioSamplePipeline(decoderInputFormat, transformation, getIndex());
+      samplePipeline = new AudioSamplePipeline(inputFormat, transformation, getIndex());
     } else {
-      samplePipeline = new PassthroughSamplePipeline(decoderInputFormat);
+      samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
     return true;
   }
