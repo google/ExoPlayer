@@ -2,7 +2,17 @@
 
 ### dev-v2 (not yet released)
 
-### 2.16.1 (2021-11-11)
+*   DRM:
+    *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
+        When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
+        the `playbackLooper` needs to be passed to `DrmSessionManager.setPlayer`
+        instead.
+*   IMA:
+    *   Add a method to `AdPlaybackState` to allow resetting an ad group so that
+        it can be played again
+        ([#9615](https://github.com/google/ExoPlayer/issues/9615)).
+
+### 2.16.1 (2021-11-18)
 
 *   Core Library:
     *   Fix track selection issue where overriding one track group did not
@@ -10,18 +20,26 @@
         ([#9675](https://github.com/google/ExoPlayer/issues/9675)).
     *   Fix track selection issue where a mixture of non-empty and empty track
         overrides is not applied correctly
-        ([#9649](https://github.com/google/ExoPlayer/issues/9649).
+        ([#9649](https://github.com/google/ExoPlayer/issues/9649)).
     *   Add protected method `DefaultRenderersFactory.getCodecAdapterFactory()`
         so that subclasses of `DefaultRenderersFactory` that override
         `buildVideoRenderers()` or `buildAudioRenderers()` can access the codec
         adapter factory and pass it to `MediaCodecRenderer` instances they
         create.
+    *   Propagate ICY header fields `name` and `genre` to
+        `MediaMetadata.station` and `MediaMetadata.genre` respectively so that
+        they reach the app via `Player.Listener.onMediaMetadataChanged()`
+        ([#9677](https://github.com/google/ExoPlayer/issues/9677)).
+    *   Remove null keys from `DefaultHttpDataSource#getResponseHeaders`.
 *   Extractors:
     *   WAV: Add support for RF64 streams
-        ([#9543](https://github.com/google/ExoPlayer/issues/9543).
+        ([#9543](https://github.com/google/ExoPlayer/issues/9543)).
 *   DASH:
     *   Add parsed essential and supplemental properties to the `Representation`
         ([#9579](https://github.com/google/ExoPlayer/issues/9579)).
+*   HLS:
+    *   Correctly populate `Format.label` for audio only HLS streams
+        ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
 *   RTSP
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).

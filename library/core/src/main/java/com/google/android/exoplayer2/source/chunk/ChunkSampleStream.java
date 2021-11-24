@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -144,11 +143,7 @@ public class ChunkSampleStream<T extends ChunkSource>
     SampleQueue[] sampleQueues = new SampleQueue[1 + embeddedTrackCount];
 
     primarySampleQueue =
-        SampleQueue.createWithDrm(
-            allocator,
-            /* playbackLooper= */ checkNotNull(Looper.myLooper()),
-            drmSessionManager,
-            drmEventDispatcher);
+        SampleQueue.createWithDrm(allocator, drmSessionManager, drmEventDispatcher);
     trackTypes[0] = primaryTrackType;
     sampleQueues[0] = primarySampleQueue;
 

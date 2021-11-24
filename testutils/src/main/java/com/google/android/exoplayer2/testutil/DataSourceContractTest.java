@@ -545,11 +545,6 @@ public abstract class DataSourceContractTest {
 
         Map<String, List<String>> responseHeaders = dataSource.getResponseHeaders();
         for (String key : responseHeaders.keySet()) {
-          // TODO(internal b/205811776): Remove this when DefaultHttpDataSource is fixed to not
-          // return a null key.
-          if (key == null) {
-            continue;
-          }
           String caseFlippedKey = invertAsciiCaseOfEveryOtherCharacter(key);
           assertWithMessage("key='%s', caseFlippedKey='%s'", key, caseFlippedKey)
               .that(responseHeaders.get(caseFlippedKey))

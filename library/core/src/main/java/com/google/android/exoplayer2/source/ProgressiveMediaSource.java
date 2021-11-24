@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -77,7 +78,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      * Factory(dataSourceFactory, () -> new BundledExtractorsAdapter(extractorsFactory)}.
      */
     public Factory(DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
-      this(dataSourceFactory, () -> new BundledExtractorsAdapter(extractorsFactory));
+      this(dataSourceFactory, playerId -> new BundledExtractorsAdapter(extractorsFactory));
     }
 
     /**
@@ -105,7 +106,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     @Deprecated
     public Factory setExtractorsFactory(@Nullable ExtractorsFactory extractorsFactory) {
       this.progressiveMediaExtractorFactory =
-          () ->
+          playerId ->
               new BundledExtractorsAdapter(
                   extractorsFactory != null ? extractorsFactory : new DefaultExtractorsFactory());
       return this;
@@ -296,6 +297,8 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     drmSessionManager.prepare();
+    drmSessionManager.setPlayer(
+        /* playbackLooper= */ checkNotNull(Looper.myLooper()), getPlayerId());
     notifySourceInfoRefreshed();
   }
 
@@ -313,7 +316,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     return new ProgressiveMediaPeriod(
         localConfiguration.uri,
         dataSource,
-        progressiveMediaExtractorFactory.createProgressiveMediaExtractor(),
+        progressiveMediaExtractorFactory.createProgressiveMediaExtractor(getPlayerId()),
         drmSessionManager,
         createDrmEventDispatcher(id),
         loadableLoadErrorHandlingPolicy,

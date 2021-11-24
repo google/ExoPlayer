@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":42,"i5":10,"i6":42,"i7":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -310,7 +310,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -347,7 +347,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray)">getSelectionOverride</a></span>&#8203;(int&nbsp;rendererIndex,
                     <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</code></th>
 <td class="colLast">
-<div class="block">Returns the override for the specified renderer and <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Only works to retrieve the overrides set with the deprecated <a href="DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)"><code>DefaultTrackSelector.ParametersBuilder.setSelectionOverride(int, TrackGroupArray, SelectionOverride)</code></a>.</div>
+</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -360,7 +362,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray)">hasSelectionOverride</a></span>&#8203;(int&nbsp;rendererIndex,
                     <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</code></th>
 <td class="colLast">
-<div class="block">Returns whether there is an override for the specified renderer and <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Only works to retrieve the overrides set with the deprecated <a href="DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)"><code>DefaultTrackSelector.ParametersBuilder.setSelectionOverride(int, TrackGroupArray, SelectionOverride)</code></a>.</div>
+</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
@@ -610,8 +614,13 @@ public final&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int disabledTe
 <ul class="blockList">
 <li class="blockList">
 <h4>hasSelectionOverride</h4>
-<pre class="methodSignature">public final&nbsp;boolean&nbsp;hasSelectionOverride&#8203;(int&nbsp;rendererIndex,
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;boolean&nbsp;hasSelectionOverride&#8203;(int&nbsp;rendererIndex,
                                           <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Only works to retrieve the overrides set with the deprecated <a href="DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)"><code>DefaultTrackSelector.ParametersBuilder.setSelectionOverride(int, TrackGroupArray, SelectionOverride)</code></a>. Use
+     <a href="TrackSelectionParameters.html#trackSelectionOverrides"><code>TrackSelectionParameters.trackSelectionOverrides</code></a> instead.</div>
+</div>
 <div class="block">Returns whether there is an override for the specified renderer and <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -628,9 +637,14 @@ public final&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int disabledTe
 <ul class="blockList">
 <li class="blockList">
 <h4>getSelectionOverride</h4>
-<pre class="methodSignature">@Nullable
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@Nullable
 public final&nbsp;<a href="DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;getSelectionOverride&#8203;(int&nbsp;rendererIndex,
                                                                          <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Only works to retrieve the overrides set with the deprecated <a href="DefaultTrackSelector.ParametersBuilder.html#setSelectionOverride(int,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride)"><code>DefaultTrackSelector.ParametersBuilder.setSelectionOverride(int, TrackGroupArray, SelectionOverride)</code></a>. Use
+     <a href="TrackSelectionParameters.html#trackSelectionOverrides"><code>TrackSelectionParameters.trackSelectionOverrides</code></a> instead.</div>
+</div>
 <div class="block">Returns the override for the specified renderer and <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

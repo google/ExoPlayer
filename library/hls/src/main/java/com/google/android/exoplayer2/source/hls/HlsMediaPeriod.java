@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
@@ -80,6 +81,7 @@ public final class HlsMediaPeriod
   private final boolean allowChunklessPreparation;
   private final @HlsMediaSource.MetadataType int metadataType;
   private final boolean useSessionKeys;
+  private final PlayerId playerId;
 
   @Nullable private Callback callback;
   private int pendingPrepareCount;
@@ -123,7 +125,8 @@ public final class HlsMediaPeriod
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       boolean allowChunklessPreparation,
       @HlsMediaSource.MetadataType int metadataType,
-      boolean useSessionKeys) {
+      boolean useSessionKeys,
+      PlayerId playerId) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
@@ -137,6 +140,7 @@ public final class HlsMediaPeriod
     this.allowChunklessPreparation = allowChunklessPreparation;
     this.metadataType = metadataType;
     this.useSessionKeys = useSessionKeys;
+    this.playerId = playerId;
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamWrapperIndices = new IdentityHashMap<>();
@@ -771,7 +775,8 @@ public final class HlsMediaPeriod
             dataSourceFactory,
             mediaTransferListener,
             timestampAdjusterProvider,
-            muxedCaptionFormats);
+            muxedCaptionFormats,
+            playerId);
     return new HlsSampleStreamWrapper(
         trackType,
         /* callback= */ this,

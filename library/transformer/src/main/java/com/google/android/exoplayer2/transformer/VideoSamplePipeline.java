@@ -57,12 +57,22 @@ import java.io.IOException;
 
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+
+    int outputWidth = decoderInputFormat.width;
+    int outputHeight = decoderInputFormat.height;
+    if (transformation.outputHeight != Transformation.NO_VALUE
+        && transformation.outputHeight != decoderInputFormat.height) {
+      outputWidth =
+          decoderInputFormat.width * transformation.outputHeight / decoderInputFormat.height;
+      outputHeight = transformation.outputHeight;
+    }
+
     try {
       encoder =
           MediaCodecAdapterWrapper.createForVideoEncoding(
               new Format.Builder()
-                  .setWidth(decoderInputFormat.width)
-                  .setHeight(decoderInputFormat.height)
+                  .setWidth(outputWidth)
+                  .setHeight(outputHeight)
                   .setSampleMimeType(
                       transformation.videoMimeType != null
                           ? transformation.videoMimeType
@@ -70,14 +80,15 @@ import java.io.IOException;
                   .build(),
               ImmutableMap.of());
     } catch (IOException e) {
-      // TODO (internal b/184262323): Assign an adequate error code.
+      // TODO(internal b/192864511): Assign a specific error code.
       throw createRendererException(
           e, rendererIndex, decoderInputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
     openGlFrameEditor =
         OpenGlFrameEditor.create(
             context,
-            decoderInputFormat,
+            outputWidth,
+            outputHeight,
             /* outputSurface= */ checkNotNull(encoder.getInputSurface()));
     try {
       decoder =

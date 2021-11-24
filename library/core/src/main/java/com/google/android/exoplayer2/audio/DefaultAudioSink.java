@@ -23,16 +23,19 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.PlaybackParams;
+import android.media.metrics.LogSessionId;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -323,6 +326,7 @@ public final class DefaultAudioSink implements AudioSink {
       initializationExceptionPendingExceptionHolder;
   private final PendingExceptionHolder<WriteException> writeExceptionPendingExceptionHolder;
 
+  @Nullable private PlayerId playerId;
   @Nullable private Listener listener;
   @Nullable private Configuration pendingConfiguration;
   @MonotonicNonNull private Configuration configuration;
@@ -475,6 +479,11 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void setListener(Listener listener) {
     this.listener = listener;
+  }
+
+  @Override
+  public void setPlayerId(@Nullable PlayerId playerId) {
+    this.playerId = playerId;
   }
 
   @Override
@@ -664,6 +673,9 @@ public final class DefaultAudioSink implements AudioSink {
         audioTrack.setOffloadDelayPadding(
             configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
       }
+    }
+    if (Util.SDK_INT >= 31 && playerId != null) {
+      Api31.setLogSessionIdOnAudioTrack(audioTrack, playerId);
     }
     audioSessionId = audioTrack.getAudioSessionId();
     audioTrackPositionTracker.setAudioTrack(
@@ -2094,6 +2106,7 @@ public final class DefaultAudioSink implements AudioSink {
           audioSessionId);
     }
 
+    @SuppressWarnings("deprecation") // Using deprecated AudioTrack constructor.
     private AudioTrack createAudioTrackV9(AudioAttributes audioAttributes, int audioSessionId) {
       int streamType = Util.getStreamTypeForAudioUsage(audioAttributes.usage);
       if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
@@ -2214,6 +2227,19 @@ public final class DefaultAudioSink implements AudioSink {
 
     public void clear() {
       pendingException = null;
+    }
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    private Api31() {}
+
+    @DoNotInline
+    public static void setLogSessionIdOnAudioTrack(AudioTrack audioTrack, PlayerId playerId) {
+      LogSessionId logSessionId = playerId.getLogSessionId();
+      if (!logSessionId.equals(LogSessionId.LOG_SESSION_ID_NONE)) {
+        audioTrack.setLogSessionId(logSessionId);
+      }
     }
   }
 }

@@ -23,7 +23,6 @@ import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -1100,12 +1099,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
     HlsSampleQueue sampleQueue =
-        new HlsSampleQueue(
-            allocator,
-            /* playbackLooper= */ handler.getLooper(),
-            drmSessionManager,
-            drmEventDispatcher,
-            overridingDrmInitData);
+        new HlsSampleQueue(allocator, drmSessionManager, drmEventDispatcher, overridingDrmInitData);
     sampleQueue.setStartTimeUs(lastSeekPositionUs);
     if (isAudioVideo) {
       sampleQueue.setDrmInitData(drmInitData);
@@ -1392,23 +1386,31 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Format sampleFormat = Assertions.checkStateNotNull(sampleQueues[i].getUpstreamFormat());
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
-        if (chunkSourceTrackCount == 1) {
-          formats[0] = sampleFormat.withManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
-        } else {
-          for (int j = 0; j < chunkSourceTrackCount; j++) {
-            formats[j] = deriveFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat, true);
+        for (int j = 0; j < chunkSourceTrackCount; j++) {
+          Format playlistFormat = chunkSourceTrackGroup.getFormat(j);
+          if (primaryExtractorTrackType == C.TRACK_TYPE_AUDIO && muxedAudioFormat != null) {
+            playlistFormat = playlistFormat.withManifestFormatInfo(muxedAudioFormat);
           }
+          // If there's only a single variant (chunkSourceTrackCount == 1) then we can safely
+          // retain all fields from sampleFormat. Else we need to use deriveFormat to retain only
+          // the fields that will be the same for all variants.
+          formats[j] =
+              chunkSourceTrackCount == 1
+                  ? sampleFormat.withManifestFormatInfo(playlistFormat)
+                  : deriveFormat(playlistFormat, sampleFormat, /* propagateBitrates= */ true);
         }
         trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
       } else {
         @Nullable
-        Format trackFormat =
+        Format playlistFormat =
             primaryExtractorTrackType == C.TRACK_TYPE_VIDEO
                     && MimeTypes.isAudio(sampleFormat.sampleMimeType)
                 ? muxedAudioFormat
                 : null;
-        trackGroups[i] = new TrackGroup(deriveFormat(trackFormat, sampleFormat, false));
+        trackGroups[i] =
+            new TrackGroup(
+                deriveFormat(playlistFormat, sampleFormat, /* propagateBitrates= */ false));
       }
     }
     this.trackGroups = createTrackGroupArrayWithDrmInfo(trackGroups);
@@ -1496,8 +1498,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * sample format that may have been obtained from a chunk belonging to a different track in the
    * same track group.
    *
+   * <p>Note: Since the sample format may have been obtained from a chunk belonging to a different
+   * track, it should not be used as a source for data that may vary between tracks.
+   *
    * @param playlistFormat The format information obtained from the master playlist.
-   * @param sampleFormat The format information obtained from the samples.
+   * @param sampleFormat The format information obtained from samples within a chunk. The chunk may
+   *     belong to a different track in the same track group.
    * @param propagateBitrates Whether the bitrates from the playlist format should be included in
    *     the derived format.
    * @return The derived track format.
@@ -1627,11 +1633,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     private HlsSampleQueue(
         Allocator allocator,
-        Looper playbackLooper,
         DrmSessionManager drmSessionManager,
         DrmSessionEventListener.EventDispatcher eventDispatcher,
         Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator, playbackLooper, drmSessionManager, eventDispatcher);
+      super(allocator, drmSessionManager, eventDispatcher);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 

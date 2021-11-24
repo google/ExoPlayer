@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -96,6 +97,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       trackEmsgHandlerBySampleStream;
   private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
+  private final PlayerId playerId;
 
   @Nullable private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
@@ -120,7 +122,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       LoaderErrorThrower manifestLoaderErrorThrower,
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      PlayerEmsgCallback playerEmsgCallback) {
+      PlayerEmsgCallback playerEmsgCallback,
+      PlayerId playerId) {
     this.id = id;
     this.manifest = manifest;
     this.baseUrlExclusionList = baseUrlExclusionList;
@@ -135,6 +138,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+    this.playerId = playerId;
     playerEmsgHandler = new PlayerEmsgHandler(manifest, playerEmsgCallback, allocator);
     sampleStreams = newSampleStreamArray(0);
     eventSampleStreams = new EventSampleStream[0];
@@ -777,7 +781,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             enableEventMessageTrack,
             embeddedClosedCaptionTrackFormats,
             trackPlayerEmsgHandler,
-            transferListener);
+            transferListener,
+            playerId);
     ChunkSampleStream<DashChunkSource> stream =
         new ChunkSampleStream<>(
             trackGroupInfo.trackType,

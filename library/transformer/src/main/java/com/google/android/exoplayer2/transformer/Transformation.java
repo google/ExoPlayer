@@ -21,10 +21,14 @@ import androidx.annotation.Nullable;
 /** A media transformation configuration. */
 /* package */ final class Transformation {
 
+  /** A value for various fields to indicate that the field's value is unknown or not set. */
+  public static final int NO_VALUE = -1;
+
   public final boolean removeAudio;
   public final boolean removeVideo;
   public final boolean flattenForSlowMotion;
-  public final String outputMimeType;
+  public final int outputHeight;
+  public final String containerMimeType;
   @Nullable public final String audioMimeType;
   @Nullable public final String videoMimeType;
 
@@ -32,13 +36,15 @@ import androidx.annotation.Nullable;
       boolean removeAudio,
       boolean removeVideo,
       boolean flattenForSlowMotion,
-      String outputMimeType,
+      int outputHeight,
+      String containerMimeType,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType) {
     this.removeAudio = removeAudio;
     this.removeVideo = removeVideo;
     this.flattenForSlowMotion = flattenForSlowMotion;
-    this.outputMimeType = outputMimeType;
+    this.outputHeight = outputHeight;
+    this.containerMimeType = containerMimeType;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
   }

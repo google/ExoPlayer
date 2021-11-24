@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":10,"i4":9,"i5":9,"i6":9};
+var data = {"i0":6,"i1":6,"i2":6,"i3":10,"i4":9,"i5":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -196,38 +196,52 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#essentialProperties">essentialProperties</a></span></code></th>
+<td class="colLast">
+<div class="block">Essential properties in the representation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
 <td class="colLast">
 <div class="block">The format of the representation.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inbandEventStreams">inbandEventStreams</a></span></code></th>
 <td class="colLast">
 <div class="block">The in-band event streams in the representation.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#presentationTimeOffsetUs">presentationTimeOffsetUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The offset of the presentation timestamps in the media stream relative to media time.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#REVISION_ID_DEFAULT">REVISION_ID_DEFAULT</a></span></code></th>
 <td class="colLast">
 <div class="block">A default value for <a href="#revisionId"><code>revisionId</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#revisionId">revisionId</a></span></code></th>
 <td class="colLast">
 <div class="block">Identifies the revision of the media contained within the representation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supplementalProperties">supplementalProperties</a></span></code></th>
+<td class="colLast">
+<div class="block">Supplemental properties in the adaptation set.</div>
 </td>
 </tr>
 </table>
@@ -290,22 +304,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List)">newInstance</a></span>&#8203;(long&nbsp;revisionId,
-           <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls,
-           <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
-           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams)</code></th>
-<td class="colLast">
-<div class="block">Constructs a new instance.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>static <a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List,java.lang.String)">newInstance</a></span>&#8203;(long&nbsp;revisionId,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List,java.util.List,java.util.List,java.lang.String)">newInstance</a></span>&#8203;(long&nbsp;revisionId,
            <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls,
            <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey)</code></th>
 <td class="colLast">
 <div class="block">Constructs a new instance.</div>
@@ -395,11 +400,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="inbandEventStreams">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>inbandEventStreams</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt; inbandEventStreams</pre>
 <div class="block">The in-band event streams in the representation. May be empty.</div>
+</li>
+</ul>
+<a id="essentialProperties">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>essentialProperties</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt; essentialProperties</pre>
+<div class="block">Essential properties in the representation. May be empty.</div>
+</li>
+</ul>
+<a id="supplementalProperties">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>supplementalProperties</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt; supplementalProperties</pre>
+<div class="block">Supplemental properties in the adaptation set. May be empty.</div>
 </li>
 </ul>
 </li>
@@ -434,32 +459,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>newInstance</h4>
-<pre class="methodSignature">public static&nbsp;<a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;newInstance&#8203;(long&nbsp;revisionId,
-                                         <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls,
-                                         <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
-                                         @Nullable
-                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams)</pre>
-<div class="block">Constructs a new instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>revisionId</code> - Identifies the revision of the content.</dd>
-<dd><code>format</code> - The format of the representation.</dd>
-<dd><code>baseUrls</code> - The list of base URLs of the representation.</dd>
-<dd><code>segmentBase</code> - A segment base element for the representation.</dd>
-<dd><code>inbandEventStreams</code> - The in-band event streams in the representation. May be null.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The constructed instance.</dd>
-</dl>
-</li>
-</ul>
-<a id="newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List,java.lang.String)">
+<a id="newInstance(long,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,java.util.List,java.util.List,java.util.List,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -471,6 +471,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                          <a href="SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
                                          @Nullable
                                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;inbandEventStreams,
+                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
+                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties,
                                          @Nullable
                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey)</pre>
 <div class="block">Constructs a new instance.</div>
@@ -481,6 +483,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>baseUrls</code> - The list of base URLs of the representation.</dd>
 <dd><code>segmentBase</code> - A segment base element for the representation.</dd>
 <dd><code>inbandEventStreams</code> - The in-band event streams in the representation. May be null.</dd>
+<dd><code>essentialProperties</code> - Essential properties in the representation. May be empty.</dd>
+<dd><code>supplementalProperties</code> - Supplemental properties in the representation. May be empty.</dd>
 <dd><code>cacheKey</code> - An optional key to be returned from <a href="#getCacheKey()"><code>getCacheKey()</code></a>, or null. This
      parameter is ignored if <code>segmentBase</code> consists of multiple segments.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -110,6 +111,7 @@ public class MediaCodecAudioRendererTest {
             eventHandler,
             audioRendererEventListener,
             audioSink);
+    mediaCodecAudioRenderer.init(/* index= */ 0, PlayerId.UNSET);
   }
 
   @Test
@@ -264,6 +266,7 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
 
+    exceptionThrowingRenderer.init(/* index= */ 0, PlayerId.UNSET);
     exceptionThrowingRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {AUDIO_AAC, changedFormat},

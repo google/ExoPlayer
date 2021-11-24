@@ -22,6 +22,7 @@ import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -559,6 +560,7 @@ public final class DashMediaSource extends BaseMediaSource {
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
     drmSessionManager.prepare();
+    drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), getPlayerId());
     if (sideloadedManifest) {
       processManifest(false);
     } else {
@@ -596,7 +598,8 @@ public final class DashMediaSource extends BaseMediaSource {
             manifestLoadErrorThrower,
             allocator,
             compositeSequenceableLoaderFactory,
-            playerEmsgCallback);
+            playerEmsgCallback,
+            getPlayerId());
     periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
   }

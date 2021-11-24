@@ -29,12 +29,14 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.view.Surface;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Applies OpenGL transformations to video frames. */
+/**
+ * OpenGlFrameEditor applies changes to individual video frames using OpenGL. Changes include just
+ * resolution for now, but may later include brightness, cropping, rotation, etc.
+ */
 @RequiresApi(18)
 /* package */ final class OpenGlFrameEditor {
 
@@ -42,8 +44,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     GlUtil.glAssertionsEnabled = true;
   }
 
+  /**
+   * Returns a new OpenGlFrameEditor for applying changes to individual frames.
+   *
+   * @param context A {@link Context}.
+   * @param outputWidth The output width in pixels.
+   * @param outputHeight The output height in pixels.
+   * @param outputSurface The {@link Surface}.
+   * @return A configured OpenGlFrameEditor.
+   */
   public static OpenGlFrameEditor create(
-      Context context, Format inputFormat, Surface outputSurface) {
+      Context context, int outputWidth, int outputHeight, Surface outputSurface) {
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     EGLContext eglContext;
     try {
@@ -52,7 +63,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throw new IllegalStateException("EGL version is unsupported", e);
     }
     EGLSurface eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
-    GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, inputFormat.width, inputFormat.height);
+    GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
     int textureId = GlUtil.createExternalTexture();
     GlUtil.Program copyProgram;
     try {
@@ -107,7 +118,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     return new OpenGlFrameEditor(
-        eglDisplay, eglContext, eglSurface, textureId, checkNotNull(textureTransformUniform));
+        eglDisplay,
+        eglContext,
+        eglSurface,
+        textureId,
+        checkNotNull(textureTransformUniform),
+        copyProgram,
+        copyAttributes,
+        copyUniforms);
   }
 
   // Predefined shader values.
@@ -126,6 +144,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Surface inputSurface;
   private final GlUtil.Uniform textureTransformUniform;
 
+  // TODO(internal: b/206631334): These fields ensure buffers passed to GL are not GC'ed. Implement
+  // a better way of doing this so they aren't just unused fields.
+  @SuppressWarnings("unused")
+  private final GlUtil.Program copyProgram;
+
+  @SuppressWarnings("unused")
+  private final GlUtil.Attribute[] copyAttributes;
+
+  @SuppressWarnings("unused")
+  private final GlUtil.Uniform[] copyUniforms;
+
   private volatile boolean hasInputData;
 
   private OpenGlFrameEditor(
@@ -133,12 +162,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EGLContext eglContext,
       EGLSurface eglSurface,
       int textureId,
-      GlUtil.Uniform textureTransformUniform) {
+      GlUtil.Uniform textureTransformUniform,
+      GlUtil.Program copyProgram,
+      GlUtil.Attribute[] copyAttributes,
+      GlUtil.Uniform[] copyUniforms) {
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.eglSurface = eglSurface;
     this.textureId = textureId;
     this.textureTransformUniform = textureTransformUniform;
+    this.copyProgram = copyProgram;
+    this.copyAttributes = copyAttributes;
+    this.copyUniforms = copyUniforms;
     textureTransformMatrix = new float[16];
     inputSurfaceTexture = new SurfaceTexture(textureId);
     inputSurfaceTexture.setOnFrameAvailableListener(surfaceTexture -> hasInputData = true);

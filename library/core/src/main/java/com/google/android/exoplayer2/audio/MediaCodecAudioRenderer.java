@@ -500,6 +500,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     } else {
       audioSink.disableTunneling();
     }
+    audioSink.setPlayerId(getPlayerId());
   }
 
   @Override

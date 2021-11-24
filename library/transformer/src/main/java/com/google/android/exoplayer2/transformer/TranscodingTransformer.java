@@ -70,9 +70,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>Temporary copy of the {@link Transformer} class, which transforms by transcoding rather than
  * by muxing. This class is intended to replace the Transformer class.
  *
- * <p>TODO(http://b/202131097): Replace the Transformer class with TranscodingTransformer, and
- * rename this class to Transformer.
- *
  * <p>The same TranscodingTransformer instance can be used to transform multiple inputs
  * (sequentially, not concurrently).
  *
@@ -87,17 +84,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @RequiresApi(18)
 public final class TranscodingTransformer {
+  // TODO(http://b/202131097): Replace the Transformer class with TranscodingTransformer, and
+  // rename this class to Transformer.
 
   /** A builder for {@link TranscodingTransformer} instances. */
   public static final class Builder {
 
+    // Mandatory field.
     private @MonotonicNonNull Context context;
+
+    // Optional fields.
     private @MonotonicNonNull MediaSourceFactory mediaSourceFactory;
     private Muxer.Factory muxerFactory;
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
-    private String outputMimeType;
+    private int outputHeight;
+    private String containerMimeType;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
     private TranscodingTransformer.Listener listener;
@@ -107,7 +110,8 @@ public final class TranscodingTransformer {
     /** Creates a builder with default values. */
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
-      outputMimeType = MimeTypes.VIDEO_MP4;
+      outputHeight = Transformation.NO_VALUE;
+      containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
@@ -121,7 +125,8 @@ public final class TranscodingTransformer {
       this.removeAudio = transcodingTransformer.transformation.removeAudio;
       this.removeVideo = transcodingTransformer.transformation.removeVideo;
       this.flattenForSlowMotion = transcodingTransformer.transformation.flattenForSlowMotion;
-      this.outputMimeType = transcodingTransformer.transformation.outputMimeType;
+      this.outputHeight = transcodingTransformer.transformation.outputHeight;
+      this.containerMimeType = transcodingTransformer.transformation.containerMimeType;
       this.audioMimeType = transcodingTransformer.transformation.audioMimeType;
       this.videoMimeType = transcodingTransformer.transformation.videoMimeType;
       this.listener = transcodingTransformer.listener;
@@ -214,19 +219,43 @@ public final class TranscodingTransformer {
     }
 
     /**
-     * Sets the MIME type of the output. The default value is {@link MimeTypes#VIDEO_MP4}. Supported
-     * values are:
+     * Sets the output resolution using the output height. The default value is {@link
+     * Transformation#NO_VALUE}, which will use the same height as the input. Output width will
+     * scale to preserve the input video's aspect ratio.
      *
-     * <ul>
-     *   <li>{@link MimeTypes#VIDEO_MP4}
-     *   <li>{@link MimeTypes#VIDEO_WEBM} from API level 21
-     * </ul>
+     * <p>For now, only "popular" heights like 240, 360, 480, 720, 1080, 1440, or 2160 are
+     * supported, to ensure compatibility on different devices.
      *
-     * @param outputMimeType The MIME type of the output.
+     * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
+     *
+     * @param outputHeight The output height in pixels.
      * @return This builder.
      */
+    public Builder setResolution(int outputHeight) {
+      // TODO(Internal b/201293185): Restructure to input a Presentation class.
+      // TODO(Internal b/201293185): Check encoder codec capabilities in order to allow arbitrary
+      // resolutions and reasonable fallbacks.
+      if (outputHeight != 240
+          && outputHeight != 360
+          && outputHeight != 480
+          && outputHeight != 720
+          && outputHeight != 1080
+          && outputHeight != 1440
+          && outputHeight != 2160) {
+        throw new IllegalArgumentException(
+            "Please use a height of 240, 360, 480, 720, 1080, 1440, or 2160.");
+      }
+      this.outputHeight = outputHeight;
+      return this;
+    }
+
+    /**
+     * @deprecated This feature will be removed in a following release and the MIME type of the
+     *     output will always be MP4.
+     */
+    @Deprecated
     public Builder setOutputMimeType(String outputMimeType) {
-      this.outputMimeType = outputMimeType;
+      this.containerMimeType = outputMimeType;
       return this;
     }
 
@@ -341,7 +370,7 @@ public final class TranscodingTransformer {
      * @throws IllegalStateException If the {@link Context} has not been provided.
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
-     * @throws IllegalStateException If the muxer doesn't support the requested output MIME type.
+     * @throws IllegalStateException If the muxer doesn't support the requested container MIME type.
      * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
      */
     public TranscodingTransformer build() {
@@ -354,8 +383,8 @@ public final class TranscodingTransformer {
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
       checkState(
-          muxerFactory.supportsOutputMimeType(outputMimeType),
-          "Unsupported output MIME type: " + outputMimeType);
+          muxerFactory.supportsOutputMimeType(containerMimeType),
+          "Unsupported container MIME type: " + containerMimeType);
       if (audioMimeType != null) {
         checkSampleMimeType(audioMimeType);
       }
@@ -367,7 +396,8 @@ public final class TranscodingTransformer {
               removeAudio,
               removeVideo,
               flattenForSlowMotion,
-              outputMimeType,
+              outputHeight,
+              containerMimeType,
               audioMimeType,
               videoMimeType);
       return new TranscodingTransformer(
@@ -376,11 +406,11 @@ public final class TranscodingTransformer {
 
     private void checkSampleMimeType(String sampleMimeType) {
       checkState(
-          muxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType),
+          muxerFactory.supportsSampleMimeType(sampleMimeType, containerMimeType),
           "Unsupported sample MIME type "
               + sampleMimeType
               + " for container MIME type "
-              + outputMimeType);
+              + containerMimeType);
     }
   }
 
@@ -489,9 +519,9 @@ public final class TranscodingTransformer {
    *
    * <p>Concurrent transformations on the same TranscodingTransformer object are not allowed.
    *
-   * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
-   * audio streams are selected.
+   * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
+   * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
+   * bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
    *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
@@ -503,7 +533,7 @@ public final class TranscodingTransformer {
    * @throws IOException If an error occurs opening the output file for writing.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
-    startTransformation(mediaItem, muxerFactory.create(path, transformation.outputMimeType));
+    startTransformation(mediaItem, muxerFactory.create(path, transformation.containerMimeType));
   }
 
   /**
@@ -514,9 +544,9 @@ public final class TranscodingTransformer {
    *
    * <p>Concurrent transformations on the same TranscodingTransformer object are not allowed.
    *
-   * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
-   * audio streams are selected.
+   * <p>The output is an MP4 file. It can contain at most one video track and one audio track. Other
+   * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
+   * bitrate video and audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
    *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
@@ -534,7 +564,7 @@ public final class TranscodingTransformer {
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
       throws IOException {
     startTransformation(
-        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.outputMimeType));
+        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.containerMimeType));
   }
 
   private void startTransformation(MediaItem mediaItem, Muxer muxer) {
@@ -544,7 +574,7 @@ public final class TranscodingTransformer {
     }
 
     MuxerWrapper muxerWrapper =
-        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
+        new MuxerWrapper(muxer, muxerFactory, transformation.containerMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
@@ -678,8 +708,7 @@ public final class TranscodingTransformer {
       }
       if (!transformation.removeVideo) {
         renderers[index] =
-            new TransformerTranscodingVideoRenderer(
-                context, muxerWrapper, mediaClock, transformation);
+            new TransformerVideoRenderer(context, muxerWrapper, mediaClock, transformation);
         index++;
       }
       return renderers;

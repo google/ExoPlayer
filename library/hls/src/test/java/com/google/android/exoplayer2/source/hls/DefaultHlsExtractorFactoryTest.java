@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
@@ -79,7 +80,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ac3ResponseHeaders,
-                webVttExtractorInput);
+                webVttExtractorInput,
+                PlayerId.UNSET);
 
     assertThat(result.extractor.getClass()).isEqualTo(WebvttExtractor.class);
   }
@@ -103,7 +105,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ac3ResponseHeaders,
-                ac3ExtractorInput);
+                ac3ExtractorInput,
+                PlayerId.UNSET);
 
     assertThat(result.extractor.getClass()).isEqualTo(Ac3Extractor.class);
   }
@@ -125,7 +128,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ac3ResponseHeaders,
-                tsExtractorInput);
+                tsExtractorInput,
+                PlayerId.UNSET);
 
     assertThat(result.extractor.getClass()).isEqualTo(TsExtractor.class);
   }
@@ -148,7 +152,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ac3ResponseHeaders,
-                mp3ExtractorInput);
+                mp3ExtractorInput,
+                PlayerId.UNSET);
 
     assertThat(result.extractor.getClass()).isEqualTo(Mp3Extractor.class);
   }
@@ -170,7 +175,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ImmutableMap.of("Content-Type", ImmutableList.of(MimeTypes.IMAGE_JPEG)),
-                tsExtractorInput);
+                tsExtractorInput,
+                PlayerId.UNSET);
 
     assertThat(result.extractor.getClass()).isEqualTo(TsExtractor.class);
   }
@@ -187,7 +193,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ac3ResponseHeaders,
-                emptyExtractorInput);
+                emptyExtractorInput,
+                PlayerId.UNSET);
 
     // The format indicates WebVTT so we expect a WebVTT extractor.
     assertThat(result.extractor.getClass()).isEqualTo(WebvttExtractor.class);
@@ -205,7 +212,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ac3ResponseHeaders,
-                emptyExtractorInput);
+                emptyExtractorInput,
+                PlayerId.UNSET);
 
     // No format info, so we expect an AC-3 Extractor, as per HTTP Content-Type header.
     assertThat(result.extractor.getClass()).isEqualTo(Ac3Extractor.class);
@@ -223,7 +231,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 /* responseHeaders= */ ImmutableMap.of(),
-                emptyExtractorInput);
+                emptyExtractorInput,
+                PlayerId.UNSET);
 
     // No format info, and no HTTP headers, so we expect an fMP4 extractor, as per file extension.
     assertThat(result.extractor.getClass()).isEqualTo(FragmentedMp4Extractor.class);
@@ -241,7 +250,8 @@ public class DefaultHlsExtractorFactoryTest {
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 /* responseHeaders= */ ImmutableMap.of(),
-                emptyExtractorInput);
+                emptyExtractorInput,
+                PlayerId.UNSET);
 
     // There's no information for inferring the file type, we expect the factory to fall back on
     // Transport Stream.

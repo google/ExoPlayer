@@ -88,7 +88,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     try {
       this.decoder = MediaCodecAdapterWrapper.createForAudioDecoding(decoderInputFormat);
     } catch (IOException e) {
-      // TODO (internal b/184262323): Assign an adequate error code.
+      // TODO(internal b/192864511): Assign a specific error code.
       throw ExoPlaybackException.createForRenderer(
           e,
           TAG,

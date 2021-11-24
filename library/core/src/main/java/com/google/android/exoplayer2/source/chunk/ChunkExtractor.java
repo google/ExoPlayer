@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.chunk;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -42,6 +43,8 @@ public interface ChunkExtractor {
      * @param representationFormat The format of the representation to extract from.
      * @param enableEventMessageTrack Whether to enable the event message track.
      * @param closedCaptionFormats The {@link Format Formats} of the Closed-Caption tracks.
+     * @param playerEmsgTrackOutput The {@link TrackOutput} for extracted EMSG messages, or null.
+     * @param playerId The {@link PlayerId} of the player using this chunk extractor.
      * @return A new {@link ChunkExtractor} instance, or null if not applicable.
      */
     @Nullable
@@ -50,7 +53,8 @@ public interface ChunkExtractor {
         Format representationFormat,
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
-        @Nullable TrackOutput playerEmsgTrackOutput);
+        @Nullable TrackOutput playerEmsgTrackOutput,
+        PlayerId playerId);
   }
 
   /** Provides {@link TrackOutput} instances to be written to during extraction. */

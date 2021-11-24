@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
@@ -94,7 +95,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       @Nullable List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
-      ExtractorInput sniffingExtractorInput)
+      ExtractorInput sniffingExtractorInput,
+      PlayerId playerId)
       throws IOException {
     @FileTypes.Type
     int formatInferredFileType = FileTypes.inferFileTypeFromMimeType(format.sampleMimeType);

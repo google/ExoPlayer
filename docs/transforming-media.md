@@ -6,7 +6,6 @@ The [Transformer API][] can be used to convert media streams. It takes an input
 media stream, applies changes to it as configured by the app, and produces the
 corresponding output file. The available transformations are:
 
-* Transmuxing between container formats.
 * Track removal.
 * Flattening of slow motion videos or, in other words, their conversion into
   normal videos that retain the desired slow motion effects, but can be played
@@ -16,7 +15,7 @@ corresponding output file. The available transformations are:
 
 ## Starting a transformation ##
 
-To transform media, you need add the following dependency to your app’s
+To transform media, you need to add the following dependency to your app’s
 `build.gradle` file:
 
 ~~~
@@ -28,8 +27,7 @@ where `2.X.X` is your preferred ExoPlayer version.
 
 You can then start a transformation by building a `Transformer` instance and
 calling `startTransformation` on it. The code sample below starts a
-transformation that removes the audio track from the input and sets the output
-container format to WebM:
+transformation that removes the audio track from the input:
 
 ~~~
 // Configure and create a Transformer instance.
@@ -37,7 +35,6 @@ Transformer transformer =
    new Transformer.Builder()
        .setContext(context)
        .setRemoveAudio(true)
-       .setOutputMimeType(MimeTypes.VIDEO_WEBM)
        .setListener(transformerListener)
        .build();
 // Start the transformation.
@@ -52,7 +49,9 @@ builder.
 a `ParcelFileDescriptor` indicating where the output should be written. The
 input can be a progressive or an adaptive stream, but the output is always a
 progressive stream. For adaptive inputs, the highest resolution tracks are
-always selected for the transformation.
+always selected for the transformation. The input can be of any container format
+supported by ExoPlayer (see the [Supported formats page][] for details), but the
+output is always an MP4 file.
 
 Multiple transformations can be executed sequentially with the same
 `Transformer` instance, but concurrent transformations with the same instance
@@ -137,4 +136,5 @@ flattened version of the video instead of the original one.
 Currently, Samsung's slow motion format is the only one supported.
 
 [Transformer API]: {{ site.exo_sdk }}/transformer/Transformer.html
+[Supported formats page]: {{ site.baseurl }}/supported-formats.html
 
