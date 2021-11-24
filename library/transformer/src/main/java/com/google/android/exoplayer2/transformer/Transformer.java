@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFE
 import static com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.content.Context;
@@ -90,6 +89,8 @@ public final class Transformer {
   public static final class Builder {
 
     // Mandatory field.
+    // TODO(huangdarwin): Update @MonotonicNonNull to final after deprecated {@link
+    // #setContext(Context)} is removed.
     private @MonotonicNonNull Context context;
 
     // Optional fields.
@@ -106,8 +107,29 @@ public final class Transformer {
     private Looper looper;
     private Clock clock;
 
-    /** Creates a builder with default values. */
+    /**
+     * Creates a builder with default values.
+     *
+     * @deprecated Use {@link #Builder(Context)} instead.
+     */
+    @Deprecated
     public Builder() {
+      muxerFactory = new FrameworkMuxer.Factory();
+      outputHeight = Transformation.NO_VALUE;
+      containerMimeType = MimeTypes.VIDEO_MP4;
+      listener = new Listener() {};
+      looper = Util.getCurrentOrMainLooper();
+      clock = Clock.DEFAULT;
+    }
+
+    /**
+     * Creates a builder with default values.
+     *
+     * @param context The {@link Context}.
+     * @throws NullPointerException If the {@link Context} has not been provided.
+     */
+    public Builder(Context context) {
+      this.context = context.getApplicationContext();
       muxerFactory = new FrameworkMuxer.Factory();
       outputHeight = Transformation.NO_VALUE;
       containerMimeType = MimeTypes.VIDEO_MP4;
@@ -140,7 +162,9 @@ public final class Transformer {
      *
      * @param context The {@link Context}.
      * @return This builder.
+     * @deprecated Use {@link #Builder(Context)} instead.
      */
+    @Deprecated
     public Builder setContext(Context context) {
       this.context = context.getApplicationContext();
       return this;
@@ -148,8 +172,8 @@ public final class Transformer {
 
     /**
      * Sets the {@link MediaSourceFactory} to be used to retrieve the inputs to transform. The
-     * default value is a {@link DefaultMediaSourceFactory} built with the context provided in
-     * {@link #setContext(Context)}.
+     * default value is a {@link DefaultMediaSourceFactory} built with the context provided in the
+     * constructor.
      *
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @return This builder.
@@ -366,7 +390,7 @@ public final class Transformer {
     /**
      * Builds a {@link Transformer} instance.
      *
-     * @throws IllegalStateException If the {@link Context} has not been provided.
+     * @throws NullPointerException If the {@link Context} has not been provided.
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
      * @throws IllegalStateException If the muxer doesn't support the requested container MIME type.
@@ -374,7 +398,9 @@ public final class Transformer {
      * @throws IllegalStateException If the muxer doesn't support the requested video MIME type.
      */
     public Transformer build() {
-      checkStateNotNull(context);
+      // TODO(huangdarwin): Remove this checkNotNull after deprecated {@link #setContext(Context)}
+      // is removed.
+      checkNotNull(context);
       if (mediaSourceFactory == null) {
         DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
         if (flattenForSlowMotion) {

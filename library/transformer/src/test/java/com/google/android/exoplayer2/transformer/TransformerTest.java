@@ -92,8 +92,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_videoOnly_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
@@ -108,8 +107,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_audioOnly_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
@@ -124,8 +122,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_audioAndVideo_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
@@ -140,8 +137,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_withSubtitles_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
@@ -157,8 +153,7 @@ public final class TransformerTest {
   public void startTransformation_successiveTransformations_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
@@ -178,7 +173,7 @@ public final class TransformerTest {
 
   @Test
   public void startTransformation_concurrentTransformations_throwsError() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     transformer.startTransformation(mediaItem, outputPath);
@@ -190,8 +185,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_removeAudio_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
@@ -208,8 +202,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_removeVideo_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setRemoveVideo(true)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
@@ -226,8 +219,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_flattenForSlowMotion_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setFlattenForSlowMotion(true)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
@@ -242,7 +234,7 @@ public final class TransformerTest {
 
   @Test
   public void startTransformation_withPlayerError_completesWithError() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri("asset:///non-existing-path.mp4");
 
     transformer.startTransformation(mediaItem, outputPath);
@@ -255,7 +247,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_withAllSampleFormatsUnsupported_completesWithError()
       throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED);
 
     transformer.startTransformation(mediaItem, outputPath);
@@ -267,8 +259,7 @@ public final class TransformerTest {
   @Test
   public void startTransformation_afterCancellation_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
@@ -291,8 +282,7 @@ public final class TransformerTest {
     anotherThread.start();
     Looper looper = anotherThread.getLooper();
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setLooper(looper)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
@@ -321,7 +311,7 @@ public final class TransformerTest {
 
   @Test
   public void startTransformation_fromWrongThread_throwsError() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
     HandlerThread anotherThread = new HandlerThread("AnotherThread");
     AtomicReference<IllegalStateException> illegalStateException = new AtomicReference<>();
@@ -348,7 +338,7 @@ public final class TransformerTest {
 
   @Test
   public void getProgress_knownDuration_returnsConsistentStates() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
     AtomicInteger previousProgressState =
         new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
@@ -394,7 +384,7 @@ public final class TransformerTest {
 
   @Test
   public void getProgress_knownDuration_givesIncreasingPercentages() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
     List<Integer> progresses = new ArrayList<>();
     Handler progressHandler =
@@ -429,7 +419,7 @@ public final class TransformerTest {
 
   @Test
   public void getProgress_noCurrentTransformation_returnsNoTransformation() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     @Transformer.ProgressState int stateBeforeTransform = transformer.getProgress(progressHolder);
@@ -443,7 +433,7 @@ public final class TransformerTest {
 
   @Test
   public void getProgress_unknownDuration_returnsConsistentStates() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_UNKNOWN_DURATION);
     AtomicInteger previousProgressState =
         new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
@@ -486,7 +476,7 @@ public final class TransformerTest {
 
   @Test
   public void getProgress_fromWrongThread_throwsError() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     HandlerThread anotherThread = new HandlerThread("AnotherThread");
     AtomicReference<IllegalStateException> illegalStateException = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -510,7 +500,7 @@ public final class TransformerTest {
 
   @Test
   public void cancel_afterCompletion_doesNotThrow() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     transformer.startTransformation(mediaItem, outputPath);
@@ -520,7 +510,7 @@ public final class TransformerTest {
 
   @Test
   public void cancel_fromWrongThread_throwsError() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
+    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     HandlerThread anotherThread = new HandlerThread("AnotherThread");
     AtomicReference<IllegalStateException> illegalStateException = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);

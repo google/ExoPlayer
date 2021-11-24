@@ -30,7 +30,7 @@ public class TransformationTest {
   @Test
   public void transform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer = new Transformer.Builder().setContext(context).build();
+    Transformer transformer = new Transformer.Builder(context).build();
     runTransformer(context, transformer, MP4_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
   }
 }

@@ -32,8 +32,7 @@ transformation that removes the audio track from the input:
 ~~~
 // Configure and create a Transformer instance.
 Transformer transformer =
-   new Transformer.Builder()
-       .setContext(context)
+   new Transformer.Builder(context)
        .setRemoveAudio(true)
        .setListener(transformerListener)
        .build();
@@ -120,8 +119,7 @@ method.
 
 ~~~
 Transformer transformer =
-   new Transformer.Builder()
-       .setContext(context)
+   new Transformer.Builder(context)
        .setFlattenForSlowMotion(true)
        .setListener(transformerListener)
        .build();
