@@ -31,14 +31,16 @@ public class TransformerBuilderTest {
 
   @Test
   public void setOutputMimeType_unsupportedMimeType_throws() {
+    Context context = ApplicationProvider.getApplicationContext();
+
     assertThrows(
         IllegalStateException.class,
-        () -> new Transformer.Builder().setOutputMimeType(MimeTypes.VIDEO_FLV).build());
+        () -> new Transformer.Builder(context).setOutputMimeType(MimeTypes.VIDEO_UNKNOWN).build());
   }
 
   @Test
   public void build_withoutContext_throws() {
-    assertThrows(IllegalStateException.class, () -> new Transformer.Builder().build());
+    assertThrows(NullPointerException.class, () -> new Transformer.Builder().build());
   }
 
   @Test
@@ -47,11 +49,6 @@ public class TransformerBuilderTest {
 
     assertThrows(
         IllegalStateException.class,
-        () ->
-            new Transformer.Builder()
-                .setContext(context)
-                .setRemoveAudio(true)
-                .setRemoveVideo(true)
-                .build());
+        () -> new Transformer.Builder(context).setRemoveAudio(true).setRemoveVideo(true).build());
   }
 }

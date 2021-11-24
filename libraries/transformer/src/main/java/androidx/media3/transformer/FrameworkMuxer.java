@@ -61,7 +61,7 @@ import java.nio.ByteBuffer;
     public boolean supportsOutputMimeType(String mimeType) {
       try {
         mimeTypeToMuxerOutputFormat(mimeType);
-      } catch (IllegalStateException e) {
+      } catch (IllegalArgumentException e) {
         return false;
       }
       return true;

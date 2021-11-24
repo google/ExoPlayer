@@ -31,7 +31,7 @@ public class SefTransformationTest {
   public void sefTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
-        new Transformer.Builder().setContext(context).setFlattenForSlowMotion(true).build();
+        new Transformer.Builder(context).setFlattenForSlowMotion(true).build();
     runTransformer(context, transformer, SEF_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
   }
 }

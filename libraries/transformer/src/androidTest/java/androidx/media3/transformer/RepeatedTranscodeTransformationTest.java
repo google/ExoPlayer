@@ -39,8 +39,7 @@ public final class RepeatedTranscodeTransformationTest {
   public void repeatedTranscode_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setVideoMimeType(MimeTypes.VIDEO_H265)
             .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
             .build();
@@ -67,8 +66,7 @@ public final class RepeatedTranscodeTransformationTest {
   public void repeatedTranscodeNoAudio_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setVideoMimeType(MimeTypes.VIDEO_H265)
             .setRemoveAudio(true)
             .build();
@@ -95,8 +93,7 @@ public final class RepeatedTranscodeTransformationTest {
   public void repeatedTranscodeNoVideo_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transcodingTransformer =
-        new Transformer.Builder()
-            .setContext(context)
+        new Transformer.Builder(context)
             .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
             .setRemoveVideo(true)
             .build();
