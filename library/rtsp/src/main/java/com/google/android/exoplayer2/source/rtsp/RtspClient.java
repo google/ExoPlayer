@@ -92,7 +92,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final long DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS = 30_000;
 
-  String TAG = Constants.TAG + "RtspClient";
+  String TAG = Constants.TAG + " RtspClient";
 
   /** A listener for session information update. */
   public interface SessionInfoListener {
