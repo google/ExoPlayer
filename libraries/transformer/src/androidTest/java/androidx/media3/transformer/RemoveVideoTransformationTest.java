@@ -31,6 +31,11 @@ public class RemoveVideoTransformationTest {
   public void removeVideoTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveVideo(true).build();
-    runTransformer(context, transformer, MP4_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
+    runTransformer(
+        context,
+        /* testId= */ "removeVideoTransform",
+        transformer,
+        MP4_ASSET_URI_STRING,
+        /* timeoutSeconds= */ 120);
   }
 }

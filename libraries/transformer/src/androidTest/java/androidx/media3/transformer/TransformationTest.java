@@ -31,6 +31,11 @@ public class TransformationTest {
   public void transform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
-    runTransformer(context, transformer, MP4_ASSET_URI_STRING, /* timeoutSeconds= */ 120);
+    runTransformer(
+        context,
+        /* testId= */ "transform",
+        transformer,
+        MP4_ASSET_URI_STRING,
+        /* timeoutSeconds= */ 120);
   }
 }
