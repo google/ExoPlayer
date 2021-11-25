@@ -248,13 +248,6 @@ final class RtspClient implements Closeable {
   @Override
   public void close() throws IOException {
     Log.i(TAG,"close()" );
-    if (keepAliveMonitor != null) {
-      // Playback has started. We have to stop the periodic keep alive and send a TEARDOWN so that
-      // the RTSP server stops sending RTP packets and frees up resources.
-      keepAliveMonitor.close();
-      keepAliveMonitor = null;
-      messageSender.sendTeardownRequest(uri, checkNotNull(sessionId));
-    }
     messageChannel.close();
   }
 
@@ -708,7 +701,7 @@ final class RtspClient implements Closeable {
   /** Sends periodic OPTIONS requests to keep RTSP connection alive. */
   private final class KeepAliveMonitor implements Runnable, Closeable {
 
-    private final Handler keepAliveHandler;
+    //private final Handler keepAliveHandler;
     private final long intervalMs;
     private boolean isStarted;
     private String TAG = Constants.TAG + "RtspClient: KeepAliveMonitor";
@@ -722,32 +715,21 @@ final class RtspClient implements Closeable {
     public KeepAliveMonitor(long intervalMs) {
       Log.i(this.TAG, "contructor");
       this.intervalMs = intervalMs;
-      keepAliveHandler = Util.createHandlerForCurrentLooper();
+      //keepAliveHandler = Util.createHandlerForCurrentLooper();
     }
 
-    /** Starts Keep-alive. */
-    public void start() {
-//      Log.i(this.TAG, "start()");
-//      if (isStarted) {
-//        return;
-//      }
-//
-//      isStarted = true;
-//      keepAliveHandler.postDelayed(this, intervalMs);
+    @Override
+    public void close() throws IOException {
+
     }
 
     @Override
     public void run() {
-//      Log.i(this.TAG, "run()");
-//      messageSender.sendOptionsRequest(uri, sessionId);
-//      keepAliveHandler.postDelayed(this, intervalMs);
+
     }
 
-    @Override
-    public void close() {
-//      Log.i(this.TAG, "close()");
-//      isStarted = false;
-//      keepAliveHandler.removeCallbacks(this);
+    public void start() {
+
     }
   }
 }
