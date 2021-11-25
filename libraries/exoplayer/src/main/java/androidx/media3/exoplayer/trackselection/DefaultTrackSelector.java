@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.C;
 import androidx.media3.common.C.FormatSupport;
+import androidx.media3.common.C.RoleFlags;
 import androidx.media3.common.Format;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
@@ -370,6 +371,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @Override
     public ParametersBuilder setPreferredVideoMimeTypes(String... mimeTypes) {
       super.setPreferredVideoMimeTypes(mimeTypes);
+      return this;
+    }
+
+    @Override
+    public DefaultTrackSelector.ParametersBuilder setPreferredVideoRoleFlags(
+        @RoleFlags int preferredVideoRoleFlags) {
+      super.setPreferredVideoRoleFlags(preferredVideoRoleFlags);
       return this;
     }
 
@@ -2476,6 +2484,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
   }
 
+  private static int getRoleFlagMatchScore(int trackRoleFlags, int preferredRoleFlags) {
+    if (trackRoleFlags != 0 && trackRoleFlags == preferredRoleFlags) {
+      // Prefer perfect match over partial matches.
+      return Integer.MAX_VALUE;
+    }
+    return Integer.bitCount(trackRoleFlags & preferredRoleFlags);
+  }
+
   /** Represents how well a video track matches the selection {@link Parameters}. */
   protected static final class VideoTrackScore implements Comparable<VideoTrackScore> {
 
@@ -2491,6 +2507,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final int bitrate;
     private final int pixelCount;
     private final int preferredMimeTypeMatchIndex;
+    private final int preferredRoleFlagsScore;
+    private final boolean hasMainOrNoRoleFlag;
 
     public VideoTrackScore(
         Format format,
@@ -2518,6 +2536,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           isSupported(formatSupport, /* allowExceedsCapabilities= */ false);
       bitrate = format.bitrate;
       pixelCount = format.getPixelCount();
+      preferredRoleFlagsScore =
+          getRoleFlagMatchScore(format.roleFlags, parameters.preferredVideoRoleFlags);
+      hasMainOrNoRoleFlag = format.roleFlags == 0 || (format.roleFlags & C.ROLE_FLAG_MAIN) != 0;
       int bestMimeTypeMatchIndex = Integer.MAX_VALUE;
       for (int i = 0; i < parameters.preferredVideoMimeTypes.size(); i++) {
         if (format.sampleMimeType != null
@@ -2545,6 +2566,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               : FORMAT_VALUE_ORDERING.reverse();
       return ComparisonChain.start()
           .compareFalseFirst(this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
+          .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
+          .compareFalseFirst(this.hasMainOrNoRoleFlag, other.hasMainOrNoRoleFlag)
           .compareFalseFirst(this.isWithinMaxConstraints, other.isWithinMaxConstraints)
           .compareFalseFirst(this.isWithinMinConstraints, other.isWithinMinConstraints)
           .compare(
@@ -2576,6 +2599,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final int preferredLanguageScore;
     private final int preferredLanguageIndex;
     private final int preferredRoleFlagsScore;
+    private final boolean hasMainOrNoRoleFlag;
     private final int localeLanguageMatchIndex;
     private final int localeLanguageScore;
     private final boolean isDefaultSelectionFlag;
@@ -2606,7 +2630,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       preferredLanguageIndex = bestLanguageIndex;
       preferredLanguageScore = bestLanguageScore;
       preferredRoleFlagsScore =
-          Integer.bitCount(format.roleFlags & parameters.preferredAudioRoleFlags);
+          getRoleFlagMatchScore(format.roleFlags, parameters.preferredAudioRoleFlags);
+      hasMainOrNoRoleFlag = format.roleFlags == 0 || (format.roleFlags & C.ROLE_FLAG_MAIN) != 0;
       isDefaultSelectionFlag = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
       channelCount = format.channelCount;
       sampleRate = format.sampleRate;
@@ -2664,6 +2689,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               Ordering.natural().reverse())
           .compare(this.preferredLanguageScore, other.preferredLanguageScore)
           .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
+          .compareFalseFirst(this.hasMainOrNoRoleFlag, other.hasMainOrNoRoleFlag)
           .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)
           .compare(
               this.preferredMimeTypeMatchIndex,
@@ -2740,7 +2766,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       preferredLanguageIndex = bestLanguageIndex;
       preferredLanguageScore = bestLanguageScore;
       preferredRoleFlagsScore =
-          Integer.bitCount(format.roleFlags & parameters.preferredTextRoleFlags);
+          getRoleFlagMatchScore(format.roleFlags, parameters.preferredTextRoleFlags);
       hasCaptionRoleFlags =
           (format.roleFlags & (C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND)) != 0;
       boolean selectedAudioLanguageUndetermined =
