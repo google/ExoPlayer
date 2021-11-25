@@ -58,7 +58,7 @@ import java.io.IOException;
 
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
-    if (transformation.outputHeight != Transformation.NO_VALUE
+    if (transformation.outputHeight != Format.NO_VALUE
         && transformation.outputHeight != inputFormat.height) {
       outputWidth = inputFormat.width * transformation.outputHeight / inputFormat.height;
       outputHeight = transformation.outputHeight;

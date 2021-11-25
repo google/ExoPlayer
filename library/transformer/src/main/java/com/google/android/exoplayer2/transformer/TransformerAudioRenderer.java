@@ -46,7 +46,7 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
     return TAG;
   }
 
-  /** Attempts to read the input format and to initialize the sample or passthrough pipeline. */
+  /** Attempts to read the input format and to initialize the {@link SamplePipeline}. */
   @Override
   protected boolean ensureConfigured() throws ExoPlaybackException {
     if (samplePipeline != null) {

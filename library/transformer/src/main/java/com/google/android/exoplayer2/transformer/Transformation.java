@@ -21,9 +21,6 @@ import androidx.annotation.Nullable;
 /** A media transformation configuration. */
 /* package */ final class Transformation {
 
-  /** A value for various fields to indicate that the field's value is unknown or not set. */
-  public static final int NO_VALUE = -1;
-
   public final boolean removeAudio;
   public final boolean removeVideo;
   public final boolean flattenForSlowMotion;
