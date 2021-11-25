@@ -71,7 +71,7 @@ import javax.net.SocketFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The RTSP client. */
-/* package */ final class RtspClient implements Closeable {
+final class RtspClient implements Closeable {
 
   /**
    * The RTSP session state (RFC2326, Section A.1). One of {@link #RTSP_STATE_UNINITIALIZED}, {@link
@@ -190,18 +190,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @throws IOException When failed to open a connection to the supplied {@link Uri}.
    */
   public void start() throws IOException {
+    Log.i(TAG,"start()" );
     try {
       messageChannel.open(getSocket(uri));
     } catch (IOException e) {
       Util.closeQuietly(messageChannel);
       throw e;
     }
-    messageSender.sendOptionsRequest(uri, sessionId);
+    Log.i(TAG,"sendOptionsRequest()" );
+    messageSender.sendOptionsRequest(uri, sessionId); // TODO: Not have this and hardcode the result of this
   }
 
   /** Returns the current {@link RtspState RTSP state}. */
   @RtspState
   public int getState() {
+    Log.i(TAG,"getState()" );
     return rtspState;
   }
 
@@ -213,6 +216,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param loadInfos A list of selected tracks represented by {@link RtpLoadInfo}.
    */
   public void setupSelectedTracks(List<RtpLoadInfo> loadInfos) {
+    Log.i(TAG,"setupSelectedTracks()" );
     pendingSetupRtpLoadInfos.addAll(loadInfos);
     continueSetupRtspTrack();
   }
@@ -223,6 +227,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param offsetMs The playback offset in milliseconds, with respect to the stream start position.
    */
   public void startPlayback(long offsetMs) {
+    Log.i(TAG,"startPlayback()" );
     messageSender.sendPlayRequest(uri, offsetMs, checkNotNull(sessionId));
   }
 
@@ -235,12 +240,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param positionUs The seek time measured in microseconds.
    */
   public void seekToUs(long positionUs) {
+     Log.i(TAG,"seekToUs()" );
     messageSender.sendPauseRequest(uri, checkNotNull(sessionId));
     pendingSeekPositionUs = positionUs;
   }
 
   @Override
   public void close() throws IOException {
+    Log.i(TAG,"close()" );
     if (keepAliveMonitor != null) {
       // Playback has started. We have to stop the periodic keep alive and send a TEARDOWN so that
       // the RTSP server stops sending RTP packets and frees up resources.
@@ -257,6 +264,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * <p>This mode is also known as "RTP-over-RTSP".
    */
   public void retryWithRtpTcp() {
+    Log.i(TAG,"retryWithRtpTcp()" );
     try {
       close();
       messageChannel = new RtspMessageChannel(new MessageListener());
@@ -489,6 +497,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onRtspMessageReceived(List<String> message) {
+      Log.i(TAG, " onRtspMessageReceived() "+ message);
       messageHandler.post(() -> handleRtspMessage(message));
     }
 
@@ -611,11 +620,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     : RtspTrackTiming.parseTrackTiming(rtpInfoString, uri);
             onPlayResponseReceived(new RtspPlayResponse(response.status, timing, trackTimingList));
             break;
-
-          case METHOD_PAUSE:
-            onPauseResponseReceived();
-            break;
-
           case METHOD_GET_PARAMETER:
           case METHOD_TEARDOWN:
           case METHOD_PLAY_NOTIFY:
@@ -636,6 +640,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Response handlers must only be called only on 200 (OK) responses.
 
     private void onOptionsResponseReceived(RtspOptionsResponse response) {
+      Log.i(TAG, "onSetupResponseReceived");
       if (keepAliveMonitor != null) {
         // Ignores the OPTIONS requests that are sent to keep RTSP connection alive.
         return;
@@ -650,6 +655,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void onDescribeResponseReceived(RtspDescribeResponse response) {
+      Log.i(TAG, "onDescribeResponseReceived");
       RtspSessionTiming sessionTiming = RtspSessionTiming.DEFAULT;
       @Nullable
       String sessionRangeAttributeString =
@@ -675,6 +681,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private void onSetupResponseReceived(RtspSetupResponse response) {
       checkState(rtspState != RTSP_STATE_UNINITIALIZED);
+      Log.i(TAG, "onSetupResponseReceived");
 
       rtspState = RTSP_STATE_READY;
       sessionId = response.sessionHeader.sessionId;
@@ -682,6 +689,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     private void onPlayResponseReceived(RtspPlayResponse response) {
+      Log.i(TAG, "onPlayResponseReceived");
       checkState(rtspState == RTSP_STATE_READY);
 
       rtspState = RTSP_STATE_PLAYING;
@@ -695,14 +703,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       pendingSeekPositionUs = C.TIME_UNSET;
     }
 
-    private void onPauseResponseReceived() {
-      checkState(rtspState == RTSP_STATE_PLAYING);
-
-      rtspState = RTSP_STATE_READY;
-      if (pendingSeekPositionUs != C.TIME_UNSET) {
-        startPlayback(Util.usToMs(pendingSeekPositionUs));
-      }
-    }
   }
 
   /** Sends periodic OPTIONS requests to keep RTSP connection alive. */
@@ -711,7 +711,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final Handler keepAliveHandler;
     private final long intervalMs;
     private boolean isStarted;
-
+    private String TAG = Constants.TAG + "RtspClient: KeepAliveMonitor";
     /**
      * Creates a new instance.
      *
@@ -720,30 +720,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * @param intervalMs The time between consecutive RTSP keep-alive requests, in milliseconds.
      */
     public KeepAliveMonitor(long intervalMs) {
+      Log.i(this.TAG, "contructor");
       this.intervalMs = intervalMs;
       keepAliveHandler = Util.createHandlerForCurrentLooper();
     }
 
     /** Starts Keep-alive. */
     public void start() {
-      if (isStarted) {
-        return;
-      }
-
-      isStarted = true;
-      keepAliveHandler.postDelayed(this, intervalMs);
+//      Log.i(this.TAG, "start()");
+//      if (isStarted) {
+//        return;
+//      }
+//
+//      isStarted = true;
+//      keepAliveHandler.postDelayed(this, intervalMs);
     }
 
     @Override
     public void run() {
-      messageSender.sendOptionsRequest(uri, sessionId);
-      keepAliveHandler.postDelayed(this, intervalMs);
+//      Log.i(this.TAG, "run()");
+//      messageSender.sendOptionsRequest(uri, sessionId);
+//      keepAliveHandler.postDelayed(this, intervalMs);
     }
 
     @Override
     public void close() {
-      isStarted = false;
-      keepAliveHandler.removeCallbacks(this);
+//      Log.i(this.TAG, "close()");
+//      isStarted = false;
+//      keepAliveHandler.removeCallbacks(this);
     }
   }
 }

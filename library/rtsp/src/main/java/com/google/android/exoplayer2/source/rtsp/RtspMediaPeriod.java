@@ -539,7 +539,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         dataLoadable.setSequenceNumber(trackTiming.sequenceNumber);
 
         if (isSeekPending()) {
-          dataLoadable.seekToUs(startPositionUs, trackTiming.rtpTimestamp);
+          dataLoadable.seekToUs(startPositionUs, trackTiming.rtpTimestamp); // TODO: we need to keep this function because
         }
       }
 

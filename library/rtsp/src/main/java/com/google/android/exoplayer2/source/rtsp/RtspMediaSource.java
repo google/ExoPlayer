@@ -287,6 +287,8 @@ public final class RtspMediaSource extends BaseMediaSource {
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     Log.i(TAG,"createPeriod()");
+
+
     return new RtspMediaPeriod(
         allocator,
         rtpDataChannelFactory,
