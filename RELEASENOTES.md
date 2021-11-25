@@ -11,6 +11,9 @@
     *   Add a method to `AdPlaybackState` to allow resetting an ad group so that
         it can be played again
         ([#9615](https://github.com/google/ExoPlayer/issues/9615)).
+*   DASH:
+    *   Support the `forced-subtitle` track role
+        ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
 *   HLS:
     *   Support key-frame accurate seeking in HLS
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
