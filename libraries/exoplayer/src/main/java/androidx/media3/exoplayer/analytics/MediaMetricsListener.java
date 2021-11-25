@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer.analytics;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import android.annotation.SuppressLint;
@@ -92,6 +91,23 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public final class MediaMetricsListener
     implements AnalyticsListener, PlaybackSessionManager.Listener {
 
+  /**
+   * Creates a media metrics listener.
+   *
+   * @param context A context.
+   * @return The {@link MediaMetricsListener}, or null if the {@link Context#MEDIA_METRICS_SERVICE
+   *     media metrics service} isn't available.
+   */
+  @Nullable
+  public static MediaMetricsListener create(Context context) {
+    @Nullable
+    MediaMetricsManager mediaMetricsManager =
+        (MediaMetricsManager) context.getSystemService(Context.MEDIA_METRICS_SERVICE);
+    return mediaMetricsManager == null
+        ? null
+        : new MediaMetricsListener(context, mediaMetricsManager.createPlaybackSession());
+  }
+
   private final Context context;
   private final PlaybackSessionManager sessionManager;
   private final PlaybackSession playbackSession;
@@ -124,15 +140,12 @@ public final class MediaMetricsListener
    *
    * @param context A {@link Context}.
    */
-  public MediaMetricsListener(Context context) {
+  private MediaMetricsListener(Context context, PlaybackSession playbackSession) {
     context = context.getApplicationContext();
     this.context = context;
+    this.playbackSession = playbackSession;
     window = new Timeline.Window();
     period = new Timeline.Period();
-    MediaMetricsManager mediaMetricsManager =
-        checkStateNotNull(
-            (MediaMetricsManager) context.getSystemService(Context.MEDIA_METRICS_SERVICE));
-    playbackSession = mediaMetricsManager.createPlaybackSession();
     startTimeMs = SystemClock.elapsedRealtime();
     currentPlaybackState = PlaybackStateEvent.STATE_NOT_STARTED;
     currentNetworkType = NetworkEvent.NETWORK_TYPE_UNKNOWN;
