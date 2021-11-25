@@ -594,7 +594,7 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that track selector will select audio track with the highest number of matching role
+   * Tests that track selector will select the audio track with the highest number of matching role
    * flags given by {@link Parameters}.
    */
   @Test
@@ -619,6 +619,17 @@ public final class DefaultTrackSelectorTest {
             periodId,
             TIMELINE);
     assertFixedSelection(result.selections[0], trackGroups, moreRoleFlags);
+
+    // Also verify that exact match between parameters and tracks is preferred.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPreferredAudioRoleFlags(C.ROLE_FLAG_CAPTION));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, lessRoleFlags);
   }
 
   /**
@@ -1280,6 +1291,45 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
+   * Tests that track selector will select the text track with the highest number of matching role
+   * flags given by {@link Parameters}.
+   */
+  @Test
+  public void selectTracks_withPreferredTextRoleFlags_selectPreferredTrack() throws Exception {
+    Format.Builder formatBuilder = TEXT_FORMAT.buildUpon();
+    Format noRoleFlags = formatBuilder.build();
+    Format lessRoleFlags = formatBuilder.setRoleFlags(C.ROLE_FLAG_CAPTION).build();
+    Format moreRoleFlags =
+        formatBuilder
+            .setRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY | C.ROLE_FLAG_DUB)
+            .build();
+    TrackGroupArray trackGroups = wrapFormats(noRoleFlags, moreRoleFlags, lessRoleFlags);
+
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, moreRoleFlags);
+
+    // Also verify that exact match between parameters and tracks is preferred.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, lessRoleFlags);
+  }
+
+  /**
    * Tests that track selector will select the lowest bitrate supported audio track when {@link
    * Parameters#forceLowestBitrate} is set.
    */
@@ -1807,6 +1857,39 @@ public final class DefaultTrackSelectorTest {
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
     assertFixedSelection(result.selections[0], trackGroups, formatAv1);
+  }
+
+  /**
+   * Tests that track selector will select the video track with the highest number of matching role
+   * flags given by {@link Parameters}.
+   */
+  @Test
+  public void selectTracks_withPreferredVideoRoleFlags_selectPreferredTrack() throws Exception {
+    Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
+    Format noRoleFlags = formatBuilder.build();
+    Format lessRoleFlags = formatBuilder.setRoleFlags(C.ROLE_FLAG_CAPTION).build();
+    Format moreRoleFlags =
+        formatBuilder
+            .setRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY | C.ROLE_FLAG_DUB)
+            .build();
+    TrackGroupArray trackGroups = wrapFormats(noRoleFlags, moreRoleFlags, lessRoleFlags);
+
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setPreferredVideoRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, moreRoleFlags);
+
+    // Also verify that exact match between parameters and tracks is preferred.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPreferredVideoRoleFlags(C.ROLE_FLAG_CAPTION));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups, lessRoleFlags);
   }
 
   @Test
