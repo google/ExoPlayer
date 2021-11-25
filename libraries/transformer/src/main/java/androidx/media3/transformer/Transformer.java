@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
@@ -109,15 +110,11 @@ public final class Transformer {
     private Looper looper;
     private Clock clock;
 
-    /**
-     * Creates a builder with default values.
-     *
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
+    /** @deprecated Use {@link #Builder(Context)} instead. */
     @Deprecated
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = Transformation.NO_VALUE;
+      outputHeight = Format.NO_VALUE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
@@ -128,12 +125,11 @@ public final class Transformer {
      * Creates a builder with default values.
      *
      * @param context The {@link Context}.
-     * @throws NullPointerException If the {@link Context} has not been provided.
      */
     public Builder(Context context) {
       this.context = context.getApplicationContext();
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = Transformation.NO_VALUE;
+      outputHeight = Format.NO_VALUE;
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
@@ -157,15 +153,7 @@ public final class Transformer {
       this.clock = transformer.clock;
     }
 
-    /**
-     * Sets the {@link Context}.
-     *
-     * <p>This parameter is mandatory.
-     *
-     * @param context The {@link Context}.
-     * @return This builder.
-     * @deprecated Use {@link #Builder(Context)} instead.
-     */
+    /** @deprecated Use {@link #Builder(Context)} instead. */
     @Deprecated
     public Builder setContext(Context context) {
       this.context = context.getApplicationContext();
@@ -174,8 +162,8 @@ public final class Transformer {
 
     /**
      * Sets the {@link MediaSourceFactory} to be used to retrieve the inputs to transform. The
-     * default value is a {@link DefaultMediaSourceFactory} built with the context provided in the
-     * constructor.
+     * default value is a {@link DefaultMediaSourceFactory} built with the context provided in
+     * {@link #Builder(Context) the constructor}.
      *
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @return This builder.
@@ -244,9 +232,8 @@ public final class Transformer {
     }
 
     /**
-     * Sets the output resolution using the output height. The default value is {@link
-     * Transformation#NO_VALUE}, which will use the same height as the input. Output width will
-     * scale to preserve the input video's aspect ratio.
+     * Sets the output resolution using the output height. The default value is the same height as
+     * the input. Output width will scale to preserve the input video's aspect ratio.
      *
      * <p>For now, only "popular" heights like 240, 360, 480, 720, 1080, 1440, or 2160 are
      * supported, to ensure compatibility on different devices.

@@ -80,13 +80,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public final boolean isReady() {
-    return isSourceReady();
+  public final MediaClock getMediaClock() {
+    return mediaClock;
   }
 
   @Override
-  public final MediaClock getMediaClock() {
-    return mediaClock;
+  public final boolean isReady() {
+    return isSourceReady();
   }
 
   @Override
@@ -109,15 +109,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  protected final void onReset() {
-    if (samplePipeline != null) {
-      samplePipeline.release();
-    }
-    muxerWrapperTrackAdded = false;
-    muxerWrapperTrackEnded = false;
-  }
-
-  @Override
   protected final void onEnabled(boolean joining, boolean mayRenderStartOfStream) {
     muxerWrapper.registerTrack();
     mediaClock.updateTimeForTrackType(getTrackType(), 0L);
@@ -131,6 +122,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   protected final void onStopped() {
     isRendererStarted = false;
+  }
+
+  @Override
+  protected final void onReset() {
+    if (samplePipeline != null) {
+      samplePipeline.release();
+    }
+    muxerWrapperTrackAdded = false;
+    muxerWrapperTrackEnded = false;
   }
 
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)

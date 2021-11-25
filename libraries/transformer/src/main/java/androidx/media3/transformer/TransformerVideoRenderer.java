@@ -57,7 +57,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return TAG;
   }
 
-  /** Attempts to read the input format and to initialize the sample or passthrough pipeline. */
+  /** Attempts to read the input format and to initialize the {@link SamplePipeline}. */
   @Override
   protected boolean ensureConfigured() throws ExoPlaybackException {
     if (samplePipeline != null) {
@@ -72,7 +72,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     if ((transformation.videoMimeType != null
             && !transformation.videoMimeType.equals(inputFormat.sampleMimeType))
-        || (transformation.outputHeight != Transformation.NO_VALUE
+        || (transformation.outputHeight != Format.NO_VALUE
             && transformation.outputHeight != inputFormat.height)) {
       samplePipeline = new VideoSamplePipeline(context, inputFormat, transformation, getIndex());
     } else {
