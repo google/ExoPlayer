@@ -83,30 +83,26 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     Uri uri = Uri.parse(uriString);
     File externalCacheFile = createExternalCacheFile(context, /* filePrefix= */ testId);
-    try {
-      InstrumentationRegistry.getInstrumentation()
-          .runOnMainSync(
-              () -> {
-                try {
-                  testTransformer.startTransformation(
-                      MediaItem.fromUri(uri), externalCacheFile.getAbsolutePath());
-                } catch (IOException e) {
-                  exceptionReference.set(e);
-                }
-              });
+    InstrumentationRegistry.getInstrumentation()
+        .runOnMainSync(
+            () -> {
+              try {
+                testTransformer.startTransformation(
+                    MediaItem.fromUri(uri), externalCacheFile.getAbsolutePath());
+              } catch (IOException e) {
+                exceptionReference.set(e);
+              }
+            });
 
-      assertWithMessage("Transformer timed out after " + timeoutSeconds + " seconds.")
-          .that(countDownLatch.await(timeoutSeconds, SECONDS))
-          .isTrue();
-      @Nullable Exception exception = exceptionReference.get();
-      if (exception != null) {
-        throw exception;
-      }
-      long outputSizeBytes = externalCacheFile.length();
-      return new TransformationResult(outputSizeBytes);
-    } finally {
-      externalCacheFile.delete();
+    assertWithMessage("Transformer timed out after " + timeoutSeconds + " seconds.")
+        .that(countDownLatch.await(timeoutSeconds, SECONDS))
+        .isTrue();
+    @Nullable Exception exception = exceptionReference.get();
+    if (exception != null) {
+      throw exception;
     }
+    long outputSizeBytes = externalCacheFile.length();
+    return new TransformationResult(outputSizeBytes);
   }
 
   private static File createExternalCacheFile(Context context, String filePrefix)
