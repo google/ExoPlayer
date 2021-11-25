@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.microedition.khronos.egl.EGL10;
 
-/** GL utilities. */
+/** OpenGL ES 2.0 utilities. */
 @UnstableApi
 public final class GlUtil {
 
@@ -86,7 +86,10 @@ public final class GlUtil {
     }
 
     /**
-     * Compiles a GL shader program from vertex and fragment shader GLSL GLES20 code.
+     * Creates a GL shader program from vertex and fragment shader GLSL GLES20 code.
+     *
+     * <p>This involves slow steps, like compiling, linking, and switching the GL program, so do not
+     * call this in fast rendering loops.
      *
      * @param vertexShaderGlsl The vertex shader program.
      * @param fragmentShaderGlsl The fragment shader program.
@@ -129,8 +132,14 @@ public final class GlUtil {
       checkGlError();
     }
 
-    /** Uses the program. */
+    /**
+     * Uses the program.
+     *
+     * <p>Call this in the rendering loop to switch between different programs.
+     */
     public void use() {
+      // TODO(http://b/205002913): When multiple GL programs are supported by Transformer, make sure
+      // to call use() to switch between programs.
       GLES20.glUseProgram(programId);
       checkGlError();
     }

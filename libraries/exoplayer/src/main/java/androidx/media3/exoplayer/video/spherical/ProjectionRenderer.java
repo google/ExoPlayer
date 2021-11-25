@@ -15,7 +15,6 @@
  */
 package androidx.media3.exoplayer.video.spherical;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.GlUtil.checkGlError;
 
 import android.opengl.GLES11Ext;
@@ -139,9 +138,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     // Configure shader.
-    checkNotNull(program).use();
-    checkGlError();
-
     float[] texMatrix;
     if (stereoMode == C.STEREO_MODE_TOP_BOTTOM) {
       texMatrix = rightEye ? TEX_MATRIX_BOTTOM : TEX_MATRIX_TOP;

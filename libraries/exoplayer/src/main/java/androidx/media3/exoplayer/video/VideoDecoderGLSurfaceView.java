@@ -168,7 +168,6 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
       program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
-      program.use();
       int posLocation = program.getAttributeArrayLocationAndEnable("in_pos");
       GLES20.glVertexAttribPointer(
           posLocation,
