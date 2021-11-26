@@ -100,17 +100,6 @@ import java.util.regex.Pattern;
       String sdpValue = checkNotNull(matcher.group(2));
 
       switch (sdpType) {
-        
-        case INFORMATION_TYPE:
-          Log.i(TAG, "INFORMATION_TYPE: " + sdpType + " " + sdpValue );
-          if (mediaDescriptionBuilder == null) {
-            sessionDescriptionBuilder.setSessionInfo(sdpValue);
-          }
-          else {
-            mediaDescriptionBuilder.setMediaTitle(sdpValue);
-          }
-          break;
-
         case ORIGIN_TYPE:
           Log.i(TAG, "ORIGIN_TYPE: " + sdpType + " " + sdpValue );
           sessionDescriptionBuilder.setOrigin(sdpValue);
