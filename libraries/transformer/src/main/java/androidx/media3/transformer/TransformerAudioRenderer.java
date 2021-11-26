@@ -19,13 +19,16 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 
 @RequiresApi(18)
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
@@ -59,13 +62,29 @@ import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    if ((transformation.audioMimeType != null
-            && !transformation.audioMimeType.equals(inputFormat.sampleMimeType))
-        || transformation.flattenForSlowMotion) {
+    boolean shouldChangeMimeType =
+        transformation.audioMimeType != null
+            && !transformation.audioMimeType.equals(inputFormat.sampleMimeType);
+    boolean shouldFlattenForSlowMotion =
+        transformation.flattenForSlowMotion && isSlowMotion(inputFormat);
+    if (shouldChangeMimeType || shouldFlattenForSlowMotion) {
       samplePipeline = new AudioSamplePipeline(inputFormat, transformation, getIndex());
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
     return true;
+  }
+
+  private static boolean isSlowMotion(Format format) {
+    @Nullable Metadata metadata = format.metadata;
+    if (metadata == null) {
+      return false;
+    }
+    for (int i = 0; i < metadata.length(); i++) {
+      if (metadata.get(i) instanceof SlowMotionData) {
+        return true;
+      }
+    }
+    return false;
   }
 }
