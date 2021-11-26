@@ -176,7 +176,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkGlError();
 
     // Render.
-    GLES20.glDrawArrays(meshData.drawMode, 0, meshData.vertexCount);
+    GLES20.glDrawArrays(meshData.drawMode, /* first= */ 0, meshData.vertexCount);
     checkGlError();
 
     GLES20.glDisableVertexAttribArray(positionHandle);
