@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.base.Strings.nullToEmpty;
 
 import android.net.Uri;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
@@ -60,6 +61,7 @@ import java.util.regex.Pattern;
   private static final String REPEAT_TYPE = "r";
   private static final String ZONE_TYPE = "z";
 
+
   /**
    * Parses a String based SDP message into {@link SessionDescription}.
    *
@@ -67,10 +69,21 @@ import java.util.regex.Pattern;
    *     mandatory SDP fields {@link SessionDescription#timing}, {@link SessionDescription#origin}
    *     and {@link SessionDescription#sessionName} are not set.
    */
+  public static SessionDescription custom(){
+    //TODO: hardcode the required params to run the steam here
+//    SessionDescription.Builder sessionDescriptionBuilder = new SessionDescription.Builder();
+//    String ORIGIN_TYPE = "- 8265319122185249563 1 IN IP4 192.168.1.51";
+//    //String ORIGIN_TYPE = "- 8265319122185249563 1 IN IP4 192.168.1.51";
+//    sessionDescriptionBuilder.setOrigin(sdpValue);
+    return null;
+  }
   public static SessionDescription parse(String sdpString) throws ParserException {
+
     SessionDescription.Builder sessionDescriptionBuilder = new SessionDescription.Builder();
     @Nullable MediaDescription.Builder mediaDescriptionBuilder = null;
 
+
+    String TAG = "PARSER: ";
     // Lines are separated by an CRLF.
     for (String line : RtspMessageUtil.splitRtspMessageBody(sdpString)) {
       if ("".equals(line)) {
@@ -87,42 +100,34 @@ import java.util.regex.Pattern;
       String sdpValue = checkNotNull(matcher.group(2));
 
       switch (sdpType) {
-        case VERSION_TYPE:
-          if (!SUPPORTED_SDP_VERSION.equals(sdpValue)) {
-            throw ParserException.createForMalformedManifest(
-                String.format("SDP version %s is not supported.", sdpValue), /* cause= */ null);
-          }
-          break;
-
-        case ORIGIN_TYPE:
-          sessionDescriptionBuilder.setOrigin(sdpValue);
-          break;
-
-        case SESSION_TYPE:
-          sessionDescriptionBuilder.setSessionName(sdpValue);
-          break;
-
+        
         case INFORMATION_TYPE:
+          Log.i(TAG, "INFORMATION_TYPE: " + sdpType + " " + sdpValue );
           if (mediaDescriptionBuilder == null) {
             sessionDescriptionBuilder.setSessionInfo(sdpValue);
-          } else {
+          }
+          else {
             mediaDescriptionBuilder.setMediaTitle(sdpValue);
           }
           break;
 
+        case ORIGIN_TYPE:
+          Log.i(TAG, "ORIGIN_TYPE: " + sdpType + " " + sdpValue );
+          sessionDescriptionBuilder.setOrigin(sdpValue);
+          break;
+
+        case SESSION_TYPE:
+          Log.i(TAG, "SESSION_TYPE: " + sdpType + " " + sdpValue );
+          sessionDescriptionBuilder.setSessionName(sdpValue);
+          break;
+
         case URI_TYPE:
+          Log.i(TAG, "URI_TYPE: " + sdpType + " " + sdpValue );
           sessionDescriptionBuilder.setUri(Uri.parse(sdpValue));
           break;
 
-        case EMAIL_TYPE:
-          sessionDescriptionBuilder.setEmailAddress(sdpValue);
-          break;
-
-        case PHONE_NUMBER_TYPE:
-          sessionDescriptionBuilder.setPhoneNumber(sdpValue);
-          break;
-
         case CONNECTION_TYPE:
+          Log.i(TAG, "CONNECTION_TYPE: " + sdpType + " " + sdpValue );
           if (mediaDescriptionBuilder == null) {
             sessionDescriptionBuilder.setConnection(sdpValue);
           } else {
@@ -131,6 +136,7 @@ import java.util.regex.Pattern;
           break;
 
         case BANDWIDTH_TYPE:
+          Log.i(TAG, "BANDWIDTH_TYPE: " + sdpType + " " + sdpValue );
           String[] bandwidthComponents = Util.split(sdpValue, ":\\s?");
           checkArgument(bandwidthComponents.length == 2);
           int bitrateKbps = Integer.parseInt(bandwidthComponents[1]);
@@ -144,10 +150,12 @@ import java.util.regex.Pattern;
           break;
 
         case TIMING_TYPE:
+          Log.i(TAG, "TIMING_TYPE: " + sdpType + " " + sdpValue );
           sessionDescriptionBuilder.setTiming(sdpValue);
           break;
 
         case KEY_TYPE:
+          Log.i(TAG, "KEY_TYPE: " + sdpType + " " + sdpValue );
           if (mediaDescriptionBuilder == null) {
             sessionDescriptionBuilder.setKey(sdpValue);
           } else {
@@ -156,6 +164,7 @@ import java.util.regex.Pattern;
           break;
 
         case ATTRIBUTE_TYPE:
+          Log.i(TAG, "ATTRIBUTE_TYPE: " + sdpType + " " + sdpValue );
           matcher = ATTRIBUTE_PATTERN.matcher(sdpValue);
           if (!matcher.matches()) {
             throw ParserException.createForMalformedManifest(
@@ -174,13 +183,16 @@ import java.util.regex.Pattern;
           break;
 
         case MEDIA_TYPE:
+          Log.i(TAG, "MEDIA_TYPE: " + sdpType + " " + sdpValue );
           if (mediaDescriptionBuilder != null) {
             addMediaDescriptionToSession(sessionDescriptionBuilder, mediaDescriptionBuilder);
           }
           mediaDescriptionBuilder = parseMediaDescriptionLine(sdpValue);
           break;
         case REPEAT_TYPE:
+          Log.i(TAG, "REPEAT_TYPE: ERROR!");
         case ZONE_TYPE:
+          Log.i(TAG, "ZONE_TYPE: ERROR!");
         default:
           // Not handled.
       }

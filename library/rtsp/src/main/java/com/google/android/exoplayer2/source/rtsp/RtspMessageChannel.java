@@ -220,7 +220,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * @param outputStream The {@link OutputStream} of the opened RTSP {@link Socket}, to which the
      *     request is sent. The caller needs to close the {@link OutputStream}.
      */
-    public Sender(OutputStream outputStream) {
+    public Sender(OutputStream outputStream) { //TODO:Remove this
       this.outputStream = outputStream;
       this.senderThread = new HandlerThread("ExoPlayer:RtspMessageChannel:Sender");
       this.senderThread.start();

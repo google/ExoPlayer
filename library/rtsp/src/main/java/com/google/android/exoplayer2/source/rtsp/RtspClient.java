@@ -580,9 +580,7 @@ final class RtspClient implements Closeable {
             break;
 
           case METHOD_DESCRIBE:
-            onDescribeResponseReceived(
-                new RtspDescribeResponse(
-                    response.status, SessionDescriptionParser.parse(response.messageBody)));
+            onDescribeResponseReceived( new RtspDescribeResponse( response.status, SessionDescriptionParser.parse(response.messageBody) ) );
             break;
 
           case METHOD_SETUP:
@@ -634,7 +632,7 @@ final class RtspClient implements Closeable {
 
     private void onOptionsResponseReceived(RtspOptionsResponse response) {
       Log.i(TAG, "onSetupResponseReceived");
-      if (keepAliveMonitor != null) {
+      if (keepAliveMonitor != null) {  //TODO: Why is this needed
         // Ignores the OPTIONS requests that are sent to keep RTSP connection alive.
         return;
       }
@@ -649,6 +647,7 @@ final class RtspClient implements Closeable {
 
     private void onDescribeResponseReceived(RtspDescribeResponse response) {
       Log.i(TAG, "onDescribeResponseReceived");
+
       RtspSessionTiming sessionTiming = RtspSessionTiming.DEFAULT;
       @Nullable
       String sessionRangeAttributeString =
