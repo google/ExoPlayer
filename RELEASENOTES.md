@@ -5,6 +5,9 @@
 *   Core library:
     *   Support preferred video role flags in track selection
         ((#9402)[https://github.com/google/ExoPlayer/issues/9402]).
+*   Extractors:
+    *   Fix inconsistency with spec in H.265 SPS nal units parsing
+        ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).
 *   DRM:
     *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
         When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
