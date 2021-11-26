@@ -19,12 +19,15 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 
 @RequiresApi(18)
@@ -59,13 +62,29 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    if ((transformation.audioMimeType != null
-            && !transformation.audioMimeType.equals(inputFormat.sampleMimeType))
-        || transformation.flattenForSlowMotion) {
+    boolean shouldChangeMimeType =
+        transformation.audioMimeType != null
+            && !transformation.audioMimeType.equals(inputFormat.sampleMimeType);
+    boolean shouldFlattenForSlowMotion =
+        transformation.flattenForSlowMotion && isSlowMotion(inputFormat);
+    if (shouldChangeMimeType || shouldFlattenForSlowMotion) {
       samplePipeline = new AudioSamplePipeline(inputFormat, transformation, getIndex());
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
     return true;
+  }
+
+  private static boolean isSlowMotion(Format format) {
+    @Nullable Metadata metadata = format.metadata;
+    if (metadata == null) {
+      return false;
+    }
+    for (int i = 0; i < metadata.length(); i++) {
+      if (metadata.get(i) instanceof SlowMotionData) {
+        return true;
+      }
+    }
+    return false;
   }
 }
