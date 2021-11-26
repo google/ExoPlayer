@@ -294,7 +294,7 @@ public class MediaSession {
      * @return The builder to allow chaining.
      */
     @Override
-    Builder setMediaItemFiller(MediaItemFiller mediaItemFiller) {
+    public Builder setMediaItemFiller(MediaItemFiller mediaItemFiller) {
       return super.setMediaItemFiller(mediaItemFiller);
     }
 
