@@ -11,6 +11,9 @@
     *   Add a method to `AdPlaybackState` to allow resetting an ad group so that
         it can be played again
         ([#9615](https://github.com/google/ExoPlayer/issues/9615)).
+*   HLS:
+    *   Support key-frame accurate seeking in HLS
+        ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
 
 ### 2.16.1 (2021-11-18)
 

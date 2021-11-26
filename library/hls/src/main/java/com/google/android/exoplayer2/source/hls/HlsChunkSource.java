@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -239,6 +240,53 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void setIsTimestampMaster(boolean isTimestampMaster) {
     this.isTimestampMaster = isTimestampMaster;
+  }
+
+  /**
+   * Adjusts a seek position given the specified {@link SeekParameters}.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed.
+   * @return The adjusted seek position, in microseconds.
+   */
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    int selectedIndex = trackSelection.getSelectedIndex();
+    @Nullable
+    HlsMediaPlaylist mediaPlaylist =
+        selectedIndex < playlistUrls.length && selectedIndex != C.INDEX_UNSET
+            ? playlistTracker.getPlaylistSnapshot(
+                playlistUrls[selectedIndex], /* isForPlayback= */ true)
+            : null;
+
+    if (mediaPlaylist == null
+        || mediaPlaylist.segments.isEmpty()
+        || !mediaPlaylist.hasIndependentSegments) {
+      return positionUs;
+    }
+
+    // Segments start with sync samples (i.e., EXT-X-INDEPENDENT-SEGMENTS is set) and the playlist
+    // is non-empty, so we can use segment start times as sync points. Note that in the rare case
+    // that (a) an adaptive quality switch occurs between the adjustment and the seek being
+    // performed, and (b) segment start times are not aligned across variants, it's possible that
+    // the adjusted position may not be at a sync point when it was intended to be. However, this is
+    // very much an edge case, and getting it wrong is worth it for getting the vast majority of
+    // cases right whilst keeping the implementation relatively simple.
+    long startOfPlaylistInPeriodUs =
+        mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+    long relativePositionUs = positionUs - startOfPlaylistInPeriodUs;
+    int segmentIndex =
+        Util.binarySearchFloor(
+            mediaPlaylist.segments,
+            relativePositionUs,
+            /* inclusive= */ true,
+            /* stayInBounds= */ true);
+    long firstSyncUs = mediaPlaylist.segments.get(segmentIndex).relativeStartTimeUs;
+    long secondSyncUs = firstSyncUs;
+    if (segmentIndex != mediaPlaylist.segments.size() - 1) {
+      secondSyncUs = mediaPlaylist.segments.get(segmentIndex + 1).relativeStartTimeUs;
+    }
+    return seekParameters.resolveSeekPositionUs(relativePositionUs, firstSyncUs, secondSyncUs)
+        + startOfPlaylistInPeriodUs;
   }
 
   /**
