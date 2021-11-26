@@ -143,7 +143,7 @@ import java.io.IOException;
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
     copyProgram.setFloatsUniform("tex_transform", textureTransformMatrix);
     copyProgram.bindAttributesAndUniforms();
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
     EGL14.eglSwapBuffers(eglDisplay, eglSurface);

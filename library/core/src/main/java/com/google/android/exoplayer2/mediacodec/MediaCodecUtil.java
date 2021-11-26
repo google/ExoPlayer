@@ -27,6 +27,7 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
@@ -105,11 +106,8 @@ public final class MediaCodecUtil {
     }
   }
 
-  /**
-   * Clears the codec cache.
-   *
-   * <p>This method should only be called in tests.
-   */
+  /* Clears the codec cache.*/
+  @VisibleForTesting
   public static synchronized void clearDecoderInfoCache() {
     decoderInfosCache.clear();
   }
