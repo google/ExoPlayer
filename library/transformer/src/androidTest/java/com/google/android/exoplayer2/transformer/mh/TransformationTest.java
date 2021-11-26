@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.SEF_ASSET_URI_STRING;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
+import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.MP4_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.transformer.Transformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** {@link Transformer} instrumentation test for SEF. */
+/** {@link Transformer} instrumentation test. */
 @RunWith(AndroidJUnit4.class)
-public class SefTransformationTest {
+public class TransformationTest {
   @Test
-  public void sefTransform() throws Exception {
+  public void transform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer =
-        new Transformer.Builder(context).setFlattenForSlowMotion(true).build();
+    Transformer transformer = new Transformer.Builder(context).build();
     runTransformer(
         context,
-        /* testId = */ "sefTransform",
+        /* testId= */ "transform",
         transformer,
-        SEF_ASSET_URI_STRING,
+        MP4_ASSET_URI_STRING,
         /* timeoutSeconds= */ 120);
   }
 }

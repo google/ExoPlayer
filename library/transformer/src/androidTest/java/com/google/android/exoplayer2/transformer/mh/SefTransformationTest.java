@@ -13,29 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
+import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.SEF_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.transformer.Transformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** {@link Transformer} instrumentation test for removing audio. */
+/** {@link Transformer} instrumentation test for SEF. */
 @RunWith(AndroidJUnit4.class)
-public class RemoveAudioTransformationTest {
+public class SefTransformationTest {
   @Test
-  public void removeAudioTransform() throws Exception {
+  public void sefTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
+    Transformer transformer =
+        new Transformer.Builder(context).setFlattenForSlowMotion(true).build();
     runTransformer(
         context,
-        /* testId= */ "removeAudioTransform",
+        /* testId = */ "sefTransform",
         transformer,
-        MP4_ASSET_URI_STRING,
+        SEF_ASSET_URI_STRING,
         /* timeoutSeconds= */ 120);
   }
 }
