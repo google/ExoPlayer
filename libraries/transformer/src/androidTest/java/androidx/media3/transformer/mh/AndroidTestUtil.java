@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.transformer;
+package androidx.media3.transformer.mh;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -23,6 +23,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.transformer.Transformer;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.IOException;
