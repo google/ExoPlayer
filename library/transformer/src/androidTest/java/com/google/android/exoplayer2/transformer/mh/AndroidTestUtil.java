@@ -117,22 +117,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       throws IOException {
     File analysisFile =
         createExternalCacheFile(context, /* fileName= */ result.testId + "-result.txt");
-    FileWriter fileWriter = new FileWriter(analysisFile);
-    String fileContents =
-        "test="
-            + result.testId
-            + ", deviceBrand="
-            + Build.MANUFACTURER
-            + ", deviceModel="
-            + Build.MODEL
-            + ", sdkVersion="
-            + Build.VERSION.SDK_INT
-            + ", outputSizeBytes="
-            + result.outputSizeBytes;
-    try {
+    try (FileWriter fileWriter = new FileWriter(analysisFile)) {
+      String fileContents =
+          "test="
+              + result.testId
+              + ", deviceBrand="
+              + Build.MANUFACTURER
+              + ", deviceModel="
+              + Build.MODEL
+              + ", sdkVersion="
+              + Build.VERSION.SDK_INT
+              + ", outputSizeBytes="
+              + result.outputSizeBytes;
       fileWriter.write(fileContents);
-    } finally {
-      fileWriter.close();
     }
   }
 
