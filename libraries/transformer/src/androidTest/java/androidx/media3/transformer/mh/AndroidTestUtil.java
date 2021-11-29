@@ -20,12 +20,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.transformer.Transformer;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,9 +42,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Information about the result of successfully running a transformer. */
   public static final class TransformationResult {
-    public long outputSizeBytes;
+    public final String testId;
+    public final long outputSizeBytes;
 
-    private TransformationResult(long outputSizeBytes) {
+    private TransformationResult(String testId, long outputSizeBytes) {
+      this.testId = testId;
       this.outputSizeBytes = outputSizeBytes;
     }
   }
@@ -83,13 +87,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .build();
 
     Uri uri = Uri.parse(uriString);
-    File externalCacheFile = createExternalCacheFile(context, /* filePrefix= */ testId);
+    File outputVideoFile = createExternalCacheFile(context, /* fileName= */ testId + "-output.mp4");
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(
             () -> {
               try {
                 testTransformer.startTransformation(
-                    MediaItem.fromUri(uri), externalCacheFile.getAbsolutePath());
+                    MediaItem.fromUri(uri), outputVideoFile.getAbsolutePath());
               } catch (IOException e) {
                 exceptionReference.set(e);
               }
@@ -102,16 +106,41 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (exception != null) {
       throw exception;
     }
-    long outputSizeBytes = externalCacheFile.length();
-    return new TransformationResult(outputSizeBytes);
+    long outputSizeBytes = outputVideoFile.length();
+
+    TransformationResult result = new TransformationResult(testId, outputSizeBytes);
+    writeTransformationResultToFile(context, result);
+    return result;
   }
 
-  private static File createExternalCacheFile(Context context, String filePrefix)
+  private static void writeTransformationResultToFile(Context context, TransformationResult result)
       throws IOException {
-    File file = new File(context.getExternalCacheDir(), filePrefix + "-output.mp4");
+    File analysisFile =
+        createExternalCacheFile(context, /* fileName= */ result.testId + "-result.txt");
+    FileWriter fileWriter = new FileWriter(analysisFile);
+    String fileContents =
+        "test="
+            + result.testId
+            + ", deviceBrand="
+            + Build.MANUFACTURER
+            + ", deviceModel="
+            + Build.MODEL
+            + ", sdkVersion="
+            + Build.VERSION.SDK_INT
+            + ", outputSizeBytes="
+            + result.outputSizeBytes;
+    try {
+      fileWriter.write(fileContents);
+    } finally {
+      fileWriter.close();
+    }
+  }
+
+  private static File createExternalCacheFile(Context context, String fileName) throws IOException {
+    File file = new File(context.getExternalCacheDir(), fileName);
     Assertions.checkState(
-        !file.exists() || file.delete(), "Could not delete the previous transformer output file.");
-    Assertions.checkState(file.createNewFile(), "Could not create the transformer output file.");
+        !file.exists() || file.delete(), "Could not delete file: " + file.getAbsolutePath());
+    Assertions.checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
     return file;
   }
 
