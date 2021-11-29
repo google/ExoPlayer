@@ -182,7 +182,7 @@ final class RtspClient implements Closeable {
   }
 
   /**
-   * Starts the client and sends an OPTIONS request.
+   * Starts the client and sends an DESCRIBE request.
    *
    * <p>Calls {@link #close()} if {@link IOException} is thrown when opening a connection to the
    * supplied {@link Uri}.
@@ -198,7 +198,8 @@ final class RtspClient implements Closeable {
       throw e;
     }
     Log.i(TAG,"sendOptionsRequest()" );
-    messageSender.sendOptionsRequest(uri, sessionId); // TODO: Not have this and hardcode the result of this
+    //Skipping Options
+    messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId); // TODO: Not have this and hardcode the result of this
   }
 
   /** Returns the current {@link RtspState RTSP state}. */
@@ -348,12 +349,6 @@ final class RtspClient implements Closeable {
 
     private int cSeq;
     private @MonotonicNonNull RtspRequest lastRequest;
-
-    public void sendOptionsRequest(Uri uri, @Nullable String sessionId) {
-      sendRequest(
-          getRequestWithCommonHeaders(
-              METHOD_OPTIONS, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
-    }
 
     public void sendDescribeRequest(Uri uri, @Nullable String sessionId) {
       sendRequest(
@@ -646,6 +641,7 @@ final class RtspClient implements Closeable {
     }
 
     private void onDescribeResponseReceived(RtspDescribeResponse response) {
+      //TODO: take SessionDescription custom() and prepare for play option
       Log.i(TAG, "onDescribeResponseReceived");
 
       RtspSessionTiming sessionTiming = RtspSessionTiming.DEFAULT;
