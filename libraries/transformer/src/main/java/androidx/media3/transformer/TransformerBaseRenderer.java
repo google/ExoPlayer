@@ -29,6 +29,7 @@ import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.MediaClock;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import com.google.errorprone.annotations.ForOverride;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -133,6 +134,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     muxerWrapperTrackEnded = false;
   }
 
+  @ForOverride
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
   protected abstract boolean ensureConfigured() throws ExoPlaybackException;
 
