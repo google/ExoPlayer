@@ -2566,14 +2566,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               : FORMAT_VALUE_ORDERING.reverse();
       return ComparisonChain.start()
           .compareFalseFirst(this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
+          // 1. Compare match with specific content preferences set by the parameters.
           .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
+          // 2. Compare match with implicit content preferences set by the media.
           .compareFalseFirst(this.hasMainOrNoRoleFlag, other.hasMainOrNoRoleFlag)
+          // 3. Compare match with technical preferences set by the parameters.
           .compareFalseFirst(this.isWithinMaxConstraints, other.isWithinMaxConstraints)
           .compareFalseFirst(this.isWithinMinConstraints, other.isWithinMinConstraints)
           .compare(
               this.preferredMimeTypeMatchIndex,
               other.preferredMimeTypeMatchIndex,
               Ordering.natural().reverse())
+          // 4. Compare technical quality.
           .compare(
               this.bitrate,
               other.bitrate,
@@ -2683,13 +2687,22 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               : FORMAT_VALUE_ORDERING.reverse();
       return ComparisonChain.start()
           .compareFalseFirst(this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
+          // 1. Compare match with specific content preferences set by the parameters.
           .compare(
               this.preferredLanguageIndex,
               other.preferredLanguageIndex,
               Ordering.natural().reverse())
           .compare(this.preferredLanguageScore, other.preferredLanguageScore)
           .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
+          // 2. Compare match with implicit content preferences set by the media or the system.
+          .compareFalseFirst(this.isDefaultSelectionFlag, other.isDefaultSelectionFlag)
           .compareFalseFirst(this.hasMainOrNoRoleFlag, other.hasMainOrNoRoleFlag)
+          .compare(
+              this.localeLanguageMatchIndex,
+              other.localeLanguageMatchIndex,
+              Ordering.natural().reverse())
+          .compare(this.localeLanguageScore, other.localeLanguageScore)
+          // 3. Compare match with technical preferences set by the parameters.
           .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)
           .compare(
               this.preferredMimeTypeMatchIndex,
@@ -2699,12 +2712,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               this.bitrate,
               other.bitrate,
               parameters.forceLowestBitrate ? FORMAT_VALUE_ORDERING.reverse() : NO_ORDER)
-          .compareFalseFirst(this.isDefaultSelectionFlag, other.isDefaultSelectionFlag)
-          .compare(
-              this.localeLanguageMatchIndex,
-              other.localeLanguageMatchIndex,
-              Ordering.natural().reverse())
-          .compare(this.localeLanguageScore, other.localeLanguageScore)
+          // 4. Compare technical quality.
           .compare(this.channelCount, other.channelCount, qualityOrdering)
           .compare(this.sampleRate, other.sampleRate, qualityOrdering)
           .compare(
@@ -2793,12 +2801,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           ComparisonChain.start()
               .compareFalseFirst(
                   this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
+              // 1. Compare match with specific content preferences set by the parameters.
               .compare(
                   this.preferredLanguageIndex,
                   other.preferredLanguageIndex,
                   Ordering.natural().reverse())
               .compare(this.preferredLanguageScore, other.preferredLanguageScore)
               .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
+              // 2. Compare match with implicit content preferences set by the media.
               .compareFalseFirst(this.isDefault, other.isDefault)
               .compare(
                   this.isForced,
