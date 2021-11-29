@@ -5,6 +5,10 @@
 *   Core library:
     *   Support preferred video role flags in track selection
         ((#9402)[https://github.com/google/ExoPlayer/issues/9402]).
+    *   Prefer audio content preferences (for example, "default" audio track or
+        track matching system Locale language) over technical track selection
+        constraints (for example, preferred MIME type, or maximum channel
+        count).
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).
