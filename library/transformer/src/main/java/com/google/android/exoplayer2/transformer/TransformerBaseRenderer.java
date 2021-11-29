@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.errorprone.annotations.ForOverride;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -133,6 +134,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     muxerWrapperTrackEnded = false;
   }
 
+  @ForOverride
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
   protected abstract boolean ensureConfigured() throws ExoPlaybackException;
 
