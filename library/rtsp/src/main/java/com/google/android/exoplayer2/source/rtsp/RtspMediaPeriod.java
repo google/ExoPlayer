@@ -244,25 +244,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public long seekToUs(long positionUs) { // remove entirely
+  public long seekToUs(long positionUs) { //TODO: remove entirely
     Log.i(TAG," seekToUs()");
-    if (isSeekPending()) {
-      // TODO(internal b/172331505) Allow seek when a seek is pending.
-      // Does not allow another seek if a seek is pending.
-      return pendingSeekPositionUs;
-    }
-
-    if (seekInsideBufferUs(positionUs)) {
-      return positionUs;
-    }
-
-    lastSeekPositionUs = positionUs;
-    pendingSeekPositionUs = positionUs;
-    rtspClient.seekToUs(positionUs);
-    for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
-      rtspLoaderWrappers.get(i).seekTo(positionUs);
-    }
-    return positionUs;
+    return 0;
   }
 
   @Override
