@@ -25,15 +25,15 @@ import java.util.HashSet;
 public final class MediaLibraryInfo {
 
   /** A tag to use when logging library information. */
-  public static final String TAG = "AndroidXMedia";
+  public static final String TAG = "AndroidXMedia3";
 
   /** The version of the library expressed as a string, for example "1.2.3". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  public static final String VERSION = "1.0.0-alpha";
+  public static final String VERSION = "1.0.0-alpha01";
 
   /** The version of the library expressed as {@code TAG + "/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final String VERSION_SLASHY = "AndroidXMedia/1.0.0-alpha";
+  public static final String VERSION_SLASHY = "AndroidXMedia3/1.0.0-alpha01";
 
   /**
    * The version of the library expressed as an integer, for example 1002003.
