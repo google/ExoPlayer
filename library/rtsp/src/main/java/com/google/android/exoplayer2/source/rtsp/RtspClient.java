@@ -198,19 +198,15 @@ final class RtspClient implements Closeable {
       Util.closeQuietly(messageChannel);
       throw e;
     }
-    Log.i(TAG,"sendOptionsRequest()" );
-
-    //Skipping Options
-    //messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId); // TODO: Not have this and hardcode the result of this
-
-    //TODO:Try
+    //Skip OptionsRequest
+    //Skip DescribeRequest
+    // I made this param so that we can set a watch point for the 'test' var
     this.test = new RtspDescribeResponse( 200, SessionDescriptionParser.customCreateDescription() );
     customDescribe(this.test);
   }
-  private void customDescribe(RtspDescribeResponse response) {
-    //TODO: take SessionDescription custom() and prepare for play option
-    Log.i(TAG, "customDescribe");
 
+  private void customDescribe(RtspDescribeResponse response) {
+    Log.i(TAG, "customDescribe");
     RtspSessionTiming sessionTiming = RtspSessionTiming.DEFAULT;
     @Nullable
     String sessionRangeAttributeString =
@@ -233,7 +229,6 @@ final class RtspClient implements Closeable {
     sessionInfoListener.onSessionTimelineUpdated(sessionTiming, tracks);
     hasUpdatedTimelineAndTracks = true;
   }
-
 
 
   /** Returns the current {@link RtspState RTSP state}. */
@@ -266,19 +261,6 @@ final class RtspClient implements Closeable {
     messageSender.sendPlayRequest(uri, offsetMs, checkNotNull(sessionId));
   }
 
-  /**
-   * Seeks to a specific time using RTSP.
-   *
-   * <p>Call this method only when in-buffer seek is not feasible. An RTSP PAUSE, and an RTSP PLAY
-   * request will be sent out to perform a seek on the server side.
-   *
-   * @param positionUs The seek time measured in microseconds.
-   */
-  public void seekToUs(long positionUs) {
-     Log.i(TAG,"seekToUs()" );
-    messageSender.sendPauseRequest(uri, checkNotNull(sessionId));
-    pendingSeekPositionUs = positionUs;
-  }
 
   @Override
   public void close() throws IOException {
@@ -318,12 +300,6 @@ final class RtspClient implements Closeable {
       return;
     }
     messageSender.sendSetupRequest(loadInfo.getTrackUri(), loadInfo.getTransport(), sessionId);
-  }
-
-  private void maybeLogMessage(List<String> message) {
-    if (debugLoggingEnabled) {
-      Log.d(TAG, Joiner.on("\n").join(message));
-    }
   }
 
   /** Returns a {@link Socket} that is connected to the {@code uri}. */
@@ -384,12 +360,6 @@ final class RtspClient implements Closeable {
     private int cSeq;
     private @MonotonicNonNull RtspRequest lastRequest;
 
-    public void sendDescribeRequest(Uri uri, @Nullable String sessionId) {
-      sendRequest(
-          getRequestWithCommonHeaders(
-              METHOD_DESCRIBE, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
-    }
-
     public void sendSetupRequest(Uri trackUri, String transport, @Nullable String sessionId) {
       rtspState = RTSP_STATE_INIT;
       sendRequest(
@@ -409,26 +379,6 @@ final class RtspClient implements Closeable {
               /* additionalHeaders= */ ImmutableMap.of(
                   RtspHeaders.RANGE, RtspSessionTiming.getOffsetStartTimeTiming(offsetMs)),
               uri));
-    }
-
-    public void sendTeardownRequest(Uri uri, String sessionId) {
-      if (rtspState == RTSP_STATE_UNINITIALIZED || rtspState == RTSP_STATE_INIT) {
-        // No need to perform session teardown before a session is set up, where the state is
-        // RTSP_STATE_READY or RTSP_STATE_PLAYING.
-        return;
-      }
-
-      rtspState = RTSP_STATE_INIT;
-      sendRequest(
-          getRequestWithCommonHeaders(
-              METHOD_TEARDOWN, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
-    }
-
-    public void sendPauseRequest(Uri uri, String sessionId) {
-      checkState(rtspState == RTSP_STATE_PLAYING);
-      sendRequest(
-          getRequestWithCommonHeaders(
-              METHOD_PAUSE, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
     }
 
     public void retryLastRequest() {
@@ -491,14 +441,12 @@ final class RtspClient implements Closeable {
       checkState(pendingRequests.get(cSeq) == null);
       pendingRequests.append(cSeq, request);
       List<String> message = RtspMessageUtil.serializeRequest(request);
-      maybeLogMessage(message);
       messageChannel.send(message);
       lastRequest = request;
     }
 
     private void sendResponse(RtspResponse response) {
       List<String> message = RtspMessageUtil.serializeResponse(response);
-      maybeLogMessage(message);
       messageChannel.send(message);
     }
   }
@@ -573,7 +521,6 @@ final class RtspClient implements Closeable {
               Uri redirectionUri = Uri.parse(redirectionUriString);
               RtspClient.this.uri = RtspMessageUtil.removeUserInfo(redirectionUri);
               RtspClient.this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(redirectionUri);
-              messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId);
             }
             return;
           case 401:
