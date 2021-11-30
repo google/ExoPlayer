@@ -1413,7 +1413,7 @@ public final class Cea708Decoder extends CeaDecoder {
      * @param size See {@link Cue#size}.
      * @param windowColorSet See {@link Cue#windowColorSet}.
      * @param windowColor See {@link Cue#windowColor}.
-     * @param priority See (@link #priority}.
+     * @param priority See {@link #priority}.
      */
     public Cea708CueInfo(
         CharSequence text,
