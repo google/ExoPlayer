@@ -143,6 +143,7 @@ final class RtspClient implements Closeable {
   private boolean hasUpdatedTimelineAndTracks;
   private boolean receivedAuthorizationRequest;
   private long pendingSeekPositionUs;
+  public RtspDescribeResponse test;
 
   /**
    * Creates a new instance.
@@ -198,9 +199,44 @@ final class RtspClient implements Closeable {
       throw e;
     }
     Log.i(TAG,"sendOptionsRequest()" );
+
     //Skipping Options
     messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId); // TODO: Not have this and hardcode the result of this
+
+    //TODO:Try
+    this.test = new RtspDescribeResponse( 200, SessionDescriptionParser.customCreateDescription() );
+
+    //status 200
+    //onDescribeResponseReceived( new RtspDescribeResponse( response.status, SessionDescriptionParser.parse(response.messageBody) ) );
   }
+  private void customDescribe(RtspDescribeResponse response) {
+    //TODO: take SessionDescription custom() and prepare for play option
+    Log.i(TAG, "customDescribe");
+
+    RtspSessionTiming sessionTiming = RtspSessionTiming.DEFAULT;
+    @Nullable
+    String sessionRangeAttributeString =
+        response.sessionDescription.attributes.get(SessionDescription.ATTR_RANGE);
+    if (sessionRangeAttributeString != null) {
+      try {
+        sessionTiming = RtspSessionTiming.parseTiming(sessionRangeAttributeString);
+      } catch (ParserException e) {
+        sessionInfoListener.onSessionTimelineRequestFailed("SDP format error.", /* cause= */ e);
+        return;
+      }
+    }
+
+    ImmutableList<RtspMediaTrack> tracks = buildTrackList(response.sessionDescription, uri);
+    if (tracks.isEmpty()) {
+      sessionInfoListener.onSessionTimelineRequestFailed("No playable track.", /* cause= */ null);
+      return;
+    }
+
+    sessionInfoListener.onSessionTimelineUpdated(sessionTiming, tracks);
+    hasUpdatedTimelineAndTracks = true;
+  }
+
+
 
   /** Returns the current {@link RtspState RTSP state}. */
   @RtspState
