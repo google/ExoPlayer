@@ -71,7 +71,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** The maximum times to retry if the underlying data channel failed to bind. */
   private static final int PORT_BINDING_MAX_RETRY_COUNT = 3;
-  String TAG = Constants.TAG + "RtspMediaPeriod";
+  String TAG = Constants.TAG + " RtspMediaPeriod";
   private final Allocator allocator;
   private final Handler handler;
   private final InternalListener internalListener;
@@ -539,7 +539,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         dataLoadable.setSequenceNumber(trackTiming.sequenceNumber);
 
         if (isSeekPending()) {
-          dataLoadable.seekToUs(startPositionUs, trackTiming.rtpTimestamp);
+          dataLoadable.seekToUs(startPositionUs, trackTiming.rtpTimestamp); // TODO: we need to keep this function because
         }
       }
 

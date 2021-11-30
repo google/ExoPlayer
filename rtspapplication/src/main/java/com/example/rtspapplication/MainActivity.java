@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 
 public class MainActivity extends AppCompatActivity {
   String url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov";
+  //String url ="rtsp://demo:demo@ipvmdemo.dyndns.org:5541/onvif-media/media.amp?profile=profile_1_h264&sessiontimeout=60&streamtype=unicast"; // This is a LIVE feed!
   String TAG =  Constants.TAG + " MainActivity.java";
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     player.setMediaSource(mediaSource);
     Log.i(TAG,"Set Media Source DONE");
-    playerView.setUseController(false);
+    //playerView.setUseController(true);
     Log.i(TAG,"setUseController() DONE");
     playerView.setPlayer(player);
     Log.i(TAG,"setPlayer() DONE");
