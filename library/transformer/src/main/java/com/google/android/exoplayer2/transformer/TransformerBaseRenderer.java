@@ -197,13 +197,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int result = readSource(getFormatHolder(), samplePipelineInputBuffer, /* readFlags= */ 0);
     switch (result) {
       case C.RESULT_BUFFER_READ:
+        samplePipelineInputBuffer.flip();
         if (samplePipelineInputBuffer.isEndOfStream()) {
           samplePipeline.queueInputBuffer();
           return false;
         }
         mediaClock.updateTimeForTrackType(getTrackType(), samplePipelineInputBuffer.timeUs);
         samplePipelineInputBuffer.timeUs -= streamOffsetUs;
-        samplePipelineInputBuffer.flip();
         checkStateNotNull(samplePipelineInputBuffer.data);
         maybeQueueSampleToPipeline(samplePipelineInputBuffer);
         return true;
