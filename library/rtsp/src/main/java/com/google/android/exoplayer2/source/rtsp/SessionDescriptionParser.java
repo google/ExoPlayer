@@ -142,8 +142,15 @@ import java.util.regex.Pattern;
         //ATTRIBUTE_TYPE
         //SessionDescription Attributes
         //TODO: IGNORE BECAUSE AUDIO?
-        sessionDescriptionBuilder.addAttribute("sdplang", sdplang);
+        /*sessionDescriptionBuilder.addAttribute("sdplang", sdplang);
         sessionDescriptionBuilder.addAttribute("range", range);
+        sessionDescriptionBuilder.addAttribute("control", control);*/
+
+        String rtpmap = "96 mpeg4-generic/12000/2";
+        String fmtp = "96 profile-level-id=1;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3;config=149056e500";
+        control = "trackID=1";
+        sessionDescriptionBuilder.addAttribute("rtpmap", rtpmap);
+        sessionDescriptionBuilder.addAttribute("fmtp", fmtp);
         sessionDescriptionBuilder.addAttribute("control", control);
 
         //MEDIA_TYPE
@@ -154,14 +161,6 @@ import java.util.regex.Pattern;
 
         //ATTRIBUTE_TYPE
         //MediaDescription Attributes
-        //  TODO: 3 bellow  not accepted for some reason
-        String rtpmap = "96 mpeg4-generic/12000/2";
-        String fmtp = "96 profile-level-id=1;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3;config=149056e500";
-        control = "trackID=1";
-        mediaDescriptionBuilder.addAttribute("rtpmap", rtpmap);
-        mediaDescriptionBuilder.addAttribute("fmtp", fmtp);
-        mediaDescriptionBuilder.addAttribute("control", control);
-
         //accepted
         String rtpmap_2 = "97 H264/90000"; // why is this happening twice?
         String fmtp_2 = "97 packetization-mode=1;profile-level-id=64000C;sprop-parameter-sets=Z2QADKzZQ8Vv/ACAAGxAAAADAEAAAAwDxQplgA==,aOvssiw=";

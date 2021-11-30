@@ -201,13 +201,11 @@ final class RtspClient implements Closeable {
     Log.i(TAG,"sendOptionsRequest()" );
 
     //Skipping Options
-    messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId); // TODO: Not have this and hardcode the result of this
+    //messageSender.sendDescribeRequest(RtspClient.this.uri, RtspClient.this.sessionId); // TODO: Not have this and hardcode the result of this
 
     //TODO:Try
     this.test = new RtspDescribeResponse( 200, SessionDescriptionParser.customCreateDescription() );
-
-    //status 200
-    //onDescribeResponseReceived( new RtspDescribeResponse( response.status, SessionDescriptionParser.parse(response.messageBody) ) );
+    customDescribe(this.test);
   }
   private void customDescribe(RtspDescribeResponse response) {
     //TODO: take SessionDescription custom() and prepare for play option
@@ -603,17 +601,6 @@ final class RtspClient implements Closeable {
         }
 
         switch (requestMethod) {
-          case METHOD_OPTIONS:
-            onOptionsResponseReceived(
-                new RtspOptionsResponse(
-                    response.status,
-                    RtspMessageUtil.parsePublicHeader(response.headers.get(RtspHeaders.PUBLIC))));
-            break;
-
-          case METHOD_DESCRIBE:
-            onDescribeResponseReceived( new RtspDescribeResponse( response.status, SessionDescriptionParser.parse(response.messageBody) ) );
-            break;
-
           case METHOD_SETUP:
             @Nullable String sessionHeaderString = response.headers.get(RtspHeaders.SESSION);
             @Nullable String transportHeaderString = response.headers.get(RtspHeaders.TRANSPORT);
