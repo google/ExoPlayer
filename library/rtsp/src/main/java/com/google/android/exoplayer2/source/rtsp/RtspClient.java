@@ -629,15 +629,6 @@ final class RtspClient implements Closeable {
                     : RtspTrackTiming.parseTrackTiming(rtpInfoString, uri);
             onPlayResponseReceived(new RtspPlayResponse(response.status, timing, trackTimingList));
             break;
-          case METHOD_GET_PARAMETER:
-          case METHOD_TEARDOWN:
-          case METHOD_PLAY_NOTIFY:
-          case METHOD_RECORD:
-          case METHOD_REDIRECT:
-          case METHOD_ANNOUNCE:
-          case METHOD_SET_PARAMETER:
-            break;
-          case METHOD_UNSET:
           default:
             throw new IllegalStateException();
         }
@@ -647,48 +638,6 @@ final class RtspClient implements Closeable {
     }
 
     // Response handlers must only be called only on 200 (OK) responses.
-
-    private void onOptionsResponseReceived(RtspOptionsResponse response) {
-      Log.i(TAG, "onSetupResponseReceived");
-      if (keepAliveMonitor != null) {  //TODO: Why is this needed
-        // Ignores the OPTIONS requests that are sent to keep RTSP connection alive.
-        return;
-      }
-
-      if (serverSupportsDescribe(response.supportedMethods)) {
-        messageSender.sendDescribeRequest(uri, sessionId);
-      } else {
-        sessionInfoListener.onSessionTimelineRequestFailed(
-            "DESCRIBE not supported.", /* cause= */ null);
-      }
-    }
-
-    private void onDescribeResponseReceived(RtspDescribeResponse response) {
-      //TODO: take SessionDescription custom() and prepare for play option
-      Log.i(TAG, "onDescribeResponseReceived");
-
-      RtspSessionTiming sessionTiming = RtspSessionTiming.DEFAULT;
-      @Nullable
-      String sessionRangeAttributeString =
-          response.sessionDescription.attributes.get(SessionDescription.ATTR_RANGE);
-      if (sessionRangeAttributeString != null) {
-        try {
-          sessionTiming = RtspSessionTiming.parseTiming(sessionRangeAttributeString);
-        } catch (ParserException e) {
-          sessionInfoListener.onSessionTimelineRequestFailed("SDP format error.", /* cause= */ e);
-          return;
-        }
-      }
-
-      ImmutableList<RtspMediaTrack> tracks = buildTrackList(response.sessionDescription, uri);
-      if (tracks.isEmpty()) {
-        sessionInfoListener.onSessionTimelineRequestFailed("No playable track.", /* cause= */ null);
-        return;
-      }
-
-      sessionInfoListener.onSessionTimelineUpdated(sessionTiming, tracks);
-      hasUpdatedTimelineAndTracks = true;
-    }
 
     private void onSetupResponseReceived(RtspSetupResponse response) {
       checkState(rtspState != RTSP_STATE_UNINITIALIZED);
