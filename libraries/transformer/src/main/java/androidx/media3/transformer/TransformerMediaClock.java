@@ -18,12 +18,10 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Util.minValue;
 
 import android.util.SparseLongArray;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.exoplayer.MediaClock;
 
-@RequiresApi(18)
 /* package */ final class TransformerMediaClock implements MediaClock {
 
   private final SparseLongArray trackTypeToTimeUs;

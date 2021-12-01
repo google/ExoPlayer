@@ -21,7 +21,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import android.content.Context;
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackException;
@@ -33,7 +32,6 @@ import java.io.IOException;
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
-@RequiresApi(18)
 /* package */ final class VideoSamplePipeline implements SamplePipeline {
 
   private static final String TAG = "VideoSamplePipeline";

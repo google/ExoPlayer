@@ -36,7 +36,6 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /** Muxer implementation that uses a {@link MediaMuxer}. */
-@RequiresApi(18)
 /* package */ final class FrameworkMuxer implements Muxer {
 
   public static final class Factory implements Muxer.Factory {

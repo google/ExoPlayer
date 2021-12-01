@@ -22,7 +22,6 @@ import static androidx.media3.common.util.Util.minValue;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -34,7 +33,6 @@ import java.nio.ByteBuffer;
  *
  * <p>This wrapper can contain at most one video track and one audio track.
  */
-@RequiresApi(18)
 /* package */ final class MuxerWrapper {
 
   /**

@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
 import android.content.Context;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -31,7 +30,6 @@ import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-@RequiresApi(18)
 /* package */ final class TransformerVideoRenderer extends TransformerBaseRenderer {
 
   private static final String TAG = "TransformerTranscodingVideoRenderer";

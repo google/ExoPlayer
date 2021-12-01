@@ -26,7 +26,6 @@ import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -50,7 +49,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * through {@link MediaCodecAdapter}. This is done by simplifying the calls needed to queue and
  * dequeue buffers, removing the need to track buffer indices and codec events.
  */
-@RequiresApi(18)
 /* package */ final class MediaCodecAdapterWrapper {
 
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
@@ -303,7 +301,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputBuffer.data = null;
   }
 
-  @RequiresApi(18)
   public void signalEndOfInputStream() {
     codec.signalEndOfInputStream();
   }

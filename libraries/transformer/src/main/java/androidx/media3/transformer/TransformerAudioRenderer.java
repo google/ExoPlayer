@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
@@ -30,7 +29,6 @@ import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 
-@RequiresApi(18)
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
 
   private static final String TAG = "TransformerAudioRenderer";

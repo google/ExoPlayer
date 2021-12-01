@@ -19,7 +19,6 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
@@ -34,7 +33,6 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-@RequiresApi(18)
 /* package */ abstract class TransformerBaseRenderer extends BaseRenderer {
 
   protected final MuxerWrapper muxerWrapper;

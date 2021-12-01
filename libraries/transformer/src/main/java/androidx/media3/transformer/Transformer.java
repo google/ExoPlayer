@@ -80,7 +80,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * of the application's main thread is used. In all cases the Looper of the thread from which the
  * transformer must be accessed can be queried using {@link #getApplicationLooper()}.
  */
-@RequiresApi(18)
 @UnstableApi
 public final class Transformer {
 
