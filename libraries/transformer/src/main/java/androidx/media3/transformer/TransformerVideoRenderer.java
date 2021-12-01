@@ -68,10 +68,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    if ((transformation.videoMimeType != null
-            && !transformation.videoMimeType.equals(inputFormat.sampleMimeType))
-        || (transformation.outputHeight != Format.NO_VALUE
-            && transformation.outputHeight != inputFormat.height)) {
+    if (shouldTranscode(inputFormat)) {
       samplePipeline = new VideoSamplePipeline(context, inputFormat, transformation, getIndex());
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
@@ -80,6 +77,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       sefSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }
     return true;
+  }
+
+  private boolean shouldTranscode(Format inputFormat) {
+    if (transformation.videoMimeType != null
+        && !transformation.videoMimeType.equals(inputFormat.sampleMimeType)) {
+      return true;
+    }
+    if (transformation.outputHeight != Format.NO_VALUE
+        && transformation.outputHeight != inputFormat.height) {
+      return true;
+    }
+    if (!transformation.transformationMatrix.isIdentity()) {
+      return true;
+    }
+    return false;
   }
 
   /**

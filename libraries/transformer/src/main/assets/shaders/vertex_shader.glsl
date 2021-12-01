@@ -14,8 +14,9 @@
 attribute vec4 a_position;
 attribute vec4 a_texcoord;
 uniform mat4 tex_transform;
+uniform mat4 transformation_matrix;
 varying vec2 v_texcoord;
 void main() {
   gl_Position = a_position;
-  v_texcoord = (tex_transform * a_texcoord).xy;
+  v_texcoord = (transformation_matrix * tex_transform * a_texcoord).xy;
 }

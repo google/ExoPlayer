@@ -84,6 +84,7 @@ import java.io.IOException;
             context,
             outputWidth,
             outputHeight,
+            transformation.transformationMatrix,
             /* outputSurface= */ checkNotNull(encoder.getInputSurface()));
     try {
       decoder =
