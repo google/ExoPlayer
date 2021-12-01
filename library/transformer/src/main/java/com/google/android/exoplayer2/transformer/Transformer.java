@@ -25,6 +25,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Handler;
@@ -100,6 +101,7 @@ public final class Transformer {
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
     private int outputHeight;
+    private Matrix transformationMatrix;
     private String containerMimeType;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
@@ -112,6 +114,7 @@ public final class Transformer {
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
       outputHeight = Format.NO_VALUE;
+      transformationMatrix = new Matrix();
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
@@ -127,6 +130,7 @@ public final class Transformer {
       this.context = context.getApplicationContext();
       muxerFactory = new FrameworkMuxer.Factory();
       outputHeight = Format.NO_VALUE;
+      transformationMatrix = new Matrix();
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
@@ -142,6 +146,7 @@ public final class Transformer {
       this.removeVideo = transformer.transformation.removeVideo;
       this.flattenForSlowMotion = transformer.transformation.flattenForSlowMotion;
       this.outputHeight = transformer.transformation.outputHeight;
+      this.transformationMatrix = transformer.transformation.transformationMatrix;
       this.containerMimeType = transformer.transformation.containerMimeType;
       this.audioMimeType = transformer.transformation.audioMimeType;
       this.videoMimeType = transformer.transformation.videoMimeType;
@@ -255,6 +260,26 @@ public final class Transformer {
             "Please use a height of 240, 360, 480, 720, 1080, 1440, or 2160.");
       }
       this.outputHeight = outputHeight;
+      return this;
+    }
+
+    /**
+     * Sets the transformation matrix. The default value is to apply no change.
+     *
+     * <p>This can be used to perform operations supported by {@link Matrix}, like scaling and
+     * rotating the video.
+     *
+     * <p>For now, resolution will not be affected by this method.
+     *
+     * @param transformationMatrix The transformation to apply to video frames.
+     * @return This builder.
+     */
+    public Builder setTransformationMatrix(Matrix transformationMatrix) {
+      // TODO(Internal b/201293185): After {@link #setResolution} supports arbitrary resolutions,
+      // allow transformations to change the resolution, by scaling to the appropriate min/max
+      // values. This will also be required to create the VertexTransformation class, in order to
+      // have aspect ratio helper methods (which require resolution to change).
+      this.transformationMatrix = transformationMatrix;
       return this;
     }
 
@@ -409,6 +434,7 @@ public final class Transformer {
               removeVideo,
               flattenForSlowMotion,
               outputHeight,
+              transformationMatrix,
               containerMimeType,
               audioMimeType,
               videoMimeType);

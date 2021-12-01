@@ -24,6 +24,7 @@ import static java.lang.Math.max;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
@@ -84,9 +85,14 @@ public final class FrameEditorTest {
       int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
       frameEditorOutputImageReader =
           ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
+      Matrix identityMatrix = new Matrix();
       frameEditor =
           FrameEditor.create(
-              getApplicationContext(), width, height, frameEditorOutputImageReader.getSurface());
+              getApplicationContext(),
+              width,
+              height,
+              identityMatrix,
+              frameEditorOutputImageReader.getSurface());
 
       // Queue the first video frame from the extractor.
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
