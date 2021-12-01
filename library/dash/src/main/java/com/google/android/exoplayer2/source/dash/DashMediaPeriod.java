@@ -675,13 +675,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);
+      String trackGroupId =
+          firstAdaptationSet.id != AdaptationSet.ID_UNSET
+              ? Integer.toString(firstAdaptationSet.id)
+              : ("unset:" + i);
       int primaryTrackGroupIndex = trackGroupCount++;
       int eventMessageTrackGroupIndex =
           primaryGroupHasEventMessageTrackFlags[i] ? trackGroupCount++ : C.INDEX_UNSET;
       int closedCaptionTrackGroupIndex =
           primaryGroupClosedCaptionTrackFormats[i].length != 0 ? trackGroupCount++ : C.INDEX_UNSET;
 
-      trackGroups[primaryTrackGroupIndex] = new TrackGroup(formats);
+      trackGroups[primaryTrackGroupIndex] = new TrackGroup(trackGroupId, formats);
       trackGroupInfos[primaryTrackGroupIndex] =
           TrackGroupInfo.primaryTrack(
               firstAdaptationSet.type,
@@ -690,18 +694,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               eventMessageTrackGroupIndex,
               closedCaptionTrackGroupIndex);
       if (eventMessageTrackGroupIndex != C.INDEX_UNSET) {
+        String eventMessageTrackGroupId = trackGroupId + ":emsg";
         Format format =
             new Format.Builder()
-                .setId(firstAdaptationSet.id + ":emsg")
+                .setId(eventMessageTrackGroupId)
                 .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
                 .build();
-        trackGroups[eventMessageTrackGroupIndex] = new TrackGroup(format);
+        trackGroups[eventMessageTrackGroupIndex] = new TrackGroup(eventMessageTrackGroupId, format);
         trackGroupInfos[eventMessageTrackGroupIndex] =
             TrackGroupInfo.embeddedEmsgTrack(adaptationSetIndices, primaryTrackGroupIndex);
       }
       if (closedCaptionTrackGroupIndex != C.INDEX_UNSET) {
+        String closedCaptionTrackGroupId = trackGroupId + ":cc";
         trackGroups[closedCaptionTrackGroupIndex] =
-            new TrackGroup(primaryGroupClosedCaptionTrackFormats[i]);
+            new TrackGroup(closedCaptionTrackGroupId, primaryGroupClosedCaptionTrackFormats[i]);
         trackGroupInfos[closedCaptionTrackGroupIndex] =
             TrackGroupInfo.embeddedClosedCaptionTrack(adaptationSetIndices, primaryTrackGroupIndex);
       }
@@ -721,7 +727,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .setId(eventStream.id())
               .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
               .build();
-      trackGroups[existingTrackGroupCount] = new TrackGroup(format);
+      String uniqueTrackGroupId = eventStream.id() + ":" + i;
+      trackGroups[existingTrackGroupCount] = new TrackGroup(uniqueTrackGroupId, format);
       trackGroupInfos[existingTrackGroupCount++] = TrackGroupInfo.mpdEventTrack(i);
     }
   }

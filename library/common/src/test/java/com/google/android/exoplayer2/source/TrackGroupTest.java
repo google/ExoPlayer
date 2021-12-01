@@ -32,8 +32,9 @@ public final class TrackGroupTest {
     Format.Builder formatBuilder = new Format.Builder();
     Format format1 = formatBuilder.setSampleMimeType(MimeTypes.VIDEO_H264).build();
     Format format2 = formatBuilder.setSampleMimeType(MimeTypes.AUDIO_AAC).build();
+    String id = "abc";
 
-    TrackGroup trackGroupToBundle = new TrackGroup(format1, format2);
+    TrackGroup trackGroupToBundle = new TrackGroup(id, format1, format2);
 
     TrackGroup trackGroupFromBundle = TrackGroup.CREATOR.fromBundle(trackGroupToBundle.toBundle());
 

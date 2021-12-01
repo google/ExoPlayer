@@ -400,7 +400,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SampleQueue sampleQueue;
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
       sampleQueue = rtspLoaderWrappers.get(i).sampleQueue;
-      listBuilder.add(new TrackGroup(checkNotNull(sampleQueue.getUpstreamFormat())));
+      listBuilder.add(
+          new TrackGroup(
+              /* id= */ Integer.toString(i), checkNotNull(sampleQueue.getUpstreamFormat())));
     }
     return listBuilder.build();
   }
