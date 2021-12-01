@@ -15,10 +15,12 @@
  */
 package androidx.media3.exoplayer.source;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.StreamKey;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
@@ -26,10 +28,14 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.SeekParameters;
+import androidx.media3.exoplayer.source.chunk.Chunk;
+import androidx.media3.exoplayer.source.chunk.MediaChunk;
+import androidx.media3.exoplayer.source.chunk.MediaChunkIterator;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -42,6 +48,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final ArrayList<MediaPeriod> childrenPendingPreparation;
+  private final HashMap<TrackGroup, TrackGroup> childTrackGroupByMergedTrackGroup;
 
   @Nullable private Callback callback;
   @Nullable private TrackGroupArray trackGroups;
@@ -55,6 +62,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.periods = periods;
     childrenPendingPreparation = new ArrayList<>();
+    childTrackGroupByMergedTrackGroup = new HashMap<>();
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamPeriodIndices = new IdentityHashMap<>();
@@ -113,9 +121,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       streamChildIndices[i] = streamChildIndex == null ? C.INDEX_UNSET : streamChildIndex;
       selectionChildIndices[i] = C.INDEX_UNSET;
       if (selections[i] != null) {
-        TrackGroup trackGroup = selections[i].getTrackGroup();
+        TrackGroup mergedTrackGroup = selections[i].getTrackGroup();
+        TrackGroup childTrackGroup =
+            checkNotNull(childTrackGroupByMergedTrackGroup.get(mergedTrackGroup));
         for (int j = 0; j < periods.length; j++) {
-          if (periods[j].getTrackGroups().indexOf(trackGroup) != C.INDEX_UNSET) {
+          if (periods[j].getTrackGroups().indexOf(childTrackGroup) != C.INDEX_UNSET) {
             selectionChildIndices[i] = j;
             break;
           }
@@ -131,7 +141,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (int i = 0; i < periods.length; i++) {
       for (int j = 0; j < selections.length; j++) {
         childStreams[j] = streamChildIndices[j] == i ? streams[j] : null;
-        childSelections[j] = selectionChildIndices[j] == i ? selections[j] : null;
+        if (selectionChildIndices[j] == i) {
+          ExoTrackSelection mergedTrackSelection = checkNotNull(selections[j]);
+          TrackGroup mergedTrackGroup = mergedTrackSelection.getTrackGroup();
+          TrackGroup childTrackGroup =
+              checkNotNull(childTrackGroupByMergedTrackGroup.get(mergedTrackGroup));
+          childSelections[j] = new ForwardingTrackSelection(mergedTrackSelection, childTrackGroup);
+        } else {
+          childSelections[j] = null;
+        }
       }
       long selectPositionUs =
           periods[i].selectTracks(
@@ -270,11 +288,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     TrackGroup[] trackGroupArray = new TrackGroup[totalTrackGroupCount];
     int trackGroupIndex = 0;
-    for (MediaPeriod period : periods) {
-      TrackGroupArray periodTrackGroups = period.getTrackGroups();
+    for (int i = 0; i < periods.length; i++) {
+      TrackGroupArray periodTrackGroups = periods[i].getTrackGroups();
       int periodTrackGroupCount = periodTrackGroups.length;
       for (int j = 0; j < periodTrackGroupCount; j++) {
-        trackGroupArray[trackGroupIndex++] = periodTrackGroups.get(j);
+        TrackGroup childTrackGroup = periodTrackGroups.get(j);
+        TrackGroup mergedTrackGroup = childTrackGroup.copyWithId(i + ":" + childTrackGroup.id);
+        childTrackGroupByMergedTrackGroup.put(mergedTrackGroup, childTrackGroup);
+        trackGroupArray[trackGroupIndex++] = mergedTrackGroup;
       }
     }
     trackGroups = new TrackGroupArray(trackGroupArray);
@@ -453,6 +474,140 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public int skipData(long positionUs) {
       return sampleStream.skipData(positionUs - timeOffsetUs);
+    }
+  }
+
+  private static final class ForwardingTrackSelection implements ExoTrackSelection {
+
+    private final ExoTrackSelection trackSelection;
+    private final TrackGroup trackGroup;
+
+    public ForwardingTrackSelection(ExoTrackSelection trackSelection, TrackGroup trackGroup) {
+      this.trackSelection = trackSelection;
+      this.trackGroup = trackGroup;
+    }
+
+    @Override
+    public @Type int getType() {
+      return trackSelection.getType();
+    }
+
+    @Override
+    public TrackGroup getTrackGroup() {
+      return trackGroup;
+    }
+
+    @Override
+    public int length() {
+      return trackSelection.length();
+    }
+
+    @Override
+    public Format getFormat(int index) {
+      return trackSelection.getFormat(index);
+    }
+
+    @Override
+    public int getIndexInTrackGroup(int index) {
+      return trackSelection.getIndexInTrackGroup(index);
+    }
+
+    @Override
+    public int indexOf(Format format) {
+      return trackSelection.indexOf(format);
+    }
+
+    @Override
+    public int indexOf(int indexInTrackGroup) {
+      return trackSelection.indexOf(indexInTrackGroup);
+    }
+
+    @Override
+    public void enable() {
+      trackSelection.enable();
+    }
+
+    @Override
+    public void disable() {
+      trackSelection.disable();
+    }
+
+    @Override
+    public Format getSelectedFormat() {
+      return trackSelection.getSelectedFormat();
+    }
+
+    @Override
+    public int getSelectedIndexInTrackGroup() {
+      return trackSelection.getSelectedIndexInTrackGroup();
+    }
+
+    @Override
+    public int getSelectedIndex() {
+      return trackSelection.getSelectedIndex();
+    }
+
+    @Override
+    public int getSelectionReason() {
+      return trackSelection.getSelectionReason();
+    }
+
+    @Nullable
+    @Override
+    public Object getSelectionData() {
+      return trackSelection.getSelectionData();
+    }
+
+    @Override
+    public void onPlaybackSpeed(float playbackSpeed) {
+      trackSelection.onPlaybackSpeed(playbackSpeed);
+    }
+
+    @Override
+    public void onDiscontinuity() {
+      trackSelection.onDiscontinuity();
+    }
+
+    @Override
+    public void onRebuffer() {
+      trackSelection.onRebuffer();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(boolean playWhenReady) {
+      trackSelection.onPlayWhenReadyChanged(playWhenReady);
+    }
+
+    @Override
+    public void updateSelectedTrack(
+        long playbackPositionUs,
+        long bufferedDurationUs,
+        long availableDurationUs,
+        List<? extends MediaChunk> queue,
+        MediaChunkIterator[] mediaChunkIterators) {
+      trackSelection.updateSelectedTrack(
+          playbackPositionUs, bufferedDurationUs, availableDurationUs, queue, mediaChunkIterators);
+    }
+
+    @Override
+    public int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
+      return trackSelection.evaluateQueueSize(playbackPositionUs, queue);
+    }
+
+    @Override
+    public boolean shouldCancelChunkLoad(
+        long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue) {
+      return trackSelection.shouldCancelChunkLoad(playbackPositionUs, loadingChunk, queue);
+    }
+
+    @Override
+    public boolean blacklist(int index, long exclusionDurationMs) {
+      return trackSelection.blacklist(index, exclusionDurationMs);
+    }
+
+    @Override
+    public boolean isBlacklisted(int index, long nowMs) {
+      return trackSelection.isBlacklisted(index, nowMs);
     }
   }
 }

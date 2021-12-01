@@ -528,8 +528,10 @@ public final class HlsMediaPeriod
     // Subtitle stream wrappers. We can always use master playlist information to prepare these.
     for (int i = 0; i < subtitleRenditions.size(); i++) {
       Rendition subtitleRendition = subtitleRenditions.get(i);
+      String sampleStreamWrapperUid = "subtitle:" + i + ":" + subtitleRendition.name;
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
+              sampleStreamWrapperUid,
               C.TRACK_TYPE_TEXT,
               new Uri[] {subtitleRendition.url},
               new Format[] {subtitleRendition.format},
@@ -540,7 +542,7 @@ public final class HlsMediaPeriod
       manifestUrlIndicesPerWrapper.add(new int[] {i});
       sampleStreamWrappers.add(sampleStreamWrapper);
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-          new TrackGroup[] {new TrackGroup(subtitleRendition.format)},
+          new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, subtitleRendition.format)},
           /* primaryTrackGroupIndex= */ 0);
     }
 
@@ -646,8 +648,10 @@ public final class HlsMediaPeriod
         !useVideoVariantsOnly && numberOfAudioCodecs > 0
             ? C.TRACK_TYPE_AUDIO
             : C.TRACK_TYPE_DEFAULT;
+    String sampleStreamWrapperUid = "main";
     HlsSampleStreamWrapper sampleStreamWrapper =
         buildSampleStreamWrapper(
+            sampleStreamWrapperUid,
             trackType,
             selectedPlaylistUrls,
             selectedPlaylistFormats,
@@ -664,12 +668,13 @@ public final class HlsMediaPeriod
         for (int i = 0; i < videoFormats.length; i++) {
           videoFormats[i] = deriveVideoFormat(selectedPlaylistFormats[i]);
         }
-        muxedTrackGroups.add(new TrackGroup(videoFormats));
+        muxedTrackGroups.add(new TrackGroup(sampleStreamWrapperUid, videoFormats));
 
         if (numberOfAudioCodecs > 0
             && (masterPlaylist.muxedAudioFormat != null || masterPlaylist.audios.isEmpty())) {
           muxedTrackGroups.add(
               new TrackGroup(
+                  /* id= */ sampleStreamWrapperUid + ":audio",
                   deriveAudioFormat(
                       selectedPlaylistFormats[0],
                       masterPlaylist.muxedAudioFormat,
@@ -678,7 +683,8 @@ public final class HlsMediaPeriod
         List<Format> ccFormats = masterPlaylist.muxedCaptionFormats;
         if (ccFormats != null) {
           for (int i = 0; i < ccFormats.size(); i++) {
-            muxedTrackGroups.add(new TrackGroup(ccFormats.get(i)));
+            String ccId = sampleStreamWrapperUid + ":cc:" + i;
+            muxedTrackGroups.add(new TrackGroup(ccId, ccFormats.get(i)));
           }
         }
       } else /* numberOfAudioCodecs > 0 */ {
@@ -691,11 +697,12 @@ public final class HlsMediaPeriod
                   masterPlaylist.muxedAudioFormat,
                   /* isPrimaryTrackInVariant= */ true);
         }
-        muxedTrackGroups.add(new TrackGroup(audioFormats));
+        muxedTrackGroups.add(new TrackGroup(sampleStreamWrapperUid, audioFormats));
       }
 
       TrackGroup id3TrackGroup =
           new TrackGroup(
+              /* id= */ sampleStreamWrapperUid + ":id3",
               new Format.Builder()
                   .setId("ID3")
                   .setSampleMimeType(MimeTypes.APPLICATION_ID3)
@@ -747,8 +754,10 @@ public final class HlsMediaPeriod
         }
       }
 
+      String sampleStreamWrapperUid = "audio:" + name;
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
+              sampleStreamWrapperUid,
               C.TRACK_TYPE_AUDIO,
               scratchPlaylistUrls.toArray(Util.castNonNullTypeArray(new Uri[0])),
               scratchPlaylistFormats.toArray(new Format[0]),
@@ -762,12 +771,14 @@ public final class HlsMediaPeriod
       if (allowChunklessPreparation && codecStringsAllowChunklessPreparation) {
         Format[] renditionFormats = scratchPlaylistFormats.toArray(new Format[0]);
         sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-            new TrackGroup[] {new TrackGroup(renditionFormats)}, /* primaryTrackGroupIndex= */ 0);
+            new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, renditionFormats)},
+            /* primaryTrackGroupIndex= */ 0);
       }
     }
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(
+      String uid,
       @C.TrackType int trackType,
       Uri[] playlistUrls,
       Format[] playlistFormats,
@@ -787,6 +798,7 @@ public final class HlsMediaPeriod
             muxedCaptionFormats,
             playerId);
     return new HlsSampleStreamWrapper(
+        uid,
         trackType,
         /* callback= */ this,
         defaultChunkSource,

@@ -18,6 +18,7 @@ package androidx.media3.common;
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.os.Bundle;
+import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.BundleableUtil;
@@ -38,6 +39,8 @@ public final class TrackGroup implements Bundleable {
 
   /** The number of tracks in the group. */
   public final int length;
+  /** An identifier for the track group. */
+  public final String id;
 
   private final Format[] formats;
 
@@ -45,16 +48,40 @@ public final class TrackGroup implements Bundleable {
   private int hashCode;
 
   /**
-   * Constructs an instance {@code TrackGroup} containing the provided {@code formats}.
+   * Constructs a track group containing the provided {@code formats}.
    *
-   * @param formats Non empty array of format.
+   * @param formats The list of {@link Format Formats}. Must not be empty.
    */
   @UnstableApi
   public TrackGroup(Format... formats) {
+    this(/* id= */ "", formats);
+  }
+
+  /**
+   * Constructs a track group with the provided {@code id} and {@code formats}.
+   *
+   * @param id The identifier of the track group. May be an empty string.
+   * @param formats The list of {@link Format Formats}. Must not be empty.
+   */
+  @UnstableApi
+  public TrackGroup(String id, Format... formats) {
     checkArgument(formats.length > 0);
+    this.id = id;
     this.formats = formats;
     this.length = formats.length;
     verifyCorrectness();
+  }
+
+  /**
+   * Returns a copy of this track group with the specified {@code id}.
+   *
+   * @param id The identifier for the copy of the track group.
+   * @return The copied track group.
+   */
+  @UnstableApi
+  @CheckResult
+  public TrackGroup copyWithId(String id) {
+    return new TrackGroup(id, formats);
   }
 
   /**
@@ -89,6 +116,7 @@ public final class TrackGroup implements Bundleable {
   public int hashCode() {
     if (hashCode == 0) {
       int result = 17;
+      result = 31 * result + id.hashCode();
       result = 31 * result + Arrays.hashCode(formats);
       hashCode = result;
     }
@@ -104,19 +132,18 @@ public final class TrackGroup implements Bundleable {
       return false;
     }
     TrackGroup other = (TrackGroup) obj;
-    return length == other.length && Arrays.equals(formats, other.formats);
+    return length == other.length && id.equals(other.id) && Arrays.equals(formats, other.formats);
   }
 
   // Bundleable implementation.
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    FIELD_FORMATS,
-  })
+  @IntDef({FIELD_FORMATS, FIELD_ID})
   private @interface FieldNumber {}
 
   private static final int FIELD_FORMATS = 0;
+  private static final int FIELD_ID = 1;
 
   @UnstableApi
   @Override
@@ -124,6 +151,7 @@ public final class TrackGroup implements Bundleable {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
         keyForField(FIELD_FORMATS), BundleableUtil.toBundleArrayList(Lists.newArrayList(formats)));
+    bundle.putString(keyForField(FIELD_ID), id);
     return bundle;
   }
 
@@ -136,7 +164,8 @@ public final class TrackGroup implements Bundleable {
                 Format.CREATOR,
                 bundle.getParcelableArrayList(keyForField(FIELD_FORMATS)),
                 ImmutableList.of());
-        return new TrackGroup(formats.toArray(new Format[0]));
+        String id = bundle.getString(keyForField(FIELD_ID), /* defaultValue= */ "");
+        return new TrackGroup(id, formats.toArray(new Format[0]));
       };
 
   private static String keyForField(@FieldNumber int field) {

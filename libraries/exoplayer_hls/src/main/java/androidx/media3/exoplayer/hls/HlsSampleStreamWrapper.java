@@ -125,6 +125,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           new HashSet<>(
               Arrays.asList(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_METADATA)));
 
+  private final String uid;
   private final @C.TrackType int trackType;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
@@ -185,6 +186,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private HlsMediaChunk sourceChunk;
 
   /**
+   * @param uid A identifier for this sample stream wrapper. Identifiers must be unique within the
+   *     period.
    * @param trackType The {@link C.TrackType track type}.
    * @param callback A callback for the wrapper.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
@@ -203,6 +206,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     events.
    */
   public HlsSampleStreamWrapper(
+      String uid,
       @C.TrackType int trackType,
       Callback callback,
       HlsChunkSource chunkSource,
@@ -215,6 +219,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       @HlsMediaSource.MetadataType int metadataType) {
+    this.uid = uid;
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
@@ -1416,7 +1421,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                   ? sampleFormat.withManifestFormatInfo(playlistFormat)
                   : deriveFormat(playlistFormat, sampleFormat, /* propagateBitrates= */ true);
         }
-        trackGroups[i] = new TrackGroup(formats);
+        trackGroups[i] = new TrackGroup(uid, formats);
         primaryTrackGroupIndex = i;
       } else {
         @Nullable
@@ -1425,8 +1430,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                     && MimeTypes.isAudio(sampleFormat.sampleMimeType)
                 ? muxedAudioFormat
                 : null;
+        String muxedTrackGroupId = uid + ":muxed:" + (i < primaryExtractorTrackIndex ? i : i - 1);
         trackGroups[i] =
             new TrackGroup(
+                muxedTrackGroupId,
                 deriveFormat(playlistFormat, sampleFormat, /* propagateBitrates= */ false));
       }
     }
@@ -1443,7 +1450,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         Format format = trackGroup.getFormat(j);
         exposedFormats[j] = format.copyWithCryptoType(drmSessionManager.getCryptoType(format));
       }
-      trackGroups[i] = new TrackGroup(exposedFormats);
+      trackGroups[i] = new TrackGroup(trackGroup.id, exposedFormats);
     }
     return new TrackGroupArray(trackGroups);
   }

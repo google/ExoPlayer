@@ -80,12 +80,13 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "0",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format,
                 adaptationSets.get(2).representations.get(0).format,
                 adaptationSets.get(2).representations.get(1).format,
                 adaptationSets.get(3).representations.get(0).format),
-            new TrackGroup(adaptationSets.get(1).representations.get(0).format));
+            new TrackGroup(/* id= */ "3", adaptationSets.get(1).representations.get(0).format));
 
     MediaPeriodAsserts.assertTrackGroups(dashMediaPeriod, expectedTrackGroups);
   }
@@ -101,10 +102,12 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "0",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format,
                 adaptationSets.get(1).representations.get(0).format),
             new TrackGroup(
+                /* id= */ "2",
                 adaptationSets.get(2).representations.get(0).format,
                 adaptationSets.get(2).representations.get(1).format,
                 adaptationSets.get(3).representations.get(0).format));
@@ -124,6 +127,7 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "0",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format,
                 adaptationSets.get(1).representations.get(0).format,
@@ -147,9 +151,11 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "123",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format),
             new TrackGroup(
+                /* id= */ "123:cc",
                 cea608FormatBuilder
                     .setId("123:cea608:1")
                     .setLanguage("eng")
@@ -177,9 +183,11 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "123",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format),
             new TrackGroup(
+                /* id= */ "123:cc",
                 cea608FormatBuilder
                     .setId("123:cea708:1")
                     .setLanguage("eng")

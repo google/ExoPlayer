@@ -1060,7 +1060,8 @@ public final class CastPlayer extends BasePlayer {
         new TracksInfo.TrackGroupInfo[castMediaTracks.size()];
     for (int i = 0; i < castMediaTracks.size(); i++) {
       MediaTrack mediaTrack = castMediaTracks.get(i);
-      trackGroups[i] = new TrackGroup(CastUtils.mediaTrackToFormat(mediaTrack));
+      trackGroups[i] =
+          new TrackGroup(/* id= */ Integer.toString(i), CastUtils.mediaTrackToFormat(mediaTrack));
 
       long id = mediaTrack.getId();
       @C.TrackType int trackType = MimeTypes.getTrackType(mediaTrack.getContentType());

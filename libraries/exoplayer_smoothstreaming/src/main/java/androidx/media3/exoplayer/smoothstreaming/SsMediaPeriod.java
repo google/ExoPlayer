@@ -263,7 +263,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         exposedFormats[j] =
             manifestFormat.copyWithCryptoType(drmSessionManager.getCryptoType(manifestFormat));
       }
-      trackGroups[i] = new TrackGroup(exposedFormats);
+      trackGroups[i] = new TrackGroup(/* id= */ Integer.toString(i), exposedFormats);
     }
     return new TrackGroupArray(trackGroups);
   }

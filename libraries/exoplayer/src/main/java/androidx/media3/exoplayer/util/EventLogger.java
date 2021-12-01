@@ -277,7 +277,7 @@ public class EventLogger implements AnalyticsListener {
                   trackGroup.length,
                   mappedTrackInfo.getAdaptiveSupport(
                       rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false));
-          logd("    Group:" + groupIndex + ", adaptive_supported=" + adaptiveSupport + " [");
+          logd("    Group:" + trackGroup.id + ", adaptive_supported=" + adaptiveSupport + " [");
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
             String formatSupport =

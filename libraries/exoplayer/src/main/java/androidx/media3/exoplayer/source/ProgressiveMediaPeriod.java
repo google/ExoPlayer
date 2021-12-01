@@ -783,7 +783,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
       trackFormat = trackFormat.copyWithCryptoType(drmSessionManager.getCryptoType(trackFormat));
-      trackArray[i] = new TrackGroup(trackFormat);
+      trackArray[i] = new TrackGroup(/* id= */ Integer.toString(i), trackFormat);
     }
     trackState = new TrackState(new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
     prepared = true;
