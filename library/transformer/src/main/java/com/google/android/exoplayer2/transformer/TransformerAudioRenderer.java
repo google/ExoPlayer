@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FOR
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -30,7 +29,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 
-@RequiresApi(18)
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
 
   private static final String TAG = "TransformerAudioRenderer";

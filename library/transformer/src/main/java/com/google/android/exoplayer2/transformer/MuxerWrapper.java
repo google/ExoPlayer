@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.util.Util.minValue;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -34,7 +33,6 @@ import java.nio.ByteBuffer;
  *
  * <p>This wrapper can contain at most one video track and one audio track.
  */
-@RequiresApi(18)
 /* package */ final class MuxerWrapper {
 
   /**

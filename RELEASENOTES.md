@@ -29,6 +29,7 @@
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
     *   Correctly populate `Format.label` for audio only HLS streams
         ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
+*   Transformer: increase required min API version to 21.
 *   MediaSession extension
     *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
         opt-out flag for apps that don't want to clear the playlist on stop.

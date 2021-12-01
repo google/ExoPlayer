@@ -23,7 +23,6 @@ import static java.lang.Math.min;
 
 import android.media.MediaCodec.BufferInfo;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -41,7 +40,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /**
  * Pipeline to decode audio samples, apply transformations on the raw samples, and re-encode them.
  */
-@RequiresApi(18)
 /* package */ final class AudioSamplePipeline implements SamplePipeline {
 
   private static final String TAG = "AudioSamplePipeline";

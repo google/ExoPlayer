@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import android.content.Context;
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -33,7 +32,6 @@ import java.io.IOException;
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
-@RequiresApi(18)
 /* package */ final class VideoSamplePipeline implements SamplePipeline {
 
   private static final String TAG = "VideoSamplePipeline";

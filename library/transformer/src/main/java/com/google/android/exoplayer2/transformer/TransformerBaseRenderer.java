@@ -19,7 +19,6 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -34,7 +33,6 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-@RequiresApi(18)
 /* package */ abstract class TransformerBaseRenderer extends BaseRenderer {
 
   protected final MuxerWrapper muxerWrapper;

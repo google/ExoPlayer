@@ -15,6 +15,7 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 android {
 
     defaultConfig {
+        minSdkVersion 21
         // The following argument makes the Android Test Orchestrator run its
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.

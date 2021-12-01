@@ -24,7 +24,6 @@ import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.view.Surface;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 
@@ -32,7 +31,6 @@ import java.io.IOException;
  * FrameEditor applies changes to individual video frames. Changes include just resolution for now,
  * but may later include brightness, cropping, rotation, etc.
  */
-@RequiresApi(18)
 /* package */ final class FrameEditor {
 
   static {
