@@ -248,6 +248,8 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void selectTracks_withEmptyTrackOverrideForDifferentTracks_hasNoEffect()
       throws ExoPlaybackException {
+    TrackGroup videoGroup0 = VIDEO_TRACK_GROUP.copyWithId("0");
+    TrackGroup videoGroup1 = VIDEO_TRACK_GROUP.copyWithId("1");
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
@@ -261,11 +263,16 @@ public final class DefaultTrackSelectorTest {
     TrackSelectorResult result =
         trackSelector.selectTracks(
             RENDERER_CAPABILITIES,
-            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP),
+            new TrackGroupArray(videoGroup0, AUDIO_TRACK_GROUP, videoGroup1),
             periodId,
             TIMELINE);
 
-    assertThat(result.selections).asList().containsExactlyElementsIn(TRACK_SELECTIONS).inOrder();
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(
+            new FixedTrackSelection(videoGroup0, /* track= */ 0),
+            new FixedTrackSelection(AUDIO_TRACK_GROUP, /* track= */ 0))
+        .inOrder();
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
@@ -364,17 +371,24 @@ public final class DefaultTrackSelectorTest {
   /** Tests that an override is not applied for a different set of available track groups. */
   @Test
   public void selectTracksWithNullOverrideForDifferentTracks() throws ExoPlaybackException {
+    TrackGroup videoGroup0 = VIDEO_TRACK_GROUP.copyWithId("0");
+    TrackGroup videoGroup1 = VIDEO_TRACK_GROUP.copyWithId("1");
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null));
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP.copyWithId("2")), null));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             RENDERER_CAPABILITIES,
-            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP),
+            new TrackGroupArray(videoGroup0, AUDIO_TRACK_GROUP, videoGroup1),
             periodId,
             TIMELINE);
-    assertSelections(result, TRACK_SELECTIONS);
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(
+            new FixedTrackSelection(videoGroup0, /* track= */ 0),
+            new FixedTrackSelection(AUDIO_TRACK_GROUP, /* track= */ 0))
+        .inOrder();
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }

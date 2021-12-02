@@ -832,8 +832,6 @@ public final class DownloadHelper {
    * Runs the track selection for a given period index with the current parameters. The selected
    * tracks will be added to {@link #trackSelectionsByPeriodAndRenderer}.
    */
-  // Intentional reference comparison of track group instances.
-  @SuppressWarnings("ReferenceEquality")
   @RequiresNonNull({
     "trackGroupArrays",
     "trackSelectionsByPeriodAndRenderer",
@@ -858,7 +856,7 @@ public final class DownloadHelper {
         boolean mergedWithExistingSelection = false;
         for (int j = 0; j < existingSelectionList.size(); j++) {
           ExoTrackSelection existingSelection = existingSelectionList.get(j);
-          if (existingSelection.getTrackGroup() == newSelection.getTrackGroup()) {
+          if (existingSelection.getTrackGroup().equals(newSelection.getTrackGroup())) {
             // Merge with existing selection.
             scratchSet.clear();
             for (int k = 0; k < existingSelection.length(); k++) {

@@ -9,6 +9,11 @@
         track matching system Locale language) over technical track selection
         constraints (for example, preferred MIME type, or maximum channel
         count).
+    *   Prohibit duplicate `TrackGroup`s in a `TrackGroupArray`. `TrackGroup`s
+        can always be made distinguishable by setting an `id` in the
+        `TrackGroup` constructor. This fixes a crash when resuming playback
+        after backgrounding the app with an active track override
+        ((#9718)[https://github.com/google/ExoPlayer/issues/9718]).
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).
