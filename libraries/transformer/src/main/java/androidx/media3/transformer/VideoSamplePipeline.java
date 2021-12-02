@@ -102,22 +102,24 @@ import java.io.IOException;
       return false;
     }
 
-    if (!frameEditor.hasInputData()) {
-      if (!waitingForPopulatedDecoderSurface) {
-        if (decoder.getOutputBufferInfo() != null) {
-          decoder.releaseOutputBuffer(/* render= */ true);
-          waitingForPopulatedDecoderSurface = true;
-        }
-        if (decoder.isEnded()) {
-          encoder.signalEndOfInputStream();
-        }
-      }
+    if (frameEditor.hasInputData()) {
+      waitingForPopulatedDecoderSurface = false;
+      frameEditor.processData();
+      return true;
+    }
+
+    if (waitingForPopulatedDecoderSurface) {
       return false;
     }
 
-    waitingForPopulatedDecoderSurface = false;
-    frameEditor.processData();
-    return true;
+    if (decoder.getOutputBufferInfo() != null) {
+      decoder.releaseOutputBuffer(/* render= */ true);
+      waitingForPopulatedDecoderSurface = true;
+    }
+    if (decoder.isEnded()) {
+      encoder.signalEndOfInputStream();
+    }
+    return false;
   }
 
   @Override
