@@ -563,13 +563,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           trackSupport[trackIndex] =
               mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex);
-          // Suppressing reference equality warning because the track group stored in the track
-          // selection must point to the exact track group object to be considered part of it.
-          @SuppressWarnings("ReferenceEquality")
           boolean isTrackSelected =
-              (trackSelection != null)
-                  && (trackSelection.getTrackGroup() == trackGroup)
-                  && (trackSelection.indexOf(trackIndex) != C.INDEX_UNSET);
+              trackSelection != null
+                  && trackSelection.getTrackGroup().equals(trackGroup)
+                  && trackSelection.indexOf(trackIndex) != C.INDEX_UNSET;
           selected[trackIndex] = isTrackSelected;
         }
         @C.TrackType int trackGroupType = mappedTrackInfo.getRendererType(rendererIndex);
