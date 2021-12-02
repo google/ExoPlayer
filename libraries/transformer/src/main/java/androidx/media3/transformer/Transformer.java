@@ -26,8 +26,6 @@ import static java.lang.Math.min;
 
 import android.content.Context;
 import android.graphics.Matrix;
-import android.media.MediaFormat;
-import android.media.MediaMuxer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
@@ -300,18 +298,10 @@ public final class Transformer {
      * input. Supported values are:
      *
      * <ul>
-     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
-     *       <ul>
-     *         <li>{@link MimeTypes#VIDEO_H263}
-     *         <li>{@link MimeTypes#VIDEO_H264}
-     *         <li>{@link MimeTypes#VIDEO_H265} from API level 24
-     *         <li>{@link MimeTypes#VIDEO_MP4V}
-     *       </ul>
-     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
-     *       <ul>
-     *         <li>{@link MimeTypes#VIDEO_VP8}
-     *         <li>{@link MimeTypes#VIDEO_VP9} from API level 24
-     *       </ul>
+     *   <li>{@link MimeTypes#VIDEO_H263}
+     *   <li>{@link MimeTypes#VIDEO_H264}
+     *   <li>{@link MimeTypes#VIDEO_H265} from API level 24
+     *   <li>{@link MimeTypes#VIDEO_MP4V}
      * </ul>
      *
      * @param videoMimeType The MIME type of the video samples in the output.
@@ -327,16 +317,9 @@ public final class Transformer {
      * input. Supported values are:
      *
      * <ul>
-     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_MP4}:
-     *       <ul>
-     *         <li>{@link MimeTypes#AUDIO_AAC}
-     *         <li>{@link MimeTypes#AUDIO_AMR_NB}
-     *         <li>{@link MimeTypes#AUDIO_AMR_WB}
-     *       </ul>
-     *   <li>when the container MIME type is {@link MimeTypes#VIDEO_WEBM}:
-     *       <ul>
-     *         <li>{@link MimeTypes#AUDIO_VORBIS}
-     *       </ul>
+     *   <li>{@link MimeTypes#AUDIO_AAC}
+     *   <li>{@link MimeTypes#AUDIO_AMR_NB}
+     *   <li>{@link MimeTypes#AUDIO_AMR_WB}
      * </ul>
      *
      * @param audioMimeType The MIME type of the audio samples in the output.
@@ -406,7 +389,6 @@ public final class Transformer {
      * @throws NullPointerException If the {@link Context} has not been provided.
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
-     * @throws IllegalStateException If the muxer doesn't support the requested container MIME type.
      * @throws IllegalStateException If the muxer doesn't support the requested audio MIME type.
      * @throws IllegalStateException If the muxer doesn't support the requested video MIME type.
      */
@@ -561,9 +543,7 @@ public final class Transformer {
    * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
    * bitrate video and audio streams are selected.
    *
-   * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
-   *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
-   *     described in {@link MediaMuxer#addTrack(MediaFormat)}.
+   * @param mediaItem The {@link MediaItem} to transform.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalStateException If this method is called from the wrong thread.
@@ -586,9 +566,7 @@ public final class Transformer {
    * track types are ignored. For adaptive bitrate {@link MediaSource media sources}, the highest
    * bitrate video and audio streams are selected.
    *
-   * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
-   *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
-   *     described in {@link MediaMuxer#addTrack(MediaFormat)}.
+   * @param mediaItem The {@link MediaItem} to transform.
    * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the output.
    *     The file referenced by this ParcelFileDescriptor should not be used before the
    *     transformation is completed. It is the responsibility of the caller to close the
