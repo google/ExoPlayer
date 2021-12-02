@@ -17,6 +17,6 @@ uniform mat4 tex_transform;
 uniform mat4 transformation_matrix;
 varying vec2 v_texcoord;
 void main() {
-  gl_Position = a_position;
-  v_texcoord = (transformation_matrix * tex_transform * a_texcoord).xy;
+  gl_Position = transformation_matrix * a_position;
+  v_texcoord = (tex_transform * a_texcoord).xy;
 }
