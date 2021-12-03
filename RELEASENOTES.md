@@ -37,6 +37,11 @@
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
 *   HLS:
+    *   Use chunkless preparation by default to improve start up time. If your
+        renditions contain muxed closed-caption tracks that are *not* declared
+        in the master playlist, you should add them to the master playlist to be
+        available for playback, or turn off chunkless preparation with
+        `HlsMediaSource.Factory.setAllowChunklessPreparation(false)`.
     *   Support key-frame accurate seeking in HLS
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
     *   Correctly populate `Format.label` for audio only HLS streams

@@ -142,6 +142,7 @@ public final class HlsMediaSource extends BaseMediaSource
       metadataType = METADATA_TYPE_ID3;
       streamKeys = Collections.emptyList();
       elapsedRealTimeOffsetMs = C.TIME_UNSET;
+      allowChunklessPreparation = true;
     }
 
     /**
