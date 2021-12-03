@@ -28,6 +28,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
@@ -39,12 +40,12 @@ import java.io.IOException;
   private final DecoderInputBuffer decoderInputBuffer;
   private final MediaCodecAdapterWrapper decoder;
 
-  private final FrameEditor frameEditor;
-
   private final MediaCodecAdapterWrapper encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
 
-  private boolean waitingForPopulatedDecoderSurface;
+  private @MonotonicNonNull FrameEditor frameEditor;
+
+  private boolean waitingForFrameEditorInput;
 
   public VideoSamplePipeline(
       Context context, Format inputFormat, Transformation transformation, int rendererIndex)
@@ -79,17 +80,23 @@ import java.io.IOException;
       throw createRendererException(
           e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
-    frameEditor =
-        FrameEditor.create(
-            context,
-            outputWidth,
-            outputHeight,
-            transformation.transformationMatrix,
-            /* outputSurface= */ checkNotNull(encoder.getInputSurface()));
+    if (inputFormat.height != transformation.outputHeight
+        || !transformation.transformationMatrix.isIdentity()) {
+      frameEditor =
+          FrameEditor.create(
+              context,
+              outputWidth,
+              outputHeight,
+              transformation.transformationMatrix,
+              /* outputSurface= */ checkNotNull(encoder.getInputSurface()));
+    }
     try {
       decoder =
           MediaCodecAdapterWrapper.createForVideoDecoding(
-              inputFormat, frameEditor.getInputSurface());
+              inputFormat,
+              frameEditor == null
+                  ? checkNotNull(encoder.getInputSurface())
+                  : frameEditor.getInputSurface());
     } catch (IOException e) {
       throw createRendererException(
           e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
@@ -102,24 +109,27 @@ import java.io.IOException;
       return false;
     }
 
-    if (frameEditor.hasInputData()) {
-      waitingForPopulatedDecoderSurface = false;
-      frameEditor.processData();
-      return true;
+    if (frameEditor != null) {
+      if (frameEditor.hasInputData()) {
+        waitingForFrameEditorInput = false;
+        frameEditor.processData();
+        return true;
+      }
+      if (waitingForFrameEditorInput) {
+        return false;
+      }
     }
 
-    if (waitingForPopulatedDecoderSurface) {
-      return false;
-    }
-
-    if (decoder.getOutputBufferInfo() != null) {
+    boolean decoderHasOutputBuffer = decoder.getOutputBufferInfo() != null;
+    if (decoderHasOutputBuffer) {
       decoder.releaseOutputBuffer(/* render= */ true);
-      waitingForPopulatedDecoderSurface = true;
+      waitingForFrameEditorInput = frameEditor != null;
     }
     if (decoder.isEnded()) {
       encoder.signalEndOfInputStream();
+      return false;
     }
-    return false;
+    return decoderHasOutputBuffer && !waitingForFrameEditorInput;
   }
 
   @Override
@@ -164,7 +174,9 @@ import java.io.IOException;
 
   @Override
   public void release() {
-    frameEditor.release();
+    if (frameEditor != null) {
+      frameEditor.release();
+    }
     decoder.release();
     encoder.release();
   }
