@@ -14,6 +14,13 @@
         `TrackGroup` constructor. This fixes a crash when resuming playback
         after backgrounding the app with an active track override
         ((#9718)[https://github.com/google/ExoPlayer/issues/9718]).
+*   Android 12 compatibility:
+    *   Upgrade the Cast extension to depend on
+        `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
+        versions of `play-services-cast-framework` are not compatible with apps
+        targeting Android 12, and will crash with an `IllegalArgumentException`
+        when creating `PendingIntent`s
+        ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).
