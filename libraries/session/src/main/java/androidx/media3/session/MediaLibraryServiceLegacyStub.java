@@ -97,12 +97,7 @@ import java.util.concurrent.atomic.AtomicReference;
     postOrRun(
         librarySessionImpl.getApplicationHandler(),
         () -> {
-          futureReference.set(
-              checkNotNull(
-                  librarySessionImpl
-                      .getCallback()
-                      .onGetLibraryRoot(librarySessionImpl.getInstance(), controller, params),
-                  "onGetLibraryRoot must return non-null future"));
+          futureReference.set(librarySessionImpl.onGetLibraryRootOnHandler(controller, params));
           haveFuture.open();
         });
     @Nullable LibraryResult<MediaItem> result = null;
@@ -143,10 +138,7 @@ import java.util.concurrent.atomic.AtomicReference;
           @Nullable
           LibraryParams params =
               MediaUtils.convertToLibraryParams(librarySessionImpl.getContext(), option);
-          ignoreFuture(
-              librarySessionImpl
-                  .getCallback()
-                  .onSubscribe(librarySessionImpl.getInstance(), controller, id, params));
+          ignoreFuture(librarySessionImpl.onSubscribeOnHandler(controller, id, params));
         });
   }
 
@@ -168,10 +160,7 @@ import java.util.concurrent.atomic.AtomicReference;
                   controller, SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE)) {
             return;
           }
-          ignoreFuture(
-              librarySessionImpl
-                  .getCallback()
-                  .onUnsubscribe(librarySessionImpl.getInstance(), controller, id));
+          ignoreFuture(librarySessionImpl.onUnsubscribeOnHandler(controller, id));
         });
   }
 
@@ -216,17 +205,8 @@ import java.util.concurrent.atomic.AtomicReference;
                 LibraryParams params =
                     MediaUtils.convertToLibraryParams(librarySessionImpl.getContext(), options);
                 ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
-                    checkNotNull(
-                        librarySessionImpl
-                            .getCallback()
-                            .onGetChildren(
-                                librarySessionImpl.getInstance(),
-                                controller,
-                                parentId,
-                                page,
-                                pageSize,
-                                params),
-                        "onGetChildren must return non-null future");
+                    librarySessionImpl.onGetChildrenOnHandler(
+                        controller, parentId, page, pageSize, params);
                 sendLibraryResultWithMediaItemsWhenReady(result, future);
                 return;
               }
@@ -239,17 +219,12 @@ import java.util.concurrent.atomic.AtomicReference;
           }
           // A MediaBrowserCompat called loadChildren with no pagination option.
           ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
-              checkNotNull(
-                  librarySessionImpl
-                      .getCallback()
-                      .onGetChildren(
-                          librarySessionImpl.getInstance(),
-                          controller,
-                          parentId,
-                          /* page= */ 0,
-                          /* pageSize= */ Integer.MAX_VALUE,
-                          /* extras= */ null),
-                  "onGetChildren must return non-null future");
+              librarySessionImpl.onGetChildrenOnHandler(
+                  controller,
+                  parentId,
+                  /* page= */ 0,
+                  /* pageSize= */ Integer.MAX_VALUE,
+                  /* extras= */ null);
           sendLibraryResultWithMediaItemsWhenReady(result, future);
         });
   }
@@ -277,11 +252,7 @@ import java.util.concurrent.atomic.AtomicReference;
             return;
           }
           ListenableFuture<LibraryResult<MediaItem>> future =
-              checkNotNull(
-                  librarySessionImpl
-                      .getCallback()
-                      .onGetItem(librarySessionImpl.getInstance(), controller, itemId),
-                  "onGetItem must return non-null future");
+              librarySessionImpl.onGetItemOnHandler(controller, itemId);
           sendLibraryResultWithMediaItemWhenReady(result, future);
         });
   }
@@ -316,10 +287,7 @@ import java.util.concurrent.atomic.AtomicReference;
           @Nullable
           LibraryParams params =
               MediaUtils.convertToLibraryParams(librarySessionImpl.getContext(), extras);
-          ignoreFuture(
-              librarySessionImpl
-                  .getCallback()
-                  .onSearch(librarySessionImpl.getInstance(), controller, query, params));
+          ignoreFuture(librarySessionImpl.onSearchOnHandler(controller, query, params));
           // Actual search result will be sent by notifySearchResultChanged().
         });
   }
@@ -526,17 +494,8 @@ import java.util.concurrent.atomic.AtomicReference;
                   MediaUtils.convertToLibraryParams(
                       librarySessionImpl.getContext(), request.extras);
               ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
-                  checkNotNull(
-                      librarySessionImpl
-                          .getCallback()
-                          .onGetSearchResult(
-                              librarySessionImpl.getInstance(),
-                              request.controller,
-                              request.query,
-                              page,
-                              pageSize,
-                              libraryParams),
-                      "onGetSearchResult must return non-null future");
+                  librarySessionImpl.onGetSearchResultOnHandler(
+                      request.controller, request.query, page, pageSize, libraryParams);
               sendLibraryResultWithMediaItemsWhenReady(request.result, future);
             }
           });
