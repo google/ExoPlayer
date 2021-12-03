@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.runTr
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.Transformer;
@@ -38,9 +39,12 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscode_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
+    Matrix transformationMatrix = new Matrix();
+    transformationMatrix.postTranslate((float) 0.1, (float) 0.1);
     Transformer transformer =
         new Transformer.Builder(context)
             .setVideoMimeType(MimeTypes.VIDEO_H265)
+            .setTransformationMatrix(transformationMatrix)
             .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
             .build();
 
@@ -66,9 +70,12 @@ public final class RepeatedTranscodeTransformationTest {
   @Test
   public void repeatedTranscodeNoAudio_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
+    Matrix transformationMatrix = new Matrix();
+    transformationMatrix.postTranslate((float) 0.1, (float) 0.1);
     Transformer transformer =
         new Transformer.Builder(context)
             .setVideoMimeType(MimeTypes.VIDEO_H265)
+            .setTransformationMatrix(transformationMatrix)
             .setRemoveAudio(true)
             .build();
 
