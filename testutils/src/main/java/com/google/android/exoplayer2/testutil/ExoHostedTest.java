@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import android.view.Surface;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -82,7 +83,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
    *     was within {@link #MAX_PLAYING_TIME_DISCREPANCY_MS} of the media duration. If set to false,
    *     the test will not assert an expected playing time.
    */
-  public ExoHostedTest(String tag, boolean fullPlaybackNoSeeking) {
+  public ExoHostedTest(@Size(max = 23) String tag, boolean fullPlaybackNoSeeking) {
     this(
         tag,
         fullPlaybackNoSeeking
@@ -102,7 +103,8 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
    *     an expected playing time.
    * @param failOnPlayerError Whether a player error should be considered a test failure.
    */
-  public ExoHostedTest(String tag, long expectedPlayingTimeMs, boolean failOnPlayerError) {
+  public ExoHostedTest(
+      @Size(max = 23) String tag, long expectedPlayingTimeMs, boolean failOnPlayerError) {
     this.tag = tag;
     this.expectedPlayingTimeMs = expectedPlayingTimeMs;
     this.failOnPlayerError = failOnPlayerError;

@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
 
-  private static final String TAG = "TransformerAudioRenderer";
+  private static final String TAG = "TAudioRenderer";
 
   private final DecoderInputBuffer decoderInputBuffer;
 

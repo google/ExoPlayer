@@ -115,7 +115,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration);
   }
 
-  private static final String TAG = "DefaultMediaSourceFactory";
+  private static final String TAG = "DMediaSourceFactory";
 
   private final DataSource.Factory dataSourceFactory;
   private final DelegateFactoryLoader delegateFactoryLoader;

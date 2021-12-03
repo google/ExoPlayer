@@ -1761,8 +1761,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static class EmsgUnwrappingTrackOutput implements TrackOutput {
 
-    private static final String TAG = "EmsgUnwrappingTrackOutput";
-
     // TODO: Create a Formats util class with common constants like this.
     private static final Format ID3_FORMAT =
         new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_ID3).build();
