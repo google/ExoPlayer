@@ -57,7 +57,7 @@ public final class FrameEditorTest {
    */
   private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 0.1f;
   /** Timeout for dequeueing buffers from the codec, in microseconds. */
-  private static final int DEQUEUE_TIMEOUT_US = 500_000;
+  private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
   /** Time to wait for the frame editor's input to be populated by the decoder, in milliseconds. */
   private static final int SURFACE_WAIT_MS = 1000;
 
