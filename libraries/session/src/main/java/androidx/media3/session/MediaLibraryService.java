@@ -464,7 +464,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
         SessionCallback callback,
         MediaItemFiller mediaItemFiller,
         Bundle tokenExtras) {
-      return new MediaLibrarySessionImplBase(
+      return new MediaLibrarySessionImpl(
           this, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
     }
 
@@ -532,55 +532,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
       getImpl()
           .notifySearchResultChanged(
               checkNotNull(browser), checkNotEmpty(query), itemCount, params);
-    }
-
-    interface MediaLibrarySessionImpl extends MediaSessionImpl {
-
-      // LibrarySession methods
-      void notifyChildrenChanged(String parentId, int itemCount, @Nullable LibraryParams params);
-
-      void notifyChildrenChanged(
-          ControllerInfo browser, String parentId, int itemCount, @Nullable LibraryParams params);
-
-      void notifySearchResultChanged(
-          ControllerInfo browser, String query, int itemCount, @Nullable LibraryParams params);
-
-      // LibrarySession callback implementations called on the application thread
-      ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRootOnHandler(
-          ControllerInfo browser, @Nullable LibraryParams params);
-
-      ListenableFuture<LibraryResult<MediaItem>> onGetItemOnHandler(
-          ControllerInfo browser, String mediaId);
-
-      ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetChildrenOnHandler(
-          ControllerInfo browser,
-          String parentId,
-          int page,
-          int pageSize,
-          @Nullable LibraryParams params);
-
-      ListenableFuture<LibraryResult<Void>> onSubscribeOnHandler(
-          ControllerInfo browser, String parentId, @Nullable LibraryParams params);
-
-      ListenableFuture<LibraryResult<Void>> onUnsubscribeOnHandler(
-          ControllerInfo browser, String parentId);
-
-      ListenableFuture<LibraryResult<Void>> onSearchOnHandler(
-          ControllerInfo browser, String query, @Nullable LibraryParams params);
-
-      ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetSearchResultOnHandler(
-          ControllerInfo browser,
-          String query,
-          int page,
-          int pageSize,
-          @Nullable LibraryParams params);
-
-      // Internally used methods - only changing return type
-      @Override
-      MediaLibrarySession getInstance();
-
-      @Override
-      MediaLibrarySessionCallback getCallback();
     }
   }
 
@@ -735,7 +686,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
   @Override
   /* package */ MediaSessionServiceImpl createImpl() {
-    return new MediaLibraryServiceImplBase();
+    return new MediaLibraryServiceImpl();
   }
 
   @Override

@@ -39,7 +39,6 @@ import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;

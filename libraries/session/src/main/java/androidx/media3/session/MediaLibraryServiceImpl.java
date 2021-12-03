@@ -20,7 +20,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 /** Implementation of {@link MediaLibraryService}. */
-/* package */ class MediaLibraryServiceImplBase extends MediaSessionServiceImplBase {
+/* package */ class MediaLibraryServiceImpl extends MediaSessionServiceImpl {
 
   @Override
   @Nullable

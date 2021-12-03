@@ -38,16 +38,15 @@ import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.session.MediaSessionService.MediaNotification;
-import androidx.media3.session.MediaSessionService.MediaSessionServiceImpl;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /** Implementation of {@link MediaSessionService}. */
-/* package */ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
+/* package */ class MediaSessionServiceImpl {
 
-  private static final String TAG = "MSSImplBase";
+  private static final String TAG = "MSSImpl";
 
   private final Object lock;
 
@@ -66,12 +65,11 @@ import java.util.Map;
   @Nullable
   private MediaNotificationHandler notificationHandler;
 
-  public MediaSessionServiceImplBase() {
+  public MediaSessionServiceImpl() {
     lock = new Object();
     sessions = new ArrayMap<>();
   }
 
-  @Override
   public void onCreate(MediaSessionService service) {
     synchronized (lock) {
       instance = service;
@@ -80,7 +78,6 @@ import java.util.Map;
     }
   }
 
-  @Override
   @Nullable
   public IBinder onBind(@Nullable Intent intent) {
     if (intent == null) {
@@ -116,7 +113,6 @@ import java.util.Map;
     }
   }
 
-  @Override
   public void onDestroy() {
     synchronized (lock) {
       instance = null;
@@ -127,7 +123,6 @@ import java.util.Map;
     }
   }
 
-  @Override
   public void addSession(MediaSession session) {
     @Nullable MediaSession old;
     synchronized (lock) {
@@ -157,7 +152,6 @@ import java.util.Map;
     }
   }
 
-  @Override
   public void removeSession(MediaSession session) {
     synchronized (lock) {
       sessions.remove(session.getId());
@@ -166,7 +160,6 @@ import java.util.Map;
         session.getImpl().getApplicationHandler(), session::clearForegroundServiceEventCallback);
   }
 
-  @Override
   public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
     if (intent == null) {
       return START_STICKY;
@@ -190,7 +183,6 @@ import java.util.Map;
     return START_STICKY;
   }
 
-  @Override
   public MediaNotification onUpdateNotification(MediaSession session) {
     MediaNotificationHandler handler;
     synchronized (lock) {
@@ -199,7 +191,6 @@ import java.util.Map;
     return handler.onUpdateNotification(session);
   }
 
-  @Override
   public List<MediaSession> getSessions() {
     synchronized (lock) {
       return new ArrayList<>(sessions.values());
@@ -221,13 +212,13 @@ import java.util.Map;
 
   private static final class MediaSessionServiceStub extends IMediaSessionService.Stub {
 
-    private final WeakReference<MediaSessionServiceImplBase> serviceImpl;
+    private final WeakReference<MediaSessionServiceImpl> serviceImpl;
 
     private final Handler handler;
 
     private final MediaSessionManager mediaSessionManager;
 
-    public MediaSessionServiceStub(MediaSessionServiceImplBase serviceImpl) {
+    public MediaSessionServiceStub(MediaSessionServiceImpl serviceImpl) {
       this.serviceImpl = new WeakReference<>(serviceImpl);
       Context context = checkStateNotNull(serviceImpl.getInstance());
       handler = new Handler(context.getMainLooper());
@@ -262,7 +253,7 @@ import java.util.Map;
               boolean shouldNotifyDisconnected = true;
               try {
                 @Nullable
-                MediaSessionServiceImplBase serviceImpl =
+                MediaSessionServiceImpl serviceImpl =
                     MediaSessionServiceStub.this.serviceImpl.get();
                 if (serviceImpl == null) {
                   return;

@@ -48,9 +48,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private final ArrayMap<ControllerInfo, ConnectedControllerRecord<T>> controllerRecords =
       new ArrayMap<>();
 
-  private final MediaSession.MediaSessionImpl sessionImpl;
+  private final MediaSessionImpl sessionImpl;
 
-  public ConnectedControllersManager(MediaSession.MediaSessionImpl session) {
+  public ConnectedControllersManager(MediaSessionImpl session) {
     // Initialize default values.
     lock = new Object();
 

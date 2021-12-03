@@ -75,7 +75,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.initialization.qual.Initialized;
 
-/* package */ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
+/* package */ class MediaSessionImpl {
 
   // Create a static lock for synchronize methods below.
   // We'd better not use MediaSessionImplBase.class for synchronized(), which indirectly exposes
@@ -138,7 +138,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   @Nullable private MediaSession.ForegroundServiceEventCallback foregroundServiceEventCallback;
 
-  public MediaSessionImplBase(
+  public MediaSessionImpl(
       MediaSession instance,
       Context context,
       String id,
@@ -152,7 +152,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @SuppressWarnings("nullness:assignment")
     @Initialized
-    MediaSessionImplBase thisRef = this;
+    MediaSessionImpl thisRef = this;
 
     sessionStub = new MediaSessionStub(thisRef);
     this.sessionActivity = sessionActivity;
@@ -177,7 +177,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     //     See {@link PendingIntent} and {@link Intent#filterEquals} for details.
     sessionUri =
         new Uri.Builder()
-            .scheme(MediaSessionImplBase.class.getName())
+            .scheme(MediaSessionImpl.class.getName())
             .appendPath(id)
             .appendPath(String.valueOf(SystemClock.elapsedRealtime()))
             .build();
@@ -227,10 +227,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       intent.setComponent(mbrComponent);
       if (Util.SDK_INT >= 26) {
         mediaButtonIntent =
-            PendingIntent.getForegroundService(this.context, 0, intent, pendingIntentFlagMutable);
+            PendingIntent.getForegroundService(context, 0, intent, pendingIntentFlagMutable);
       } else {
-        mediaButtonIntent =
-            PendingIntent.getService(this.context, 0, intent, pendingIntentFlagMutable);
+        mediaButtonIntent = PendingIntent.getService(context, 0, intent, pendingIntentFlagMutable);
       }
       broadcastReceiver = null;
     }
@@ -251,7 +250,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         thisRef::notifyPeriodicSessionPositionInfoChangesOnHandler, sessionPositionUpdateDelayMs);
   }
 
-  @Override
   public void setPlayer(Player player) {
     if (player == playerWrapper.getWrappedPlayer()) {
       return;
@@ -283,7 +281,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
   }
 
-  @Override
   public void release() {
     synchronized (lock) {
       if (closed) {
@@ -317,27 +314,22 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     dispatchRemoteControllerTaskWithoutReturn(ControllerCb::onDisconnected);
   }
 
-  @Override
   public PlayerWrapper getPlayerWrapper() {
     return playerWrapper;
   }
 
-  @Override
   public String getId() {
     return sessionId;
   }
 
-  @Override
   public Uri getUri() {
     return sessionUri;
   }
 
-  @Override
   public SessionToken getToken() {
     return sessionToken;
   }
 
-  @Override
   public List<ControllerInfo> getConnectedControllers() {
     List<ControllerInfo> controllers = new ArrayList<>();
     controllers.addAll(sessionStub.getConnectedControllersManager().getConnectedControllers());
@@ -346,13 +338,11 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return controllers;
   }
 
-  @Override
   public boolean isConnected(ControllerInfo controller) {
     return sessionStub.getConnectedControllersManager().isConnected(controller)
         || sessionLegacyStub.getConnectedControllersManager().isConnected(controller);
   }
 
-  @Override
   public ListenableFuture<SessionResult> setCustomLayout(
       ControllerInfo controller, List<CommandButton> layout) {
     return dispatchRemoteControllerTask(
@@ -365,7 +355,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         });
   }
 
-  @Override
   public void setAvailableCommands(
       ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands) {
     if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
@@ -388,7 +377,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
-  @Override
   public void broadcastCustomCommand(SessionCommand command, Bundle args) {
     dispatchRemoteControllerTaskWithoutReturn(
         (controller, seq) -> controller.sendCustomCommand(seq, command, args));
@@ -444,69 +432,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
-  @Override
   public ListenableFuture<SessionResult> sendCustomCommand(
       ControllerInfo controller, SessionCommand command, Bundle args) {
     return dispatchRemoteControllerTask(
         controller, (cb, seq) -> cb.sendCustomCommand(seq, command, args));
   }
 
-  @Override
-  public MediaSession getInstance() {
-    return instance;
-  }
-
-  @Override
-  public Context getContext() {
-    return context;
-  }
-
-  @Override
-  public Handler getApplicationHandler() {
-    return applicationHandler;
-  }
-
-  @Override
-  public SessionCallback getCallback() {
-    return callback;
-  }
-
-  @Override
-  public MediaItemFiller getMediaItemFiller() {
-    return mediaItemFiller;
-  }
-
-  @Override
-  public MediaSessionCompat getSessionCompat() {
-    return sessionLegacyStub.getSessionCompat();
-  }
-
-  @Override
-  public void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
-    sessionLegacyStub.setLegacyControllerDisconnectTimeoutMs(timeoutMs);
-  }
-
-  @Override
-  public boolean isReleased() {
-    synchronized (lock) {
-      return closed;
-    }
-  }
-
-  @Override
-  @Nullable
-  public PendingIntent getSessionActivity() {
-    return sessionActivity;
-  }
-
-  public MediaSessionServiceLegacyStub createLegacyBrowserService(
-      MediaSessionCompat.Token compatToken) {
-    MediaSessionServiceLegacyStub stub = new MediaSessionServiceLegacyStub(this);
-    stub.initialize(compatToken);
-    return stub;
-  }
-
-  @Override
   public void connectFromService(
       IMediaController caller,
       int controllerVersion,
@@ -518,12 +449,50 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         caller, controllerVersion, packageName, pid, uid, checkStateNotNull(connectionHints));
   }
 
+  public MediaSessionCompat getSessionCompat() {
+    return sessionLegacyStub.getSessionCompat();
+  }
+
+  public void setLegacyControllerConnectionTimeoutMs(long timeoutMs) {
+    sessionLegacyStub.setLegacyControllerDisconnectTimeoutMs(timeoutMs);
+  }
+
+  protected MediaSession getInstance() {
+    return instance;
+  }
+
+  protected Context getContext() {
+    return context;
+  }
+
+  protected Handler getApplicationHandler() {
+    return applicationHandler;
+  }
+
+  protected SessionCallback getCallback() {
+    return callback;
+  }
+
+  protected MediaItemFiller getMediaItemFiller() {
+    return mediaItemFiller;
+  }
+
+  protected boolean isReleased() {
+    synchronized (lock) {
+      return closed;
+    }
+  }
+
+  @Nullable
+  protected PendingIntent getSessionActivity() {
+    return sessionActivity;
+  }
+
   /**
    * Gets the service binder from the MediaBrowserServiceCompat. Should be only called by the thread
    * with a Looper.
    */
-  @Override
-  public IBinder getLegacyBrowserServiceBinder() {
+  protected IBinder getLegacyBrowserServiceBinder() {
     MediaSessionServiceLegacyStub legacyStub;
     synchronized (lock) {
       if (browserServiceLegacyStub == null) {
@@ -536,8 +505,14 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return legacyStub.onBind(intent);
   }
 
-  @Override
-  public void setSessionPositionUpdateDelayMsOnHandler(long updateDelayMs) {
+  protected MediaSessionServiceLegacyStub createLegacyBrowserService(
+      MediaSessionCompat.Token compatToken) {
+    MediaSessionServiceLegacyStub stub = new MediaSessionServiceLegacyStub(this);
+    stub.initialize(compatToken);
+    return stub;
+  }
+
+  protected void setSessionPositionUpdateDelayMsOnHandler(long updateDelayMs) {
     verifyApplicationThread();
     sessionPositionUpdateDelayMs = updateDelayMs;
 
@@ -546,14 +521,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         this::notifyPeriodicSessionPositionInfoChangesOnHandler, updateDelayMs);
   }
 
-  @Override
-  public void setForegroundServiceEventCallback(
+  protected void setForegroundServiceEventCallback(
       MediaSession.ForegroundServiceEventCallback foregroundServiceEventCallback) {
     this.foregroundServiceEventCallback = foregroundServiceEventCallback;
   }
 
-  @Override
-  public void clearForegroundServiceEventCallback() {
+  protected void clearForegroundServiceEventCallback() {
     foregroundServiceEventCallback = null;
   }
 
@@ -700,17 +673,17 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private static class PlayerListener implements Player.Listener {
 
-    private final WeakReference<MediaSessionImplBase> session;
+    private final WeakReference<MediaSessionImpl> session;
     private final WeakReference<PlayerWrapper> player;
 
-    public PlayerListener(MediaSessionImplBase session, PlayerWrapper player) {
+    public PlayerListener(MediaSessionImpl session, PlayerWrapper player) {
       this.session = new WeakReference<>(session);
       this.player = new WeakReference<>(player);
     }
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -728,7 +701,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     @Override
     public void onMediaItemTransition(
         @Nullable MediaItem mediaItem, @Player.MediaItemTransitionReason int reason) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -748,7 +721,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     @Override
     public void onPlayWhenReadyChanged(
         boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -767,7 +740,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onPlaybackSuppressionReasonChanged(@Player.PlaybackSuppressionReason int reason) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -788,7 +761,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onPlaybackStateChanged(@Player.State int playbackState) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -808,7 +781,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onIsPlayingChanged(boolean isPlaying) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -825,7 +798,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onIsLoadingChanged(boolean isLoading) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -843,7 +816,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     @Override
     public void onPositionDiscontinuity(
         PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -863,7 +836,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -880,7 +853,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onSeekBackIncrementChanged(long seekBackIncrementMs) {
-      MediaSessionImplBase session = getSession();
+      MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -897,7 +870,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {
-      MediaSessionImplBase session = getSession();
+      MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -914,7 +887,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -931,7 +904,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onPlaylistMetadataChanged(MediaMetadata playlistMetadata) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -944,7 +917,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onRepeatModeChanged(@RepeatMode int repeatMode) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -961,7 +934,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -978,7 +951,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onAudioAttributesChanged(AudioAttributes attributes) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -995,7 +968,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onVideoSizeChanged(VideoSize size) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1008,7 +981,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onVolumeChanged(@FloatRange(from = 0, to = 1) float volume) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1021,7 +994,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onCues(List<Cue> cues) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1036,7 +1009,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onDeviceInfoChanged(DeviceInfo deviceInfo) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1053,7 +1026,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onDeviceVolumeChanged(int volume, boolean muted) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1070,7 +1043,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onAvailableCommandsChanged(Player.Commands availableCommands) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1091,7 +1064,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1108,7 +1081,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1125,7 +1098,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onRenderedFirstFrame() {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1135,7 +1108,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {
-      @Nullable MediaSessionImplBase session = getSession();
+      @Nullable MediaSessionImpl session = getSession();
       if (session == null) {
         return;
       }
@@ -1150,7 +1123,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
 
     @Nullable
-    private MediaSessionImplBase getSession() {
+    private MediaSessionImpl getSession() {
       return this.session.get();
     }
   }
@@ -1164,7 +1137,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       Uri sessionUri = intent.getData();
-      if (!Util.areEqual(sessionUri, MediaSessionImplBase.this.sessionUri)) {
+      if (!Util.areEqual(sessionUri, MediaSessionImpl.this.sessionUri)) {
         return;
       }
       KeyEvent keyEvent = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);

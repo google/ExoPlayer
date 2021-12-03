@@ -74,10 +74,8 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
-import androidx.media3.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
-import androidx.media3.session.MediaSession.MediaSessionImpl;
 import androidx.media3.session.SessionCommand.CommandCode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -99,11 +97,11 @@ import java.util.concurrent.ExecutionException;
   private static final String TAG = "MediaSessionStub";
 
   private final Object lock;
-  private final WeakReference<MediaSession.MediaSessionImpl> sessionImpl;
+  private final WeakReference<MediaSessionImpl> sessionImpl;
   private final MediaSessionManager sessionManager;
   private final ConnectedControllersManager<IBinder> connectedControllersManager;
 
-  public MediaSessionStub(MediaSession.MediaSessionImpl sessionImpl) {
+  public MediaSessionStub(MediaSessionImpl sessionImpl) {
     // Initialize default values.
     lock = new Object();
 

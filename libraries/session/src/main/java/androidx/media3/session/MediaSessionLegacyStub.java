@@ -100,7 +100,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   private final ConnectedControllersManager<RemoteUserInfo> connectedControllersManager;
 
-  private final MediaSession.MediaSessionImpl sessionImpl;
+  private final MediaSessionImpl sessionImpl;
   private final MediaSessionManager sessionManager;
   private final ControllerCb controllerLegacyCbForBroadcast;
   private final ConnectionTimeoutHandler connectionTimeoutHandler;
@@ -111,7 +111,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private volatile long connectionTimeoutMs;
 
   public MediaSessionLegacyStub(
-      MediaSession.MediaSessionImpl session,
+      MediaSessionImpl session,
       ComponentName mbrComponent,
       PendingIntent mediaButtonIntent,
       Handler handler) {

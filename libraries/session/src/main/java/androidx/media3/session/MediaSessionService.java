@@ -122,7 +122,7 @@ public abstract class MediaSessionService extends Service {
   }
 
   /* package */ MediaSessionServiceImpl createImpl() {
-    return new MediaSessionServiceImplBase();
+    return new androidx.media3.session.MediaSessionServiceImpl();
   }
 
   /**
@@ -297,26 +297,5 @@ public abstract class MediaSessionService extends Service {
       this.notificationId = notificationId;
       this.notification = checkNotNull(notification);
     }
-  }
-
-  interface MediaSessionServiceImpl {
-
-    void onCreate(MediaSessionService service);
-
-    int onStartCommand(@Nullable Intent intent, int flags, int startId);
-
-    @Nullable
-    IBinder onBind(@Nullable Intent intent);
-
-    void onDestroy();
-
-    void addSession(MediaSession session);
-
-    void removeSession(MediaSession session);
-
-    @Nullable
-    MediaNotification onUpdateNotification(MediaSession session);
-
-    List<MediaSession> getSessions();
   }
 }

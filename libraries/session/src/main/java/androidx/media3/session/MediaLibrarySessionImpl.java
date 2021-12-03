@@ -45,13 +45,12 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-/* package */ class MediaLibrarySessionImplBase extends MediaSessionImplBase
-    implements MediaLibrarySession.MediaLibrarySessionImpl {
+/* package */ class MediaLibrarySessionImpl extends MediaSessionImpl {
 
   @GuardedBy("lock")
   private final ArrayMap<ControllerCb, Set<String>> subscriptions = new ArrayMap<>();
 
-  public MediaLibrarySessionImplBase(
+  public MediaLibrarySessionImpl(
       MediaSession instance,
       Context context,
       String id,
@@ -61,30 +60,6 @@ import java.util.concurrent.Future;
       MediaSession.MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
     super(instance, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
-  }
-
-  @Override
-  public MediaSessionServiceLegacyStub createLegacyBrowserService(
-      MediaSessionCompat.Token compatToken) {
-    MediaLibraryServiceLegacyStub stub = new MediaLibraryServiceLegacyStub(this);
-    stub.initialize(compatToken);
-    return stub;
-  }
-
-  @Override
-  public MediaLibrarySession getInstance() {
-    return (MediaLibrarySession) super.getInstance();
-  }
-
-  @Override
-  public MediaLibrarySession.MediaLibrarySessionCallback getCallback() {
-    return (MediaLibrarySession.MediaLibrarySessionCallback) super.getCallback();
-  }
-
-  @Override
-  @Nullable
-  protected MediaLibraryServiceLegacyStub getLegacyBrowserService() {
-    return (MediaLibraryServiceLegacyStub) super.getLegacyBrowserService();
   }
 
   @Override
@@ -107,66 +82,34 @@ import java.util.concurrent.Future;
         && legacyStub.getConnectedControllersManager().isConnected(controller);
   }
 
-  @Override
   public void notifyChildrenChanged(
       String parentId, int itemCount, @Nullable LibraryParams params) {
     dispatchRemoteControllerTaskWithoutReturn(
-        new RemoteControllerTask() {
-          @Override
-          public void run(ControllerCb callback, int seq) throws RemoteException {
-            if (isSubscribed(callback, parentId)) {
-              callback.onChildrenChanged(seq, parentId, itemCount, params);
-            }
-          }
-        });
-  }
-
-  @Override
-  public void notifyChildrenChanged(
-      ControllerInfo browser, String parentId, int itemCount, @Nullable LibraryParams params) {
-    dispatchRemoteControllerTaskWithoutReturn(
-        browser,
-        new RemoteControllerTask() {
-          @Override
-          public void run(ControllerCb callback, int seq) throws RemoteException {
-            if (!isSubscribed(callback, parentId)) {
-              return;
-            }
+        (callback, seq) -> {
+          if (isSubscribed(callback, parentId)) {
             callback.onChildrenChanged(seq, parentId, itemCount, params);
           }
         });
   }
 
-  @Override
-  public void notifySearchResultChanged(
-      ControllerInfo browser, String query, int itemCount, @Nullable LibraryParams params) {
+  public void notifyChildrenChanged(
+      ControllerInfo browser, String parentId, int itemCount, @Nullable LibraryParams params) {
     dispatchRemoteControllerTaskWithoutReturn(
         browser,
-        new RemoteControllerTask() {
-          @Override
-          public void run(ControllerCb callback, int seq) throws RemoteException {
-            callback.onSearchResultChanged(seq, query, itemCount, params);
+        (callback, seq) -> {
+          if (!isSubscribed(callback, parentId)) {
+            return;
           }
+          callback.onChildrenChanged(seq, parentId, itemCount, params);
         });
   }
 
-  private static void verifyResultItems(
-      LibraryResult<ImmutableList<MediaItem>> result, int pageSize) {
-    if (result.resultCode == RESULT_SUCCESS) {
-      List<MediaItem> items = checkNotNull(result.value);
-      if (items.size() > pageSize) {
-        throw new AssertionError(
-            "The number of items must be less than or equal to the pageSize"
-                + ", size="
-                + items.size()
-                + ", pageSize="
-                + pageSize);
-      }
-    }
+  public void notifySearchResultChanged(
+      ControllerInfo browser, String query, int itemCount, @Nullable LibraryParams params) {
+    dispatchRemoteControllerTaskWithoutReturn(
+        browser, (callback, seq) -> callback.onSearchResultChanged(seq, query, itemCount, params));
   }
 
-  /** Called by {@link MediaSessionStub#getLibraryRoot(IMediaController, int, Bundle)}. */
-  @Override
   public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRootOnHandler(
       ControllerInfo browser, @Nullable LibraryParams params) {
     // onGetLibraryRoot is defined to return a non-null result but it's implemented by applications,
@@ -176,12 +119,6 @@ import java.util.concurrent.Future;
         "onGetLibraryRoot must return non-null future");
   }
 
-  /**
-   * Called by {@link MediaSessionStub#getItem(IMediaController, int, String)}.
-   *
-   * @return
-   */
-  @Override
   public ListenableFuture<LibraryResult<MediaItem>> onGetItemOnHandler(
       ControllerInfo browser, String mediaId) {
     // onGetItem is defined to return a non-null result but it's implemented by applications,
@@ -191,7 +128,6 @@ import java.util.concurrent.Future;
         "onGetItem must return non-null future");
   }
 
-  @Override
   public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetChildrenOnHandler(
       ControllerInfo browser,
       String parentId,
@@ -215,7 +151,6 @@ import java.util.concurrent.Future;
     return future;
   }
 
-  @Override
   public ListenableFuture<LibraryResult<Void>> onSubscribeOnHandler(
       ControllerInfo browser, String parentId, @Nullable LibraryParams params) {
     ControllerCb controller = checkStateNotNull(browser.getControllerCb());
@@ -253,7 +188,6 @@ import java.util.concurrent.Future;
     return future;
   }
 
-  @Override
   public ListenableFuture<LibraryResult<Void>> onUnsubscribeOnHandler(
       ControllerInfo browser, String parentId) {
     // onUnsubscribe is defined to return a non-null result but it's implemented by applications,
@@ -274,7 +208,6 @@ import java.util.concurrent.Future;
     return future;
   }
 
-  @Override
   public ListenableFuture<LibraryResult<Void>> onSearchOnHandler(
       ControllerInfo browser, String query, @Nullable LibraryParams params) {
     // onSearch is defined to return a non-null result but it's implemented by applications,
@@ -284,7 +217,6 @@ import java.util.concurrent.Future;
         "onSearch must return non-null future");
   }
 
-  @Override
   public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetSearchResultOnHandler(
       ControllerInfo browser,
       String query,
@@ -307,6 +239,30 @@ import java.util.concurrent.Future;
         },
         MoreExecutors.directExecutor());
     return future;
+  }
+
+  @Override
+  protected MediaLibrarySession getInstance() {
+    return (MediaLibrarySession) super.getInstance();
+  }
+
+  @Override
+  protected MediaLibrarySession.MediaLibrarySessionCallback getCallback() {
+    return (MediaLibrarySession.MediaLibrarySessionCallback) super.getCallback();
+  }
+
+  @Override
+  @Nullable
+  protected MediaLibraryServiceLegacyStub getLegacyBrowserService() {
+    return (MediaLibraryServiceLegacyStub) super.getLegacyBrowserService();
+  }
+
+  @Override
+  protected MediaSessionServiceLegacyStub createLegacyBrowserService(
+      MediaSessionCompat.Token compatToken) {
+    MediaLibraryServiceLegacyStub stub = new MediaLibraryServiceLegacyStub(this);
+    stub.initialize(compatToken);
+    return stub;
   }
 
   @Override
@@ -339,6 +295,21 @@ import java.util.concurrent.Future;
       return future.get();
     } catch (CancellationException | ExecutionException | InterruptedException unused) {
       return null;
+    }
+  }
+
+  private static void verifyResultItems(
+      LibraryResult<ImmutableList<MediaItem>> result, int pageSize) {
+    if (result.resultCode == RESULT_SUCCESS) {
+      List<MediaItem> items = checkNotNull(result.value);
+      if (items.size() > pageSize) {
+        throw new AssertionError(
+            "The number of items must be less than or equal to the pageSize"
+                + ", size="
+                + items.size()
+                + ", pageSize="
+                + pageSize);
+      }
     }
   }
 }

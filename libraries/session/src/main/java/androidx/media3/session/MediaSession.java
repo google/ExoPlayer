@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -496,7 +495,7 @@ public class MediaSession {
       SessionCallback callback,
       MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
-    return new MediaSessionImplBase(
+    return new MediaSessionImpl(
         this, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
   }
 
@@ -1208,73 +1207,6 @@ public class MediaSession {
         throws RemoteException {}
 
     default void onRenderedFirstFrame(int seq) throws RemoteException {}
-  }
-
-  /* package */ interface MediaSessionImpl {
-
-    void setPlayer(Player player);
-
-    PlayerWrapper getPlayerWrapper();
-
-    String getId();
-
-    Uri getUri();
-
-    SessionToken getToken();
-
-    List<ControllerInfo> getConnectedControllers();
-
-    boolean isConnected(ControllerInfo controller);
-
-    void release();
-
-    ListenableFuture<SessionResult> setCustomLayout(
-        ControllerInfo controller, List<CommandButton> layout);
-
-    void setAvailableCommands(
-        ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands);
-
-    void broadcastCustomCommand(SessionCommand command, Bundle args);
-
-    ListenableFuture<SessionResult> sendCustomCommand(
-        ControllerInfo controller, SessionCommand command, Bundle args);
-
-    // Internally used methods
-    MediaSession getInstance();
-
-    MediaSessionCompat getSessionCompat();
-
-    void setLegacyControllerConnectionTimeoutMs(long timeoutMs);
-
-    Context getContext();
-
-    Handler getApplicationHandler();
-
-    SessionCallback getCallback();
-
-    MediaItemFiller getMediaItemFiller();
-
-    boolean isReleased();
-
-    @Nullable
-    PendingIntent getSessionActivity();
-
-    IBinder getLegacyBrowserServiceBinder();
-
-    void setSessionPositionUpdateDelayMsOnHandler(long updateDelayMs);
-
-    void connectFromService(
-        IMediaController caller,
-        int controllerVersion,
-        String packageName,
-        int pid,
-        int uid,
-        Bundle connectionHints);
-
-    void setForegroundServiceEventCallback(
-        ForegroundServiceEventCallback foregroundServiceEventCallback);
-
-    void clearForegroundServiceEventCallback();
   }
 
   /**

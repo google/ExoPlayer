@@ -40,11 +40,11 @@ import java.util.concurrent.atomic.AtomicReference;
   private static final String TAG = "MSSLegacyStub";
 
   private final MediaSessionManager manager;
-  private final MediaSession.MediaSessionImpl sessionImpl;
+  private final MediaSessionImpl sessionImpl;
   private final ConnectedControllersManager<RemoteUserInfo> connectedControllersManager;
 
   /** Creates a new instance. Caller must call {@link #initialize} to the instance. */
-  public MediaSessionServiceLegacyStub(MediaSession.MediaSessionImpl sessionImpl) {
+  public MediaSessionServiceLegacyStub(MediaSessionImpl sessionImpl) {
     super();
     manager = MediaSessionManager.getSessionManager(sessionImpl.getContext());
     this.sessionImpl = sessionImpl;
