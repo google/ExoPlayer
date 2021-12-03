@@ -58,7 +58,8 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 @LargeTest
 public class MediaControllerSurfaceSizeChangeTest {
-  private static final String TAG = "MC_SurfaceSizeChangeTest";
+
+  private static final String TAG = "MCSurfaceSizeChangeTest";
 
   private static final String SET_VIDEO_SURFACE = "setVideoSurface";
   private static final String SET_VIDEO_SURFACE_HOLDER = "setVideoSurfaceHolder";

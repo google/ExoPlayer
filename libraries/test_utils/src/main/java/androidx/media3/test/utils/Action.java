@@ -18,6 +18,7 @@ package androidx.media3.test.utils;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.IllegalSeekPositionException;
@@ -48,7 +49,9 @@ import java.util.List;
 @UnstableApi
 public abstract class Action {
 
+  @Size(max = 23)
   private final String tag;
+
   @Nullable private final String description;
 
   /**
@@ -56,7 +59,7 @@ public abstract class Action {
    * @param description A description to be logged when the action is executed, or null if no
    *     logging is required.
    */
-  public Action(String tag, @Nullable String description) {
+  public Action(@Size(max = 23) String tag, @Nullable String description) {
     this.tag = tag;
     this.description = description;
   }
@@ -133,7 +136,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param positionMs The seek position.
      */
-    public Seek(String tag, long positionMs) {
+    public Seek(@Size(max = 23) String tag, long positionMs) {
       super(tag, "Seek:" + positionMs);
       this.mediaItemIndex = null;
       this.positionMs = positionMs;
@@ -211,7 +214,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param mediaSources The media sources to be added to the playlist.
      */
-    public AddMediaItems(String tag, MediaSource... mediaSources) {
+    public AddMediaItems(@Size(max = 23) String tag, MediaSource... mediaSources) {
       super(tag, /* description= */ "AddMediaItems");
       this.mediaSources = mediaSources;
     }
@@ -259,7 +262,7 @@ public abstract class Action {
      * @param currentIndex The current index of the media item.
      * @param newIndex The new index of the media item.
      */
-    public MoveMediaItem(String tag, int currentIndex, int newIndex) {
+    public MoveMediaItem(@Size(max = 23) String tag, int currentIndex, int newIndex) {
       super(tag, "MoveMediaItem");
       this.currentIndex = currentIndex;
       this.newIndex = newIndex;
@@ -281,7 +284,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param index The index of the item to remove.
      */
-    public RemoveMediaItem(String tag, int index) {
+    public RemoveMediaItem(@Size(max = 23) String tag, int index) {
       super(tag, "RemoveMediaItem");
       this.index = index;
     }
@@ -304,7 +307,7 @@ public abstract class Action {
      * @param fromIndex The start if the range of media items to remove.
      * @param toIndex The end of the range of media items to remove (exclusive).
      */
-    public RemoveMediaItems(String tag, int fromIndex, int toIndex) {
+    public RemoveMediaItems(@Size(max = 23) String tag, int fromIndex, int toIndex) {
       super(tag, "RemoveMediaItem");
       this.fromIndex = fromIndex;
       this.toIndex = toIndex;
@@ -355,7 +358,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param reset The value to pass to {@link Player#stop(boolean)}.
      */
-    public Stop(String tag, boolean reset) {
+    public Stop(@Size(max = 23) String tag, boolean reset) {
       super(tag, STOP_ACTION_TAG);
       this.reset = reset;
     }
@@ -380,7 +383,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param playWhenReady The value to pass.
      */
-    public SetPlayWhenReady(String tag, boolean playWhenReady) {
+    public SetPlayWhenReady(@Size(max = 23) String tag, boolean playWhenReady) {
       super(tag, playWhenReady ? "Play" : "Pause");
       this.playWhenReady = playWhenReady;
     }
@@ -406,7 +409,7 @@ public abstract class Action {
      * @param rendererIndex The index of the renderer.
      * @param disabled Whether the renderer should be disabled.
      */
-    public SetRendererDisabled(String tag, int rendererIndex, boolean disabled) {
+    public SetRendererDisabled(@Size(max = 23) String tag, int rendererIndex, boolean disabled) {
       super(tag, "SetRendererDisabled:" + rendererIndex + ":" + disabled);
       this.rendererIndex = rendererIndex;
       this.disabled = disabled;
@@ -498,7 +501,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param repeatMode The repeat mode.
      */
-    public SetRepeatMode(String tag, @Player.RepeatMode int repeatMode) {
+    public SetRepeatMode(@Size(max = 23) String tag, @Player.RepeatMode int repeatMode) {
       super(tag, "SetRepeatMode:" + repeatMode);
       this.repeatMode = repeatMode;
     }
@@ -519,7 +522,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param shuffleOrder The shuffle order.
      */
-    public SetShuffleOrder(String tag, ShuffleOrder shuffleOrder) {
+    public SetShuffleOrder(@Size(max = 23) String tag, ShuffleOrder shuffleOrder) {
       super(tag, "SetShufflerOrder");
       this.shuffleOrder = shuffleOrder;
     }
@@ -540,7 +543,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param shuffleModeEnabled Whether shuffling is enabled.
      */
-    public SetShuffleModeEnabled(String tag, boolean shuffleModeEnabled) {
+    public SetShuffleModeEnabled(@Size(max = 23) String tag, boolean shuffleModeEnabled) {
       super(tag, "SetShuffleModeEnabled:" + shuffleModeEnabled);
       this.shuffleModeEnabled = shuffleModeEnabled;
     }
@@ -565,7 +568,7 @@ public abstract class Action {
      * @param target A message target.
      * @param positionMs The position at which the message should be sent, in milliseconds.
      */
-    public SendMessages(String tag, Target target, long positionMs) {
+    public SendMessages(@Size(max = 23) String tag, Target target, long positionMs) {
       this(
           tag,
           target,
@@ -624,7 +627,8 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param playbackParameters The playback parameters.
      */
-    public SetPlaybackParameters(String tag, PlaybackParameters playbackParameters) {
+    public SetPlaybackParameters(
+        @Size(max = 23) String tag, PlaybackParameters playbackParameters) {
       super(tag, "SetPlaybackParameters:" + playbackParameters);
       this.playbackParameters = playbackParameters;
     }
@@ -645,7 +649,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param exception The exception to throw.
      */
-    public ThrowPlaybackException(String tag, ExoPlaybackException exception) {
+    public ThrowPlaybackException(@Size(max = 23) String tag, ExoPlaybackException exception) {
       super(tag, "ThrowPlaybackException:" + exception);
       this.exception = exception;
     }
@@ -676,7 +680,7 @@ public abstract class Action {
      * @param mediaItemIndex The media item index at which the player should be paused again.
      * @param positionMs The position in that media item at which the player should be paused again.
      */
-    public PlayUntilPosition(String tag, int mediaItemIndex, long positionMs) {
+    public PlayUntilPosition(@Size(max = 23) String tag, int mediaItemIndex, long positionMs) {
       super(tag, "PlayUntilPosition:" + mediaItemIndex + ":" + positionMs);
       this.mediaItemIndex = mediaItemIndex;
       this.positionMs = positionMs;
@@ -860,7 +864,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param playWhenReady The playWhenReady value to wait for.
      */
-    public WaitForPlayWhenReady(String tag, boolean playWhenReady) {
+    public WaitForPlayWhenReady(@Size(max = 23) String tag, boolean playWhenReady) {
       super(tag, "WaitForPlayWhenReady");
       targetPlayWhenReady = playWhenReady;
     }
@@ -911,7 +915,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param targetPlaybackState The playback state to wait for.
      */
-    public WaitForPlaybackState(String tag, @Player.State int targetPlaybackState) {
+    public WaitForPlaybackState(@Size(max = 23) String tag, @Player.State int targetPlaybackState) {
       super(tag, "WaitForPlaybackState");
       this.targetPlaybackState = targetPlaybackState;
     }
@@ -961,7 +965,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param playerTarget The target to observe.
      */
-    public WaitForMessage(String tag, PlayerTarget playerTarget) {
+    public WaitForMessage(@Size(max = 23) String tag, PlayerTarget playerTarget) {
       super(tag, "WaitForMessage");
       this.playerTarget = playerTarget;
     }
@@ -1001,7 +1005,7 @@ public abstract class Action {
      * @param tag A tag to use for logging.
      * @param targetIsLoading The loading state to wait for.
      */
-    public WaitForIsLoading(String tag, boolean targetIsLoading) {
+    public WaitForIsLoading(@Size(max = 23) String tag, boolean targetIsLoading) {
       super(tag, "WaitForIsLoading");
       this.targetIsLoading = targetIsLoading;
     }
@@ -1080,7 +1084,7 @@ public abstract class Action {
     private final Runnable runnable;
 
     /** @param tag A tag to use for logging. */
-    public ExecuteRunnable(String tag, Runnable runnable) {
+    public ExecuteRunnable(@Size(max = 23) String tag, Runnable runnable) {
       super(tag, "ExecuteRunnable");
       this.runnable = runnable;
     }

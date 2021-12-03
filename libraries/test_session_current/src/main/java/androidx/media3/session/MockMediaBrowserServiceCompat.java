@@ -37,7 +37,8 @@ import java.util.List;
 /** Mock implementation of the media browser service. */
 @UnstableApi
 public class MockMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
-  private static final String TAG = "MockMediaBrowserServiceCompat";
+
+  private static final String TAG = "MockMBSCompat";
   private static final Object lock = new Object();
 
   @GuardedBy("lock")

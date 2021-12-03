@@ -18,6 +18,7 @@ package androidx.media3.test.utils;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.PlaybackParameters;
@@ -105,7 +106,9 @@ public final class ActionSchedule {
   /** A builder for {@link ActionSchedule} instances. */
   public static final class Builder {
 
+    @Size(max = 23)
     private final String tag;
+
     private final ActionNode rootNode;
 
     private long currentDelayMs;
@@ -754,7 +757,7 @@ public final class ActionSchedule {
   /** A no-op root action. */
   private static final class RootAction extends Action {
 
-    public RootAction(String tag) {
+    public RootAction(@Size(max = 23) String tag) {
       super(tag, "Root");
     }
 
@@ -770,7 +773,7 @@ public final class ActionSchedule {
 
     @Nullable private Callback callback;
 
-    public CallbackAction(String tag) {
+    public CallbackAction(@Size(max = 23) String tag) {
       super(tag, "FinishedCallback");
     }
 

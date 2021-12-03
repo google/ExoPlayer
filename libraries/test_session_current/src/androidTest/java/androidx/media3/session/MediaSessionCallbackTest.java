@@ -55,7 +55,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionCallbackTest {
-  private static final String TAG = "MediaSessionCallbackTest";
+
+  private static final String TAG = "MSessionCallbackTest";
 
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 

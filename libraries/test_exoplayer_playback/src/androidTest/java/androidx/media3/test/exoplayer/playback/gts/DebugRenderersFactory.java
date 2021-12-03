@@ -79,7 +79,7 @@ import java.util.ArrayList;
    */
   private static class DebugMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
 
-    private static final String TAG = "DebugMediaCodecVideoRenderer";
+    private static final String TAG = "DMCodecVideoRenderer";
     private static final int ARRAY_SIZE = 1000;
 
     private final long[] timestampsList;

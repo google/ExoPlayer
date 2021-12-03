@@ -15,6 +15,7 @@
  */
 package androidx.media3.test.exoplayer.playback.gts;
 
+import androidx.annotation.Size;
 import androidx.media3.common.util.Log;
 
 /** Implementation of {@link MetricsLogger} that prints the metrics to logcat. */
@@ -23,9 +24,10 @@ import androidx.media3.common.util.Log;
   public static final Factory FACTORY =
       (instrumentation, tag, streamName) -> new LogcatMetricsLogger(tag);
 
+  @Size(max = 23)
   private final String tag;
 
-  public LogcatMetricsLogger(String tag) {
+  public LogcatMetricsLogger(@Size(max = 23) String tag) {
     this.tag = tag;
   }
 

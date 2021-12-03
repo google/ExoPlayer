@@ -80,7 +80,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 @UnstableApi
 public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsumer {
 
-  private static final String TAG = "OutputConsumerAdapterV30";
+  private static final String TAG = "OConsumerAdapterV30";
 
   private static final Pair<MediaParser.SeekPoint, MediaParser.SeekPoint> SEEK_POINT_PAIR_START =
       Pair.create(MediaParser.SeekPoint.START, MediaParser.SeekPoint.START);

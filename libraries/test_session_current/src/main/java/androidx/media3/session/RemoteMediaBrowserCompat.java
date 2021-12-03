@@ -41,7 +41,8 @@ import java.util.concurrent.CountDownLatch;
  */
 @UnstableApi
 public class RemoteMediaBrowserCompat {
-  private static final String TAG = "RemoteMediaBrowserCompat";
+
+  private static final String TAG = "RMediaBrowserCompat";
 
   private final String browserId;
   private final Context context;

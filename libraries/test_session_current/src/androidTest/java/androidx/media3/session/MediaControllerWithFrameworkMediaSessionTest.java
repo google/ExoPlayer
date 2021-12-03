@@ -50,7 +50,8 @@ import org.junit.runner.RunWith;
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // For framework MediaSession
 public class MediaControllerWithFrameworkMediaSessionTest {
-  private static final String TAG = "MediaControllerWithFrameworkMediaSessionTest";
+
+  private static final String TAG = "MCFMediaSessionTest";
 
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 

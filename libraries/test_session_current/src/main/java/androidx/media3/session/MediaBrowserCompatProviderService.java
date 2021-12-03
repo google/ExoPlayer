@@ -46,7 +46,8 @@ import java.util.concurrent.Executor;
  */
 @UnstableApi
 public class MediaBrowserCompatProviderService extends Service {
-  private static final String TAG = "MediaBrowserCompatProviderService";
+
+  private static final String TAG = "MBCompatProviderService";
 
   Map<String, MediaBrowserCompat> mediaBrowserCompatMap = new HashMap<>();
   Map<String, TestBrowserConnectionCallback> connectionCallbackMap = new HashMap<>();

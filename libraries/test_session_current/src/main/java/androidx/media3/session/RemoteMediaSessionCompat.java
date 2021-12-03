@@ -53,7 +53,8 @@ import java.util.concurrent.CountDownLatch;
  */
 @UnstableApi
 public class RemoteMediaSessionCompat {
-  private static final String TAG = "RemoteMediaSessionCompat";
+
+  private static final String TAG = "RMediaSessionCompat";
 
   private final Context context;
   private final String sessionTag;

@@ -30,7 +30,7 @@ import org.junit.rules.ExternalResource;
 /** TestRule for managing {@link RemoteMediaController} instances. */
 public final class RemoteControllerTestRule extends ExternalResource {
 
-  private static final String TAG = "RemoteControllerTestRule";
+  private static final String TAG = "RControllerTestRule";
 
   private Context context;
   private final List<RemoteMediaController> controllers;

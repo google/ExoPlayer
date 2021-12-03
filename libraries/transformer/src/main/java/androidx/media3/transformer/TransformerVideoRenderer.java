@@ -32,7 +32,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /* package */ final class TransformerVideoRenderer extends TransformerBaseRenderer {
 
-  private static final String TAG = "TransformerTranscodingVideoRenderer";
+  private static final String TAG = "TVideoRenderer";
 
   private final Context context;
   private final DecoderInputBuffer decoderInputBuffer;

@@ -31,7 +31,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
 
-  private static final String TAG = "TransformerAudioRenderer";
+  private static final String TAG = "TAudioRenderer";
 
   private final DecoderInputBuffer decoderInputBuffer;
 

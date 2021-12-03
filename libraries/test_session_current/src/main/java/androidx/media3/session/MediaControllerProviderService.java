@@ -56,7 +56,7 @@ import java.util.concurrent.TimeoutException;
  */
 @UnstableApi
 public class MediaControllerProviderService extends Service {
-  private static final String TAG = "MediaControllerProviderService";
+  private static final String TAG = "MCProviderService";
 
   Map<String, MediaController> mediaControllerMap = new HashMap<>();
   RemoteMediaControllerStub binder;

@@ -16,12 +16,14 @@
 package androidx.media3.test.exoplayer.playback.gts;
 
 import android.app.Instrumentation;
+import androidx.annotation.Size;
 
 /** Metric logging interface for playback tests. */
 /* package */ interface MetricsLogger {
 
   interface Factory {
-    MetricsLogger create(Instrumentation instrumentation, String tag, String streamName);
+    MetricsLogger create(
+        Instrumentation instrumentation, @Size(max = 23) String tag, String streamName);
   }
 
   Factory DEFAULT_FACTORY = LogcatMetricsLogger.FACTORY;

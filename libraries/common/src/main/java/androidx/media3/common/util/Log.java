@@ -18,6 +18,7 @@ package androidx.media3.common.util;
 import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -79,7 +80,7 @@ public final class Log {
 
   /** @see android.util.Log#d(String, String) */
   @Pure
-  public static void d(String tag, String message) {
+  public static void d(@Size(max = 23) String tag, String message) {
     if (logLevel == LOG_LEVEL_ALL) {
       android.util.Log.d(tag, message);
     }
@@ -87,13 +88,13 @@ public final class Log {
 
   /** @see android.util.Log#d(String, String, Throwable) */
   @Pure
-  public static void d(String tag, String message, @Nullable Throwable throwable) {
+  public static void d(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     d(tag, appendThrowableString(message, throwable));
   }
 
   /** @see android.util.Log#i(String, String) */
   @Pure
-  public static void i(String tag, String message) {
+  public static void i(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_INFO) {
       android.util.Log.i(tag, message);
     }
@@ -101,13 +102,13 @@ public final class Log {
 
   /** @see android.util.Log#i(String, String, Throwable) */
   @Pure
-  public static void i(String tag, String message, @Nullable Throwable throwable) {
+  public static void i(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     i(tag, appendThrowableString(message, throwable));
   }
 
   /** @see android.util.Log#w(String, String) */
   @Pure
-  public static void w(String tag, String message) {
+  public static void w(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_WARNING) {
       android.util.Log.w(tag, message);
     }
@@ -115,13 +116,13 @@ public final class Log {
 
   /** @see android.util.Log#w(String, String, Throwable) */
   @Pure
-  public static void w(String tag, String message, @Nullable Throwable throwable) {
+  public static void w(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     w(tag, appendThrowableString(message, throwable));
   }
 
   /** @see android.util.Log#e(String, String) */
   @Pure
-  public static void e(String tag, String message) {
+  public static void e(@Size(max = 23) String tag, String message) {
     if (logLevel <= LOG_LEVEL_ERROR) {
       android.util.Log.e(tag, message);
     }
@@ -129,7 +130,7 @@ public final class Log {
 
   /** @see android.util.Log#e(String, String, Throwable) */
   @Pure
-  public static void e(String tag, String message, @Nullable Throwable throwable) {
+  public static void e(@Size(max = 23) String tag, String message, @Nullable Throwable throwable) {
     e(tag, appendThrowableString(message, throwable));
   }
 

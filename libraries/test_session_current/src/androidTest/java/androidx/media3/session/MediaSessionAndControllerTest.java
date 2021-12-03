@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class MediaSessionAndControllerTest {
 
-  private static final String TAG = "SessionAndControllerTest";
+  private static final String TAG = "MSessionControllerTest";
 
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 

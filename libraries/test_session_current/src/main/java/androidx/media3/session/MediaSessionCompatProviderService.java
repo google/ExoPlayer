@@ -48,7 +48,8 @@ import java.util.concurrent.Executor;
  */
 @UnstableApi
 public class MediaSessionCompatProviderService extends Service {
-  private static final String TAG = "MediaSessionCompatProviderService";
+
+  private static final String TAG = "MSCProviderService";
 
   Map<String, MediaSessionCompat> sessionMap = new HashMap<>();
   RemoteMediaSessionCompatStub sessionBinder;

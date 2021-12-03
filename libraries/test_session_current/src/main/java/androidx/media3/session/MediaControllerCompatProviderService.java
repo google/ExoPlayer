@@ -48,7 +48,7 @@ import java.util.concurrent.Executor;
  */
 @UnstableApi
 public class MediaControllerCompatProviderService extends Service {
-  private static final String TAG = "MediaControllerCompatProviderService";
+  private static final String TAG = "MCCProviderService";
 
   Map<String, MediaControllerCompat> mediaControllerCompatMap = new HashMap<>();
   RemoteMediaControllerCompatStub binder;

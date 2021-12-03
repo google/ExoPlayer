@@ -101,7 +101,8 @@ import java.util.concurrent.Callable;
  */
 @UnstableApi
 public class MediaSessionProviderService extends Service {
-  private static final String TAG = "MediaSessionProviderService";
+
+  private static final String TAG = "MSProviderService";
 
   private Map<String, MediaSession> sessionMap = new HashMap<>();
   private RemoteMediaSessionStub sessionBinder;
