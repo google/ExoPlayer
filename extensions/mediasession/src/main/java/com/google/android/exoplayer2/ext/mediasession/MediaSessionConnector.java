@@ -467,6 +467,7 @@ public final class MediaSessionConnector {
   private boolean metadataDeduplicationEnabled;
   private boolean dispatchUnsupportedActionsEnabled;
   private boolean clearMediaItemsOnStop;
+  private boolean mapIdleToStopped;
 
   /**
    * Creates an instance.
@@ -707,6 +708,15 @@ public final class MediaSessionConnector {
    */
   public void setClearMediaItemsOnStop(boolean clearMediaItemsOnStop) {
     this.clearMediaItemsOnStop = clearMediaItemsOnStop;
+  }
+
+  /**
+   * Sets whether {@link Player#STATE_IDLE} should be mapped to {@link
+   * PlaybackStateCompat#STATE_STOPPED}. The default is false {@link Player#STATE_IDLE} which maps
+   * to {@link PlaybackStateCompat#STATE_NONE}.
+   */
+  public void setMapStateIdleToSessionStateStopped(boolean mapIdleToStopped) {
+    this.mapIdleToStopped = mapIdleToStopped;
   }
 
   /**
@@ -984,7 +994,7 @@ public final class MediaSessionConnector {
     player.seekTo(mediaItemIndex, positionMs);
   }
 
-  private static int getMediaSessionPlaybackState(
+  private int getMediaSessionPlaybackState(
       @Player.State int exoPlayerPlaybackState, boolean playWhenReady) {
     switch (exoPlayerPlaybackState) {
       case Player.STATE_BUFFERING:
@@ -997,7 +1007,9 @@ public final class MediaSessionConnector {
         return PlaybackStateCompat.STATE_STOPPED;
       case Player.STATE_IDLE:
       default:
-        return PlaybackStateCompat.STATE_NONE;
+        return mapIdleToStopped
+            ? PlaybackStateCompat.STATE_STOPPED
+            : PlaybackStateCompat.STATE_NONE;
     }
   }
 
