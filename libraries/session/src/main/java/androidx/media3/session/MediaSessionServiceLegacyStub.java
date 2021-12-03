@@ -15,6 +15,9 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Util.postOrRun;
+
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -22,14 +25,19 @@ import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
+import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Implementation of {@link MediaBrowserServiceCompat} for interoperability between {@link
  * MediaLibraryService} and {@link android.support.v4.media.MediaBrowserCompat}.
  */
 /* package */ class MediaSessionServiceLegacyStub extends MediaBrowserServiceCompat {
+
+  private static final String TAG = "MSSLegacyStub";
 
   private final MediaSessionManager manager;
   private final MediaSession.MediaSessionImpl sessionImpl;
@@ -55,19 +63,30 @@ import java.util.List;
       String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
     RemoteUserInfo info = getCurrentBrowserInfo();
     MediaSession.ControllerInfo controller = createControllerInfo(info);
-    // Call onConnect() directly instead of posting to the application thread not to block the main
-    // thread as MediaBrowserServiceCompat requires to return browser root here.
-    // onConnect() has documentation that it may be called on the main thread.
-    MediaSession.ConnectionResult connectionResult =
-        sessionImpl.getCallback().onConnect(sessionImpl.getInstance(), controller);
-    if (!connectionResult.isAccepted) {
+
+    AtomicReference<MediaSession.ConnectionResult> resultReference = new AtomicReference<>();
+    ConditionVariable haveResult = new ConditionVariable();
+    postOrRun(
+        sessionImpl.getApplicationHandler(),
+        () -> {
+          resultReference.set(
+              checkNotNull(
+                  sessionImpl.getCallback().onConnect(sessionImpl.getInstance(), controller),
+                  "onConnect must return non-null future"));
+          haveResult.open();
+        });
+    try {
+      haveResult.block();
+    } catch (InterruptedException e) {
+      Log.e(TAG, "Couldn't get a result from onConnect", e);
+      return null;
+    }
+    MediaSession.ConnectionResult result = resultReference.get();
+    if (!result.isAccepted) {
       return null;
     }
     connectedControllersManager.addController(
-        info,
-        controller,
-        connectionResult.availableSessionCommands,
-        connectionResult.availablePlayerCommands);
+        info, controller, result.availableSessionCommands, result.availablePlayerCommands);
     // No library root, but keep browser compat connected to allow getting session.
     return MediaUtils.defaultBrowserRoot;
   }

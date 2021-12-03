@@ -792,8 +792,10 @@ public class MediaSession {
      * #sendCustomCommand}, {@link #setCustomLayout}) will be ignored. Use {@link #onPostConnect}
      * for custom initialization of the controller instead.
      *
-     * <p>Interoperability: this callback may be called on the main thread, regardless of the
-     * application thread.
+     * <p>Interoperability: If a legacy controller is connecting to the session then this callback
+     * may block the main thread, even if it's called on a different application thread. If it's
+     * possible that legacy controllers will connect to the session, you should ensure that the
+     * callback returns quickly to avoid blocking the main thread for a long period of time.
      *
      * @param session The session for this event.
      * @param controller The controller information.

@@ -35,6 +35,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Implementation of {@link MediaBrowserServiceCompat} for interoperability between {@link
@@ -89,22 +91,24 @@ import java.util.concurrent.Future;
     @Nullable
     LibraryParams params =
         MediaUtils.convertToLibraryParams(librarySessionImpl.getContext(), rootHints);
-    // Call onGetLibraryRoot() directly instead of posting to the application thread not to block
-    // the main thread as MediaBrowserServiceCompat requires to return browser root here.
-    // onGetLibraryRoot() has documentation that it may be called on the main thread.
-    ListenableFuture<LibraryResult<MediaItem>> future =
-        checkNotNull(
-            librarySessionImpl
-                .getCallback()
-                .onGetLibraryRoot(librarySessionImpl.getInstance(), controller, params),
-            "onGetLibraryRoot must return non-null future");
-    if (!future.isDone()) {
-      throw new RuntimeException(
-          "onGetLibraryRoot must return a completed future " + "for legacy MediaBrowserCompat");
-    }
+    AtomicReference<ListenableFuture<LibraryResult<MediaItem>>> futureReference =
+        new AtomicReference<>();
+    ConditionVariable haveFuture = new ConditionVariable();
+    postOrRun(
+        librarySessionImpl.getApplicationHandler(),
+        () -> {
+          futureReference.set(
+              checkNotNull(
+                  librarySessionImpl
+                      .getCallback()
+                      .onGetLibraryRoot(librarySessionImpl.getInstance(), controller, params),
+                  "onGetLibraryRoot must return non-null future"));
+          haveFuture.open();
+        });
     @Nullable LibraryResult<MediaItem> result = null;
     try {
-      result = checkNotNull(future.get(), "LibraryResult must not be null");
+      haveFuture.block();
+      result = checkNotNull(futureReference.get().get(), "LibraryResult must not be null");
     } catch (CancellationException | ExecutionException | InterruptedException e) {
       Log.e(TAG, "Couldn't get a result from onGetLibraryRoot", e);
     }

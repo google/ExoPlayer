@@ -148,10 +148,12 @@ public abstract class MediaLibraryService extends MediaSessionService {
        * MediaItem#mediaId}. The media id is required for the browser to get the children under the
        * root.
        *
-       * <p>Interoperability: This method may be called on the main thread regardless of the
-       * application thread if legacy {@link android.support.v4.media.MediaBrowserCompat} requested
-       * a {@link androidx.media.MediaBrowserServiceCompat.BrowserRoot}. In this case, you must
-       * return a completed future.
+       * <p>Interoperability: If this callback is called because a legacy {@link
+       * android.support.v4.media.MediaBrowserCompat} has requested a {@link
+       * androidx.media.MediaBrowserServiceCompat.BrowserRoot}, then the main thread may be blocked
+       * until the returned future is done. If your service may be queried by a legacy {@link
+       * android.support.v4.media.MediaBrowserCompat}, you should ensure that the future completes
+       * quickly to avoid blocking the main thread for a long period of time.
        *
        * @param session The session for this event.
        * @param browser The browser information.
