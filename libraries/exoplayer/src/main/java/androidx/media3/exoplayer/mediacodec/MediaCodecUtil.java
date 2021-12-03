@@ -514,8 +514,10 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // MTK E-AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType) && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
+    // MTK AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
+    if (Util.SDK_INT <= 23
+        && MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)
+        && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
       return false;
     }
 
