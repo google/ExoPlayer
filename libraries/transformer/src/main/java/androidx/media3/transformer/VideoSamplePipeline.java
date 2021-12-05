@@ -80,8 +80,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throw createRendererException(
           e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
-    if (inputFormat.height != transformation.outputHeight
-        || !transformation.transformationMatrix.isIdentity()) {
+    if (inputFormat.height != outputHeight || !transformation.transformationMatrix.isIdentity()) {
       frameEditor =
           FrameEditor.create(
               context,
