@@ -17,19 +17,35 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.postOrRun;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Binder;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.RemoteException;
+import android.view.KeyEvent;
 import androidx.annotation.CallSuper;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
+import androidx.media.MediaSessionManager;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Superclass to be extended by services hosting {@link MediaSession media sessions}.
@@ -111,18 +127,25 @@ public abstract class MediaSessionService extends Service {
   /** The action for {@link Intent} filter that must be declared by the service. */
   public static final String SERVICE_INTERFACE = "androidx.media3.session.MediaSessionService";
 
-  private final MediaSessionServiceImpl impl;
+  private static final String TAG = "MSSImpl";
+
+  private final Object lock;
+
+  @GuardedBy("lock")
+  private final Map<String, MediaSession> sessions;
+
+  @GuardedBy("lock")
+  @Nullable
+  private MediaSessionServiceStub stub;
+
+  @GuardedBy("lock")
+  @Nullable
+  private MediaNotificationHandler notificationHandler;
 
   /** Creates a service. */
-  @SuppressWarnings("nullness:method.invocation") // createImpl() under initialization
   public MediaSessionService() {
-    super();
-    // Note: This service doesn't have valid context at this moment.
-    impl = createImpl();
-  }
-
-  /* package */ MediaSessionServiceImpl createImpl() {
-    return new androidx.media3.session.MediaSessionServiceImpl();
+    lock = new Object();
+    sessions = new ArrayMap<>();
   }
 
   /**
@@ -134,7 +157,10 @@ public abstract class MediaSessionService extends Service {
   @Override
   public void onCreate() {
     super.onCreate();
-    impl.onCreate(this);
+    synchronized (lock) {
+      stub = new MediaSessionServiceStub(this);
+      notificationHandler = new MediaNotificationHandler(this);
+    }
   }
 
   /**
@@ -186,7 +212,32 @@ public abstract class MediaSessionService extends Service {
   public final void addSession(MediaSession session) {
     checkNotNull(session, "session must not be null");
     checkArgument(!session.isReleased(), "session is already released");
-    impl.addSession(session);
+    @Nullable MediaSession old;
+    synchronized (lock) {
+      old = sessions.get(session.getId());
+      checkArgument(old == null || old == session, "Session ID should be unique");
+      sessions.put(session.getId(), session);
+    }
+    if (old == null) {
+      // Session has returned for the first time. Register callbacks.
+      // TODO(b/191644474): Check whether the session is registered to multiple services.
+      MediaNotificationHandler handler;
+      synchronized (lock) {
+        handler = checkStateNotNull(notificationHandler);
+      }
+      postOrRun(
+          session.getImpl().getApplicationHandler(),
+          () -> {
+            handler.onPlayerInfoChanged(
+                session,
+                /* oldPlayerInfo= */ PlayerInfo.DEFAULT,
+                /* newPlayerInfo= */ session
+                    .getImpl()
+                    .getPlayerWrapper()
+                    .createPlayerInfoForBundling());
+            session.setForegroundServiceEventCallback(handler);
+          });
+    }
   }
 
   /**
@@ -199,7 +250,11 @@ public abstract class MediaSessionService extends Service {
    */
   public final void removeSession(MediaSession session) {
     checkNotNull(session, "session must not be null");
-    impl.removeSession(session);
+    synchronized (lock) {
+      sessions.remove(session.getId());
+    }
+    postOrRun(
+        session.getImpl().getApplicationHandler(), session::clearForegroundServiceEventCallback);
   }
 
   /**
@@ -222,7 +277,11 @@ public abstract class MediaSessionService extends Service {
   @Nullable
   public MediaNotification onUpdateNotification(MediaSession session) {
     checkNotNull(session, "session must not be null");
-    return impl.onUpdateNotification(session);
+    MediaNotificationHandler handler;
+    synchronized (lock) {
+      handler = checkStateNotNull(notificationHandler, "Service hasn't created");
+    }
+    return handler.onUpdateNotification(session);
   }
 
   /**
@@ -230,7 +289,9 @@ public abstract class MediaSessionService extends Service {
    * #addSession} or {@link #onGetSession(ControllerInfo)}.
    */
   public final List<MediaSession> getSessions() {
-    return impl.getSessions();
+    synchronized (lock) {
+      return new ArrayList<>(sessions.values());
+    }
   }
 
   /**
@@ -245,7 +306,36 @@ public abstract class MediaSessionService extends Service {
   @Override
   @Nullable
   public IBinder onBind(@Nullable Intent intent) {
-    return impl.onBind(intent);
+    if (intent == null) {
+      return null;
+    }
+    @Nullable String action = intent.getAction();
+    if (action == null) {
+      return null;
+    }
+    switch (action) {
+      case MediaSessionService.SERVICE_INTERFACE:
+        return getServiceBinder();
+      case MediaBrowserServiceCompat.SERVICE_INTERFACE:
+        {
+          ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
+          @Nullable MediaSession session = onGetSession(controllerInfo);
+          if (session == null) {
+            // Legacy MediaBrowser(Compat) cannot connect to this service.
+            return null;
+          }
+          addSession(session);
+          // Return a specific session's legacy binder although the Android framework caches
+          // the returned binder here and next binding request may reuse cached binder even
+          // after the session is closed.
+          // Disclaimer: Although MediaBrowserCompat can only get the session that initially
+          // set, it doesn't make things bad. Such limitation had been there between
+          // MediaBrowserCompat and MediaBrowserServiceCompat.
+          return session.getLegacyBrowserServiceBinder();
+        }
+      default:
+        return null;
+    }
   }
 
   /**
@@ -258,7 +348,25 @@ public abstract class MediaSessionService extends Service {
   @CallSuper
   @Override
   public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
-    return impl.onStartCommand(intent, flags, startId);
+    if (intent == null) {
+      return START_STICKY;
+    }
+    if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+      @Nullable Uri uri = intent.getData();
+      @Nullable MediaSession session = uri != null ? MediaSession.getSession(uri) : null;
+      if (session == null) {
+        ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
+        session = onGetSession(controllerInfo);
+      }
+      if (session == null) {
+        return START_STICKY;
+      }
+      KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+      if (keyEvent != null) {
+        session.getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+      }
+    }
+    return START_STICKY;
   }
 
   /**
@@ -270,7 +378,18 @@ public abstract class MediaSessionService extends Service {
   @Override
   public void onDestroy() {
     super.onDestroy();
-    impl.onDestroy();
+    synchronized (lock) {
+      if (stub != null) {
+        stub.release();
+        stub = null;
+      }
+    }
+  }
+
+  /* package */ IBinder getServiceBinder() {
+    synchronized (lock) {
+      return checkStateNotNull(stub).asBinder();
+    }
   }
 
   /** A notification for media playback returned by {@link #onUpdateNotification(MediaSession)}. */
@@ -296,6 +415,107 @@ public abstract class MediaSessionService extends Service {
     public MediaNotification(@IntRange(from = 1) int notificationId, Notification notification) {
       this.notificationId = notificationId;
       this.notification = checkNotNull(notification);
+    }
+  }
+
+  private static final class MediaSessionServiceStub extends IMediaSessionService.Stub {
+
+    private final WeakReference<MediaSessionService> serviceReference;
+    private final Handler handler;
+    private final MediaSessionManager mediaSessionManager;
+
+    public MediaSessionServiceStub(MediaSessionService serviceReference) {
+      this.serviceReference = new WeakReference<>(serviceReference);
+      Context context = serviceReference.getApplicationContext();
+      handler = new Handler(context.getMainLooper());
+      mediaSessionManager = MediaSessionManager.getSessionManager(context);
+    }
+
+    @Override
+    public void connect(
+        @Nullable IMediaController caller, @Nullable Bundle connectionRequestBundle) {
+      if (caller == null || connectionRequestBundle == null) {
+        return;
+      }
+      if (serviceReference.get() == null) {
+        return;
+      }
+      ConnectionRequest request;
+      try {
+        request = ConnectionRequest.CREATOR.fromBundle(connectionRequestBundle);
+      } catch (RuntimeException e) {
+        Log.w(TAG, "Ignoring malformed Bundle for ConnectionRequest", e);
+        return;
+      }
+      int callingPid = Binder.getCallingPid();
+      int uid = Binder.getCallingUid();
+      long token = Binder.clearCallingIdentity();
+      int pid = (callingPid != 0) ? callingPid : request.pid;
+      MediaSessionManager.RemoteUserInfo remoteUserInfo =
+          new MediaSessionManager.RemoteUserInfo(request.packageName, pid, uid);
+      boolean isTrusted = mediaSessionManager.isTrustedForMediaControl(remoteUserInfo);
+      try {
+        handler.post(
+            () -> {
+              boolean shouldNotifyDisconnected = true;
+              try {
+                @Nullable MediaSessionService service = serviceReference.get();
+                if (service == null) {
+                  return;
+                }
+                if (service == null) {
+                  return;
+                }
+
+                ControllerInfo controllerInfo =
+                    new ControllerInfo(
+                        remoteUserInfo,
+                        /* controllerVersion= */ request.version,
+                        isTrusted,
+                        /* controllerCb= */ null,
+                        request.connectionHints);
+
+                @Nullable MediaSession session;
+                try {
+                  session = service.onGetSession(controllerInfo);
+                  if (session == null) {
+                    return;
+                  }
+
+                  service.addSession(session);
+                  shouldNotifyDisconnected = false;
+
+                  session.handleControllerConnectionFromService(
+                      caller,
+                      request.version,
+                      request.packageName,
+                      pid,
+                      uid,
+                      request.connectionHints);
+                } catch (Exception e) {
+                  // Don't propagate exception in service to the controller.
+                  Log.w(TAG, "Failed to add a session to session service", e);
+                }
+              } finally {
+                // Trick to call onDisconnected() in one place.
+                if (shouldNotifyDisconnected) {
+                  try {
+                    caller.onDisconnected(/* seq= */ 0);
+                  } catch (RemoteException e) {
+                    // Controller may be died prematurely.
+                    // Not an issue because we'll ignore it anyway.
+                  }
+                }
+              }
+            });
+      } finally {
+        Binder.restoreCallingIdentity(token);
+      }
+    }
+
+    public void release() {
+      serviceReference.clear();
+      handler.removeCallbacksAndMessages(null);
     }
   }
 }

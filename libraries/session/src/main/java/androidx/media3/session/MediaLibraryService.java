@@ -685,13 +685,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
   }
 
   @Override
-  /* package */ MediaSessionServiceImpl createImpl() {
-    return new MediaLibraryServiceImpl();
-  }
-
-  @Override
   @Nullable
   public IBinder onBind(@Nullable Intent intent) {
+    if (intent == null) {
+      return null;
+    }
+    if (MediaLibraryService.SERVICE_INTERFACE.equals(intent.getAction())) {
+      return getServiceBinder();
+    }
     return super.onBind(intent);
   }
 
