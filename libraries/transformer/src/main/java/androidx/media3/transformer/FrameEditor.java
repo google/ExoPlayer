@@ -100,7 +100,7 @@ import java.io.IOException;
    * Returns a 4x4, column-major Matrix float array, from an input {@link Matrix}. This is useful
    * for converting to the 4x4 column-major format commonly used in OpenGL.
    */
-  private static final float[] getGlMatrixArray(Matrix matrix) {
+  private static float[] getGlMatrixArray(Matrix matrix) {
     float[] matrix3x3Array = new float[9];
     matrix.getValues(matrix3x3Array);
     float[] matrix4x4Array = getMatrix4x4Array(matrix3x3Array);
@@ -123,7 +123,7 @@ import java.io.IOException;
    * Input format: [a, b, c, d, e, f, g, h, i] <br>
    * Output format: [a, b, 0, c, d, e, 0, f, 0, 0, 1, 0, g, h, 0, i]
    */
-  private static final float[] getMatrix4x4Array(float[] matrix3x3Array) {
+  private static float[] getMatrix4x4Array(float[] matrix3x3Array) {
     float[] matrix4x4Array = new float[16];
     matrix4x4Array[10] = 1;
     for (int inputRow = 0; inputRow < 3; inputRow++) {

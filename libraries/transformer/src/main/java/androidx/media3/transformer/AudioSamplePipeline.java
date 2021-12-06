@@ -98,12 +98,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public void release() {
-    sonicAudioProcessor.reset();
-    decoder.release();
-    if (encoder != null) {
-      encoder.release();
-    }
+  @Nullable
+  public DecoderInputBuffer dequeueInputBuffer() {
+    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
+  }
+
+  @Override
+  public void queueInputBuffer() {
+    decoder.queueInputBuffer(decoderInputBuffer);
   }
 
   @Override
@@ -120,24 +122,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
-    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
-  }
-
-  @Override
-  public void queueInputBuffer() {
-    decoder.queueInputBuffer(decoderInputBuffer);
-  }
-
-  @Override
-  @Nullable
   public Format getOutputFormat() {
     return encoder != null ? encoder.getOutputFormat() : null;
-  }
-
-  @Override
-  public boolean isEnded() {
-    return encoder != null && encoder.isEnded();
   }
 
   @Override
@@ -157,6 +143,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void releaseOutputBuffer() {
     checkStateNotNull(encoder).releaseOutputBuffer();
+  }
+
+  @Override
+  public boolean isEnded() {
+    return encoder != null && encoder.isEnded();
+  }
+
+  @Override
+  public void release() {
+    sonicAudioProcessor.reset();
+    decoder.release();
+    if (encoder != null) {
+      encoder.release();
+    }
   }
 
   /**
