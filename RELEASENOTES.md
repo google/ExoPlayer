@@ -24,6 +24,11 @@
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).
+*   Text:
+    *   Add a `MediaItem.SubtitleConfiguration#id` field which is propagated to
+        the `Format#id` field of the subtitle track created from the
+        configuration
+        ((#9673)[https://github.com/google/ExoPlayer/issues/9673]).
 *   DRM:
     *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
         When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
