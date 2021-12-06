@@ -406,6 +406,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                   .setSelectionFlags(subtitleConfigurations.get(i).selectionFlags)
                   .setRoleFlags(subtitleConfigurations.get(i).roleFlags)
                   .setLabel(subtitleConfigurations.get(i).label)
+                  .setId(subtitleConfigurations.get(i).id)
                   .build();
           ExtractorsFactory extractorsFactory =
               () ->
