@@ -33,7 +33,6 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -157,7 +156,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // reused for the empty end-of-stream buffer.
     buffer.timeUs = getCurrentFrameOutputTimeUs(/* inputTimeUs= */ buffer.timeUs);
     if (shouldKeepFrame) {
-      skipToNextNalUnit(data); // Skip over prefix_nal_unit_svc.
+      data.position(originalPosition);
       return false;
     }
     return true;
@@ -259,25 +258,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           (inputTimeUs - currentSegmentInfo.startTimeUs) * (currentSegmentInfo.speedDivisor - 1);
     }
     return Math.round(outputTimeUs * INPUT_FRAME_RATE / captureFrameRate);
-  }
-
-  /**
-   * Advances the position of {@code data} to the start of the next NAL unit.
-   *
-   * @throws IllegalStateException If no NAL unit is found.
-   */
-  private void skipToNextNalUnit(ByteBuffer data) {
-    int newPosition = data.position();
-    while (data.remaining() >= NAL_START_CODE_LENGTH) {
-      data.get(scratch, 0, NAL_START_CODE_LENGTH);
-      if (Arrays.equals(scratch, NAL_START_CODE)) {
-        data.position(newPosition);
-        return;
-      }
-      newPosition++;
-      data.position(newPosition);
-    }
-    throw new IllegalStateException("Could not find NAL unit start code.");
   }
 
   /** Returns the {@link MetadataInfo} derived from the {@link Metadata} provided. */
