@@ -41,7 +41,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
   void queueInputBuffer();
 
   /**
-   * Process the input data and returns whether more data can be processed by calling this method
+   * Processes the input data and returns whether more data can be processed by calling this method
    * again.
    */
   boolean processData() throws ExoPlaybackException;

@@ -103,6 +103,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
+  @Nullable
+  public DecoderInputBuffer dequeueInputBuffer() {
+    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
+  }
+
+  @Override
+  public void queueInputBuffer() {
+    decoder.queueInputBuffer(decoderInputBuffer);
+  }
+
+  @Override
   public boolean processData() {
     if (decoder.isEnded()) {
       return false;
@@ -133,24 +144,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
-    return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
-  }
-
-  @Override
-  public void queueInputBuffer() {
-    decoder.queueInputBuffer(decoderInputBuffer);
-  }
-
-  @Override
-  @Nullable
   public Format getOutputFormat() {
     return encoder.getOutputFormat();
-  }
-
-  @Override
-  public boolean isEnded() {
-    return encoder.isEnded();
   }
 
   @Override
@@ -169,6 +164,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void releaseOutputBuffer() {
     encoder.releaseOutputBuffer();
+  }
+
+  @Override
+  public boolean isEnded() {
+    return encoder.isEnded();
   }
 
   @Override

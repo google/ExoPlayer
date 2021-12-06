@@ -60,17 +60,23 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    boolean shouldChangeMimeType =
-        transformation.audioMimeType != null
-            && !transformation.audioMimeType.equals(inputFormat.sampleMimeType);
-    boolean shouldFlattenForSlowMotion =
-        transformation.flattenForSlowMotion && isSlowMotion(inputFormat);
-    if (shouldChangeMimeType || shouldFlattenForSlowMotion) {
+    if (shouldTranscode(inputFormat)) {
       samplePipeline = new AudioSamplePipeline(inputFormat, transformation, getIndex());
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
     return true;
+  }
+
+  private boolean shouldTranscode(Format inputFormat) {
+    if (transformation.audioMimeType != null
+        && !transformation.audioMimeType.equals(inputFormat.sampleMimeType)) {
+      return true;
+    }
+    if (transformation.flattenForSlowMotion && isSlowMotion(inputFormat)) {
+      return true;
+    }
+    return false;
   }
 
   private static boolean isSlowMotion(Format format) {
