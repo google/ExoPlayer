@@ -105,7 +105,7 @@ public final class GlUtil {
       // Link and use the program, and enumerate attributes/uniforms.
       GLES20.glLinkProgram(programId);
       int[] linkStatus = new int[] {GLES20.GL_FALSE};
-      GLES20.glGetProgramiv(programId, GLES20.GL_LINK_STATUS, linkStatus, 0);
+      GLES20.glGetProgramiv(programId, GLES20.GL_LINK_STATUS, linkStatus, /* offset= */ 0);
       if (linkStatus[0] != GLES20.GL_TRUE) {
         throwGlException(
             "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(programId));
@@ -113,7 +113,8 @@ public final class GlUtil {
       GLES20.glUseProgram(programId);
       attributeByName = new HashMap<>();
       int[] attributeCount = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, 0);
+      GLES20.glGetProgramiv(
+          programId, GLES20.GL_ACTIVE_ATTRIBUTES, attributeCount, /* offset= */ 0);
       attributes = new Attribute[attributeCount[0]];
       for (int i = 0; i < attributeCount[0]; i++) {
         Attribute attribute = Attribute.create(programId, i);
@@ -122,7 +123,7 @@ public final class GlUtil {
       }
       uniformByName = new HashMap<>();
       int[] uniformCount = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORMS, uniformCount, 0);
+      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORMS, uniformCount, /* offset= */ 0);
       uniforms = new Uniform[uniformCount[0]];
       for (int i = 0; i < uniformCount[0]; i++) {
         Uniform uniform = Uniform.create(programId, i);
@@ -290,11 +291,11 @@ public final class GlUtil {
     int lastError = GLES20.GL_NO_ERROR;
     int error;
     while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-      Log.e(TAG, "glError " + gluErrorString(error));
+      Log.e(TAG, "glError: " + gluErrorString(error));
       lastError = error;
     }
     if (lastError != GLES20.GL_NO_ERROR) {
-      throwGlException("glError " + gluErrorString(lastError));
+      throwGlException("glError: " + gluErrorString(lastError));
     }
   }
 
@@ -315,7 +316,7 @@ public final class GlUtil {
    */
   public static void deleteTexture(int textureId) {
     int[] textures = new int[] {textureId};
-    GLES20.glDeleteTextures(1, textures, 0);
+    GLES20.glDeleteTextures(/* n= */ 1, textures, /* offset= */ 0);
     checkGlError();
   }
 
@@ -372,7 +373,7 @@ public final class GlUtil {
    */
   public static int createExternalTexture() {
     int[] texId = new int[1];
-    GLES20.glGenTextures(1, IntBuffer.wrap(texId));
+    GLES20.glGenTextures(/* n= */ 1, IntBuffer.wrap(texId));
     GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId[0]);
     GLES20.glTexParameteri(
         GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
@@ -392,7 +393,7 @@ public final class GlUtil {
     GLES20.glCompileShader(shader);
 
     int[] result = new int[] {GLES20.GL_FALSE};
-    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
+    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, /* offset= */ 0);
     if (result[0] != GLES20.GL_TRUE) {
       throwGlException(GLES20.glGetShaderInfoLog(shader) + ", source: " + glsl);
     }
@@ -441,7 +442,8 @@ public final class GlUtil {
     /* Returns the attribute at the given index in the program. */
     public static Attribute create(int programId, int index) {
       int[] length = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, 0);
+      GLES20.glGetProgramiv(
+          programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, /* offset= */ 0);
 
       int[] type = new int[1];
       int[] size = new int[1];
@@ -449,8 +451,18 @@ public final class GlUtil {
       int[] ignore = new int[1];
 
       GLES20.glGetActiveAttrib(
-          programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
-      String name = new String(nameBytes, 0, strlen(nameBytes));
+          programId,
+          index,
+          length[0],
+          ignore,
+          /* lengthOffset= */ 0,
+          size,
+          /* sizeOffset= */ 0,
+          type,
+          /* typeOffset= */ 0,
+          nameBytes,
+          /* nameOffset= */ 0);
+      String name = new String(nameBytes, /* offset= */ 0, strlen(nameBytes));
       int location = getAttributeLocation(programId, name);
 
       return new Attribute(name, index, location);
@@ -490,14 +502,9 @@ public final class GlUtil {
      */
     public void bind() {
       Buffer buffer = checkNotNull(this.buffer, "call setBuffer before bind");
-      GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+      GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, /* buffer= */ 0);
       GLES20.glVertexAttribPointer(
-          location,
-          size, // count
-          GLES20.GL_FLOAT, // type
-          false, // normalize
-          0, // stride
-          buffer);
+          location, size, GLES20.GL_FLOAT, /* normalized= */ false, /* stride= */ 0, buffer);
       GLES20.glEnableVertexAttribArray(index);
       checkGlError();
     }
@@ -511,7 +518,8 @@ public final class GlUtil {
     /** Returns the uniform at the given index in the program. */
     public static Uniform create(int programId, int index) {
       int[] length = new int[1];
-      GLES20.glGetProgramiv(programId, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, length, 0);
+      GLES20.glGetProgramiv(
+          programId, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, length, /* offset= */ 0);
 
       int[] type = new int[1];
       int[] size = new int[1];
@@ -519,8 +527,18 @@ public final class GlUtil {
       int[] ignore = new int[1];
 
       GLES20.glGetActiveUniform(
-          programId, index, length[0], ignore, 0, size, 0, type, 0, nameBytes, 0);
-      String name = new String(nameBytes, 0, strlen(nameBytes));
+          programId,
+          index,
+          length[0],
+          ignore,
+          /* lengthOffset= */ 0,
+          size,
+          /*sizeOffset= */ 0,
+          type,
+          /* typeOffset= */ 0,
+          nameBytes,
+          /* nameOffset= */ 0);
+      String name = new String(nameBytes, /* offset= */ 0, strlen(nameBytes));
       int location = getUniformLocation(programId, name);
 
       return new Uniform(name, location, type[0]);
@@ -561,7 +579,7 @@ public final class GlUtil {
 
     /** Configures {@link #bind()} to use the specified float[] {@code value} for this uniform. */
     public void setFloats(float[] value) {
-      System.arraycopy(value, 0, this.value, 0, value.length);
+      System.arraycopy(value, /* srcPos= */ 0, this.value, /* destPos= */ 0, value.length);
     }
 
     /**
@@ -572,19 +590,20 @@ public final class GlUtil {
      */
     public void bind() {
       if (type == GLES20.GL_FLOAT) {
-        GLES20.glUniform1fv(location, 1, value, 0);
+        GLES20.glUniform1fv(location, /* count= */ 1, value, /* offset= */ 0);
         checkGlError();
         return;
       }
 
       if (type == GLES20.GL_FLOAT_MAT4) {
-        GLES20.glUniformMatrix4fv(location, 1, false, value, 0);
+        GLES20.glUniformMatrix4fv(
+            location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
         checkGlError();
         return;
       }
 
       if (texId == 0) {
-        throw new IllegalStateException("Call setSamplerTexId before bind.");
+        throw new IllegalStateException("No call to setSamplerTexId() before bind.");
       }
       GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
       if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES) {
@@ -615,7 +634,8 @@ public final class GlUtil {
       checkEglException(!eglDisplay.equals(EGL14.EGL_NO_DISPLAY), "No EGL display.");
       int[] major = new int[1];
       int[] minor = new int[1];
-      if (!EGL14.eglInitialize(eglDisplay, major, 0, minor, 0)) {
+      if (!EGL14.eglInitialize(
+          eglDisplay, major, /* majorOffset= */ 0, minor, /* minorOffset= */ 0)) {
         throwGlException("Error in eglInitialize.");
       }
       checkGlError();
@@ -628,7 +648,11 @@ public final class GlUtil {
       int[] contextAttributes = {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
       EGLContext eglContext =
           EGL14.eglCreateContext(
-              eglDisplay, getEglConfig(eglDisplay), EGL14.EGL_NO_CONTEXT, contextAttributes, 0);
+              eglDisplay,
+              getEglConfig(eglDisplay),
+              EGL14.EGL_NO_CONTEXT,
+              contextAttributes,
+              /* offset= */ 0);
       if (eglContext == null) {
         EGL14.eglTerminate(eglDisplay);
         throw new UnsupportedEglVersionException();
@@ -640,20 +664,24 @@ public final class GlUtil {
     @DoNotInline
     public static EGLSurface getEglSurface(EGLDisplay eglDisplay, Object surface) {
       return EGL14.eglCreateWindowSurface(
-          eglDisplay, getEglConfig(eglDisplay), surface, new int[] {EGL14.EGL_NONE}, 0);
+          eglDisplay,
+          getEglConfig(eglDisplay),
+          surface,
+          new int[] {EGL14.EGL_NONE},
+          /* offset= */ 0);
     }
 
     @DoNotInline
     public static void focusSurface(
         EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface surface, int width, int height) {
       int[] fbos = new int[1];
-      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, fbos, 0);
+      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, fbos, /* offset= */ 0);
       int noFbo = 0;
       if (fbos[0] != noFbo) {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, noFbo);
       }
       EGL14.eglMakeCurrent(eglDisplay, surface, surface, eglContext);
-      GLES20.glViewport(0, 0, width, height);
+      GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
     }
 
     @DoNotInline
@@ -701,7 +729,14 @@ public final class GlUtil {
       int[] configsCount = new int[1];
       EGLConfig[] eglConfigs = new EGLConfig[1];
       if (!EGL14.eglChooseConfig(
-          eglDisplay, defaultConfiguration, 0, eglConfigs, 0, 1, configsCount, 0)) {
+          eglDisplay,
+          defaultConfiguration,
+          /* attrib_listOffset= */ 0,
+          eglConfigs,
+          /* configsOffset= */ 0,
+          /* config_size= */ 1,
+          configsCount,
+          /* num_configOffset= */ 0)) {
         throwGlException("eglChooseConfig failed.");
       }
       return eglConfigs[0];
