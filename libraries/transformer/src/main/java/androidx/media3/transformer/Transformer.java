@@ -237,7 +237,7 @@ public final class Transformer {
      * Sets the output resolution using the output height. The default value is the same height as
      * the input. Output width will scale to preserve the input video's aspect ratio.
      *
-     * <p>For now, only "popular" heights like 240, 360, 480, 720, 1080, 1440, or 2160 are
+     * <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
      * supported, to ensure compatibility on different devices.
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
@@ -249,7 +249,8 @@ public final class Transformer {
       // TODO(Internal b/201293185): Restructure to input a Presentation class.
       // TODO(Internal b/201293185): Check encoder codec capabilities in order to allow arbitrary
       // resolutions and reasonable fallbacks.
-      if (outputHeight != 240
+      if (outputHeight != 144
+          && outputHeight != 240
           && outputHeight != 360
           && outputHeight != 480
           && outputHeight != 720
@@ -257,7 +258,7 @@ public final class Transformer {
           && outputHeight != 1440
           && outputHeight != 2160) {
         throw new IllegalArgumentException(
-            "Please use a height of 240, 360, 480, 720, 1080, 1440, or 2160.");
+            "Please use a height of 144, 240, 360, 480, 720, 1080, 1440, or 2160.");
       }
       this.outputHeight = outputHeight;
       return this;
