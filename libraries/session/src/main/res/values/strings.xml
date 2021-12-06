@@ -36,8 +36,6 @@
     <string name="exo_controls_pause_description">Pause</string>
     <!-- Description for a media control button that causes playback to be started. [CHAR LIMIT=30] -->
     <string name="exo_controls_play_description">Play</string>
-    <!-- Description for a media control button that causes playback to be stopped. [CHAR LIMIT=30] -->
-    <string name="exo_controls_stop_description">Stop</string>
     <!-- Description for a media control button that causes playback to be rewound. [CHAR LIMIT=30] -->
     <string name="exo_controls_rewind_description">Rewind</string>
     <!-- Description for a media control button that causes playback to be fast-forwarded. [CHAR LIMIT=30] -->

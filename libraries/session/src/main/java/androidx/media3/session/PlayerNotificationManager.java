@@ -134,11 +134,6 @@ import java.util.Map;
  *         <li>Corresponding setter: {@link #setUseNextActionInCompactView(boolean)}
  *         <li>Default: {@code false}
  *       </ul>
- *   <li><b>{@code useStopAction}</b> - Sets whether the stop action is used.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseStopAction(boolean)}
- *         <li>Default: {@code false}
- *       </ul>
  * </ul>
  *
  * <h2>Overriding drawables</h2>
@@ -156,7 +151,6 @@ import java.util.Map;
  *   <li><b>{@code exo_notification_fastforward}</b> - The fast forward icon.
  *   <li><b>{@code exo_notification_previous}</b> - The previous icon.
  *   <li><b>{@code exo_notification_next}</b> - The next icon.
- *   <li><b>{@code exo_notification_stop}</b> - The stop icon.
  * </ul>
  *
  * <p>Alternatively, the action icons can be set programatically by using the {@link Builder}.
@@ -320,7 +314,6 @@ public class PlayerNotificationManager {
     protected int rewindActionIconResourceId;
     protected int playActionIconResourceId;
     protected int pauseActionIconResourceId;
-    protected int stopActionIconResourceId;
     protected int fastForwardActionIconResourceId;
     protected int previousActionIconResourceId;
     protected int nextActionIconResourceId;
@@ -357,7 +350,6 @@ public class PlayerNotificationManager {
       smallIconResourceId = R.drawable.exo_notification_small_icon;
       playActionIconResourceId = R.drawable.exo_notification_play;
       pauseActionIconResourceId = R.drawable.exo_notification_pause;
-      stopActionIconResourceId = R.drawable.exo_notification_stop;
       rewindActionIconResourceId = R.drawable.exo_notification_rewind;
       fastForwardActionIconResourceId = R.drawable.exo_notification_fastforward;
       previousActionIconResourceId = R.drawable.exo_notification_previous;
@@ -468,18 +460,6 @@ public class PlayerNotificationManager {
     }
 
     /**
-     * The resource id of the drawable to be used as the icon of action {@link #ACTION_STOP}.
-     *
-     * <p>The default is {@code R.drawable#exo_notification_stop}.
-     *
-     * @return This builder.
-     */
-    public Builder setStopActionIconResourceId(int stopActionIconResourceId) {
-      this.stopActionIconResourceId = stopActionIconResourceId;
-      return this;
-    }
-
-    /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_REWIND}.
      *
      * <p>The default is {@code R.drawable#exo_notification_rewind}.
@@ -573,7 +553,6 @@ public class PlayerNotificationManager {
           smallIconResourceId,
           playActionIconResourceId,
           pauseActionIconResourceId,
-          stopActionIconResourceId,
           rewindActionIconResourceId,
           fastForwardActionIconResourceId,
           previousActionIconResourceId,
@@ -615,8 +594,6 @@ public class PlayerNotificationManager {
   public static final String ACTION_FAST_FORWARD = "androidx.media3.ui.notification.ffwd";
   /** The action which rewinds. */
   public static final String ACTION_REWIND = "androidx.media3.ui.notification.rewind";
-  /** The action which stops playback. */
-  public static final String ACTION_STOP = "androidx.media3.ui.notification.stop";
   /** The extra key of the instance id of the player notification manager. */
   public static final String EXTRA_INSTANCE_ID = "INSTANCE_ID";
   /**
@@ -694,7 +671,6 @@ public class PlayerNotificationManager {
   private boolean useRewindActionInCompactView;
   private boolean useFastForwardActionInCompactView;
   private boolean usePlayPauseActions;
-  private boolean useStopAction;
   private int badgeIconType;
   private boolean colorized;
   private int defaults;
@@ -715,7 +691,6 @@ public class PlayerNotificationManager {
       int smallIconResourceId,
       int playActionIconResourceId,
       int pauseActionIconResourceId,
-      int stopActionIconResourceId,
       int rewindActionIconResourceId,
       int fastForwardActionIconResourceId,
       int previousActionIconResourceId,
@@ -761,7 +736,6 @@ public class PlayerNotificationManager {
             instanceId,
             playActionIconResourceId,
             pauseActionIconResourceId,
-            stopActionIconResourceId,
             rewindActionIconResourceId,
             fastForwardActionIconResourceId,
             previousActionIconResourceId,
@@ -951,19 +925,6 @@ public class PlayerNotificationManager {
       this.usePlayPauseActions = usePlayPauseActions;
       invalidate();
     }
-  }
-
-  /**
-   * Sets whether the stop action should be used.
-   *
-   * @param useStopAction Whether to use the stop action.
-   */
-  public final void setUseStopAction(boolean useStopAction) {
-    if (this.useStopAction == useStopAction) {
-      return;
-    }
-    this.useStopAction = useStopAction;
-    invalidate();
   }
 
   /**
@@ -1293,9 +1254,9 @@ public class PlayerNotificationManager {
    * omitted:
    *
    * <pre>
-   *   +------------------------------------------------------------------------+
-   *   | prev | &lt;&lt; | play/pause | &gt;&gt; | next | custom actions | stop |
-   *   +------------------------------------------------------------------------+
+   *   +-----------------------------------------------------------------+
+   *   | prev | &lt;&lt; | play/pause | &gt;&gt; | next | custom actions |
+   *   +-----------------------------------------------------------------+
    * </pre>
    *
    * <p>This method can be safely overridden. However, the names must be of the playback actions
@@ -1332,9 +1293,6 @@ public class PlayerNotificationManager {
     }
     if (customActionReceiver != null) {
       stringActions.addAll(customActionReceiver.getCustomActions(player));
-    }
-    if (useStopAction) {
-      stringActions.add(ACTION_STOP);
     }
     return stringActions;
   }
@@ -1427,7 +1385,6 @@ public class PlayerNotificationManager {
       int instanceId,
       int playActionIconResourceId,
       int pauseActionIconResourceId,
-      int stopActionIconResourceId,
       int rewindActionIconResourceId,
       int fastForwardActionIconResourceId,
       int previousActionIconResourceId,
@@ -1445,12 +1402,6 @@ public class PlayerNotificationManager {
             pauseActionIconResourceId,
             context.getString(R.string.exo_controls_pause_description),
             createBroadcastIntent(ACTION_PAUSE, context, instanceId)));
-    actions.put(
-        ACTION_STOP,
-        new NotificationCompat.Action(
-            stopActionIconResourceId,
-            context.getString(R.string.exo_controls_stop_description),
-            createBroadcastIntent(ACTION_STOP, context, instanceId)));
     actions.put(
         ACTION_REWIND,
         new NotificationCompat.Action(
@@ -1546,8 +1497,6 @@ public class PlayerNotificationManager {
         player.seekForward();
       } else if (ACTION_NEXT.equals(action)) {
         player.seekToNext();
-      } else if (ACTION_STOP.equals(action)) {
-        player.stop(/* reset= */ true);
       } else if (ACTION_DISMISS.equals(action)) {
         stopNotification(/* dismissedByUser= */ true);
       } else if (action != null

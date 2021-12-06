@@ -20,6 +20,5 @@
   <drawable name="exo_notification_previous">@drawable/exo_icon_previous</drawable>
   <drawable name="exo_notification_fastforward">@drawable/exo_icon_fastforward</drawable>
   <drawable name="exo_notification_rewind">@drawable/exo_icon_rewind</drawable>
-  <drawable name="exo_notification_stop">@drawable/exo_icon_stop</drawable>
   <drawable name="exo_notification_small_icon">@drawable/exo_icon_circular_play</drawable>
 </resources>
