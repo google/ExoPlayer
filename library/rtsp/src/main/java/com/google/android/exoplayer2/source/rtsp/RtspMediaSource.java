@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import javax.net.SocketFactory;
 
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
@@ -69,12 +70,14 @@ public final class RtspMediaSource extends BaseMediaSource {
 
     private long timeoutMs;
     private String userAgent;
+    private SocketFactory socketFactory;
     private boolean forceUseRtpTcp;
     private boolean debugLoggingEnabled;
 
     public Factory() {
       timeoutMs = DEFAULT_TIMEOUT_MS;
       userAgent = ExoPlayerLibraryInfo.VERSION_SLASHY;
+      socketFactory = SocketFactory.getDefault();
     }
 
     /**
@@ -101,6 +104,18 @@ public final class RtspMediaSource extends BaseMediaSource {
      */
     public Factory setUserAgent(String userAgent) {
       this.userAgent = userAgent;
+      return this;
+    }
+
+    /**
+     * Sets a socket factory for {@link RtspClient}'s connection, the default value is {@link
+     * SocketFactory#getDefault()}.
+     *
+     * @param socketFactory A socket factory.
+     * @return This Factory, for convenience.
+     */
+    public Factory setSocketFactory(SocketFactory socketFactory) {
+      this.socketFactory = socketFactory;
       return this;
     }
 
@@ -203,6 +218,7 @@ public final class RtspMediaSource extends BaseMediaSource {
               ? new TransferRtpDataChannelFactory(timeoutMs)
               : new UdpDataSourceRtpDataChannelFactory(timeoutMs),
           userAgent,
+          socketFactory,
           debugLoggingEnabled);
     }
   }
@@ -226,6 +242,7 @@ public final class RtspMediaSource extends BaseMediaSource {
   private final RtpDataChannel.Factory rtpDataChannelFactory;
   private final String userAgent;
   private final Uri uri;
+  private final SocketFactory socketFactory;
   private final boolean debugLoggingEnabled;
 
   private long timelineDurationUs;
@@ -238,11 +255,13 @@ public final class RtspMediaSource extends BaseMediaSource {
       MediaItem mediaItem,
       RtpDataChannel.Factory rtpDataChannelFactory,
       String userAgent,
+      SocketFactory socketFactory,
       boolean debugLoggingEnabled) {
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.userAgent = userAgent;
     this.uri = checkNotNull(this.mediaItem.localConfiguration).uri;
+    this.socketFactory = socketFactory;
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.timelineDurationUs = C.TIME_UNSET;
     this.timelineIsPlaceholder = true;
@@ -282,6 +301,7 @@ public final class RtspMediaSource extends BaseMediaSource {
           notifySourceInfoRefreshed();
         },
         userAgent,
+        socketFactory,
         debugLoggingEnabled);
   }
 

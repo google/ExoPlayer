@@ -123,6 +123,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final SessionInfoListener sessionInfoListener;
   private final PlaybackEventListener playbackEventListener;
   private final String userAgent;
+  private final SocketFactory socketFactory;
   private final boolean debugLoggingEnabled;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
@@ -155,16 +156,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param playbackEventListener The {@link PlaybackEventListener}.
    * @param userAgent The user agent.
    * @param uri The RTSP playback URI.
+   * @param socketFactory A socket factory for the RTSP connection.
+   * @param debugLoggingEnabled Whether to log RTSP messages.
    */
   public RtspClient(
       SessionInfoListener sessionInfoListener,
       PlaybackEventListener playbackEventListener,
       String userAgent,
       Uri uri,
+      SocketFactory socketFactory,
       boolean debugLoggingEnabled) {
     this.sessionInfoListener = sessionInfoListener;
     this.playbackEventListener = playbackEventListener;
     this.userAgent = userAgent;
+    this.socketFactory = socketFactory;
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.pendingSetupRtpLoadInfos = new ArrayDeque<>();
     this.pendingRequests = new SparseArray<>();
@@ -286,10 +291,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Returns a {@link Socket} that is connected to the {@code uri}. */
-  private static Socket getSocket(Uri uri) throws IOException {
+  private Socket getSocket(Uri uri) throws IOException {
     checkArgument(uri.getHost() != null);
     int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
-    return SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
+    return socketFactory.createSocket(checkNotNull(uri.getHost()), rtspPort);
   }
 
   private void dispatchRtspError(Throwable error) {

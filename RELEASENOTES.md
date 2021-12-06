@@ -38,6 +38,9 @@
 *   MediaSession extension
     *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
         opt-out flag for apps that don't want to clear the playlist on stop.
+*   RTSP
+    *   Provide a client API to override the `SocketFactory` used for any server
+        connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
 
 ### 2.16.1 (2021-11-18)
 
