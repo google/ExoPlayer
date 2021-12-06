@@ -34,6 +34,7 @@ public class AudioAttributesTest {
             .setFlags(C.FLAG_AUDIBILITY_ENFORCED)
             .setUsage(C.USAGE_ALARM)
             .setAllowedCapturePolicy(C.ALLOW_CAPTURE_BY_SYSTEM)
+            .setSpatializationBehavior(C.SPATIALIZATION_BEHAVIOR_NEVER)
             .build();
 
     assertThat(AudioAttributes.CREATOR.fromBundle(audioAttributes.toBundle()))
