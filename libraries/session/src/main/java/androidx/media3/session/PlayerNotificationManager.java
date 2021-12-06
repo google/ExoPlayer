@@ -76,66 +76,6 @@ import java.util.Map;
  * <p>If the player is released it must be removed from the manager by calling {@code
  * setPlayer(null)}.
  *
- * <h2>Action customization</h2>
- *
- * Playback actions can be included or omitted as follows:
- *
- * <ul>
- *   <li><b>{@code usePlayPauseActions}</b> - Sets whether the play and pause actions are used.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUsePlayPauseActions(boolean)}
- *         <li>Default: {@code true}
- *       </ul>
- *   <li><b>{@code useRewindAction}</b> - Sets whether the rewind action is used.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseRewindAction(boolean)}
- *         <li>Default: {@code true}
- *       </ul>
- *   <li><b>{@code useRewindActionInCompactView}</b> - If {@code useRewindAction} is {@code true},
- *       sets whether the rewind action is also used in compact view (including the lock screen
- *       notification). Else does nothing.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseRewindActionInCompactView(boolean)}
- *         <li>Default: {@code false}
- *       </ul>
- *   <li><b>{@code useFastForwardAction}</b> - Sets whether the fast forward action is used.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseFastForwardAction(boolean)}
- *         <li>Default: {@code true}
- *       </ul>
- *   <li><b>{@code useFastForwardActionInCompactView}</b> - If {@code useFastForwardAction} is
- *       {@code true}, sets whether the fast forward action is also used in compact view (including
- *       the lock screen notification). Else does nothing.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseFastForwardActionInCompactView(boolean)}
- *         <li>Default: {@code false}
- *       </ul>
- *   <li><b>{@code usePreviousAction}</b> - Whether the previous action is used.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUsePreviousAction(boolean)}
- *         <li>Default: {@code true}
- *       </ul>
- *   <li><b>{@code usePreviousActionInCompactView}</b> - If {@code usePreviousAction} is {@code
- *       true}, sets whether the previous action is also used in compact view (including the lock
- *       screen notification). Else does nothing.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUsePreviousActionInCompactView(boolean)}
- *         <li>Default: {@code false}
- *       </ul>
- *   <li><b>{@code useNextAction}</b> - Whether the next action is used.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseNextAction(boolean)}
- *         <li>Default: {@code true}
- *       </ul>
- *   <li><b>{@code useNextActionInCompactView}</b> - If {@code useNextAction} is {@code true}, sets
- *       whether the next action is also used in compact view (including the lock screen
- *       notification). Else does nothing.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseNextActionInCompactView(boolean)}
- *         <li>Default: {@code false}
- *       </ul>
- * </ul>
- *
  * <h2>Overriding drawables</h2>
  *
  * The drawables used by PlayerNotificationManager can be overridden by drawables with the same
@@ -662,15 +602,6 @@ public class PlayerNotificationManager {
   private boolean isNotificationStarted;
   private int currentNotificationTag;
   @Nullable private MediaSessionCompat.Token mediaSessionToken;
-  private boolean usePreviousAction;
-  private boolean useNextAction;
-  private boolean usePreviousActionInCompactView;
-  private boolean useNextActionInCompactView;
-  private boolean useRewindAction;
-  private boolean useFastForwardAction;
-  private boolean useRewindActionInCompactView;
-  private boolean useFastForwardActionInCompactView;
-  private boolean usePlayPauseActions;
   private int badgeIconType;
   private boolean colorized;
   private int defaults;
@@ -716,11 +647,6 @@ public class PlayerNotificationManager {
     playerListener = new PlayerListener();
     notificationBroadcastReceiver = new NotificationBroadcastReceiver();
     intentFilter = new IntentFilter();
-    usePreviousAction = true;
-    useNextAction = true;
-    usePlayPauseActions = true;
-    useRewindAction = true;
-    useFastForwardAction = true;
     colorized = true;
     useChronometer = true;
     color = Color.TRANSPARENT;
@@ -784,146 +710,6 @@ public class PlayerNotificationManager {
     if (player != null) {
       player.addListener(playerListener);
       postStartOrUpdateNotification();
-    }
-  }
-
-  /**
-   * Sets whether the next action should be used.
-   *
-   * @param useNextAction Whether to use the next action.
-   */
-  public final void setUseNextAction(boolean useNextAction) {
-    if (this.useNextAction != useNextAction) {
-      this.useNextAction = useNextAction;
-      invalidate();
-    }
-  }
-
-  /**
-   * Sets whether the previous action should be used.
-   *
-   * @param usePreviousAction Whether to use the previous action.
-   */
-  public final void setUsePreviousAction(boolean usePreviousAction) {
-    if (this.usePreviousAction != usePreviousAction) {
-      this.usePreviousAction = usePreviousAction;
-      invalidate();
-    }
-  }
-
-  /**
-   * If {@link #setUseNextAction useNextAction} is {@code true}, sets whether the next action should
-   * also be used in compact view. Has no effect if {@link #setUseNextAction useNextAction} is
-   * {@code false}.
-   *
-   * <p>If set to {@code true}, {@link #setUseFastForwardActionInCompactView(boolean)
-   * setUseFastForwardActionInCompactView} is set to false.
-   *
-   * @param useNextActionInCompactView Whether to use the next action in compact view.
-   */
-  public final void setUseNextActionInCompactView(boolean useNextActionInCompactView) {
-    if (this.useNextActionInCompactView != useNextActionInCompactView) {
-      this.useNextActionInCompactView = useNextActionInCompactView;
-      if (useNextActionInCompactView) {
-        useFastForwardActionInCompactView = false;
-      }
-      invalidate();
-    }
-  }
-
-  /**
-   * If {@link #setUsePreviousAction usePreviousAction} is {@code true}, sets whether the previous
-   * action should also be used in compact view. Has no effect if {@link #setUsePreviousAction
-   * usePreviousAction} is {@code false}.
-   *
-   * <p>If set to {@code true}, {@link #setUseRewindActionInCompactView(boolean)
-   * setUseRewindActionInCompactView} is set to false.
-   *
-   * @param usePreviousActionInCompactView Whether to use the previous action in compact view.
-   */
-  public final void setUsePreviousActionInCompactView(boolean usePreviousActionInCompactView) {
-    if (this.usePreviousActionInCompactView != usePreviousActionInCompactView) {
-      this.usePreviousActionInCompactView = usePreviousActionInCompactView;
-      if (usePreviousActionInCompactView) {
-        useRewindActionInCompactView = false;
-      }
-      invalidate();
-    }
-  }
-
-  /**
-   * Sets whether the fast forward action should be used.
-   *
-   * @param useFastForwardAction Whether to use the fast forward action.
-   */
-  public final void setUseFastForwardAction(boolean useFastForwardAction) {
-    if (this.useFastForwardAction != useFastForwardAction) {
-      this.useFastForwardAction = useFastForwardAction;
-      invalidate();
-    }
-  }
-
-  /**
-   * Sets whether the rewind action should be used.
-   *
-   * @param useRewindAction Whether to use the rewind action.
-   */
-  public final void setUseRewindAction(boolean useRewindAction) {
-    if (this.useRewindAction != useRewindAction) {
-      this.useRewindAction = useRewindAction;
-      invalidate();
-    }
-  }
-
-  /**
-   * Sets whether the fast forward action should also be used in compact view. Has no effect if
-   * {@link #ACTION_FAST_FORWARD} is not enabled, for instance if the media is not seekable.
-   *
-   * <p>If set to {@code true}, {@link #setUseNextActionInCompactView(boolean)
-   * setUseNextActionInCompactView} is set to false.
-   *
-   * @param useFastForwardActionInCompactView Whether to use the fast forward action in compact
-   *     view.
-   */
-  public final void setUseFastForwardActionInCompactView(
-      boolean useFastForwardActionInCompactView) {
-    if (this.useFastForwardActionInCompactView != useFastForwardActionInCompactView) {
-      this.useFastForwardActionInCompactView = useFastForwardActionInCompactView;
-      if (useFastForwardActionInCompactView) {
-        useNextActionInCompactView = false;
-      }
-      invalidate();
-    }
-  }
-
-  /**
-   * Sets whether the rewind action should also be used in compact view. Has no effect if {@link
-   * #ACTION_REWIND} is not enabled, for instance if the media is not seekable.
-   *
-   * <p>If set to {@code true}, {@link #setUsePreviousActionInCompactView(boolean)
-   * setUsePreviousActionInCompactView} is set to false.
-   *
-   * @param useRewindActionInCompactView Whether to use the rewind action in compact view.
-   */
-  public final void setUseRewindActionInCompactView(boolean useRewindActionInCompactView) {
-    if (this.useRewindActionInCompactView != useRewindActionInCompactView) {
-      this.useRewindActionInCompactView = useRewindActionInCompactView;
-      if (useRewindActionInCompactView) {
-        usePreviousActionInCompactView = false;
-      }
-      invalidate();
-    }
-  }
-
-  /**
-   * Sets whether the play and pause actions should be used.
-   *
-   * @param usePlayPauseActions Whether to use play and pause actions.
-   */
-  public final void setUsePlayPauseActions(boolean usePlayPauseActions) {
-    if (this.usePlayPauseActions != usePlayPauseActions) {
-      this.usePlayPauseActions = usePlayPauseActions;
-      invalidate();
     }
   }
 
@@ -1272,27 +1058,22 @@ public class PlayerNotificationManager {
     boolean enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
 
     List<String> stringActions = new ArrayList<>();
-    if (usePreviousAction && enablePrevious) {
+    if (enablePrevious) {
       stringActions.add(ACTION_PREVIOUS);
     }
-    if (useRewindAction && enableRewind) {
+    if (enableRewind) {
       stringActions.add(ACTION_REWIND);
     }
-    if (usePlayPauseActions) {
-      if (shouldShowPauseButton(player)) {
-        stringActions.add(ACTION_PAUSE);
-      } else {
-        stringActions.add(ACTION_PLAY);
-      }
+    if (shouldShowPauseButton(player)) {
+      stringActions.add(ACTION_PAUSE);
+    } else {
+      stringActions.add(ACTION_PLAY);
     }
-    if (useFastForwardAction && enableFastForward) {
+    if (enableFastForward) {
       stringActions.add(ACTION_FAST_FORWARD);
     }
-    if (useNextAction && enableNext) {
+    if (enableNext) {
       stringActions.add(ACTION_NEXT);
-    }
-    if (customActionReceiver != null) {
-      stringActions.addAll(customActionReceiver.getCustomActions(player));
     }
     return stringActions;
   }
@@ -1310,14 +1091,8 @@ public class PlayerNotificationManager {
   protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
     int pauseActionIndex = actionNames.indexOf(ACTION_PAUSE);
     int playActionIndex = actionNames.indexOf(ACTION_PLAY);
-    int leftSideActionIndex =
-        usePreviousActionInCompactView
-            ? actionNames.indexOf(ACTION_PREVIOUS)
-            : (useRewindActionInCompactView ? actionNames.indexOf(ACTION_REWIND) : -1);
-    int rightSideActionIndex =
-        useNextActionInCompactView
-            ? actionNames.indexOf(ACTION_NEXT)
-            : (useFastForwardActionInCompactView ? actionNames.indexOf(ACTION_FAST_FORWARD) : -1);
+    int leftSideActionIndex = actionNames.indexOf(ACTION_PREVIOUS);
+    int rightSideActionIndex = actionNames.indexOf(ACTION_NEXT);
 
     int[] actionIndices = new int[3];
     int actionCounter = 0;
