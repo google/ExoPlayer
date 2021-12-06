@@ -16,6 +16,7 @@
 package androidx.media3.common;
 
 import android.os.Bundle;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -24,6 +25,7 @@ import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
 
 /**
  * Attributes for audio playback, which configure the underlying platform {@link
@@ -47,6 +49,7 @@ public final class AudioAttributes implements Bundleable {
     private @C.AudioFlags int flags;
     private @C.AudioUsage int usage;
     private @C.AudioAllowedCapturePolicy int allowedCapturePolicy;
+    private @C.SpatializationBehavior int spatializationBehavior;
 
     /**
      * Creates a new builder for {@link AudioAttributes}.
@@ -59,6 +62,7 @@ public final class AudioAttributes implements Bundleable {
       flags = 0;
       usage = C.USAGE_MEDIA;
       allowedCapturePolicy = C.ALLOW_CAPTURE_BY_ALL;
+      spatializationBehavior = C.SPATIALIZATION_BEHAVIOR_AUTO;
     }
 
     /** @see android.media.AudioAttributes.Builder#setContentType(int) */
@@ -85,9 +89,18 @@ public final class AudioAttributes implements Bundleable {
       return this;
     }
 
+    // TODO[b/190759307] Update javadoc to link to AudioAttributes.Builder#setSpatializationBehavior
+    //  once compile SDK target is set to 32.
+    /** See AudioAttributes.Builder#setSpatializationBehavior(int). */
+    public Builder setSpatializationBehavior(@C.SpatializationBehavior int spatializationBehavior) {
+      this.spatializationBehavior = spatializationBehavior;
+      return this;
+    }
+
     /** Creates an {@link AudioAttributes} instance from this builder. */
     public AudioAttributes build() {
-      return new AudioAttributes(contentType, flags, usage, allowedCapturePolicy);
+      return new AudioAttributes(
+          contentType, flags, usage, allowedCapturePolicy, spatializationBehavior);
     }
   }
 
@@ -95,6 +108,7 @@ public final class AudioAttributes implements Bundleable {
   public final @C.AudioFlags int flags;
   public final @C.AudioUsage int usage;
   public final @C.AudioAllowedCapturePolicy int allowedCapturePolicy;
+  public final @C.SpatializationBehavior int spatializationBehavior;
 
   @Nullable private android.media.AudioAttributes audioAttributesV21;
 
@@ -102,11 +116,13 @@ public final class AudioAttributes implements Bundleable {
       @C.AudioContentType int contentType,
       @C.AudioFlags int flags,
       @C.AudioUsage int usage,
-      @C.AudioAllowedCapturePolicy int allowedCapturePolicy) {
+      @C.AudioAllowedCapturePolicy int allowedCapturePolicy,
+      @C.SpatializationBehavior int spatializationBehavior) {
     this.contentType = contentType;
     this.flags = flags;
     this.usage = usage;
     this.allowedCapturePolicy = allowedCapturePolicy;
+    this.spatializationBehavior = spatializationBehavior;
   }
 
   /**
@@ -123,7 +139,10 @@ public final class AudioAttributes implements Bundleable {
               .setFlags(flags)
               .setUsage(usage);
       if (Util.SDK_INT >= 29) {
-        builder.setAllowedCapturePolicy(allowedCapturePolicy);
+        Api29.setAllowedCapturePolicy(builder, allowedCapturePolicy);
+      }
+      if (Util.SDK_INT >= 32) {
+        Api32.setSpatializationBehavior(builder, spatializationBehavior);
       }
       audioAttributesV21 = builder.build();
     }
@@ -142,7 +161,8 @@ public final class AudioAttributes implements Bundleable {
     return this.contentType == other.contentType
         && this.flags == other.flags
         && this.usage == other.usage
-        && this.allowedCapturePolicy == other.allowedCapturePolicy;
+        && this.allowedCapturePolicy == other.allowedCapturePolicy
+        && this.spatializationBehavior == other.spatializationBehavior;
   }
 
   @Override
@@ -152,6 +172,7 @@ public final class AudioAttributes implements Bundleable {
     result = 31 * result + flags;
     result = 31 * result + usage;
     result = 31 * result + allowedCapturePolicy;
+    result = 31 * result + spatializationBehavior;
     return result;
   }
 
@@ -159,13 +180,20 @@ public final class AudioAttributes implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FIELD_CONTENT_TYPE, FIELD_FLAGS, FIELD_USAGE, FIELD_ALLOWED_CAPTURE_POLICY})
+  @IntDef({
+    FIELD_CONTENT_TYPE,
+    FIELD_FLAGS,
+    FIELD_USAGE,
+    FIELD_ALLOWED_CAPTURE_POLICY,
+    FIELD_SPATIALIZATION_BEHAVIOR
+  })
   private @interface FieldNumber {}
 
   private static final int FIELD_CONTENT_TYPE = 0;
   private static final int FIELD_FLAGS = 1;
   private static final int FIELD_USAGE = 2;
   private static final int FIELD_ALLOWED_CAPTURE_POLICY = 3;
+  private static final int FIELD_SPATIALIZATION_BEHAVIOR = 4;
 
   @UnstableApi
   @Override
@@ -175,6 +203,7 @@ public final class AudioAttributes implements Bundleable {
     bundle.putInt(keyForField(FIELD_FLAGS), flags);
     bundle.putInt(keyForField(FIELD_USAGE), usage);
     bundle.putInt(keyForField(FIELD_ALLOWED_CAPTURE_POLICY), allowedCapturePolicy);
+    bundle.putInt(keyForField(FIELD_SPATIALIZATION_BEHAVIOR), spatializationBehavior);
     return bundle;
   }
 
@@ -195,10 +224,45 @@ public final class AudioAttributes implements Bundleable {
         if (bundle.containsKey(keyForField(FIELD_ALLOWED_CAPTURE_POLICY))) {
           builder.setAllowedCapturePolicy(bundle.getInt(keyForField(FIELD_ALLOWED_CAPTURE_POLICY)));
         }
+        if (bundle.containsKey(keyForField(FIELD_SPATIALIZATION_BEHAVIOR))) {
+          builder.setSpatializationBehavior(
+              bundle.getInt(keyForField(FIELD_SPATIALIZATION_BEHAVIOR)));
+        }
         return builder.build();
       };
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  @RequiresApi(29)
+  private static final class Api29 {
+    private Api29() {}
+
+    @DoNotInline
+    public static void setAllowedCapturePolicy(
+        android.media.AudioAttributes.Builder builder,
+        @C.AudioAllowedCapturePolicy int allowedCapturePolicy) {
+      builder.setAllowedCapturePolicy(allowedCapturePolicy);
+    }
+  }
+
+  @RequiresApi(32)
+  private static final class Api32 {
+    private Api32() {}
+
+    @DoNotInline
+    public static void setSpatializationBehavior(
+        android.media.AudioAttributes.Builder builder,
+        @C.SpatializationBehavior int spatializationBehavior) {
+      try {
+        // TODO[b/190759307]: Remove reflection once compile SDK target is set to 32.
+        Method setSpatializationBehavior =
+            builder.getClass().getMethod("setSpatializationBehavior", Integer.TYPE);
+        setSpatializationBehavior.invoke(builder, spatializationBehavior);
+      } catch (Exception e) {
+        // Do nothing if reflection fails.
+      }
+    }
   }
 }
