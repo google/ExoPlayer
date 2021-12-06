@@ -128,7 +128,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           if (sessionImpl.isReleased()) {
             return;
           }
-          sessionImpl.getCallback().onDisconnected(sessionImpl.getInstance(), controllerInfo);
+          sessionImpl.onDisconnectedOnHandler(controllerInfo);
         });
   }
 

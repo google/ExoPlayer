@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
 
 import android.os.Bundle;
@@ -69,10 +68,7 @@ import java.util.concurrent.atomic.AtomicReference;
     postOrRun(
         sessionImpl.getApplicationHandler(),
         () -> {
-          resultReference.set(
-              checkNotNull(
-                  sessionImpl.getCallback().onConnect(sessionImpl.getInstance(), controller),
-                  "onConnect must return non-null future"));
+          resultReference.set(sessionImpl.onConnectOnHandler(controller));
           haveResult.open();
         });
     try {

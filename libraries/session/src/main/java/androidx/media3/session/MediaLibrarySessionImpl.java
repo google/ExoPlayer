@@ -47,19 +47,25 @@ import java.util.concurrent.Future;
 
 /* package */ class MediaLibrarySessionImpl extends MediaSessionImpl {
 
+  private final MediaLibrarySession instance;
+  private final MediaLibrarySession.MediaLibrarySessionCallback callback;
+
   @GuardedBy("lock")
-  private final ArrayMap<ControllerCb, Set<String>> subscriptions = new ArrayMap<>();
+  private final ArrayMap<ControllerCb, Set<String>> subscriptions;
 
   public MediaLibrarySessionImpl(
-      MediaSession instance,
+      MediaLibrarySession instance,
       Context context,
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
-      MediaSession.SessionCallback callback,
+      MediaLibrarySession.MediaLibrarySessionCallback callback,
       MediaSession.MediaItemFiller mediaItemFiller,
       Bundle tokenExtras) {
     super(instance, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+    this.instance = instance;
+    this.callback = callback;
+    subscriptions = new ArrayMap<>();
   }
 
   @Override
@@ -115,7 +121,7 @@ import java.util.concurrent.Future;
     // onGetLibraryRoot is defined to return a non-null result but it's implemented by applications,
     // so we explicitly null-check the result to fail early if an app accidentally returns null.
     return checkNotNull(
-        getCallback().onGetLibraryRoot(getInstance(), browser, params),
+        callback.onGetLibraryRoot(instance, browser, params),
         "onGetLibraryRoot must return non-null future");
   }
 
@@ -124,8 +130,7 @@ import java.util.concurrent.Future;
     // onGetItem is defined to return a non-null result but it's implemented by applications,
     // so we explicitly null-check the result to fail early if an app accidentally returns null.
     return checkNotNull(
-        getCallback().onGetItem(getInstance(), browser, mediaId),
-        "onGetItem must return non-null future");
+        callback.onGetItem(instance, browser, mediaId), "onGetItem must return non-null future");
   }
 
   public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetChildrenOnHandler(
@@ -138,7 +143,7 @@ import java.util.concurrent.Future;
     // so we explicitly null-check the result to fail early if an app accidentally returns null.
     ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
         checkNotNull(
-            getCallback().onGetChildren(getInstance(), browser, parentId, page, pageSize, params),
+            callback.onGetChildren(instance, browser, parentId, page, pageSize, params),
             "onGetChildren must return non-null future");
     future.addListener(
         () -> {
@@ -170,7 +175,7 @@ import java.util.concurrent.Future;
     // so we explicitly null-check the result to fail early if an app accidentally returns null.
     ListenableFuture<LibraryResult<Void>> future =
         checkNotNull(
-            getCallback().onSubscribe(getInstance(), browser, parentId, params),
+            callback.onSubscribe(instance, browser, parentId, params),
             "onSubscribe must return non-null future");
 
     // When error happens, remove from the subscription list.
@@ -194,7 +199,7 @@ import java.util.concurrent.Future;
     // so we explicitly null-check the result to fail early if an app accidentally returns null.
     ListenableFuture<LibraryResult<Void>> future =
         checkNotNull(
-            getCallback().onUnsubscribe(getInstance(), browser, parentId),
+            callback.onUnsubscribe(instance, browser, parentId),
             "onUnsubscribe must return non-null future");
 
     future.addListener(
@@ -213,7 +218,7 @@ import java.util.concurrent.Future;
     // onSearch is defined to return a non-null result but it's implemented by applications,
     // so we explicitly null-check the result to fail early if an app accidentally returns null.
     return checkNotNull(
-        getCallback().onSearch(getInstance(), browser, query, params),
+        callback.onSearch(instance, browser, query, params),
         "onSearch must return non-null future");
   }
 
@@ -228,7 +233,7 @@ import java.util.concurrent.Future;
     // returns null.
     ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
         checkNotNull(
-            getCallback().onGetSearchResult(getInstance(), browser, query, page, pageSize, params),
+            callback.onGetSearchResult(instance, browser, query, page, pageSize, params),
             "onGetSearchResult must return non-null future");
     future.addListener(
         () -> {
@@ -239,16 +244,6 @@ import java.util.concurrent.Future;
         },
         MoreExecutors.directExecutor());
     return future;
-  }
-
-  @Override
-  protected MediaLibrarySession getInstance() {
-    return (MediaLibrarySession) super.getInstance();
-  }
-
-  @Override
-  protected MediaLibrarySession.MediaLibrarySessionCallback getCallback() {
-    return (MediaLibrarySession.MediaLibrarySessionCallback) super.getCallback();
   }
 
   @Override

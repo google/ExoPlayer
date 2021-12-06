@@ -177,15 +177,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         command,
         controller -> {
           ListenableFuture<SessionResult> future =
-              checkNotNull(
-                  sessionImpl
-                      .getCallback()
-                      .onCustomCommand(
-                          sessionImpl.getInstance(),
-                          controller,
-                          command,
-                          args == null ? Bundle.EMPTY : args),
-                  "SessionCallback#onCustomCommand must not return null");
+              sessionImpl.onCustomCommandOnHandler(
+                  controller, command, args == null ? Bundle.EMPTY : args);
           if (cb != null) {
             sendCustomCommandResultWhenReady(cb, future);
           } else {
@@ -280,13 +273,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     dispatchSessionTaskWithSessionCommand(
         SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI,
         controller -> {
-          if (sessionImpl
-                  .getCallback()
-                  .onSetMediaUri(
-                      sessionImpl.getInstance(),
-                      controller,
-                      mediaUri,
-                      extras == null ? Bundle.EMPTY : extras)
+          if (sessionImpl.onSetMediaUriOnHandler(
+                  controller, mediaUri, extras == null ? Bundle.EMPTY : extras)
               == RESULT_SUCCESS) {
             sessionImpl.getPlayerWrapper().prepare();
           }
@@ -330,13 +318,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     dispatchSessionTaskWithSessionCommand(
         SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI,
         controller -> {
-          if (sessionImpl
-                  .getCallback()
-                  .onSetMediaUri(
-                      sessionImpl.getInstance(),
-                      controller,
-                      mediaUri,
-                      extras == null ? Bundle.EMPTY : extras)
+          if (sessionImpl.onSetMediaUriOnHandler(
+                  controller, mediaUri, extras == null ? Bundle.EMPTY : extras)
               == RESULT_SUCCESS) {
             sessionImpl.getPlayerWrapper().play();
           }
@@ -440,10 +423,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             return;
           }
           // MediaControllerCompat#setRating doesn't return a value.
-          ignoreFuture(
-              sessionImpl
-                  .getCallback()
-                  .onSetRating(sessionImpl.getInstance(), controller, currentItem.mediaId, rating));
+          ignoreFuture(sessionImpl.onSetRatingOnHandler(controller, currentItem.mediaId, rating));
         });
   }
 
@@ -597,10 +577,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
             return;
           }
-          int resultCode =
-              sessionImpl
-                  .getCallback()
-                  .onPlayerCommandRequest(sessionImpl.getInstance(), controller, command);
+          int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);
           if (resultCode != RESULT_SUCCESS) {
             // Don't run rejected command.
             return;
@@ -702,8 +679,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
               sessionManager.isTrustedForMediaControl(remoteUserInfo),
               controllerCb,
               /* connectionHints= */ Bundle.EMPTY);
-      MediaSession.ConnectionResult connectionResult =
-          sessionImpl.getCallback().onConnect(sessionImpl.getInstance(), controller);
+      MediaSession.ConnectionResult connectionResult = sessionImpl.onConnectOnHandler(controller);
       if (!connectionResult.isAccepted) {
         try {
           controllerCb.onDisconnected(/* seq= */ 0);

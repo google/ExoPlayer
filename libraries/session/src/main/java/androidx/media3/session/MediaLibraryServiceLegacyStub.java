@@ -308,11 +308,7 @@ import java.util.concurrent.atomic.AtomicReference;
             return;
           }
           ListenableFuture<SessionResult> future =
-              checkNotNull(
-                  librarySessionImpl
-                      .getCallback()
-                      .onCustomCommand(
-                          librarySessionImpl.getInstance(), controller, command, extras));
+              librarySessionImpl.onCustomCommandOnHandler(controller, command, extras);
           sendCustomActionResultWhenReady(result, future);
         });
   }

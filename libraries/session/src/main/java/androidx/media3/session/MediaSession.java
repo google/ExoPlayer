@@ -1018,21 +1018,6 @@ public class MediaSession {
      * Called to fill in the {@link MediaItem#localConfiguration} of the media item from
      * controllers.
      *
-     * <p>Specifically, it's called by the following methods
-     *
-     * <ol>
-     *   <li>{@link MediaController#setMediaItem(MediaItem)}
-     *   <li>{@link MediaController#setMediaItem(MediaItem,long)}
-     *   <li>{@link MediaController#setMediaItem(MediaItem, boolean)}
-     *   <li>{@link MediaController#setMediaItems(List)}
-     *   <li>{@link MediaController#setMediaItems(List, boolean)}
-     *   <li>{@link MediaController#setMediaItems(List, int, long)}
-     *   <li>{@link MediaController#addMediaItem(MediaItem)}
-     *   <li>{@link MediaController#addMediaItem(int, MediaItem)}
-     *   <li>{@link MediaController#addMediaItems(List)}
-     *   <li>{@link MediaController#addMediaItems(int, List)}
-     * </ol>
-     *
      * @param session The session for this event.
      * @param controller The controller information.
      * @param mediaItem The media item whose local configuration will be filled in.

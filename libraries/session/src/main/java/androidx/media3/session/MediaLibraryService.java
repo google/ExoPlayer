@@ -465,7 +465,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
         MediaItemFiller mediaItemFiller,
         Bundle tokenExtras) {
       return new MediaLibrarySessionImpl(
-          this, context, id, player, sessionActivity, callback, mediaItemFiller, tokenExtras);
+          this,
+          context,
+          id,
+          player,
+          sessionActivity,
+          (MediaLibrarySession.MediaLibrarySessionCallback) callback,
+          mediaItemFiller,
+          tokenExtras);
     }
 
     @Override

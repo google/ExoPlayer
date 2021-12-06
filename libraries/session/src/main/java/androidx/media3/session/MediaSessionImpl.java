@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.postOrRun;
@@ -57,6 +58,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.DiscontinuityReason;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Player.RepeatMode;
+import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.VideoSize;
@@ -346,13 +348,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   public ListenableFuture<SessionResult> setCustomLayout(
       ControllerInfo controller, List<CommandButton> layout) {
     return dispatchRemoteControllerTask(
-        controller,
-        new RemoteControllerTask() {
-          @Override
-          public void run(ControllerCb controller, int seq) throws RemoteException {
-            controller.setCustomLayout(seq, layout);
-          }
-        });
+        controller, (controller1, seq) -> controller1.setCustomLayout(seq, layout));
   }
 
   public void setAvailableCommands(
@@ -363,12 +359,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           .updateCommandsFromSession(controller, sessionCommands, playerCommands);
       dispatchRemoteControllerTaskWithoutReturn(
           controller,
-          new RemoteControllerTask() {
-            @Override
-            public void run(ControllerCb callback, int seq) throws RemoteException {
-              callback.onAvailableCommandsChangedFromSession(seq, sessionCommands, playerCommands);
-            }
-          });
+          (callback, seq) ->
+              callback.onAvailableCommandsChangedFromSession(seq, sessionCommands, playerCommands));
       onPlayerInfoChangedHandler.sendPlayerInfoChangedMessage(/* excludeTimeline= */ false);
     } else {
       sessionLegacyStub
@@ -438,6 +430,50 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         controller, (cb, seq) -> cb.sendCustomCommand(seq, command, args));
   }
 
+  public MediaSession.ConnectionResult onConnectOnHandler(ControllerInfo controller) {
+    return checkNotNull(
+        callback.onConnect(instance, controller), "onConntext must return non-null future");
+  }
+
+  public void onPostConnectOnHandler(ControllerInfo controller) {
+    callback.onPostConnect(instance, controller);
+  }
+
+  public void onDisconnectedOnHandler(ControllerInfo controller) {
+    callback.onDisconnected(instance, controller);
+  }
+
+  public @SessionResult.Code int onSetMediaUriOnHandler(
+      ControllerInfo controller, Uri uri, Bundle extras) {
+    return callback.onSetMediaUri(instance, controller, uri, extras);
+  }
+
+  public @SessionResult.Code int onPlayerCommandRequestOnHandler(
+      ControllerInfo controller, @Player.Command int playerCommand) {
+    return callback.onPlayerCommandRequest(instance, controller, playerCommand);
+  }
+
+  public ListenableFuture<SessionResult> onSetRatingOnHandler(
+      ControllerInfo controller, String mediaId, Rating rating) {
+    return checkNotNull(
+        callback.onSetRating(instance, controller, mediaId, rating),
+        "onSetRating must return non-null future");
+  }
+
+  public ListenableFuture<SessionResult> onSetRatingOnHandler(
+      ControllerInfo controller, Rating rating) {
+    return checkNotNull(
+        callback.onSetRating(instance, controller, rating),
+        "onSetRating must return non-null future");
+  }
+
+  public ListenableFuture<SessionResult> onCustomCommandOnHandler(
+      ControllerInfo browser, SessionCommand command, Bundle extras) {
+    return checkNotNull(
+        callback.onCustomCommand(instance, browser, command, extras),
+        "onCustomCommandOnHandler must return non-null future");
+  }
+
   public void connectFromService(
       IMediaController caller,
       int controllerVersion,
@@ -457,10 +493,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     sessionLegacyStub.setLegacyControllerDisconnectTimeoutMs(timeoutMs);
   }
 
-  protected MediaSession getInstance() {
-    return instance;
-  }
-
   protected Context getContext() {
     return context;
   }
@@ -469,12 +501,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return applicationHandler;
   }
 
-  protected SessionCallback getCallback() {
-    return callback;
-  }
-
-  protected MediaItemFiller getMediaItemFiller() {
-    return mediaItemFiller;
+  protected MediaItem fillInLocalConfiguration(
+      MediaSession.ControllerInfo controller, MediaItem mediaItem) {
+    return mediaItemFiller.fillInLocalConfiguration(instance, controller, mediaItem);
   }
 
   protected boolean isReleased() {
