@@ -56,6 +56,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.SocketFactory;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -104,6 +105,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param uri The RTSP playback {@link Uri}.
    * @param listener A {@link Listener} to receive session information updates.
    * @param userAgent The user agent.
+   * @param socketFactory A socket factory for {@link RtspClient}'s connection.
+   * @param debugLoggingEnabled Whether to log RTSP messages.
    */
   public RtspMediaPeriod(
       Allocator allocator,
@@ -111,6 +114,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Uri uri,
       Listener listener,
       String userAgent,
+      SocketFactory socketFactory,
       boolean debugLoggingEnabled) {
     this.allocator = allocator;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
@@ -124,6 +128,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* playbackEventListener= */ internalListener,
             /* userAgent= */ userAgent,
             /* uri= */ uri,
+            socketFactory,
             debugLoggingEnabled);
     rtspLoaderWrappers = new ArrayList<>();
     selectedLoadInfos = new ArrayList<>();
