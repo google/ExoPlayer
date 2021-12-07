@@ -57,7 +57,7 @@ public final class DecoderCountersUtil {
     int totalInputBufferCount =
         counters.skippedInputBufferCount
             + counters.droppedInputBufferCount
-            + counters.inputBufferCount;
+            + counters.queuedInputBufferCount;
     assertTotalBufferCount(
         name,
         counters,

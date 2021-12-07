@@ -1344,7 +1344,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     resetInputBuffer();
     codecReceivedBuffers = true;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    decoderCounters.inputBufferCount++;
+    decoderCounters.queuedInputBufferCount++;
     return true;
   }
 

@@ -760,7 +760,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         decoder.queueInputBuffer(inputBuffer);
         buffersInCodecCount++;
         decoderReceivedBuffers = true;
-        decoderCounters.inputBufferCount++;
+        decoderCounters.queuedInputBufferCount++;
         inputBuffer = null;
         return true;
       default:

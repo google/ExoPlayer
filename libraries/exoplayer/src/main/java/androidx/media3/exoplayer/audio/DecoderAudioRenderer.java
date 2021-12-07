@@ -476,7 +476,7 @@ public abstract class DecoderAudioRenderer<
         onQueueInputBuffer(inputBuffer);
         decoder.queueInputBuffer(inputBuffer);
         decoderReceivedBuffers = true;
-        decoderCounters.inputBufferCount++;
+        decoderCounters.queuedInputBufferCount++;
         inputBuffer = null;
         return true;
       default:
