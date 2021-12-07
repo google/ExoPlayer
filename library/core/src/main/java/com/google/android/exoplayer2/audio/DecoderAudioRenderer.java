@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.MoreObjects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -171,7 +172,15 @@ public abstract class DecoderAudioRenderer<
       @Nullable AudioRendererEventListener eventListener,
       @Nullable AudioCapabilities audioCapabilities,
       AudioProcessor... audioProcessors) {
-    this(eventHandler, eventListener, new DefaultAudioSink(audioCapabilities, audioProcessors));
+    this(
+        eventHandler,
+        eventListener,
+        new DefaultAudioSink.Builder()
+            .setAudioCapabilities(
+                MoreObjects.firstNonNull(
+                    audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
+            .setAudioProcessors(audioProcessors)
+            .build());
   }
 
   /**

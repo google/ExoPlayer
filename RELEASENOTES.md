@@ -25,6 +25,9 @@
         targeting Android 12, and will crash with an `IllegalArgumentException`
         when creating `PendingIntent`s
         ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
+*   Audio:
+    *   Add a `Builder` to `DefaultAudioSink` and deprecate the existing
+        constructors.
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).

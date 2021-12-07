@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
@@ -94,7 +93,9 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
           /* enableDecoderFallback= */ false,
           eventHandler,
           audioRendererEventListener,
-          new DefaultAudioSink(AudioCapabilities.getCapabilities(context), new AudioProcessor[0])),
+          new DefaultAudioSink.Builder()
+              .setAudioCapabilities(AudioCapabilities.getCapabilities(context))
+              .build()),
       new TextRenderer(textRendererOutput, eventHandler.getLooper()),
       new MetadataRenderer(metadataRendererOutput, eventHandler.getLooper())
     };

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -41,6 +42,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.InlineMe;
+import com.google.errorprone.annotations.InlineMeValidationDisabled;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -50,6 +53,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Plays audio data. The implementation delegates to an {@link AudioTrack} and handles playback
@@ -200,6 +204,106 @@ public final class DefaultAudioSink implements AudioSink {
     @Override
     public long getSkippedOutputFrameCount() {
       return silenceSkippingAudioProcessor.getSkippedFrames();
+    }
+  }
+
+  /** A builder to create {@link DefaultAudioSink} instances. */
+  public static final class Builder {
+
+    @Nullable private AudioCapabilities audioCapabilities;
+    @Nullable private AudioProcessorChain audioProcessorChain;
+    private boolean enableFloatOutput;
+    private boolean enableAudioTrackPlaybackParams;
+    private int offloadMode;
+
+    /** Creates a new builder. */
+    public Builder() {
+      offloadMode = OFFLOAD_MODE_DISABLED;
+    }
+
+    /**
+     * Sets audio capabilities for playback on this device. May be {@code null} if the default
+     * capabilities (no encoded audio passthrough support) should be assumed.
+     *
+     * <p>The default value is {@code null}.
+     */
+    public Builder setAudioCapabilities(@Nullable AudioCapabilities audioCapabilities) {
+      this.audioCapabilities = audioCapabilities;
+      return this;
+    }
+
+    /**
+     * Sets an array of {@link AudioProcessor AudioProcessors}s that will process PCM audio before
+     * output. May be empty. Equivalent of {@code setAudioProcessorChain(new
+     * DefaultAudioProcessorChain(audioProcessors)}.
+     *
+     * <p>The default value is an empty array.
+     */
+    public Builder setAudioProcessors(AudioProcessor[] audioProcessors) {
+      checkNotNull(audioProcessors);
+      return setAudioProcessorChain(new DefaultAudioProcessorChain(audioProcessors));
+    }
+
+    /**
+     * Sets the {@link AudioProcessorChain} to process audio before playback. The instance passed in
+     * must not be reused in other sinks. Processing chains are only supported for PCM playback (not
+     * passthrough or offload).
+     *
+     * <p>By default, no processing will be applied.
+     */
+    public Builder setAudioProcessorChain(AudioProcessorChain audioProcessorChain) {
+      checkNotNull(audioProcessorChain);
+      this.audioProcessorChain = audioProcessorChain;
+      return this;
+    }
+
+    /**
+     * Sets whether to enable 32-bit float output or integer output. Where possible, 32-bit float
+     * output will be used if the input is 32-bit float, and also if the input is high resolution
+     * (24-bit or 32-bit) integer PCM. Float output is supported from API level 21. Audio processing
+     * (for example, speed adjustment) will not be available when float output is in use.
+     *
+     * <p>The default value is {@code false}.
+     */
+    public Builder setEnableFloatOutput(boolean enableFloatOutput) {
+      this.enableFloatOutput = enableFloatOutput;
+      return this;
+    }
+
+    /**
+     * Sets whether to control the playback speed using the platform implementation (see {@link
+     * AudioTrack#setPlaybackParams(PlaybackParams)}), if supported. If set to {@code false}, speed
+     * up/down of the audio will be done by ExoPlayer (see {@link SonicAudioProcessor}). Platform
+     * speed adjustment is lower latency, but less reliable.
+     *
+     * <p>The default value is {@code false}.
+     */
+    public Builder setEnableAudioTrackPlaybackParams(boolean enableAudioTrackPlaybackParams) {
+      this.enableAudioTrackPlaybackParams = enableAudioTrackPlaybackParams;
+      return this;
+    }
+
+    /**
+     * Sets the offload mode. If an audio format can be both played with offload and encoded audio
+     * passthrough, it will be played in offload. Audio offload is supported from API level 29. Most
+     * Android devices can only support one offload {@link AudioTrack} at a time and can invalidate
+     * it at any time. Thus an app can never be guaranteed that it will be able to play in offload.
+     * Audio processing (for example, speed adjustment) will not be available when offload is in
+     * use.
+     *
+     * <p>The default value is {@link #OFFLOAD_MODE_DISABLED}.
+     */
+    public Builder setOffloadMode(@OffloadMode int offloadMode) {
+      this.offloadMode = offloadMode;
+      return this;
+    }
+
+    /** Builds the {@link DefaultAudioSink}. Must only be called once per Builder instance. */
+    public DefaultAudioSink build() {
+      if (audioProcessorChain == null) {
+        audioProcessorChain = new DefaultAudioProcessorChain();
+      }
+      return new DefaultAudioSink(this);
     }
   }
 
@@ -370,76 +474,78 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean offloadDisabledUntilNextConfiguration;
   private boolean isWaitingForOffloadEndOfStreamHandled;
 
-  /**
-   * Creates a new default audio sink.
-   *
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio before
-   *     output. May be empty.
-   */
+  /** @deprecated Use {@link Builder}. */
+  @Deprecated
+  @InlineMeValidationDisabled("Migrate constructor to Builder")
+  @InlineMe(
+      replacement =
+          "new DefaultAudioSink.Builder()"
+              + ".setAudioCapabilities(audioCapabilities)"
+              + ".setAudioProcessors(audioProcessors)"
+              + ".build()",
+      imports = "com.google.android.exoplayer2.audio.DefaultAudioSink")
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors) {
-    this(audioCapabilities, audioProcessors, /* enableFloatOutput= */ false);
+    this(new Builder().setAudioCapabilities(audioCapabilities).setAudioProcessors(audioProcessors));
   }
 
-  /**
-   * Creates a new default audio sink, optionally using float output for high resolution PCM.
-   *
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio before
-   *     output. May be empty.
-   * @param enableFloatOutput Whether to enable 32-bit float output. Where possible, 32-bit float
-   *     output will be used if the input is 32-bit float, and also if the input is high resolution
-   *     (24-bit or 32-bit) integer PCM. Audio processing (for example, speed adjustment) will not
-   *     be available when float output is in use.
-   */
+  /** @deprecated Use {@link Builder}. */
+  @Deprecated
+  @InlineMeValidationDisabled("Migrate constructor to Builder")
+  @InlineMe(
+      replacement =
+          "new DefaultAudioSink.Builder()"
+              + ".setAudioCapabilities(audioCapabilities)"
+              + ".setAudioProcessors(audioProcessors)"
+              + ".setEnableFloatOutput(enableFloatOutput)"
+              + ".build()",
+      imports = "com.google.android.exoplayer2.audio.DefaultAudioSink")
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities,
       AudioProcessor[] audioProcessors,
       boolean enableFloatOutput) {
     this(
-        audioCapabilities,
-        new DefaultAudioProcessorChain(audioProcessors),
-        enableFloatOutput,
-        /* enableAudioTrackPlaybackParams= */ false,
-        OFFLOAD_MODE_DISABLED);
+        new Builder()
+            .setAudioCapabilities(audioCapabilities)
+            .setAudioProcessors(audioProcessors)
+            .setEnableFloatOutput(enableFloatOutput));
   }
 
-  /**
-   * Creates a new default audio sink, optionally using float output for high resolution PCM and
-   * with the specified {@code audioProcessorChain}.
-   *
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param audioProcessorChain An {@link AudioProcessorChain} which is used to apply playback
-   *     parameters adjustments. The instance passed in must not be reused in other sinks.
-   * @param enableFloatOutput Whether to enable 32-bit float output. Where possible, 32-bit float
-   *     output will be used if the input is 32-bit float, and also if the input is high resolution
-   *     (24-bit or 32-bit) integer PCM. Float output is supported from API level 21. Audio
-   *     processing (for example, speed adjustment) will not be available when float output is in
-   *     use.
-   * @param enableAudioTrackPlaybackParams Whether to enable setting playback speed using {@link
-   *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, if supported.
-   * @param offloadMode Audio offload configuration. If an audio format can be both played with
-   *     offload and encoded audio passthrough, it will be played in offload. Audio offload is
-   *     supported from API level 29. Most Android devices can only support one offload {@link
-   *     android.media.AudioTrack} at a time and can invalidate it at any time. Thus an app can
-   *     never be guaranteed that it will be able to play in offload. Audio processing (for example,
-   *     speed adjustment) will not be available when offload is in use.
-   */
+  /** @deprecated Use {@link Builder}. */
+  @Deprecated
+  @InlineMeValidationDisabled("Migrate constructor to Builder")
+  @InlineMe(
+      replacement =
+          "new DefaultAudioSink.Builder()"
+              + ".setAudioCapabilities(audioCapabilities)"
+              + ".setAudioProcessorChain(audioProcessorChain)"
+              + ".setEnableFloatOutput(enableFloatOutput)"
+              + ".setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)"
+              + ".setOffloadMode(offloadMode)"
+              + ".build()",
+      imports = "com.google.android.exoplayer2.audio.DefaultAudioSink")
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities,
       AudioProcessorChain audioProcessorChain,
       boolean enableFloatOutput,
       boolean enableAudioTrackPlaybackParams,
       @OffloadMode int offloadMode) {
-    this.audioCapabilities = audioCapabilities;
-    this.audioProcessorChain = Assertions.checkNotNull(audioProcessorChain);
-    this.enableFloatOutput = Util.SDK_INT >= 21 && enableFloatOutput;
-    this.enableAudioTrackPlaybackParams = Util.SDK_INT >= 23 && enableAudioTrackPlaybackParams;
-    this.offloadMode = Util.SDK_INT >= 29 ? offloadMode : OFFLOAD_MODE_DISABLED;
+    this(
+        new Builder()
+            .setAudioCapabilities(audioCapabilities)
+            .setAudioProcessorChain(audioProcessorChain)
+            .setEnableFloatOutput(enableFloatOutput)
+            .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
+            .setOffloadMode(offloadMode));
+  }
+
+  @RequiresNonNull("#1.audioProcessorChain")
+  private DefaultAudioSink(Builder builder) {
+    audioCapabilities = builder.audioCapabilities;
+    audioProcessorChain = builder.audioProcessorChain;
+    enableFloatOutput = Util.SDK_INT >= 21 && builder.enableFloatOutput;
+    enableAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
+    offloadMode = Util.SDK_INT >= 29 ? builder.offloadMode : OFFLOAD_MODE_DISABLED;
     releasingConditionVariable = new ConditionVariable(true);
     audioTrackPositionTracker = new AudioTrackPositionTracker(new PositionTrackerListener());
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
@@ -587,8 +693,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (useOffloadedPlayback(inputFormat, audioAttributes)) {
         outputMode = OUTPUT_MODE_OFFLOAD;
         outputEncoding =
-            MimeTypes.getEncoding(
-                Assertions.checkNotNull(inputFormat.sampleMimeType), inputFormat.codecs);
+            MimeTypes.getEncoding(checkNotNull(inputFormat.sampleMimeType), inputFormat.codecs);
         outputChannelConfig = Util.getAudioTrackChannelConfig(inputFormat.channelCount);
       } else {
         outputMode = OUTPUT_MODE_PASSTHROUGH;
@@ -862,7 +967,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   private AudioTrack buildAudioTrack() throws InitializationException {
     try {
-      return Assertions.checkNotNull(configuration)
+      return checkNotNull(configuration)
           .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
     } catch (InitializationException e) {
       maybeDisableOffload();
@@ -1207,7 +1312,7 @@ public final class DefaultAudioSink implements AudioSink {
         audioTrack.pause();
       }
       if (isOffloadedPlayback(audioTrack)) {
-        Assertions.checkNotNull(offloadStreamEventCallbackV29).unregister(audioTrack);
+        checkNotNull(offloadStreamEventCallbackV29).unregister(audioTrack);
       }
       // AudioTrack.release can take some time, so we call it on a background thread.
       final AudioTrack toRelease = audioTrack;
@@ -1509,8 +1614,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     @C.Encoding
-    int encoding =
-        MimeTypes.getEncoding(Assertions.checkNotNull(format.sampleMimeType), format.codecs);
+    int encoding = MimeTypes.getEncoding(checkNotNull(format.sampleMimeType), format.codecs);
     // Check for encodings that are known to work for passthrough with the implementation in this
     // class. This avoids trying to use passthrough with an encoding where the device/app reports
     // it's capable but it is untested or known to be broken (for example AAC-LC).
@@ -1621,8 +1725,7 @@ public final class DefaultAudioSink implements AudioSink {
       return false;
     }
     @C.Encoding
-    int encoding =
-        MimeTypes.getEncoding(Assertions.checkNotNull(format.sampleMimeType), format.codecs);
+    int encoding = MimeTypes.getEncoding(checkNotNull(format.sampleMimeType), format.codecs);
     if (encoding == C.ENCODING_INVALID) {
       return false;
     }
