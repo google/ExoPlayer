@@ -791,6 +791,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             == AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY) {
       mediaFormat.setInteger(MediaFormat.KEY_PCM_ENCODING, AudioFormat.ENCODING_PCM_FLOAT);
     }
+
+    if (Util.SDK_INT >= 32) {
+      // Disable down-mixing in the decoder (for decoders that read the max-output-channel-count
+      // key).
+      // TODO[b/190759307]: Update key to use MediaFormat.KEY_MAX_OUTPUT_CHANNEL_COUNT once the
+      //  compile SDK target is set to 32.
+      mediaFormat.setInteger("max-output-channel-count", 99);
+    }
     return mediaFormat;
   }
 
