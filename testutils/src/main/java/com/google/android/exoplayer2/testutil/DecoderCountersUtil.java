@@ -32,7 +32,8 @@ public final class DecoderCountersUtil {
    */
   public static int getTotalBufferCount(DecoderCounters counters) {
     counters.ensureUpdated();
-    return counters.skippedOutputBufferCount
+    return counters.skippedInputBufferCount
+        + counters.skippedOutputBufferCount
         + counters.droppedBufferCount
         + counters.renderedOutputBufferCount;
   }
@@ -45,6 +46,21 @@ public final class DecoderCountersUtil {
             "Codec(" + name + ") skipped " + actual + " buffers. Expected " + expected + ".")
         .that(actual)
         .isEqualTo(expected);
+  }
+
+  /** Asserts that the input and output values in {@code counters} are self-consistent. */
+  public static void assertTotalBufferCount(String name, DecoderCounters counters) {
+    // We allow one fewer output buffer due to the way that MediaCodecRenderer and the
+    // underlying decoders handle the end of stream. This should be tightened up in the future.
+    int totalInputBufferCount =
+        counters.skippedInputBufferCount
+            + counters.droppedInputBufferCount
+            + counters.inputBufferCount;
+    assertTotalBufferCount(
+        name,
+        counters,
+        /* minCount= */ totalInputBufferCount - 1,
+        /* maxCount= */ totalInputBufferCount);
   }
 
   public static void assertTotalBufferCount(

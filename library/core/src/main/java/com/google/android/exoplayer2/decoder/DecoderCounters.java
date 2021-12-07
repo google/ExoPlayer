@@ -30,12 +30,12 @@ public final class DecoderCounters {
   public int decoderInitCount;
   /** The number of times a decoder has been released. */
   public int decoderReleaseCount;
-  /** The number of queued input buffers. */
+  /** The number of input buffers queued to the decoder. */
   public int inputBufferCount;
   /**
    * The number of skipped input buffers.
    *
-   * <p>A skipped input buffer is an input buffer that was deliberately not sent to the decoder.
+   * <p>A skipped input buffer is an input buffer that was deliberately not queued to the decoder.
    */
   public int skippedInputBufferCount;
   /** The number of rendered output buffers. */
@@ -43,16 +43,28 @@ public final class DecoderCounters {
   /**
    * The number of skipped output buffers.
    *
-   * <p>A skipped output buffer is an output buffer that was deliberately not rendered.
+   * <p>A skipped output buffer is an output buffer that was deliberately not rendered. This
+   * includes buffers that were never dequeued from the decoder and instead skipped while 'inside'
+   * the codec due to a flush.
    */
   public int skippedOutputBufferCount;
   /**
    * The number of dropped buffers.
    *
-   * <p>A dropped buffer is an buffer that was supposed to be decoded/rendered, but was instead
+   * <p>A dropped buffer is a buffer that was supposed to be decoded/rendered, but was instead
    * dropped because it could not be rendered in time.
+   *
+   * <p>This includes all of {@link #droppedInputBufferCount} in addition to buffers dropped after
+   * being queued to the decoder.
    */
   public int droppedBufferCount;
+  /**
+   * The number of input buffers dropped.
+   *
+   * <p>A dropped input buffer is a buffer that was not queued to the decoder because it would not
+   * be rendered in time.
+   */
+  public int droppedInputBufferCount;
   /**
    * The maximum number of dropped buffers without an interleaving rendered output buffer.
    *
@@ -62,9 +74,16 @@ public final class DecoderCounters {
   /**
    * The number of times all buffers to a keyframe were dropped.
    *
-   * <p>Each time buffers to a keyframe are dropped, this counter is increased by one, and the
-   * dropped buffer counters are increased by one (for the current output buffer) plus the number of
-   * buffers dropped from the source to advance to the keyframe.
+   * <p>Each time buffers to a keyframe are dropped:
+   *
+   * <ul>
+   *   <li>This counter is incremented by one.
+   *   <li>{@link #droppedInputBufferCount} is incremented by the number of buffers dropped from the
+   *       source to advance to the keyframe.
+   *   <li>{@link #droppedBufferCount} is incremented by the sum of the number of buffers dropped
+   *       from the source to advance to the keyframe and the number of buffers 'inside' the
+   *       decoder.
+   * </ul>
    */
   public int droppedToKeyframeCount;
   /**
@@ -111,6 +130,7 @@ public final class DecoderCounters {
     renderedOutputBufferCount += other.renderedOutputBufferCount;
     skippedOutputBufferCount += other.skippedOutputBufferCount;
     droppedBufferCount += other.droppedBufferCount;
+    droppedInputBufferCount += other.droppedInputBufferCount;
     maxConsecutiveDroppedBufferCount =
         max(maxConsecutiveDroppedBufferCount, other.maxConsecutiveDroppedBufferCount);
     droppedToKeyframeCount += other.droppedToKeyframeCount;
