@@ -1144,6 +1144,18 @@ public final class Util {
   }
 
   /**
+   * Converts a time in seconds to the corresponding time in microseconds.
+   *
+   * @param timeSec The time in seconds.
+   * @return The corresponding time in microseconds.
+   */
+  public static long secToUs(double timeSec) {
+    return BigDecimal.valueOf(timeSec)
+        .multiply(BigDecimal.valueOf(C.MICROS_PER_SECOND))
+        .longValue();
+  }
+
+  /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
    * @param value The attribute value to decode.

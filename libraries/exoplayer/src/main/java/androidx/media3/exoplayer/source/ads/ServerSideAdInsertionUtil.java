@@ -70,16 +70,8 @@ public final class ServerSideAdInsertionUtil {
             .withAdCount(insertionIndex, /* adCount= */ 1)
             .withAdDurationsUs(insertionIndex, adDurationUs)
             .withContentResumeOffsetUs(insertionIndex, contentResumeOffsetUs);
-    long followingAdGroupTimeUsOffset = -adDurationUs + contentResumeOffsetUs;
-    for (int i = insertionIndex + 1; i < adPlaybackState.adGroupCount; i++) {
-      long adGroupTimeUs = adPlaybackState.getAdGroup(i).timeUs;
-      if (adGroupTimeUs != C.TIME_END_OF_SOURCE) {
-        adPlaybackState =
-            adPlaybackState.withAdGroupTimeUs(
-                /* adGroupIndex= */ i, adGroupTimeUs + followingAdGroupTimeUsOffset);
-      }
-    }
-    return adPlaybackState;
+    return correctFollowingAdGroupTimes(
+        adPlaybackState, insertionIndex, adDurationUs, contentResumeOffsetUs);
   }
 
   /**
@@ -316,5 +308,22 @@ public final class ServerSideAdInsertionUtil {
   public static int getAdCountInGroup(AdPlaybackState adPlaybackState, int adGroupIndex) {
     AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     return adGroup.count == C.LENGTH_UNSET ? 0 : adGroup.count;
+  }
+
+  private static AdPlaybackState correctFollowingAdGroupTimes(
+      AdPlaybackState adPlaybackState,
+      int adGroupInsertionIndex,
+      long insertedAdDurationUs,
+      long addedContentResumeOffsetUs) {
+    long followingAdGroupTimeUsOffset = -insertedAdDurationUs + addedContentResumeOffsetUs;
+    for (int i = adGroupInsertionIndex + 1; i < adPlaybackState.adGroupCount; i++) {
+      long adGroupTimeUs = adPlaybackState.getAdGroup(i).timeUs;
+      if (adGroupTimeUs != C.TIME_END_OF_SOURCE) {
+        adPlaybackState =
+            adPlaybackState.withAdGroupTimeUs(
+                /* adGroupIndex= */ i, adGroupTimeUs + followingAdGroupTimeUsOffset);
+      }
+    }
+    return adPlaybackState;
   }
 }
