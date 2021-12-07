@@ -89,7 +89,7 @@ import java.util.Map;
       // We're only interested in metadata.
       return false;
     }
-    if (data.getData().length <= data.getPosition()) {
+    if (data.bytesLeft() == 0) {
       return false;
     }
     int type = readAmfType(data);
