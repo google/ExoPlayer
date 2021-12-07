@@ -31,7 +31,7 @@ public final class DecoderCounters {
   /** The number of times a decoder has been released. */
   public int decoderReleaseCount;
   /** The number of input buffers queued to the decoder. */
-  public int inputBufferCount;
+  public int queuedInputBufferCount;
   /**
    * The number of skipped input buffers.
    *
@@ -68,7 +68,7 @@ public final class DecoderCounters {
   /**
    * The maximum number of dropped buffers without an interleaving rendered output buffer.
    *
-   * <p>Skipped output buffers are ignored for the purposes of calculating this value.
+   * <p>Skipped buffers are ignored for the purposes of calculating this value.
    */
   public int maxConsecutiveDroppedBufferCount;
   /**
@@ -125,7 +125,7 @@ public final class DecoderCounters {
   public void merge(DecoderCounters other) {
     decoderInitCount += other.decoderInitCount;
     decoderReleaseCount += other.decoderReleaseCount;
-    inputBufferCount += other.inputBufferCount;
+    queuedInputBufferCount += other.queuedInputBufferCount;
     skippedInputBufferCount += other.skippedInputBufferCount;
     renderedOutputBufferCount += other.renderedOutputBufferCount;
     skippedOutputBufferCount += other.skippedOutputBufferCount;

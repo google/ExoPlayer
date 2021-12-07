@@ -36,6 +36,7 @@
         the `Format#id` field of the subtitle track created from the
         configuration
         ((#9673)[https://github.com/google/ExoPlayer/issues/9673]).
+    *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
 *   DRM:
     *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
         When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
