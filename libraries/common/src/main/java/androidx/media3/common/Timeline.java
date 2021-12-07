@@ -1201,13 +1201,13 @@ public abstract class Timeline implements Bundleable {
   }
 
   /**
-   * Calls {@link #getPeriodPosition(Window, Period, int, long, long)} with a zero default position
+   * Calls {@link #getPeriodPositionUs(Window, Period, int, long)} with a zero default position
    * projection.
    */
   public final Pair<Object, Long> getPeriodPositionUs(
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return Assertions.checkNotNull(
-        getPeriodPosition(
+        getPeriodPositionUs(
             window, period, windowIndex, windowPositionUs, /* defaultPositionProjectionUs= */ 0));
   }
 
