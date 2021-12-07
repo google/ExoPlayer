@@ -1111,7 +1111,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.beginSection("dropVideoBuffer");
     codec.releaseOutputBuffer(index, false);
     TraceUtil.endSection();
-    updateDroppedBufferCounters(1);
+    updateDroppedBufferCounters(
+        /* droppedInputBufferCount= */ 0, /* droppedDecoderBufferCount= */ 1);
   }
 
   /**
@@ -1131,29 +1132,35 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (droppedSourceBufferCount == 0) {
       return false;
     }
-    decoderCounters.droppedToKeyframeCount++;
     // We dropped some buffers to catch up, so update the decoder counters and flush the codec,
     // which releases all pending buffers buffers including the current output buffer.
-    int totalDroppedBufferCount = buffersInCodecCount + droppedSourceBufferCount;
     if (treatDroppedBuffersAsSkipped) {
-      decoderCounters.skippedOutputBufferCount += totalDroppedBufferCount;
+      decoderCounters.skippedInputBufferCount += droppedSourceBufferCount;
+      decoderCounters.skippedOutputBufferCount += buffersInCodecCount;
     } else {
-      updateDroppedBufferCounters(totalDroppedBufferCount);
+      decoderCounters.droppedToKeyframeCount++;
+      updateDroppedBufferCounters(
+          droppedSourceBufferCount, /* droppedDecoderBufferCount= */ buffersInCodecCount);
     }
     flushOrReinitializeCodec();
     return true;
   }
 
   /**
-   * Updates local counters and {@link DecoderCounters} to reflect that {@code droppedBufferCount}
-   * additional buffers were dropped.
+   * Updates local counters and {@link #decoderCounters} to reflect that buffers were dropped.
    *
-   * @param droppedBufferCount The number of additional dropped buffers.
+   * @param droppedInputBufferCount The number of buffers dropped from the source before being
+   *     passed to the decoder.
+   * @param droppedDecoderBufferCount The number of buffers dropped after being passed to the
+   *     decoder.
    */
-  protected void updateDroppedBufferCounters(int droppedBufferCount) {
-    decoderCounters.droppedBufferCount += droppedBufferCount;
-    droppedFrames += droppedBufferCount;
-    consecutiveDroppedFrameCount += droppedBufferCount;
+  protected void updateDroppedBufferCounters(
+      int droppedInputBufferCount, int droppedDecoderBufferCount) {
+    decoderCounters.droppedInputBufferCount += droppedInputBufferCount;
+    int totalDroppedBufferCount = droppedInputBufferCount + droppedDecoderBufferCount;
+    decoderCounters.droppedBufferCount += totalDroppedBufferCount;
+    droppedFrames += totalDroppedBufferCount;
+    consecutiveDroppedFrameCount += totalDroppedBufferCount;
     decoderCounters.maxConsecutiveDroppedBufferCount =
         max(consecutiveDroppedFrameCount, decoderCounters.maxConsecutiveDroppedBufferCount);
     if (maxDroppedFramesToNotify > 0 && droppedFrames >= maxDroppedFramesToNotify) {
