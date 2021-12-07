@@ -499,7 +499,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         maskTimelineAndPosition(
             playbackInfo,
             newTimeline,
-            getPeriodPositionAfterTimelineChanged(oldTimeline, newTimeline));
+            getPeriodPositionUsAfterTimelineChanged(oldTimeline, newTimeline));
     internalPlayer.addMediaSources(index, holders, shuffleOrder);
     updatePlaybackInfo(
         newPlaybackInfo,
@@ -543,7 +543,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         maskTimelineAndPosition(
             playbackInfo,
             newTimeline,
-            getPeriodPositionAfterTimelineChanged(oldTimeline, newTimeline));
+            getPeriodPositionUsAfterTimelineChanged(oldTimeline, newTimeline));
     internalPlayer.moveMediaSources(fromIndex, toIndex, newFromIndex, shuffleOrder);
     updatePlaybackInfo(
         newPlaybackInfo,
@@ -562,7 +562,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         maskTimelineAndPosition(
             playbackInfo,
             timeline,
-            getPeriodPositionOrMaskWindowPosition(
+            maskWindowPositionMsOrGetPeriodPositionUs(
                 timeline, getCurrentMediaItemIndex(), getCurrentPosition()));
     pendingOperationAcks++;
     this.shuffleOrder = shuffleOrder;
@@ -680,7 +680,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         maskTimelineAndPosition(
             newPlaybackInfo,
             timeline,
-            getPeriodPositionOrMaskWindowPosition(timeline, mediaItemIndex, positionMs));
+            maskWindowPositionMsOrGetPeriodPositionUs(timeline, mediaItemIndex, positionMs));
     internalPlayer.seekTo(timeline, mediaItemIndex, Util.msToUs(positionMs));
     updatePlaybackInfo(
         newPlaybackInfo,
@@ -1441,7 +1441,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         maskTimelineAndPosition(
             playbackInfo,
             timeline,
-            getPeriodPositionOrMaskWindowPosition(timeline, startWindowIndex, startPositionMs));
+            maskWindowPositionMsOrGetPeriodPositionUs(timeline, startWindowIndex, startPositionMs));
     // Mask the playback state.
     int maskingPlaybackState = newPlaybackInfo.playbackState;
     if (startWindowIndex != C.INDEX_UNSET && newPlaybackInfo.playbackState != STATE_IDLE) {
@@ -1499,7 +1499,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         maskTimelineAndPosition(
             playbackInfo,
             newTimeline,
-            getPeriodPositionAfterTimelineChanged(oldTimeline, newTimeline));
+            getPeriodPositionUsAfterTimelineChanged(oldTimeline, newTimeline));
     // Player transitions to STATE_ENDED if the current index is part of the removed tail.
     final boolean transitionsToEnded =
         newPlaybackInfo.playbackState != STATE_IDLE
@@ -1526,8 +1526,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   private PlaybackInfo maskTimelineAndPosition(
-      PlaybackInfo playbackInfo, Timeline timeline, @Nullable Pair<Object, Long> periodPosition) {
-    Assertions.checkArgument(timeline.isEmpty() || periodPosition != null);
+      PlaybackInfo playbackInfo, Timeline timeline, @Nullable Pair<Object, Long> periodPositionUs) {
+    Assertions.checkArgument(timeline.isEmpty() || periodPositionUs != null);
     Timeline oldTimeline = playbackInfo.timeline;
     // Mask the timeline.
     playbackInfo = playbackInfo.copyWithTimeline(timeline);
@@ -1552,10 +1552,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
 
     Object oldPeriodUid = playbackInfo.periodId.periodUid;
-    boolean playingPeriodChanged = !oldPeriodUid.equals(castNonNull(periodPosition).first);
+    boolean playingPeriodChanged = !oldPeriodUid.equals(castNonNull(periodPositionUs).first);
     MediaPeriodId newPeriodId =
-        playingPeriodChanged ? new MediaPeriodId(periodPosition.first) : playbackInfo.periodId;
-    long newContentPositionUs = periodPosition.second;
+        playingPeriodChanged ? new MediaPeriodId(periodPositionUs.first) : playbackInfo.periodId;
+    long newContentPositionUs = periodPositionUs.second;
     long oldContentPositionUs = Util.msToUs(getContentPosition());
     if (!oldTimeline.isEmpty()) {
       oldContentPositionUs -=
@@ -1631,25 +1631,25 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Nullable
-  private Pair<Object, Long> getPeriodPositionAfterTimelineChanged(
+  private Pair<Object, Long> getPeriodPositionUsAfterTimelineChanged(
       Timeline oldTimeline, Timeline newTimeline) {
     long currentPositionMs = getContentPosition();
     if (oldTimeline.isEmpty() || newTimeline.isEmpty()) {
       boolean isCleared = !oldTimeline.isEmpty() && newTimeline.isEmpty();
-      return getPeriodPositionOrMaskWindowPosition(
+      return maskWindowPositionMsOrGetPeriodPositionUs(
           newTimeline,
           isCleared ? C.INDEX_UNSET : getCurrentWindowIndexInternal(),
           isCleared ? C.TIME_UNSET : currentPositionMs);
     }
     int currentMediaItemIndex = getCurrentMediaItemIndex();
     @Nullable
-    Pair<Object, Long> oldPeriodPosition =
-        oldTimeline.getPeriodPosition(
+    Pair<Object, Long> oldPeriodPositionUs =
+        oldTimeline.getPeriodPositionUs(
             window, period, currentMediaItemIndex, Util.msToUs(currentPositionMs));
-    Object periodUid = castNonNull(oldPeriodPosition).first;
+    Object periodUid = castNonNull(oldPeriodPositionUs).first;
     if (newTimeline.getIndexOfPeriod(periodUid) != C.INDEX_UNSET) {
       // The old period position is still available in the new timeline.
-      return oldPeriodPosition;
+      return oldPeriodPositionUs;
     }
     // Period uid not found in new timeline. Try to get subsequent period.
     @Nullable
@@ -1659,19 +1659,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (nextPeriodUid != null) {
       // Reset position to the default position of the window of the subsequent period.
       newTimeline.getPeriodByUid(nextPeriodUid, period);
-      return getPeriodPositionOrMaskWindowPosition(
+      return maskWindowPositionMsOrGetPeriodPositionUs(
           newTimeline,
           period.windowIndex,
           newTimeline.getWindow(period.windowIndex, window).getDefaultPositionMs());
     } else {
       // No subsequent period found and the new timeline is not empty. Use the default position.
-      return getPeriodPositionOrMaskWindowPosition(
+      return maskWindowPositionMsOrGetPeriodPositionUs(
           newTimeline, /* windowIndex= */ C.INDEX_UNSET, /* windowPositionMs= */ C.TIME_UNSET);
     }
   }
 
   @Nullable
-  private Pair<Object, Long> getPeriodPositionOrMaskWindowPosition(
+  private Pair<Object, Long> maskWindowPositionMsOrGetPeriodPositionUs(
       Timeline timeline, int windowIndex, long windowPositionMs) {
     if (timeline.isEmpty()) {
       // If empty we store the initial seek in the masking variables.
@@ -1686,7 +1686,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       windowIndex = timeline.getFirstWindowIndex(shuffleModeEnabled);
       windowPositionMs = timeline.getWindow(windowIndex, window).getDefaultPositionMs();
     }
-    return timeline.getPeriodPosition(window, period, windowIndex, Util.msToUs(windowPositionMs));
+    return timeline.getPeriodPositionUs(window, period, windowIndex, Util.msToUs(windowPositionMs));
   }
 
   private long periodPositionUsToWindowPositionUs(
