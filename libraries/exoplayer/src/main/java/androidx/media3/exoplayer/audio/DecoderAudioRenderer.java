@@ -57,6 +57,7 @@ import androidx.media3.exoplayer.audio.AudioSink.SinkFormatSupport;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
+import com.google.common.base.MoreObjects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -175,7 +176,15 @@ public abstract class DecoderAudioRenderer<
       @Nullable AudioRendererEventListener eventListener,
       @Nullable AudioCapabilities audioCapabilities,
       AudioProcessor... audioProcessors) {
-    this(eventHandler, eventListener, new DefaultAudioSink(audioCapabilities, audioProcessors));
+    this(
+        eventHandler,
+        eventListener,
+        new DefaultAudioSink.Builder()
+            .setAudioCapabilities(
+                MoreObjects.firstNonNull(
+                    audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
+            .setAudioProcessors(audioProcessors)
+            .build());
   }
 
   /**

@@ -159,7 +159,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         mediaCodecSelector,
         eventHandler,
         eventListener,
-        new DefaultAudioSink(audioCapabilities, audioProcessors));
+        new DefaultAudioSink.Builder()
+            .setAudioCapabilities(audioCapabilities)
+            .setAudioProcessors(audioProcessors)
+            .build());
   }
 
   /**

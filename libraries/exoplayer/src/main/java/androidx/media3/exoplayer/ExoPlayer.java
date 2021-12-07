@@ -47,7 +47,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
-import androidx.media3.exoplayer.audio.AudioCapabilities;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.DefaultAudioSink;
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer;
@@ -1585,8 +1584,7 @@ public interface ExoPlayer extends Player {
    * <ul>
    *   <li>Audio offload rendering is enabled in {@link
    *       DefaultRenderersFactory#setEnableAudioOffload} or the equivalent option passed to {@link
-   *       DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
-   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean, int)}.
+   *       DefaultAudioSink.Builder#setOffloadMode}.
    *   <li>An audio track is playing in a format that the device supports offloading (for example,
    *       MP3 or AAC).
    *   <li>The {@link AudioSink} is playing with an offload {@link AudioTrack}.

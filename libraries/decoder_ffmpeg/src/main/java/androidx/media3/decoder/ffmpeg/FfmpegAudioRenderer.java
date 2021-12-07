@@ -66,7 +66,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
     this(
         eventHandler,
         eventListener,
-        new DefaultAudioSink(/* audioCapabilities= */ null, audioProcessors));
+        new DefaultAudioSink.Builder().setAudioProcessors(audioProcessors).build());
   }
 
   /**

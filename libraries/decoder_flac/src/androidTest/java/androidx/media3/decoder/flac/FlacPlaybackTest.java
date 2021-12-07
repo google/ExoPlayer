@@ -28,7 +28,6 @@ import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RenderersFactory;
-import androidx.media3.exoplayer.audio.AudioProcessor;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.DefaultAudioSink;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -67,9 +66,7 @@ public class FlacPlaybackTest {
   }
 
   private static void playAndAssertAudioSinkInput(String fileName) throws Exception {
-    CapturingAudioSink audioSink =
-        new CapturingAudioSink(
-            new DefaultAudioSink(/* audioCapabilities= */ null, new AudioProcessor[0]));
+    CapturingAudioSink audioSink = new CapturingAudioSink(new DefaultAudioSink.Builder().build());
 
     TestPlaybackRunnable testPlaybackRunnable =
         new TestPlaybackRunnable(

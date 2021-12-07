@@ -28,7 +28,6 @@ import androidx.media3.exoplayer.audio.AudioCapabilities;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.DefaultAudioSink;
-import androidx.media3.exoplayer.audio.DefaultAudioSink.DefaultAudioProcessorChain;
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer;
 import androidx.media3.exoplayer.mediacodec.DefaultMediaCodecAdapterFactory;
 import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter;
@@ -666,14 +665,15 @@ public class DefaultRenderersFactory implements RenderersFactory {
       boolean enableFloatOutput,
       boolean enableAudioTrackPlaybackParams,
       boolean enableOffload) {
-    return new DefaultAudioSink(
-        AudioCapabilities.getCapabilities(context),
-        new DefaultAudioProcessorChain(),
-        enableFloatOutput,
-        enableAudioTrackPlaybackParams,
-        enableOffload
-            ? DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
-            : DefaultAudioSink.OFFLOAD_MODE_DISABLED);
+    return new DefaultAudioSink.Builder()
+        .setAudioCapabilities(AudioCapabilities.getCapabilities(context))
+        .setEnableFloatOutput(enableFloatOutput)
+        .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
+        .setOffloadMode(
+            enableOffload
+                ? DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
+                : DefaultAudioSink.OFFLOAD_MODE_DISABLED)
+        .build();
   }
 
   /**
