@@ -37,6 +37,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ui.AdOverlayInfo;
+import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -135,31 +136,28 @@ import java.util.Set;
     }
   }
 
-  /** Stores configuration for DAI ad playback. */
-  static final class DaiConfiguration {
+  /** Stores configuration for playing server side ad insertion content. */
+  public static final class ServerSideAdInsertionConfiguration {
 
-    public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
+    public final AdViewProvider adViewProvider;
+    public final ImaSdkSettings imaSdkSettings;
+    @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
+    @Nullable public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
+    public final ImmutableList<CompanionAdSlot> companionAdSlots;
     public final boolean debugModeEnabled;
 
-    @Nullable public final List<CompanionAdSlot> companionAdSlots;
-    @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
-    @Nullable public final VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback;
-    @Nullable public final ImaSdkSettings imaSdkSettings;
-
-    public DaiConfiguration(
-        AdErrorEvent.AdErrorListener applicationAdErrorListener,
-        @Nullable List<CompanionAdSlot> companionAdSlots,
+    public ServerSideAdInsertionConfiguration(
+        AdViewProvider adViewProvider,
+        ImaSdkSettings imaSdkSettings,
         @Nullable AdEvent.AdEventListener applicationAdEventListener,
-        @Nullable VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback,
-        @Nullable ImaSdkSettings imaSdkSettings,
+        @Nullable AdErrorEvent.AdErrorListener applicationAdErrorListener,
+        List<CompanionAdSlot> companionAdSlots,
         boolean debugModeEnabled) {
-
-      this.applicationAdErrorListener = applicationAdErrorListener;
-      this.companionAdSlots =
-          companionAdSlots != null ? ImmutableList.copyOf(companionAdSlots) : null;
-      this.applicationAdEventListener = applicationAdEventListener;
-      this.applicationVideoAdPlayerCallback = applicationVideoAdPlayerCallback;
       this.imaSdkSettings = imaSdkSettings;
+      this.adViewProvider = adViewProvider;
+      this.applicationAdEventListener = applicationAdEventListener;
+      this.applicationAdErrorListener = applicationAdErrorListener;
+      this.companionAdSlots = ImmutableList.copyOf(companionAdSlots);
       this.debugModeEnabled = debugModeEnabled;
     }
   }
