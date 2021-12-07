@@ -255,7 +255,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     HlsMediaPlaylist mediaPlaylist =
         selectedIndex < playlistUrls.length && selectedIndex != C.INDEX_UNSET
             ? playlistTracker.getPlaylistSnapshot(
-                playlistUrls[selectedIndex], /* isForPlayback= */ true)
+                playlistUrls[trackSelection.getIndexInTrackGroup(selectedIndex)], /* isForPlayback= */ true)
             : null;
 
     if (mediaPlaylist == null
