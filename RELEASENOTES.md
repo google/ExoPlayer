@@ -14,6 +14,10 @@
         `TrackGroup` constructor. This fixes a crash when resuming playback
         after backgrounding the app with an active track override
         ((#9718)[https://github.com/google/ExoPlayer/issues/9718]).
+    *   Sleep and retry when creating a `MediaCodec` instance fails. This works
+        around an issue that occurs on some devices when switching a surface
+        from a secure codec to another codec
+        (#8696)[https://github.com/google/ExoPlayer/issues/8696].
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
