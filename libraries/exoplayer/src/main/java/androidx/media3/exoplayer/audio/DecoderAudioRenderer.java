@@ -19,6 +19,7 @@ import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_DR
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 
 import android.os.Handler;
@@ -57,7 +58,6 @@ import androidx.media3.exoplayer.audio.AudioSink.SinkFormatSupport;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
-import com.google.common.base.MoreObjects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -167,22 +167,22 @@ public abstract class DecoderAudioRenderer<
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param audioCapabilities The audio capabilities for playback on this device. Use {@link
+   *     AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES} if default capabilities (no encoded audio
+   *     passthrough support) should be assumed.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public DecoderAudioRenderer(
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
-      @Nullable AudioCapabilities audioCapabilities,
+      AudioCapabilities audioCapabilities,
       AudioProcessor... audioProcessors) {
     this(
         eventHandler,
         eventListener,
         new DefaultAudioSink.Builder()
-            .setAudioCapabilities(
-                MoreObjects.firstNonNull(
-                    audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
+            .setAudioCapabilities( // For backward compatibility, null == default.
+                firstNonNull(audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
             .setAudioProcessors(audioProcessors)
             .build());
   }

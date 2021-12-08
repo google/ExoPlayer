@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.audio;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 
 import android.annotation.SuppressLint;
@@ -133,7 +134,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       MediaCodecSelector mediaCodecSelector,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener) {
-    this(context, mediaCodecSelector, eventHandler, eventListener, (AudioCapabilities) null);
+    this(
+        context,
+        mediaCodecSelector,
+        eventHandler,
+        eventListener,
+        AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES);
   }
 
   /**
@@ -142,8 +148,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param audioCapabilities The audio capabilities for playback on this device. Use {@link
+   *     AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES} if default capabilities (no encoded audio
+   *     passthrough support) should be assumed.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
    *     output.
    */
@@ -152,7 +159,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       MediaCodecSelector mediaCodecSelector,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
-      @Nullable AudioCapabilities audioCapabilities,
+      AudioCapabilities audioCapabilities,
       AudioProcessor... audioProcessors) {
     this(
         context,
@@ -160,7 +167,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         eventHandler,
         eventListener,
         new DefaultAudioSink.Builder()
-            .setAudioCapabilities(audioCapabilities)
+            .setAudioCapabilities( // For backward compatibility, null == default.
+                firstNonNull(audioCapabilities, AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES))
             .setAudioProcessors(audioProcessors)
             .build());
   }
