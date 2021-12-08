@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
@@ -25,6 +27,9 @@ import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.view.Surface;
+import android.view.SurfaceView;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 
@@ -43,6 +48,8 @@ import java.io.IOException;
    * @param outputHeight The output height in pixels.
    * @param transformationMatrix The transformation matrix to apply to each frame.
    * @param outputSurface The {@link Surface}.
+   * @param debugViewProvider Provider for optional debug views to show intermediate output, for
+   *     debugging.
    * @return A configured {@code FrameEditor}.
    */
   public static FrameEditor create(
@@ -50,7 +57,8 @@ import java.io.IOException;
       int outputWidth,
       int outputHeight,
       Matrix transformationMatrix,
-      Surface outputSurface) {
+      Surface outputSurface,
+      Transformer.DebugViewProvider debugViewProvider) {
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     EGLContext eglContext;
     try {
@@ -93,7 +101,33 @@ import java.io.IOException;
     float[] transformationMatrixArray = getGlMatrixArray(transformationMatrix);
     glProgram.setFloatsUniform("transformation_matrix", transformationMatrixArray);
 
-    return new FrameEditor(eglDisplay, eglContext, eglSurface, textureId, glProgram);
+    @Nullable
+    SurfaceView debugSurfaceView =
+        debugViewProvider.getDebugPreviewSurfaceView(outputWidth, outputHeight);
+    @Nullable EGLSurface debugPreviewEglSurface;
+    int debugPreviewWidth;
+    int debugPreviewHeight;
+    if (debugSurfaceView != null) {
+      debugPreviewEglSurface =
+          GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+      debugPreviewWidth = debugSurfaceView.getWidth();
+      debugPreviewHeight = debugSurfaceView.getHeight();
+    } else {
+      debugPreviewEglSurface = null;
+      debugPreviewWidth = Format.NO_VALUE;
+      debugPreviewHeight = Format.NO_VALUE;
+    }
+    return new FrameEditor(
+        eglDisplay,
+        eglContext,
+        eglSurface,
+        textureId,
+        glProgram,
+        outputWidth,
+        outputHeight,
+        debugPreviewEglSurface,
+        debugPreviewWidth,
+        debugPreviewHeight);
   }
 
   /**
@@ -147,8 +181,12 @@ import java.io.IOException;
   private final int textureId;
   private final SurfaceTexture inputSurfaceTexture;
   private final Surface inputSurface;
-
   private final GlUtil.Program glProgram;
+  private final int outputWidth;
+  private final int outputHeight;
+  @Nullable private final EGLSurface debugPreviewEglSurface;
+  private final int debugPreviewWidth;
+  private final int debugPreviewHeight;
 
   private volatile boolean hasInputData;
 
@@ -157,12 +195,22 @@ import java.io.IOException;
       EGLContext eglContext,
       EGLSurface eglSurface,
       int textureId,
-      GlUtil.Program glProgram) {
+      GlUtil.Program glProgram,
+      int outputWidth,
+      int outputHeight,
+      @Nullable EGLSurface debugPreviewEglSurface,
+      int debugPreviewWidth,
+      int debugPreviewHeight) {
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.eglSurface = eglSurface;
     this.textureId = textureId;
     this.glProgram = glProgram;
+    this.outputWidth = outputWidth;
+    this.outputHeight = outputHeight;
+    this.debugPreviewEglSurface = debugPreviewEglSurface;
+    this.debugPreviewWidth = debugPreviewWidth;
+    this.debugPreviewHeight = debugPreviewHeight;
     textureTransformMatrix = new float[16];
     inputSurfaceTexture = new SurfaceTexture(textureId);
     inputSurfaceTexture.setOnFrameAvailableListener(surfaceTexture -> hasInputData = true);
@@ -188,10 +236,17 @@ import java.io.IOException;
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
     glProgram.setFloatsUniform("tex_transform", textureTransformMatrix);
     glProgram.bindAttributesAndUniforms();
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+
+    focusAndDrawQuad(eglSurface, outputWidth, outputHeight);
     long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
     EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+
+    if (debugPreviewEglSurface != null) {
+      focusAndDrawQuad(debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
+      EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
+    }
+
     hasInputData = false;
   }
 
@@ -202,5 +257,14 @@ import java.io.IOException;
     GlUtil.destroyEglContext(eglDisplay, eglContext);
     inputSurfaceTexture.release();
     inputSurface.release();
+  }
+
+  /**
+   * Focuses the specified surface with the specified width and height, then draws a four-vertex
+   * triangle strip (which is a quadrilateral).
+   */
+  private void focusAndDrawQuad(EGLSurface eglSurface, int width, int height) {
+    GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, width, height);
+    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
   }
 }
