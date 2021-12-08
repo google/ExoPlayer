@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  * work during upgrades. However it is generally inadvisable for libraries (which get included on
  * users' CLASSPATHs, outside the library developers' control) to do so.
  *
- * <h3>Opting in to use unstable APIs</h3>
+ * <h2>Opting in to use unstable APIs</h2>
  *
  * <p>By default usages of APIs annotated with this annotation generate lint errors in Gradle and
  * Android Studio, in order to alert developers to the risk of breaking changes.
