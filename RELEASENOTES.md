@@ -28,6 +28,8 @@
 *   Audio:
     *   Add a `Builder` to `DefaultAudioSink` and deprecate the existing
         constructors.
+    *   Change `AudioCapabilities` APIs to require passing explicitly
+        `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).

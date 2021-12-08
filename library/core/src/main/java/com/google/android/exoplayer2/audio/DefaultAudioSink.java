@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -210,7 +212,7 @@ public final class DefaultAudioSink implements AudioSink {
   /** A builder to create {@link DefaultAudioSink} instances. */
   public static final class Builder {
 
-    @Nullable private AudioCapabilities audioCapabilities;
+    private AudioCapabilities audioCapabilities;
     @Nullable private AudioProcessorChain audioProcessorChain;
     private boolean enableFloatOutput;
     private boolean enableAudioTrackPlaybackParams;
@@ -218,6 +220,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     /** Creates a new builder. */
     public Builder() {
+      audioCapabilities = DEFAULT_AUDIO_CAPABILITIES;
       offloadMode = OFFLOAD_MODE_DISABLED;
     }
 
@@ -225,9 +228,10 @@ public final class DefaultAudioSink implements AudioSink {
      * Sets audio capabilities for playback on this device. May be {@code null} if the default
      * capabilities (no encoded audio passthrough support) should be assumed.
      *
-     * <p>The default value is {@code null}.
+     * <p>Default is {@link AudioCapabilities#DEFAULT_AUDIO_CAPABILITIES}.
      */
-    public Builder setAudioCapabilities(@Nullable AudioCapabilities audioCapabilities) {
+    public Builder setAudioCapabilities(AudioCapabilities audioCapabilities) {
+      checkNotNull(audioCapabilities);
       this.audioCapabilities = audioCapabilities;
       return this;
     }
@@ -413,7 +417,7 @@ public final class DefaultAudioSink implements AudioSink {
    */
   public static boolean failOnSpuriousAudioTimestamp = false;
 
-  @Nullable private final AudioCapabilities audioCapabilities;
+  private final AudioCapabilities audioCapabilities;
   private final AudioProcessorChain audioProcessorChain;
   private final boolean enableFloatOutput;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
@@ -486,7 +490,10 @@ public final class DefaultAudioSink implements AudioSink {
       imports = "com.google.android.exoplayer2.audio.DefaultAudioSink")
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors) {
-    this(new Builder().setAudioCapabilities(audioCapabilities).setAudioProcessors(audioProcessors));
+    this(
+        new Builder()
+            .setAudioCapabilities(firstNonNull(audioCapabilities, DEFAULT_AUDIO_CAPABILITIES))
+            .setAudioProcessors(audioProcessors));
   }
 
   /** @deprecated Use {@link Builder}. */
@@ -506,7 +513,7 @@ public final class DefaultAudioSink implements AudioSink {
       boolean enableFloatOutput) {
     this(
         new Builder()
-            .setAudioCapabilities(audioCapabilities)
+            .setAudioCapabilities(firstNonNull(audioCapabilities, DEFAULT_AUDIO_CAPABILITIES))
             .setAudioProcessors(audioProcessors)
             .setEnableFloatOutput(enableFloatOutput));
   }
@@ -532,7 +539,7 @@ public final class DefaultAudioSink implements AudioSink {
       @OffloadMode int offloadMode) {
     this(
         new Builder()
-            .setAudioCapabilities(audioCapabilities)
+            .setAudioCapabilities(firstNonNull(audioCapabilities, DEFAULT_AUDIO_CAPABILITIES))
             .setAudioProcessorChain(audioProcessorChain)
             .setEnableFloatOutput(enableFloatOutput)
             .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
@@ -1592,7 +1599,7 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private static boolean isPassthroughPlaybackSupported(
-      Format format, @Nullable AudioCapabilities audioCapabilities) {
+      Format format, AudioCapabilities audioCapabilities) {
     return getEncodingAndChannelConfigForPassthrough(format, audioCapabilities) != null;
   }
 
@@ -1608,11 +1615,7 @@ public final class DefaultAudioSink implements AudioSink {
    */
   @Nullable
   private static Pair<Integer, Integer> getEncodingAndChannelConfigForPassthrough(
-      Format format, @Nullable AudioCapabilities audioCapabilities) {
-    if (audioCapabilities == null) {
-      return null;
-    }
-
+      Format format, AudioCapabilities audioCapabilities) {
     @C.Encoding
     int encoding = MimeTypes.getEncoding(checkNotNull(format.sampleMimeType), format.codecs);
     // Check for encodings that are known to work for passthrough with the implementation in this

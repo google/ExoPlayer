@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import static com.google.android.exoplayer2.audio.AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES;
 import static com.google.android.exoplayer2.audio.AudioSink.CURRENT_POSITION_NOT_SET;
 import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
 import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
@@ -61,7 +60,6 @@ public final class DefaultAudioSinkTest {
     TeeAudioProcessor teeAudioProcessor = new TeeAudioProcessor(arrayAudioBufferSink);
     defaultAudioSink =
         new DefaultAudioSink.Builder()
-            .setAudioCapabilities(DEFAULT_AUDIO_CAPABILITIES)
             .setAudioProcessorChain(new DefaultAudioProcessorChain(teeAudioProcessor))
             .setOffloadMode(DefaultAudioSink.OFFLOAD_MODE_DISABLED)
             .build();
@@ -70,10 +68,7 @@ public final class DefaultAudioSinkTest {
   @Test
   public void handlesSpecializedAudioProcessorArray() {
     defaultAudioSink =
-        new DefaultAudioSink.Builder()
-            .setAudioCapabilities(DEFAULT_AUDIO_CAPABILITIES)
-            .setAudioProcessors(new TeeAudioProcessor[0])
-            .build();
+        new DefaultAudioSink.Builder().setAudioProcessors(new TeeAudioProcessor[0]).build();
   }
 
   @Test
@@ -204,8 +199,7 @@ public final class DefaultAudioSinkTest {
 
   @Test
   public void floatPcmNeedsTranscodingIfFloatOutputDisabled() {
-    defaultAudioSink =
-        new DefaultAudioSink.Builder().setAudioCapabilities(DEFAULT_AUDIO_CAPABILITIES).build();
+    defaultAudioSink = new DefaultAudioSink.Builder().build();
     Format floatFormat =
         STEREO_44_1_FORMAT
             .buildUpon()
@@ -219,11 +213,7 @@ public final class DefaultAudioSinkTest {
   @Config(maxSdk = 20)
   @Test
   public void floatPcmNeedsTranscodingIfFloatOutputEnabledBeforeApi21() {
-    defaultAudioSink =
-        new DefaultAudioSink.Builder()
-            .setAudioCapabilities(DEFAULT_AUDIO_CAPABILITIES)
-            .setEnableFloatOutput(true)
-            .build();
+    defaultAudioSink = new DefaultAudioSink.Builder().setEnableFloatOutput(true).build();
     Format floatFormat =
         STEREO_44_1_FORMAT
             .buildUpon()
@@ -237,11 +227,7 @@ public final class DefaultAudioSinkTest {
   @Config(minSdk = 21)
   @Test
   public void floatOutputSupportedIfFloatOutputEnabledFromApi21() {
-    defaultAudioSink =
-        new DefaultAudioSink.Builder()
-            .setAudioCapabilities(DEFAULT_AUDIO_CAPABILITIES)
-            .setEnableFloatOutput(true)
-            .build();
+    defaultAudioSink = new DefaultAudioSink.Builder().setEnableFloatOutput(true).build();
     Format floatFormat =
         STEREO_44_1_FORMAT
             .buildUpon()
