@@ -29,6 +29,7 @@ import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
+import android.view.SurfaceView;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -106,6 +107,7 @@ public final class Transformer {
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
     private Transformer.Listener listener;
+    private DebugViewProvider debugViewProvider;
     private Looper looper;
     private Clock clock;
 
@@ -119,6 +121,7 @@ public final class Transformer {
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
+      debugViewProvider = DebugViewProvider.NONE;
     }
 
     /**
@@ -135,6 +138,7 @@ public final class Transformer {
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
+      debugViewProvider = DebugViewProvider.NONE;
     }
 
     /** Creates a builder with the values of the provided {@link Transformer}. */
@@ -152,6 +156,7 @@ public final class Transformer {
       this.videoMimeType = transformer.transformation.videoMimeType;
       this.listener = transformer.listener;
       this.looper = transformer.looper;
+      this.debugViewProvider = transformer.debugViewProvider;
       this.clock = transformer.clock;
     }
 
@@ -359,6 +364,21 @@ public final class Transformer {
     }
 
     /**
+     * Sets a provider for views to show diagnostic information (if available) during
+     * transformation. This is intended for debugging. The default value is {@link
+     * DebugViewProvider#NONE}, which doesn't show any debug info.
+     *
+     * <p>Not all transformations will result in debug views being populated.
+     *
+     * @param debugViewProvider Provider for debug views.
+     * @return This builder.
+     */
+    public Builder setDebugViewProvider(DebugViewProvider debugViewProvider) {
+      this.debugViewProvider = debugViewProvider;
+      return this;
+    }
+
+    /**
      * Sets the {@link Clock} that will be used by the transformer. The default value is {@link
      * Clock#DEFAULT}.
      *
@@ -424,7 +444,14 @@ public final class Transformer {
               audioMimeType,
               videoMimeType);
       return new Transformer(
-          context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
+          context,
+          mediaSourceFactory,
+          muxerFactory,
+          transformation,
+          listener,
+          looper,
+          clock,
+          debugViewProvider);
     }
 
     private void checkSampleMimeType(String sampleMimeType) {
@@ -454,6 +481,22 @@ public final class Transformer {
      * @param exception The exception describing the error.
      */
     default void onTransformationError(MediaItem inputMediaItem, Exception exception) {}
+  }
+
+  /** Provider for views to show diagnostic information during transformation, for debugging. */
+  public interface DebugViewProvider {
+
+    /** Debug view provider that doesn't show any debug info. */
+    DebugViewProvider NONE = (int width, int height) -> null;
+
+    /**
+     * Returns a new surface view to show a preview of transformer output with the given
+     * width/height in pixels, or {@code null} if no debug information should be shown.
+     *
+     * <p>This method may be called on an arbitrary thread.
+     */
+    @Nullable
+    SurfaceView getDebugPreviewSurfaceView(int width, int height);
   }
 
   /**
@@ -489,6 +532,7 @@ public final class Transformer {
   private final Transformation transformation;
   private final Looper looper;
   private final Clock clock;
+  private final Transformer.DebugViewProvider debugViewProvider;
 
   private Transformer.Listener listener;
   @Nullable private MuxerWrapper muxerWrapper;
@@ -502,7 +546,8 @@ public final class Transformer {
       Transformation transformation,
       Transformer.Listener listener,
       Looper looper,
-      Clock clock) {
+      Clock clock,
+      Transformer.DebugViewProvider debugViewProvider) {
     checkState(
         !transformation.removeAudio || !transformation.removeVideo,
         "Audio and video cannot both be removed.");
@@ -513,6 +558,7 @@ public final class Transformer {
     this.listener = listener;
     this.looper = looper;
     this.clock = clock;
+    this.debugViewProvider = debugViewProvider;
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
@@ -610,7 +656,9 @@ public final class Transformer {
             .build();
     player =
         new ExoPlayer.Builder(
-                context, new TransformerRenderersFactory(context, muxerWrapper, transformation))
+                context,
+                new TransformerRenderersFactory(
+                    context, muxerWrapper, transformation, debugViewProvider))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -699,12 +747,17 @@ public final class Transformer {
     private final MuxerWrapper muxerWrapper;
     private final TransformerMediaClock mediaClock;
     private final Transformation transformation;
+    private final Transformer.DebugViewProvider debugViewProvider;
 
     public TransformerRenderersFactory(
-        Context context, MuxerWrapper muxerWrapper, Transformation transformation) {
+        Context context,
+        MuxerWrapper muxerWrapper,
+        Transformation transformation,
+        Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
       this.transformation = transformation;
+      this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
 
@@ -724,7 +777,8 @@ public final class Transformer {
       }
       if (!transformation.removeVideo) {
         renderers[index] =
-            new TransformerVideoRenderer(context, muxerWrapper, mediaClock, transformation);
+            new TransformerVideoRenderer(
+                context, muxerWrapper, mediaClock, transformation, debugViewProvider);
         index++;
       }
       return renderers;

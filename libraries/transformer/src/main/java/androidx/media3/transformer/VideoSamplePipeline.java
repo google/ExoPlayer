@@ -48,7 +48,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean waitingForFrameEditorInput;
 
   public VideoSamplePipeline(
-      Context context, Format inputFormat, Transformation transformation, int rendererIndex)
+      Context context,
+      Format inputFormat,
+      Transformation transformation,
+      int rendererIndex,
+      Transformer.DebugViewProvider debugViewProvider)
       throws ExoPlaybackException {
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -87,7 +91,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputWidth,
               outputHeight,
               transformation.transformationMatrix,
-              /* outputSurface= */ checkNotNull(encoder.getInputSurface()));
+              /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
+              debugViewProvider);
     }
     try {
       decoder =

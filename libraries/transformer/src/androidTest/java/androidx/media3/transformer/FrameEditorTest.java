@@ -92,7 +92,8 @@ public final class FrameEditorTest {
               width,
               height,
               identityMatrix,
-              frameEditorOutputImageReader.getSurface());
+              frameEditorOutputImageReader.getSurface(),
+              Transformer.DebugViewProvider.NONE);
 
       // Queue the first video frame from the extractor.
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
