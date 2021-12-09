@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
+import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
@@ -133,6 +134,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @return A configured and started decoder wrapper.
    * @throws IOException If the underlying codec cannot be created.
    */
+  @SuppressLint("InlinedApi")
   public static MediaCodecAdapterWrapper createForVideoDecoding(Format format, Surface surface)
       throws IOException {
     @Nullable MediaCodecAdapter adapter = null;
@@ -140,6 +142,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaFormat mediaFormat =
           MediaFormat.createVideoFormat(
               checkNotNull(format.sampleMimeType), format.width, format.height);
+      MediaFormatUtil.maybeSetInteger(
+          mediaFormat, MediaFormat.KEY_ROTATION, format.rotationDegrees);
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
       MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
@@ -201,7 +205,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param format The {@link Format} (of the output data) used to determine the underlying {@link
    *     MediaCodec} and its configuration values. {@link Format#sampleMimeType}, {@link
    *     Format#width} and {@link Format#height} must be set to those of the desired output video
-   *     format.
+   *     format. {@link Format#rotationDegrees} should be 0. The video should always be in landscape
+   *     orientation.
    * @param additionalEncoderConfig A map of {@link MediaFormat}'s integer settings, where the keys
    *     are from {@code MediaFormat.KEY_*} constants. Its values will override those in {@code
    *     format}.
@@ -212,6 +217,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Format format, Map<String, Integer> additionalEncoderConfig) throws IOException {
     checkArgument(format.width != Format.NO_VALUE);
     checkArgument(format.height != Format.NO_VALUE);
+    checkArgument(format.height < format.width);
+    checkArgument(format.rotationDegrees == 0);
 
     @Nullable MediaCodecAdapter adapter = null;
     try {

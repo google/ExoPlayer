@@ -37,6 +37,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final String TAG = "VideoSamplePipeline";
 
+  private final int outputRotationDegrees;
   private final DecoderInputBuffer decoderInputBuffer;
   private final MediaCodecAdapterWrapper decoder;
 
@@ -59,6 +60,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
+    // TODO(internal b/209781577): Think about which edge length should be set for portrait videos.
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
     if (transformation.outputHeight != Format.NO_VALUE
@@ -67,12 +69,29 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       outputHeight = transformation.outputHeight;
     }
 
+    if (inputFormat.height > inputFormat.width) {
+      // The encoder may not support encoding in portrait orientation, so the decoded video is
+      // rotated to landscape orientation and a rotation is added back later to the output format.
+      outputRotationDegrees = (inputFormat.rotationDegrees + 90) % 360;
+      int temp = outputWidth;
+      outputWidth = outputHeight;
+      outputHeight = temp;
+    } else {
+      outputRotationDegrees = inputFormat.rotationDegrees;
+    }
+    // The decoder rotates videos to their intended display orientation. The frameEditor rotates
+    // them back for improved encoder compatibility.
+    // TODO(internal b/201293185): After fragment shader transformations are implemented, put
+    // postrotation in a later vertex shader.
+    transformation.transformationMatrix.postRotate(outputRotationDegrees);
+
     try {
       encoder =
           MediaCodecAdapterWrapper.createForVideoEncoding(
               new Format.Builder()
                   .setWidth(outputWidth)
                   .setHeight(outputHeight)
+                  .setRotationDegrees(0)
                   .setSampleMimeType(
                       transformation.videoMimeType != null
                           ? transformation.videoMimeType
@@ -84,7 +103,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throw createRendererException(
           e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
     }
-    if (inputFormat.height != outputHeight || !transformation.transformationMatrix.isIdentity()) {
+    if (inputFormat.height != outputHeight
+        || inputFormat.width != outputWidth
+        || !transformation.transformationMatrix.isIdentity()) {
       frameEditor =
           FrameEditor.create(
               context,
@@ -150,7 +171,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   @Nullable
   public Format getOutputFormat() {
-    return encoder.getOutputFormat();
+    Format format = encoder.getOutputFormat();
+    return format == null
+        ? null
+        : format.buildUpon().setRotationDegrees(outputRotationDegrees).build();
   }
 
   @Override
