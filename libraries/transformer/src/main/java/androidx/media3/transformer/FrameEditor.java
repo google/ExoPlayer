@@ -48,8 +48,7 @@ import java.io.IOException;
    * @param outputHeight The output height in pixels.
    * @param transformationMatrix The transformation matrix to apply to each frame.
    * @param outputSurface The {@link Surface}.
-   * @param debugViewProvider Provider for optional debug views to show intermediate output, for
-   *     debugging.
+   * @param debugViewProvider Provider for optional debug views to show intermediate output.
    * @return A configured {@code FrameEditor}.
    */
   public static FrameEditor create(
@@ -259,12 +258,10 @@ import java.io.IOException;
     inputSurface.release();
   }
 
-  /**
-   * Focuses the specified surface with the specified width and height, then draws a four-vertex
-   * triangle strip (which is a quadrilateral).
-   */
+  /** Focuses the specified surface with the specified width and height, then draws a quad. */
   private void focusAndDrawQuad(EGLSurface eglSurface, int width, int height) {
     GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, width, height);
+    // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
   }
 }
