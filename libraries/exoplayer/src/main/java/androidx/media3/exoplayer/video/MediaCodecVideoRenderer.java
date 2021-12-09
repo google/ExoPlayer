@@ -377,6 +377,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // format's MIME type, according to the MediaCodecSelector.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
     boolean isFormatSupported = decoderInfo.isFormatSupported(format);
+    boolean isPreferredDecoder = true;
     if (!isFormatSupported) {
       // Check whether any of the other decoders support the format.
       for (int i = 1; i < decoderInfos.size(); i++) {
@@ -384,15 +385,26 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         if (otherDecoderInfo.isFormatSupported(format)) {
           decoderInfo = otherDecoderInfo;
           isFormatSupported = true;
+          isPreferredDecoder = false;
           break;
         }
       }
     }
+    @C.FormatSupport
+    int formatSupport = isFormatSupported ? C.FORMAT_HANDLED : C.FORMAT_EXCEEDS_CAPABILITIES;
     @AdaptiveSupport
     int adaptiveSupport =
         decoderInfo.isSeamlessAdaptationSupported(format)
             ? ADAPTIVE_SEAMLESS
             : ADAPTIVE_NOT_SEAMLESS;
+    @HardwareAccelerationSupport
+    int hardwareAccelerationSupport =
+        decoderInfo.hardwareAccelerated
+            ? HARDWARE_ACCELERATION_SUPPORTED
+            : HARDWARE_ACCELERATION_NOT_SUPPORTED;
+    @DecoderSupport
+    int decoderSupport = isPreferredDecoder ? DECODER_SUPPORT_PRIMARY : DECODER_SUPPORT_FALLBACK;
+
     @TunnelingSupport int tunnelingSupport = TUNNELING_NOT_SUPPORTED;
     if (isFormatSupported) {
       List<MediaCodecInfo> tunnelingDecoderInfos =
@@ -411,9 +423,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         }
       }
     }
-    @C.FormatSupport
-    int formatSupport = isFormatSupported ? C.FORMAT_HANDLED : C.FORMAT_EXCEEDS_CAPABILITIES;
-    return RendererCapabilities.create(formatSupport, adaptiveSupport, tunnelingSupport);
+
+    return RendererCapabilities.create(
+        formatSupport,
+        adaptiveSupport,
+        tunnelingSupport,
+        hardwareAccelerationSupport,
+        decoderSupport);
   }
 
   @Override
