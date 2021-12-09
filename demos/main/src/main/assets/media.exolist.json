@@ -3,6 +3,10 @@
     "name": "Clear DASH",
     "samples": [
       {
+        "name": "Test",
+        "uri": "https://01-str01-3201-prod.tv.cetin.rs/bpk-token/1AG@lk5yp2xm3d5rp5eik2lnd4r5y5s0h4d5lkhyurda/bpk-tv/RTS_1_2145/output1/manifest.mpd"
+      },
+      {
         "name": "HD (MP4, H264)",
         "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
       },

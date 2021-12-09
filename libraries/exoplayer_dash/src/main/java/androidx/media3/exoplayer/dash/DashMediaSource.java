@@ -17,6 +17,8 @@ package androidx.media3.exoplayer.dash;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.constrainValue;
+import static androidx.media3.common.util.Util.usToMs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -998,31 +1000,43 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   private void updateMediaItemLiveConfiguration(long nowInWindowUs, long windowDurationUs) {
-    long maxLiveOffsetMs;
+    // Default maximum offset: start of window.
+    long maxPossibleLiveOffsetMs = usToMs(nowInWindowUs);
+    long maxLiveOffsetMs = maxPossibleLiveOffsetMs;
+    // Override maximum offset with user or media defined values if they are smaller.
     if (mediaItem.liveConfiguration.maxOffsetMs != C.TIME_UNSET) {
-      maxLiveOffsetMs = mediaItem.liveConfiguration.maxOffsetMs;
+      maxLiveOffsetMs = min(maxLiveOffsetMs, mediaItem.liveConfiguration.maxOffsetMs);
     } else if (manifest.serviceDescription != null
         && manifest.serviceDescription.maxOffsetMs != C.TIME_UNSET) {
-      maxLiveOffsetMs = manifest.serviceDescription.maxOffsetMs;
-    } else {
-      maxLiveOffsetMs = Util.usToMs(nowInWindowUs);
+      maxLiveOffsetMs = min(maxLiveOffsetMs, manifest.serviceDescription.maxOffsetMs);
     }
-    long minLiveOffsetMs;
+    // Default minimum offset: end of window.
+    long minLiveOffsetMs = usToMs(nowInWindowUs - windowDurationUs);
+    if (minLiveOffsetMs < 0 && maxLiveOffsetMs > 0) {
+      // The current time is in the window, so assume all clocks are synchronized and set the
+      // minimum to a live offset of zero.
+      minLiveOffsetMs = 0;
+    }
+    if (manifest.minBufferTimeMs != C.TIME_UNSET) {
+      // Ensure to leave one GOP as minimum and don't exceed the maximum possible offset.
+      minLiveOffsetMs = min(minLiveOffsetMs + manifest.minBufferTimeMs, maxPossibleLiveOffsetMs);
+    }
+    // Override minimum offset with user and media defined values if they are larger, but don't
+    // exceed the maximum possible offset.
     if (mediaItem.liveConfiguration.minOffsetMs != C.TIME_UNSET) {
-      minLiveOffsetMs = mediaItem.liveConfiguration.minOffsetMs;
+      minLiveOffsetMs =
+          constrainValue(
+              mediaItem.liveConfiguration.minOffsetMs, minLiveOffsetMs, maxPossibleLiveOffsetMs);
     } else if (manifest.serviceDescription != null
         && manifest.serviceDescription.minOffsetMs != C.TIME_UNSET) {
-      minLiveOffsetMs = manifest.serviceDescription.minOffsetMs;
-    } else {
-      minLiveOffsetMs = Util.usToMs(nowInWindowUs - windowDurationUs);
-      if (minLiveOffsetMs < 0 && maxLiveOffsetMs > 0) {
-        // The current time is in the window, so assume all clocks are synchronized and set the
-        // minimum to a live offset of zero.
-        minLiveOffsetMs = 0;
-      }
-      if (manifest.minBufferTimeMs != C.TIME_UNSET) {
-        minLiveOffsetMs = min(minLiveOffsetMs + manifest.minBufferTimeMs, maxLiveOffsetMs);
-      }
+      minLiveOffsetMs =
+          constrainValue(
+              manifest.serviceDescription.minOffsetMs, minLiveOffsetMs, maxPossibleLiveOffsetMs);
+    }
+    if (minLiveOffsetMs > maxLiveOffsetMs) {
+      // The values can be set by different sources and may disagree. Prefer the maximum offset
+      // under the assumption that it is safer for playback.
+      maxLiveOffsetMs = minLiveOffsetMs;
     }
     long targetOffsetMs;
     if (liveConfiguration.targetOffsetMs != C.TIME_UNSET) {
@@ -1043,9 +1057,9 @@ public final class DashMediaSource extends BaseMediaSource {
       long safeDistanceFromWindowStartUs =
           min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
       long maxTargetOffsetForSafeDistanceToWindowStartMs =
-          Util.usToMs(nowInWindowUs - safeDistanceFromWindowStartUs);
+          usToMs(nowInWindowUs - safeDistanceFromWindowStartUs);
       targetOffsetMs =
-          Util.constrainValue(
+          constrainValue(
               maxTargetOffsetForSafeDistanceToWindowStartMs, minLiveOffsetMs, maxLiveOffsetMs);
     }
     float minPlaybackSpeed = C.RATE_UNSET;
