@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.C.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
+import static com.google.android.exoplayer2.RendererCapabilities.DECODER_SUPPORT_PRIMARY;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_SUPPORTED;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
@@ -92,7 +93,11 @@ public class DecoderAudioRendererTest {
   @Test
   public void supportsFormatAtApi19() {
     assertThat(audioRenderer.supportsFormat(FORMAT))
-        .isEqualTo(ADAPTIVE_NOT_SEAMLESS | TUNNELING_NOT_SUPPORTED | FORMAT_HANDLED);
+        .isEqualTo(
+            ADAPTIVE_NOT_SEAMLESS
+                | TUNNELING_NOT_SUPPORTED
+                | FORMAT_HANDLED
+                | DECODER_SUPPORT_PRIMARY);
   }
 
   @Config(sdk = 21)
@@ -100,7 +105,8 @@ public class DecoderAudioRendererTest {
   public void supportsFormatAtApi21() {
     // From API 21, tunneling is supported.
     assertThat(audioRenderer.supportsFormat(FORMAT))
-        .isEqualTo(ADAPTIVE_NOT_SEAMLESS | TUNNELING_SUPPORTED | FORMAT_HANDLED);
+        .isEqualTo(
+            ADAPTIVE_NOT_SEAMLESS | TUNNELING_SUPPORTED | FORMAT_HANDLED | DECODER_SUPPORT_PRIMARY);
   }
 
   @Test
