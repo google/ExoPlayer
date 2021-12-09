@@ -353,7 +353,7 @@ public final class DashMediaSourceTest {
                     .setTargetOffsetMs(876L)
                     .setMinPlaybackSpeed(23f)
                     .setMaxPlaybackSpeed(42f)
-                    .setMinOffsetMs(200L)
+                    .setMinOffsetMs(600L)
                     .setMaxOffsetMs(999L)
                     .build())
             .build();
@@ -369,7 +369,7 @@ public final class DashMediaSourceTest {
         prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
     assertThat(liveConfiguration.targetOffsetMs).isEqualTo(876L);
-    assertThat(liveConfiguration.minOffsetMs).isEqualTo(200L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(600L);
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
     assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
@@ -423,6 +423,33 @@ public final class DashMediaSourceTest {
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
     assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
+  }
+
+  @Test
+  public void
+      prepare_withMinMaxOffsetOverridesOutsideOfLiveWindow_adjustsOverridesToBeWithinWindow()
+          throws Exception {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.EMPTY)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setMinOffsetMs(0L)
+                    .setMaxOffsetMs(1_000_000_000L)
+                    .build())
+            .build();
+    DashMediaSource mediaSource =
+        new DashMediaSource.Factory(
+                () ->
+                    createSampleMpdDataSource(
+                        SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S_MIN_BUFFER_TIME_500MS))
+            .createMediaSource(mediaItem);
+
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
+
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(500L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
   }
 
   @Test
