@@ -314,8 +314,7 @@ public final class GlUtil {
    * @param textureId The ID of the texture to delete.
    */
   public static void deleteTexture(int textureId) {
-    int[] textures = new int[] {textureId};
-    GLES20.glDeleteTextures(/* n= */ 1, textures, /* offset= */ 0);
+    GLES20.glDeleteTextures(/* n= */ 1, new int[] {textureId}, /* offset= */ 0);
     checkGlError();
   }
 
@@ -443,21 +442,17 @@ public final class GlUtil {
       int[] length = new int[1];
       GLES20.glGetProgramiv(
           programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, /* offset= */ 0);
-
-      int[] type = new int[1];
-      int[] size = new int[1];
       byte[] nameBytes = new byte[length[0]];
-      int[] ignore = new int[1];
 
       GLES20.glGetActiveAttrib(
           programId,
           index,
           length[0],
-          ignore,
+          /* unusedLength */ new int[1],
           /* lengthOffset= */ 0,
-          size,
+          /* unusedSize */ new int[1],
           /* sizeOffset= */ 0,
-          type,
+          /* unusedType */ new int[1],
           /* typeOffset= */ 0,
           nameBytes,
           /* nameOffset= */ 0);
@@ -521,17 +516,15 @@ public final class GlUtil {
           programId, GLES20.GL_ACTIVE_UNIFORM_MAX_LENGTH, length, /* offset= */ 0);
 
       int[] type = new int[1];
-      int[] size = new int[1];
       byte[] nameBytes = new byte[length[0]];
-      int[] ignore = new int[1];
 
       GLES20.glGetActiveUniform(
           programId,
           index,
           length[0],
-          ignore,
+          /* unusedLength */ new int[1],
           /* lengthOffset= */ 0,
-          size,
+          /* unusedSize */ new int[1],
           /*sizeOffset= */ 0,
           type,
           /* typeOffset= */ 0,
@@ -631,10 +624,12 @@ public final class GlUtil {
     public static EGLDisplay createEglDisplay() {
       EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
       checkEglException(!eglDisplay.equals(EGL14.EGL_NO_DISPLAY), "No EGL display.");
-      int[] major = new int[1];
-      int[] minor = new int[1];
       if (!EGL14.eglInitialize(
-          eglDisplay, major, /* majorOffset= */ 0, minor, /* minorOffset= */ 0)) {
+          eglDisplay,
+          /* unusedMajor */ new int[1],
+          /* majorOffset= */ 0,
+          /* unusedMinor */ new int[1],
+          /* minorOffset= */ 0)) {
         throwGlException("Error in eglInitialize.");
       }
       checkGlError();
@@ -673,11 +668,11 @@ public final class GlUtil {
     @DoNotInline
     public static void focusSurface(
         EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface surface, int width, int height) {
-      int[] fbos = new int[1];
-      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, fbos, /* offset= */ 0);
-      int noFbo = 0;
-      if (fbos[0] != noFbo) {
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, noFbo);
+      int[] boundFrameBuffer = new int[1];
+      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFrameBuffer, /* offset= */ 0);
+      int defaultFrameBuffer = 0;
+      if (boundFrameBuffer[0] != defaultFrameBuffer) {
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, defaultFrameBuffer);
       }
       EGL14.eglMakeCurrent(eglDisplay, surface, surface, eglContext);
       GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
@@ -708,24 +703,17 @@ public final class GlUtil {
 
     @DoNotInline
     private static EGLConfig getEglConfig(EGLDisplay eglDisplay) {
-      int redSize = 8;
-      int greenSize = 8;
-      int blueSize = 8;
-      int alphaSize = 8;
-      int depthSize = 0;
-      int stencilSize = 0;
       int[] defaultConfiguration =
           new int[] {
             EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-            EGL14.EGL_RED_SIZE, redSize,
-            EGL14.EGL_GREEN_SIZE, greenSize,
-            EGL14.EGL_BLUE_SIZE, blueSize,
-            EGL14.EGL_ALPHA_SIZE, alphaSize,
-            EGL14.EGL_DEPTH_SIZE, depthSize,
-            EGL14.EGL_STENCIL_SIZE, stencilSize,
+            EGL14.EGL_RED_SIZE, /* redSize= */ 8,
+            EGL14.EGL_GREEN_SIZE, /* greenSize= */ 8,
+            EGL14.EGL_BLUE_SIZE, /* blueSize= */ 8,
+            EGL14.EGL_ALPHA_SIZE, /* alphaSize= */ 8,
+            EGL14.EGL_DEPTH_SIZE, /* depthSize= */ 0,
+            EGL14.EGL_STENCIL_SIZE, /* stencilSize= */ 0,
             EGL14.EGL_NONE
           };
-      int[] configsCount = new int[1];
       EGLConfig[] eglConfigs = new EGLConfig[1];
       if (!EGL14.eglChooseConfig(
           eglDisplay,
@@ -734,7 +722,7 @@ public final class GlUtil {
           eglConfigs,
           /* configsOffset= */ 0,
           /* config_size= */ 1,
-          configsCount,
+          /* unusedNumConfig */ new int[1],
           /* num_configOffset= */ 0)) {
         throwGlException("eglChooseConfig failed.");
       }
