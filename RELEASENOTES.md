@@ -30,9 +30,6 @@
         constructors.
     *   Change `AudioCapabilities` APIs to require passing explicitly
         `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
-    *   Allow customization of the `AudioTrack` buffer size calculation by
-        injecting an `AudioTrackBufferSizeProvider` to `DefaultAudioSink`.
-        ([#8891](https://github.com/google/ExoPlayer/issues/8891)).
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).

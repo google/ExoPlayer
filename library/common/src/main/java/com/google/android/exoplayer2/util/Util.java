@@ -808,23 +808,6 @@ public final class Util {
   }
 
   /**
-   * Returns the value of the {@code long} argument; throwing an exception if the value overflows an
-   * {@code int}.
-   *
-   * <p>Equivalent to API 26 {@link Math#toIntExact}.
-   *
-   * @param value The long value.
-   * @return The argument as an int.
-   * @throws ArithmeticException If the {@code argument} overflows an int.
-   */
-  public static int toIntExact(long value) {
-    if ((int) value != value) {
-      throw new ArithmeticException(); // integer overflow
-    }
-    return (int) value;
-  }
-
-  /**
    * Returns the index of the first occurrence of {@code value} in {@code array}, or {@link
    * C#INDEX_UNSET} if {@code value} is not contained in {@code array}.
    *
