@@ -423,19 +423,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // initDataLoadRequired =>  initDataSource != null && initDataSpec != null
     Assertions.checkNotNull(initDataSource);
     Assertions.checkNotNull(initDataSpec);
-    feedDataToExtractor(initDataSource, initDataSpec, initSegmentEncrypted);
+    feedDataToExtractor(initDataSource, initDataSpec, initSegmentEncrypted, false);
     nextLoadPosition = 0;
     initDataLoadRequired = false;
   }
 
   @RequiresNonNull("output")
   private void loadMedia() throws IOException {
-    try {
-      timestampAdjuster.sharedInitializeOrWait(isMasterTimestampSource, startTimeUs);
-    } catch (InterruptedException e) {
-      throw new InterruptedIOException();
-    }
-    feedDataToExtractor(dataSource, dataSpec, mediaSegmentEncrypted);
+    feedDataToExtractor(dataSource, dataSpec, mediaSegmentEncrypted, true);
   }
 
   /**
@@ -445,7 +440,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @RequiresNonNull("output")
   private void feedDataToExtractor(
-      DataSource dataSource, DataSpec dataSpec, boolean dataIsEncrypted) throws IOException {
+      DataSource dataSource, DataSpec dataSpec, boolean dataIsEncrypted, boolean initializeTimestampAdjuster) throws IOException {
     // If we previously fed part of this chunk to the extractor, we need to skip it this time. For
     // encrypted content we need to skip the data by reading it through the source, so as to ensure
     // correct decryption of the remainder of the chunk. For clear content, we can request the
@@ -460,7 +455,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       skipLoadedBytes = false;
     }
     try {
-      ExtractorInput input = prepareExtraction(dataSource, loadDataSpec);
+      ExtractorInput input = prepareExtraction(dataSource, loadDataSpec, initializeTimestampAdjuster);
       if (skipLoadedBytes) {
         input.skipFully(nextLoadPosition);
       }
@@ -484,9 +479,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @RequiresNonNull("output")
   @EnsuresNonNull("extractor")
-  private DefaultExtractorInput prepareExtraction(DataSource dataSource, DataSpec dataSpec)
+  private DefaultExtractorInput prepareExtraction(DataSource dataSource,
+                                                  DataSpec dataSpec,
+                                                  boolean initializeTimestampAdjuster)
       throws IOException {
     long bytesToRead = dataSource.open(dataSpec);
+    if (initializeTimestampAdjuster) {
+      try {
+        timestampAdjuster.sharedInitializeOrWait(isMasterTimestampSource, startTimeUs);
+      } catch (InterruptedException e) {
+        throw new InterruptedIOException();
+      }
+    }
     DefaultExtractorInput extractorInput =
         new DefaultExtractorInput(dataSource, dataSpec.position, bytesToRead);
 
