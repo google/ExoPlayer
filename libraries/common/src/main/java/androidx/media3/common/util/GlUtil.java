@@ -54,9 +54,6 @@ public final class GlUtil {
     }
   }
 
-  /** Thrown when the required EGL version is not supported by the device. */
-  public static final class UnsupportedEglVersionException extends Exception {}
-
   /**
    * Represents a GLSL shader program.
    *
@@ -260,15 +257,9 @@ public final class GlUtil {
     return Api17.createEglDisplay();
   }
 
-  /**
-   * Returns a new {@link EGLContext} for the specified {@link EGLDisplay}.
-   *
-   * @throws UnsupportedEglVersionException If the device does not support EGL version 2. {@code
-   *     eglDisplay} is terminated before the exception is thrown in this case.
-   */
+  /** Returns a new {@link EGLContext} for the specified {@link EGLDisplay}. */
   @RequiresApi(17)
-  public static EGLContext createEglContext(EGLDisplay eglDisplay)
-      throws UnsupportedEglVersionException {
+  public static EGLContext createEglContext(EGLDisplay eglDisplay) {
     return Api17.createEglContext(eglDisplay);
   }
 
@@ -638,8 +629,7 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    public static EGLContext createEglContext(EGLDisplay eglDisplay)
-        throws UnsupportedEglVersionException {
+    public static EGLContext createEglContext(EGLDisplay eglDisplay) {
       int[] contextAttributes = {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
       EGLContext eglContext =
           EGL14.eglCreateContext(
@@ -650,7 +640,9 @@ public final class GlUtil {
               /* offset= */ 0);
       if (eglContext == null) {
         EGL14.eglTerminate(eglDisplay);
-        throw new UnsupportedEglVersionException();
+        throwGlException(
+            "eglCreateContext() failed to create a valid context. The device may not support EGL"
+                + " version 2");
       }
       checkGlError();
       return eglContext;

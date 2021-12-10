@@ -60,12 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       Surface outputSurface,
       Transformer.DebugViewProvider debugViewProvider) {
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-    EGLContext eglContext;
-    try {
-      eglContext = GlUtil.createEglContext(eglDisplay);
-    } catch (GlUtil.UnsupportedEglVersionException e) {
-      throw new IllegalStateException("EGL version is unsupported", e);
-    }
+    EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
     EGLSurface eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
     GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
     int textureId = GlUtil.createExternalTexture();
