@@ -89,6 +89,10 @@ import java.util.Map;
       // We're only interested in metadata.
       return false;
     }
+    if (data.bytesLeft() == 0) {
+      // The metadata script tag has no value.
+      return false;
+    }
     int type = readAmfType(data);
     if (type != AMF_TYPE_ECMA_ARRAY) {
       // We're not interested in this metadata.
