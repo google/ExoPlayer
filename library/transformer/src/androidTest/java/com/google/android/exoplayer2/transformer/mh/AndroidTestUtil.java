@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -25,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.Transformer;
-import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -135,9 +135,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private static File createExternalCacheFile(Context context, String fileName) throws IOException {
     File file = new File(context.getExternalCacheDir(), fileName);
-    Assertions.checkState(
-        !file.exists() || file.delete(), "Could not delete file: " + file.getAbsolutePath());
-    Assertions.checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
+    checkState(!file.exists() || file.delete(), "Could not delete file: " + file.getAbsolutePath());
+    checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
     return file;
   }
 
