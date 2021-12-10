@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** FrameEditor applies changes to individual video frames. */
 /* package */ final class FrameEditor {
@@ -178,6 +179,7 @@ import java.io.IOException;
   private final EGLContext eglContext;
   private final EGLSurface eglSurface;
   private final int textureId;
+  private final AtomicInteger pendingInputFrameCount;
   private final SurfaceTexture inputSurfaceTexture;
   private final Surface inputSurface;
   private final GlUtil.Program glProgram;
@@ -186,8 +188,6 @@ import java.io.IOException;
   @Nullable private final EGLSurface debugPreviewEglSurface;
   private final int debugPreviewWidth;
   private final int debugPreviewHeight;
-
-  private volatile boolean hasInputData;
 
   private FrameEditor(
       EGLDisplay eglDisplay,
@@ -205,6 +205,7 @@ import java.io.IOException;
     this.eglSurface = eglSurface;
     this.textureId = textureId;
     this.glProgram = glProgram;
+    this.pendingInputFrameCount = new AtomicInteger();
     this.outputWidth = outputWidth;
     this.outputHeight = outputHeight;
     this.debugPreviewEglSurface = debugPreviewEglSurface;
@@ -212,7 +213,8 @@ import java.io.IOException;
     this.debugPreviewHeight = debugPreviewHeight;
     textureTransformMatrix = new float[16];
     inputSurfaceTexture = new SurfaceTexture(textureId);
-    inputSurfaceTexture.setOnFrameAvailableListener(surfaceTexture -> hasInputData = true);
+    inputSurfaceTexture.setOnFrameAvailableListener(
+        surfaceTexture -> pendingInputFrameCount.incrementAndGet());
     inputSurface = new Surface(inputSurfaceTexture);
   }
 
@@ -226,7 +228,7 @@ import java.io.IOException;
    * #processData()}.
    */
   public boolean hasInputData() {
-    return hasInputData;
+    return pendingInputFrameCount.get() > 0;
   }
 
   /** Processes pending input frame. */
@@ -240,13 +242,12 @@ import java.io.IOException;
     long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
     EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
     EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+    pendingInputFrameCount.decrementAndGet();
 
     if (debugPreviewEglSurface != null) {
       focusAndDrawQuad(debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
       EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
     }
-
-    hasInputData = false;
   }
 
   /** Releases all resources. */

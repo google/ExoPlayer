@@ -17,10 +17,13 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Util.SDK_INT;
 
 import android.content.Context;
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackException;
@@ -145,6 +148,52 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return false;
     }
 
+    if (SDK_INT >= 29) {
+      return processDataV29();
+    } else {
+      return processDataDefault();
+    }
+  }
+
+  /**
+   * Processes input data from API 29.
+   *
+   * <p>In this method the decoder could decode multiple frames in one invocation; as compared to
+   * {@link #processDataDefault()}, in which one frame is decoded in each invocation. Consequently,
+   * if {@link FrameEditor} processes frames slower than the decoder, decoded frames are queued up
+   * in the decoder's output surface.
+   *
+   * <p>Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+   * bound; while after API 29, the {@link MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame
+   * dropping even when the surface is full. As dropping random frames is not acceptable in {@code
+   * Transformer}, using this method requires API level 29 or higher.
+   */
+  @RequiresApi(29)
+  private boolean processDataV29() {
+    if (frameEditor != null) {
+      while (frameEditor.hasInputData()) {
+        // Processes as much frames in one invocation: FrameEditor's output surface will block
+        // FrameEditor when it's full. There will be no frame drop, or FrameEditor's output surface
+        // growing out of bound.
+        frameEditor.processData();
+      }
+    }
+
+    while (decoder.getOutputBufferInfo() != null) {
+      decoder.releaseOutputBuffer(/* render= */ true);
+    }
+
+    if (decoder.isEnded()) {
+      // TODO(internal b/208986865): Handle possible last frame drop.
+      encoder.signalEndOfInputStream();
+      return false;
+    }
+
+    return frameEditor != null && frameEditor.hasInputData();
+  }
+
+  /** Processes input data. */
+  private boolean processDataDefault() {
     if (frameEditor != null) {
       if (frameEditor.hasInputData()) {
         waitingForFrameEditorInput = false;

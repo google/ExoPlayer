@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.SDK_INT;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
@@ -147,6 +148,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
       MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
+
+      if (SDK_INT >= 29) {
+        // On API levels over 29, Transformer decodes as many frames as possible in one render
+        // cycle. This key ensures no frame dropping when the decoder's output surface is full.
+        mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
+      }
+
       adapter =
           new Factory()
               .createAdapter(
