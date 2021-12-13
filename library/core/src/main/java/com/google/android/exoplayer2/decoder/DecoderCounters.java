@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.decoder;
 
 import static java.lang.Math.max;
 
+import com.google.android.exoplayer2.util.Util;
+
 /**
  * Maintains decoder event counts, for debugging purposes only.
  *
@@ -153,5 +155,35 @@ public final class DecoderCounters {
   private void addVideoFrameProcessingOffsets(long totalProcessingOffsetUs, int count) {
     totalVideoFrameProcessingOffsetUs += totalProcessingOffsetUs;
     videoFrameProcessingOffsetCount += count;
+  }
+
+  @Override
+  public String toString() {
+    return Util.formatInvariant(
+        "DecoderCounters {\n "
+            + "decoderInits=%s,\n "
+            + "decoderReleases=%s\n "
+            + "queuedInputBuffers=%s\n "
+            + "skippedInputBuffers=%s\n "
+            + "renderedOutputBuffers=%s\n "
+            + "skippedOutputBuffers=%s\n "
+            + "droppedBuffers=%s\n "
+            + "droppedInputBuffers=%s\n "
+            + "maxConsecutiveDroppedBuffers=%s\n "
+            + "droppedToKeyframeEvents=%s\n "
+            + "totalVideoFrameProcessingOffsetUs=%s\n "
+            + "videoFrameProcessingOffsetCount=%s\n}",
+        decoderInitCount,
+        decoderReleaseCount,
+        queuedInputBufferCount,
+        skippedInputBufferCount,
+        renderedOutputBufferCount,
+        skippedOutputBufferCount,
+        droppedBufferCount,
+        droppedInputBufferCount,
+        maxConsecutiveDroppedBufferCount,
+        droppedToKeyframeCount,
+        totalVideoFrameProcessingOffsetUs,
+        videoFrameProcessingOffsetCount);
   }
 }
