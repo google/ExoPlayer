@@ -79,26 +79,26 @@ import java.util.WeakHashMap;
     playAction =
         createNotificationAction(
             service,
-            R.drawable.media_session_service_notification_ic_play,
-            R.string.play_button_content_description,
+            android.R.drawable.ic_media_play,
+            R.string.media3_controls_play_description,
             ACTION_PLAY);
     pauseAction =
         createNotificationAction(
             service,
-            R.drawable.media_session_service_notification_ic_pause,
-            R.string.pause_button_content_description,
+            android.R.drawable.ic_media_pause,
+            R.string.media3_controls_pause_description,
             ACTION_PAUSE);
     skipToPrevAction =
         createNotificationAction(
             service,
-            R.drawable.media_session_service_notification_ic_skip_to_previous,
-            R.string.skip_to_previous_item_button_content_description,
+            android.R.drawable.ic_media_previous,
+            R.string.media3_controls_seek_to_previous_description,
             ACTION_SKIP_TO_PREVIOUS);
     skipToNextAction =
         createNotificationAction(
             service,
-            R.drawable.media_session_service_notification_ic_skip_to_next,
-            R.string.skip_to_next_item_button_content_description,
+            android.R.drawable.ic_media_next,
+            R.string.media3_controls_seek_to_next_description,
             ACTION_SKIP_TO_NEXT);
 
     playerInfoMap = new WeakHashMap<>();

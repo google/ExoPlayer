@@ -20,24 +20,15 @@
     <string name="default_notification_channel_name">Now playing</string>
 
     <!-- Content description of 'play' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <string name="play_button_content_description">Play</string>
+    <string name="media3_controls_play_description">Play</string>
     <!-- Content description of 'pause' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <string name="pause_button_content_description">Pause</string>
-    <!-- Content description of 'skip to previous item' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <string name="skip_to_previous_item_button_content_description">Skip to previous item</string>
-    <!-- Content description of 'skip to next item' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <string name="skip_to_next_item_button_content_description">Skip to next item</string>
-
-    <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
-    <string name="exo_controls_previous_description">Previous</string>
-    <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->
-    <string name="exo_controls_next_description">Next</string>
-    <!-- Description for a media control button that causes playback to be paused. [CHAR LIMIT=30] -->
-    <string name="exo_controls_pause_description">Pause</string>
-    <!-- Description for a media control button that causes playback to be started. [CHAR LIMIT=30] -->
-    <string name="exo_controls_play_description">Play</string>
-    <!-- Description for a media control button that causes playback to be rewound. [CHAR LIMIT=30] -->
-    <string name="exo_controls_rewind_description">Rewind</string>
-    <!-- Description for a media control button that causes playback to be fast-forwarded. [CHAR LIMIT=30] -->
-    <string name="exo_controls_fastforward_description">Fast forward</string>
+    <string name="media3_controls_pause_description">Pause</string>
+    <!-- Content description of 'seek to previous item' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="media3_controls_seek_to_previous_description">Seek to previous item</string>
+    <!-- Content description of 'seek to next item' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="media3_controls_seek_to_next_description">Seek to next item</string>
+    <!-- Content description of 'seek back' for rewind button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="media3_controls_seek_back_description">Seek back</string>
+    <!-- Content description of 'seek forward' for fast-forward button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE]  -->
+    <string name="media3_controls_seek_forward_description">Seek forward</string>
 </resources>

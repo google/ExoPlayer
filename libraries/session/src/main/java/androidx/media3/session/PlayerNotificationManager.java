@@ -82,15 +82,15 @@ import java.util.Map;
  * names defined in your application. The drawables that can be overridden are:
  *
  * <ul>
- *   <li><b>{@code exo_notification_small_icon}</b> - The icon passed by default to {@link
+ *   <li><b>{@code media3_notification_small_icon}</b> - The icon passed by default to {@link
  *       NotificationCompat.Builder#setSmallIcon(int)}. A different icon can also be specified
  *       programmatically by calling {@link #setSmallIcon(int)}.
- *   <li><b>{@code exo_notification_play}</b> - The play icon.
- *   <li><b>{@code exo_notification_pause}</b> - The pause icon.
- *   <li><b>{@code exo_notification_rewind}</b> - The rewind icon.
- *   <li><b>{@code exo_notification_fastforward}</b> - The fast forward icon.
- *   <li><b>{@code exo_notification_previous}</b> - The previous icon.
- *   <li><b>{@code exo_notification_next}</b> - The next icon.
+ *   <li><b>{@code media3_notification_play}</b> - The play icon.
+ *   <li><b>{@code media3_notification_pause}</b> - The pause icon.
+ *   <li><b>{@code media3_notification_rewind}</b> - The rewind icon.
+ *   <li><b>{@code media3_notification_fastforward}</b> - The fast forward icon.
+ *   <li><b>{@code media3_notification_previous}</b> - The previous icon.
+ *   <li><b>{@code media3_notification_next}</b> - The next icon.
  * </ul>
  *
  * <p>Alternatively, the action icons can be set programatically by using the {@link Builder}.
@@ -287,13 +287,13 @@ public class PlayerNotificationManager {
       this.channelId = channelId;
       channelImportance = NotificationUtil.IMPORTANCE_LOW;
       mediaDescriptionAdapter = new DefaultMediaDescriptionAdapter(/* pendingIntent= */ null);
-      smallIconResourceId = R.drawable.exo_notification_small_icon;
-      playActionIconResourceId = R.drawable.exo_notification_play;
-      pauseActionIconResourceId = R.drawable.exo_notification_pause;
-      rewindActionIconResourceId = R.drawable.exo_notification_rewind;
-      fastForwardActionIconResourceId = R.drawable.exo_notification_fastforward;
-      previousActionIconResourceId = R.drawable.exo_notification_previous;
-      nextActionIconResourceId = R.drawable.exo_notification_next;
+      smallIconResourceId = R.drawable.media3_notification_small_icon;
+      playActionIconResourceId = R.drawable.media3_notification_play;
+      pauseActionIconResourceId = R.drawable.media3_notification_pause;
+      rewindActionIconResourceId = R.drawable.media3_notification_seek_back;
+      fastForwardActionIconResourceId = R.drawable.media3_notification_seek_forward;
+      previousActionIconResourceId = R.drawable.media3_notification_seek_to_previous;
+      nextActionIconResourceId = R.drawable.media3_notification_seek_to_next;
     }
 
     /**
@@ -366,7 +366,7 @@ public class PlayerNotificationManager {
      * The resource id of the small icon of the notification shown in the status bar. See {@link
      * NotificationCompat.Builder#setSmallIcon(int)}.
      *
-     * <p>The default is {@code R.drawable#exo_notification_small_icon}.
+     * <p>The default is {@code R.drawable#media3_notification_small_icon}.
      *
      * @return This builder.
      */
@@ -378,7 +378,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_PLAY}.
      *
-     * <p>The default is {@code R.drawable#exo_notification_play}.
+     * <p>The default is {@code R.drawable#media3_notification_play}.
      *
      * @return This builder.
      */
@@ -390,7 +390,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_PAUSE}.
      *
-     * <p>The default is {@code R.drawable#exo_notification_pause}.
+     * <p>The default is {@code R.drawable#media3_notification_pause}.
      *
      * @return This builder.
      */
@@ -402,7 +402,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_REWIND}.
      *
-     * <p>The default is {@code R.drawable#exo_notification_rewind}.
+     * <p>The default is {@code R.drawable#media3_notification_rewind}.
      *
      * @return This builder.
      */
@@ -415,7 +415,7 @@ public class PlayerNotificationManager {
      * The resource id of the drawable to be used as the icon of action {@link
      * #ACTION_FAST_FORWARD}.
      *
-     * <p>The default is {@code R.drawable#exo_notification_fastforward}.
+     * <p>The default is {@code R.drawable#media3_notification_fastforward}.
      *
      * @return This builder.
      */
@@ -427,7 +427,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_PREVIOUS}.
      *
-     * <p>The default is {@code R.drawable#exo_notification_previous}.
+     * <p>The default is {@code R.drawable#media3_notification_previous}.
      *
      * @return This builder.
      */
@@ -439,7 +439,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_NEXT}.
      *
-     * <p>The default is {@code R.drawable#exo_notification_next}.
+     * <p>The default is {@code R.drawable#media3_notification_next}.
      *
      * @return This builder.
      */
@@ -1169,37 +1169,37 @@ public class PlayerNotificationManager {
         ACTION_PLAY,
         new NotificationCompat.Action(
             playActionIconResourceId,
-            context.getString(R.string.exo_controls_play_description),
+            context.getString(R.string.media3_controls_play_description),
             createBroadcastIntent(ACTION_PLAY, context, instanceId)));
     actions.put(
         ACTION_PAUSE,
         new NotificationCompat.Action(
             pauseActionIconResourceId,
-            context.getString(R.string.exo_controls_pause_description),
+            context.getString(R.string.media3_controls_pause_description),
             createBroadcastIntent(ACTION_PAUSE, context, instanceId)));
     actions.put(
         ACTION_REWIND,
         new NotificationCompat.Action(
             rewindActionIconResourceId,
-            context.getString(R.string.exo_controls_rewind_description),
+            context.getString(R.string.media3_controls_seek_back_description),
             createBroadcastIntent(ACTION_REWIND, context, instanceId)));
     actions.put(
         ACTION_FAST_FORWARD,
         new NotificationCompat.Action(
             fastForwardActionIconResourceId,
-            context.getString(R.string.exo_controls_fastforward_description),
+            context.getString(R.string.media3_controls_seek_forward_description),
             createBroadcastIntent(ACTION_FAST_FORWARD, context, instanceId)));
     actions.put(
         ACTION_PREVIOUS,
         new NotificationCompat.Action(
             previousActionIconResourceId,
-            context.getString(R.string.exo_controls_previous_description),
+            context.getString(R.string.media3_controls_seek_to_previous_description),
             createBroadcastIntent(ACTION_PREVIOUS, context, instanceId)));
     actions.put(
         ACTION_NEXT,
         new NotificationCompat.Action(
             nextActionIconResourceId,
-            context.getString(R.string.exo_controls_next_description),
+            context.getString(R.string.media3_controls_seek_to_next_description),
             createBroadcastIntent(ACTION_NEXT, context, instanceId)));
     return actions;
   }

@@ -19,7 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="default_notification_channel_name" msgid="7213672915724563695">"Sedang diputar"</string>
     <string name="play_button_content_description" msgid="963503759453979404">"Putar"</string>
-    <string name="pause_button_content_description" msgid="3510124037191104584">"Jeda"</string>
-    <string name="skip_to_previous_item_button_content_description" msgid="4352480799561670760">"Lewati ke item sebelumnya"</string>
-    <string name="skip_to_next_item_button_content_description" msgid="6034072145387511457">"Lewati ke item berikutnya"</string>
+    <string name="media3_controls_pause_description" msgid="3510124037191104584">"Jeda"</string>
 </resources>
