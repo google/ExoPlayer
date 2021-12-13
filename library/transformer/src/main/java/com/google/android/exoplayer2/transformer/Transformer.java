@@ -832,22 +832,37 @@ public final class Transformer {
 
     @Override
     public void onPlayerError(PlaybackException error) {
+      // TODO(internal b/209469847): Once TransformationException is used in transformer components,
+      // extract TransformationExceptions wrapped in the PlaybackExceptions here before passing them
+      // on.
       handleTransformationEnded(error);
     }
 
     private void handleTransformationEnded(@Nullable Exception exception) {
+      @Nullable Exception resourceReleaseException = null;
       try {
         releaseResources(/* forCancellation= */ false);
       } catch (IllegalStateException e) {
-        if (exception == null) {
-          exception = e;
-        }
+        // TODO(internal b/209469847): Use a TransformationException with a specific error code when
+        // the IllegalStateException is caused by the muxer.
+        resourceReleaseException = e;
       }
 
-      if (exception == null) {
+      if (exception == null && resourceReleaseException == null) {
         listener.onTransformationCompleted(mediaItem);
-      } else {
-        listener.onTransformationError(mediaItem, exception);
+        return;
+      }
+
+      if (exception != null) {
+        listener.onTransformationError(
+            mediaItem,
+            exception instanceof TransformationException
+                ? exception
+                : TransformationException.createForUnexpected(exception));
+      }
+      if (resourceReleaseException != null) {
+        listener.onTransformationError(
+            mediaItem, TransformationException.createForUnexpected(resourceReleaseException));
       }
     }
   }

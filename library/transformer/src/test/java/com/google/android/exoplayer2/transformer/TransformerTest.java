@@ -240,8 +240,9 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     Exception exception = TransformerTestRunner.runUntilError(transformer);
 
-    assertThat(exception).isInstanceOf(ExoPlaybackException.class);
-    assertThat(exception).hasCauseThat().isInstanceOf(IOException.class);
+    assertThat(exception).isInstanceOf(TransformationException.class);
+    assertThat(exception).hasCauseThat().isInstanceOf(ExoPlaybackException.class);
+    assertThat(exception).hasCauseThat().hasCauseThat().isInstanceOf(IOException.class);
   }
 
   @Test
@@ -253,7 +254,8 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     Exception exception = TransformerTestRunner.runUntilError(transformer);
 
-    assertThat(exception).isInstanceOf(IllegalStateException.class);
+    assertThat(exception).isInstanceOf(TransformationException.class);
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
   }
 
   @Test
