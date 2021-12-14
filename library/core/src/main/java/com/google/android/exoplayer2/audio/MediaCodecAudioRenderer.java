@@ -303,28 +303,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     List<MediaCodecInfo> decoderInfos =
-        getDecoderInfos(mediaCodecSelector, format, /* requiresSecureDecoder= */ false, audioSink);
+        getDecoderInfos(mediaCodecSelector, format, /* requiresSecureDecoder= */ false);
     if (decoderInfos.isEmpty()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     if (!supportsFormatDrm) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
-    // Check whether the first decoder supports the format. This is the preferred decoder for the
-    // format's MIME type, according to the MediaCodecSelector.
+    // Check capabilities for the first decoder in the list, which takes priority.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
     boolean isFormatSupported = decoderInfo.isFormatSupported(format);
-    if (!isFormatSupported) {
-      // Check whether any of the other decoders support the format.
-      for (int i = 1; i < decoderInfos.size(); i++) {
-        MediaCodecInfo otherDecoderInfo = decoderInfos.get(i);
-        if (otherDecoderInfo.isFormatSupported(format)) {
-          decoderInfo = otherDecoderInfo;
-          isFormatSupported = true;
-          break;
-        }
-      }
-    }
     @AdaptiveSupport
     int adaptiveSupport =
         isFormatSupported && decoderInfo.isSeamlessAdaptationSupported(format)
@@ -338,32 +326,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
-      throws DecoderQueryException {
-    return MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
-        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, audioSink), format);
-  }
-
-  /**
-   * Returns a list of decoders that can decode media in the specified format, in the priority order
-   * specified by the {@link MediaCodecSelector}. Note that since the {@link MediaCodecSelector}
-   * only has access to {@link Format#sampleMimeType}, the list is not ordered to account for
-   * whether each decoder supports the details of the format (e.g., taking into account the format's
-   * profile, level, channel count and so on). {@link
-   * MediaCodecUtil#getDecoderInfosSortedByFormatSupport} can be used to further sort the list into
-   * an order where decoders that fully support the format come first.
-   *
-   * @param mediaCodecSelector The decoder selector.
-   * @param format The {@link Format} for which a decoder is required.
-   * @param requiresSecureDecoder Whether a secure decoder is required.
-   * @param audioSink The {@link AudioSink} to which audio will be output.
-   * @return A list of {@link MediaCodecInfo}s corresponding to decoders. May be empty.
-   * @throws DecoderQueryException Thrown if there was an error querying decoders.
-   */
-  private static List<MediaCodecInfo> getDecoderInfos(
-      MediaCodecSelector mediaCodecSelector,
-      Format format,
-      boolean requiresSecureDecoder,
-      AudioSink audioSink)
       throws DecoderQueryException {
     @Nullable String mimeType = format.sampleMimeType;
     if (mimeType == null) {
@@ -379,6 +341,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
             mimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+    decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
       // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
       List<MediaCodecInfo> decoderInfosWithEac3 = new ArrayList<>(decoderInfos);
