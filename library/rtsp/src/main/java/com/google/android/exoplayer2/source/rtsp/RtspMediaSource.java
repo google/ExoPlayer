@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
-import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -42,17 +41,21 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import android.util.Log;
 
 /** An Rtsp {@link MediaSource} */
 public final class RtspMediaSource extends BaseMediaSource {
 
-  String TAG = Constants.TAG + " RtspMediaSource.java";
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.rtsp");
   }
 
   /** The default value for {@link Factory#setTimeoutMs}. */
   public static final long DEFAULT_TIMEOUT_MS = 8000;
+  private final static String TAG = "ExoSample"+RtspMediaSource.class.getSimpleName();
+  public static boolean stripRtsp = false;
+  private RtspMediaTrack rtspMediaTrack = null;
+  private RtspMediaPeriod rtspMediaPeriod = null;
 
   /**
    * Factory for {@link RtspMediaSource}
@@ -68,17 +71,16 @@ public final class RtspMediaSource extends BaseMediaSource {
    * </ul>
    */
   public static final class Factory implements MediaSourceFactory {
-    String TAG = "RtspMediaSource.Factory";
+
     private long timeoutMs;
     private String userAgent;
     private boolean forceUseRtpTcp;
     private boolean debugLoggingEnabled;
 
-    public Factory() {
-      Log.i(TAG,"Entered : MediaSourceFactory Constructor");
+    public Factory(boolean isRtpOnly) {
+      stripRtsp = isRtpOnly;
       timeoutMs = DEFAULT_TIMEOUT_MS;
       userAgent = ExoPlayerLibraryInfo.VERSION_SLASHY;
-
     }
 
     /**
@@ -92,9 +94,8 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @param forceUseRtpTcp Whether force to use TCP for streaming.
      * @return This Factory, for convenience.
      */
-    public Factory setForceUseRtpTcp(boolean forceUseRtpTcp) { //TODO: likely needed
+    public Factory setForceUseRtpTcp(boolean forceUseRtpTcp) {
       this.forceUseRtpTcp = forceUseRtpTcp;
-      Log.i(TAG,"forceUseRtpTcp =  " +  this.forceUseRtpTcp);
       return this;
     }
 
@@ -105,7 +106,6 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @return This Factory, for convenience.
      */
     public Factory setUserAgent(String userAgent) {
-
       this.userAgent = userAgent;
       return this;
     }
@@ -201,20 +201,22 @@ public final class RtspMediaSource extends BaseMediaSource {
      * @throws NullPointerException if {@link MediaItem#localConfiguration} is {@code null}.
      */
     @Override
-    public RtspMediaSource createMediaSource(MediaItem mediaItem) { // remove tcp and remove timeout
-      Log.i(TAG,"CreateMediaSource. MediaItem  = " + mediaItem); // TODO: why doesn't this log print?
-      Log.i(TAG," forceUseRtpTcp = " + forceUseRtpTcp); // TODO: why doesn't this log print?
-      Log.i(TAG," userAgent = " + userAgent); // TODO: why doesn't this log print?
-      Log.i(TAG," debugLoggingEnabled = " + debugLoggingEnabled); // TODO: why doesn't this log print?
+    public RtspMediaSource createMediaSource(MediaItem mediaItem) {
       checkNotNull(mediaItem.localConfiguration);
+      Uri uri = mediaItem.localConfiguration.uri;
+      android.util.Log.d(TAG,"Received in RtspMediaSource "+uri.getHost()+" "+uri.getPort());
       return new RtspMediaSource(
           mediaItem,
           forceUseRtpTcp
               ? new TransferRtpDataChannelFactory(timeoutMs)
-              : new UdpDataSourceRtpDataChannelFactory(timeoutMs),
+              : new UdpDataSourceRtpDataChannelFactory(timeoutMs, uri),
           userAgent,
           debugLoggingEnabled);
     }
+  }
+
+  public void setRtspMediaTrack(RtspMediaTrack mediaTrack){
+    rtspMediaTrack = mediaTrack;
   }
 
   /** Thrown when an exception or error is encountered during loading an RTSP stream. */
@@ -249,7 +251,6 @@ public final class RtspMediaSource extends BaseMediaSource {
       RtpDataChannel.Factory rtpDataChannelFactory,
       String userAgent,
       boolean debugLoggingEnabled) {
-    Log.i(TAG,"Enter Constructor RtspMediaSource" );
     this.mediaItem = mediaItem;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
     this.userAgent = userAgent;
@@ -257,12 +258,7 @@ public final class RtspMediaSource extends BaseMediaSource {
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.timelineDurationUs = C.TIME_UNSET;
     this.timelineIsPlaceholder = true;
-    Log.i(TAG,"Is uri there? " + checkNotNull(this.mediaItem.localConfiguration).uri );
-
-
   }
-
-
 
   @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
@@ -286,13 +282,10 @@ public final class RtspMediaSource extends BaseMediaSource {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
-    Log.i(TAG,"createPeriod()");
-
-
-    return new RtspMediaPeriod(
-        allocator,
-        rtpDataChannelFactory,
-        uri,
+    rtspMediaPeriod =  new RtspMediaPeriod( 
+          allocator,
+          rtpDataChannelFactory,
+          uri,
         /* listener= */ timing -> {
           timelineDurationUs = Util.msToUs(timing.getDurationMs());
           timelineIsSeekable = !timing.isLive();
@@ -302,10 +295,13 @@ public final class RtspMediaSource extends BaseMediaSource {
         },
         userAgent,
         debugLoggingEnabled);
+        rtspMediaPeriod.provideMediaDescription(rtspMediaTrack);
+        return rtspMediaPeriod;
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
+    //to do
     ((RtspMediaPeriod) mediaPeriod).release();
   }
 

@@ -36,7 +36,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 
 /** Represents one media description section in a SDP message. */
-/* package */ final class MediaDescription {
+/* package */ public final class MediaDescription {
 
   /** Represents the mandatory RTPMAP attribute in MediaDescription. Reference RFC 2327 Page 22. */
   public static final class RtpMapAttribute {

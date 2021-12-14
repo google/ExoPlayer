@@ -16,23 +16,20 @@
 package com.google.android.exoplayer2.source.rtsp;
 
 import android.net.Uri;
-import android.util.Log;
-import com.google.android.exoplayer2.upstream.Constants;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+
 
 /** Utility methods for RTP. */
 public final class RtpUtils {
-  private static String TAG = Constants.TAG+ " RtpUtils.java";
-  //private static final String RTP_ANY_INCOMING_IPV4 = "rtp://10.2.0.19"; // TODO: used to be 0.0.0.0
+
   private static final String RTP_ANY_INCOMING_IPV4 = "rtp://0.0.0.0";
 
   /** Returns the {@link DataSpec} with the {@link Uri} for incoming RTP connection. */
   public static DataSpec getIncomingRtpDataSpec(int portNumber) {
-    Log.i(TAG, "Port Recieved: " + portNumber + "  Incoming IPV4 : "+ RTP_ANY_INCOMING_IPV4);
-    DataSpec spec = new DataSpec(Uri.parse(Util.formatInvariant("%s:%d", RTP_ANY_INCOMING_IPV4, portNumber)));
-    Log.i(TAG, "DataSpec: " + spec);
-    return spec;  // print resultant . LOG.
+    return new DataSpec(
+        Uri.parse(Util.formatInvariant("%s:%d", RTP_ANY_INCOMING_IPV4, portNumber)));
   }
 
   private RtpUtils() {}

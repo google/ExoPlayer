@@ -15,32 +15,32 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
-import android.util.Log;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
+import android.util.Log;
 import java.io.IOException;
+import android.net.Uri;
 
 /** Factory for {@link UdpDataSourceRtpDataChannel}. */
-
-
-
 /* package */ final class UdpDataSourceRtpDataChannelFactory implements RtpDataChannel.Factory {
 
   private final long socketTimeoutMs;
-  String TAG = Constants.TAG+ " UdpDataSourceRtpDataChannelFactory.java";
+  private final Uri url;
+
   /**
    * Creates a new instance.
    *
    * @param socketTimeoutMs A positive number of milliseconds to wait before lack of received RTP
    *     packets is treated as the end of input.
    */
-  public UdpDataSourceRtpDataChannelFactory(long socketTimeoutMs) {
-    Log.i(TAG, "Entered Constructor. socketTimeoutMS = " + socketTimeoutMs);
+  public UdpDataSourceRtpDataChannelFactory(long socketTimeoutMs, Uri url) {
     this.socketTimeoutMs = socketTimeoutMs;
+    this.url = url;
   }
 
   @Override
   public RtpDataChannel createAndOpenDataChannel(int trackId) throws IOException {
-    Log.i(TAG, "createAndOpenDataChannel(). Track Id => " + trackId);
     UdpDataSourceRtpDataChannel firstChannel = new UdpDataSourceRtpDataChannel(socketTimeoutMs);
     UdpDataSourceRtpDataChannel secondChannel = new UdpDataSourceRtpDataChannel(socketTimeoutMs);
 
@@ -50,28 +50,29 @@ import java.io.IOException;
       // port number". Some RTSP servers are strict about this rule. We open a data channel first,
       // and depending its port number, open the next data channel with a port number that is either
       // the higher or the lower.
+      if (!RtspMediaSource.stripRtsp) {
+        // Using port zero will cause the system to generate a port.
+        firstChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ 0));
+        int firstPort = firstChannel.getLocalPort();
+        boolean isFirstPortEven = firstPort % 2 == 0;
+        int portToOpen = isFirstPortEven ? firstPort + 1 : firstPort - 1;
+        secondChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ portToOpen));
 
-      // Using port zero will cause the system to generate a port.
-
-      firstChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ 0)); // TODO: Port number is hardcoded here to 0. We can try 1 if this is indeed a bug
-      int firstPort = firstChannel.getLocalPort();
-      Log.i(TAG, "firstChannelPort " + firstPort);
-      boolean isFirstPortEven = firstPort % 2 == 0;
-      int portToOpen = isFirstPortEven ? firstPort + 1 : firstPort - 1;
-      Log.i(TAG, "secondChannelPort " + portToOpen);
-      secondChannel.open(RtpUtils.getIncomingRtpDataSpec(/* portNumber= */ portToOpen));
-
-      if (isFirstPortEven) {
-        Log.i(TAG, "First port found to be even ");
-        Log.i(TAG, "Returning firstChannel " + firstChannel);
+        if (isFirstPortEven) {
+          firstChannel.setRtcpChannel(secondChannel);
+          return firstChannel;
+        } else {
+          secondChannel.setRtcpChannel(firstChannel);
+          return secondChannel;
+        }
+      } else {
+        android.util.Log.d("ExoSample","Received in UdpDataSourceRtpDataChannel"+url.getHost()+" "+url.getPort());
+        firstChannel.open(new DataSpec(Uri.parse(Util.formatInvariant("%s:%d", "rtp://"+url.getHost(), url.getPort()))));
+        secondChannel.open(new DataSpec(Uri.parse(Util.formatInvariant("%s:%d", "rtp://"+url.getHost(), url.getPort()+1))));
         firstChannel.setRtcpChannel(secondChannel);
         return firstChannel;
-      } else {
-        Log.i(TAG, "First port NOT found to be even ");
-        Log.i(TAG, "Returning secondChannel " + secondChannel);
-        secondChannel.setRtcpChannel(firstChannel);
-        return secondChannel;
       }
+
     } catch (IOException e) {
       DataSourceUtil.closeQuietly(firstChannel);
       DataSourceUtil.closeQuietly(secondChannel);

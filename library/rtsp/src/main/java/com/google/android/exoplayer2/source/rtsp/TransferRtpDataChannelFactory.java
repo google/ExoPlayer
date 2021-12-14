@@ -15,15 +15,12 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
-import android.util.Log;
-
 /** Factory for {@link TransferRtpDataChannel}. */
 /* package */ final class TransferRtpDataChannelFactory implements RtpDataChannel.Factory {
 
   private static final int INTERLEAVED_CHANNELS_PER_TRACK = 2;
 
   private final long timeoutMs;
-  String TAG = Constants.TAG + "TransferRtpDataChannelFactory.java ";
 
   /**
    * Creates a new instance.
@@ -32,13 +29,11 @@ import android.util.Log;
    *     is treated as the end of input.
    */
   public TransferRtpDataChannelFactory(long timeoutMs) {
-    Log.i(TAG,"Constructor. Timeout =" + timeoutMs);
     this.timeoutMs = timeoutMs;
   }
 
   @Override
   public RtpDataChannel createAndOpenDataChannel(int trackId) {
-    Log.i(TAG,"createAndOpenDataChannel() -> Create the TransferRtpDataChannel");
     TransferRtpDataChannel dataChannel = new TransferRtpDataChannel(timeoutMs);
     dataChannel.open(RtpUtils.getIncomingRtpDataSpec(trackId * INTERLEAVED_CHANNELS_PER_TRACK));
     return dataChannel;

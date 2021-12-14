@@ -1,2 +1,0 @@
-# Proguard rules specific to the main demo app.
-

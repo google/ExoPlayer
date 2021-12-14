@@ -28,9 +28,7 @@ dependencies {
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
-    // Dependency on a local library module
     implementation project(modulePrefix + 'library-core')
-    // TODO: remove test
     testImplementation project(modulePrefix + 'robolectricutils')
     testImplementation project(modulePrefix + 'testutils')
     testImplementation project(modulePrefix + 'testdata')

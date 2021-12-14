@@ -22,13 +22,9 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.base.Strings.nullToEmpty;
 
 import android.net.Uri;
-import android.util.Log;
-import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,7 +60,6 @@ import java.util.regex.Pattern;
   private static final String REPEAT_TYPE = "r";
   private static final String ZONE_TYPE = "z";
 
-
   /**
    * Parses a String based SDP message into {@link SessionDescription}.
    *
@@ -72,159 +67,10 @@ import java.util.regex.Pattern;
    *     mandatory SDP fields {@link SessionDescription#timing}, {@link SessionDescription#origin}
    *     and {@link SessionDescription#sessionName} are not set.
    */
-  public static SessionDescription customCreateDescription() throws ParserException {
-    //TODO: hardcode the required params to run the steam here
-      SessionDescription.Builder sessionDescriptionBuilder = new SessionDescription.Builder();
-      @Nullable MediaDescription.Builder mediaDescriptionBuilder = null;
-    //NOTE: The ordering of the params in the parse() method bellow is needed. We will just hardcode directly what is found.
-
-    try {
-      //TODO: LIVE CLOCK STREAM
-      /*String ORIGIN_TYPE = "- 8265319122185249563 1 IN IP4 192.168.1.51"; // TODO: what is the first param found here?
-      String SESSION_TYPE = "Session streamed with GStreamer";
-      String BANDWIDTH_TYPE = "AS:50000";
-      String TIMING_TYPE = "0 0";
-      String MEDIA_TYPE = "video 0 RTP/AVP 96";
-
-        //Attributes
-      String tool = "GStreamer";
-
-      String type = "broadcast";
-      String range = "npt=now-";
-      String control = "rtsp://ipvmdemo.dyndns.org:5541/onvif-media/media.amp?profile=profile_1_h264&sessiontimeout=60&streamtype=unicast";
-      String rtpmap = "96 H264/90000";
-      String fmtp = "96 packetization-mode=1;profile-level-id=4d001f;sprop-parameter-sets=Z00AH5pkAoAt//+H/4gANwEBAUAAAPpAAB1MOhgBOcABOcLvLjQwAnOAAnOF3lw31A==,aO48gA==";
-
-          //ts-refclk
-      String ts_refclk = "local";
-      String mediaclk = "sender";
-      String framerate = "15.000000";
-      String transform = "1.000000,0.000000,0.000000;0.000000,1.000000,0.000000;0.000000,0.000000,1.000000 ";
-      String recvonly = "recvonly";
-      */
-      // TODO: Bunny video
-      String ORIGIN_TYPE = "- 1712741543 1712741543 IN IP4 34.227.104.115"; // TODO: what is the first param found here?
-      String SESSION_TYPE = "BigBuckBunny_115k.mov";
-      String BANDWIDTH_TYPE = null; // this is not used by the bunny video for some reason
-      String TIMING_TYPE = "0 0";
-
-      //SessionDescription Attributes
-      String sdplang = "en";
-      String range = "npt=0- 634.625";
-      String control = "*";
-
-      //Media
-      String MEDIA_TYPE = "video 0 RTP/AVP 97";
-
-      try {
-        //ORIGIN_TYPE
-        sessionDescriptionBuilder.setOrigin(ORIGIN_TYPE);
-
-        //SESSION_TYPE
-        sessionDescriptionBuilder.setSessionName(SESSION_TYPE);
-
-        //BANDWIDTH_TYPE
-        if (BANDWIDTH_TYPE != null) {
-          String[] bandwidthComponents = Util.split(BANDWIDTH_TYPE, ":\\s?");
-          checkArgument(bandwidthComponents.length == 2);
-          int bitrateKbps = Integer.parseInt(bandwidthComponents[1]);
-          // Converting kilobits per second to bits per second.
-          if (mediaDescriptionBuilder == null) {
-            sessionDescriptionBuilder.setBitrate(bitrateKbps * 1000);
-          } else {
-            mediaDescriptionBuilder.setBitrate(bitrateKbps * 1000);
-          }
-        }
-
-        //TIMING_TYPE
-        sessionDescriptionBuilder.setTiming(TIMING_TYPE);
-
-        //ATTRIBUTE_TYPE
-        //SessionDescription Attributes
-        //TODO: IGNORE BECAUSE AUDIO?
-        /*sessionDescriptionBuilder.addAttribute("sdplang", sdplang);
-        sessionDescriptionBuilder.addAttribute("range", range);
-        sessionDescriptionBuilder.addAttribute("control", control);*/
-
-        String rtpmap = "96 mpeg4-generic/12000/2";
-        String fmtp = "96 profile-level-id=1;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3;config=149056e500";
-        control = "trackID=1";
-        sessionDescriptionBuilder.addAttribute("rtpmap", rtpmap);
-        sessionDescriptionBuilder.addAttribute("fmtp", fmtp);
-        sessionDescriptionBuilder.addAttribute("control", control);
-
-        //MEDIA_TYPE
-        if (mediaDescriptionBuilder != null) {
-          addMediaDescriptionToSession(sessionDescriptionBuilder, mediaDescriptionBuilder);
-        }
-        mediaDescriptionBuilder = parseMediaDescriptionLine(MEDIA_TYPE);
-
-        //ATTRIBUTE_TYPE
-        //MediaDescription Attributes
-        //accepted
-        String rtpmap_2 = "97 H264/90000"; // why is this happening twice?
-        String fmtp_2 = "97 packetization-mode=1;profile-level-id=64000C;sprop-parameter-sets=Z2QADKzZQ8Vv/ACAAGxAAAADAEAAAAwDxQplgA==,aOvssiw=";
-        String cliprect = "0,0,160,240";
-        String framesize = "97 240-160";
-        String framerate = "24.0";
-        String control_2 = "trackID=2";
-        mediaDescriptionBuilder.addAttribute("rtpmap", rtpmap_2);
-        mediaDescriptionBuilder.addAttribute("fmtp", fmtp_2);
-        mediaDescriptionBuilder.addAttribute("cliprect", cliprect);
-        mediaDescriptionBuilder.addAttribute("framesize", framesize);
-        mediaDescriptionBuilder.addAttribute("framerate", framerate);
-        mediaDescriptionBuilder.addAttribute("control", control_2);
-
-
-      } catch (Exception e) {
-        Log.e("PARSER: Adding MediaType ", e.toString());
-      }
-
-      if (mediaDescriptionBuilder != null) {
-        addMediaDescriptionToSession(sessionDescriptionBuilder, mediaDescriptionBuilder);
-      }
-
-      return sessionDescriptionBuilder.build();
-
-    }
-    catch (IllegalArgumentException | IllegalStateException e) {
-      throw ParserException.createForMalformedManifest(/* message= */ null, e);
-    }
-      /*
-      //TODO: ATTRIBUTE_TYPE
-      String tool = "GStreamer";
-
-      String type = "broadcast";
-      String range = "npt=now-";
-      String control = "rtsp://ipvmdemo.dyndns.org:5541/onvif-media/media.amp?profile=profile_1_h264&sessiontimeout=60&streamtype=unicast";
-      String rtpmap = "96 H264/90000";
-      String fmtp = "96 packetization-mode=1;profile-level-id=4d001f;sprop-parameter-sets=Z00AH5pkAoAt//+H/4gANwEBAUAAAPpAAB1MOhgBOcABOcLvLjQwAnOAAnOF3lw31A==,aO48gA==";
-
-      //ts-refclk
-      String ts_refclk = "local";
-      String mediaclk = "sender";
-      String framerate = "15.000000";
-      String transform = "1.000000,0.000000,0.000000;0.000000,1.000000,0.000000;0.000000,0.000000,1.000000 ";
-      String recvonly = "recvonly";
-      String attributeName = checkNotNull(matcher.group(1));
-      // The second catching group is optional and thus could be null.
-      String attributeValue = nullToEmpty(matcher.group(2));
-
-      if (mediaDescriptionBuilder == null) {
-        sessionDescriptionBuilder.addAttribute(attributeName, attributeValue);
-      } else {
-        mediaDescriptionBuilder.addAttribute(attributeName, attributeValue);
-      }
-      */
-
-  }
   public static SessionDescription parse(String sdpString) throws ParserException {
-
     SessionDescription.Builder sessionDescriptionBuilder = new SessionDescription.Builder();
     @Nullable MediaDescription.Builder mediaDescriptionBuilder = null;
 
-
-    String TAG = "PARSER: ";
     // Lines are separated by an CRLF.
     for (String line : RtspMessageUtil.splitRtspMessageBody(sdpString)) {
       if ("".equals(line)) {
@@ -241,18 +87,50 @@ import java.util.regex.Pattern;
       String sdpValue = checkNotNull(matcher.group(2));
 
       switch (sdpType) {
+        case VERSION_TYPE:
+          if (!SUPPORTED_SDP_VERSION.equals(sdpValue)) {
+            throw ParserException.createForMalformedManifest(
+                String.format("SDP version %s is not supported.", sdpValue), /* cause= */ null);
+          }
+          break;
+
         case ORIGIN_TYPE:
-          Log.i(TAG, "ORIGIN_TYPE: " + sdpType + " and  " + sdpValue );
           sessionDescriptionBuilder.setOrigin(sdpValue);
           break;
 
         case SESSION_TYPE:
-          Log.i(TAG, "SESSION_TYPE: " + sdpType + " " + sdpValue );
           sessionDescriptionBuilder.setSessionName(sdpValue);
           break;
 
+        case INFORMATION_TYPE:
+          if (mediaDescriptionBuilder == null) {
+            sessionDescriptionBuilder.setSessionInfo(sdpValue);
+          } else {
+            mediaDescriptionBuilder.setMediaTitle(sdpValue);
+          }
+          break;
+
+        case URI_TYPE:
+          sessionDescriptionBuilder.setUri(Uri.parse(sdpValue));
+          break;
+
+        case EMAIL_TYPE:
+          sessionDescriptionBuilder.setEmailAddress(sdpValue);
+          break;
+
+        case PHONE_NUMBER_TYPE:
+          sessionDescriptionBuilder.setPhoneNumber(sdpValue);
+          break;
+
+        case CONNECTION_TYPE:
+          if (mediaDescriptionBuilder == null) {
+            sessionDescriptionBuilder.setConnection(sdpValue);
+          } else {
+            mediaDescriptionBuilder.setConnection(sdpValue);
+          }
+          break;
+
         case BANDWIDTH_TYPE:
-          Log.i(TAG, "BANDWIDTH_TYPE: " + sdpType + " " + sdpValue );
           String[] bandwidthComponents = Util.split(sdpValue, ":\\s?");
           checkArgument(bandwidthComponents.length == 2);
           int bitrateKbps = Integer.parseInt(bandwidthComponents[1]);
@@ -266,12 +144,10 @@ import java.util.regex.Pattern;
           break;
 
         case TIMING_TYPE:
-          Log.i(TAG, "TIMING_TYPE: " + sdpType + " " + sdpValue );
           sessionDescriptionBuilder.setTiming(sdpValue);
           break;
 
         case KEY_TYPE:
-          Log.i(TAG, "KEY_TYPE: " + sdpType + " " + sdpValue );
           if (mediaDescriptionBuilder == null) {
             sessionDescriptionBuilder.setKey(sdpValue);
           } else {
@@ -280,7 +156,6 @@ import java.util.regex.Pattern;
           break;
 
         case ATTRIBUTE_TYPE:
-
           matcher = ATTRIBUTE_PATTERN.matcher(sdpValue);
           if (!matcher.matches()) {
             throw ParserException.createForMalformedManifest(
@@ -291,27 +166,21 @@ import java.util.regex.Pattern;
           // The second catching group is optional and thus could be null.
           String attributeValue = nullToEmpty(matcher.group(2));
 
-          if(!attributeValue.equals("en") && !attributeValue.equals("npt=0- 634.625")  && !attributeValue.equals("*") ){ // Trying to skip audio for media type and attribute type.
-            Log.i(TAG, "ATTRIBUTE_TYPE: " + sdpType + " " + sdpValue );
-            if (mediaDescriptionBuilder == null) {
-              sessionDescriptionBuilder.addAttribute(attributeName, attributeValue);
-            } else {
-              mediaDescriptionBuilder.addAttribute(attributeName, attributeValue);
-            }
+          if (mediaDescriptionBuilder == null) {
+            sessionDescriptionBuilder.addAttribute(attributeName, attributeValue);
+          } else {
+            mediaDescriptionBuilder.addAttribute(attributeName, attributeValue);
           }
-
           break;
 
         case MEDIA_TYPE:
-          if(!sdpValue.equals("audio 0 RTP/AVP 96")){
-            Log.i(TAG, "MEDIA_TYPE: " + sdpType + " " + sdpValue );
-            if (mediaDescriptionBuilder != null) {
-              addMediaDescriptionToSession(sessionDescriptionBuilder, mediaDescriptionBuilder);
-            }
-            mediaDescriptionBuilder = parseMediaDescriptionLine(sdpValue);
+          if (mediaDescriptionBuilder != null) {
+            addMediaDescriptionToSession(sessionDescriptionBuilder, mediaDescriptionBuilder);
           }
-
-         break;
+          mediaDescriptionBuilder = parseMediaDescriptionLine(sdpValue);
+          break;
+        case REPEAT_TYPE:
+        case ZONE_TYPE:
         default:
           // Not handled.
       }

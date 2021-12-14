@@ -32,7 +32,7 @@ import java.util.HashMap;
  * <p>SDP messages encapsulate information on the media play back session, including session
  * configuration information, formats of each playable track, etc. SDP is defined in RFC4566.
  */
-/* package */ final class SessionDescription {
+/* package */ public final class SessionDescription {
 
   /** Builder class for {@link SessionDescription}. */
   public static final class Builder {

@@ -19,10 +19,8 @@ package com.google.android.exoplayer2.source.rtsp;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.os.Handler;
-import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Constants;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -49,7 +47,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 /* package */ final class RtpDataLoadable implements Loader.Loadable {
 
-  String TAG = Constants.TAG + " RtpDataLoadable.java ";
   /** Called on loadable events. */
   public interface EventListener {
     /**
@@ -95,12 +92,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       EventListener eventListener,
       ExtractorOutput output,
       RtpDataChannel.Factory rtpDataChannelFactory) {
-
-    Log.i(TAG, "Constructor");
-    Log.i(TAG, "trackId"+ trackId);
-    Log.i(TAG, "rtspMediaTrack"+ rtspMediaTrack);
-    Log.i(TAG, "rtpDataChannelFactory"+ rtpDataChannelFactory);
-
     this.trackId = trackId;
     this.rtspMediaTrack = rtspMediaTrack;
     this.eventListener = eventListener;
@@ -145,7 +136,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void load() throws IOException {
     @Nullable RtpDataChannel dataChannel = null;
     try {
-      Log.i(TAG, "load() ");
       dataChannel = rtpDataChannelFactory.createAndOpenDataChannel(trackId);
       String transport = dataChannel.getTransport();
 

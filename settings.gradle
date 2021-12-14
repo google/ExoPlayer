@@ -33,3 +33,4 @@ project(modulePrefix + 'playbacktests').projectDir = new File(rootDir, 'playback
 apply from: 'core_settings.gradle'
 include ':examplertsp'
 include ':rtspapplication'
+include ':myapplication'

@@ -38,7 +38,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 /** Represents a media track in an RTSP playback. */
-/* package */ final class RtspMediaTrack {
+/* package */ public final class RtspMediaTrack {
   // Format specific parameter names.
   private static final String PARAMETER_PROFILE_LEVEL_ID = "profile-level-id";
   private static final String PARAMETER_SPROP_PARAMS = "sprop-parameter-sets";
@@ -52,7 +52,7 @@ import com.google.common.collect.ImmutableMap;
   /** The track's associated {@link RtpPayloadFormat}. */
   public final RtpPayloadFormat payloadFormat;
   /** The track's URI. */
-  public final Uri uri;
+  public Uri uri = null;
 
   /**
    * Creates a new instance from a {@link MediaDescription}.
@@ -61,9 +61,14 @@ import com.google.common.collect.ImmutableMap;
    * @param sessionUri The {@link Uri} of the RTSP playback session.
    */
   public RtspMediaTrack(MediaDescription mediaDescription, Uri sessionUri) {
-    checkArgument(mediaDescription.attributes.containsKey(ATTR_CONTROL));
+    if(!RtspMediaSource.stripRtsp){
+      checkArgument(mediaDescription.attributes.containsKey(ATTR_CONTROL));
+    }
     payloadFormat = generatePayloadFormat(mediaDescription);
-    uri = extractTrackUri(sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)));
+    //we are not sending in any Control Attributes for RTP
+    if(!RtspMediaSource.stripRtsp){
+      uri = extractTrackUri(sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)));
+    }
   }
 
   @Override

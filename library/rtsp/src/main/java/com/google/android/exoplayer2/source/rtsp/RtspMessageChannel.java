@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -54,9 +53,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Sends and receives RTSP messages. */
 /* package */ final class RtspMessageChannel implements Closeable {
-  String TAG = Constants.TAG + " RtspMessageChannel";
+
   /** RTSP uses UTF-8 (RFC2326 Section 1.1). */
   public static final Charset CHARSET = Charsets.UTF_8;
+
+  private static final String TAG = "RtspMessageChannel";
 
   /** A listener for received RTSP messages and possible failures. */
   public interface MessageListener {
@@ -124,7 +125,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param messageListener The {@link MessageListener} to receive events.
    */
   public RtspMessageChannel(MessageListener messageListener) {
-    Log.i(TAG, "Constructor ");
     this.messageListener = messageListener;
     this.receiverLoader = new Loader("ExoPlayer:RtspMessageChannel:ReceiverLoader");
     this.interleavedBinaryDataListeners = Collections.synchronizedMap(new HashMap<>());
@@ -139,9 +139,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param socket A connected {@link Socket}.
    */
   public void open(Socket socket) throws IOException {
-    Log.i(TAG, "open() ");
     this.socket = socket;
-    Log.i(TAG, "Socket " + this.socket );
     sender = new Sender(socket.getOutputStream());
 
     receiverLoader.startLoading(
@@ -162,7 +160,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void close() throws IOException {
     // TODO(internal b/172331505) Make sure most resources are closed before throwing, and close()
     // can be called again to close the resources that are still open.
-    Log.i(TAG, "close()");
     if (closed) {
       return;
     }
@@ -185,16 +182,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param message The list of strings representing the serialized RTSP message.
    */
-  public void send(List<String> message) { // TODO: Remove send and instead make replacement methods
-    Log.i(TAG, "send(). Sending serialized RTSP message");
-    Log.i(TAG, "Message: " + message.toString());
-
+  public void send(List<String> message) {
     checkStateNotNull(sender);
     sender.send(message);
-  }
-
-  public void setup(){
-    // On
   }
 
   /**
@@ -220,7 +210,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * @param outputStream The {@link OutputStream} of the opened RTSP {@link Socket}, to which the
      *     request is sent. The caller needs to close the {@link OutputStream}.
      */
-    public Sender(OutputStream outputStream) { //TODO:Remove this
+    public Sender(OutputStream outputStream) {
       this.outputStream = outputStream;
       this.senderThread = new HandlerThread("ExoPlayer:RtspMessageChannel:Sender");
       this.senderThread.start();
@@ -280,20 +270,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      *     InputStream}.
      */
     public Receiver(InputStream inputStream) {
-      Log.i(TAG, "Receiver constructor()");
       dataInputStream = new DataInputStream(inputStream);
       messageParser = new MessageParser();
     }
 
     @Override
     public void cancelLoad() {
-      Log.i(TAG, "cancelLoad()");
       loadCanceled = true;
     }
 
     @Override
     public void load() throws IOException {
-      Log.i(TAG, "load()");
       while (!loadCanceled) {
         byte firstByte = dataInputStream.readByte();
         if (firstByte == INTERLEAVED_MESSAGE_MARKER) {
@@ -306,8 +293,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Handles an entire RTSP message. */
     private void handleRtspMessage(byte firstByte) throws IOException {
-      Log.i(TAG, "handleRtspMessage: ");
-      if (!closed) { messageListener.onRtspMessageReceived(messageParser.parseNext(firstByte, dataInputStream));
+      if (!closed) {
+        messageListener.onRtspMessageReceived(messageParser.parseNext(firstByte, dataInputStream));
       }
     }
 
@@ -358,16 +345,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private static final int STATE_READING_FIRST_LINE = 1;
     private static final int STATE_READING_HEADER = 2;
     private static final int STATE_READING_BODY = 3;
-    String TAG = Constants.TAG + " MessageParser";
-    private final List<String> messageLines;
 
+    private final List<String> messageLines;
 
     @ReadingState private int state;
     private long messageBodyLength;
 
     /** Creates a new instance. */
     public MessageParser() {
-      Log.i(TAG, "constructor");
       messageLines = new ArrayList<>();
       state = STATE_READING_FIRST_LINE;
     }
@@ -384,7 +369,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable
       ImmutableList<String> parsedMessageLines =
           addMessageLine(parseNextLine(firstByte, dataInputStream));
-      Log.i(TAG, "parseNext() ");
+
       while (parsedMessageLines == null) {
         if (state == STATE_READING_BODY) {
           if (messageBodyLength > 0) {
@@ -405,9 +390,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               addMessageLine(parseNextLine(dataInputStream.readByte(), dataInputStream));
         }
       }
-
-      Log.i(TAG, "Message "+ parsedMessageLines);
-
       return parsedMessageLines;
     }
 
