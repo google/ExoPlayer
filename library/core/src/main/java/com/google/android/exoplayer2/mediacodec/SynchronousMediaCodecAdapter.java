@@ -23,6 +23,7 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.view.Surface;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
@@ -231,8 +232,16 @@ public final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
     codec.setVideoScalingMode(scalingMode);
   }
 
+  @Override
+  @RequiresApi(26)
+  public PersistableBundle getMetrics() {
+    return codec.getMetrics();
+  }
+
   @RequiresApi(18)
   private static final class Api18 {
+    private Api18() {}
+
     @DoNotInline
     public static Surface createCodecInputSurface(MediaCodec codec) {
       return codec.createInputSurface();
