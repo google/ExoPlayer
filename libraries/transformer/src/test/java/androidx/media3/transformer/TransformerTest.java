@@ -238,9 +238,8 @@ public final class TransformerTest {
     MediaItem mediaItem = MediaItem.fromUri("asset:///non-existing-path.mp4");
 
     transformer.startTransformation(mediaItem, outputPath);
-    Exception exception = TransformerTestRunner.runUntilError(transformer);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    assertThat(exception).isInstanceOf(TransformationException.class);
     assertThat(exception).hasCauseThat().isInstanceOf(ExoPlaybackException.class);
     assertThat(exception).hasCauseThat().hasCauseThat().isInstanceOf(IOException.class);
   }
@@ -252,9 +251,8 @@ public final class TransformerTest {
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED);
 
     transformer.startTransformation(mediaItem, outputPath);
-    Exception exception = TransformerTestRunner.runUntilError(transformer);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    assertThat(exception).isInstanceOf(TransformationException.class);
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
   }
 

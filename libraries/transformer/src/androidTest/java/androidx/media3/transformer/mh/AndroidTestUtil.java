@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
+import androidx.media3.transformer.TransformationException;
 import androidx.media3.transformer.Transformer;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
@@ -79,7 +80,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   }
 
                   @Override
-                  public void onTransformationError(MediaItem inputMediaItem, Exception exception) {
+                  public void onTransformationError(
+                      MediaItem inputMediaItem, TransformationException exception) {
                     exceptionReference.set(exception);
                     countDownLatch.countDown();
                   }
