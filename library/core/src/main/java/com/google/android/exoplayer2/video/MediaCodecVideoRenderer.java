@@ -65,6 +65,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
@@ -370,9 +371,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!supportsFormatDrm(format)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
-    // Check capabilities for the first decoder in the list, which takes priority.
+    // Check whether the first decoder supports the format. This is the preferred decoder for the
+    // format's MIME type, according to the MediaCodecSelector.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
     boolean isFormatSupported = decoderInfo.isFormatSupported(format);
+    if (!isFormatSupported) {
+      // Check whether any of the other decoders support the format.
+      for (int i = 1; i < decoderInfos.size(); i++) {
+        MediaCodecInfo otherDecoderInfo = decoderInfos.get(i);
+        if (otherDecoderInfo.isFormatSupported(format)) {
+          decoderInfo = otherDecoderInfo;
+          isFormatSupported = true;
+          break;
+        }
+      }
+    }
     @AdaptiveSupport
     int adaptiveSupport =
         decoderInfo.isSeamlessAdaptationSupported(format)
@@ -387,7 +400,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
               requiresSecureDecryption,
               /* requiresTunnelingDecoder= */ true);
       if (!tunnelingDecoderInfos.isEmpty()) {
-        MediaCodecInfo tunnelingDecoderInfo = tunnelingDecoderInfos.get(0);
+        MediaCodecInfo tunnelingDecoderInfo =
+            MediaCodecUtil.getDecoderInfosSortedByFormatSupport(tunnelingDecoderInfos, format)
+                .get(0);
         if (tunnelingDecoderInfo.isFormatSupported(format)
             && tunnelingDecoderInfo.isSeamlessAdaptationSupported(format)) {
           tunnelingSupport = TUNNELING_SUPPORTED;
@@ -403,9 +418,26 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
-    return getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, tunneling);
+    return MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
+        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, tunneling), format);
   }
 
+  /**
+   * Returns a list of decoders that can decode media in the specified format, in the priority order
+   * specified by the {@link MediaCodecSelector}. Note that since the {@link MediaCodecSelector}
+   * only has access to {@link Format#sampleMimeType}, the list is not ordered to account for
+   * whether each decoder supports the details of the format (e.g., taking into account the format's
+   * profile, level, resolution and so on). {@link
+   * MediaCodecUtil#getDecoderInfosSortedByFormatSupport} can be used to further sort the list into
+   * an order where decoders that fully support the format come first.
+   *
+   * @param mediaCodecSelector The decoder selector.
+   * @param format The {@link Format} for which a decoder is required.
+   * @param requiresSecureDecoder Whether a secure decoder is required.
+   * @param requiresTunnelingDecoder Whether a tunneling decoder is required.
+   * @return A list of {@link MediaCodecInfo}s corresponding to decoders. May be empty.
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
+   */
   private static List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector,
       Format format,
@@ -419,7 +451,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
             mimeType, requiresSecureDecoder, requiresTunnelingDecoder);
-    decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     if (MimeTypes.VIDEO_DOLBY_VISION.equals(mimeType)) {
       // Fall back to H.264/AVC or H.265/HEVC for the relevant DV profiles. This can't be done for
       // profile CodecProfileLevel.DolbyVisionProfileDvheStn and profile
@@ -428,17 +459,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       @Nullable
       Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       if (codecProfileAndLevel != null) {
+        List<MediaCodecInfo> fallbackDecoderInfos;
         int profile = codecProfileAndLevel.first;
         if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
             || profile == CodecProfileLevel.DolbyVisionProfileDvheSt) {
-          decoderInfos.addAll(
+          fallbackDecoderInfos =
               mediaCodecSelector.getDecoderInfos(
-                  MimeTypes.VIDEO_H265, requiresSecureDecoder, requiresTunnelingDecoder));
+                  MimeTypes.VIDEO_H265, requiresSecureDecoder, requiresTunnelingDecoder);
         } else if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe) {
-          decoderInfos.addAll(
+          fallbackDecoderInfos =
               mediaCodecSelector.getDecoderInfos(
-                  MimeTypes.VIDEO_H264, requiresSecureDecoder, requiresTunnelingDecoder));
+                  MimeTypes.VIDEO_H264, requiresSecureDecoder, requiresTunnelingDecoder);
+        } else {
+          fallbackDecoderInfos = ImmutableList.of();
         }
+        decoderInfos =
+            ImmutableList.<MediaCodecInfo>builder()
+                .addAll(decoderInfos)
+                .addAll(fallbackDecoderInfos)
+                .build();
       }
     }
     return Collections.unmodifiableList(decoderInfos);
