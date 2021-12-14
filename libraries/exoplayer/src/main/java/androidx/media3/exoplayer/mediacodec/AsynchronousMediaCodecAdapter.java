@@ -22,6 +22,7 @@ import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.PersistableBundle;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -304,6 +305,13 @@ import java.nio.ByteBuffer;
   public void signalEndOfInputStream() {
     maybeBlockOnQueueing();
     codec.signalEndOfInputStream();
+  }
+
+  @Override
+  @RequiresApi(26)
+  public PersistableBundle getMetrics() {
+    maybeBlockOnQueueing();
+    return codec.getMetrics();
   }
 
   @VisibleForTesting

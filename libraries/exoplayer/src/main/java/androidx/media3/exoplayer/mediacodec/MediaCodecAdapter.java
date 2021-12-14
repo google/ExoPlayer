@@ -20,6 +20,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -338,4 +339,12 @@ public interface MediaCodecAdapter {
    */
   @RequiresApi(18)
   void signalEndOfInputStream();
+
+  /**
+   * Returns metrics data about the current codec instance.
+   *
+   * @see MediaCodec#getMetrics()
+   */
+  @RequiresApi(26)
+  PersistableBundle getMetrics();
 }
