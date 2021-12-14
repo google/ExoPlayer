@@ -25,6 +25,7 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.Transformer;
 import java.io.File;
 import java.io.FileWriter;
@@ -79,7 +80,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   }
 
                   @Override
-                  public void onTransformationError(MediaItem inputMediaItem, Exception exception) {
+                  public void onTransformationError(
+                      MediaItem inputMediaItem, TransformationException exception) {
                     exceptionReference.set(exception);
                     countDownLatch.countDown();
                   }

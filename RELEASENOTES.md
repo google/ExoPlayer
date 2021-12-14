@@ -67,6 +67,8 @@
         ([#9765](https://github.com/google/ExoPlayer/issues/9765)).
 *   Transformer:
     *   Increase required min API version to 21.
+    *   `TransformationException` is now used to describe errors that occur
+        during a transformation.
 *   MediaSession extension:
     *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
         opt-out flag for apps that don't want to clear the playlist on stop.

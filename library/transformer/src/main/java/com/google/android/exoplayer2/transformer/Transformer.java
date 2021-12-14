@@ -466,19 +466,26 @@ public final class Transformer {
   public interface Listener {
 
     /**
-     * Called when the transformation is completed.
+     * Called when the transformation is completed successfully.
      *
      * @param inputMediaItem The {@link MediaItem} for which the transformation is completed.
      */
     default void onTransformationCompleted(MediaItem inputMediaItem) {}
 
+    /** @deprecated Use {@link #onTransformationError(MediaItem, TransformationException)}. */
+    @Deprecated
+    default void onTransformationError(MediaItem inputMediaItem, Exception exception) {
+      onTransformationError(inputMediaItem, (TransformationException) exception);
+    }
+
     /**
-     * Called if an error occurs during the transformation.
+     * Called if an exception occurs during the transformation.
      *
-     * @param inputMediaItem The {@link MediaItem} for which the error occurs.
-     * @param exception The exception describing the error.
+     * @param inputMediaItem The {@link MediaItem} for which the exception occurs.
+     * @param exception The {@link TransformationException} describing the exception.
      */
-    default void onTransformationError(MediaItem inputMediaItem, Exception exception) {}
+    default void onTransformationError(
+        MediaItem inputMediaItem, TransformationException exception) {}
   }
 
   /** Provider for views to show diagnostic information during transformation, for debugging. */
