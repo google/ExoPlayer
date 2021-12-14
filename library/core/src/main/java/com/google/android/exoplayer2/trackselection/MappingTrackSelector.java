@@ -217,6 +217,19 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
+     * Returns the {@link Capabilities} of the renderer for an individual track.
+     *
+     * @param rendererIndex The renderer index.
+     * @param groupIndex The index of the track group to which the track belongs.
+     * @param trackIndex The index of the track within the track group.
+     * @return The {@link Capabilities}.
+     */
+    @Capabilities
+    public int getCapabilities(int rendererIndex, int groupIndex, int trackIndex) {
+      return rendererFormatSupports[rendererIndex][groupIndex][trackIndex];
+    }
+
+    /**
      * Returns the extent to which an individual track is supported by the renderer.
      *
      * @param rendererIndex The renderer index.
@@ -227,7 +240,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     @FormatSupport
     public int getTrackSupport(int rendererIndex, int groupIndex, int trackIndex) {
       return RendererCapabilities.getFormatSupport(
-          rendererFormatSupports[rendererIndex][groupIndex][trackIndex]);
+          getCapabilities(rendererIndex, groupIndex, trackIndex));
     }
 
     /**
