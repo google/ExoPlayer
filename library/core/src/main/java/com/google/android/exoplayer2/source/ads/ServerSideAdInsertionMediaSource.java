@@ -79,10 +79,32 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     implements MediaSource.MediaSourceCaller, MediaSourceEventListener, DrmSessionEventListener {
 
+  /**
+   * Receives ad playback state update requests when the {@link Timeline} of the content media
+   * source has changed.
+   */
+  public interface AdPlaybackStateUpdater {
+    /**
+     * Called when the content source has refreshed the timeline.
+     *
+     * <p>If true is returned the source refresh publication is deferred, to wait for an {@link
+     * #setAdPlaybackState(AdPlaybackState) ad playback state update}. If false is returned, the
+     * source refresh is immediately published.
+     *
+     * <p>Called on the playback thread.
+     *
+     * @param contentTimeline The {@link Timeline} of the wrapped content media source.
+     * @return true to defer the source refresh publication, or false to immediately publish the
+     *     source refresh.
+     */
+    boolean onAdPlaybackStateUpdateRequested(Timeline contentTimeline);
+  }
+
   private final MediaSource mediaSource;
   private final ListMultimap<Long, SharedMediaPeriod> mediaPeriods;
   private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcherWithoutId;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcherWithoutId;
+  @Nullable private final AdPlaybackStateUpdater adPlaybackStateUpdater;
 
   @GuardedBy("this")
   @Nullable
@@ -96,11 +118,15 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
    * Creates the media source.
    *
    * @param mediaSource The {@link MediaSource} to wrap.
+   * @param adPlaybackStateUpdater The optional {@link AdPlaybackStateUpdater} to be called before a
+   *     source refresh is published.
    */
   // Calling BaseMediaSource.createEventDispatcher from the constructor.
   @SuppressWarnings("nullness:method.invocation")
-  public ServerSideAdInsertionMediaSource(MediaSource mediaSource) {
+  public ServerSideAdInsertionMediaSource(
+      MediaSource mediaSource, @Nullable AdPlaybackStateUpdater adPlaybackStateUpdater) {
     this.mediaSource = mediaSource;
+    this.adPlaybackStateUpdater = adPlaybackStateUpdater;
     mediaPeriods = ArrayListMultimap.create();
     adPlaybackState = AdPlaybackState.NONE;
     mediaSourceEventDispatcherWithoutId = createEventDispatcher(/* mediaPeriodId= */ null);
@@ -190,10 +216,11 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
   @Override
   public void onSourceInfoRefreshed(MediaSource source, Timeline timeline) {
     this.contentTimeline = timeline;
-    if (AdPlaybackState.NONE.equals(adPlaybackState)) {
-      return;
+    if ((adPlaybackStateUpdater == null
+            || !adPlaybackStateUpdater.onAdPlaybackStateUpdateRequested(timeline))
+        && !AdPlaybackState.NONE.equals(adPlaybackState)) {
+      refreshSourceInfo(new ServerSideAdInsertionTimeline(timeline, adPlaybackState));
     }
-    refreshSourceInfo(new ServerSideAdInsertionTimeline(timeline, adPlaybackState));
   }
 
   @Override
