@@ -82,7 +82,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                 /* windowOffsetInFirstPeriodUs= */ 42_000_000L,
                 AdPlaybackState.NONE));
     ServerSideAdInsertionMediaSource mediaSource =
-        new ServerSideAdInsertionMediaSource(new FakeMediaSource(wrappedTimeline));
+        new ServerSideAdInsertionMediaSource(
+            new FakeMediaSource(wrappedTimeline), /* adPlaybackStateUpdater= */ null);
     // Test with one ad group before the window, and the window starting within the second ad group.
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(
@@ -155,8 +156,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     ServerSideAdInsertionMediaSource mediaSource =
         new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context)
-                .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            /* adPlaybackStateUpdater= */ null);
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
     adPlaybackState =
         addAdGroupToAdPlaybackState(
@@ -214,8 +215,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     ServerSideAdInsertionMediaSource mediaSource =
         new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context)
-                .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            /* adPlaybackStateUpdater= */ null);
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
     adPlaybackState =
         addAdGroupToAdPlaybackState(
@@ -274,8 +275,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     ServerSideAdInsertionMediaSource mediaSource =
         new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context)
-                .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            /* adPlaybackStateUpdater= */ null);
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
     adPlaybackState =
         addAdGroupToAdPlaybackState(
@@ -328,8 +329,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     ServerSideAdInsertionMediaSource mediaSource =
         new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context)
-                .createMediaSource(MediaItem.fromUri(TEST_ASSET)));
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            /* adPlaybackStateUpdater= */ null);
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
     adPlaybackState =
         addAdGroupToAdPlaybackState(
