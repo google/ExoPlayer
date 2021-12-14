@@ -79,7 +79,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:contentDescription="@string/shuffle"
-      android:src="@drawable/exo_controls_shuffle_off"
+      android:src="@drawable/exo_styled_controls_shuffle_off"
       android:textColor="@color/white" />
 
 
@@ -88,7 +88,7 @@
       android:id="@+id/repeat_switch"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:src="@drawable/exo_controls_repeat_off"
+      android:src="@drawable/exo_styled_controls_repeat_off"
       android:textColor="@color/white"
       android:contentDescription="@string/repeat"
       />

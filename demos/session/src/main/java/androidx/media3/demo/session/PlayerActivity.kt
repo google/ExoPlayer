@@ -153,20 +153,20 @@ class PlayerActivity : AppCompatActivity() {
 
   private fun updateShuffleSwitchUI(shuffleModeEnabled: Boolean) {
     val resId =
-      if (shuffleModeEnabled) R.drawable.exo_controls_shuffle_on
-      else R.drawable.exo_controls_shuffle_off
+      if (shuffleModeEnabled) R.drawable.exo_styled_controls_shuffle_on
+      else R.drawable.exo_styled_controls_shuffle_off
     findViewById<ImageView>(R.id.shuffle_switch)
       .setImageDrawable(ContextCompat.getDrawable(this, resId))
   }
 
   private fun updateRepeatSwitchUI(repeatMode: Int) {
-    var resId: Int
-    when (repeatMode) {
-      Player.REPEAT_MODE_OFF -> resId = R.drawable.exo_controls_repeat_off
-      Player.REPEAT_MODE_ONE -> resId = R.drawable.exo_controls_repeat_one
-      Player.REPEAT_MODE_ALL -> resId = R.drawable.exo_controls_repeat_all
-      else -> resId = R.drawable.exo_icon_repeat_off
-    }
+    val resId: Int =
+      when (repeatMode) {
+        Player.REPEAT_MODE_OFF -> R.drawable.exo_styled_controls_repeat_off
+        Player.REPEAT_MODE_ONE -> R.drawable.exo_styled_controls_repeat_one
+        Player.REPEAT_MODE_ALL -> R.drawable.exo_styled_controls_repeat_all
+        else -> R.drawable.exo_styled_controls_repeat_off
+      }
     findViewById<ImageView>(R.id.repeat_switch)
       .setImageDrawable(ContextCompat.getDrawable(this, resId))
   }

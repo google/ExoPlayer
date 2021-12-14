@@ -46,7 +46,7 @@
         android:layout_weight="1"
         android:layout_margin="10dp"
         android:textColor="@color/white"
-        android:drawableLeft="@drawable/exo_controls_shuffle_on"
+        android:drawableLeft="@drawable/exo_styled_controls_shuffle_on"
         android:text="@string/shuffle" />
 
       <Button
