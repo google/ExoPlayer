@@ -518,10 +518,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       } else {
         // If the format is anything other than PCM then we assume that the audio decoder will
         // output 16-bit PCM.
-        pcmEncoding =
-            MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)
-                ? format.pcmEncoding
-                : C.ENCODING_PCM_16BIT;
+        pcmEncoding = C.ENCODING_PCM_16BIT;
       }
       audioSinkInputFormat =
           new Format.Builder()
