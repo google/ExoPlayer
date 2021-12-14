@@ -15,12 +15,6 @@
  */
 package androidx.media3.exoplayer.util;
 
-import static androidx.media3.common.util.Util.getFormatSupportString;
-import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_FALLBACK;
-import static androidx.media3.exoplayer.RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
-import static androidx.media3.exoplayer.RendererCapabilities.getDecoderSupport;
-import static androidx.media3.exoplayer.RendererCapabilities.getFormatSupport;
-import static androidx.media3.exoplayer.RendererCapabilities.getHardwareAccelerationSupport;
 import static java.lang.Math.min;
 
 import android.os.SystemClock;
@@ -43,11 +37,11 @@ import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererCapabilities.AdaptiveSupport;
-import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.source.LoadEventInfo;
@@ -286,16 +280,9 @@ public class EventLogger implements AnalyticsListener {
           logd("    Group:" + trackGroup.id + ", adaptive_supported=" + adaptiveSupport + " [");
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
-            @Capabilities
-            int capabilities =
-                mappedTrackInfo.getCapabilities(rendererIndex, groupIndex, trackIndex);
-            String formatSupport = getFormatSupportString(getFormatSupport(capabilities));
-            String hardwareAccelerationSupport =
-                getHardwareAccelerationSupport(capabilities) == HARDWARE_ACCELERATION_SUPPORTED
-                    ? ", accelerated=YES"
-                    : "";
-            String decoderSupport =
-                getDecoderSupport(capabilities) == DECODER_SUPPORT_FALLBACK ? ", fallback=YES" : "";
+            String formatSupport =
+                Util.getFormatSupportString(
+                    mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex));
             logd(
                 "      "
                     + status
@@ -304,9 +291,7 @@ public class EventLogger implements AnalyticsListener {
                     + ", "
                     + Format.toLogString(trackGroup.getFormat(trackIndex))
                     + ", supported="
-                    + formatSupport
-                    + hardwareAccelerationSupport
-                    + decoderSupport);
+                    + formatSupport);
           }
           logd("    ]");
         }
@@ -334,7 +319,7 @@ public class EventLogger implements AnalyticsListener {
         TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           String status = getTrackStatusString(false);
-          String formatSupport = getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE);
+          String formatSupport = Util.getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE);
           logd(
               "      "
                   + status
