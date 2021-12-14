@@ -95,6 +95,7 @@ import android.util.Log;
   private boolean trackSelected;
   private int portBindingRetryCount;
   private boolean isUsingRtpTcp;
+  private RtspLoaderWrapper rtploaderWrapper;
 
   /**
    * Creates an RTSP media period.
@@ -422,7 +423,12 @@ import android.util.Log;
 
     @Override
     public TrackOutput track(int id, int type) {
-      return checkNotNull(rtspLoaderWrappers.get(id)).sampleQueue;
+      if(!RtspMediaSource.stripRtsp){
+        return checkNotNull(rtspLoaderWrappers.get(id)).sampleQueue;
+      } else {
+        return rtploaderWrapper.sampleQueue;
+      }
+      
     }
 
     @Override
@@ -730,8 +736,8 @@ import android.util.Log;
 
   public void provideMediaDescription(RtspMediaTrack rtspMediaTrack){
     Log.d(TAG,"provideMediaDescription is called");
-    RtspLoaderWrapper loaderWrapper = new RtspLoaderWrapper(rtspMediaTrack, /* trackId= */ 1, rtpDataChannelFactory);
-    loaderWrapper.startLoading();
+    rtploaderWrapper = new RtspLoaderWrapper(rtspMediaTrack, /* trackId= */ 1, rtpDataChannelFactory);
+    rtploaderWrapper.startLoading();
   }
 
   /** Groups the info needed for loading one RTSP track in RTP. */
