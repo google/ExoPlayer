@@ -42,7 +42,6 @@ import androidx.media3.common.AdOverlayInfo;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AdViewProvider;
 import androidx.media3.common.C;
-import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
@@ -276,30 +275,7 @@ public final class ImaAdsLoaderTest {
     ExoPlaybackException anException =
         ExoPlaybackException.createForSource(
             new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
-    imaAdsLoader.onPlayerErrorChanged(anException);
-    imaAdsLoader.onPlayerError(anException);
-    imaAdsLoader.onPositionDiscontinuity(
-        new Player.PositionInfo(
-            /* windowUid= */ new Object(),
-            /* windowIndex= */ 0,
-            /* mediaItem= */ MediaItem.fromUri("http://google.com/0"),
-            /* periodUid= */ new Object(),
-            /* periodIndex= */ 0,
-            /* positionMs= */ 10_000,
-            /* contentPositionMs= */ 0,
-            /* adGroupIndex= */ -1,
-            /* adIndexInAdGroup= */ -1),
-        new Player.PositionInfo(
-            /* windowUid= */ new Object(),
-            /* windowIndex= */ 1,
-            /* mediaItem= */ MediaItem.fromUri("http://google.com/1"),
-            /* periodUid= */ new Object(),
-            /* periodIndex= */ 0,
-            /* positionMs= */ 20_000,
-            /* contentPositionMs= */ 0,
-            /* adGroupIndex= */ -1,
-            /* adIndexInAdGroup= */ -1),
-        Player.DISCONTINUITY_REASON_SEEK);
+    fakePlayer.setPlayerError(anException);
     adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
     imaAdsLoader.handlePrepareError(
         adsMediaSource, /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, new IOException());

@@ -15,9 +15,12 @@
  */
 package androidx.media3.exoplayer.ima;
 
+import static androidx.media3.common.util.Assertions.checkState;
+
 import android.os.Looper;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackSelectionArray;
@@ -180,6 +183,29 @@ import androidx.media3.test.utils.StubExoPlayer;
             }
           });
     }
+  }
+
+  /**
+   * Sets an error on this player.
+   *
+   * <p>This will propagate the error to {@link Player.Listener#onPlayerError(PlaybackException)}
+   * and {@link Player.Listener#onPlayerErrorChanged(PlaybackException)} and will also update the
+   * state to {@link Player#STATE_IDLE}.
+   *
+   * <p>The player must be in {@link #STATE_BUFFERING} or {@link #STATE_READY}.
+   */
+  @SuppressWarnings("deprecation") // Calling deprecated listener.onPlayerStateChanged()
+  public void setPlayerError(PlaybackException error) {
+    checkState(state == STATE_BUFFERING || state == STATE_READY);
+    this.state = Player.STATE_IDLE;
+    listeners.sendEvent(
+        Player.EVENT_PLAYBACK_STATE_CHANGED,
+        listener -> {
+          listener.onPlayerError(error);
+          listener.onPlayerErrorChanged(error);
+          listener.onPlayerStateChanged(playWhenReady, state);
+          listener.onPlaybackStateChanged(state);
+        });
   }
 
   // ExoPlayer methods. Other methods are unsupported.
