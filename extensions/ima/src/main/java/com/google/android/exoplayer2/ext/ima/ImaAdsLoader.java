@@ -86,7 +86,7 @@ import java.util.Set;
  * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">IMA
  * SDK Open Measurement documentation</a> for more information.
  */
-public final class ImaAdsLoader implements Player.Listener, AdsLoader {
+public final class ImaAdsLoader implements AdsLoader {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -386,6 +386,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
   private final ImaUtil.Configuration configuration;
   private final Context context;
   private final ImaUtil.ImaFactory imaFactory;
+  private final PlayerListenerImpl playerListener;
   private final HashMap<Object, AdTagLoader> adTagLoaderByAdsId;
   private final HashMap<AdsMediaSource, AdTagLoader> adTagLoaderByAdsMediaSource;
   private final Timeline.Period period;
@@ -402,6 +403,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     this.context = context.getApplicationContext();
     this.configuration = configuration;
     this.imaFactory = imaFactory;
+    playerListener = new PlayerListenerImpl();
     supportedMimeTypes = ImmutableList.of();
     adTagLoaderByAdsId = new HashMap<>();
     adTagLoaderByAdsMediaSource = new HashMap<>();
@@ -532,7 +534,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
       if (player == null) {
         return;
       }
-      player.addListener(this);
+      player.addListener(playerListener);
     }
 
     @Nullable AdTagLoader adTagLoader = adTagLoaderByAdsId.get(adsId);
@@ -554,7 +556,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     }
 
     if (player != null && adTagLoaderByAdsMediaSource.isEmpty()) {
-      player.removeListener(this);
+      player.removeListener(playerListener);
       player = null;
     }
   }
@@ -562,7 +564,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
   @Override
   public void release() {
     if (player != null) {
-      player.removeListener(this);
+      player.removeListener(playerListener);
       player = null;
       maybeUpdateCurrentAdTagLoader();
     }
@@ -600,37 +602,6 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
     }
     checkNotNull(adTagLoaderByAdsMediaSource.get(adsMediaSource))
         .handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
-  }
-
-  // Player.Listener implementation.
-
-  @Override
-  public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
-    if (timeline.isEmpty()) {
-      // The player is being reset or contains no media.
-      return;
-    }
-    maybeUpdateCurrentAdTagLoader();
-    maybePreloadNextPeriodAds();
-  }
-
-  @Override
-  public void onPositionDiscontinuity(
-      Player.PositionInfo oldPosition,
-      Player.PositionInfo newPosition,
-      @Player.DiscontinuityReason int reason) {
-    maybeUpdateCurrentAdTagLoader();
-    maybePreloadNextPeriodAds();
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-    maybePreloadNextPeriodAds();
-  }
-
-  @Override
-  public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-    maybePreloadNextPeriodAds();
   }
 
   // Internal methods.
@@ -672,7 +643,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
   }
 
   private void maybePreloadNextPeriodAds() {
-    @Nullable Player player = this.player;
+    @Nullable Player player = ImaAdsLoader.this.player;
     if (player == null) {
       return;
     }
@@ -704,6 +675,38 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
                 window, period, period.windowIndex, /* windowPositionUs= */ C.TIME_UNSET)
             .second;
     nextAdTagLoader.maybePreloadAds(Util.usToMs(periodPositionUs), Util.usToMs(period.durationUs));
+  }
+
+  private final class PlayerListenerImpl implements Player.Listener {
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
+      if (timeline.isEmpty()) {
+        // The player is being reset or contains no media.
+        return;
+      }
+      maybeUpdateCurrentAdTagLoader();
+      maybePreloadNextPeriodAds();
+    }
+
+    @Override
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @Player.DiscontinuityReason int reason) {
+      maybeUpdateCurrentAdTagLoader();
+      maybePreloadNextPeriodAds();
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      maybePreloadNextPeriodAds();
+    }
+
+    @Override
+    public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
+      maybePreloadNextPeriodAds();
+    }
   }
 
   /**
