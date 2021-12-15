@@ -15,14 +15,19 @@
  */
 package androidx.media3.exoplayer.ima;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
+
 import android.content.Context;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AdOverlayInfo;
+import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AdViewProvider;
 import androidx.media3.common.C;
+import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSchemeDataSource;
 import androidx.media3.datasource.DataSourceUtil;
@@ -43,10 +48,13 @@ import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /** Utilities for working with IMA SDK and IMA extension data types. */
@@ -253,6 +261,126 @@ import java.util.Set;
           "%d ms of %d ms",
           videoProgressUpdate.getCurrentTimeMs(), videoProgressUpdate.getDurationMs());
     }
+  }
+
+  /**
+   * Splits an {@link AdPlaybackState} into a separate {@link AdPlaybackState} for each period of a
+   * content timeline. Ad group times are expected to not take previous ad duration into account and
+   * needs to be translated to the actual position in the {@code contentTimeline} by adding prior ad
+   * durations.
+   *
+   * <p>If a period is enclosed by an ad group, the period is considered an ad period and gets an ad
+   * playback state assigned with a single ad in a single ad group. The duration of the ad is set to
+   * the duration of the period. All other periods are considered content periods with an empty ad
+   * playback state without any ads.
+   *
+   * @param adPlaybackState The ad playback state to be split.
+   * @param contentTimeline The content timeline for each period of which to create an {@link
+   *     AdPlaybackState}.
+   * @return A map of ad playback states for each period UID in the content timeline.
+   */
+  public static ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStateForPeriods(
+      AdPlaybackState adPlaybackState, Timeline contentTimeline) {
+    Timeline.Period period = new Timeline.Period();
+    if (contentTimeline.getPeriodCount() == 1) {
+      // A single period gets the entire ad playback state that may contain multiple ad groups.
+      return ImmutableMap.of(
+          checkNotNull(
+              contentTimeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid),
+          adPlaybackState);
+    }
+
+    int periodIndex = 0;
+    long totalElapsedContentDurationUs = 0;
+    Object adsId = checkNotNull(adPlaybackState.adsId);
+    AdPlaybackState contentOnlyAdPlaybackState = new AdPlaybackState(adsId);
+    Map<Object, AdPlaybackState> adPlaybackStates = new HashMap<>();
+    for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
+      if (adGroup.timeUs == C.TIME_END_OF_SOURCE) {
+        checkState(i == adPlaybackState.adGroupCount - 1);
+        // The last ad group is a placeholder for a potential post roll. We can just stop here.
+        break;
+      }
+      // The ad group start timeUs is in content position. We need to add the ad
+      // duration before the ad group to translate the start time to the position in the period.
+      long adGroupDurationUs = getTotalDurationUs(adGroup.durationsUs);
+      long elapsedAdGroupAdDurationUs = 0;
+      for (int j = periodIndex; j < contentTimeline.getPeriodCount(); j++) {
+        contentTimeline.getPeriod(j, period, /* setIds= */ true);
+        if (totalElapsedContentDurationUs < adGroup.timeUs) {
+          // Period starts before the ad group, so it is a content period.
+          adPlaybackStates.put(checkNotNull(period.uid), contentOnlyAdPlaybackState);
+          totalElapsedContentDurationUs += period.durationUs;
+        } else {
+          long periodStartUs = totalElapsedContentDurationUs + elapsedAdGroupAdDurationUs;
+          if (periodStartUs + period.durationUs <= adGroup.timeUs + adGroupDurationUs) {
+            // The period ends before the end of the ad group, so it is an ad period (Note: An ad
+            // reported by the IMA SDK may span multiple periods).
+            adPlaybackStates.put(
+                checkNotNull(period.uid),
+                splitAdGroupForPeriod(adsId, adGroup, periodStartUs, period.durationUs));
+            elapsedAdGroupAdDurationUs += period.durationUs;
+          } else {
+            // Period is after the current ad group. Continue with next ad group.
+            break;
+          }
+        }
+        // Increment the period index to the next unclassified period.
+        periodIndex++;
+      }
+    }
+    // The remaining periods end after the last ad group, so these are content periods.
+    for (int i = periodIndex; i < contentTimeline.getPeriodCount(); i++) {
+      contentTimeline.getPeriod(i, period, /* setIds= */ true);
+      adPlaybackStates.put(checkNotNull(period.uid), contentOnlyAdPlaybackState);
+    }
+    return ImmutableMap.copyOf(adPlaybackStates);
+  }
+
+  private static AdPlaybackState splitAdGroupForPeriod(
+      Object adsId, AdPlaybackState.AdGroup adGroup, long periodStartUs, long periodDurationUs) {
+    checkState(adGroup.timeUs <= periodStartUs);
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs...= */ 0)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, periodDurationUs)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+    long periodEndUs = periodStartUs + periodDurationUs;
+    long adDurationsUs = 0;
+    for (int i = 0; i < adGroup.count; i++) {
+      adDurationsUs += adGroup.durationsUs[i];
+      if (periodEndUs == adGroup.timeUs + adDurationsUs) {
+        // Map the state of the global ad state to the period specific ad state.
+        switch (adGroup.states[i]) {
+          case AdPlaybackState.AD_STATE_PLAYED:
+            adPlaybackState =
+                adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+            break;
+          case AdPlaybackState.AD_STATE_SKIPPED:
+            adPlaybackState =
+                adPlaybackState.withSkippedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+            break;
+          case AdPlaybackState.AD_STATE_ERROR:
+            adPlaybackState =
+                adPlaybackState.withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+            break;
+          default:
+            // Do nothing.
+            break;
+        }
+        break;
+      }
+    }
+    return adPlaybackState;
+  }
+
+  private static long getTotalDurationUs(long[] durationsUs) {
+    long totalDurationUs = 0;
+    for (long adDurationUs : durationsUs) {
+      totalDurationUs += adDurationUs;
+    }
+    return totalDurationUs;
   }
 
   private ImaUtil() {}
