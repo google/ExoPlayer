@@ -15,6 +15,8 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.Player.COMMAND_INVALID;
+import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
 import static androidx.media3.common.Player.COMMAND_SEEK_BACK;
 import static androidx.media3.common.Player.COMMAND_SEEK_FORWARD;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
@@ -40,6 +42,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -53,6 +56,8 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 import androidx.media3.common.C;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.NotificationUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -62,7 +67,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -180,12 +184,12 @@ public class PlayerNotificationManager {
      *
      * <p>If multiple {@link PlayerNotificationManager} instances are in use at the same time, the
      * {@code instanceId} must be set as an intent extra with key {@link
-     * PlayerNotificationManager#EXTRA_INSTANCE_ID} to avoid sending the action to every custom
-     * action receiver. It's also necessary to ensure something is different about the actions. This
-     * may be any of the {@link Intent} attributes considered by {@link Intent#filterEquals}, or
-     * different request code integers when creating the {@link PendingIntent}s with {@link
-     * PendingIntent#getBroadcast}. The easiest approach is to use the {@code instanceId} as the
-     * request code.
+     * PlayerNotificationManager#INTENT_EXTRA_INSTANCE_ID} to avoid sending the action to every
+     * custom action receiver. It's also necessary to ensure something is different about the
+     * actions. This may be any of the {@link Intent} attributes considered by {@link
+     * Intent#filterEquals}, or different request code integers when creating the {@link
+     * PendingIntent}s with {@link PendingIntent#getBroadcast}. The easiest approach is to use the
+     * {@code instanceId} as the request code.
      *
      * @param context The {@link Context}.
      * @param instanceId The instance id of the {@link PlayerNotificationManager}.
@@ -251,12 +255,6 @@ public class PlayerNotificationManager {
     protected int channelDescriptionResourceId;
     protected int channelImportance;
     protected int smallIconResourceId;
-    protected int rewindActionIconResourceId;
-    protected int playActionIconResourceId;
-    protected int pauseActionIconResourceId;
-    protected int fastForwardActionIconResourceId;
-    protected int previousActionIconResourceId;
-    protected int nextActionIconResourceId;
     @Nullable protected String groupKey;
 
     /**
@@ -288,12 +286,6 @@ public class PlayerNotificationManager {
       channelImportance = NotificationUtil.IMPORTANCE_LOW;
       mediaDescriptionAdapter = new DefaultMediaDescriptionAdapter(/* pendingIntent= */ null);
       smallIconResourceId = R.drawable.media3_notification_small_icon;
-      playActionIconResourceId = R.drawable.media3_notification_play;
-      pauseActionIconResourceId = R.drawable.media3_notification_pause;
-      rewindActionIconResourceId = R.drawable.media3_notification_seek_back;
-      fastForwardActionIconResourceId = R.drawable.media3_notification_seek_forward;
-      previousActionIconResourceId = R.drawable.media3_notification_seek_to_previous;
-      nextActionIconResourceId = R.drawable.media3_notification_seek_to_next;
     }
 
     /**
@@ -376,79 +368,6 @@ public class PlayerNotificationManager {
     }
 
     /**
-     * The resource id of the drawable to be used as the icon of action {@link #ACTION_PLAY}.
-     *
-     * <p>The default is {@code R.drawable#media3_notification_play}.
-     *
-     * @return This builder.
-     */
-    public Builder setPlayActionIconResourceId(int playActionIconResourceId) {
-      this.playActionIconResourceId = playActionIconResourceId;
-      return this;
-    }
-
-    /**
-     * The resource id of the drawable to be used as the icon of action {@link #ACTION_PAUSE}.
-     *
-     * <p>The default is {@code R.drawable#media3_notification_pause}.
-     *
-     * @return This builder.
-     */
-    public Builder setPauseActionIconResourceId(int pauseActionIconResourceId) {
-      this.pauseActionIconResourceId = pauseActionIconResourceId;
-      return this;
-    }
-
-    /**
-     * The resource id of the drawable to be used as the icon of action {@link #ACTION_REWIND}.
-     *
-     * <p>The default is {@code R.drawable#media3_notification_rewind}.
-     *
-     * @return This builder.
-     */
-    public Builder setRewindActionIconResourceId(int rewindActionIconResourceId) {
-      this.rewindActionIconResourceId = rewindActionIconResourceId;
-      return this;
-    }
-
-    /**
-     * The resource id of the drawable to be used as the icon of action {@link
-     * #ACTION_FAST_FORWARD}.
-     *
-     * <p>The default is {@code R.drawable#media3_notification_fastforward}.
-     *
-     * @return This builder.
-     */
-    public Builder setFastForwardActionIconResourceId(int fastForwardActionIconResourceId) {
-      this.fastForwardActionIconResourceId = fastForwardActionIconResourceId;
-      return this;
-    }
-
-    /**
-     * The resource id of the drawable to be used as the icon of action {@link #ACTION_PREVIOUS}.
-     *
-     * <p>The default is {@code R.drawable#media3_notification_previous}.
-     *
-     * @return This builder.
-     */
-    public Builder setPreviousActionIconResourceId(int previousActionIconResourceId) {
-      this.previousActionIconResourceId = previousActionIconResourceId;
-      return this;
-    }
-
-    /**
-     * The resource id of the drawable to be used as the icon of action {@link #ACTION_NEXT}.
-     *
-     * <p>The default is {@code R.drawable#media3_notification_next}.
-     *
-     * @return This builder.
-     */
-    public Builder setNextActionIconResourceId(int nextActionIconResourceId) {
-      this.nextActionIconResourceId = nextActionIconResourceId;
-      return this;
-    }
-
-    /**
      * The key of the group the media notification should belong to.
      *
      * <p>The default is {@code null}
@@ -491,12 +410,6 @@ public class PlayerNotificationManager {
           notificationListener,
           customActionReceiver,
           smallIconResourceId,
-          playActionIconResourceId,
-          pauseActionIconResourceId,
-          rewindActionIconResourceId,
-          fastForwardActionIconResourceId,
-          previousActionIconResourceId,
-          nextActionIconResourceId,
           groupKey);
     }
   }
@@ -522,30 +435,34 @@ public class PlayerNotificationManager {
     }
   }
 
-  /** The action which starts playback. */
-  public static final String ACTION_PLAY = "androidx.media3.ui.notification.play";
-  /** The action which pauses playback. */
-  public static final String ACTION_PAUSE = "androidx.media3.ui.notification.pause";
-  /** The action which skips to the previous media item. */
-  public static final String ACTION_PREVIOUS = "androidx.media3.ui.notification.prev";
-  /** The action which skips to the next media item. */
-  public static final String ACTION_NEXT = "androidx.media3.ui.notification.next";
-  /** The action which fast forwards. */
-  public static final String ACTION_FAST_FORWARD = "androidx.media3.ui.notification.ffwd";
-  /** The action which rewinds. */
-  public static final String ACTION_REWIND = "androidx.media3.ui.notification.rewind";
-  /** The extra key of the instance id of the player notification manager. */
-  public static final String EXTRA_INSTANCE_ID = "INSTANCE_ID";
+  /** The action which is executed when a button in the notification is clicked. */
+  private static final String INTENT_ACTION_COMMAND = "androidx.media3.session.command";
+
   /**
    * The action which is executed when the notification is dismissed. It cancels the notification
    * and calls {@link NotificationListener#onNotificationCancelled(int, boolean)}.
    */
-  private static final String ACTION_DISMISS = "androidx.media3.ui.notification.dismiss";
+  private static final String INTENT_ACTION_DISMISS =
+      "androidx.media3.session.notification.dismiss";
+
+  private static final String INTENT_EXTRA_PLAYER_COMMAND =
+      "androidx.media3.session.EXTRA_PLAYER_COMMAND";
+  private static final String INTENT_EXTRA_SESSION_COMMAND =
+      "androidx.media3.session.EXTRA_SESSION_COMMAND";
+  private static final String INTENT_EXTRA_INSTANCE_ID =
+      "androidx.media3.session.notificaiton.EXTRA_INSTANCE_ID";
+  private static final String INTENT_SCHEME = "media3";
+
+  private static final int PENDING_INTENT_FLAGS =
+      (Util.SDK_INT >= 23)
+          ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+          : PendingIntent.FLAG_UPDATE_CURRENT;
+  private static final String TAG = "NotificationManager";
 
   // Internal messages.
 
-  private static final int MSG_START_OR_UPDATE_NOTIFICATION = 0;
-  private static final int MSG_UPDATE_NOTIFICATION_BITMAP = 1;
+  private static final int MSG_START_OR_UPDATE_NOTIFICATION = 1;
+  private static final int MSG_UPDATE_NOTIFICATION_BITMAP = 2;
 
   /**
    * Visibility of notification on the lock screen. One of {@link
@@ -591,13 +508,17 @@ public class PlayerNotificationManager {
   private final IntentFilter intentFilter;
   private final Player.Listener playerListener;
   private final NotificationBroadcastReceiver notificationBroadcastReceiver;
-  private final Map<String, NotificationCompat.Action> playbackActions;
   private final Map<String, NotificationCompat.Action> customActions;
   private final PendingIntent dismissPendingIntent;
   private final int instanceId;
+  private final CommandButton playButton;
+  private final CommandButton pauseButton;
+  private final CommandButton seekToPreviousButton;
+  private final CommandButton seekToNextButton;
+  private final CommandButton seekBackButton;
+  private final CommandButton seekForwardButton;
 
   @Nullable private NotificationCompat.Builder builder;
-  @Nullable private List<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
@@ -620,12 +541,6 @@ public class PlayerNotificationManager {
       @Nullable NotificationListener notificationListener,
       @Nullable CustomActionReceiver customActionReceiver,
       int smallIconResourceId,
-      int playActionIconResourceId,
-      int pauseActionIconResourceId,
-      int rewindActionIconResourceId,
-      int fastForwardActionIconResourceId,
-      int previousActionIconResourceId,
-      int nextActionIconResourceId,
       @Nullable String groupKey) {
     context = context.getApplicationContext();
     this.context = context;
@@ -655,29 +570,51 @@ public class PlayerNotificationManager {
     badgeIconType = NotificationCompat.BADGE_ICON_SMALL;
     visibility = NotificationCompat.VISIBILITY_PUBLIC;
 
-    // initialize actions
-    playbackActions =
-        createPlaybackActions(
-            context,
-            instanceId,
-            playActionIconResourceId,
-            pauseActionIconResourceId,
-            rewindActionIconResourceId,
-            fastForwardActionIconResourceId,
-            previousActionIconResourceId,
-            nextActionIconResourceId);
-    for (String action : playbackActions.keySet()) {
-      intentFilter.addAction(action);
-    }
+    // initialize default buttons
+    playButton =
+        new CommandButton.Builder()
+            .setDisplayName(context.getText(R.string.media3_controls_play_description))
+            .setIconResId(R.drawable.media3_notification_play)
+            .setPlayerCommand(COMMAND_PLAY_PAUSE)
+            .build();
+    pauseButton =
+        new CommandButton.Builder()
+            .setDisplayName(context.getText(R.string.media3_controls_pause_description))
+            .setIconResId(R.drawable.media3_notification_pause)
+            .setPlayerCommand(COMMAND_PLAY_PAUSE)
+            .build();
+    seekToPreviousButton =
+        new CommandButton.Builder()
+            .setDisplayName(context.getText(R.string.media3_controls_seek_to_previous_description))
+            .setIconResId(R.drawable.media3_notification_seek_to_previous)
+            .setPlayerCommand(COMMAND_SEEK_TO_PREVIOUS)
+            .build();
+    seekToNextButton =
+        new CommandButton.Builder()
+            .setDisplayName(context.getText(R.string.media3_controls_seek_to_next_description))
+            .setIconResId(R.drawable.media3_notification_seek_to_next)
+            .setPlayerCommand(COMMAND_SEEK_TO_NEXT)
+            .build();
+    seekBackButton =
+        new CommandButton.Builder()
+            .setDisplayName(context.getText(R.string.media3_controls_seek_back_description))
+            .setIconResId(R.drawable.media3_notification_seek_back)
+            .setPlayerCommand(COMMAND_SEEK_BACK)
+            .build();
+    seekForwardButton =
+        new CommandButton.Builder()
+            .setDisplayName(context.getText(R.string.media3_controls_seek_forward_description))
+            .setIconResId(R.drawable.media3_notification_seek_forward)
+            .setPlayerCommand(COMMAND_SEEK_FORWARD)
+            .build();
+    intentFilter.addAction(INTENT_ACTION_COMMAND);
+    intentFilter.addAction(INTENT_ACTION_DISMISS);
+    intentFilter.addDataScheme(INTENT_SCHEME);
     customActions =
         customActionReceiver != null
             ? customActionReceiver.createCustomActions(context, instanceId)
             : Collections.emptyMap();
-    for (String action : customActions.keySet()) {
-      intentFilter.addAction(action);
-    }
-    dismissPendingIntent = createBroadcastIntent(ACTION_DISMISS, context, instanceId);
-    intentFilter.addAction(ACTION_DISMISS);
+    dismissPendingIntent = createBroadcastIntent(context, INTENT_ACTION_DISMISS, instanceId);
   }
 
   /**
@@ -844,7 +781,7 @@ public class PlayerNotificationManager {
    *
    * <ul>
    *   <li>The media is {@link Player#isPlaying() actively playing}.
-   *   <li>The media is not {@link Player#isCurrentMediaItemDynamic() dynamically changing its
+   *   <li>The media is not {@link Player#isCurrentWindowDynamic() dynamically changing its
    *       duration} (like for example a live stream).
    *   <li>The media is not {@link Player#isPlayingAd() interrupted by an ad}.
    *   <li>The media is played at {@link Player#getPlaybackParameters() regular speed}.
@@ -947,37 +884,29 @@ public class PlayerNotificationManager {
       boolean ongoing,
       @Nullable Bitmap largeIcon) {
     if (player.getPlaybackState() == Player.STATE_IDLE && player.getCurrentTimeline().isEmpty()) {
-      builderActions = null;
       return null;
     }
 
-    List<String> actionNames = getActions(player);
-    List<NotificationCompat.Action> actions = new ArrayList<>(actionNames.size());
-    for (int i = 0; i < actionNames.size(); i++) {
-      String actionName = actionNames.get(i);
-      @Nullable
-      NotificationCompat.Action action =
-          playbackActions.containsKey(actionName)
-              ? playbackActions.get(actionName)
-              : customActions.get(actionName);
-      if (action != null) {
-        actions.add(action);
-      }
-    }
-
-    if (builder == null || !actions.equals(builderActions)) {
+    if (builder == null) {
       builder = new NotificationCompat.Builder(context, channelId);
-      builderActions = actions;
-      for (int i = 0; i < actions.size(); i++) {
-        builder.addAction(actions.get(i));
-      }
+    }
+    List<CommandButton> actionButtons = getActionButtons(player);
+    for (int i = 0; i < actionButtons.size(); i++) {
+      CommandButton button = actionButtons.get(i);
+      NotificationCompat.Action action =
+          new NotificationCompat.Action(
+              button.iconResId,
+              button.displayName,
+              createBroadcastIntent(context, button, instanceId));
+      builder.addAction(action);
     }
 
     MediaStyle mediaStyle = new MediaStyle();
     if (mediaSessionToken != null) {
       mediaStyle.setMediaSession(mediaSessionToken);
     }
-    mediaStyle.setShowActionsInCompactView(getActionIndicesForCompactView(actionNames, player));
+    mediaStyle.setShowActionsInCompactView(
+        getActionButtonIndicesForCompactView(actionButtons, player));
     // Configure dismiss action prior to API 21 ('x' button).
     mediaStyle.setShowCancelButton(!ongoing);
     mediaStyle.setCancelButtonIntent(dismissPendingIntent);
@@ -1002,7 +931,7 @@ public class PlayerNotificationManager {
         && useChronometer
         && player.isPlaying()
         && !player.isPlayingAd()
-        && !player.isCurrentMediaItemDynamic()
+        && !player.isCurrentWindowDynamic()
         && player.getPlaybackParameters().speed == 1f) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
@@ -1040,42 +969,39 @@ public class PlayerNotificationManager {
    * omitted:
    *
    * <pre>
-   *   +-----------------------------------------------------------------+
-   *   | prev | &lt;&lt; | play/pause | &gt;&gt; | next | custom actions |
-   *   +-----------------------------------------------------------------+
+   *   +------------------------------------------------+
+   *   | prev | &lt;&lt; | play/pause | &gt;&gt; | next |
+   *   +------------------------------------------------+
    * </pre>
    *
-   * <p>This method can be safely overridden. However, the names must be of the playback actions
-   * {@link #ACTION_PAUSE}, {@link #ACTION_PLAY}, {@link #ACTION_FAST_FORWARD}, {@link
-   * #ACTION_REWIND}, {@link #ACTION_NEXT} or {@link #ACTION_PREVIOUS}, or a key contained in the
-   * map returned by {@link CustomActionReceiver#createCustomActions(Context, int)}. Otherwise the
-   * action name is ignored.
+   * <p>This method can be safely overridden.
    */
-  protected List<String> getActions(Player player) {
+  // Disclaimer: Custom action support is temporarily removed, but will be added back in next CL.
+  protected List<CommandButton> getActionButtons(Player player) {
     boolean enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
     boolean enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
     boolean enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
     boolean enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
 
-    List<String> stringActions = new ArrayList<>();
+    List<CommandButton> buttons = new ArrayList<>();
     if (enablePrevious) {
-      stringActions.add(ACTION_PREVIOUS);
+      buttons.add(seekToPreviousButton);
     }
     if (enableRewind) {
-      stringActions.add(ACTION_REWIND);
+      buttons.add(seekBackButton);
     }
     if (shouldShowPauseButton(player)) {
-      stringActions.add(ACTION_PAUSE);
+      buttons.add(pauseButton);
     } else {
-      stringActions.add(ACTION_PLAY);
+      buttons.add(playButton);
     }
     if (enableFastForward) {
-      stringActions.add(ACTION_FAST_FORWARD);
+      buttons.add(seekForwardButton);
     }
     if (enableNext) {
-      stringActions.add(ACTION_NEXT);
+      buttons.add(seekToNextButton);
     }
-    return stringActions;
+    return buttons;
   }
 
   /**
@@ -1084,29 +1010,41 @@ public class PlayerNotificationManager {
    * <p>This method can be overridden. The indices must refer to the list of actions passed as the
    * first parameter.
    *
-   * @param actionNames The names of the actions included in the notification.
+   * @param actionButtons The buttons of the actions included in the notification.
    * @param player The player for which a notification is being built.
    */
   @SuppressWarnings("unused")
-  protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
-    int pauseActionIndex = actionNames.indexOf(ACTION_PAUSE);
-    int playActionIndex = actionNames.indexOf(ACTION_PLAY);
-    int leftSideActionIndex = actionNames.indexOf(ACTION_PREVIOUS);
-    int rightSideActionIndex = actionNames.indexOf(ACTION_NEXT);
-
+  protected int[] getActionButtonIndicesForCompactView(
+      List<CommandButton> actionButtons, Player player) {
+    int previousIndex = C.INDEX_UNSET;
+    int nextIndex = C.INDEX_UNSET;
+    int playPauseIndex = C.INDEX_UNSET;
+    for (int i = 0; i < actionButtons.size(); i++) {
+      CommandButton button = actionButtons.get(i);
+      switch (button.playerCommand) {
+        case COMMAND_PLAY_PAUSE:
+          playPauseIndex = i;
+          break;
+        case COMMAND_SEEK_TO_PREVIOUS:
+          previousIndex = i;
+          break;
+        case COMMAND_SEEK_TO_NEXT:
+          nextIndex = i;
+          break;
+        default:
+          // Do nothing
+      }
+    }
     int[] actionIndices = new int[3];
     int actionCounter = 0;
-    if (leftSideActionIndex != -1) {
-      actionIndices[actionCounter++] = leftSideActionIndex;
+    if (previousIndex != C.INDEX_UNSET) {
+      actionIndices[actionCounter++] = previousIndex;
     }
-    boolean shouldShowPauseButton = shouldShowPauseButton(player);
-    if (pauseActionIndex != -1 && shouldShowPauseButton) {
-      actionIndices[actionCounter++] = pauseActionIndex;
-    } else if (playActionIndex != -1 && !shouldShowPauseButton) {
-      actionIndices[actionCounter++] = playActionIndex;
+    if (playPauseIndex != C.INDEX_UNSET) {
+      actionIndices[actionCounter++] = playPauseIndex;
     }
-    if (rightSideActionIndex != -1) {
-      actionIndices[actionCounter++] = rightSideActionIndex;
+    if (nextIndex != C.INDEX_UNSET) {
+      actionIndices[actionCounter++] = nextIndex;
     }
     return Arrays.copyOf(actionIndices, actionCounter);
   }
@@ -1155,68 +1093,30 @@ public class PlayerNotificationManager {
     return true;
   }
 
-  private static Map<String, NotificationCompat.Action> createPlaybackActions(
-      Context context,
-      int instanceId,
-      int playActionIconResourceId,
-      int pauseActionIconResourceId,
-      int rewindActionIconResourceId,
-      int fastForwardActionIconResourceId,
-      int previousActionIconResourceId,
-      int nextActionIconResourceId) {
-    Map<String, NotificationCompat.Action> actions = new HashMap<>();
-    actions.put(
-        ACTION_PLAY,
-        new NotificationCompat.Action(
-            playActionIconResourceId,
-            context.getString(R.string.media3_controls_play_description),
-            createBroadcastIntent(ACTION_PLAY, context, instanceId)));
-    actions.put(
-        ACTION_PAUSE,
-        new NotificationCompat.Action(
-            pauseActionIconResourceId,
-            context.getString(R.string.media3_controls_pause_description),
-            createBroadcastIntent(ACTION_PAUSE, context, instanceId)));
-    actions.put(
-        ACTION_REWIND,
-        new NotificationCompat.Action(
-            rewindActionIconResourceId,
-            context.getString(R.string.media3_controls_seek_back_description),
-            createBroadcastIntent(ACTION_REWIND, context, instanceId)));
-    actions.put(
-        ACTION_FAST_FORWARD,
-        new NotificationCompat.Action(
-            fastForwardActionIconResourceId,
-            context.getString(R.string.media3_controls_seek_forward_description),
-            createBroadcastIntent(ACTION_FAST_FORWARD, context, instanceId)));
-    actions.put(
-        ACTION_PREVIOUS,
-        new NotificationCompat.Action(
-            previousActionIconResourceId,
-            context.getString(R.string.media3_controls_seek_to_previous_description),
-            createBroadcastIntent(ACTION_PREVIOUS, context, instanceId)));
-    actions.put(
-        ACTION_NEXT,
-        new NotificationCompat.Action(
-            nextActionIconResourceId,
-            context.getString(R.string.media3_controls_seek_to_next_description),
-            createBroadcastIntent(ACTION_NEXT, context, instanceId)));
-    return actions;
+  private static PendingIntent createBroadcastIntent(
+      Context context, CommandButton button, int instanceId) {
+    Intent intent = new Intent(INTENT_ACTION_COMMAND).setPackage(context.getPackageName());
+    intent.putExtra(INTENT_EXTRA_INSTANCE_ID, instanceId);
+    intent.putExtra(INTENT_EXTRA_PLAYER_COMMAND, button.playerCommand);
+    intent.putExtra(
+        INTENT_EXTRA_SESSION_COMMAND, BundleableUtil.toNullableBundle(button.sessionCommand));
+    // Make intent distinguishable by Intent#filterEquals() due to the PendingIntent requirement.
+    Uri intentUri =
+        new Uri.Builder()
+            .scheme(INTENT_SCHEME)
+            .appendPath(Integer.toString(instanceId))
+            .appendPath(Integer.toString(button.playerCommand))
+            .appendPath(button.sessionCommand == null ? "null" : button.sessionCommand.customAction)
+            .build();
+    intent.setData(intentUri);
+    return PendingIntent.getBroadcast(context, instanceId, intent, PENDING_INTENT_FLAGS);
   }
 
   private static PendingIntent createBroadcastIntent(
-      String action, Context context, int instanceId) {
+      Context context, String action, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
-    intent.putExtra(EXTRA_INSTANCE_ID, instanceId);
-
-    int pendingFlags;
-    if (Util.SDK_INT >= 23) {
-      pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-    } else {
-      pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
-    }
-
-    return PendingIntent.getBroadcast(context, instanceId, intent, pendingFlags);
+    intent.putExtra(INTENT_EXTRA_INSTANCE_ID, instanceId);
+    return PendingIntent.getBroadcast(context, instanceId, intent, PENDING_INTENT_FLAGS);
   }
 
   @SuppressWarnings("nullness:argument")
@@ -1251,28 +1151,42 @@ public class PlayerNotificationManager {
       Player player = PlayerNotificationManager.this.player;
       if (player == null
           || !isNotificationStarted
-          || intent.getIntExtra(EXTRA_INSTANCE_ID, instanceId) != instanceId) {
+          || intent.getIntExtra(INTENT_EXTRA_INSTANCE_ID, instanceId) != instanceId) {
         return;
       }
       String action = intent.getAction();
-      if (ACTION_PLAY.equals(action)) {
-        if (player.getPlaybackState() == Player.STATE_IDLE) {
-          player.prepare();
-        } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          player.seekToDefaultPosition(player.getCurrentMediaItemIndex());
+      if (INTENT_ACTION_COMMAND.equals(action)) {
+        @Player.Command
+        int playerCommand = intent.getIntExtra(INTENT_EXTRA_PLAYER_COMMAND, COMMAND_INVALID);
+        switch (playerCommand) {
+          case COMMAND_PLAY_PAUSE:
+            if (!player.getPlayWhenReady()) {
+              if (player.getPlaybackState() == Player.STATE_IDLE) {
+                player.prepare();
+              } else if (player.getPlaybackState() == Player.STATE_ENDED) {
+                player.seekToDefaultPosition(player.getCurrentWindowIndex());
+              }
+            } else {
+              player.pause();
+            }
+            break;
+          case COMMAND_SEEK_TO_PREVIOUS:
+            player.seekToPrevious();
+            break;
+          case COMMAND_SEEK_BACK:
+            player.seekBack();
+            break;
+          case COMMAND_SEEK_FORWARD:
+            player.seekForward();
+            break;
+          case COMMAND_SEEK_TO_NEXT:
+            player.seekToNext();
+            break;
+          default:
+            Log.w(TAG, "Unsupported player command, playerCommand=" + playerCommand);
+            break;
         }
-        player.play();
-      } else if (ACTION_PAUSE.equals(action)) {
-        player.pause();
-      } else if (ACTION_PREVIOUS.equals(action)) {
-        player.seekToPrevious();
-      } else if (ACTION_REWIND.equals(action)) {
-        player.seekBack();
-      } else if (ACTION_FAST_FORWARD.equals(action)) {
-        player.seekForward();
-      } else if (ACTION_NEXT.equals(action)) {
-        player.seekToNext();
-      } else if (ACTION_DISMISS.equals(action)) {
+      } else if (INTENT_ACTION_DISMISS.equals(action)) {
         stopNotification(/* dismissedByUser= */ true);
       } else if (action != null
           && customActionReceiver != null
