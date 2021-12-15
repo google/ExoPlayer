@@ -89,7 +89,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && !transformation.videoMimeType.equals(inputFormat.sampleMimeType)) {
       return true;
     }
-    if (transformation.outputHeight != Format.NO_VALUE
+    if (transformation.outputHeight != C.LENGTH_UNSET
         && transformation.outputHeight != inputFormat.height) {
       return true;
     }

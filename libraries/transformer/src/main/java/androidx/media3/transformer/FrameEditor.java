@@ -29,7 +29,7 @@ import android.opengl.GLES20;
 import android.view.Surface;
 import android.view.SurfaceView;
 import androidx.annotation.Nullable;
-import androidx.media3.common.Format;
+import androidx.media3.common.C;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -109,8 +109,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       debugPreviewHeight = debugSurfaceView.getHeight();
     } else {
       debugPreviewEglSurface = null;
-      debugPreviewWidth = Format.NO_VALUE;
-      debugPreviewHeight = Format.NO_VALUE;
+      debugPreviewWidth = C.LENGTH_UNSET;
+      debugPreviewHeight = C.LENGTH_UNSET;
     }
     return new FrameEditor(
         eglDisplay,

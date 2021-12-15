@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
-import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.MimeTypes;
@@ -115,7 +114,7 @@ public final class Transformer {
     @Deprecated
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = Format.NO_VALUE;
+      outputHeight = C.LENGTH_UNSET;
       transformationMatrix = new Matrix();
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
@@ -132,7 +131,7 @@ public final class Transformer {
     public Builder(Context context) {
       this.context = context.getApplicationContext();
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = Format.NO_VALUE;
+      outputHeight = C.LENGTH_UNSET;
       transformationMatrix = new Matrix();
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
