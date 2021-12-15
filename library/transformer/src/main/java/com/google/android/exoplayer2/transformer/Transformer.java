@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -113,7 +112,7 @@ public final class Transformer {
     @Deprecated
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = Format.NO_VALUE;
+      outputHeight = C.LENGTH_UNSET;
       transformationMatrix = new Matrix();
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
@@ -130,7 +129,7 @@ public final class Transformer {
     public Builder(Context context) {
       this.context = context.getApplicationContext();
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = Format.NO_VALUE;
+      outputHeight = C.LENGTH_UNSET;
       transformationMatrix = new Matrix();
       containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};

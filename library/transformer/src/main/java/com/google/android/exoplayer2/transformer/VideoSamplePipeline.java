@@ -66,7 +66,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // TODO(internal b/209781577): Think about which edge length should be set for portrait videos.
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
-    if (transformation.outputHeight != Format.NO_VALUE
+    if (transformation.outputHeight != C.LENGTH_UNSET
         && transformation.outputHeight != inputFormat.height) {
       outputWidth = inputFormat.width * transformation.outputHeight / inputFormat.height;
       outputHeight = transformation.outputHeight;
