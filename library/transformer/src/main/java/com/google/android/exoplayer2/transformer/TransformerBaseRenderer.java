@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
@@ -95,11 +96,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public final void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (!isRendererStarted || isEnded() || !ensureConfigured()) {
-      return;
-    }
+    try {
+      if (!isRendererStarted || isEnded() || !ensureConfigured()) {
+        return;
+      }
 
-    while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
+      while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
+    } catch (TransformationException e) {
+      // Transformer extracts the TransformationException from this ExoPlaybackException again. This
+      // temporary wrapping is needed due to the dependence on ExoPlayer's BaseRenderer.
+      throw ExoPlaybackException.createForRenderer(
+          e,
+          "Transformer",
+          getIndex(),
+          /* rendererFormat= */ null,
+          C.FORMAT_HANDLED,
+          /* isRecoverable= */ false,
+          PlaybackException.ERROR_CODE_UNSPECIFIED);
+    }
   }
 
   @Override
@@ -134,7 +148,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @ForOverride
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
-  protected abstract boolean ensureConfigured() throws ExoPlaybackException;
+  protected abstract boolean ensureConfigured() throws TransformationException;
 
   @RequiresNonNull({"samplePipeline", "#1.data"})
   protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer) {

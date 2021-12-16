@@ -829,29 +829,33 @@ public final class Transformer {
     @Override
     public void onTracksInfoChanged(TracksInfo tracksInfo) {
       if (muxerWrapper.getTrackCount() == 0) {
+        // TODO(b/209469847): Do not silently drop unsupported tracks and throw a more specific
+        // exception earlier.
         handleTransformationEnded(
-            new IllegalStateException(
-                "The output does not contain any tracks. Check that at least one of the input"
-                    + " sample formats is supported."));
+            TransformationException.createForUnexpected(
+                new IllegalStateException(
+                    "The output does not contain any tracks. Check that at least one of the input"
+                        + " sample formats is supported.")));
       }
     }
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      // TODO(internal b/209469847): Once TransformationException is used in transformer components,
-      // extract TransformationExceptions wrapped in the PlaybackExceptions here before passing them
-      // on.
-      handleTransformationEnded(error);
+      Throwable cause = error.getCause();
+      handleTransformationEnded(
+          cause instanceof TransformationException
+              ? (TransformationException) cause
+              : TransformationException.createForUnexpected(error));
     }
 
-    private void handleTransformationEnded(@Nullable Exception exception) {
-      @Nullable Exception resourceReleaseException = null;
+    private void handleTransformationEnded(@Nullable TransformationException exception) {
+      @Nullable TransformationException resourceReleaseException = null;
       try {
         releaseResources(/* forCancellation= */ false);
       } catch (IllegalStateException e) {
-        // TODO(internal b/209469847): Use a TransformationException with a specific error code when
-        // the IllegalStateException is caused by the muxer.
-        resourceReleaseException = e;
+        // TODO(internal b/209469847): Use a more specific error code when the IllegalStateException
+        // is caused by the muxer.
+        resourceReleaseException = TransformationException.createForUnexpected(e);
       }
 
       if (exception == null && resourceReleaseException == null) {
@@ -860,15 +864,10 @@ public final class Transformer {
       }
 
       if (exception != null) {
-        listener.onTransformationError(
-            mediaItem,
-            exception instanceof TransformationException
-                ? exception
-                : TransformationException.createForUnexpected(exception));
+        listener.onTransformationError(mediaItem, exception);
       }
       if (resourceReleaseException != null) {
-        listener.onTransformationError(
-            mediaItem, TransformationException.createForUnexpected(resourceReleaseException));
+        listener.onTransformationError(mediaItem, resourceReleaseException);
       }
     }
   }

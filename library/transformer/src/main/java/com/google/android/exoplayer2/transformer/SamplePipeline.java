@@ -17,7 +17,6 @@
 package com.google.android.exoplayer2.transformer;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
@@ -44,7 +43,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
    * Processes the input data and returns whether more data can be processed by calling this method
    * again.
    */
-  boolean processData() throws ExoPlaybackException;
+  boolean processData() throws TransformationException;
 
   /** Returns the output format of the pipeline if available, and {@code null} otherwise. */
   @Nullable

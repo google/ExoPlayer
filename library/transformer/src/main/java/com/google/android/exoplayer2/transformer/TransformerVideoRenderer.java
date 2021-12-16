@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Context;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -60,7 +59,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /** Attempts to read the input format and to initialize the {@link SamplePipeline}. */
   @Override
-  protected boolean ensureConfigured() throws ExoPlaybackException {
+  protected boolean ensureConfigured() throws TransformationException {
     if (samplePipeline != null) {
       return true;
     }
@@ -73,8 +72,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldTranscode(inputFormat)) {
       samplePipeline =
-          new VideoSamplePipeline(
-              context, inputFormat, transformation, getIndex(), debugViewProvider);
+          new VideoSamplePipeline(context, inputFormat, transformation, debugViewProvider);
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
