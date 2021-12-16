@@ -461,8 +461,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       // Revert back to the previous selection if conditions are not suitable for switching.
       Format currentFormat = getFormat(previousSelectedIndex);
       Format selectedFormat = getFormat(newSelectedIndex);
+      long minDurationForQualityIncreaseUs =
+          minDurationForQualityIncreaseUs(availableDurationUs, chunkDurationUs);
       if (selectedFormat.bitrate > currentFormat.bitrate
-          && bufferedDurationUs < minDurationForQualityIncreaseUs(availableDurationUs)) {
+          && bufferedDurationUs < minDurationForQualityIncreaseUs) {
         // The selected track is a higher quality, but we have insufficient buffer to safely switch
         // up. Defer switching up for now.
         newSelectedIndex = previousSelectedIndex;
@@ -602,13 +604,22 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     return lowestBitrateAllowedIndex;
   }
 
-  private long minDurationForQualityIncreaseUs(long availableDurationUs) {
+  private long minDurationForQualityIncreaseUs(long availableDurationUs, long chunkDurationUs) {
     boolean isAvailableDurationTooShort =
         availableDurationUs != C.TIME_UNSET
             && availableDurationUs <= minDurationForQualityIncreaseUs;
-    return isAvailableDurationTooShort
-        ? (long) (availableDurationUs * bufferedFractionToLiveEdgeForQualityIncrease)
-        : minDurationForQualityIncreaseUs;
+    if (!isAvailableDurationTooShort) {
+      return minDurationForQualityIncreaseUs;
+    }
+    if (chunkDurationUs != C.TIME_UNSET) {
+      // We are currently selecting a new live chunk. Even under perfect conditions, the buffered
+      // duration can't include the last chunk duration yet because we are still selecting a track
+      // for this or a previous chunk. Hence, we subtract one chunk duration from the total
+      // available live duration to ensure we only compare the buffered duration against what is
+      // actually achievable.
+      availableDurationUs -= chunkDurationUs;
+    }
+    return (long) (availableDurationUs * bufferedFractionToLiveEdgeForQualityIncrease);
   }
 
   /**
