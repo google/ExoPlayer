@@ -97,23 +97,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  */
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
-  /**
-   * Provides {@link AdsLoader} instances for media items that have {@link
-   * MediaItem.LocalConfiguration#adsConfiguration ad tag URIs}.
-   */
-  public interface AdsLoaderProvider {
-
-    /**
-     * Returns an {@link AdsLoader} for the given {@link
-     * MediaItem.LocalConfiguration#adsConfiguration ads configuration}, or {@code null} if no ads
-     * loader is available for the given ads configuration.
-     *
-     * <p>This method is called each time a {@link MediaSource} is created from a {@link MediaItem}
-     * that defines an {@link MediaItem.LocalConfiguration#adsConfiguration ads configuration}.
-     */
-    @Nullable
-    AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration);
-  }
+  /** @deprecated Use {@link AdsLoader.Provider} instead. */
+  @Deprecated
+  public interface AdsLoaderProvider extends AdsLoader.Provider {}
 
   private static final String TAG = "DMediaSourceFactory";
 
@@ -121,7 +107,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private final DelegateFactoryLoader delegateFactoryLoader;
 
   @Nullable private final MediaSourceFactory serverSideDaiMediaSourceFactory;
-  @Nullable private AdsLoaderProvider adsLoaderProvider;
+  @Nullable private AdsLoader.Provider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private long liveTargetOffsetMs;
@@ -211,14 +197,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   /**
-   * Sets the {@link AdsLoaderProvider} that provides {@link AdsLoader} instances for media items
+   * Sets the {@link AdsLoader.Provider} that provides {@link AdsLoader} instances for media items
    * that have {@link MediaItem.LocalConfiguration#adsConfiguration ads configurations}.
    *
    * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
    * @return This factory, for convenience.
    */
   public DefaultMediaSourceFactory setAdsLoaderProvider(
-      @Nullable AdsLoaderProvider adsLoaderProvider) {
+      @Nullable AdsLoader.Provider adsLoaderProvider) {
     this.adsLoaderProvider = adsLoaderProvider;
     return this;
   }
@@ -457,7 +443,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     if (adsConfiguration == null) {
       return mediaSource;
     }
-    @Nullable AdsLoaderProvider adsLoaderProvider = this.adsLoaderProvider;
+    @Nullable AdsLoader.Provider adsLoaderProvider = this.adsLoaderProvider;
     @Nullable AdViewProvider adViewProvider = this.adViewProvider;
     if (adsLoaderProvider == null || adViewProvider == null) {
       Log.w(

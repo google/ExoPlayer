@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.source.ads;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -44,6 +46,24 @@ import java.io.IOException;
  * should invoke the same listener to provide the existing playback state to the new player.
  */
 public interface AdsLoader {
+
+  /**
+   * Provides {@link AdsLoader} instances for media items that have {@link
+   * MediaItem.LocalConfiguration#adsConfiguration ad tag URIs}.
+   */
+  interface Provider {
+
+    /**
+     * Returns an {@link AdsLoader} for the given {@link
+     * MediaItem.LocalConfiguration#adsConfiguration ads configuration}, or {@code null} if no ads
+     * loader is available for the given ads configuration.
+     *
+     * <p>This method is called each time a {@link MediaSource} is created from a {@link MediaItem}
+     * that defines an {@link MediaItem.LocalConfiguration#adsConfiguration ads configuration}.
+     */
+    @Nullable
+    AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration);
+  }
 
   /** Listener for ads loader events. All methods are called on the main thread. */
   interface EventListener {

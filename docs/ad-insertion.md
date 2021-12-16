@@ -46,7 +46,7 @@ MediaItem mediaItem =
 
 To enable player support for media items that specify ad tags, it's necessary to
 build and inject a `DefaultMediaSourceFactory` configured with an
-`AdsLoaderProvider` and an `AdViewProvider` when creating the player:
+`AdsLoader.Provider` and an `AdViewProvider` when creating the player:
 
 ~~~
 MediaSourceFactory mediaSourceFactory =
@@ -61,7 +61,7 @@ ExoPlayer player = new ExoPlayer.Builder(context)
 
 Internally, `DefaultMediaSourceFactory` will wrap the content media source in an
 `AdsMediaSource`. The `AdsMediaSource` will obtain an `AdsLoader` from the
-`AdsLoaderProvider` and use it to insert ads as defined by the media item's ad
+`AdsLoader.Provider` and use it to insert ads as defined by the media item's ad
 tag.
 
 ExoPlayer's `StyledPlayerView` and `PlayerView` UI components both implement
