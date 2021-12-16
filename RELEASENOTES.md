@@ -21,6 +21,9 @@
     *   Add `MediaCodecAdapter.getMetrics()` to allow users obtain metrics data
         from `MediaCodec`.
         ([#9766](https://github.com/google/ExoPlayer/issues/9766)).
+    *   Amend logic in `AdaptiveTrackSelection` to allow a quality increase
+        under sufficient network bandwidth even if playback is very close to the
+        live edge ((#9784)[https://github.com/google/ExoPlayer/issues/9784]).
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
