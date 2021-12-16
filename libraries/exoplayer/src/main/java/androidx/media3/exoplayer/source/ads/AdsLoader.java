@@ -19,9 +19,11 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.AdViewProvider;
 import androidx.media3.common.C;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSpec;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ads.AdsMediaSource.AdLoadException;
 import java.io.IOException;
 
@@ -47,6 +49,24 @@ import java.io.IOException;
  */
 @UnstableApi
 public interface AdsLoader {
+
+  /**
+   * Provides {@link AdsLoader} instances for media items that have {@link
+   * MediaItem.LocalConfiguration#adsConfiguration ad tag URIs}.
+   */
+  interface Provider {
+
+    /**
+     * Returns an {@link AdsLoader} for the given {@link
+     * MediaItem.LocalConfiguration#adsConfiguration ads configuration}, or {@code null} if no ads
+     * loader is available for the given ads configuration.
+     *
+     * <p>This method is called each time a {@link MediaSource} is created from a {@link MediaItem}
+     * that defines an {@link MediaItem.LocalConfiguration#adsConfiguration ads configuration}.
+     */
+    @Nullable
+    AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration);
+  }
 
   /** Listener for ads loader events. All methods are called on the main thread. */
   interface EventListener {
