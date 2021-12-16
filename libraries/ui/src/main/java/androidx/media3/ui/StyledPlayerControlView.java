@@ -242,17 +242,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Type: {@link ImageView}
  *         <li>Note: StyledPlayerControlView will programmatically set the drawable on the repeat
  *             toggle button according to the player's current repeat mode. The drawables used are
- *             {@code exo_controls_repeat_off}, {@code exo_controls_repeat_one} and {@code
- *             exo_controls_repeat_all}. See the section above for information on overriding these
- *             drawables.
+ *             {@code exo_styled_controls_repeat_off}, {@code exo_styled_controls_repeat_one} and
+ *             {@code exo_styled_controls_repeat_all}. See the section above for information on
+ *             overriding these drawables.
  *       </ul>
  *   <li><b>{@code exo_shuffle}</b> - The shuffle button.
  *       <ul>
  *         <li>Type: {@link ImageView}
  *         <li>Note: StyledPlayerControlView will programmatically set the drawable on the shuffle
  *             button according to the player's current repeat mode. The drawables used are {@code
- *             exo_controls_shuffle_off} and {@code exo_controls_shuffle_on}. See the section above
- *             for information on overriding these drawables.
+ *             exo_styled_controls_shuffle_off} and {@code exo_styled_controls_shuffle_on}. See the
+ *             section above for information on overriding these drawables.
  *       </ul>
  *   <li><b>{@code exo_vr}</b> - The VR mode button.
  *       <ul>
