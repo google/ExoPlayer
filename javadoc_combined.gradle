@@ -109,7 +109,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
                 "-loggingLevel", "WARN",
                 "-sourceSet", "-src $sourcesString -classpath $dependenciesString",
                 "-offlineMode")
-            environment("DEVSITE_TENANT", "androidx")
+            environment("DEVSITE_TENANT", "androidx/media3")
           }
           description = "Generates combined javadoc for developer.android.com."
           classpath = project.files(new File(getTemporaryDir(), "dackka.jar"))
