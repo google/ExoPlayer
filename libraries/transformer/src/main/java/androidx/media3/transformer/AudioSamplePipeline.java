@@ -25,13 +25,10 @@ import android.media.MediaCodec.BufferInfo;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.PlaybackException;
 import androidx.media3.decoder.DecoderInputBuffer;
-import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.audio.AudioProcessor;
 import androidx.media3.exoplayer.audio.AudioProcessor.AudioFormat;
 import androidx.media3.exoplayer.audio.SonicAudioProcessor;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -47,7 +44,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final Format inputFormat;
   private final Transformation transformation;
-  private final int rendererIndex;
 
   private final MediaCodecAdapterWrapper decoder;
   private final DecoderInputBuffer decoderInputBuffer;
@@ -67,11 +63,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean drainingSonicForSpeedChange;
   private float currentSpeed;
 
-  public AudioSamplePipeline(Format inputFormat, Transformation transformation, int rendererIndex)
-      throws ExoPlaybackException {
+  public AudioSamplePipeline(Format inputFormat, Transformation transformation)
+      throws TransformationException {
     this.inputFormat = inputFormat;
     this.transformation = transformation;
-    this.rendererIndex = rendererIndex;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderInputBuffer =
@@ -82,19 +77,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
     speedProvider = new SegmentSpeedProvider(inputFormat);
     currentSpeed = speedProvider.getSpeed(0);
-    try {
-      this.decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
-    } catch (IOException e) {
-      // TODO(internal b/192864511): Assign a specific error code.
-      throw ExoPlaybackException.createForRenderer(
-          e,
-          TAG,
-          rendererIndex,
-          inputFormat,
-          /* rendererFormatSupport= */ C.FORMAT_HANDLED,
-          /* isRecoverable= */ false,
-          PlaybackException.ERROR_CODE_UNSPECIFIED);
-    }
+    this.decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
   }
 
   @Override
@@ -109,7 +92,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public boolean processData() throws ExoPlaybackException {
+  public boolean processData() throws TransformationException {
     if (!ensureEncoderAndAudioProcessingConfigured()) {
       return false;
     }
@@ -292,7 +275,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @EnsuresNonNullIf(
       expression = {"encoder", "encoderInputAudioFormat"},
       result = true)
-  private boolean ensureEncoderAndAudioProcessingConfigured() throws ExoPlaybackException {
+  private boolean ensureEncoderAndAudioProcessingConfigured() throws TransformationException {
     if (encoder != null && encoderInputAudioFormat != null) {
       return true;
     }
@@ -310,27 +293,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         outputAudioFormat = sonicAudioProcessor.configure(outputAudioFormat);
         flushSonicAndSetSpeed(currentSpeed);
       } catch (AudioProcessor.UnhandledAudioFormatException e) {
-        // TODO(internal b/192864511): Assign an adequate error code.
-        throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
+        throw TransformationException.createForAudioProcessor(
+            e,
+            "Sonic",
+            outputAudioFormat,
+            TransformationException.ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED);
       }
     }
-    String audioMimeType =
-        transformation.audioMimeType == null
-            ? inputFormat.sampleMimeType
-            : transformation.audioMimeType;
-    try {
-      encoder =
-          MediaCodecAdapterWrapper.createForAudioEncoding(
-              new Format.Builder()
-                  .setSampleMimeType(audioMimeType)
-                  .setSampleRate(outputAudioFormat.sampleRate)
-                  .setChannelCount(outputAudioFormat.channelCount)
-                  .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
-                  .build());
-    } catch (IOException e) {
-      // TODO(internal b/192864511): Assign an adequate error code.
-      throw createRendererException(e, PlaybackException.ERROR_CODE_UNSPECIFIED);
-    }
+    encoder =
+        MediaCodecAdapterWrapper.createForAudioEncoding(
+            new Format.Builder()
+                .setSampleMimeType(
+                    transformation.audioMimeType == null
+                        ? inputFormat.sampleMimeType
+                        : transformation.audioMimeType)
+                .setSampleRate(outputAudioFormat.sampleRate)
+                .setChannelCount(outputAudioFormat.channelCount)
+                .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
+                .build());
     encoderInputAudioFormat = outputAudioFormat;
     return true;
   }
@@ -349,17 +329,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sonicAudioProcessor.setSpeed(speed);
     sonicAudioProcessor.setPitch(speed);
     sonicAudioProcessor.flush();
-  }
-
-  private ExoPlaybackException createRendererException(Throwable cause, int errorCode) {
-    return ExoPlaybackException.createForRenderer(
-        cause,
-        TAG,
-        rendererIndex,
-        inputFormat,
-        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
-        /* isRecoverable= */ false,
-        errorCode);
   }
 
   private void computeNextEncoderInputBufferTimeUs(

@@ -26,11 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.PlaybackException;
 import androidx.media3.decoder.DecoderInputBuffer;
-import androidx.media3.exoplayer.ExoPlaybackException;
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -55,9 +52,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Context context,
       Format inputFormat,
       Transformation transformation,
-      int rendererIndex,
       Transformer.DebugViewProvider debugViewProvider)
-      throws ExoPlaybackException {
+      throws TransformationException {
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer =
@@ -88,24 +84,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // postrotation in a later vertex shader.
     transformation.transformationMatrix.postRotate(outputRotationDegrees);
 
-    try {
-      encoder =
-          MediaCodecAdapterWrapper.createForVideoEncoding(
-              new Format.Builder()
-                  .setWidth(outputWidth)
-                  .setHeight(outputHeight)
-                  .setRotationDegrees(0)
-                  .setSampleMimeType(
-                      transformation.videoMimeType != null
-                          ? transformation.videoMimeType
-                          : inputFormat.sampleMimeType)
-                  .build(),
-              ImmutableMap.of());
-    } catch (IOException e) {
-      // TODO(internal b/192864511): Assign a specific error code.
-      throw createRendererException(
-          e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_UNSPECIFIED);
-    }
+    encoder =
+        MediaCodecAdapterWrapper.createForVideoEncoding(
+            new Format.Builder()
+                .setWidth(outputWidth)
+                .setHeight(outputHeight)
+                .setRotationDegrees(0)
+                .setSampleMimeType(
+                    transformation.videoMimeType != null
+                        ? transformation.videoMimeType
+                        : inputFormat.sampleMimeType)
+                .build(),
+            ImmutableMap.of());
     if (inputFormat.height != outputHeight
         || inputFormat.width != outputWidth
         || !transformation.transformationMatrix.isIdentity()) {
@@ -118,17 +108,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
               debugViewProvider);
     }
-    try {
-      decoder =
-          MediaCodecAdapterWrapper.createForVideoDecoding(
-              inputFormat,
-              frameEditor == null
-                  ? checkNotNull(encoder.getInputSurface())
-                  : frameEditor.getInputSurface());
-    } catch (IOException e) {
-      throw createRendererException(
-          e, rendererIndex, inputFormat, PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
-    }
+    decoder =
+        MediaCodecAdapterWrapper.createForVideoDecoding(
+            inputFormat,
+            frameEditor == null
+                ? checkNotNull(encoder.getInputSurface())
+                : frameEditor.getInputSurface());
   }
 
   @Override
@@ -256,17 +241,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     decoder.release();
     encoder.release();
-  }
-
-  private static ExoPlaybackException createRendererException(
-      Throwable cause, int rendererIndex, Format inputFormat, int errorCode) {
-    return ExoPlaybackException.createForRenderer(
-        cause,
-        TAG,
-        rendererIndex,
-        inputFormat,
-        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
-        /* isRecoverable= */ false,
-        errorCode);
   }
 }

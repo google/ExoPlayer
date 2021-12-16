@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.PlaybackException;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.BaseRenderer;
 import androidx.media3.exoplayer.ExoPlaybackException;
@@ -95,11 +96,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public final void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (!isRendererStarted || isEnded() || !ensureConfigured()) {
-      return;
-    }
+    try {
+      if (!isRendererStarted || isEnded() || !ensureConfigured()) {
+        return;
+      }
 
-    while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
+      while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
+    } catch (TransformationException e) {
+      // Transformer extracts the TransformationException from this ExoPlaybackException again. This
+      // temporary wrapping is needed due to the dependence on ExoPlayer's BaseRenderer.
+      throw ExoPlaybackException.createForRenderer(
+          e,
+          "Transformer",
+          getIndex(),
+          /* rendererFormat= */ null,
+          C.FORMAT_HANDLED,
+          /* isRecoverable= */ false,
+          PlaybackException.ERROR_CODE_UNSPECIFIED);
+    }
   }
 
   @Override
@@ -134,7 +148,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @ForOverride
   @EnsuresNonNullIf(expression = "samplePipeline", result = true)
-  protected abstract boolean ensureConfigured() throws ExoPlaybackException;
+  protected abstract boolean ensureConfigured() throws TransformationException;
 
   @RequiresNonNull({"samplePipeline", "#1.data"})
   protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer) {

@@ -24,9 +24,12 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.media3.common.Format;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.audio.AudioProcessor;
+import androidx.media3.exoplayer.audio.AudioProcessor.AudioFormat;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,6 +38,36 @@ import java.lang.annotation.Target;
 /** Thrown when a non-locally recoverable transformation failure occurs. */
 @UnstableApi
 public final class TransformationException extends Exception {
+
+  /**
+   * Creates an instance for a decoder or encoder related exception.
+   *
+   * @param cause The cause of the failure.
+   * @param componentName The name of the component used, e.g. 'VideoEncoder'.
+   * @param format The {@link Format} used for the decoder/encoder.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  public static TransformationException createForCodec(
+      Throwable cause, String componentName, Format format, int errorCode) {
+    return new TransformationException(
+        componentName + " error, format = " + format, cause, errorCode);
+  }
+
+  /**
+   * Creates an instance for an audio processing related exception.
+   *
+   * @param cause The cause of the failure.
+   * @param componentName The name of the {@link AudioProcessor} used.
+   * @param audioFormat The {@link AudioFormat} used.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  public static TransformationException createForAudioProcessor(
+      Throwable cause, String componentName, AudioFormat audioFormat, int errorCode) {
+    return new TransformationException(
+        componentName + " error, audio_format = " + audioFormat, cause, errorCode);
+  }
 
   /**
    * Creates an instance for an unexpected exception.
@@ -74,6 +107,7 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_GL_INIT_FAILED,
         ERROR_CODE_GL_PROCESSING_FAILED,
+        ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED,
       })
   public @interface ErrorCode {}
 
@@ -106,12 +140,17 @@ public final class TransformationException extends Exception {
   /** Caused by requesting to encode content in a format that is not supported by the device. */
   public static final int ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED = 3003;
 
-  // GL errors (4xxx).
+  // Video editing errors (4xxx).
 
   /** Caused by a GL initialization failure. */
   public static final int ERROR_CODE_GL_INIT_FAILED = 4001;
   /** Caused by a failure while using or releasing a GL program. */
   public static final int ERROR_CODE_GL_PROCESSING_FAILED = 4002;
+
+  // Audio editing errors (5xxx).
+
+  /** Caused by an audio processor initialization failure. */
+  public static final int ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED = 5001;
 
   /** Returns the name of a given {@code errorCode}. */
   public static String getErrorCodeName(@ErrorCode int errorCode) {
@@ -136,6 +175,8 @@ public final class TransformationException extends Exception {
         return "ERROR_CODE_GL_INIT_FAILED";
       case ERROR_CODE_GL_PROCESSING_FAILED:
         return "ERROR_CODE_GL_PROCESSING_FAILED";
+      case ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED:
+        return "ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED";
       default:
         return "invalid error code";
     }

@@ -24,11 +24,15 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
+import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
+import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
@@ -39,6 +43,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -230,6 +235,63 @@ public final class TransformerTest {
     TransformerTestRunner.runUntilCompleted(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_WITH_SEF_SLOW_MOTION));
+  }
+
+  @Test
+  public void startTransformation_withAudioEncoderFormatUnsupported_completesWithError()
+      throws Exception {
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .setAudioMimeType(MimeTypes.AUDIO_AMR_WB) // unsupported encoder MIME type
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    assertThat(exception.errorCode)
+        .isEqualTo(TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+  }
+
+  @Test
+  public void startTransformation_withAudioDecoderFormatUnsupported_completesWithError()
+      throws Exception {
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported encoder MIME type
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    assertThat(exception.errorCode)
+        .isEqualTo(TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+  }
+
+  @Test
+  public void startTransformation_withVideoEncoderFormatUnsupported_completesWithError()
+      throws Exception {
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .setVideoMimeType(MimeTypes.VIDEO_H263) // unsupported encoder MIME type
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    assertThat(exception.errorCode)
+        .isEqualTo(TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -541,6 +603,30 @@ public final class TransformerTest {
     ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AAC, codecConfig);
     ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AMR_NB, codecConfig);
     ShadowMediaCodec.addEncoder(MimeTypes.AUDIO_AAC, codecConfig);
+
+    ShadowMediaCodec.CodecConfig throwingCodecConfig =
+        new ShadowMediaCodec.CodecConfig(
+            /* inputBufferSize= */ 10_000,
+            /* outputBufferSize= */ 10_000,
+            new ShadowMediaCodec.CodecConfig.Codec() {
+
+              @Override
+              public void process(ByteBuffer in, ByteBuffer out) {
+                out.put(in);
+              }
+
+              @Override
+              public void onConfigured(
+                  MediaFormat format,
+                  @Nullable Surface surface,
+                  @Nullable MediaCrypto crypto,
+                  int flags) {
+                throw new IllegalArgumentException("Format unsupported");
+              }
+            });
+    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AC3, throwingCodecConfig);
+    ShadowMediaCodec.addEncoder(MimeTypes.AUDIO_AMR_WB, throwingCodecConfig);
+    ShadowMediaCodec.addEncoder(MimeTypes.VIDEO_H263, throwingCodecConfig);
   }
 
   private static void removeEncodersAndDecoders() {

@@ -19,7 +19,6 @@ package androidx.media3.transformer;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.decoder.DecoderInputBuffer;
-import androidx.media3.exoplayer.ExoPlaybackException;
 
 /**
  * Pipeline for processing {@link DecoderInputBuffer DecoderInputBuffers}.
@@ -44,7 +43,7 @@ import androidx.media3.exoplayer.ExoPlaybackException;
    * Processes the input data and returns whether more data can be processed by calling this method
    * again.
    */
-  boolean processData() throws ExoPlaybackException;
+  boolean processData() throws TransformationException;
 
   /** Returns the output format of the pipeline if available, and {@code null} otherwise. */
   @Nullable

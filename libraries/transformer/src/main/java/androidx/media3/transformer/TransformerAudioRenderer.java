@@ -24,7 +24,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.decoder.DecoderInputBuffer;
-import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
@@ -49,7 +48,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 
   /** Attempts to read the input format and to initialize the {@link SamplePipeline}. */
   @Override
-  protected boolean ensureConfigured() throws ExoPlaybackException {
+  protected boolean ensureConfigured() throws TransformationException {
     if (samplePipeline != null) {
       return true;
     }
@@ -61,7 +60,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldTranscode(inputFormat)) {
-      samplePipeline = new AudioSamplePipeline(inputFormat, transformation, getIndex());
+      samplePipeline = new AudioSamplePipeline(inputFormat, transformation);
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
