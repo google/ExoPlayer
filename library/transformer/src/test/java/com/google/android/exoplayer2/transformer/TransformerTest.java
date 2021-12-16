@@ -35,7 +35,6 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
@@ -295,15 +294,14 @@ public final class TransformerTest {
   }
 
   @Test
-  public void startTransformation_withPlayerError_completesWithError() throws Exception {
+  public void startTransformation_withIoError_completesWithError() throws Exception {
     Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
     MediaItem mediaItem = MediaItem.fromUri("asset:///non-existing-path.mp4");
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    assertThat(exception).hasCauseThat().isInstanceOf(ExoPlaybackException.class);
-    assertThat(exception).hasCauseThat().hasCauseThat().isInstanceOf(IOException.class);
+    assertThat(exception).hasCauseThat().isInstanceOf(IOException.class);
   }
 
   @Test

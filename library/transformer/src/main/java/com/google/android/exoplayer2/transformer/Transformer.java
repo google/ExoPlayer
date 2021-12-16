@@ -845,7 +845,7 @@ public final class Transformer {
       handleTransformationEnded(
           cause instanceof TransformationException
               ? (TransformationException) cause
-              : TransformationException.createForUnexpected(error));
+              : TransformationException.createForPlaybackException(error));
     }
 
     private void handleTransformationEnded(@Nullable TransformationException exception) {
