@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.source.ads;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runMainLooperUntil;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.playUntilPosition;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.util.Pair;
 import android.view.Surface;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.MediaItem;
@@ -50,7 +52,9 @@ import androidx.media3.test.utils.robolectric.PlaybackOutput;
 import androidx.media3.test.utils.robolectric.ShadowMediaCodecConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -104,8 +108,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
             .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 200_000);
     AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+    mediaSource.setAdPlaybackStates(ImmutableMap.of(new Pair<>(0, 0), adPlaybackState));
 
-    mediaSource.setAdPlaybackState(adPlaybackState);
     mediaSource.prepareSource(
         (source, timeline) -> timelineReference.set(timeline),
         /* mediaTransferListener= */ null,
@@ -144,6 +148,26 @@ public final class ServerSideAdInsertionMediaSourceTest {
   }
 
   @Test
+  public void timeline_missingAdPlaybackStateByPeriodUid_isAssertedAndThrows() {
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
+            new FakeMediaSource(), /* adPlaybackStateUpdater= */ null);
+    // The map of adPlaybackStates does not contain a valid period UID as key.
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(new Object(), new AdPlaybackState(/* adsId= */ new Object())));
+
+    Assert.assertThrows(
+        IllegalStateException.class,
+        () ->
+            mediaSource.prepareSource(
+                (source, timeline) -> {
+                  /* Do nothing. */
+                },
+                /* mediaTransferListener= */ null,
+                PlayerId.UNSET));
+  }
+
+  @Test
   public void playbackWithPredefinedAds_playsSuccessfulWithoutRendererResets() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(context);
@@ -154,10 +178,6 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
-    ServerSideAdInsertionMediaSource mediaSource =
-        new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
-            /* adPlaybackStateUpdater= */ null);
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
     adPlaybackState =
         addAdGroupToAdPlaybackState(
@@ -171,17 +191,32 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* fromPositionUs= */ 400_000,
             /* toPositionUs= */ 700_000,
             /* contentResumeOffsetUs= */ 1_000_000);
-    adPlaybackState =
+    AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 900_000,
             /* toPositionUs= */ 1_000_000,
             /* contentResumeOffsetUs= */ 0);
-    mediaSource.setAdPlaybackState(adPlaybackState);
+
+    AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    mediaSourceRef.set(
+        new ServerSideAdInsertionMediaSource(
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            contentTimeline -> {
+              Object periodUid =
+                  checkNotNull(
+                      contentTimeline.getPeriod(
+                              /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
+                          .uid);
+              mediaSourceRef
+                  .get()
+                  .setAdPlaybackStates(ImmutableMap.of(periodUid, firstAdPlaybackState));
+              return true;
+            }));
 
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
-    player.setMediaSource(mediaSource);
+    player.setMediaSource(mediaSourceRef.get());
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_ENDED);
@@ -205,6 +240,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
   @Test
   public void playbackWithNewlyInsertedAds_playsSuccessfulWithoutRendererResets() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
+    AtomicReference<Object> periodUid = new AtomicReference<>();
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(context);
     ExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
@@ -213,33 +249,43 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
-    ServerSideAdInsertionMediaSource mediaSource =
-        new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
-            /* adPlaybackStateUpdater= */ null);
-    AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
-    adPlaybackState =
+    AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
-            adPlaybackState,
+            new AdPlaybackState(/* adsId= */ new Object()),
             /* fromPositionUs= */ 900_000,
             /* toPositionUs= */ 1_000_000,
             /* contentResumeOffsetUs= */ 0);
-    mediaSource.setAdPlaybackState(adPlaybackState);
-
+    AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    mediaSourceRef.set(
+        new ServerSideAdInsertionMediaSource(
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            /* adPlaybackStateUpdater= */ contentTimeline -> {
+              periodUid.set(
+                  checkNotNull(
+                      contentTimeline.getPeriod(
+                              /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
+                          .uid));
+              mediaSourceRef
+                  .get()
+                  .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), firstAdPlaybackState));
+              return true;
+            }));
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
-    player.setMediaSource(mediaSource);
+    player.setMediaSource(mediaSourceRef.get());
     player.prepare();
 
     // Add ad at the current playback position during playback.
     runUntilPlaybackState(player, Player.STATE_READY);
-    adPlaybackState =
+    AdPlaybackState secondAdPlaybackState =
         addAdGroupToAdPlaybackState(
-            adPlaybackState,
+            firstAdPlaybackState,
             /* fromPositionUs= */ 0,
             /* toPositionUs= */ 500_000,
             /* contentResumeOffsetUs= */ 0);
-    mediaSource.setAdPlaybackState(adPlaybackState);
+    mediaSourceRef
+        .get()
+        .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
     runUntilPendingCommandsAreFullyHandled(player);
 
     player.play();
@@ -265,6 +311,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
   public void playbackWithAdditionalAdsInAdGroup_playsSuccessfulWithoutRendererResets()
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
+    AtomicReference<Object> periodUid = new AtomicReference<>();
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(context);
     ExoPlayer player =
         new ExoPlayer.Builder(context, renderersFactory)
@@ -273,32 +320,45 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
 
-    ServerSideAdInsertionMediaSource mediaSource =
-        new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
-            /* adPlaybackStateUpdater= */ null);
-    AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
-    adPlaybackState =
+    AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
-            adPlaybackState,
+            new AdPlaybackState(/* adsId= */ new Object()),
             /* fromPositionUs= */ 0,
             /* toPositionUs= */ 500_000,
             /* contentResumeOffsetUs= */ 0);
-    mediaSource.setAdPlaybackState(adPlaybackState);
+    AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    mediaSourceRef.set(
+        new ServerSideAdInsertionMediaSource(
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            /* adPlaybackStateUpdater= */ contentTimeline -> {
+              if (periodUid.get() == null) {
+                periodUid.set(
+                    checkNotNull(
+                        contentTimeline.getPeriod(
+                                /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
+                            .uid));
+                mediaSourceRef
+                    .get()
+                    .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), firstAdPlaybackState));
+              }
+              return true;
+            }));
 
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
-    player.setMediaSource(mediaSource);
+    player.setMediaSource(mediaSourceRef.get());
     player.prepare();
 
     // Wait until playback is ready with first ad and then replace by 3 ads.
     runUntilPlaybackState(player, Player.STATE_READY);
-    adPlaybackState =
-        adPlaybackState
+    AdPlaybackState secondAdPlaybackState =
+        firstAdPlaybackState
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3)
             .withAdDurationsUs(
                 /* adGroupIndex= */ 0, /* adDurationsUs...= */ 50_000, 250_000, 200_000);
-    mediaSource.setAdPlaybackState(adPlaybackState);
+    mediaSourceRef
+        .get()
+        .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
     runUntilPendingCommandsAreFullyHandled(player);
 
     player.play();
@@ -327,10 +387,6 @@ public final class ServerSideAdInsertionMediaSourceTest {
         new ExoPlayer.Builder(context).setClock(new FakeClock(/* isAutoAdvancing= */ true)).build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
 
-    ServerSideAdInsertionMediaSource mediaSource =
-        new ServerSideAdInsertionMediaSource(
-            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
-            /* adPlaybackStateUpdater= */ null);
     AdPlaybackState adPlaybackState = new AdPlaybackState(/* adsId= */ new Object());
     adPlaybackState =
         addAdGroupToAdPlaybackState(
@@ -344,17 +400,32 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* fromPositionUs= */ 600_000,
             /* toPositionUs= */ 700_000,
             /* contentResumeOffsetUs= */ 1_000_000);
-    adPlaybackState =
+    AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 900_000,
             /* toPositionUs= */ 1_000_000,
             /* contentResumeOffsetUs= */ 0);
-    mediaSource.setAdPlaybackState(adPlaybackState);
+
+    AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    mediaSourceRef.set(
+        new ServerSideAdInsertionMediaSource(
+            new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
+            /* adPlaybackStateUpdater= */ contentTimeline -> {
+              Object periodUid =
+                  checkNotNull(
+                      contentTimeline.getPeriod(
+                              /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
+                          .uid);
+              mediaSourceRef
+                  .get()
+                  .setAdPlaybackStates(ImmutableMap.of(periodUid, firstAdPlaybackState));
+              return true;
+            }));
 
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
-    player.setMediaSource(mediaSource);
+    player.setMediaSource(mediaSourceRef.get());
     player.prepare();
     // Play to the first content part, then seek past the midroll.
     playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 100);
