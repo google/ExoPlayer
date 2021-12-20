@@ -332,7 +332,7 @@ import java.util.List;
               ? this.dataSourceFactory
               : new DefaultDataSource.Factory(host);
       return new DashMediaSource.Factory(dataSourceFactory)
-          .setDrmSessionManager(drmSessionManager)
+          .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
           .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))
           .createMediaSource(MediaItem.fromUri(manifestUrl));
     }
