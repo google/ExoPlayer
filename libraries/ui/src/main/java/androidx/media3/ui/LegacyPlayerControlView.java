@@ -67,13 +67,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A view for controlling {@link Player} instances.
  *
- * <p>A PlayerControlView can be customized by setting attributes (or calling corresponding
+ * <p>A LegacyPlayerControlView can be customized by setting attributes (or calling corresponding
  * methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
  * layout file.
  *
  * <h2>Attributes</h2>
  *
- * The following attributes can be set on a PlayerControlView when used in a layout XML file:
+ * The following attributes can be set on a LegacyPlayerControlView when used in a layout XML file:
  *
  * <ul>
  *   <li><b>{@code show_timeout}</b> - The time between the last user interaction and the controls
@@ -108,7 +108,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       or {@code one|all}.
  *       <ul>
  *         <li>Corresponding method: {@link #setRepeatToggleModes(int)}
- *         <li>Default: {@link PlayerControlView#DEFAULT_REPEAT_TOGGLE_MODES}
+ *         <li>Default: {@link LegacyPlayerControlView#DEFAULT_REPEAT_TOGGLE_MODES}
  *       </ul>
  *   <li><b>{@code show_shuffle_button}</b> - Whether the shuffle button is shown.
  *       <ul>
@@ -125,44 +125,45 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_player_control_view}
+ *         <li>Default: {@code R.layout.exo_legacy_player_control_view}
  *       </ul>
  *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a
- *       PlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar} unless the
- *       layout is overridden to specify a custom {@code exo_progress} (see below).
+ *       LegacyPlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar}
+ *       unless the layout is overridden to specify a custom {@code exo_progress} (see below).
  * </ul>
  *
  * <h2>Overriding drawables</h2>
  *
- * The drawables used by PlayerControlView (with its default layout file) can be overridden by
+ * The drawables used by LegacyPlayerControlView (with its default layout file) can be overridden by
  * drawables with the same names defined in your application. The drawables that can be overridden
  * are:
  *
  * <ul>
- *   <li><b>{@code exo_controls_play}</b> - The play icon.
- *   <li><b>{@code exo_controls_pause}</b> - The pause icon.
- *   <li><b>{@code exo_controls_rewind}</b> - The rewind icon.
- *   <li><b>{@code exo_controls_fastforward}</b> - The fast forward icon.
- *   <li><b>{@code exo_controls_previous}</b> - The previous icon.
- *   <li><b>{@code exo_controls_next}</b> - The next icon.
- *   <li><b>{@code exo_controls_repeat_off}</b> - The repeat icon for {@link
+ *   <li><b>{@code exo_legacy_controls_play}</b> - The play icon.
+ *   <li><b>{@code exo_legacy_controls_pause}</b> - The pause icon.
+ *   <li><b>{@code exo_legacy_controls_rewind}</b> - The rewind icon.
+ *   <li><b>{@code exo_legacy_controls_fastforward}</b> - The fast forward icon.
+ *   <li><b>{@code exo_legacy_controls_previous}</b> - The previous icon.
+ *   <li><b>{@code exo_legacy_controls_next}</b> - The next icon.
+ *   <li><b>{@code exo_legacy_controls_repeat_off}</b> - The repeat icon for {@link
  *       Player#REPEAT_MODE_OFF}.
- *   <li><b>{@code exo_controls_repeat_one}</b> - The repeat icon for {@link
+ *   <li><b>{@code exo_legacy_controls_repeat_one}</b> - The repeat icon for {@link
  *       Player#REPEAT_MODE_ONE}.
- *   <li><b>{@code exo_controls_repeat_all}</b> - The repeat icon for {@link
+ *   <li><b>{@code exo_legacy_controls_repeat_all}</b> - The repeat icon for {@link
  *       Player#REPEAT_MODE_ALL}.
- *   <li><b>{@code exo_controls_shuffle_off}</b> - The shuffle icon when shuffling is disabled.
- *   <li><b>{@code exo_controls_shuffle_on}</b> - The shuffle icon when shuffling is enabled.
- *   <li><b>{@code exo_controls_vr}</b> - The VR icon.
+ *   <li><b>{@code exo_legacy_controls_shuffle_off}</b> - The shuffle icon when shuffling is
+ *       disabled.
+ *   <li><b>{@code exo_legacy_controls_shuffle_on}</b> - The shuffle icon when shuffling is enabled.
+ *   <li><b>{@code exo_legacy_controls_vr}</b> - The VR icon.
  * </ul>
  *
  * <h2>Overriding the layout file</h2>
  *
- * To customize the layout of PlayerControlView throughout your app, or just for certain
- * configurations, you can define {@code exo_player_control_view.xml} layout files in your
+ * To customize the layout of LegacyPlayerControlView throughout your app, or just for certain
+ * configurations, you can define {@code exo_legacy_player_control_view.xml} layout files in your
  * application {@code res/layout*} directories. These layouts will override the one provided by the
- * library, and will be inflated for use by PlayerControlView. The view identifies and binds its
- * children by looking for the following ids:
+ * library, and will be inflated for use by LegacyPlayerControlView. The view identifies and binds
+ * its children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_play}</b> - The play button.
@@ -192,19 +193,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li><b>{@code exo_repeat_toggle}</b> - The repeat toggle button.
  *       <ul>
  *         <li>Type: {@link ImageView}
- *         <li>Note: PlayerControlView will programmatically set the drawable on the repeat toggle
- *             button according to the player's current repeat mode. The drawables used are {@code
- *             exo_controls_repeat_off}, {@code exo_controls_repeat_one} and {@code
- *             exo_controls_repeat_all}. See the section above for information on overriding these
- *             drawables.
+ *         <li>Note: LegacyPlayerControlView will programmatically set the drawable on the repeat
+ *             toggle button according to the player's current repeat mode. The drawables used are
+ *             {@code exo_legacy_controls_repeat_off}, {@code exo_legacy_controls_repeat_one} and
+ *             {@code exo_legacy_controls_repeat_all}. See the section above for information on
+ *             overriding these drawables.
  *       </ul>
  *   <li><b>{@code exo_shuffle}</b> - The shuffle button.
  *       <ul>
  *         <li>Type: {@link ImageView}
- *         <li>Note: PlayerControlView will programmatically set the drawable on the shuffle button
- *             according to the player's current repeat mode. The drawables used are {@code
- *             exo_controls_shuffle_off} and {@code exo_controls_shuffle_on}. See the section above
- *             for information on overriding these drawables.
+ *         <li>Note: LegacyPlayerControlView will programmatically set the drawable on the shuffle
+ *             button according to the player's current repeat mode. The drawables used are {@code
+ *             exo_legacy_controls_shuffle_off} and {@code exo_legacy_controls_shuffle_on}. See the
+ *             section above for information on overriding these drawables.
  *       </ul>
  *   <li><b>{@code exo_vr}</b> - The VR mode button.
  *       <ul>
@@ -224,9 +225,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Type: {@link View}
  *       </ul>
  *   <li><b>{@code exo_progress}</b> - Time bar that's updated during playback and allows seeking.
- *       {@link DefaultTimeBar} attributes set on the PlayerControlView will not be automatically
- *       propagated through to this instance. If a view exists with this id, any {@code
- *       exo_progress_placeholder} view will be ignored.
+ *       {@link DefaultTimeBar} attributes set on the LegacyPlayerControlView will not be
+ *       automatically propagated through to this instance. If a view exists with this id, any
+ *       {@code exo_progress_placeholder} view will be ignored.
  *       <ul>
  *         <li>Type: {@link TimeBar}
  *       </ul>
@@ -237,14 +238,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * <h2>Specifying a custom layout file</h2>
  *
- * Defining your own {@code exo_player_control_view.xml} is useful to customize the layout of
- * PlayerControlView throughout your application. It's also possible to customize the layout for a
- * single instance in a layout file. This is achieved by setting the {@code controller_layout_id}
- * attribute on a PlayerControlView. This will cause the specified layout to be inflated instead of
- * {@code exo_player_control_view.xml} for only the instance on which the attribute is set.
+ * Defining your own {@code exo_legacy_player_control_view.xml} is useful to customize the layout of
+ * LegacyPlayerControlView throughout your application. It's also possible to customize the layout
+ * for a single instance in a layout file. This is achieved by setting the {@code
+ * controller_layout_id} attribute on a LegacyPlayerControlView. This will cause the specified
+ * layout to be inflated instead of {@code exo_legacy_player_control_view.xml} for only the instance
+ * on which the attribute is set.
  */
 @UnstableApi
-public class PlayerControlView extends FrameLayout {
+public class LegacyPlayerControlView extends FrameLayout {
 
   static {
     MediaLibraryInfo.registerModule("media3.ui");
@@ -344,15 +346,15 @@ public class PlayerControlView extends FrameLayout {
   private long currentPosition;
   private long currentBufferedPosition;
 
-  public PlayerControlView(Context context) {
+  public LegacyPlayerControlView(Context context) {
     this(context, /* attrs= */ null);
   }
 
-  public PlayerControlView(Context context, @Nullable AttributeSet attrs) {
+  public LegacyPlayerControlView(Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, /* defStyleAttr= */ 0);
   }
 
-  public PlayerControlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+  public LegacyPlayerControlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     this(context, attrs, defStyleAttr, attrs);
   }
 
@@ -361,13 +363,13 @@ public class PlayerControlView extends FrameLayout {
     "nullness:method.invocation",
     "nullness:methodref.receiver.bound"
   })
-  public PlayerControlView(
+  public LegacyPlayerControlView(
       Context context,
       @Nullable AttributeSet attrs,
       int defStyleAttr,
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
-    int controllerLayoutId = R.layout.exo_player_control_view;
+    int controllerLayoutId = R.layout.exo_legacy_player_control_view;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
@@ -382,26 +384,32 @@ public class PlayerControlView extends FrameLayout {
           context
               .getTheme()
               .obtainStyledAttributes(
-                  playbackAttrs, R.styleable.PlayerControlView, defStyleAttr, /* defStyleRes= */ 0);
+                  playbackAttrs,
+                  R.styleable.LegacyPlayerControlView,
+                  defStyleAttr,
+                  /* defStyleRes= */ 0);
       try {
-        showTimeoutMs = a.getInt(R.styleable.PlayerControlView_show_timeout, showTimeoutMs);
+        showTimeoutMs = a.getInt(R.styleable.LegacyPlayerControlView_show_timeout, showTimeoutMs);
         controllerLayoutId =
-            a.getResourceId(R.styleable.PlayerControlView_controller_layout_id, controllerLayoutId);
+            a.getResourceId(
+                R.styleable.LegacyPlayerControlView_controller_layout_id, controllerLayoutId);
         repeatToggleModes = getRepeatToggleModes(a, repeatToggleModes);
         showRewindButton =
-            a.getBoolean(R.styleable.PlayerControlView_show_rewind_button, showRewindButton);
+            a.getBoolean(R.styleable.LegacyPlayerControlView_show_rewind_button, showRewindButton);
         showFastForwardButton =
             a.getBoolean(
-                R.styleable.PlayerControlView_show_fastforward_button, showFastForwardButton);
+                R.styleable.LegacyPlayerControlView_show_fastforward_button, showFastForwardButton);
         showPreviousButton =
-            a.getBoolean(R.styleable.PlayerControlView_show_previous_button, showPreviousButton);
+            a.getBoolean(
+                R.styleable.LegacyPlayerControlView_show_previous_button, showPreviousButton);
         showNextButton =
-            a.getBoolean(R.styleable.PlayerControlView_show_next_button, showNextButton);
+            a.getBoolean(R.styleable.LegacyPlayerControlView_show_next_button, showNextButton);
         showShuffleButton =
-            a.getBoolean(R.styleable.PlayerControlView_show_shuffle_button, showShuffleButton);
+            a.getBoolean(
+                R.styleable.LegacyPlayerControlView_show_shuffle_button, showShuffleButton);
         setTimeBarMinUpdateInterval(
             a.getInt(
-                R.styleable.PlayerControlView_time_bar_min_update_interval,
+                R.styleable.LegacyPlayerControlView_time_bar_min_update_interval,
                 timeBarMinUpdateIntervalMs));
       } finally {
         a.recycle();
@@ -490,11 +498,11 @@ public class PlayerControlView extends FrameLayout {
     buttonAlphaDisabled =
         (float) resources.getInteger(R.integer.exo_media_button_opacity_percentage_disabled) / 100;
 
-    repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
-    repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_one);
-    repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_all);
-    shuffleOnButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_on);
-    shuffleOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_off);
+    repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_repeat_off);
+    repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_repeat_one);
+    repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_repeat_all);
+    shuffleOnButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_shuffle_on);
+    shuffleOffButtonDrawable = resources.getDrawable(R.drawable.exo_legacy_controls_shuffle_off);
     repeatOffButtonContentDescription =
         resources.getString(R.string.exo_controls_repeat_off_description);
     repeatOneButtonContentDescription =
@@ -1273,7 +1281,7 @@ public class PlayerControlView extends FrameLayout {
   @SuppressWarnings("ResourceType")
   private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
       TypedArray a, @RepeatModeUtil.RepeatToggleModes int defaultValue) {
-    return a.getInt(R.styleable.PlayerControlView_repeat_toggle_modes, defaultValue);
+    return a.getInt(R.styleable.LegacyPlayerControlView_repeat_toggle_modes, defaultValue);
   }
 
   private final class ComponentListener
@@ -1332,7 +1340,7 @@ public class PlayerControlView extends FrameLayout {
 
     @Override
     public void onClick(View view) {
-      Player player = PlayerControlView.this.player;
+      Player player = LegacyPlayerControlView.this.player;
       if (player == null) {
         return;
       }

@@ -44,7 +44,7 @@ import androidx.media3.exoplayer.drm.FrameworkMediaDrm;
 import androidx.media3.exoplayer.drm.HttpMediaDrmCallback;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
-import androidx.media3.ui.PlayerControlView;
+import androidx.media3.ui.LegacyPlayerControlView;
 import java.util.UUID;
 
 /** Activity that demonstrates use of {@link SurfaceControl} with ExoPlayer. */
@@ -61,7 +61,7 @@ public final class MainActivity extends Activity {
   private static final String OWNER_EXTRA = "owner";
 
   private boolean isOwner;
-  @Nullable private PlayerControlView playerControlView;
+  @Nullable private LegacyPlayerControlView playerControlView;
   @Nullable private SurfaceView fullScreenView;
   @Nullable private SurfaceView nonFullScreenView;
   @Nullable private SurfaceView currentOutputView;
@@ -146,7 +146,7 @@ public final class MainActivity extends Activity {
 
     setCurrentOutputView(nonFullScreenView);
 
-    PlayerControlView playerControlView = Assertions.checkNotNull(this.playerControlView);
+    LegacyPlayerControlView playerControlView = Assertions.checkNotNull(this.playerControlView);
     playerControlView.setPlayer(player);
     playerControlView.show();
   }

@@ -74,15 +74,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A high level view for {@link Player} media playbacks. It displays video, subtitles and album art
- * during playback, and displays playback controls using a {@link PlayerControlView}.
+ * during playback, and displays playback controls using a {@link LegacyPlayerControlView}.
  *
- * <p>A PlayerView can be customized by setting attributes (or calling corresponding methods),
+ * <p>A LegacyPlayerView can be customized by setting attributes (or calling corresponding methods),
  * overriding drawables, overriding the view's layout file, or by specifying a custom view layout
  * file.
  *
  * <h2>Attributes</h2>
  *
- * The following attributes can be set on a PlayerView when used in a layout XML file:
+ * The following attributes can be set on a LegacyPlayerView when used in a layout XML file:
  *
  * <ul>
  *   <li><b>{@code use_artwork}</b> - Whether artwork is used if available in audio streams.
@@ -158,33 +158,33 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_player_view}
+ *         <li>Default: {@code R.layout.exo_legacy_player_view}
  *       </ul>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout resource to be
- *       inflated by the child {@link PlayerControlView}. See below for more details.
+ *       inflated by the child {@link LegacyPlayerControlView}. See below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_player_control_view}
+ *         <li>Default: {@code R.layout.exo_legacy_player_control_view}
  *       </ul>
- *   <li>All attributes that can be set on {@link PlayerControlView} and {@link DefaultTimeBar} can
- *       also be set on a PlayerView, and will be propagated to the inflated {@link
- *       PlayerControlView} unless the layout is overridden to specify a custom {@code
- *       exo_controller} (see below).
+ *   <li>All attributes that can be set on {@link LegacyPlayerControlView} and {@link
+ *       DefaultTimeBar} can also be set on a LegacyPlayerView, and will be propagated to the
+ *       inflated {@link LegacyPlayerControlView} unless the layout is overridden to specify a
+ *       custom {@code exo_controller} (see below).
  * </ul>
  *
  * <h2>Overriding drawables</h2>
  *
- * The drawables used by {@link PlayerControlView} (with its default layout file) can be overridden
- * by drawables with the same names defined in your application. See the {@link PlayerControlView}
- * documentation for a list of drawables that can be overridden.
+ * The drawables used by {@link LegacyPlayerControlView} (with its default layout file) can be
+ * overridden by drawables with the same names defined in your application. See the {@link
+ * LegacyPlayerControlView} documentation for a list of drawables that can be overridden.
  *
  * <h2>Overriding the layout file</h2>
  *
- * To customize the layout of PlayerView throughout your app, or just for certain configurations,
- * you can define {@code exo_player_view.xml} layout files in your application {@code res/layout*}
- * directories. These layouts will override the one provided by the library, and will be inflated
- * for use by PlayerView. The view identifies and binds its children by looking for the following
- * ids:
+ * To customize the layout of LegacyPlayerView throughout your app, or just for certain
+ * configurations, you can define {@code exo_legacy_player_view.xml} layout files in your
+ * application {@code res/layout*} directories. These layouts will override the one provided by the
+ * library, and will be inflated for use by LegacyPlayerView. The view identifies and binds its
+ * children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
@@ -218,17 +218,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *         <li>Type: {@link TextView}
  *       </ul>
  *   <li><b>{@code exo_controller_placeholder}</b> - A placeholder that's replaced with the inflated
- *       {@link PlayerControlView}. Ignored if an {@code exo_controller} view exists.
+ *       {@link LegacyPlayerControlView}. Ignored if an {@code exo_controller} view exists.
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
- *   <li><b>{@code exo_controller}</b> - An already inflated {@link PlayerControlView}. Allows use
- *       of a custom extension of {@link PlayerControlView}. {@link PlayerControlView} and {@link
- *       DefaultTimeBar} attributes set on the PlayerView will not be automatically propagated
- *       through to this instance. If a view exists with this id, any {@code
- *       exo_controller_placeholder} view will be ignored.
+ *   <li><b>{@code exo_controller}</b> - An already inflated {@link LegacyPlayerControlView}. Allows
+ *       use of a custom extension of {@link LegacyPlayerControlView}. {@link
+ *       LegacyPlayerControlView} and {@link DefaultTimeBar} attributes set on the LegacyPlayerView
+ *       will not be automatically propagated through to this instance. If a view exists with this
+ *       id, any {@code exo_controller_placeholder} view will be ignored.
  *       <ul>
- *         <li>Type: {@link PlayerControlView}
+ *         <li>Type: {@link LegacyPlayerControlView}
  *       </ul>
  *   <li><b>{@code exo_ad_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
  *       is used to show ad UI (if applicable).
@@ -247,14 +247,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *
  * <h2>Specifying a custom layout file</h2>
  *
- * Defining your own {@code exo_player_view.xml} is useful to customize the layout of PlayerView
- * throughout your application. It's also possible to customize the layout for a single instance in
- * a layout file. This is achieved by setting the {@code player_layout_id} attribute on a
- * PlayerView. This will cause the specified layout to be inflated instead of {@code
- * exo_player_view.xml} for only the instance on which the attribute is set.
+ * Defining your own {@code exo_legacy_player_view.xml} is useful to customize the layout of
+ * LegacyPlayerView throughout your application. It's also possible to customize the layout for a
+ * single instance in a layout file. This is achieved by setting the {@code player_layout_id}
+ * attribute on a LegacyPlayerView. This will cause the specified layout to be inflated instead of
+ * {@code exo_legacy_player_view.xml} for only the instance on which the attribute is set.
  */
 @UnstableApi
-public class PlayerView extends FrameLayout implements AdViewProvider {
+public class LegacyPlayerView extends FrameLayout implements AdViewProvider {
 
   /**
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
@@ -292,13 +292,13 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   @Nullable private final SubtitleView subtitleView;
   @Nullable private final View bufferingView;
   @Nullable private final TextView errorMessageView;
-  @Nullable private final PlayerControlView controller;
+  @Nullable private final LegacyPlayerControlView controller;
   @Nullable private final FrameLayout adOverlayFrameLayout;
   @Nullable private final FrameLayout overlayFrameLayout;
 
   @Nullable private Player player;
   private boolean useController;
-  @Nullable private PlayerControlView.VisibilityListener controllerVisibilityListener;
+  @Nullable private LegacyPlayerControlView.VisibilityListener controllerVisibilityListener;
   private boolean useArtwork;
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
@@ -314,16 +314,16 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   private static final int PICTURE_TYPE_FRONT_COVER = 3;
   private static final int PICTURE_TYPE_NOT_SET = -1;
 
-  public PlayerView(Context context) {
+  public LegacyPlayerView(Context context) {
     this(context, /* attrs= */ null);
   }
 
-  public PlayerView(Context context, @Nullable AttributeSet attrs) {
+  public LegacyPlayerView(Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, /* defStyleAttr= */ 0);
   }
 
   @SuppressWarnings({"nullness:argument", "nullness:method.invocation"})
-  public PlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+  public LegacyPlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
     componentListener = new ComponentListener();
@@ -352,13 +352,13 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
     boolean shutterColorSet = false;
     int shutterColor = 0;
-    int playerLayoutId = R.layout.exo_player_view;
+    int playerLayoutId = R.layout.exo_legacy_player_view;
     boolean useArtwork = true;
     int defaultArtworkId = 0;
     boolean useController = true;
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
-    int controllerShowTimeoutMs = PlayerControlView.DEFAULT_SHOW_TIMEOUT_MS;
+    int controllerShowTimeoutMs = LegacyPlayerControlView.DEFAULT_SHOW_TIMEOUT_MS;
     boolean controllerHideOnTouch = true;
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
@@ -368,28 +368,32 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           context
               .getTheme()
               .obtainStyledAttributes(
-                  attrs, R.styleable.PlayerView, defStyleAttr, /* defStyleRes= */ 0);
+                  attrs, R.styleable.LegacyPlayerView, defStyleAttr, /* defStyleRes= */ 0);
       try {
-        shutterColorSet = a.hasValue(R.styleable.PlayerView_shutter_background_color);
-        shutterColor = a.getColor(R.styleable.PlayerView_shutter_background_color, shutterColor);
-        playerLayoutId = a.getResourceId(R.styleable.PlayerView_player_layout_id, playerLayoutId);
-        useArtwork = a.getBoolean(R.styleable.PlayerView_use_artwork, useArtwork);
+        shutterColorSet = a.hasValue(R.styleable.LegacyPlayerView_shutter_background_color);
+        shutterColor =
+            a.getColor(R.styleable.LegacyPlayerView_shutter_background_color, shutterColor);
+        playerLayoutId =
+            a.getResourceId(R.styleable.LegacyPlayerView_player_layout_id, playerLayoutId);
+        useArtwork = a.getBoolean(R.styleable.LegacyPlayerView_use_artwork, useArtwork);
         defaultArtworkId =
-            a.getResourceId(R.styleable.PlayerView_default_artwork, defaultArtworkId);
-        useController = a.getBoolean(R.styleable.PlayerView_use_controller, useController);
-        surfaceType = a.getInt(R.styleable.PlayerView_surface_type, surfaceType);
-        resizeMode = a.getInt(R.styleable.PlayerView_resize_mode, resizeMode);
+            a.getResourceId(R.styleable.LegacyPlayerView_default_artwork, defaultArtworkId);
+        useController = a.getBoolean(R.styleable.LegacyPlayerView_use_controller, useController);
+        surfaceType = a.getInt(R.styleable.LegacyPlayerView_surface_type, surfaceType);
+        resizeMode = a.getInt(R.styleable.LegacyPlayerView_resize_mode, resizeMode);
         controllerShowTimeoutMs =
-            a.getInt(R.styleable.PlayerView_show_timeout, controllerShowTimeoutMs);
+            a.getInt(R.styleable.LegacyPlayerView_show_timeout, controllerShowTimeoutMs);
         controllerHideOnTouch =
-            a.getBoolean(R.styleable.PlayerView_hide_on_touch, controllerHideOnTouch);
-        controllerAutoShow = a.getBoolean(R.styleable.PlayerView_auto_show, controllerAutoShow);
-        showBuffering = a.getInteger(R.styleable.PlayerView_show_buffering, showBuffering);
+            a.getBoolean(R.styleable.LegacyPlayerView_hide_on_touch, controllerHideOnTouch);
+        controllerAutoShow =
+            a.getBoolean(R.styleable.LegacyPlayerView_auto_show, controllerAutoShow);
+        showBuffering = a.getInteger(R.styleable.LegacyPlayerView_show_buffering, showBuffering);
         keepContentOnPlayerReset =
             a.getBoolean(
-                R.styleable.PlayerView_keep_content_on_player_reset, keepContentOnPlayerReset);
+                R.styleable.LegacyPlayerView_keep_content_on_player_reset,
+                keepContentOnPlayerReset);
         controllerHideDuringAds =
-            a.getBoolean(R.styleable.PlayerView_hide_during_ads, controllerHideDuringAds);
+            a.getBoolean(R.styleable.LegacyPlayerView_hide_during_ads, controllerHideDuringAds);
       } finally {
         a.recycle();
       }
@@ -446,9 +450,9 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           break;
       }
       surfaceView.setLayoutParams(params);
-      // We don't want surfaceView to be clickable separately to the PlayerView itself, but we do
-      // want to register as an OnClickListener so that surfaceView implementations can propagate
-      // click events up to the PlayerView by calling their own performClick method.
+      // We don't want surfaceView to be clickable separately to the LegacyPlayerView itself, but we
+      // do want to register as an OnClickListener so that surfaceView implementations can propagate
+      // click events up to the LegacyPlayerView by calling their own performClick method.
       surfaceView.setOnClickListener(componentListener);
       surfaceView.setClickable(false);
       contentFrame.addView(surfaceView, 0);
@@ -491,14 +495,14 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     // Playback control view.
-    PlayerControlView customController = findViewById(R.id.exo_controller);
+    LegacyPlayerControlView customController = findViewById(R.id.exo_controller);
     View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
     if (customController != null) {
       this.controller = customController;
     } else if (controllerPlaceholder != null) {
-      // Propagate attrs as playbackAttrs so that PlayerControlView's custom attributes are
+      // Propagate attrs as playbackAttrs so that LegacyPlayerControlView's custom attributes are
       // transferred, but standard attributes (e.g. background) are not.
-      this.controller = new PlayerControlView(context, null, 0, attrs);
+      this.controller = new LegacyPlayerControlView(context, null, 0, attrs);
       controller.setId(R.id.exo_controller);
       controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
       ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
@@ -528,7 +532,9 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param newPlayerView The new view to attach to the player.
    */
   public static void switchTargetView(
-      Player player, @Nullable PlayerView oldPlayerView, @Nullable PlayerView newPlayerView) {
+      Player player,
+      @Nullable LegacyPlayerView oldPlayerView,
+      @Nullable LegacyPlayerView newPlayerView) {
     if (oldPlayerView == newPlayerView) {
       return;
     }
@@ -554,10 +560,10 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * Sets the {@link Player} to use.
    *
    * <p>To transition a {@link Player} from targeting one view to another, it's recommended to use
-   * {@link #switchTargetView(Player, PlayerView, PlayerView)} rather than this method. If you do
-   * wish to use this method directly, be sure to attach the player to the new view <em>before</em>
-   * calling {@code setPlayer(null)} to detach it from the old one. This ordering is significantly
-   * more efficient and may allow for more seamless transitions.
+   * {@link #switchTargetView(Player, LegacyPlayerView, LegacyPlayerView)} rather than this method.
+   * If you do wish to use this method directly, be sure to attach the player to the new view
+   * <em>before</em> calling {@code setPlayer(null)} to detach it from the old one. This ordering is
+   * significantly more efficient and may allow for more seamless transitions.
    *
    * @param player The {@link Player} to use, or {@code null} to detach the current player. Only
    *     players which are accessed on the main thread are supported ({@code
@@ -908,13 +914,13 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Sets the {@link PlayerControlView.VisibilityListener}.
+   * Sets the {@link LegacyPlayerControlView.VisibilityListener}.
    *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
    */
   public void setControllerVisibilityListener(
-      @Nullable PlayerControlView.VisibilityListener listener) {
+      @Nullable LegacyPlayerControlView.VisibilityListener listener) {
     Assertions.checkStateNotNull(controller);
     if (this.controllerVisibilityListener == listener) {
       return;
@@ -1457,7 +1463,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       implements Player.Listener,
           OnLayoutChangeListener,
           OnClickListener,
-          PlayerControlView.VisibilityListener {
+          LegacyPlayerControlView.VisibilityListener {
 
     private final Period period;
     private @Nullable Object lastPeriodUidWithTracks;
@@ -1492,7 +1498,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
-      Player player = Assertions.checkNotNull(PlayerView.this.player);
+      Player player = Assertions.checkNotNull(LegacyPlayerView.this.player);
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
@@ -1562,7 +1568,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       toggleControllerVisibility();
     }
 
-    // PlayerControlView.VisibilityListener implementation
+    // LegacyPlayerControlView.VisibilityListener implementation
 
     @Override
     public void onVisibilityChange(int visibility) {

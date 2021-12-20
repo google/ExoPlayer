@@ -1,6 +1,6 @@
 # Proguard rules specific to the UI module.
 
-# Constructor method accessed via reflection in StyledPlayerView and PlayerView
+# Constructor method accessed via reflection in StyledPlayerView and LegacyPlayerView
 -dontnote androidx.media3.exoplayer.video.spherical.SphericalGLSurfaceView
 -keepclassmembers class androidx.media3.exoplayer.video.spherical.SphericalGLSurfaceView {
   <init>(android.content.Context);

@@ -15,7 +15,7 @@
 -->
 <resources>
 
-  <declare-styleable name="PlayerView">
+  <declare-styleable name="LegacyPlayerView">
     <attr name="use_artwork"/>
     <attr name="shutter_background_color"/>
     <attr name="default_artwork"/>
@@ -29,7 +29,7 @@
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
     <attr name="resize_mode"/>
-    <!-- PlayerControlView attributes -->
+    <!-- LegacyPlayerControlView attributes -->
     <attr name="show_timeout"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_shuffle_button"/>
@@ -51,7 +51,7 @@
     <attr name="played_ad_marker_color"/>
   </declare-styleable>
 
-  <declare-styleable name="PlayerControlView">
+  <declare-styleable name="LegacyPlayerControlView">
     <attr name="show_timeout"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_rewind_button"/>
