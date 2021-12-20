@@ -82,8 +82,7 @@ public class DefaultMediaSourceFactoryTest {
 
     MediaSource mediaSource =
         defaultMediaSourceFactory
-            .setDrmSessionManager(null)
-            .setDrmHttpDataSourceFactory(null)
+            .setDrmSessionManagerProvider(null)
             .setLoadErrorHandlingPolicy(null)
             .createMediaSource(mediaItem);
 

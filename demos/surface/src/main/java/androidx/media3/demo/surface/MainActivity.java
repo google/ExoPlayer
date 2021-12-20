@@ -206,12 +206,12 @@ public final class MainActivity extends Activity {
     if (type == C.TYPE_DASH) {
       mediaSource =
           new DashMediaSource.Factory(dataSourceFactory)
-              .setDrmSessionManager(drmSessionManager)
+              .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
               .createMediaSource(MediaItem.fromUri(uri));
     } else if (type == C.TYPE_OTHER) {
       mediaSource =
           new ProgressiveMediaSource.Factory(dataSourceFactory)
-              .setDrmSessionManager(drmSessionManager)
+              .setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)
               .createMediaSource(MediaItem.fromUri(uri));
     } else {
       throw new IllegalStateException();
