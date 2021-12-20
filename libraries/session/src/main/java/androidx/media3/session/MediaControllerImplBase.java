@@ -160,50 +160,32 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   public static final String TAG = "MCImplBase";
 
-  final MediaController instance;
+  protected final MediaController instance;
+  protected final SequencedFutureManager sequencedFutureManager;
+  protected final MediaControllerStub controllerStub;
 
   private final Context context;
-
   private final SessionToken token;
-
   private final IBinder.DeathRecipient deathRecipient;
-  final SequencedFutureManager sequencedFutureManager;
-  final MediaControllerStub controllerStub;
-
   private final SurfaceCallback surfaceCallback;
+  private final ListenerSet<Listener> listeners;
+  private final FlushCommandQueueHandler flushCommandQueueHandler;
 
   @Nullable private SessionToken connectedToken;
-
   @Nullable private SessionServiceConnection serviceConnection;
-
   private boolean released;
-
-  private final ListenerSet<Listener> listeners;
-
   private PlayerInfo playerInfo;
-
   @Nullable private PendingIntent sessionActivity;
-
   private SessionCommands sessionCommands;
-
   private Commands playerCommandsFromSession;
-
   private Commands playerCommandsFromPlayer;
-
   private Commands intersectedPlayerCommands;
-
   @Nullable private Surface videoSurface;
-
   @Nullable private SurfaceHolder videoSurfaceHolder;
-
   @Nullable private TextureView videoTextureView;
-
   private int surfaceWidth;
   private int surfaceHeight;
-
   @Nullable private IMediaSession iSession;
-
-  private final FlushCommandQueueHandler flushCommandQueueHandler;
 
   public MediaControllerImplBase(
       Context context, MediaController instance, SessionToken token, Bundle connectionHints) {
