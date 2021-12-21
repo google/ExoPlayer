@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.PlayerId;
-import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -37,7 +36,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -133,45 +131,6 @@ public final class DashMediaSourceTest {
     assertThat(dashMediaItem.localConfiguration).isNotNull();
     assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
     assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_emptyMediaItemStreamKeys_setsMediaItemStreamKeys() {
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(ImmutableList.of(streamKey));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_withMediaItemStreamKeys_doesNotOverrideMediaItemStreamKeys() {
-    StreamKey mediaItemStreamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri("http://www.google.com")
-            .setStreamKeys(ImmutableList.of(mediaItemStreamKey))
-            .build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(
-                ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 
   @Test

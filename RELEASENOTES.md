@@ -81,6 +81,15 @@
 *   RTSP:
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
+*   Remove deprecated symbols:
+    *   Remove `MediaSourceFactory#setDrmSessionManager`,
+        `MediaSourceFactory#setDrmHttpDataSourceFactory`, and
+        `MediaSourceFactory#setDrmUserAgent`. Use
+        `MediaSourceFactory#setDrmSessionManagerProvider` instead.
+    *   Remove `MediaSourceFactory#setStreamKeys`. Use
+        `MediaItem.Builder#setStreamKeys` instead.
+    *   Remove `MediaSourceFactory#createMediaSource(Uri)`. Use
+        `MediaSourceFactory#createMediaSource(MediaItem)` instead.
 
 ### 2.16.1 (2021-11-18)
 

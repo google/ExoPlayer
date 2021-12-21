@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -34,7 +33,6 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.text.SubtitleDecoderFactory;
@@ -43,7 +41,6 @@ import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -280,29 +277,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
-  @Deprecated
-  @Override
-  public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
-      @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    delegateFactoryLoader.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
-    return this;
-  }
-
-  @Deprecated
-  @Override
-  public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-    delegateFactoryLoader.setDrmUserAgent(userAgent);
-    return this;
-  }
-
-  @Deprecated
-  @Override
-  public DefaultMediaSourceFactory setDrmSessionManager(
-      @Nullable DrmSessionManager drmSessionManager) {
-    delegateFactoryLoader.setDrmSessionManager(drmSessionManager);
-    return this;
-  }
-
   @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
       @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
@@ -315,18 +289,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     delegateFactoryLoader.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
-    return this;
-  }
-
-  /**
-   * @deprecated Use {@link MediaItem.Builder#setStreamKeys(List)} and {@link
-   *     #createMediaSource(MediaItem)} instead.
-   */
-  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
-  @Deprecated
-  @Override
-  public DefaultMediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
-    delegateFactoryLoader.setStreamKeys(streamKeys);
     return this;
   }
 
@@ -478,12 +440,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     private final Set<Integer> supportedTypes;
     private final Map<Integer, MediaSourceFactory> mediaSourceFactories;
 
-    @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
-    @Nullable private String userAgent;
-    @Nullable private DrmSessionManager drmSessionManager;
     @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-    @Nullable private List<StreamKey> streamKeys;
 
     public DelegateFactoryLoader(
         DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
@@ -514,51 +472,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       }
 
       mediaSourceFactory = mediaSourceFactorySupplier.get();
-      if (drmHttpDataSourceFactory != null) {
-        mediaSourceFactory.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
-      }
-      if (userAgent != null) {
-        mediaSourceFactory.setDrmUserAgent(userAgent);
-      }
-      if (drmSessionManager != null) {
-        mediaSourceFactory.setDrmSessionManager(drmSessionManager);
-      }
       if (drmSessionManagerProvider != null) {
         mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
       }
       if (loadErrorHandlingPolicy != null) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
       }
-      if (streamKeys != null) {
-        mediaSourceFactory.setStreamKeys(streamKeys);
-      }
       mediaSourceFactories.put(contentType, mediaSourceFactory);
       return mediaSourceFactory;
-    }
-
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void setDrmHttpDataSourceFactory(
-        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      this.drmHttpDataSourceFactory = drmHttpDataSourceFactory;
-      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
-        mediaSourceFactory.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
-      }
-    }
-
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void setDrmUserAgent(@Nullable String userAgent) {
-      this.userAgent = userAgent;
-      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
-        mediaSourceFactory.setDrmUserAgent(userAgent);
-      }
-    }
-
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      this.drmSessionManager = drmSessionManager;
-      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
-        mediaSourceFactory.setDrmSessionManager(drmSessionManager);
-      }
     }
 
     public void setDrmSessionManagerProvider(
@@ -574,14 +495,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
-      }
-    }
-
-    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
-    public void setStreamKeys(@Nullable List<StreamKey> streamKeys) {
-      this.streamKeys = streamKeys;
-      for (MediaSourceFactory mediaSourceFactory : mediaSourceFactories.values()) {
-        mediaSourceFactory.setStreamKeys(streamKeys);
       }
     }
 

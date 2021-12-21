@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 
@@ -56,7 +55,6 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     private final DataSource.Factory dataSourceFactory;
 
     private ProgressiveMediaExtractor.Factory progressiveMediaExtractorFactory;
-    private boolean usingCustomDrmSessionManagerProvider;
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private int continueLoadingCheckIntervalBytes;
@@ -166,53 +164,11 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     @Override
     public Factory setDrmSessionManagerProvider(
         @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
-      if (drmSessionManagerProvider != null) {
-        this.drmSessionManagerProvider = drmSessionManagerProvider;
-        this.usingCustomDrmSessionManagerProvider = true;
-      } else {
-        this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
-        this.usingCustomDrmSessionManagerProvider = false;
-      }
+      this.drmSessionManagerProvider =
+          drmSessionManagerProvider != null
+              ? drmSessionManagerProvider
+              : new DefaultDrmSessionManagerProvider();
       return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      if (drmSessionManager == null) {
-        setDrmSessionManagerProvider(null);
-      } else {
-        setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
-      }
-      return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmHttpDataSourceFactory(
-        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      if (!usingCustomDrmSessionManagerProvider) {
-        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
-            .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
-      }
-      return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmUserAgent(@Nullable String userAgent) {
-      if (!usingCustomDrmSessionManagerProvider) {
-        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
-      }
-      return this;
-    }
-
-    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public ProgressiveMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(new MediaItem.Builder().setUri(uri).build());
     }
 
     /**

@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.ForwardingTimeline;
@@ -36,7 +35,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
@@ -60,9 +58,6 @@ public final class RtspMediaSource extends BaseMediaSource {
    *
    * <ul>
    *   <li>{@link #setDrmSessionManagerProvider(DrmSessionManagerProvider)}
-   *   <li>{@link #setDrmSessionManager(DrmSessionManager)}
-   *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}
-   *   <li>{@link #setDrmUserAgent(String)}
    *   <li>{@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)}
    * </ul>
    */
@@ -152,40 +147,6 @@ public final class RtspMediaSource extends BaseMediaSource {
     @Override
     public Factory setDrmSessionManagerProvider(
         @Nullable DrmSessionManagerProvider drmSessionManager) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmHttpDataSourceFactory(
-        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmUserAgent(@Nullable String userAgent) {
       return this;
     }
 

@@ -18,13 +18,11 @@ package com.google.android.exoplayer2.testutil;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Util;
 
@@ -37,25 +35,6 @@ public class FakeMediaSourceFactory implements MediaSourceFactory {
   @Override
   public MediaSourceFactory setDrmSessionManagerProvider(
       @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Deprecated
-  @Override
-  public MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Deprecated
-  @Override
-  public MediaSourceFactory setDrmHttpDataSourceFactory(
-      @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Deprecated
-  @Override
-  public MediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
     throw new UnsupportedOperationException();
   }
 
