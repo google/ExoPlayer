@@ -392,7 +392,7 @@ public class HlsMediaPlaylistParserTest {
 
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist)
-            new HlsPlaylistParser(HlsMasterPlaylist.EMPTY, previousPlaylist)
+            new HlsPlaylistParser(HlsMultivariantPlaylist.EMPTY, previousPlaylist)
                 .parse(playlistUri, inputStream);
 
     assertThat(playlist.segments).hasSize(3);
@@ -446,7 +446,7 @@ public class HlsMediaPlaylistParserTest {
 
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist)
-            new HlsPlaylistParser(HlsMasterPlaylist.EMPTY, previousPlaylist)
+            new HlsPlaylistParser(HlsMultivariantPlaylist.EMPTY, previousPlaylist)
                 .parse(playlistUri, inputStream);
 
     assertThat(playlist.segments).hasSize(2);
@@ -1363,7 +1363,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void masterPlaylistAttributeInheritance() throws IOException {
+  public void multivariantPlaylistAttributeInheritance() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -1386,8 +1386,8 @@ public class HlsMediaPlaylistParserTest {
     assertThat(standalonePlaylist.hasIndependentSegments).isFalse();
 
     inputStream.reset();
-    HlsMasterPlaylist masterPlaylist =
-        new HlsMasterPlaylist(
+    HlsMultivariantPlaylist multivariantPlaylist =
+        new HlsMultivariantPlaylist(
             /* baseUri= */ "https://example.com/",
             /* tags= */ Collections.emptyList(),
             /* variants= */ Collections.emptyList(),
@@ -1402,7 +1402,7 @@ public class HlsMediaPlaylistParserTest {
             /* sessionKeyDrmInitData= */ Collections.emptyList());
     HlsMediaPlaylist playlistWithInheritance =
         (HlsMediaPlaylist)
-            new HlsPlaylistParser(masterPlaylist, /* previousMediaPlaylist= */ null)
+            new HlsPlaylistParser(multivariantPlaylist, /* previousMediaPlaylist= */ null)
                 .parse(playlistUri, inputStream);
     assertThat(playlistWithInheritance.hasIndependentSegments).isTrue();
   }
@@ -1450,8 +1450,8 @@ public class HlsMediaPlaylistParserTest {
     InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HashMap<String, String> variableDefinitions = new HashMap<>();
     variableDefinitions.put("imported_base", "long_path");
-    HlsMasterPlaylist masterPlaylist =
-        new HlsMasterPlaylist(
+    HlsMultivariantPlaylist multivariantPlaylist =
+        new HlsMultivariantPlaylist(
             /* baseUri= */ "",
             /* tags= */ Collections.emptyList(),
             /* variants= */ Collections.emptyList(),
@@ -1466,7 +1466,7 @@ public class HlsMediaPlaylistParserTest {
             /* sessionKeyDrmInitData= */ Collections.emptyList());
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist)
-            new HlsPlaylistParser(masterPlaylist, /* previousMediaPlaylist= */ null)
+            new HlsPlaylistParser(multivariantPlaylist, /* previousMediaPlaylist= */ null)
                 .parse(playlistUri, inputStream);
     for (int i = 1; i <= 4; i++) {
       assertThat(playlist.segments.get(i - 1).url).isEqualTo("long_path" + i + ".ts");

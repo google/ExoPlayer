@@ -30,8 +30,8 @@ If your URI doesn't end with `.m3u8`, you can pass `MimeTypes.APPLICATION_M3U8`
 to `setMimeType` of `MediaItem.Builder` to explicitly indicate the type of the
 content.
 
-The URI of the media item may point to either a media playlist or a master
-playlist. If the URI points to a master playlist that declares multiple
+The URI of the media item may point to either a media playlist or a multivariant
+playlist. If the URI points to a multivariant playlist that declares multiple
 `#EXT-X-STREAM-INF` tags then ExoPlayer will automatically adapt between
 variants, taking into account both available bandwidth and device capabilities.
 
@@ -89,17 +89,18 @@ app's needs. See the [Customization page][] for examples.
 ### Disabling chunkless preparation ###
 
 By default, ExoPlayer will use chunkless preparation. This means that ExoPlayer
-will only use the information in the master playlist to prepare the stream,
-which works if the `#EXT-X-STREAM-INF` tags contain the `CODECS` attribute.
+will only use the information in the multivariant playlist to prepare the
+stream, which works if the `#EXT-X-STREAM-INF` tags contain the `CODECS`
+attribute.
 
 You may need to disable this feature if your media segments contain muxed
-closed-caption tracks that are not declared in the master playlist with a
+closed-caption tracks that are not declared in the multivariant playlist with a
 `#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS` tag. Otherwise, these closed-caption tracks
 won't be detected and played. You can disable chunkless preparation in the
 `HlsMediaSource.Factory` as shown in the following snippet. Note that this
 will increase start up time as ExoPlayer needs to download a media segment to
 discover these additional tracks and it is preferable to declare the
-closed-caption tracks in the master playlist instead.
+closed-caption tracks in the multivariant playlist instead.
 ~~~
 HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory)
@@ -119,7 +120,7 @@ ExoPlayer][] for a full explanation. The main points are:
   segments.
 * Use the `#EXT-X-INDEPENDENT-SEGMENTS` tag.
 * Prefer demuxed streams, as opposed to files that include both video and audio.
-* Include all information you can in the Master Playlist.
+* Include all information you can in the Multivariant Playlist.
 
 The following guidelines apply specifically for live streams:
 

@@ -154,7 +154,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@link HlsChunkSource}s are used for a single playback, they should all share the same
    *     provider.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
-   *     information is available in the master playlist.
+   *     information is available in the multivariant playlist.
    */
   public HlsChunkSource(
       HlsExtractorFactory extractorFactory,
@@ -877,8 +877,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     public InitializationTrackSelection(TrackGroup group, int[] tracks) {
       super(group, tracks);
-      // The initially selected index corresponds to the first EXT-X-STREAMINF tag in the master
-      // playlist.
+      // The initially selected index corresponds to the first EXT-X-STREAMINF tag in the
+      // multivariant playlist.
       selectedIndex = indexOf(group.getFormat(tracks[0]));
     }
 

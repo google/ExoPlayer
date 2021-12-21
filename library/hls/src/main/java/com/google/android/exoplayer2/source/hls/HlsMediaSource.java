@@ -238,7 +238,8 @@ public final class HlsMediaSource extends BaseMediaSource
 
     /**
      * Sets whether chunkless preparation is allowed. If true, preparation without chunk downloads
-     * will be enabled for streams that provide sufficient information in their master playlist.
+     * will be enabled for streams that provide sufficient information in their multivariant
+     * playlist.
      *
      * @param allowChunklessPreparation Whether chunkless preparation is allowed.
      * @return This factory, for convenience.
@@ -273,10 +274,10 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     /**
-     * Sets whether to use #EXT-X-SESSION-KEY tags provided in the master playlist. If enabled, it's
-     * assumed that any single session key declared in the master playlist can be used to obtain all
-     * of the keys required for playback. For media where this is not true, this option should not
-     * be enabled.
+     * Sets whether to use #EXT-X-SESSION-KEY tags provided in the multivariant playlist. If
+     * enabled, it's assumed that any single session key declared in the multivariant playlist can
+     * be used to obtain all of the keys required for playback. For media where this is not true,
+     * this option should not be enabled.
      *
      * @param useSessionKeys Whether to use #EXT-X-SESSION-KEY tags.
      * @return This factory, for convenience.
@@ -524,9 +525,9 @@ public final class HlsMediaSource extends BaseMediaSource
                 || mediaPlaylist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
             ? windowStartTimeMs
             : C.TIME_UNSET;
-    // The master playlist is non-null because the first playlist has been fetched by now.
+    // The multivariant playlist is non-null because the first playlist has been fetched by now.
     HlsManifest manifest =
-        new HlsManifest(checkNotNull(playlistTracker.getMasterPlaylist()), mediaPlaylist);
+        new HlsManifest(checkNotNull(playlistTracker.getMultivariantPlaylist()), mediaPlaylist);
     SinglePeriodTimeline timeline =
         playlistTracker.isLive()
             ? createTimelineForLive(

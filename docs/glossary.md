@@ -90,7 +90,7 @@ For more information, see the
 
 A file that defines the structure and location of media in
 [adaptive streaming](#adaptive-streaming) protocols. Examples include
-[DASH](#dash) [MPD](#mpd) files, [HLS](#hls) master playlist files and
+[DASH](#dash) [MPD](#mpd) files, [HLS](#hls) multivariant playlist files and
 [Smooth Streaming](#smooth-streaming) manifest files. Not to be confused with an
 AndroidManifest XML file.
 

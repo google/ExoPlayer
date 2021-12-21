@@ -36,9 +36,9 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Rendition;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -178,17 +178,18 @@ public final class HlsMediaPeriod
     return Assertions.checkNotNull(trackGroups);
   }
 
-  // TODO: When the master playlist does not de-duplicate variants by URL and allows Renditions with
-  // null URLs, this method must be updated to calculate stream keys that are compatible with those
-  // that may already be persisted for offline.
+  // TODO: When the multivariant playlist does not de-duplicate variants by URL and allows
+  // Renditions with null URLs, this method must be updated to calculate stream keys that are
+  // compatible with those that may already be persisted for offline.
   @Override
   public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
-    // See HlsMasterPlaylist.copy for interpretation of StreamKeys.
-    HlsMasterPlaylist masterPlaylist = Assertions.checkNotNull(playlistTracker.getMasterPlaylist());
-    boolean hasVariants = !masterPlaylist.variants.isEmpty();
+    // See HlsMultivariantPlaylist.copy for interpretation of StreamKeys.
+    HlsMultivariantPlaylist multivariantPlaylist =
+        Assertions.checkNotNull(playlistTracker.getMultivariantPlaylist());
+    boolean hasVariants = !multivariantPlaylist.variants.isEmpty();
     int audioWrapperOffset = hasVariants ? 1 : 0;
     // Subtitle sample stream wrappers are held last.
-    int subtitleWrapperOffset = sampleStreamWrappers.length - masterPlaylist.subtitles.size();
+    int subtitleWrapperOffset = sampleStreamWrappers.length - multivariantPlaylist.subtitles.size();
 
     TrackGroupArray mainWrapperTrackGroups;
     int mainWrapperPrimaryGroupIndex;
@@ -216,7 +217,8 @@ public final class HlsMediaPeriod
           hasPrimaryTrackGroupSelection = true;
           for (int i = 0; i < trackSelection.length(); i++) {
             int variantIndex = mainWrapperVariantIndices[trackSelection.getIndexInTrackGroup(i)];
-            streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
+            streamKeys.add(
+                new StreamKey(HlsMultivariantPlaylist.GROUP_INDEX_VARIANT, variantIndex));
           }
         } else {
           // Embedded group in main wrapper.
@@ -230,8 +232,8 @@ public final class HlsMediaPeriod
           if (selectedTrackGroupIndex != C.INDEX_UNSET) {
             int groupIndexType =
                 i < subtitleWrapperOffset
-                    ? HlsMasterPlaylist.GROUP_INDEX_AUDIO
-                    : HlsMasterPlaylist.GROUP_INDEX_SUBTITLE;
+                    ? HlsMultivariantPlaylist.GROUP_INDEX_AUDIO
+                    : HlsMultivariantPlaylist.GROUP_INDEX_SUBTITLE;
             int[] selectedWrapperUrlIndices = manifestUrlIndicesPerWrapper[i];
             for (int trackIndex = 0; trackIndex < trackSelection.length(); trackIndex++) {
               int renditionIndex =
@@ -247,16 +249,18 @@ public final class HlsMediaPeriod
       // A track selection includes a variant-embedded track, but no variant is added yet. We use
       // the valid variant with the lowest bitrate to reduce overhead.
       int lowestBitrateIndex = mainWrapperVariantIndices[0];
-      int lowestBitrate = masterPlaylist.variants.get(mainWrapperVariantIndices[0]).format.bitrate;
+      int lowestBitrate =
+          multivariantPlaylist.variants.get(mainWrapperVariantIndices[0]).format.bitrate;
       for (int i = 1; i < mainWrapperVariantIndices.length; i++) {
         int variantBitrate =
-            masterPlaylist.variants.get(mainWrapperVariantIndices[i]).format.bitrate;
+            multivariantPlaylist.variants.get(mainWrapperVariantIndices[i]).format.bitrate;
         if (variantBitrate < lowestBitrate) {
           lowestBitrate = variantBitrate;
           lowestBitrateIndex = mainWrapperVariantIndices[i];
         }
       }
-      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, lowestBitrateIndex));
+      streamKeys.add(
+          new StreamKey(HlsMultivariantPlaylist.GROUP_INDEX_VARIANT, lowestBitrateIndex));
     }
     return streamKeys;
   }
@@ -489,15 +493,16 @@ public final class HlsMediaPeriod
   // Internal methods.
 
   private void buildAndPrepareSampleStreamWrappers(long positionUs) {
-    HlsMasterPlaylist masterPlaylist = Assertions.checkNotNull(playlistTracker.getMasterPlaylist());
+    HlsMultivariantPlaylist multivariantPlaylist =
+        Assertions.checkNotNull(playlistTracker.getMultivariantPlaylist());
     Map<String, DrmInitData> overridingDrmInitData =
         useSessionKeys
-            ? deriveOverridingDrmInitData(masterPlaylist.sessionKeyDrmInitData)
+            ? deriveOverridingDrmInitData(multivariantPlaylist.sessionKeyDrmInitData)
             : Collections.emptyMap();
 
-    boolean hasVariants = !masterPlaylist.variants.isEmpty();
-    List<Rendition> audioRenditions = masterPlaylist.audios;
-    List<Rendition> subtitleRenditions = masterPlaylist.subtitles;
+    boolean hasVariants = !multivariantPlaylist.variants.isEmpty();
+    List<Rendition> audioRenditions = multivariantPlaylist.audios;
+    List<Rendition> subtitleRenditions = multivariantPlaylist.subtitles;
 
     pendingPrepareCount = 0;
     ArrayList<HlsSampleStreamWrapper> sampleStreamWrappers = new ArrayList<>();
@@ -505,7 +510,7 @@ public final class HlsMediaPeriod
 
     if (hasVariants) {
       buildAndPrepareMainSampleStreamWrapper(
-          masterPlaylist,
+          multivariantPlaylist,
           positionUs,
           sampleStreamWrappers,
           manifestUrlIndicesPerWrapper,
@@ -523,7 +528,8 @@ public final class HlsMediaPeriod
 
     audioVideoSampleStreamWrapperCount = sampleStreamWrappers.size();
 
-    // Subtitle stream wrappers. We can always use master playlist information to prepare these.
+    // Subtitle stream wrappers. We can always use multivariant playlist information to prepare
+    // these.
     for (int i = 0; i < subtitleRenditions.size(); i++) {
       Rendition subtitleRendition = subtitleRenditions.get(i);
       String sampleStreamWrapperUid = "subtitle:" + i + ":" + subtitleRendition.name;
@@ -539,7 +545,7 @@ public final class HlsMediaPeriod
               positionUs);
       manifestUrlIndicesPerWrapper.add(new int[] {i});
       sampleStreamWrappers.add(sampleStreamWrapper);
-      sampleStreamWrapper.prepareWithMasterPlaylistInfo(
+      sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
           new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, subtitleRendition.format)},
           /* primaryTrackGroupIndex= */ 0);
     }
@@ -560,8 +566,8 @@ public final class HlsMediaPeriod
    * This method creates and starts preparation of the main {@link HlsSampleStreamWrapper}.
    *
    * <p>The main sample stream wrapper is the first element of {@link #sampleStreamWrappers}. It
-   * provides {@link SampleStream}s for the variant urls in the master playlist. It may be adaptive
-   * and may contain multiple muxed tracks.
+   * provides {@link SampleStream}s for the variant urls in the multivariant playlist. It may be
+   * adaptive and may contain multiple muxed tracks.
    *
    * <p>If chunkless preparation is allowed, the media period will try preparation without segment
    * downloads. This is only possible if variants contain the CODECS attribute. If not, traditional
@@ -570,13 +576,13 @@ public final class HlsMediaPeriod
    *
    * <ul>
    *   <li>A muxed audio track will be exposed if the codecs list contain an audio entry and the
-   *       master playlist either contains an EXT-X-MEDIA tag without the URI attribute or does not
-   *       contain any EXT-X-MEDIA tag.
-   *   <li>Closed captions will only be exposed if they are declared by the master playlist.
+   *       multivariant playlist either contains an EXT-X-MEDIA tag without the URI attribute or
+   *       does not contain any EXT-X-MEDIA tag.
+   *   <li>Closed captions will only be exposed if they are declared by the multivariant playlist.
    *   <li>An ID3 track is exposed preemptively, in case the segments contain an ID3 track.
    * </ul>
    *
-   * @param masterPlaylist The HLS master playlist.
+   * @param multivariantPlaylist The HLS multivariant playlist.
    * @param positionUs If preparation requires any chunk downloads, the position in microseconds at
    *     which downloading should start. Ignored otherwise.
    * @param sampleStreamWrappers List to which the built main sample stream wrapper should be added.
@@ -585,16 +591,16 @@ public final class HlsMediaPeriod
    *     (i.e. {@link DrmInitData#schemeType}).
    */
   private void buildAndPrepareMainSampleStreamWrapper(
-      HlsMasterPlaylist masterPlaylist,
+      HlsMultivariantPlaylist multivariantPlaylist,
       long positionUs,
       List<HlsSampleStreamWrapper> sampleStreamWrappers,
       List<int[]> manifestUrlIndicesPerWrapper,
       Map<String, DrmInitData> overridingDrmInitData) {
-    int[] variantTypes = new int[masterPlaylist.variants.size()];
+    int[] variantTypes = new int[multivariantPlaylist.variants.size()];
     int videoVariantCount = 0;
     int audioVariantCount = 0;
-    for (int i = 0; i < masterPlaylist.variants.size(); i++) {
-      Variant variant = masterPlaylist.variants.get(i);
+    for (int i = 0; i < multivariantPlaylist.variants.size(); i++) {
+      Variant variant = multivariantPlaylist.variants.get(i);
       Format format = variant.format;
       if (format.height > 0 || Util.getCodecsOfType(format.codecs, C.TRACK_TYPE_VIDEO) != null) {
         variantTypes[i] = C.TRACK_TYPE_VIDEO;
@@ -611,8 +617,8 @@ public final class HlsMediaPeriod
     int selectedVariantsCount = variantTypes.length;
     if (videoVariantCount > 0) {
       // We've identified some variants as definitely containing video. Assume variants within the
-      // master playlist are marked consistently, and hence that we have the full set. Filter out
-      // any other variants, which are likely to be audio only.
+      // multivariant playlist are marked consistently, and hence that we have the full set. Filter
+      // out any other variants, which are likely to be audio only.
       useVideoVariantsOnly = true;
       selectedVariantsCount = videoVariantCount;
     } else if (audioVariantCount < variantTypes.length) {
@@ -625,10 +631,10 @@ public final class HlsMediaPeriod
     Format[] selectedPlaylistFormats = new Format[selectedVariantsCount];
     int[] selectedVariantIndices = new int[selectedVariantsCount];
     int outIndex = 0;
-    for (int i = 0; i < masterPlaylist.variants.size(); i++) {
+    for (int i = 0; i < multivariantPlaylist.variants.size(); i++) {
       if ((!useVideoVariantsOnly || variantTypes[i] == C.TRACK_TYPE_VIDEO)
           && (!useNonAudioVariantsOnly || variantTypes[i] != C.TRACK_TYPE_AUDIO)) {
-        Variant variant = masterPlaylist.variants.get(i);
+        Variant variant = multivariantPlaylist.variants.get(i);
         selectedPlaylistUrls[outIndex] = variant.url;
         selectedPlaylistFormats[outIndex] = variant.format;
         selectedVariantIndices[outIndex++] = i;
@@ -653,8 +659,8 @@ public final class HlsMediaPeriod
             trackType,
             selectedPlaylistUrls,
             selectedPlaylistFormats,
-            masterPlaylist.muxedAudioFormat,
-            masterPlaylist.muxedCaptionFormats,
+            multivariantPlaylist.muxedAudioFormat,
+            multivariantPlaylist.muxedCaptionFormats,
             overridingDrmInitData,
             positionUs);
     sampleStreamWrappers.add(sampleStreamWrapper);
@@ -669,16 +675,17 @@ public final class HlsMediaPeriod
         muxedTrackGroups.add(new TrackGroup(sampleStreamWrapperUid, videoFormats));
 
         if (numberOfAudioCodecs > 0
-            && (masterPlaylist.muxedAudioFormat != null || masterPlaylist.audios.isEmpty())) {
+            && (multivariantPlaylist.muxedAudioFormat != null
+                || multivariantPlaylist.audios.isEmpty())) {
           muxedTrackGroups.add(
               new TrackGroup(
                   /* id= */ sampleStreamWrapperUid + ":audio",
                   deriveAudioFormat(
                       selectedPlaylistFormats[0],
-                      masterPlaylist.muxedAudioFormat,
+                      multivariantPlaylist.muxedAudioFormat,
                       /* isPrimaryTrackInVariant= */ false)));
         }
-        List<Format> ccFormats = masterPlaylist.muxedCaptionFormats;
+        List<Format> ccFormats = multivariantPlaylist.muxedCaptionFormats;
         if (ccFormats != null) {
           for (int i = 0; i < ccFormats.size(); i++) {
             String ccId = sampleStreamWrapperUid + ":cc:" + i;
@@ -692,7 +699,7 @@ public final class HlsMediaPeriod
           audioFormats[i] =
               deriveAudioFormat(
                   /* variantFormat= */ selectedPlaylistFormats[i],
-                  masterPlaylist.muxedAudioFormat,
+                  multivariantPlaylist.muxedAudioFormat,
                   /* isPrimaryTrackInVariant= */ true);
         }
         muxedTrackGroups.add(new TrackGroup(sampleStreamWrapperUid, audioFormats));
@@ -707,7 +714,7 @@ public final class HlsMediaPeriod
                   .build());
       muxedTrackGroups.add(id3TrackGroup);
 
-      sampleStreamWrapper.prepareWithMasterPlaylistInfo(
+      sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
           muxedTrackGroups.toArray(new TrackGroup[0]),
           /* primaryTrackGroupIndex= */ 0,
           /* optionalTrackGroupsIndices...= */ muxedTrackGroups.indexOf(id3TrackGroup));
@@ -768,7 +775,7 @@ public final class HlsMediaPeriod
 
       if (allowChunklessPreparation && codecStringsAllowChunklessPreparation) {
         Format[] renditionFormats = scratchPlaylistFormats.toArray(new Format[0]);
-        sampleStreamWrapper.prepareWithMasterPlaylistInfo(
+        sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
             new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, renditionFormats)},
             /* primaryTrackGroupIndex= */ 0);
       }

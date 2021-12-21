@@ -631,7 +631,8 @@ public final class Format implements Bundleable {
    * <ul>
    *   <li>DASH representations: Always {@link Format#NO_VALUE}.
    *   <li>HLS variants: The {@code AVERAGE-BANDWIDTH} attribute defined on the corresponding {@code
-   *       EXT-X-STREAM-INF} tag in the master playlist, or {@link Format#NO_VALUE} if not present.
+   *       EXT-X-STREAM-INF} tag in the multivariant playlist, or {@link Format#NO_VALUE} if not
+   *       present.
    *   <li>SmoothStreaming track elements: The {@code Bitrate} attribute defined on the
    *       corresponding {@code TrackElement} in the manifest, or {@link Format#NO_VALUE} if not
    *       present.

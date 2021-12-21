@@ -38,7 +38,7 @@ public interface HlsExtractorFactory {
    * @param uri The URI of the media chunk.
    * @param format A {@link Format} associated with the chunk to extract.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
-   *     information is available in the master playlist.
+   *     information is available in the multivariant playlist.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param responseHeaders The HTTP response headers associated with the media segment or
    *     initialization section to extract.
