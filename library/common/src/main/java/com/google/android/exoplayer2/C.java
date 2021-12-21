@@ -604,6 +604,7 @@ public final class C {
       flag = true,
       value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
   public @interface SelectionFlags {}
+  // LINT.IfChange(selection_flags)
   /** Indicates that the track should be selected if user preferences do not state otherwise. */
   public static final int SELECTION_FLAG_DEFAULT = 1;
   /**
@@ -1069,6 +1070,7 @@ public final class C {
         ROLE_FLAG_TRICK_PLAY
       })
   public @interface RoleFlags {}
+  // LINT.IfChange(role_flags)
   /** Indicates a main track. */
   public static final int ROLE_FLAG_MAIN = 1;
   /**
