@@ -32,11 +32,19 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 
   private static final String TAG = "TAudioRenderer";
 
+  private final Codec.EncoderFactory encoderFactory;
+  private final Codec.DecoderFactory decoderFactory;
   private final DecoderInputBuffer decoderInputBuffer;
 
   public TransformerAudioRenderer(
-      MuxerWrapper muxerWrapper, TransformerMediaClock mediaClock, Transformation transformation) {
+      MuxerWrapper muxerWrapper,
+      TransformerMediaClock mediaClock,
+      Transformation transformation,
+      Codec.EncoderFactory encoderFactory,
+      Codec.DecoderFactory decoderFactory) {
     super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformation);
+    this.encoderFactory = encoderFactory;
+    this.decoderFactory = decoderFactory;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
   }
@@ -60,7 +68,8 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldTranscode(inputFormat)) {
-      samplePipeline = new AudioSamplePipeline(inputFormat, transformation);
+      samplePipeline =
+          new AudioSamplePipeline(inputFormat, transformation, encoderFactory, decoderFactory);
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
