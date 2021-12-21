@@ -103,7 +103,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
      * Called when the wrapper has been prepared.
      *
      * <p>Note: This method will be called on a later handler loop than the one on which either
-     * {@link #prepareWithMasterPlaylistInfo} or {@link #continuePreparing} are invoked.
+     * {@link #prepareWithMultivariantPlaylistInfo} or {@link #continuePreparing} are invoked.
      */
     void onPrepared();
 
@@ -197,7 +197,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     stream's {@link DrmInitData} will be overridden.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
-   * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the master playlist.
+   * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the multivariant
+   *     playlist.
    * @param drmSessionManager The {@link DrmSessionManager} to acquire {@link DrmSession
    *     DrmSessions} with.
    * @param drmEventDispatcher A dispatcher to notify of {@link DrmSessionEventListener} events.
@@ -261,7 +262,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Prepares the sample stream wrapper with master playlist information.
+   * Prepares the sample stream wrapper with multivariant playlist information.
    *
    * @param trackGroups The {@link TrackGroup TrackGroups} to expose through {@link
    *     #getTrackGroups()}.
@@ -269,7 +270,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param optionalTrackGroupsIndices The indices of any {@code trackGroups} that should not
    *     trigger a failure if not found in the media playlist's segments.
    */
-  public void prepareWithMasterPlaylistInfo(
+  public void prepareWithMultivariantPlaylistInfo(
       TrackGroup[] trackGroups, int primaryTrackGroupIndex, int... optionalTrackGroupsIndices) {
     this.trackGroups = createTrackGroupArrayWithDrmInfo(trackGroups);
     optionalTrackGroups = new HashSet<>();
@@ -1298,8 +1299,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
     if (trackGroups != null) {
-      // The track groups were created with master playlist information. They only need to be mapped
-      // to a sample queue.
+      // The track groups were created with multivariant playlist information. They only need to be
+      // mapped to a sample queue.
       mapSampleQueuesToMatchTrackGroups();
     } else {
       // Tracks are created using media segment information.
@@ -1334,18 +1335,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Builds tracks that are exposed by this {@link HlsSampleStreamWrapper} instance, as well as
    * internal data-structures required for operation.
    *
-   * <p>Tracks in HLS are complicated. A HLS master playlist contains a number of "variants". Each
-   * variant stream typically contains muxed video, audio and (possibly) additional audio, metadata
-   * and caption tracks. We wish to allow the user to select between an adaptive track that spans
-   * all variants, as well as each individual variant. If multiple audio tracks are present within
-   * each variant then we wish to allow the user to select between those also.
+   * <p>Tracks in HLS are complicated. A HLS multivariant playlist contains a number of "variants".
+   * Each variant stream typically contains muxed video, audio and (possibly) additional audio,
+   * metadata and caption tracks. We wish to allow the user to select between an adaptive track that
+   * spans all variants, as well as each individual variant. If multiple audio tracks are present
+   * within each variant then we wish to allow the user to select between those also.
    *
    * <p>To do this, tracks are constructed as follows. The {@link HlsChunkSource} exposes (N+1)
-   * tracks, where N is the number of variants defined in the HLS master playlist. These consist of
-   * one adaptive track defined to span all variants and a track for each individual variant. The
-   * adaptive track is initially selected. The extractor is then prepared to discover the tracks
-   * inside of each variant stream. The two sets of tracks are then combined by this method to
-   * create a third set, which is the set exposed by this {@link HlsSampleStreamWrapper}:
+   * tracks, where N is the number of variants defined in the HLS multivariant playlist. These
+   * consist of one adaptive track defined to span all variants and a track for each individual
+   * variant. The adaptive track is initially selected. The extractor is then prepared to discover
+   * the tracks inside of each variant stream. The two sets of tracks are then combined by this
+   * method to create a third set, which is the set exposed by this {@link HlsSampleStreamWrapper}:
    *
    * <ul>
    *   <li>The extractor tracks are inspected to infer a "primary" track type. If a video track is
@@ -1518,14 +1519,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Derives a track sample format from the corresponding format in the master playlist, and a
+   * Derives a track sample format from the corresponding format in the multivariant playlist, and a
    * sample format that may have been obtained from a chunk belonging to a different track in the
    * same track group.
    *
    * <p>Note: Since the sample format may have been obtained from a chunk belonging to a different
    * track, it should not be used as a source for data that may vary between tracks.
    *
-   * @param playlistFormat The format information obtained from the master playlist.
+   * @param playlistFormat The format information obtained from the multivariant playlist.
    * @param sampleFormat The format information obtained from samples within a chunk. The chunk may
    *     belong to a different track in the same track group.
    * @param propagateBitrates Whether the bitrates from the playlist format should be included in

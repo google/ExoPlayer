@@ -37,11 +37,11 @@ import androidx.media3.common.util.UriUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.hls.HlsTrackMetadataEntry;
 import androidx.media3.exoplayer.hls.HlsTrackMetadataEntry.VariantInfo;
-import androidx.media3.exoplayer.hls.playlist.HlsMasterPlaylist.Rendition;
-import androidx.media3.exoplayer.hls.playlist.HlsMasterPlaylist.Variant;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist.Part;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist.RenditionReport;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist.Segment;
+import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist.Rendition;
+import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist.Variant;
 import androidx.media3.exoplayer.upstream.ParsingLoadable;
 import androidx.media3.extractor.mp4.PsshAtomUtil;
 import com.google.common.collect.Iterables;
@@ -225,28 +225,30 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_VARIABLE_REFERENCE =
       Pattern.compile("\\{\\$([a-zA-Z0-9\\-_]+)\\}");
 
-  private final HlsMasterPlaylist masterPlaylist;
+  private final HlsMultivariantPlaylist multivariantPlaylist;
   @Nullable private final HlsMediaPlaylist previousMediaPlaylist;
 
   /**
    * Creates an instance where media playlists are parsed without inheriting attributes from a
-   * master playlist.
+   * multivariant playlist.
    */
   public HlsPlaylistParser() {
-    this(HlsMasterPlaylist.EMPTY, /* previousMediaPlaylist= */ null);
+    this(HlsMultivariantPlaylist.EMPTY, /* previousMediaPlaylist= */ null);
   }
 
   /**
    * Creates an instance where parsed media playlists inherit attributes from the given master
    * playlist.
    *
-   * @param masterPlaylist The master playlist from which media playlists will inherit attributes.
+   * @param multivariantPlaylist The multivariant playlist from which media playlists will inherit
+   *     attributes.
    * @param previousMediaPlaylist The previous media playlist from which the new media playlist may
    *     inherit skipped segments.
    */
   public HlsPlaylistParser(
-      HlsMasterPlaylist masterPlaylist, @Nullable HlsMediaPlaylist previousMediaPlaylist) {
-    this.masterPlaylist = masterPlaylist;
+      HlsMultivariantPlaylist multivariantPlaylist,
+      @Nullable HlsMediaPlaylist previousMediaPlaylist) {
+    this.multivariantPlaylist = multivariantPlaylist;
     this.previousMediaPlaylist = previousMediaPlaylist;
   }
 
@@ -266,7 +268,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           // Do nothing.
         } else if (line.startsWith(TAG_STREAM_INF)) {
           extraLines.add(line);
-          return parseMasterPlaylist(new LineIterator(extraLines, reader), uri.toString());
+          return parseMultivariantPlaylist(new LineIterator(extraLines, reader), uri.toString());
         } else if (line.startsWith(TAG_TARGET_DURATION)
             || line.startsWith(TAG_MEDIA_SEQUENCE)
             || line.startsWith(TAG_MEDIA_DURATION)
@@ -277,7 +279,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             || line.equals(TAG_ENDLIST)) {
           extraLines.add(line);
           return parseMediaPlaylist(
-              masterPlaylist,
+              multivariantPlaylist,
               previousMediaPlaylist,
               new LineIterator(extraLines, reader),
               uri.toString());
@@ -321,8 +323,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return c;
   }
 
-  private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
-      throws IOException {
+  private static HlsMultivariantPlaylist parseMultivariantPlaylist(
+      LineIterator iterator, String baseUri) throws IOException {
     HashMap<Uri, ArrayList<VariantInfo>> urlToVariantInfos = new HashMap<>();
     HashMap<String, String> variableDefinitions = new HashMap<>();
     ArrayList<Variant> variants = new ArrayList<>();
@@ -580,7 +582,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       muxedCaptionFormats = Collections.emptyList();
     }
 
-    return new HlsMasterPlaylist(
+    return new HlsMultivariantPlaylist(
         baseUri,
         tags,
         deduplicatedVariants,
@@ -629,7 +631,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(
-      HlsMasterPlaylist masterPlaylist,
+      HlsMultivariantPlaylist multivariantPlaylist,
       @Nullable HlsMediaPlaylist previousMediaPlaylist,
       LineIterator iterator,
       String baseUri)
@@ -640,7 +642,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     int version = 1; // Default version == 1.
     long targetDurationUs = C.TIME_UNSET;
     long partTargetDurationUs = C.TIME_UNSET;
-    boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
+    boolean hasIndependentSegmentsTag = multivariantPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
     @Nullable Segment initializationSegment = null;
     HashMap<String, String> variableDefinitions = new HashMap<>();
@@ -750,11 +752,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_DEFINE)) {
         String importName = parseOptionalStringAttr(line, REGEX_IMPORT, variableDefinitions);
         if (importName != null) {
-          String value = masterPlaylist.variableDefinitions.get(importName);
+          String value = multivariantPlaylist.variableDefinitions.get(importName);
           if (value != null) {
             variableDefinitions.put(importName, value);
           } else {
-            // The master playlist does not declare the imported variable. Ignore.
+            // The multivariant playlist does not declare the imported variable. Ignore.
           }
         } else {
           variableDefinitions.put(

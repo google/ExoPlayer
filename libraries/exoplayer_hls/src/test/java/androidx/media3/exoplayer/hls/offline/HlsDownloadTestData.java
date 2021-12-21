@@ -20,11 +20,11 @@ import com.google.common.base.Charsets;
 /** Data for HLS downloading tests. */
 /* package */ interface HlsDownloadTestData {
 
-  String MASTER_PLAYLIST_URI = "test.m3u8";
-  int MASTER_MEDIA_PLAYLIST_1_INDEX = 0;
-  int MASTER_MEDIA_PLAYLIST_2_INDEX = 1;
-  int MASTER_MEDIA_PLAYLIST_3_INDEX = 2;
-  int MASTER_MEDIA_PLAYLIST_0_INDEX = 3;
+  String MULTIVARIANT_PLAYLIST_URI = "test.m3u8";
+  int MULTIVARIANT_MEDIA_PLAYLIST_1_INDEX = 0;
+  int MULTIVARIANT_MEDIA_PLAYLIST_2_INDEX = 1;
+  int MULTIVARIANT_MEDIA_PLAYLIST_3_INDEX = 2;
+  int MULTIVARIANT_MEDIA_PLAYLIST_0_INDEX = 3;
 
   String MEDIA_PLAYLIST_0_DIR = "gear0/";
   String MEDIA_PLAYLIST_0_URI = MEDIA_PLAYLIST_0_DIR + "prog_index.m3u8";
@@ -35,7 +35,7 @@ import com.google.common.base.Charsets;
   String MEDIA_PLAYLIST_3_DIR = "gear3/";
   String MEDIA_PLAYLIST_3_URI = MEDIA_PLAYLIST_3_DIR + "prog_index.m3u8";
 
-  byte[] MASTER_PLAYLIST_DATA =
+  byte[] MULTIVARIANT_PLAYLIST_DATA =
       ("#EXTM3U\n"
               + "#EXT-X-STREAM-INF:BANDWIDTH=232370,CODECS=\"mp4a.40.2, avc1.4d4015\"\n"
               + MEDIA_PLAYLIST_1_URI

@@ -27,9 +27,9 @@ import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
-import androidx.media3.exoplayer.hls.playlist.HlsMasterPlaylist;
-import androidx.media3.exoplayer.hls.playlist.HlsMasterPlaylist.Rendition;
-import androidx.media3.exoplayer.hls.playlist.HlsMasterPlaylist.Variant;
+import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist;
+import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist.Rendition;
+import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist.Variant;
 import androidx.media3.exoplayer.hls.playlist.HlsPlaylist;
 import androidx.media3.exoplayer.hls.playlist.HlsPlaylistTracker;
 import androidx.media3.exoplayer.source.CompositeSequenceableLoaderFactory;
@@ -51,9 +51,9 @@ import org.junit.runner.RunWith;
 public final class HlsMediaPeriodTest {
 
   @Test
-  public void getSteamKeys_isCompatibleWithHlsMasterPlaylistFilter() {
-    HlsMasterPlaylist testMasterPlaylist =
-        createMasterPlaylist(
+  public void getSteamKeys_isCompatibleWithHlsMultivariantPlaylistFilter() {
+    HlsMultivariantPlaylist testMultivariantPlaylist =
+        createMultivariantPlaylist(
             /* variants= */ Arrays.asList(
                 createAudioOnlyVariant(/* peakBitrate= */ 10000),
                 createMuxedVideoAudioVariant(/* peakBitrate= */ 200000),
@@ -76,7 +76,8 @@ public final class HlsMediaPeriodTest {
           HlsDataSourceFactory mockDataSourceFactory = mock(HlsDataSourceFactory.class);
           when(mockDataSourceFactory.createDataSource(anyInt())).thenReturn(mock(DataSource.class));
           HlsPlaylistTracker mockPlaylistTracker = mock(HlsPlaylistTracker.class);
-          when(mockPlaylistTracker.getMasterPlaylist()).thenReturn((HlsMasterPlaylist) playlist);
+          when(mockPlaylistTracker.getMultivariantPlaylist())
+              .thenReturn((HlsMultivariantPlaylist) playlist);
           MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
           return new HlsMediaPeriod(
               mock(HlsExtractorFactory.class),
@@ -98,16 +99,16 @@ public final class HlsMediaPeriodTest {
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
-        mediaPeriodFactory, testMasterPlaylist);
+        mediaPeriodFactory, testMultivariantPlaylist);
   }
 
-  private static HlsMasterPlaylist createMasterPlaylist(
+  private static HlsMultivariantPlaylist createMultivariantPlaylist(
       List<Variant> variants,
       List<Rendition> audios,
       List<Rendition> subtitles,
       Format muxedAudioFormat,
       List<Format> muxedCaptionFormats) {
-    return new HlsMasterPlaylist(
+    return new HlsMultivariantPlaylist(
         "http://baseUri",
         /* tags= */ Collections.emptyList(),
         variants,

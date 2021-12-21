@@ -81,8 +81,9 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
    *     DefaultTsPayloadReaderFactory} instances. Other flags may be added on top of {@code
    *     payloadReaderFactoryFlags} when creating {@link DefaultTsPayloadReaderFactory}.
    * @param exposeCea608WhenMissingDeclarations Whether created {@link TsExtractor} instances should
-   *     expose a CEA-608 track should the master playlist contain no Closed Captions declarations.
-   *     If the master playlist contains any Closed Captions declarations, this flag is ignored.
+   *     expose a CEA-608 track should the multivariant playlist contain no Closed Captions
+   *     declarations. If the multivariant playlist contains any Closed Captions declarations, this
+   *     flag is ignored.
    */
   public DefaultHlsExtractorFactory(
       int payloadReaderFactoryFlags, boolean exposeCea608WhenMissingDeclarations) {
