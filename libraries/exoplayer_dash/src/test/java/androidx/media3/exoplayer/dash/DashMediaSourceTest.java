@@ -23,7 +23,6 @@ import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.ParserException;
-import androidx.media3.common.StreamKey;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.util.Util;
@@ -37,7 +36,6 @@ import androidx.media3.exoplayer.upstream.ParsingLoadable;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -133,45 +131,6 @@ public final class DashMediaSourceTest {
     assertThat(dashMediaItem.localConfiguration).isNotNull();
     assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
     assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_emptyMediaItemStreamKeys_setsMediaItemStreamKeys() {
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(ImmutableList.of(streamKey));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_withMediaItemStreamKeys_doesNotOverrideMediaItemStreamKeys() {
-    StreamKey mediaItemStreamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri("http://www.google.com")
-            .setStreamKeys(ImmutableList.of(mediaItemStreamKey))
-            .build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(
-                ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 
   @Test

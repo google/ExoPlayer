@@ -42,7 +42,6 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.dash.PlayerEmsgHandler.PlayerEmsgCallback;
 import androidx.media3.exoplayer.dash.manifest.AdaptationSet;
@@ -85,7 +84,6 @@ import java.io.InputStreamReader;
 import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -106,14 +104,12 @@ public final class DashMediaSource extends BaseMediaSource {
     private final DashChunkSource.Factory chunkSourceFactory;
     @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
-    private boolean usingCustomDrmSessionManagerProvider;
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long targetLiveOffsetOverrideMs;
     private long fallbackTargetLiveOffsetMs;
     @Nullable private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
-    private List<StreamKey> streamKeys;
     @Nullable private Object tag;
 
     /**
@@ -145,7 +141,6 @@ public final class DashMediaSource extends BaseMediaSource {
       targetLiveOffsetOverrideMs = C.TIME_UNSET;
       fallbackTargetLiveOffsetMs = DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
-      streamKeys = Collections.emptyList();
     }
 
     /**
@@ -158,59 +153,13 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setStreamKeys(List)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public Factory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
-      this.streamKeys = streamKeys != null ? streamKeys : Collections.emptyList();
-      return this;
-    }
-
     @Override
     public Factory setDrmSessionManagerProvider(
         @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
-      if (drmSessionManagerProvider != null) {
-        this.drmSessionManagerProvider = drmSessionManagerProvider;
-        this.usingCustomDrmSessionManagerProvider = true;
-      } else {
-        this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
-        this.usingCustomDrmSessionManagerProvider = false;
-      }
-      return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      if (drmSessionManager == null) {
-        setDrmSessionManagerProvider(null);
-      } else {
-        setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
-      }
-      return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmHttpDataSourceFactory(
-        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      if (!usingCustomDrmSessionManagerProvider) {
-        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
-            .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
-      }
-      return this;
-    }
-
-    @Deprecated
-    @Override
-    public Factory setDrmUserAgent(@Nullable String userAgent) {
-      if (!usingCustomDrmSessionManagerProvider) {
-        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
-      }
+      this.drmSessionManagerProvider =
+          drmSessionManagerProvider != null
+              ? drmSessionManagerProvider
+              : new DefaultDrmSessionManagerProvider();
       return this;
     }
 
@@ -305,7 +254,6 @@ public final class DashMediaSource extends BaseMediaSource {
               .setUri(Uri.EMPTY)
               .setMediaId(DEFAULT_MEDIA_ID)
               .setMimeType(MimeTypes.APPLICATION_MPD)
-              .setStreamKeys(streamKeys)
               .setTag(tag)
               .build());
     }
@@ -337,14 +285,7 @@ public final class DashMediaSource extends BaseMediaSource {
                 .setTargetOffsetMs(targetLiveOffsetOverrideMs)
                 .build());
       }
-      if (mediaItem.localConfiguration == null
-          || mediaItem.localConfiguration.streamKeys.isEmpty()) {
-        mediaItemBuilder.setStreamKeys(streamKeys);
-      }
       mediaItem = mediaItemBuilder.build();
-      if (!checkNotNull(mediaItem.localConfiguration).streamKeys.isEmpty()) {
-        manifest = manifest.copy(streamKeys);
-      }
       return new DashMediaSource(
           mediaItem,
           manifest,
@@ -355,19 +296,6 @@ public final class DashMediaSource extends BaseMediaSource {
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           fallbackTargetLiveOffsetMs);
-    }
-
-    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public DashMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(
-          new MediaItem.Builder()
-              .setUri(uri)
-              .setMimeType(MimeTypes.APPLICATION_MPD)
-              .setTag(tag)
-              .build());
     }
 
     /**
@@ -384,27 +312,19 @@ public final class DashMediaSource extends BaseMediaSource {
       if (manifestParser == null) {
         manifestParser = new DashManifestParser();
       }
-      List<StreamKey> streamKeys =
-          mediaItem.localConfiguration.streamKeys.isEmpty()
-              ? this.streamKeys
-              : mediaItem.localConfiguration.streamKeys;
+      List<StreamKey> streamKeys = mediaItem.localConfiguration.streamKeys;
       if (!streamKeys.isEmpty()) {
         manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
 
       boolean needsTag = mediaItem.localConfiguration.tag == null && tag != null;
-      boolean needsStreamKeys =
-          mediaItem.localConfiguration.streamKeys.isEmpty() && !streamKeys.isEmpty();
       boolean needsTargetLiveOffset =
           mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
               && targetLiveOffsetOverrideMs != C.TIME_UNSET;
-      if (needsTag || needsStreamKeys || needsTargetLiveOffset) {
+      if (needsTag || needsTargetLiveOffset) {
         MediaItem.Builder builder = mediaItem.buildUpon();
         if (needsTag) {
           builder.setTag(tag);
-        }
-        if (needsStreamKeys) {
-          builder.setStreamKeys(streamKeys);
         }
         if (needsTargetLiveOffset) {
           builder.setLiveConfiguration(

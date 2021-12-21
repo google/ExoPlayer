@@ -29,9 +29,7 @@ import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.TransferListener;
-import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
 import androidx.media3.exoplayer.source.BaseMediaSource;
 import androidx.media3.exoplayer.source.ForwardingTimeline;
@@ -62,9 +60,6 @@ public final class RtspMediaSource extends BaseMediaSource {
    *
    * <ul>
    *   <li>{@link #setDrmSessionManagerProvider(DrmSessionManagerProvider)}
-   *   <li>{@link #setDrmSessionManager(DrmSessionManager)}
-   *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}
-   *   <li>{@link #setDrmUserAgent(String)}
    *   <li>{@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)}
    * </ul>
    */
@@ -154,40 +149,6 @@ public final class RtspMediaSource extends BaseMediaSource {
     @Override
     public Factory setDrmSessionManagerProvider(
         @Nullable DrmSessionManagerProvider drmSessionManager) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmHttpDataSourceFactory(
-        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      return this;
-    }
-
-    /**
-     * Does nothing. {@link RtspMediaSource} does not support DRM.
-     *
-     * @deprecated {@link RtspMediaSource} does not support DRM.
-     */
-    @Deprecated
-    @Override
-    public Factory setDrmUserAgent(@Nullable String userAgent) {
       return this;
     }
 

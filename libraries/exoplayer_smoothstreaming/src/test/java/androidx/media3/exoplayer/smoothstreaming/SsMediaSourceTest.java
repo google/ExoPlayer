@@ -19,10 +19,8 @@ import static androidx.media3.common.util.Util.castNonNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.StreamKey;
 import androidx.media3.datasource.FileDataSource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,46 +62,5 @@ public class SsMediaSourceTest {
     assertThat(ssMediaItem.localConfiguration.uri)
         .isEqualTo(castNonNull(mediaItem.localConfiguration).uri);
     assertThat(ssMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_emptyMediaItemStreamKeys_setsMediaItemStreamKeys() {
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    SsMediaSource.Factory factory =
-        new SsMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(Collections.singletonList(streamKey));
-
-    MediaItem ssMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(ssMediaItem.localConfiguration).isNotNull();
-    assertThat(ssMediaItem.localConfiguration.uri)
-        .isEqualTo(castNonNull(mediaItem.localConfiguration).uri);
-    assertThat(ssMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_withMediaItemStreamKeys_doesNotOverrideMediaItemStreamKeys() {
-    StreamKey mediaItemStreamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri("http://www.google.com")
-            .setStreamKeys(Collections.singletonList(mediaItemStreamKey))
-            .build();
-    SsMediaSource.Factory factory =
-        new SsMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(
-                Collections.singletonList(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
-
-    MediaItem ssMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(ssMediaItem.localConfiguration).isNotNull();
-    assertThat(ssMediaItem.localConfiguration.uri)
-        .isEqualTo(castNonNull(mediaItem.localConfiguration).uri);
-    assertThat(ssMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 }
