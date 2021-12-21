@@ -44,8 +44,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final Format inputFormat;
   private final Transformation transformation;
+  private final Codec.EncoderFactory encoderFactory;
 
-  private final MediaCodecAdapterWrapper decoder;
+  private final Codec decoder;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private final SonicAudioProcessor sonicAudioProcessor;
@@ -55,7 +56,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final DecoderInputBuffer encoderOutputBuffer;
 
   private @MonotonicNonNull AudioFormat encoderInputAudioFormat;
-  private @MonotonicNonNull MediaCodecAdapterWrapper encoder;
+  private @MonotonicNonNull Codec encoder;
   private long nextEncoderInputBufferTimeUs;
   private long encoderBufferDurationRemainder;
 
@@ -63,10 +64,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean drainingSonicForSpeedChange;
   private float currentSpeed;
 
-  public AudioSamplePipeline(Format inputFormat, Transformation transformation)
+  public AudioSamplePipeline(
+      Format inputFormat,
+      Transformation transformation,
+      Codec.EncoderFactory encoderFactory,
+      Codec.DecoderFactory decoderFactory)
       throws TransformationException {
     this.inputFormat = inputFormat;
     this.transformation = transformation;
+    this.encoderFactory = encoderFactory;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderInputBuffer =
@@ -77,7 +83,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
     speedProvider = new SegmentSpeedProvider(inputFormat);
     currentSpeed = speedProvider.getSpeed(0);
-    this.decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
+    this.decoder = decoderFactory.createForAudioDecoding(inputFormat);
   }
 
   @Override
@@ -301,7 +307,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
     encoder =
-        MediaCodecAdapterWrapper.createForAudioEncoding(
+        encoderFactory.createForAudioEncoding(
             new Format.Builder()
                 .setSampleMimeType(
                     transformation.audioMimeType == null

@@ -34,6 +34,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final String TAG = "TVideoRenderer";
 
   private final Context context;
+  private final Codec.EncoderFactory encoderFactory;
+  private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
   private final DecoderInputBuffer decoderInputBuffer;
 
@@ -44,9 +46,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
       Transformation transformation,
+      Codec.EncoderFactory encoderFactory,
+      Codec.DecoderFactory decoderFactory,
       Transformer.DebugViewProvider debugViewProvider) {
     super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformation);
     this.context = context;
+    this.encoderFactory = encoderFactory;
+    this.decoderFactory = decoderFactory;
     this.debugViewProvider = debugViewProvider;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -72,7 +78,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldTranscode(inputFormat)) {
       samplePipeline =
-          new VideoSamplePipeline(context, inputFormat, transformation, debugViewProvider);
+          new VideoSamplePipeline(
+              context,
+              inputFormat,
+              transformation,
+              encoderFactory,
+              decoderFactory,
+              debugViewProvider);
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }

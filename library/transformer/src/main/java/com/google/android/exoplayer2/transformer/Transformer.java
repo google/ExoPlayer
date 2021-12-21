@@ -107,6 +107,7 @@ public final class Transformer {
     private DebugViewProvider debugViewProvider;
     private Looper looper;
     private Clock clock;
+    private Codec.EncoderFactory encoderFactory;
 
     /** @deprecated Use {@link #Builder(Context)} instead. */
     @Deprecated
@@ -118,6 +119,7 @@ public final class Transformer {
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
+      encoderFactory = Codec.EncoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
     }
 
@@ -135,6 +137,7 @@ public final class Transformer {
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
+      encoderFactory = Codec.EncoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
     }
 
@@ -153,6 +156,7 @@ public final class Transformer {
       this.videoMimeType = transformer.transformation.videoMimeType;
       this.listener = transformer.listener;
       this.looper = transformer.looper;
+      this.encoderFactory = transformer.encoderFactory;
       this.debugViewProvider = transformer.debugViewProvider;
       this.clock = transformer.clock;
     }
@@ -361,6 +365,18 @@ public final class Transformer {
     }
 
     /**
+     * Sets the {@link Codec.EncoderFactory} that will be used by the transformer. The default value
+     * is {@link Codec.EncoderFactory#DEFAULT}.
+     *
+     * @param encoderFactory The {@link Codec.EncoderFactory} instance.
+     * @return This builder.
+     */
+    public Builder setEncoderFactory(Codec.EncoderFactory encoderFactory) {
+      this.encoderFactory = encoderFactory;
+      return this;
+    }
+
+    /**
      * Sets a provider for views to show diagnostic information (if available) during
      * transformation. This is intended for debugging. The default value is {@link
      * DebugViewProvider#NONE}, which doesn't show any debug info.
@@ -448,6 +464,8 @@ public final class Transformer {
           listener,
           looper,
           clock,
+          encoderFactory,
+          Codec.DecoderFactory.DEFAULT,
           debugViewProvider);
     }
 
@@ -536,6 +554,8 @@ public final class Transformer {
   private final Transformation transformation;
   private final Looper looper;
   private final Clock clock;
+  private final Codec.EncoderFactory encoderFactory;
+  private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
 
   private Transformer.Listener listener;
@@ -551,6 +571,8 @@ public final class Transformer {
       Transformer.Listener listener,
       Looper looper,
       Clock clock,
+      Codec.EncoderFactory encoderFactory,
+      Codec.DecoderFactory decoderFactory,
       Transformer.DebugViewProvider debugViewProvider) {
     checkState(
         !transformation.removeAudio || !transformation.removeVideo,
@@ -562,6 +584,8 @@ public final class Transformer {
     this.listener = listener;
     this.looper = looper;
     this.clock = clock;
+    this.encoderFactory = encoderFactory;
+    this.decoderFactory = decoderFactory;
     this.debugViewProvider = debugViewProvider;
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
@@ -662,7 +686,12 @@ public final class Transformer {
         new ExoPlayer.Builder(
                 context,
                 new TransformerRenderersFactory(
-                    context, muxerWrapper, transformation, debugViewProvider))
+                    context,
+                    muxerWrapper,
+                    transformation,
+                    encoderFactory,
+                    decoderFactory,
+                    debugViewProvider))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
@@ -751,16 +780,22 @@ public final class Transformer {
     private final MuxerWrapper muxerWrapper;
     private final TransformerMediaClock mediaClock;
     private final Transformation transformation;
+    private final Codec.EncoderFactory encoderFactory;
+    private final Codec.DecoderFactory decoderFactory;
     private final Transformer.DebugViewProvider debugViewProvider;
 
     public TransformerRenderersFactory(
         Context context,
         MuxerWrapper muxerWrapper,
         Transformation transformation,
+        Codec.EncoderFactory encoderFactory,
+        Codec.DecoderFactory decoderFactory,
         Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
       this.transformation = transformation;
+      this.encoderFactory = encoderFactory;
+      this.decoderFactory = decoderFactory;
       this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
@@ -776,13 +811,21 @@ public final class Transformer {
       Renderer[] renderers = new Renderer[rendererCount];
       int index = 0;
       if (!transformation.removeAudio) {
-        renderers[index] = new TransformerAudioRenderer(muxerWrapper, mediaClock, transformation);
+        renderers[index] =
+            new TransformerAudioRenderer(
+                muxerWrapper, mediaClock, transformation, encoderFactory, decoderFactory);
         index++;
       }
       if (!transformation.removeVideo) {
         renderers[index] =
             new TransformerVideoRenderer(
-                context, muxerWrapper, mediaClock, transformation, debugViewProvider);
+                context,
+                muxerWrapper,
+                mediaClock,
+                transformation,
+                encoderFactory,
+                decoderFactory,
+                debugViewProvider);
         index++;
       }
       return renderers;

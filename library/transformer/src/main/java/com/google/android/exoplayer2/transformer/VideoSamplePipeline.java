@@ -27,7 +27,6 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.common.collect.ImmutableMap;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -39,9 +38,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final int outputRotationDegrees;
   private final DecoderInputBuffer decoderInputBuffer;
-  private final MediaCodecAdapterWrapper decoder;
+  private final Codec decoder;
 
-  private final MediaCodecAdapterWrapper encoder;
+  private final Codec encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
 
   private @MonotonicNonNull FrameEditor frameEditor;
@@ -52,6 +51,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Context context,
       Format inputFormat,
       Transformation transformation,
+      Codec.EncoderFactory encoderFactory,
+      Codec.DecoderFactory decoderFactory,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
     decoderInputBuffer =
@@ -85,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     transformation.transformationMatrix.postRotate(outputRotationDegrees);
 
     encoder =
-        MediaCodecAdapterWrapper.createForVideoEncoding(
+        encoderFactory.createForVideoEncoding(
             new Format.Builder()
                 .setWidth(outputWidth)
                 .setHeight(outputHeight)
@@ -94,8 +95,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     transformation.videoMimeType != null
                         ? transformation.videoMimeType
                         : inputFormat.sampleMimeType)
-                .build(),
-            ImmutableMap.of());
+                .build());
     if (inputFormat.height != outputHeight
         || inputFormat.width != outputWidth
         || !transformation.transformationMatrix.isIdentity()) {
@@ -109,7 +109,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               debugViewProvider);
     }
     decoder =
-        MediaCodecAdapterWrapper.createForVideoDecoding(
+        decoderFactory.createForVideoDecoding(
             inputFormat,
             frameEditor == null
                 ? checkNotNull(encoder.getInputSurface())
