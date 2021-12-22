@@ -93,10 +93,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
  * configure the factory with the required providers.
  */
-@UnstableApi
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /** @deprecated Use {@link AdsLoader.Provider} instead. */
+  @UnstableApi
   @Deprecated
   public interface AdsLoaderProvider extends AdsLoader.Provider {}
 
@@ -132,6 +132,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
    *     its container.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory(Context context, ExtractorsFactory extractorsFactory) {
     this(
         new DefaultDataSource.Factory(context),
@@ -145,6 +146,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param dataSourceFactory A {@link DataSource.Factory} to create {@link DataSource} instances
    *     for requesting media data.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory(DataSource.Factory dataSourceFactory) {
     this(
         dataSourceFactory,
@@ -162,6 +164,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param serverSideDaiMediaSourceFactory A {@link MediaSourceFactory} for creating server side
    *     inserted ad media sources.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory,
@@ -189,6 +192,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     should be used for subtitles instead of {@link SingleSampleMediaSource}.
    * @return This factory, for convenience.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory experimentalUseProgressiveMediaSourceForSubtitles(
       boolean useProgressiveMediaSourceForSubtitles) {
     this.useProgressiveMediaSourceForSubtitles = useProgressiveMediaSourceForSubtitles;
@@ -226,6 +230,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     use the media-defined default.
    * @return This factory, for convenience.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory setLiveTargetOffsetMs(long liveTargetOffsetMs) {
     this.liveTargetOffsetMs = liveTargetOffsetMs;
     return this;
@@ -238,6 +243,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#TIME_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory setLiveMinOffsetMs(long liveMinOffsetMs) {
     this.liveMinOffsetMs = liveMinOffsetMs;
     return this;
@@ -250,6 +256,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#TIME_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory setLiveMaxOffsetMs(long liveMaxOffsetMs) {
     this.liveMaxOffsetMs = liveMaxOffsetMs;
     return this;
@@ -262,6 +269,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory setLiveMinSpeed(float minSpeed) {
     this.liveMinSpeed = minSpeed;
     return this;
@@ -274,11 +282,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
+  @UnstableApi
   public DefaultMediaSourceFactory setLiveMaxSpeed(float maxSpeed) {
     this.liveMaxSpeed = maxSpeed;
     return this;
   }
 
+  @UnstableApi
   @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
       @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
@@ -286,6 +296,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  @UnstableApi
   @Override
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(
       @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
@@ -294,11 +305,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  @UnstableApi
   @Override
   public int[] getSupportedTypes() {
     return delegateFactoryLoader.getSupportedTypes();
   }
 
+  @UnstableApi
   @Override
   public MediaSource createMediaSource(MediaItem mediaItem) {
     Assertions.checkNotNull(mediaItem.localConfiguration);

@@ -31,7 +31,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /** Provides information about an overlay view shown on top of an ad view group. */
-@UnstableApi
 public final class AdOverlayInfo {
 
   /**
@@ -97,12 +96,14 @@ public final class AdOverlayInfo {
   @Nullable public final String reasonDetail;
 
   /** @deprecated Use {@link Builder} instead. */
+  @UnstableApi
   @Deprecated
   public AdOverlayInfo(View view, @Purpose int purpose) {
     this(view, purpose, /* detailedReason= */ null);
   }
 
   /** @deprecated Use {@link Builder} instead. */
+  @UnstableApi
   @Deprecated
   public AdOverlayInfo(View view, @Purpose int purpose, @Nullable String detailedReason) {
     this.view = view;

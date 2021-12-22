@@ -17,12 +17,10 @@ package androidx.media3.common;
 
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /** Provides information about views for the ad playback UI. */
-@UnstableApi
 public interface AdViewProvider {
 
   /**

@@ -26,13 +26,13 @@ import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 
 /** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
-@UnstableApi
 public interface MediaSourceFactory {
 
   /**
    * An instance that throws {@link UnsupportedOperationException} from {@link #createMediaSource}
    * and {@link #getSupportedTypes()}.
    */
+  @UnstableApi
   MediaSourceFactory UNSUPPORTED =
       new MediaSourceFactory() {
         @Override
@@ -67,6 +67,7 @@ public interface MediaSourceFactory {
    *
    * @return This factory, for convenience.
    */
+  @UnstableApi
   MediaSourceFactory setDrmSessionManagerProvider(
       @Nullable DrmSessionManagerProvider drmSessionManagerProvider);
 
@@ -77,6 +78,7 @@ public interface MediaSourceFactory {
    *     {@link DefaultLoadErrorHandlingPolicy}.
    * @return This factory, for convenience.
    */
+  @UnstableApi
   MediaSourceFactory setLoadErrorHandlingPolicy(
       @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
 
@@ -84,6 +86,7 @@ public interface MediaSourceFactory {
    * Returns the {@link C.ContentType content types} supported by media sources created by this
    * factory.
    */
+  @UnstableApi
   @C.ContentType
   int[] getSupportedTypes();
 
@@ -93,5 +96,6 @@ public interface MediaSourceFactory {
    * @param mediaItem The media item to play.
    * @return The new {@link MediaSource media source}.
    */
+  @UnstableApi
   MediaSource createMediaSource(MediaItem mediaItem);
 }

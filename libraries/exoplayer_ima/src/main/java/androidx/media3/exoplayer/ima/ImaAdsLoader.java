@@ -87,7 +87,6 @@ import java.util.Set;
  * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">IMA
  * SDK Open Measurement documentation</a> for more information.
  */
-@UnstableApi
 public final class ImaAdsLoader implements AdsLoader {
 
   static {
@@ -106,7 +105,7 @@ public final class ImaAdsLoader implements AdsLoader {
      *
      * @see #setAdPreloadTimeoutMs(long)
      */
-    public static final long DEFAULT_AD_PRELOAD_TIMEOUT_MS = 10 * C.MILLIS_PER_SECOND;
+    @UnstableApi public static final long DEFAULT_AD_PRELOAD_TIMEOUT_MS = 10 * C.MILLIS_PER_SECOND;
 
     private final Context context;
 
@@ -152,6 +151,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @param imaSdkSettings The {@link ImaSdkSettings}.
      * @return This builder, for convenience.
      */
+    @UnstableApi
     public Builder setImaSdkSettings(ImaSdkSettings imaSdkSettings) {
       this.imaSdkSettings = checkNotNull(imaSdkSettings);
       return this;
@@ -165,6 +165,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @param adErrorListener The ad error listener.
      * @return This builder, for convenience.
      */
+    @UnstableApi
     public Builder setAdErrorListener(AdErrorListener adErrorListener) {
       this.adErrorListener = checkNotNull(adErrorListener);
       return this;
@@ -177,6 +178,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @param adEventListener The ad event listener.
      * @return This builder, for convenience.
      */
+    @UnstableApi
     public Builder setAdEventListener(AdEventListener adEventListener) {
       this.adEventListener = checkNotNull(adEventListener);
       return this;
@@ -192,6 +194,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback
      */
+    @UnstableApi
     public Builder setVideoAdPlayerCallback(
         VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback) {
       this.videoAdPlayerCallback = checkNotNull(videoAdPlayerCallback);
@@ -205,6 +208,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setUiElements(Set)
      */
+    @UnstableApi
     public Builder setAdUiElements(Set<UiElement> adUiElements) {
       this.adUiElements = ImmutableSet.copyOf(checkNotNull(adUiElements));
       return this;
@@ -217,6 +221,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdDisplayContainer#setCompanionSlots(Collection)
      */
+    @UnstableApi
     public Builder setCompanionAdSlots(Collection<CompanionAdSlot> companionAdSlots) {
       this.companionAdSlots = ImmutableList.copyOf(checkNotNull(companionAdSlots));
       return this;
@@ -234,6 +239,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setMimeTypes(List)
      */
+    @UnstableApi
     public Builder setAdMediaMimeTypes(List<String> adMediaMimeTypes) {
       this.adMediaMimeTypes = ImmutableList.copyOf(checkNotNull(adMediaMimeTypes));
       return this;
@@ -248,6 +254,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRequest#setContinuousPlayback(boolean)
      */
+    @UnstableApi
     public Builder setEnableContinuousPlayback(boolean enableContinuousPlayback) {
       this.enableContinuousPlayback = enableContinuousPlayback;
       return this;
@@ -266,6 +273,7 @@ public final class ImaAdsLoader implements AdsLoader {
      *     C#TIME_UNSET} for no timeout.
      * @return This builder, for convenience.
      */
+    @UnstableApi
     public Builder setAdPreloadTimeoutMs(long adPreloadTimeoutMs) {
       checkArgument(adPreloadTimeoutMs == C.TIME_UNSET || adPreloadTimeoutMs > 0);
       this.adPreloadTimeoutMs = adPreloadTimeoutMs;
@@ -279,6 +287,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRequest#setVastLoadTimeout(float)
      */
+    @UnstableApi
     public Builder setVastLoadTimeoutMs(@IntRange(from = 1) int vastLoadTimeoutMs) {
       checkArgument(vastLoadTimeoutMs > 0);
       this.vastLoadTimeoutMs = vastLoadTimeoutMs;
@@ -292,6 +301,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setLoadVideoTimeout(int)
      */
+    @UnstableApi
     public Builder setMediaLoadTimeoutMs(@IntRange(from = 1) int mediaLoadTimeoutMs) {
       checkArgument(mediaLoadTimeoutMs > 0);
       this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
@@ -305,6 +315,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setBitrateKbps(int)
      */
+    @UnstableApi
     public Builder setMaxMediaBitrate(@IntRange(from = 1) int bitrate) {
       checkArgument(bitrate > 0);
       this.mediaBitrate = bitrate;
@@ -320,6 +331,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setFocusSkipButtonWhenAvailable(boolean)
      */
+    @UnstableApi
     public Builder setFocusSkipButtonWhenAvailable(boolean focusSkipButtonWhenAvailable) {
       this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
       return this;
@@ -335,6 +347,7 @@ public final class ImaAdsLoader implements AdsLoader {
      *     beginning playback.
      * @return This builder, for convenience.
      */
+    @UnstableApi
     public Builder setPlayAdBeforeStartPosition(boolean playAdBeforeStartPosition) {
       this.playAdBeforeStartPosition = playAdBeforeStartPosition;
       return this;
@@ -350,6 +363,7 @@ public final class ImaAdsLoader implements AdsLoader {
      * @return This builder, for convenience.
      * @see ImaSdkSettings#setDebugMode(boolean)
      */
+    @UnstableApi
     public Builder setDebugModeEnabled(boolean debugModeEnabled) {
       this.debugModeEnabled = debugModeEnabled;
       return this;
@@ -417,6 +431,7 @@ public final class ImaAdsLoader implements AdsLoader {
    * Returns the underlying {@link com.google.ads.interactivemedia.v3.api.AdsLoader} wrapped by this
    * instance, or {@code null} if ads have not been requested yet.
    */
+  @UnstableApi
   @Nullable
   public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
     return currentAdTagLoader != null ? currentAdTagLoader.getAdsLoader() : null;
@@ -433,6 +448,7 @@ public final class ImaAdsLoader implements AdsLoader {
    * the {@link AdViewProvider} when creating the media source to benefit from automatic
    * registration.
    */
+  @UnstableApi
   @Nullable
   public AdDisplayContainer getAdDisplayContainer() {
     return currentAdTagLoader != null ? currentAdTagLoader.getAdDisplayContainer() : null;
@@ -451,6 +467,7 @@ public final class ImaAdsLoader implements AdsLoader {
    * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI, or {@code
    *     null} if playing audio-only ads.
    */
+  @UnstableApi
   public void requestAds(DataSpec adTagDataSpec, Object adsId, @Nullable ViewGroup adViewGroup) {
     if (!adTagLoaderByAdsId.containsKey(adsId)) {
       AdTagLoader adTagLoader =
@@ -473,6 +490,7 @@ public final class ImaAdsLoader implements AdsLoader {
    * UI for users to skip skippable ads. Apps showing video ads should not call this method, as the
    * IMA SDK provides the UI to skip ads in the ad view group passed via {@link AdViewProvider}.
    */
+  @UnstableApi
   public void skipAd() {
     if (currentAdTagLoader != null) {
       currentAdTagLoader.skipAd();
@@ -483,6 +501,7 @@ public final class ImaAdsLoader implements AdsLoader {
    * Moves UI focus to the skip button (or other interactive elements), if currently shown. See
    * {@link AdsManager#focus()}.
    */
+  @UnstableApi
   public void focusSkipButton() {
     if (currentAdTagLoader != null) {
       currentAdTagLoader.focusSkipButton();
@@ -499,6 +518,7 @@ public final class ImaAdsLoader implements AdsLoader {
     wasSetPlayerCalled = true;
   }
 
+  @UnstableApi
   @Override
   public void setSupportedContentTypes(@C.ContentType int... contentTypes) {
     List<String> supportedMimeTypes = new ArrayList<>();
@@ -521,6 +541,7 @@ public final class ImaAdsLoader implements AdsLoader {
     this.supportedMimeTypes = Collections.unmodifiableList(supportedMimeTypes);
   }
 
+  @UnstableApi
   @Override
   public void start(
       AdsMediaSource adsMediaSource,
@@ -549,6 +570,7 @@ public final class ImaAdsLoader implements AdsLoader {
     maybeUpdateCurrentAdTagLoader();
   }
 
+  @UnstableApi
   @Override
   public void stop(AdsMediaSource adsMediaSource, EventListener eventListener) {
     @Nullable AdTagLoader removedAdTagLoader = adTagLoaderByAdsMediaSource.remove(adsMediaSource);
@@ -583,6 +605,7 @@ public final class ImaAdsLoader implements AdsLoader {
     adTagLoaderByAdsId.clear();
   }
 
+  @UnstableApi
   @Override
   public void handlePrepareComplete(
       AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup) {
@@ -593,6 +616,7 @@ public final class ImaAdsLoader implements AdsLoader {
         .handlePrepareComplete(adGroupIndex, adIndexInAdGroup);
   }
 
+  @UnstableApi
   @Override
   public void handlePrepareError(
       AdsMediaSource adsMediaSource,

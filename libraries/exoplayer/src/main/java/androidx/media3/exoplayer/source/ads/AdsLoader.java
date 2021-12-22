@@ -47,7 +47,6 @@ import java.io.IOException;
  * implementation of {@link #start(AdsMediaSource, DataSpec, Object, AdViewProvider, EventListener)}
  * should invoke the same listener to provide the existing playback state to the new player.
  */
-@UnstableApi
 public interface AdsLoader {
 
   /**
@@ -69,6 +68,7 @@ public interface AdsLoader {
   }
 
   /** Listener for ads loader events. All methods are called on the main thread. */
+  @UnstableApi
   interface EventListener {
 
     /**
@@ -126,6 +126,7 @@ public interface AdsLoader {
    * @param contentTypes The supported content types for ad media. Each element must be one of
    *     {@link C#TYPE_DASH}, {@link C#TYPE_HLS}, {@link C#TYPE_SS} and {@link C#TYPE_OTHER}.
    */
+  @UnstableApi
   void setSupportedContentTypes(@C.ContentType int... contentTypes);
 
   /**
@@ -137,6 +138,7 @@ public interface AdsLoader {
    * @param adViewProvider Provider of views for the ad UI.
    * @param eventListener Listener for ads loader events.
    */
+  @UnstableApi
   void start(
       AdsMediaSource adsMediaSource,
       DataSpec adTagDataSpec,
@@ -151,6 +153,7 @@ public interface AdsLoader {
    * @param adsMediaSource The ads media source requesting to stop loading/playing ads.
    * @param eventListener The ads media source's listener for ads loader events.
    */
+  @UnstableApi
   void stop(AdsMediaSource adsMediaSource, EventListener eventListener);
 
   /**
@@ -161,6 +164,7 @@ public interface AdsLoader {
    * @param adGroupIndex The index of the ad group.
    * @param adIndexInAdGroup The index of the ad in the ad group.
    */
+  @UnstableApi
   void handlePrepareComplete(AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup);
 
   /**
@@ -173,6 +177,7 @@ public interface AdsLoader {
    * @param adIndexInAdGroup The index of the ad in the ad group.
    * @param exception The preparation error.
    */
+  @UnstableApi
   void handlePrepareError(
       AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup, IOException exception);
 }

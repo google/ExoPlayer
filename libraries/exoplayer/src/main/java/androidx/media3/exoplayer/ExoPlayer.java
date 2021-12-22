@@ -630,7 +630,6 @@ public interface ExoPlayer extends Player {
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
-    @UnstableApi
     public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
       checkState(!buildCalled);
       this.mediaSourceFactorySupplier = () -> mediaSourceFactory;
