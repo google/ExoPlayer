@@ -29,7 +29,7 @@ import androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition;
 
 /** Fake {@link MediaSourceFactory} that creates a {@link FakeMediaSource}. */
 @UnstableApi
-public class FakeMediaSourceFactory implements MediaSourceFactory {
+public final class FakeMediaSourceFactory implements MediaSourceFactory {
 
   /** The window UID used by media sources that are created by the factory. */
   public static final Object DEFAULT_WINDOW_UID = new Object();
