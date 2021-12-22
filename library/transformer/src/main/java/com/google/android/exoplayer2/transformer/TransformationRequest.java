@@ -20,7 +20,7 @@ import android.graphics.Matrix;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
@@ -92,8 +92,8 @@ public final class TransformationRequest {
      *   <li>The recording frame rate of the video is 120 or 240 fps.
      * </ul>
      *
-     * <p>If specifying a {@link MediaSourceFactory} using {@link
-     * Transformer.Builder#setMediaSourceFactory(MediaSourceFactory)}, make sure that {@link
+     * <p>If specifying a {@link MediaSource.Factory} using {@link
+     * Transformer.Builder#setMediaSourceFactory(MediaSource.Factory)}, make sure that {@link
      * Mp4Extractor#FLAG_READ_SEF_DATA} is set on the {@link Mp4Extractor} used. Otherwise, the slow
      * motion metadata will be ignored and the input won't be flattened.
      *

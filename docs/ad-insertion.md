@@ -49,7 +49,7 @@ build and inject a `DefaultMediaSourceFactory` configured with an
 `AdsLoader.Provider` and an `AdViewProvider` when creating the player:
 
 ~~~
-MediaSourceFactory mediaSourceFactory =
+MediaSource.Factory mediaSourceFactory =
     new DefaultMediaSourceFactory(context)
         .setAdsLoaderProvider(adsLoaderProvider)
         .setAdViewProvider(playerView);

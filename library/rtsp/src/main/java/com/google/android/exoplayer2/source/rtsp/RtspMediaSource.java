@@ -61,6 +61,7 @@ public final class RtspMediaSource extends BaseMediaSource {
    *   <li>{@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)}
    * </ul>
    */
+  @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
   public static final class Factory implements MediaSourceFactory {
 
     private long timeoutMs;

@@ -17,12 +17,18 @@ package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
@@ -46,6 +52,52 @@ import java.io.IOException;
  * re-used, but only for one {@link ExoPlayer} instance simultaneously.
  */
 public interface MediaSource {
+
+  /** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
+  interface Factory {
+
+    /**
+     * An instance that throws {@link UnsupportedOperationException} from {@link #createMediaSource}
+     * and {@link #getSupportedTypes()}.
+     */
+    @SuppressWarnings("deprecation")
+    Factory UNSUPPORTED = MediaSourceFactory.UNSUPPORTED;
+
+    /**
+     * Sets the {@link DrmSessionManagerProvider} used to obtain a {@link DrmSessionManager} for a
+     * {@link MediaItem}.
+     *
+     * <p>If not set, {@link DefaultDrmSessionManagerProvider} is used.
+     *
+     * @return This factory, for convenience.
+     */
+    Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider);
+
+    /**
+     * Sets an optional {@link LoadErrorHandlingPolicy}.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}, or {@code null} to use the
+     *     {@link DefaultLoadErrorHandlingPolicy}.
+     * @return This factory, for convenience.
+     */
+    Factory setLoadErrorHandlingPolicy(@Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
+
+    /**
+     * Returns the {@link C.ContentType content types} supported by media sources created by this
+     * factory.
+     */
+    @C.ContentType
+    int[] getSupportedTypes();
+
+    /**
+     * Creates a new {@link MediaSource} with the specified {@link MediaItem}.
+     *
+     * @param mediaItem The media item to play.
+     * @return The new {@link MediaSource media source}.
+     */
+    MediaSource createMediaSource(MediaItem mediaItem);
+  }
 
   /** A caller of media sources, which will be notified of source events. */
   interface MediaSourceCaller {

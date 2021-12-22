@@ -41,7 +41,7 @@ transformer.startTransformation(inputMediaItem, outputPath);
 ~~~
 {: .language-java}
 
-Other parameters, such as the `MediaSourceFactory`, can be passed to the
+Other parameters, such as the `MediaSource.Factory`, can be passed to the
 builder.
 
 `startTransformation` receives a `MediaItem` describing the input, and a path or

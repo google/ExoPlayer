@@ -51,7 +51,6 @@ import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
@@ -93,7 +92,7 @@ public final class Transformer {
     private @MonotonicNonNull Context context;
 
     // Optional fields.
-    private @MonotonicNonNull MediaSourceFactory mediaSourceFactory;
+    private MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
     private Muxer.Factory muxerFactory;
     private boolean removeAudio;
     private boolean removeVideo;
@@ -171,14 +170,14 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link MediaSourceFactory} to be used to retrieve the inputs to transform. The
+     * Sets the {@link MediaSource.Factory} to be used to retrieve the inputs to transform. The
      * default value is a {@link DefaultMediaSourceFactory} built with the context provided in
      * {@link #Builder(Context) the constructor}.
      *
-     * @param mediaSourceFactory A {@link MediaSourceFactory}.
+     * @param mediaSourceFactory A {@link MediaSource.Factory}.
      * @return This builder.
      */
-    public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+    public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       this.mediaSourceFactory = mediaSourceFactory;
       return this;
     }
@@ -471,7 +470,7 @@ public final class Transformer {
   public static final int PROGRESS_STATE_NO_TRANSFORMATION = 4;
 
   private final Context context;
-  private final MediaSourceFactory mediaSourceFactory;
+  private final MediaSource.Factory mediaSourceFactory;
   private final Muxer.Factory muxerFactory;
   private final boolean removeAudio;
   private final boolean removeVideo;
@@ -490,7 +489,7 @@ public final class Transformer {
 
   private Transformer(
       Context context,
-      MediaSourceFactory mediaSourceFactory,
+      MediaSource.Factory mediaSourceFactory,
       Muxer.Factory muxerFactory,
       boolean removeAudio,
       boolean removeVideo,

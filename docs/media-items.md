@@ -4,7 +4,7 @@ title: Media items
 
 The [playlist API][] is based on `MediaItem`s, which can be conveniently built
 using `MediaItem.Builder`. Inside the player, media items are converted into
-playable `MediaSource`s by a `MediaSourceFactory`. Without
+playable `MediaSource`s by a `MediaSource.Factory`. Without
 [custom configuration]({{ site.baseurl }}/media-sources.html#customizing-media-source-creation),
 this conversion is carried out by a `DefaultMediaSourceFactory`, which is
 capable of building complex media sources corresponding to the properties of the

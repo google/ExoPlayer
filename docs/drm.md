@@ -85,7 +85,7 @@ building the media item.
 
 If an app wants to customise the `DrmSessionManager` used for playback, they can
 implement a `DrmSessionManagerProvider` and pass this to the
-`MediaSourceFactory` which is [used when building the player]. The provider can
+`MediaSource.Factory` which is [used when building the player]. The provider can
 choose whether to instantiate a new manager instance each time or not. To always
 use the same instance:
 
@@ -93,7 +93,7 @@ use the same instance:
 DrmSessionManager customDrmSessionManager =
     new CustomDrmSessionManager(/* ... */);
 // Pass a drm session manager provider to the media source factory.
-MediaSourceFactory mediaSourceFactory =
+MediaSource.Factory mediaSourceFactory =
     new DefaultMediaSourceFactory(dataSourceFactory)
         .setDrmSessionManagerProvider(mediaItem -> customDrmSessionManager);
 ~~~

@@ -27,6 +27,8 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Util;
 
 /** Fake {@link MediaSourceFactory} that creates a {@link FakeMediaSource}. */
+// Implement and return deprecated type for backwards compatibility.
+@SuppressWarnings("deprecation")
 public final class FakeMediaSourceFactory implements MediaSourceFactory {
 
   /** The window UID used by media sources that are created by the factory. */

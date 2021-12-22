@@ -46,7 +46,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.ui.AdViewProvider;
@@ -222,7 +222,7 @@ public final class ImaAdsLoader implements AdsLoader {
 
     /**
      * Sets the MIME types to prioritize for linear ad media. If not specified, MIME types supported
-     * by the {@link MediaSourceFactory adMediaSourceFactory} used to construct the {@link
+     * by the {@link MediaSource.Factory adMediaSourceFactory} used to construct the {@link
      * AdsMediaSource} will be used.
      *
      * @param adMediaMimeTypes The MIME types to prioritize for linear ad media. May contain {@link
