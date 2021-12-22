@@ -13,6 +13,8 @@
 // limitations under the License.
 
 apply plugin: 'maven-publish'
+apply from: "$gradle.ext.androidxMediaSettingsDir/missing_aar_type_workaround.gradle"
+
 afterEvaluate {
     publishing {
         repositories {
@@ -50,6 +52,9 @@ afterEvaluate {
                     scm {
                         connection = 'scm:git:https://github.com/androidx/media.git'
                         url = 'https://github.com/androidx/media'
+                    }
+                    withXml {
+                        addMissingAarTypeToXml(it)
                     }
                 }
             }
