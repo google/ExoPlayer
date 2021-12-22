@@ -22,6 +22,7 @@ import android.content.Context;
 import android.graphics.Matrix;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +36,12 @@ public class SetTransformationMatrixTransformationTest {
     Matrix transformationMatrix = new Matrix();
     transformationMatrix.postTranslate(/* dx= */ .2f, /* dy= */ .1f);
     Transformer transformer =
-        new Transformer.Builder(context).setTransformationMatrix(transformationMatrix).build();
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setTransformationMatrix(transformationMatrix)
+                    .build())
+            .build();
 
     runTransformer(
         context,

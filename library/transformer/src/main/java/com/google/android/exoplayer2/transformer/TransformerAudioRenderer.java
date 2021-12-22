@@ -39,10 +39,10 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
   public TransformerAudioRenderer(
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
-      Transformation transformation,
+      TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory) {
-    super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformation);
+    super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformationRequest);
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     decoderInputBuffer =
@@ -69,7 +69,8 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
     Format inputFormat = checkNotNull(formatHolder.format);
     if (shouldTranscode(inputFormat)) {
       samplePipeline =
-          new AudioSamplePipeline(inputFormat, transformation, encoderFactory, decoderFactory);
+          new AudioSamplePipeline(
+              inputFormat, transformationRequest, encoderFactory, decoderFactory);
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
@@ -77,11 +78,11 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
   }
 
   private boolean shouldTranscode(Format inputFormat) {
-    if (transformation.audioMimeType != null
-        && !transformation.audioMimeType.equals(inputFormat.sampleMimeType)) {
+    if (transformationRequest.audioMimeType != null
+        && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
       return true;
     }
-    if (transformation.flattenForSlowMotion && isSlowMotion(inputFormat)) {
+    if (transformationRequest.flattenForSlowMotion && isSlowMotion(inputFormat)) {
       return true;
     }
     return false;

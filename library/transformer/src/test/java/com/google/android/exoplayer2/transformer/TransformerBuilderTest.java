@@ -51,4 +51,36 @@ public class TransformerBuilderTest {
         IllegalStateException.class,
         () -> new Transformer.Builder(context).setRemoveAudio(true).setRemoveVideo(true).build());
   }
+
+  // TODO(b/209469847): Move this test to TransformationRequestBuilderTest once deprecated
+  // Transformer.Builder#setOuputMimeType(String) has been removed.
+  @Test
+  public void build_withUnsupportedAudioMimeType_throws() {
+    Context context = ApplicationProvider.getApplicationContext();
+    TransformationRequest transformationRequest =
+        new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_UNKNOWN).build();
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            new Transformer.Builder(context)
+                .setTransformationRequest(transformationRequest)
+                .build());
+  }
+
+  // TODO(b/209469847): Move this test to TransformationRequestBuilderTest once deprecated
+  // Transformer.Builder#setOuputMimeType(String) has been removed.
+  @Test
+  public void build_withUnsupportedVideoMimeType_throws() {
+    Context context = ApplicationProvider.getApplicationContext();
+    TransformationRequest transformationRequest =
+        new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_UNKNOWN).build();
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            new Transformer.Builder(context)
+                .setTransformationRequest(transformationRequest)
+                .build());
+  }
 }

@@ -43,7 +43,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
   private final Format inputFormat;
-  private final Transformation transformation;
+  private final TransformationRequest transformationRequest;
   private final Codec.EncoderFactory encoderFactory;
 
   private final Codec decoder;
@@ -66,12 +66,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   public AudioSamplePipeline(
       Format inputFormat,
-      Transformation transformation,
+      TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory)
       throws TransformationException {
     this.inputFormat = inputFormat;
-    this.transformation = transformation;
+    this.transformationRequest = transformationRequest;
     this.encoderFactory = encoderFactory;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -294,7 +294,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             decoderOutputFormat.sampleRate,
             decoderOutputFormat.channelCount,
             decoderOutputFormat.pcmEncoding);
-    if (transformation.flattenForSlowMotion) {
+    if (transformationRequest.flattenForSlowMotion) {
       try {
         outputAudioFormat = sonicAudioProcessor.configure(outputAudioFormat);
         flushSonicAndSetSpeed(currentSpeed);
@@ -310,9 +310,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         encoderFactory.createForAudioEncoding(
             new Format.Builder()
                 .setSampleMimeType(
-                    transformation.audioMimeType == null
+                    transformationRequest.audioMimeType == null
                         ? inputFormat.sampleMimeType
-                        : transformation.audioMimeType)
+                        : transformationRequest.audioMimeType)
                 .setSampleRate(outputAudioFormat.sampleRate)
                 .setChannelCount(outputAudioFormat.channelCount)
                 .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
@@ -322,7 +322,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean isSpeedChanging(BufferInfo bufferInfo) {
-    if (!transformation.flattenForSlowMotion) {
+    if (!transformationRequest.flattenForSlowMotion) {
       return false;
     }
     float newSpeed = speedProvider.getSpeed(bufferInfo.presentationTimeUs);

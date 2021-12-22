@@ -50,7 +50,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public VideoSamplePipeline(
       Context context,
       Format inputFormat,
-      Transformation transformation,
+      TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       Transformer.DebugViewProvider debugViewProvider)
@@ -63,10 +63,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // TODO(internal b/209781577): Think about which edge length should be set for portrait videos.
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
-    if (transformation.outputHeight != C.LENGTH_UNSET
-        && transformation.outputHeight != inputFormat.height) {
-      outputWidth = inputFormat.width * transformation.outputHeight / inputFormat.height;
-      outputHeight = transformation.outputHeight;
+    if (transformationRequest.outputHeight != C.LENGTH_UNSET
+        && transformationRequest.outputHeight != inputFormat.height) {
+      outputWidth = inputFormat.width * transformationRequest.outputHeight / inputFormat.height;
+      outputHeight = transformationRequest.outputHeight;
     }
 
     if (inputFormat.height > inputFormat.width) {
@@ -83,7 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // them back for improved encoder compatibility.
     // TODO(internal b/201293185): After fragment shader transformations are implemented, put
     // postrotation in a later vertex shader.
-    transformation.transformationMatrix.postRotate(outputRotationDegrees);
+    transformationRequest.transformationMatrix.postRotate(outputRotationDegrees);
 
     encoder =
         encoderFactory.createForVideoEncoding(
@@ -92,19 +92,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 .setHeight(outputHeight)
                 .setRotationDegrees(0)
                 .setSampleMimeType(
-                    transformation.videoMimeType != null
-                        ? transformation.videoMimeType
+                    transformationRequest.videoMimeType != null
+                        ? transformationRequest.videoMimeType
                         : inputFormat.sampleMimeType)
                 .build());
     if (inputFormat.height != outputHeight
         || inputFormat.width != outputWidth
-        || !transformation.transformationMatrix.isIdentity()) {
+        || !transformationRequest.transformationMatrix.isIdentity()) {
       frameEditor =
           FrameEditor.create(
               context,
               outputWidth,
               outputHeight,
-              transformation.transformationMatrix,
+              transformationRequest.transformationMatrix,
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
               debugViewProvider);
     }

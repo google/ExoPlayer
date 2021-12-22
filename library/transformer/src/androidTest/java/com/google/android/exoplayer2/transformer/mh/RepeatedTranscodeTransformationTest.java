@@ -22,6 +22,7 @@ import android.content.Context;
 import android.graphics.Matrix;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashSet;
@@ -43,9 +44,12 @@ public final class RepeatedTranscodeTransformationTest {
     transformationMatrix.postTranslate((float) 0.1, (float) 0.1);
     Transformer transformer =
         new Transformer.Builder(context)
-            .setVideoMimeType(MimeTypes.VIDEO_H265)
-            .setTransformationMatrix(transformationMatrix)
-            .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setVideoMimeType(MimeTypes.VIDEO_H265)
+                    .setTransformationMatrix(transformationMatrix)
+                    .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
+                    .build())
             .build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
@@ -74,9 +78,12 @@ public final class RepeatedTranscodeTransformationTest {
     transformationMatrix.postTranslate((float) 0.1, (float) 0.1);
     Transformer transformer =
         new Transformer.Builder(context)
-            .setVideoMimeType(MimeTypes.VIDEO_H265)
-            .setTransformationMatrix(transformationMatrix)
             .setRemoveAudio(true)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setVideoMimeType(MimeTypes.VIDEO_H265)
+                    .setTransformationMatrix(transformationMatrix)
+                    .build())
             .build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
@@ -103,8 +110,11 @@ public final class RepeatedTranscodeTransformationTest {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transcodingTransformer =
         new Transformer.Builder(context)
-            .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
             .setRemoveVideo(true)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
+                    .build())
             .build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();

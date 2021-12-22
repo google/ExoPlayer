@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.runTr
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,10 @@ public class SefTransformationTest {
   public void sefTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
-        new Transformer.Builder(context).setFlattenForSlowMotion(true).build();
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
+            .build();
     runTransformer(
         context,
         /* testId = */ "sefTransform",
