@@ -99,6 +99,7 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   /** Factory for {@link DashMediaSource}s. */
+  @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
   public static final class Factory implements MediaSourceFactory {
 
     private final DashChunkSource.Factory chunkSourceFactory;

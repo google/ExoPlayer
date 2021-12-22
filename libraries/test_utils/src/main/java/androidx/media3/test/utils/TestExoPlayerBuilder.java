@@ -30,7 +30,7 @@ import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.SimpleExoPlayer;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
-import androidx.media3.exoplayer.source.MediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
@@ -48,7 +48,7 @@ public class TestExoPlayerBuilder {
   private BandwidthMeter bandwidthMeter;
   @Nullable private Renderer[] renderers;
   @Nullable private RenderersFactory renderersFactory;
-  @Nullable private MediaSourceFactory mediaSourceFactory;
+  @Nullable private MediaSource.Factory mediaSourceFactory;
   private boolean useLazyPreparation;
   private @MonotonicNonNull Looper looper;
   private long seekBackIncrementMs;
@@ -224,21 +224,21 @@ public class TestExoPlayerBuilder {
   }
 
   /**
-   * Returns the {@link MediaSourceFactory} that will be used by the player, or null if no {@link
-   * MediaSourceFactory} has been set yet and no default is available.
+   * Returns the {@link MediaSource.Factory} that will be used by the player, or null if no {@link
+   * MediaSource.Factory} has been set yet and no default is available.
    */
   @Nullable
-  public MediaSourceFactory getMediaSourceFactory() {
+  public MediaSource.Factory getMediaSourceFactory() {
     return mediaSourceFactory;
   }
 
   /**
-   * Sets the {@link MediaSourceFactory} to be used by the player.
+   * Sets the {@link MediaSource.Factory} to be used by the player.
    *
-   * @param mediaSourceFactory The {@link MediaSourceFactory} to be used by the player.
+   * @param mediaSourceFactory The {@link MediaSource.Factory} to be used by the player.
    * @return This builder.
    */
-  public TestExoPlayerBuilder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+  public TestExoPlayerBuilder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
     this.mediaSourceFactory = mediaSourceFactory;
     return this;
   }

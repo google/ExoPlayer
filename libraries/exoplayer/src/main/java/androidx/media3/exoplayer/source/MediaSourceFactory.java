@@ -19,14 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.exoplayer.drm.DefaultDrmSessionManagerProvider;
-import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
-import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 
-/** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
-public interface MediaSourceFactory {
+/** @deprecated Use {@link MediaSource.Factory}. */
+@UnstableApi
+@Deprecated
+public interface MediaSourceFactory extends MediaSource.Factory {
 
   /**
    * An instance that throws {@link UnsupportedOperationException} from {@link #createMediaSource}
@@ -58,44 +57,4 @@ public interface MediaSourceFactory {
           throw new UnsupportedOperationException();
         }
       };
-
-  /**
-   * Sets the {@link DrmSessionManagerProvider} used to obtain a {@link DrmSessionManager} for a
-   * {@link MediaItem}.
-   *
-   * <p>If not set, {@link DefaultDrmSessionManagerProvider} is used.
-   *
-   * @return This factory, for convenience.
-   */
-  @UnstableApi
-  MediaSourceFactory setDrmSessionManagerProvider(
-      @Nullable DrmSessionManagerProvider drmSessionManagerProvider);
-
-  /**
-   * Sets an optional {@link LoadErrorHandlingPolicy}.
-   *
-   * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}, or {@code null} to use the
-   *     {@link DefaultLoadErrorHandlingPolicy}.
-   * @return This factory, for convenience.
-   */
-  @UnstableApi
-  MediaSourceFactory setLoadErrorHandlingPolicy(
-      @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
-
-  /**
-   * Returns the {@link C.ContentType content types} supported by media sources created by this
-   * factory.
-   */
-  @UnstableApi
-  @C.ContentType
-  int[] getSupportedTypes();
-
-  /**
-   * Creates a new {@link MediaSource} with the specified {@link MediaItem}.
-   *
-   * @param mediaItem The media item to play.
-   * @return The new {@link MediaSource media source}.
-   */
-  @UnstableApi
-  MediaSource createMediaSource(MediaItem mediaItem);
 }

@@ -94,6 +94,7 @@ public final class HlsMediaSource extends BaseMediaSource
   public static final int METADATA_TYPE_EMSG = 3;
 
   /** Factory for {@link HlsMediaSource}s. */
+  @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
   public static final class Factory implements MediaSourceFactory {
 
     private final HlsDataSourceFactory hlsDataSourceFactory;

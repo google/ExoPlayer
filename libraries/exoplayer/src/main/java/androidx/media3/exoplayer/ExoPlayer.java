@@ -53,7 +53,6 @@ import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer;
 import androidx.media3.exoplayer.metadata.MetadataRenderer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
-import androidx.media3.exoplayer.source.MediaSourceFactory;
 import androidx.media3.exoplayer.source.ShuffleOrder;
 import androidx.media3.exoplayer.text.TextRenderer;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
@@ -83,7 +82,7 @@ import java.util.List;
  * <ul>
  *   <li><b>{@link MediaSource MediaSources}</b> that define the media to be played, load the media,
  *       and from which the loaded media can be read. MediaSources are created from {@link MediaItem
- *       MediaItems} by the {@link MediaSourceFactory} injected into the player {@link
+ *       MediaItems} by the {@link MediaSource.Factory} injected into the player {@link
  *       Builder#setMediaSourceFactory Builder}, or can be added directly by methods like {@link
  *       #setMediaSource(MediaSource)}. The library provides a {@link DefaultMediaSourceFactory} for
  *       progressive media files, DASH, SmoothStreaming and HLS, which also includes functionality
@@ -379,7 +378,7 @@ public interface ExoPlayer extends Player {
     /* package */ Clock clock;
     /* package */ long foregroundModeTimeoutMs;
     /* package */ Supplier<RenderersFactory> renderersFactorySupplier;
-    /* package */ Supplier<MediaSourceFactory> mediaSourceFactorySupplier;
+    /* package */ Supplier<MediaSource.Factory> mediaSourceFactorySupplier;
     /* package */ Supplier<TrackSelector> trackSelectorSupplier;
     /* package */ Supplier<LoadControl> loadControlSupplier;
     /* package */ Supplier<BandwidthMeter> bandwidthMeterSupplier;
@@ -407,7 +406,7 @@ public interface ExoPlayer extends Player {
      * Creates a builder.
      *
      * <p>Use {@link #Builder(Context, RenderersFactory)}, {@link #Builder(Context,
-     * MediaSourceFactory)} or {@link #Builder(Context, RenderersFactory, MediaSourceFactory)}
+     * MediaSource.Factory)} or {@link #Builder(Context, RenderersFactory, MediaSource.Factory)}
      * instead, if you intend to provide a custom {@link RenderersFactory}, {@link
      * ExtractorsFactory} or {@link DefaultMediaSourceFactory}. This is to ensure that ProGuard or
      * R8 can remove ExoPlayer's {@link DefaultRenderersFactory}, {@link DefaultExtractorsFactory}
@@ -418,7 +417,7 @@ public interface ExoPlayer extends Player {
      * <ul>
      *   <li>{@link RenderersFactory}: {@link DefaultRenderersFactory}
      *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
-     *   <li>{@link MediaSourceFactory}: {@link DefaultMediaSourceFactory}
+     *   <li>{@link MediaSource.Factory}: {@link DefaultMediaSourceFactory}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
      *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
      *   <li>{@link LivePlaybackSpeedControl}: {@link DefaultLivePlaybackSpeedControl}
@@ -474,7 +473,7 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Creates a builder with a custom {@link MediaSourceFactory}.
+     * Creates a builder with a custom {@link MediaSource.Factory}.
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
      *
@@ -487,12 +486,12 @@ public interface ExoPlayer extends Player {
      *     MediaItem}.
      */
     @UnstableApi
-    public Builder(Context context, MediaSourceFactory mediaSourceFactory) {
+    public Builder(Context context, MediaSource.Factory mediaSourceFactory) {
       this(context, () -> new DefaultRenderersFactory(context), () -> mediaSourceFactory);
     }
 
     /**
-     * Creates a builder with a custom {@link RenderersFactory} and {@link MediaSourceFactory}.
+     * Creates a builder with a custom {@link RenderersFactory} and {@link MediaSource.Factory}.
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
      *
@@ -508,7 +507,9 @@ public interface ExoPlayer extends Player {
      */
     @UnstableApi
     public Builder(
-        Context context, RenderersFactory renderersFactory, MediaSourceFactory mediaSourceFactory) {
+        Context context,
+        RenderersFactory renderersFactory,
+        MediaSource.Factory mediaSourceFactory) {
       this(context, () -> renderersFactory, () -> mediaSourceFactory);
     }
 
@@ -521,7 +522,7 @@ public interface ExoPlayer extends Player {
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
      *     player.
-     * @param mediaSourceFactory A {@link MediaSourceFactory}.
+     * @param mediaSourceFactory A {@link MediaSource.Factory}.
      * @param trackSelector A {@link TrackSelector}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
@@ -531,7 +532,7 @@ public interface ExoPlayer extends Player {
     public Builder(
         Context context,
         RenderersFactory renderersFactory,
-        MediaSourceFactory mediaSourceFactory,
+        MediaSource.Factory mediaSourceFactory,
         TrackSelector trackSelector,
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
@@ -549,7 +550,7 @@ public interface ExoPlayer extends Player {
     private Builder(
         Context context,
         Supplier<RenderersFactory> renderersFactorySupplier,
-        Supplier<MediaSourceFactory> mediaSourceFactorySupplier) {
+        Supplier<MediaSource.Factory> mediaSourceFactorySupplier) {
       this(
           context,
           renderersFactorySupplier,
@@ -563,7 +564,7 @@ public interface ExoPlayer extends Player {
     private Builder(
         Context context,
         Supplier<RenderersFactory> renderersFactorySupplier,
-        Supplier<MediaSourceFactory> mediaSourceFactorySupplier,
+        Supplier<MediaSource.Factory> mediaSourceFactorySupplier,
         Supplier<TrackSelector> trackSelectorSupplier,
         Supplier<LoadControl> loadControlSupplier,
         Supplier<BandwidthMeter> bandwidthMeterSupplier,
@@ -624,13 +625,13 @@ public interface ExoPlayer extends Player {
     }
 
     /**
-     * Sets the {@link MediaSourceFactory} that will be used by the player.
+     * Sets the {@link MediaSource.Factory} that will be used by the player.
      *
-     * @param mediaSourceFactory A {@link MediaSourceFactory}.
+     * @param mediaSourceFactory A {@link MediaSource.Factory}.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
-    public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+    public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       checkState(!buildCalled);
       this.mediaSourceFactorySupplier = () -> mediaSourceFactory;
       return this;

@@ -101,7 +101,6 @@ import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
-import androidx.media3.exoplayer.source.MediaSourceFactory;
 import androidx.media3.exoplayer.source.ShuffleOrder;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
@@ -144,7 +143,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Timeline.Window window;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
   private final boolean useLazyPreparation;
-  private final MediaSourceFactory mediaSourceFactory;
+  private final MediaSource.Factory mediaSourceFactory;
   private final AnalyticsCollector analyticsCollector;
   private final Looper applicationLooper;
   private final BandwidthMeter bandwidthMeter;
@@ -183,7 +182,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *
    * @param renderers The {@link Renderer}s.
    * @param trackSelector The {@link TrackSelector}.
-   * @param mediaSourceFactory The {@link MediaSourceFactory}.
+   * @param mediaSourceFactory The {@link MediaSource.Factory}.
    * @param loadControl The {@link LoadControl}.
    * @param bandwidthMeter The {@link BandwidthMeter}.
    * @param analyticsCollector The {@link AnalyticsCollector}.
@@ -207,7 +206,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public ExoPlayerImpl(
       Renderer[] renderers,
       TrackSelector trackSelector,
-      MediaSourceFactory mediaSourceFactory,
+      MediaSource.Factory mediaSourceFactory,
       LoadControl loadControl,
       BandwidthMeter bandwidthMeter,
       AnalyticsCollector analyticsCollector,

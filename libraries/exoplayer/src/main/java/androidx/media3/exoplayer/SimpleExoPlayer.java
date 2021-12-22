@@ -77,7 +77,6 @@ import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
-import androidx.media3.exoplayer.source.MediaSourceFactory;
 import androidx.media3.exoplayer.source.ShuffleOrder;
 import androidx.media3.exoplayer.text.TextOutput;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
@@ -124,7 +123,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
-     * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, MediaSourceFactory)} and {@link
+     * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, MediaSource.Factory)} and {@link
      *     DefaultMediaSourceFactory#DefaultMediaSourceFactory(Context, ExtractorsFactory)} instead.
      */
     @Deprecated
@@ -135,7 +134,7 @@ public class SimpleExoPlayer extends BasePlayer
 
     /**
      * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory,
-     *     MediaSourceFactory)} and {@link
+     *     MediaSource.Factory)} and {@link
      *     DefaultMediaSourceFactory#DefaultMediaSourceFactory(Context, ExtractorsFactory)} instead.
      */
     @Deprecated
@@ -148,7 +147,7 @@ public class SimpleExoPlayer extends BasePlayer
 
     /**
      * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory,
-     *     MediaSourceFactory, TrackSelector, LoadControl, BandwidthMeter, AnalyticsCollector)}
+     *     MediaSource.Factory, TrackSelector, LoadControl, BandwidthMeter, AnalyticsCollector)}
      *     instead.
      */
     @Deprecated
@@ -156,7 +155,7 @@ public class SimpleExoPlayer extends BasePlayer
         Context context,
         RenderersFactory renderersFactory,
         TrackSelector trackSelector,
-        MediaSourceFactory mediaSourceFactory,
+        MediaSource.Factory mediaSourceFactory,
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         AnalyticsCollector analyticsCollector) {
@@ -189,10 +188,10 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
-     * @deprecated Use {@link ExoPlayer.Builder#setMediaSourceFactory(MediaSourceFactory)} instead.
+     * @deprecated Use {@link ExoPlayer.Builder#setMediaSourceFactory(MediaSource.Factory)} instead.
      */
     @Deprecated
-    public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+    public Builder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
       wrappedBuilder.setMediaSourceFactory(mediaSourceFactory);
       return this;
     }
@@ -411,7 +410,7 @@ public class SimpleExoPlayer extends BasePlayer
       Context context,
       RenderersFactory renderersFactory,
       TrackSelector trackSelector,
-      MediaSourceFactory mediaSourceFactory,
+      MediaSource.Factory mediaSourceFactory,
       LoadControl loadControl,
       BandwidthMeter bandwidthMeter,
       AnalyticsCollector analyticsCollector,

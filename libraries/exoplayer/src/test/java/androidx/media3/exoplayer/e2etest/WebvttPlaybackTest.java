@@ -25,7 +25,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
-import androidx.media3.exoplayer.source.MediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.test.utils.CapturingRenderersFactory;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
@@ -58,7 +58,7 @@ public class WebvttPlaybackTest {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
-    MediaSourceFactory mediaSourceFactory =
+    MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(applicationContext)
             .experimentalUseProgressiveMediaSourceForSubtitles(true);
     ExoPlayer player =

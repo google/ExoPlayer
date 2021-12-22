@@ -17,14 +17,20 @@ package androidx.media3.exoplayer.source;
 
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.analytics.PlayerId;
+import androidx.media3.exoplayer.drm.DefaultDrmSessionManagerProvider;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
+import androidx.media3.exoplayer.drm.DrmSessionManager;
+import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
 import androidx.media3.exoplayer.upstream.Allocator;
+import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
+import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
 
 /**
@@ -46,10 +52,61 @@ import java.io.IOException;
  * ExoPlayer} Javadoc. They should not be called directly from application code. Instances can be
  * re-used, but only for one {@link ExoPlayer} instance simultaneously.
  */
-@UnstableApi
 public interface MediaSource {
 
+  /** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
+  interface Factory {
+
+    /**
+     * An instance that throws {@link UnsupportedOperationException} from {@link #createMediaSource}
+     * and {@link #getSupportedTypes()}.
+     */
+    @UnstableApi
+    @SuppressWarnings("deprecation")
+    Factory UNSUPPORTED = MediaSourceFactory.UNSUPPORTED;
+
+    /**
+     * Sets the {@link DrmSessionManagerProvider} used to obtain a {@link DrmSessionManager} for a
+     * {@link MediaItem}.
+     *
+     * <p>If not set, {@link DefaultDrmSessionManagerProvider} is used.
+     *
+     * @return This factory, for convenience.
+     */
+    @UnstableApi
+    Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider);
+
+    /**
+     * Sets an optional {@link LoadErrorHandlingPolicy}.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}, or {@code null} to use the
+     *     {@link DefaultLoadErrorHandlingPolicy}.
+     * @return This factory, for convenience.
+     */
+    @UnstableApi
+    Factory setLoadErrorHandlingPolicy(@Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
+
+    /**
+     * Returns the {@link C.ContentType content types} supported by media sources created by this
+     * factory.
+     */
+    @UnstableApi
+    @C.ContentType
+    int[] getSupportedTypes();
+
+    /**
+     * Creates a new {@link MediaSource} with the specified {@link MediaItem}.
+     *
+     * @param mediaItem The media item to play.
+     * @return The new {@link MediaSource media source}.
+     */
+    @UnstableApi
+    MediaSource createMediaSource(MediaItem mediaItem);
+  }
+
   /** A caller of media sources, which will be notified of source events. */
+  @UnstableApi
   interface MediaSourceCaller {
 
     /**
@@ -69,6 +126,7 @@ public interface MediaSource {
    *
    * <p>Extends for backward-compatibility {@link androidx.media3.common.MediaPeriodId}.
    */
+  @UnstableApi
   final class MediaPeriodId extends androidx.media3.common.MediaPeriodId {
 
     /** See {@link androidx.media3.common.MediaPeriodId#MediaPeriodId(Object)}. */
@@ -117,6 +175,7 @@ public interface MediaSource {
    * @param handler A handler on the which listener events will be posted.
    * @param eventListener The listener to be added.
    */
+  @UnstableApi
   void addEventListener(Handler handler, MediaSourceEventListener eventListener);
 
   /**
@@ -125,6 +184,7 @@ public interface MediaSource {
    *
    * @param eventListener The listener to be removed.
    */
+  @UnstableApi
   void removeEventListener(MediaSourceEventListener eventListener);
 
   /**
@@ -134,6 +194,7 @@ public interface MediaSource {
    * @param handler A handler on the which listener events will be posted.
    * @param eventListener The listener to be added.
    */
+  @UnstableApi
   void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener);
 
   /**
@@ -142,6 +203,7 @@ public interface MediaSource {
    *
    * @param eventListener The listener to be removed.
    */
+  @UnstableApi
   void removeDrmEventListener(DrmSessionEventListener eventListener);
 
   /**
@@ -155,6 +217,7 @@ public interface MediaSource {
    * <p>Any media source which has multiple windows should typically provide such an initial
    * timeline to make sure the player reports the correct number of windows immediately.
    */
+  @UnstableApi
   @Nullable
   default Timeline getInitialTimeline() {
     return null;
@@ -167,17 +230,20 @@ public interface MediaSource {
    *
    * @return true if the source has exactly one window.
    */
+  @UnstableApi
   default boolean isSingleWindow() {
     return true;
   }
 
   /** Returns the {@link MediaItem} whose media is provided by the source. */
+  @UnstableApi
   MediaItem getMediaItem();
 
   /**
    * @deprecated Implement {@link #prepareSource(MediaSourceCaller, TransferListener, PlayerId)}
    *     instead.
    */
+  @UnstableApi
   @Deprecated
   default void prepareSource(
       MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
@@ -203,6 +269,7 @@ public interface MediaSource {
    *     and other data.
    * @param playerId The {@link PlayerId} of the player using this media source.
    */
+  @UnstableApi
   void prepareSource(
       MediaSourceCaller caller,
       @Nullable TransferListener mediaTransferListener,
@@ -216,6 +283,7 @@ public interface MediaSource {
    * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener,
    * PlayerId)}.
    */
+  @UnstableApi
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
   /**
@@ -228,6 +296,7 @@ public interface MediaSource {
    *
    * @param caller The {@link MediaSourceCaller} enabling the source.
    */
+  @UnstableApi
   void enable(MediaSourceCaller caller);
 
   /**
@@ -242,6 +311,7 @@ public interface MediaSource {
    * @param startPositionUs The expected start position, in microseconds.
    * @return A new {@link MediaPeriod}.
    */
+  @UnstableApi
   MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs);
 
   /**
@@ -251,6 +321,7 @@ public interface MediaSource {
    *
    * @param mediaPeriod The period to release.
    */
+  @UnstableApi
   void releasePeriod(MediaPeriod mediaPeriod);
 
   /**
@@ -265,6 +336,7 @@ public interface MediaSource {
    *
    * @param caller The {@link MediaSourceCaller} disabling the source.
    */
+  @UnstableApi
   void disable(MediaSourceCaller caller);
 
   /**
@@ -277,5 +349,6 @@ public interface MediaSource {
    *
    * @param caller The {@link MediaSourceCaller} to be unregistered.
    */
+  @UnstableApi
   void releaseSource(MediaSourceCaller caller);
 }

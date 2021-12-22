@@ -42,7 +42,6 @@ import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.MediaSourceEventListener;
-import androidx.media3.exoplayer.source.MediaSourceFactory;
 import androidx.media3.exoplayer.upstream.Allocator;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -130,7 +129,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       new MediaPeriodId(/* periodUid= */ new Object());
 
   private final MediaSource contentMediaSource;
-  private final MediaSourceFactory adMediaSourceFactory;
+  private final MediaSource.Factory adMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final AdViewProvider adViewProvider;
   private final DataSpec adTagDataSpec;
@@ -162,7 +161,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       MediaSource contentMediaSource,
       DataSpec adTagDataSpec,
       Object adsId,
-      MediaSourceFactory adMediaSourceFactory,
+      MediaSource.Factory adMediaSourceFactory,
       AdsLoader adsLoader,
       AdViewProvider adViewProvider) {
     this.contentMediaSource = contentMediaSource;

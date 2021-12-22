@@ -33,9 +33,9 @@ import androidx.media3.common.Timeline;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaPeriod;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.MediaSource.MediaSourceCaller;
-import androidx.media3.exoplayer.source.MediaSourceFactory;
 import androidx.media3.exoplayer.source.SinglePeriodTimeline;
 import androidx.media3.exoplayer.source.ads.AdsLoader.EventListener;
 import androidx.media3.exoplayer.upstream.Allocator;
@@ -102,7 +102,7 @@ public final class AdsMediaSourceTest {
     // later.
     contentMediaSource = new FakeMediaSource(/* timeline= */ null);
     prerollAdMediaSource = new FakeMediaSource(/* timeline= */ null);
-    MediaSourceFactory adMediaSourceFactory = mock(MediaSourceFactory.class);
+    MediaSource.Factory adMediaSourceFactory = mock(MediaSource.Factory.class);
     when(adMediaSourceFactory.createMediaSource(any(MediaItem.class)))
         .thenReturn(prerollAdMediaSource);
 

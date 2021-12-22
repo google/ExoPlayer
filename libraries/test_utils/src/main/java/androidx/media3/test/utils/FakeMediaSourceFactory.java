@@ -29,6 +29,8 @@ import androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition;
 
 /** Fake {@link MediaSourceFactory} that creates a {@link FakeMediaSource}. */
 @UnstableApi
+// Implement and return deprecated type for backwards compatibility.
+@SuppressWarnings("deprecation")
 public final class FakeMediaSourceFactory implements MediaSourceFactory {
 
   /** The window UID used by media sources that are created by the factory. */
