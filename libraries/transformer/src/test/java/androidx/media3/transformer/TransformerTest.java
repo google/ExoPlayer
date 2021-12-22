@@ -224,9 +224,10 @@ public final class TransformerTest {
   public void startTransformation_flattenForSlowMotion_completesSuccessfully() throws Exception {
     Transformer transformer =
         new Transformer.Builder(context)
-            .setFlattenForSlowMotion(true)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_SEF_SLOW_MOTION);
 
@@ -243,7 +244,10 @@ public final class TransformerTest {
         new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
-            .setAudioMimeType(MimeTypes.AUDIO_AMR_WB) // unsupported encoder MIME type
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setAudioMimeType(MimeTypes.AUDIO_AMR_WB) // unsupported encoder MIME type
+                    .build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
 
@@ -262,7 +266,10 @@ public final class TransformerTest {
         new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
-            .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported encoder MIME type
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported encoder MIME type
+                    .build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED);
 
@@ -281,7 +288,10 @@ public final class TransformerTest {
         new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
-            .setVideoMimeType(MimeTypes.VIDEO_H263) // unsupported encoder MIME type
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setVideoMimeType(MimeTypes.VIDEO_H263) // unsupported encoder MIME type
+                    .build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 

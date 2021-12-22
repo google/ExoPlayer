@@ -19,6 +19,7 @@ import static androidx.media3.transformer.mh.AndroidTestUtil.SEF_ASSET_URI_STRIN
 import static androidx.media3.transformer.mh.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
+import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -32,7 +33,10 @@ public class SefTransformationTest {
   public void sefTransform() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
-        new Transformer.Builder(context).setFlattenForSlowMotion(true).build();
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setFlattenForSlowMotion(true).build())
+            .build();
     runTransformer(
         context,
         /* testId = */ "sefTransform",

@@ -45,11 +45,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Context context,
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
-      Transformation transformation,
+      TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       Transformer.DebugViewProvider debugViewProvider) {
-    super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformation);
+    super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest);
     this.context = context;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
@@ -81,29 +81,29 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           new VideoSamplePipeline(
               context,
               inputFormat,
-              transformation,
+              transformationRequest,
               encoderFactory,
               decoderFactory,
               debugViewProvider);
     } else {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
-    if (transformation.flattenForSlowMotion) {
+    if (transformationRequest.flattenForSlowMotion) {
       sefSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }
     return true;
   }
 
   private boolean shouldTranscode(Format inputFormat) {
-    if (transformation.videoMimeType != null
-        && !transformation.videoMimeType.equals(inputFormat.sampleMimeType)) {
+    if (transformationRequest.videoMimeType != null
+        && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
       return true;
     }
-    if (transformation.outputHeight != C.LENGTH_UNSET
-        && transformation.outputHeight != inputFormat.height) {
+    if (transformationRequest.outputHeight != C.LENGTH_UNSET
+        && transformationRequest.outputHeight != inputFormat.height) {
       return true;
     }
-    if (!transformation.transformationMatrix.isIdentity()) {
+    if (!transformationRequest.transformationMatrix.isIdentity()) {
       return true;
     }
     return false;

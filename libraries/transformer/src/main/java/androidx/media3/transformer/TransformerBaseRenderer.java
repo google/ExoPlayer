@@ -38,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   protected final MuxerWrapper muxerWrapper;
   protected final TransformerMediaClock mediaClock;
-  protected final Transformation transformation;
+  protected final TransformationRequest transformationRequest;
 
   protected boolean isRendererStarted;
   protected boolean muxerWrapperTrackAdded;
@@ -50,11 +50,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       int trackType,
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
-      Transformation transformation) {
+      TransformationRequest transformationRequest) {
     super(trackType);
     this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
-    this.transformation = transformation;
+    this.transformationRequest = transformationRequest;
   }
 
   @Override
@@ -65,14 +65,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     } else if ((MimeTypes.isAudio(sampleMimeType)
             && muxerWrapper.supportsSampleMimeType(
-                transformation.audioMimeType == null
+                transformationRequest.audioMimeType == null
                     ? sampleMimeType
-                    : transformation.audioMimeType))
+                    : transformationRequest.audioMimeType))
         || (MimeTypes.isVideo(sampleMimeType)
             && muxerWrapper.supportsSampleMimeType(
-                transformation.videoMimeType == null
+                transformationRequest.videoMimeType == null
                     ? sampleMimeType
-                    : transformation.videoMimeType))) {
+                    : transformationRequest.videoMimeType))) {
       return RendererCapabilities.create(C.FORMAT_HANDLED);
     } else {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);

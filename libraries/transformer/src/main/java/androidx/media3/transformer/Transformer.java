@@ -99,12 +99,9 @@ public final class Transformer {
     private Muxer.Factory muxerFactory;
     private boolean removeAudio;
     private boolean removeVideo;
-    private boolean flattenForSlowMotion;
-    private int outputHeight;
-    private Matrix transformationMatrix;
     private String containerMimeType;
-    @Nullable private String audioMimeType;
-    @Nullable private String videoMimeType;
+    // TODO(b/204869912): Make final once deprecated setters are removed.
+    private TransformationRequest transformationRequest;
     private Transformer.Listener listener;
     private DebugViewProvider debugViewProvider;
     private Looper looper;
@@ -115,14 +112,13 @@ public final class Transformer {
     @Deprecated
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = C.LENGTH_UNSET;
-      transformationMatrix = new Matrix();
-      containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
       encoderFactory = Codec.EncoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
+      containerMimeType = MimeTypes.VIDEO_MP4;
+      transformationRequest = new TransformationRequest.Builder().build();
     }
 
     /**
@@ -133,14 +129,13 @@ public final class Transformer {
     public Builder(Context context) {
       this.context = context.getApplicationContext();
       muxerFactory = new FrameworkMuxer.Factory();
-      outputHeight = C.LENGTH_UNSET;
-      transformationMatrix = new Matrix();
-      containerMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
       encoderFactory = Codec.EncoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
+      containerMimeType = MimeTypes.VIDEO_MP4;
+      this.transformationRequest = new TransformationRequest.Builder().build();
     }
 
     /** Creates a builder with the values of the provided {@link Transformer}. */
@@ -148,14 +143,10 @@ public final class Transformer {
       this.context = transformer.context;
       this.mediaSourceFactory = transformer.mediaSourceFactory;
       this.muxerFactory = transformer.muxerFactory;
-      this.removeAudio = transformer.transformation.removeAudio;
-      this.removeVideo = transformer.transformation.removeVideo;
-      this.flattenForSlowMotion = transformer.transformation.flattenForSlowMotion;
-      this.outputHeight = transformer.transformation.outputHeight;
-      this.transformationMatrix = transformer.transformation.transformationMatrix;
-      this.containerMimeType = transformer.transformation.containerMimeType;
-      this.audioMimeType = transformer.transformation.audioMimeType;
-      this.videoMimeType = transformer.transformation.videoMimeType;
+      this.removeAudio = transformer.removeAudio;
+      this.removeVideo = transformer.removeVideo;
+      this.containerMimeType = transformer.containerMimeType;
+      this.transformationRequest = transformer.transformationRequest;
       this.listener = transformer.listener;
       this.looper = transformer.looper;
       this.encoderFactory = transformer.encoderFactory;
@@ -167,6 +158,17 @@ public final class Transformer {
     @Deprecated
     public Builder setContext(Context context) {
       this.context = context.getApplicationContext();
+      return this;
+    }
+
+    /**
+     * Sets the {@link TransformationRequest} which configures the editing and transcoding options.
+     *
+     * @param transformationRequest The {@link TransformationRequest}.
+     * @return This builder.
+     */
+    public Builder setTransformationRequest(TransformationRequest transformationRequest) {
+      this.transformationRequest = transformationRequest;
       return this;
     }
 
@@ -212,83 +214,31 @@ public final class Transformer {
     }
 
     /**
-     * Sets whether the input should be flattened for media containing slow motion markers. The
-     * transformed output is obtained by removing the slow motion metadata and by actually slowing
-     * down the parts of the video and audio streams defined in this metadata. The default value for
-     * {@code flattenForSlowMotion} is {@code false}.
-     *
-     * <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. The
-     * transformation has no effect if the input does not contain this metadata type.
-     *
-     * <p>For SEF slow motion media, the following assumptions are made on the input:
-     *
-     * <ul>
-     *   <li>The input container format is (unfragmented) MP4.
-     *   <li>The input contains an AVC video elementary stream with temporal SVC.
-     *   <li>The recording frame rate of the video is 120 or 240 fps.
-     * </ul>
-     *
-     * <p>If specifying a {@link MediaSourceFactory} using {@link
-     * #setMediaSourceFactory(MediaSourceFactory)}, make sure that {@link
-     * Mp4Extractor#FLAG_READ_SEF_DATA} is set on the {@link Mp4Extractor} used. Otherwise, the slow
-     * motion metadata will be ignored and the input won't be flattened.
-     *
-     * @param flattenForSlowMotion Whether to flatten for slow motion.
-     * @return This builder.
+     * @deprecated Use {@link TransformationRequest.Builder#setFlattenForSlowMotion(boolean)}
+     *     instead.
      */
+    @Deprecated
     public Builder setFlattenForSlowMotion(boolean flattenForSlowMotion) {
-      this.flattenForSlowMotion = flattenForSlowMotion;
+      transformationRequest =
+          transformationRequest.buildUpon().setFlattenForSlowMotion(flattenForSlowMotion).build();
       return this;
     }
 
-    /**
-     * Sets the output resolution using the output height. The default value is the same height as
-     * the input. Output width will scale to preserve the input video's aspect ratio.
-     *
-     * <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
-     * supported, to ensure compatibility on different devices.
-     *
-     * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
-     *
-     * @param outputHeight The output height in pixels.
-     * @return This builder.
-     */
+    /** @deprecated Use {@link TransformationRequest.Builder#setResolution(int)} instead. */
+    @Deprecated
     public Builder setResolution(int outputHeight) {
-      // TODO(Internal b/201293185): Restructure to input a Presentation class.
-      // TODO(Internal b/201293185): Check encoder codec capabilities in order to allow arbitrary
-      // resolutions and reasonable fallbacks.
-      if (outputHeight != 144
-          && outputHeight != 240
-          && outputHeight != 360
-          && outputHeight != 480
-          && outputHeight != 720
-          && outputHeight != 1080
-          && outputHeight != 1440
-          && outputHeight != 2160) {
-        throw new IllegalArgumentException(
-            "Please use a height of 144, 240, 360, 480, 720, 1080, 1440, or 2160.");
-      }
-      this.outputHeight = outputHeight;
+      transformationRequest = transformationRequest.buildUpon().setResolution(outputHeight).build();
       return this;
     }
 
     /**
-     * Sets the transformation matrix. The default value is to apply no change.
-     *
-     * <p>This can be used to perform operations supported by {@link Matrix}, like scaling and
-     * rotating the video.
-     *
-     * <p>For now, resolution will not be affected by this method.
-     *
-     * @param transformationMatrix The transformation to apply to video frames.
-     * @return This builder.
+     * @deprecated Use {@link TransformationRequest.Builder#setTransformationMatrix(Matrix)}
+     *     instead.
      */
+    @Deprecated
     public Builder setTransformationMatrix(Matrix transformationMatrix) {
-      // TODO(Internal b/201293185): After {@link #setResolution} supports arbitrary resolutions,
-      // allow transformations to change the resolution, by scaling to the appropriate min/max
-      // values. This will also be required to create the VertexTransformation class, in order to
-      // have aspect ratio helper methods (which require resolution to change).
-      this.transformationMatrix = transformationMatrix;
+      transformationRequest =
+          transformationRequest.buildUpon().setTransformationMatrix(transformationMatrix).build();
       return this;
     }
 
@@ -302,40 +252,19 @@ public final class Transformer {
       return this;
     }
 
-    /**
-     * Sets the video MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
-     *
-     * <ul>
-     *   <li>{@link MimeTypes#VIDEO_H263}
-     *   <li>{@link MimeTypes#VIDEO_H264}
-     *   <li>{@link MimeTypes#VIDEO_H265} from API level 24
-     *   <li>{@link MimeTypes#VIDEO_MP4V}
-     * </ul>
-     *
-     * @param videoMimeType The MIME type of the video samples in the output.
-     * @return This builder.
-     */
+    /** @deprecated Use {@link TransformationRequest.Builder#setVideoMimeType(String)} instead. */
+    @Deprecated
     public Builder setVideoMimeType(String videoMimeType) {
-      this.videoMimeType = videoMimeType;
+      transformationRequest =
+          transformationRequest.buildUpon().setVideoMimeType(videoMimeType).build();
       return this;
     }
 
-    /**
-     * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
-     *
-     * <ul>
-     *   <li>{@link MimeTypes#AUDIO_AAC}
-     *   <li>{@link MimeTypes#AUDIO_AMR_NB}
-     *   <li>{@link MimeTypes#AUDIO_AMR_WB}
-     * </ul>
-     *
-     * @param audioMimeType The MIME type of the audio samples in the output.
-     * @return This builder.
-     */
+    /** @deprecated Use {@link TransformationRequest.Builder#setAudioMimeType(String)} instead. */
+    @Deprecated
     public Builder setAudioMimeType(String audioMimeType) {
-      this.audioMimeType = audioMimeType;
+      transformationRequest =
+          transformationRequest.buildUpon().setAudioMimeType(audioMimeType).build();
       return this;
     }
 
@@ -434,7 +363,7 @@ public final class Transformer {
       checkNotNull(context);
       if (mediaSourceFactory == null) {
         DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
-        if (flattenForSlowMotion) {
+        if (transformationRequest.flattenForSlowMotion) {
           defaultExtractorsFactory.setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_SEF_DATA);
         }
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
@@ -442,27 +371,20 @@ public final class Transformer {
       checkState(
           muxerFactory.supportsOutputMimeType(containerMimeType),
           "Unsupported container MIME type: " + containerMimeType);
-      if (audioMimeType != null) {
-        checkSampleMimeType(audioMimeType);
+      if (transformationRequest.audioMimeType != null) {
+        checkSampleMimeType(transformationRequest.audioMimeType);
       }
-      if (videoMimeType != null) {
-        checkSampleMimeType(videoMimeType);
+      if (transformationRequest.videoMimeType != null) {
+        checkSampleMimeType(transformationRequest.videoMimeType);
       }
-      Transformation transformation =
-          new Transformation(
-              removeAudio,
-              removeVideo,
-              flattenForSlowMotion,
-              outputHeight,
-              transformationMatrix,
-              containerMimeType,
-              audioMimeType,
-              videoMimeType);
       return new Transformer(
           context,
           mediaSourceFactory,
           muxerFactory,
-          transformation,
+          removeAudio,
+          removeVideo,
+          containerMimeType,
+          transformationRequest,
           listener,
           looper,
           clock,
@@ -553,7 +475,10 @@ public final class Transformer {
   private final Context context;
   private final MediaSourceFactory mediaSourceFactory;
   private final Muxer.Factory muxerFactory;
-  private final Transformation transformation;
+  private final boolean removeAudio;
+  private final boolean removeVideo;
+  private final String containerMimeType;
+  private final TransformationRequest transformationRequest;
   private final Looper looper;
   private final Clock clock;
   private final Codec.EncoderFactory encoderFactory;
@@ -569,20 +494,24 @@ public final class Transformer {
       Context context,
       MediaSourceFactory mediaSourceFactory,
       Muxer.Factory muxerFactory,
-      Transformation transformation,
+      boolean removeAudio,
+      boolean removeVideo,
+      String containerMimeType,
+      TransformationRequest transformationRequest,
       Transformer.Listener listener,
       Looper looper,
       Clock clock,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
       Transformer.DebugViewProvider debugViewProvider) {
-    checkState(
-        !transformation.removeAudio || !transformation.removeVideo,
-        "Audio and video cannot both be removed.");
+    checkState(!removeAudio || !removeVideo, "Audio and video cannot both be removed.");
     this.context = context;
     this.mediaSourceFactory = mediaSourceFactory;
     this.muxerFactory = muxerFactory;
-    this.transformation = transformation;
+    this.removeAudio = removeAudio;
+    this.removeVideo = removeVideo;
+    this.containerMimeType = containerMimeType;
+    this.transformationRequest = transformationRequest;
     this.listener = listener;
     this.looper = looper;
     this.clock = clock;
@@ -628,7 +557,7 @@ public final class Transformer {
    * @throws IOException If an error occurs opening the output file for writing.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
-    startTransformation(mediaItem, muxerFactory.create(path, transformation.containerMimeType));
+    startTransformation(mediaItem, muxerFactory.create(path, containerMimeType));
   }
 
   /**
@@ -656,8 +585,7 @@ public final class Transformer {
   @RequiresApi(26)
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
       throws IOException {
-    startTransformation(
-        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.containerMimeType));
+    startTransformation(mediaItem, muxerFactory.create(parcelFileDescriptor, containerMimeType));
   }
 
   private void startTransformation(MediaItem mediaItem, Muxer muxer) {
@@ -666,8 +594,7 @@ public final class Transformer {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
 
-    MuxerWrapper muxerWrapper =
-        new MuxerWrapper(muxer, muxerFactory, transformation.containerMimeType);
+    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer, muxerFactory, containerMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
@@ -690,7 +617,9 @@ public final class Transformer {
                 new TransformerRenderersFactory(
                     context,
                     muxerWrapper,
-                    transformation,
+                    removeAudio,
+                    removeVideo,
+                    transformationRequest,
                     encoderFactory,
                     decoderFactory,
                     debugViewProvider))
@@ -781,7 +710,9 @@ public final class Transformer {
     private final Context context;
     private final MuxerWrapper muxerWrapper;
     private final TransformerMediaClock mediaClock;
-    private final Transformation transformation;
+    private final boolean removeAudio;
+    private final boolean removeVideo;
+    private final TransformationRequest transformationRequest;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
     private final Transformer.DebugViewProvider debugViewProvider;
@@ -789,13 +720,17 @@ public final class Transformer {
     public TransformerRenderersFactory(
         Context context,
         MuxerWrapper muxerWrapper,
-        Transformation transformation,
+        boolean removeAudio,
+        boolean removeVideo,
+        TransformationRequest transformationRequest,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
         Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
-      this.transformation = transformation;
+      this.removeAudio = removeAudio;
+      this.removeVideo = removeVideo;
+      this.transformationRequest = transformationRequest;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
       this.debugViewProvider = debugViewProvider;
@@ -809,22 +744,22 @@ public final class Transformer {
         AudioRendererEventListener audioRendererEventListener,
         TextOutput textRendererOutput,
         MetadataOutput metadataRendererOutput) {
-      int rendererCount = transformation.removeAudio || transformation.removeVideo ? 1 : 2;
+      int rendererCount = removeAudio || removeVideo ? 1 : 2;
       Renderer[] renderers = new Renderer[rendererCount];
       int index = 0;
-      if (!transformation.removeAudio) {
+      if (!removeAudio) {
         renderers[index] =
             new TransformerAudioRenderer(
-                muxerWrapper, mediaClock, transformation, encoderFactory, decoderFactory);
+                muxerWrapper, mediaClock, transformationRequest, encoderFactory, decoderFactory);
         index++;
       }
-      if (!transformation.removeVideo) {
+      if (!removeVideo) {
         renderers[index] =
             new TransformerVideoRenderer(
                 context,
                 muxerWrapper,
                 mediaClock,
-                transformation,
+                transformationRequest,
                 encoderFactory,
                 decoderFactory,
                 debugViewProvider);
