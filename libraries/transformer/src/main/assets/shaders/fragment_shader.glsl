@@ -13,8 +13,8 @@
 // limitations under the License.
 #extension GL_OES_EGL_image_external : require
 precision mediump float;
-uniform samplerExternalOES tex_sampler;
-varying vec2 v_texcoord;
+uniform samplerExternalOES uTexSampler;
+varying vec2 vTexCoords;
 void main() {
-  gl_FragColor = texture2D(tex_sampler, v_texcoord);
+  gl_FragColor = texture2D(uTexSampler, vTexCoords);
 }

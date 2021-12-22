@@ -74,7 +74,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     glProgram.setBufferAttribute(
-        "a_position",
+        "aPosition",
         new float[] {
           -1.0f, -1.0f, 0.0f, 1.0f,
           1.0f, -1.0f, 0.0f, 1.0f,
@@ -83,7 +83,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         },
         /* size= */ 4);
     glProgram.setBufferAttribute(
-        "a_texcoord",
+        "aTexCoords",
         new float[] {
           0.0f, 0.0f, 0.0f, 1.0f,
           1.0f, 0.0f, 0.0f, 1.0f,
@@ -91,10 +91,10 @@ import java.util.concurrent.atomic.AtomicInteger;
           1.0f, 1.0f, 0.0f, 1.0f,
         },
         /* size= */ 4);
-    glProgram.setSamplerTexIdUniform("tex_sampler", textureId, /* unit= */ 0);
+    glProgram.setSamplerTexIdUniform("uTexSampler", textureId, /* unit= */ 0);
 
     float[] transformationMatrixArray = getGlMatrixArray(transformationMatrix);
-    glProgram.setFloatsUniform("transformation_matrix", transformationMatrixArray);
+    glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrixArray);
 
     @Nullable
     SurfaceView debugSurfaceView =
@@ -230,7 +230,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void processData() {
     inputSurfaceTexture.updateTexImage();
     inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-    glProgram.setFloatsUniform("tex_transform", textureTransformMatrix);
+    glProgram.setFloatsUniform("uTexTransform", textureTransformMatrix);
     glProgram.bindAttributesAndUniforms();
 
     focusAndDrawQuad(eglSurface, outputWidth, outputHeight);
