@@ -62,12 +62,14 @@ import org.robolectric.shadows.ShadowMediaCodec;
 public final class TransformerTest {
 
   private static final String URI_PREFIX = "asset:///media/";
-  private static final String FILE_VIDEO_ONLY = "mkv/sample.mkv";
-  private static final String FILE_AUDIO_ONLY = "amr/sample_nb.amr";
+  private static final String FILE_VIDEO_ONLY = "mp4/sample_18byte_nclx_colr.mp4";
   private static final String FILE_AUDIO_VIDEO = "mp4/sample.mp4";
   private static final String FILE_WITH_SUBTITLES = "mkv/sample_with_srt.mkv";
   private static final String FILE_WITH_SEF_SLOW_MOTION = "mp4/sample_sef_slow_motion.mp4";
-  private static final String FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED = "mp4/sample_ac3.mp4";
+  private static final String FILE_AUDIO_UNSUPPORTED_BY_DECODER = "amr/sample_wb.amr";
+  private static final String FILE_AUDIO_UNSUPPORTED_BY_ENCODER = "amr/sample_nb.amr";
+  private static final String FILE_AUDIO_UNSUPPORTED_BY_MUXER = "mp4/sample_ac3.mp4";
+  private static final String FILE_VIDEO_UNSUPPORTED = "vp9/bear-vp9.webm";
   private static final String FILE_UNKNOWN_DURATION = "mp4/sample_fragmented.mp4";
   public static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
   public static final String DUMP_FILE_EXTENSION = "dump";
@@ -94,7 +96,7 @@ public final class TransformerTest {
   }
 
   @Test
-  public void startTransformation_videoOnly_completesSuccessfully() throws Exception {
+  public void startTransformation_videoOnlyPassthrough_completesSuccessfully() throws Exception {
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(clock)
@@ -109,18 +111,40 @@ public final class TransformerTest {
   }
 
   @Test
-  public void startTransformation_audioOnly_completesSuccessfully() throws Exception {
+  public void startTransformation_audioOnlyPassthrough_completesSuccessfully() throws Exception {
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
+
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_ONLY));
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_ENCODER));
+  }
+
+  @Test
+  public void startTransformation_audioOnlyTranscoding_completesSuccessfully() throws Exception {
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
+                    .build())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_ENCODER + ".aac"));
   }
 
   @Test
@@ -144,6 +168,8 @@ public final class TransformerTest {
         new Transformer.Builder(context)
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
+            .setTransformationRequest(
+                new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_SUBTITLES);
 
@@ -161,7 +187,7 @@ public final class TransformerTest {
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
 
     // Transform first media item.
     transformer.startTransformation(mediaItem, outputPath);
@@ -172,7 +198,7 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
   }
 
   @Test
@@ -246,10 +272,11 @@ public final class TransformerTest {
             .setMuxerFactory(new TestMuxerFactory())
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setAudioMimeType(MimeTypes.AUDIO_AMR_WB) // unsupported encoder MIME type
+                    .setAudioMimeType(
+                        MimeTypes.AUDIO_AMR_NB) // unsupported by encoder, supported by muxer
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
@@ -268,10 +295,10 @@ public final class TransformerTest {
             .setMuxerFactory(new TestMuxerFactory())
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported encoder MIME type
+                    .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
                     .build())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
@@ -315,15 +342,41 @@ public final class TransformerTest {
   }
 
   @Test
-  public void startTransformation_withAllSampleFormatsUnsupported_completesWithError()
+  public void startTransformation_withAudioMuxerFormatUnsupported_completesWithError()
       throws Exception {
-    Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED);
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    assertThat(exception).hasCauseThat().isInstanceOf(IllegalStateException.class);
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    assertThat(exception).hasCauseThat().hasMessageThat().contains("audio");
+    assertThat(exception.errorCode)
+        .isEqualTo(TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
+  }
+
+  @Test
+  public void startTransformation_withVideoMuxerFormatUnsupported_completesWithError()
+      throws Exception {
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_UNSUPPORTED);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    assertThat(exception).hasCauseThat().hasMessageThat().contains("video");
+    assertThat(exception.errorCode)
+        .isEqualTo(TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
   }
 
   @Test
@@ -333,7 +386,7 @@ public final class TransformerTest {
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
 
     transformer.startTransformation(mediaItem, outputPath);
     transformer.cancel();
@@ -343,7 +396,7 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
   }
 
   @Test
@@ -357,7 +410,7 @@ public final class TransformerTest {
             .setClock(clock)
             .setMuxerFactory(new TestMuxerFactory())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
     AtomicReference<Exception> exception = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
 
@@ -376,13 +429,13 @@ public final class TransformerTest {
     countDownLatch.await();
 
     assertThat(exception.get()).isNull();
-    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_ONLY));
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
   }
 
   @Test
   public void startTransformation_fromWrongThread_throwsError() throws Exception {
     Transformer transformer = new Transformer.Builder(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
     HandlerThread anotherThread = new HandlerThread("AnotherThread");
     AtomicReference<IllegalStateException> illegalStateException = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -609,6 +662,7 @@ public final class TransformerTest {
             /* outputBufferSize= */ 10_000,
             /* codec= */ (in, out) -> out.put(in));
     ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AAC, codecConfig);
+    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AC3, codecConfig);
     ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AMR_NB, codecConfig);
     ShadowMediaCodec.addEncoder(MimeTypes.AUDIO_AAC, codecConfig);
 
@@ -632,8 +686,9 @@ public final class TransformerTest {
                 throw new IllegalArgumentException("Format unsupported");
               }
             });
-    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AC3, throwingCodecConfig);
-    ShadowMediaCodec.addEncoder(MimeTypes.AUDIO_AMR_WB, throwingCodecConfig);
+
+    ShadowMediaCodec.addDecoder(MimeTypes.AUDIO_AMR_WB, throwingCodecConfig);
+    ShadowMediaCodec.addEncoder(MimeTypes.AUDIO_AMR_NB, throwingCodecConfig);
     ShadowMediaCodec.addEncoder(MimeTypes.VIDEO_H263, throwingCodecConfig);
   }
 

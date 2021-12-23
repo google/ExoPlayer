@@ -1,0 +1,198 @@
+containerMimeType = video/mp4
+format 0:
+  id = 1
+  sampleMimeType = video/avc
+  codecs = avc1.64001F
+  maxInputSize = 36722
+  width = 1080
+  height = 720
+  frameRate = 29.970028
+  colorInfo:
+    colorSpace = 1
+    colorRange = 2
+    colorTransfer = 3
+    hdrStaticInfo = length 0, hash 0
+  initializationData:
+    data = length 29, hash 4746B5D9
+    data = length 10, hash 7A0D0F2B
+sample:
+  trackIndex = 0
+  dataHashCode = -770308242
+  size = 36692
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 0
+  dataHashCode = -732087136
+  size = 5312
+  isKeyFrame = false
+  presentationTimeUs = 66733
+sample:
+  trackIndex = 0
+  dataHashCode = 468156717
+  size = 599
+  isKeyFrame = false
+  presentationTimeUs = 33366
+sample:
+  trackIndex = 0
+  dataHashCode = 1150349584
+  size = 7735
+  isKeyFrame = false
+  presentationTimeUs = 200200
+sample:
+  trackIndex = 0
+  dataHashCode = 1443582006
+  size = 987
+  isKeyFrame = false
+  presentationTimeUs = 133466
+sample:
+  trackIndex = 0
+  dataHashCode = -310585145
+  size = 673
+  isKeyFrame = false
+  presentationTimeUs = 100100
+sample:
+  trackIndex = 0
+  dataHashCode = 807460688
+  size = 523
+  isKeyFrame = false
+  presentationTimeUs = 166833
+sample:
+  trackIndex = 0
+  dataHashCode = 1936487090
+  size = 6061
+  isKeyFrame = false
+  presentationTimeUs = 333666
+sample:
+  trackIndex = 0
+  dataHashCode = -32297181
+  size = 992
+  isKeyFrame = false
+  presentationTimeUs = 266933
+sample:
+  trackIndex = 0
+  dataHashCode = 1529616406
+  size = 623
+  isKeyFrame = false
+  presentationTimeUs = 233566
+sample:
+  trackIndex = 0
+  dataHashCode = 1949198785
+  size = 421
+  isKeyFrame = false
+  presentationTimeUs = 300300
+sample:
+  trackIndex = 0
+  dataHashCode = -147880287
+  size = 4899
+  isKeyFrame = false
+  presentationTimeUs = 433766
+sample:
+  trackIndex = 0
+  dataHashCode = 1369083472
+  size = 568
+  isKeyFrame = false
+  presentationTimeUs = 400400
+sample:
+  trackIndex = 0
+  dataHashCode = 965782073
+  size = 620
+  isKeyFrame = false
+  presentationTimeUs = 367033
+sample:
+  trackIndex = 0
+  dataHashCode = -261176150
+  size = 5450
+  isKeyFrame = false
+  presentationTimeUs = 567233
+sample:
+  trackIndex = 0
+  dataHashCode = -1830836678
+  size = 1051
+  isKeyFrame = false
+  presentationTimeUs = 500500
+sample:
+  trackIndex = 0
+  dataHashCode = 1767407540
+  size = 874
+  isKeyFrame = false
+  presentationTimeUs = 467133
+sample:
+  trackIndex = 0
+  dataHashCode = 918440283
+  size = 781
+  isKeyFrame = false
+  presentationTimeUs = 533866
+sample:
+  trackIndex = 0
+  dataHashCode = -1408463661
+  size = 4725
+  isKeyFrame = false
+  presentationTimeUs = 700700
+sample:
+  trackIndex = 0
+  dataHashCode = 1569455924
+  size = 1022
+  isKeyFrame = false
+  presentationTimeUs = 633966
+sample:
+  trackIndex = 0
+  dataHashCode = -1723778407
+  size = 790
+  isKeyFrame = false
+  presentationTimeUs = 600600
+sample:
+  trackIndex = 0
+  dataHashCode = 1578275472
+  size = 610
+  isKeyFrame = false
+  presentationTimeUs = 667333
+sample:
+  trackIndex = 0
+  dataHashCode = 1989768395
+  size = 2751
+  isKeyFrame = false
+  presentationTimeUs = 834166
+sample:
+  trackIndex = 0
+  dataHashCode = -1215674502
+  size = 745
+  isKeyFrame = false
+  presentationTimeUs = 767433
+sample:
+  trackIndex = 0
+  dataHashCode = -814473606
+  size = 621
+  isKeyFrame = false
+  presentationTimeUs = 734066
+sample:
+  trackIndex = 0
+  dataHashCode = 498370894
+  size = 505
+  isKeyFrame = false
+  presentationTimeUs = 800800
+sample:
+  trackIndex = 0
+  dataHashCode = -1051506468
+  size = 1268
+  isKeyFrame = false
+  presentationTimeUs = 967633
+sample:
+  trackIndex = 0
+  dataHashCode = -1025604144
+  size = 880
+  isKeyFrame = false
+  presentationTimeUs = 900900
+sample:
+  trackIndex = 0
+  dataHashCode = -913586520
+  size = 530
+  isKeyFrame = false
+  presentationTimeUs = 867533
+sample:
+  trackIndex = 0
+  dataHashCode = 1340459242
+  size = 568
+  isKeyFrame = false
+  presentationTimeUs = 934266
+released = true

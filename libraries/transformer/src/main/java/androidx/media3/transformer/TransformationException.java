@@ -161,6 +161,16 @@ public final class TransformationException extends Exception {
   /** Caused by an audio processor initialization failure. */
   public static final int ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED = 6001;
 
+  // Muxing errors (7xxx).
+
+  /**
+   * Caused by an output sample MIME type inferred from the input not being supported by the muxer.
+   *
+   * <p>Use {@link TransformationRequest.Builder#setAudioMimeType(String)} or {@link
+   * TransformationRequest.Builder#setVideoMimeType(String)} to transcode to a supported MIME type.
+   */
+  public static final int ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED = 7001;
+
   private static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
           .put("ERROR_CODE_FAILED_RUNTIME_CHECK", ERROR_CODE_FAILED_RUNTIME_CHECK)
@@ -182,6 +192,9 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_GL_INIT_FAILED", ERROR_CODE_GL_INIT_FAILED)
           .put("ERROR_CODE_GL_PROCESSING_FAILED", ERROR_CODE_GL_PROCESSING_FAILED)
           .put("ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED", ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED)
+          .put(
+              "ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED",
+              ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED)
           .buildOrThrow();
 
   /** Returns the {@code errorCode} for a given name. */
@@ -230,6 +243,17 @@ public final class TransformationException extends Exception {
       Throwable cause, String componentName, AudioFormat audioFormat, int errorCode) {
     return new TransformationException(
         componentName + " error, audio_format = " + audioFormat, cause, errorCode);
+  }
+
+  /**
+   * Creates an instance for a muxer related exception.
+   *
+   * @param cause The cause of the failure.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  /* package */ static TransformationException createForMuxer(Throwable cause, int errorCode) {
+    return new TransformationException("Muxer error", cause, errorCode);
   }
 
   /**

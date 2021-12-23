@@ -808,13 +808,9 @@ public final class Transformer {
     @Override
     public void onTracksInfoChanged(TracksInfo tracksInfo) {
       if (muxerWrapper.getTrackCount() == 0) {
-        // TODO(b/209469847): Do not silently drop unsupported tracks and throw a more specific
-        // exception earlier.
         handleTransformationEnded(
             TransformationException.createForUnexpected(
-                new IllegalStateException(
-                    "The output does not contain any tracks. Check that at least one of the input"
-                        + " sample formats is supported.")));
+                new IllegalStateException("The output does not contain any tracks.")));
       }
     }
 
