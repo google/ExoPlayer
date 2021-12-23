@@ -286,7 +286,7 @@ public final class TransformationException extends Exception {
    * Returns whether the error data associated to this exception equals the error data associated to
    * {@code other}.
    *
-   * <p>Note that this method does not compare the exceptions' stacktraces.
+   * <p>Note that this method does not compare the exceptions' stack traces.
    */
   public boolean errorInfoEquals(@Nullable TransformationException other) {
     if (this == other) {

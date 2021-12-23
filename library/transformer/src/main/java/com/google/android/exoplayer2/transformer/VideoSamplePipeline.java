@@ -104,6 +104,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               context,
               outputWidth,
               outputHeight,
+              inputFormat.pixelWidthHeightRatio,
               transformationRequest.transformationMatrix,
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
               debugViewProvider);

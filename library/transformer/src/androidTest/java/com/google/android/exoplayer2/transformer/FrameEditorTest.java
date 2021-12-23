@@ -60,6 +60,8 @@ public final class FrameEditorTest {
   private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
   /** Time to wait for the frame editor's input to be populated by the decoder, in milliseconds. */
   private static final int SURFACE_WAIT_MS = 1000;
+  /** The ratio of width over height, for each pixel in a frame. */
+  private static final float PIXEL_WIDTH_HEIGHT_RATIO = 1;
 
   private @MonotonicNonNull FrameEditor frameEditor;
   private @MonotonicNonNull ImageReader frameEditorOutputImageReader;
@@ -91,6 +93,7 @@ public final class FrameEditorTest {
               getApplicationContext(),
               width,
               height,
+              PIXEL_WIDTH_HEIGHT_RATIO,
               identityMatrix,
               frameEditorOutputImageReader.getSurface(),
               Transformer.DebugViewProvider.NONE);
