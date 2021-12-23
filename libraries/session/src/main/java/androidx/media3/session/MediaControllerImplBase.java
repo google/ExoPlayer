@@ -186,6 +186,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private int surfaceWidth;
   private int surfaceHeight;
   @Nullable private IMediaSession iSession;
+  private long lastReturnedContentPositionMs;
+  private long lastSetPlayWhenReadyCalledTimeMs;
 
   public MediaControllerImplBase(
       Context context, MediaController instance, SessionToken token, Bundle connectionHints) {
@@ -228,6 +230,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       this.instance.runOnApplicationLooper(MediaControllerImplBase.this.instance::release);
     }
     flushCommandQueueHandler = new FlushCommandQueueHandler(instance.getApplicationLooper());
+    lastReturnedContentPositionMs = C.TIME_UNSET;
+    lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
   }
 
   @Override
@@ -662,9 +666,22 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public long getContentPosition() {
+    boolean receivedUpdatedPositionInfo =
+        lastSetPlayWhenReadyCalledTimeMs != C.TIME_UNSET
+            && lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
     if (!playerInfo.isPlaying || playerInfo.sessionPositionInfo.isPlayingAd) {
-      return playerInfo.sessionPositionInfo.positionInfo.contentPositionMs;
+      if (receivedUpdatedPositionInfo || lastReturnedContentPositionMs == C.TIME_UNSET) {
+        lastReturnedContentPositionMs =
+            playerInfo.sessionPositionInfo.positionInfo.contentPositionMs;
+      }
+      return lastReturnedContentPositionMs;
     }
+
+    if (!receivedUpdatedPositionInfo && lastReturnedContentPositionMs != C.TIME_UNSET) {
+      // We need an updated content position to make a new position estimation.
+      return lastReturnedContentPositionMs;
+    }
+
     long elapsedTimeMs =
         (instance.getTimeDiffMs() != C.TIME_UNSET)
             ? instance.getTimeDiffMs()
@@ -672,9 +689,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     long estimatedPositionMs =
         playerInfo.sessionPositionInfo.positionInfo.contentPositionMs
             + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
-    return playerInfo.sessionPositionInfo.contentDurationMs == C.TIME_UNSET
-        ? estimatedPositionMs
-        : Math.min(estimatedPositionMs, playerInfo.sessionPositionInfo.contentDurationMs);
+    if (playerInfo.sessionPositionInfo.contentDurationMs != C.TIME_UNSET) {
+      estimatedPositionMs =
+          Math.min(estimatedPositionMs, playerInfo.sessionPositionInfo.contentDurationMs);
+    }
+    lastReturnedContentPositionMs = estimatedPositionMs;
+    return lastReturnedContentPositionMs;
   }
 
   @Override
@@ -2051,6 +2071,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         && playerInfo.playbackSuppressionReason == playbackSuppressionReason) {
       return;
     }
+
+    // Stop estimating content position until a new positionInfo arrives from the player
+    lastSetPlayWhenReadyCalledTimeMs = SystemClock.elapsedRealtime();
     PlayerInfo playerInfo =
         this.playerInfo.copyWithPlayWhenReady(
             playWhenReady, playWhenReadyChangeReason, playbackSuppressionReason);
