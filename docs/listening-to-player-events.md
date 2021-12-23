@@ -71,7 +71,7 @@ Errors that cause playback to fail can be received by implementing
 `onPlayerError(PlaybackException error)` in a registered
 `Player.Listener`. When a failure occurs, this method will be called
 immediately before the playback state transitions to `Player.STATE_IDLE`.
-Failed or stopped playbacks can be retried by calling `ExoPlayer.retry`.
+Failed or stopped playbacks can be retried by calling `ExoPlayer.prepare`.
 
 Note that some [`Player`][] implementations pass instances of subclasses of
 `PlaybackException` to provide additional information about the failure. For
