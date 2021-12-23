@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param context A {@link Context}.
    * @param outputWidth The output width in pixels.
    * @param outputHeight The output height in pixels.
+   * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
    * @param transformationMatrix The transformation matrix to apply to each frame.
    * @param outputSurface The {@link Surface}.
    * @param debugViewProvider Provider for optional debug views to show intermediate output.
@@ -56,9 +57,22 @@ import java.util.concurrent.atomic.AtomicInteger;
       Context context,
       int outputWidth,
       int outputHeight,
+      float pixelWidthHeightRatio,
       Matrix transformationMatrix,
       Surface outputSurface,
-      Transformer.DebugViewProvider debugViewProvider) {
+      Transformer.DebugViewProvider debugViewProvider)
+      throws TransformationException {
+    if (pixelWidthHeightRatio != 1.0f) {
+      // TODO(http://b/211782176): Consider implementing support for non-square pixels.
+      throw new TransformationException(
+          "FrameEditor Error",
+          new IllegalArgumentException(
+              "Transformer's frame editor currently does not support frame edits on non-square"
+                  + " pixels. The pixelWidthHeightRatio is: "
+                  + pixelWidthHeightRatio),
+          TransformationException.ERROR_CODE_GL_INIT_FAILED);
+    }
+
     EGLDisplay eglDisplay = GlUtil.createEglDisplay();
     EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
     EGLSurface eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
