@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
@@ -57,26 +58,46 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.transformationRequest = transformationRequest;
   }
 
+  /**
+   * Returns whether the renderer supports the track type of the given input format.
+   *
+   * @param inputFormat The input format.
+   * @return The {@link Capabilities} for this format.
+   * @throws ExoPlaybackException If the muxer does not support the output sample MIME type derived
+   *     from the input {@code format} and {@link TransformationRequest}.
+   */
   @Override
-  @C.FormatSupport
-  public final int supportsFormat(Format format) {
-    @Nullable String sampleMimeType = format.sampleMimeType;
-    if (MimeTypes.getTrackType(sampleMimeType) != getTrackType()) {
+  @Capabilities
+  public final int supportsFormat(Format inputFormat) throws ExoPlaybackException {
+    @Nullable String inputSampleMimeType = inputFormat.sampleMimeType;
+    if (inputSampleMimeType == null
+        || MimeTypes.getTrackType(inputSampleMimeType) != getTrackType()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
-    } else if ((MimeTypes.isAudio(sampleMimeType)
-            && muxerWrapper.supportsSampleMimeType(
-                transformationRequest.audioMimeType == null
-                    ? sampleMimeType
-                    : transformationRequest.audioMimeType))
-        || (MimeTypes.isVideo(sampleMimeType)
-            && muxerWrapper.supportsSampleMimeType(
-                transformationRequest.videoMimeType == null
-                    ? sampleMimeType
-                    : transformationRequest.videoMimeType))) {
-      return RendererCapabilities.create(C.FORMAT_HANDLED);
-    } else {
-      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
+
+    // If the output sample MIME type is given in the transformationRequest it has already been
+    // validated by the builder.
+    if (MimeTypes.isAudio(inputSampleMimeType) && transformationRequest.audioMimeType != null) {
+      checkState(muxerWrapper.supportsSampleMimeType(transformationRequest.audioMimeType));
+      return RendererCapabilities.create(C.FORMAT_HANDLED);
+    }
+    if (MimeTypes.isVideo(inputSampleMimeType) && transformationRequest.videoMimeType != null) {
+      checkState(muxerWrapper.supportsSampleMimeType(transformationRequest.videoMimeType));
+      return RendererCapabilities.create(C.FORMAT_HANDLED);
+    }
+
+    // When the output sample MIME type is not given in the transformationRequest, it is inferred
+    // from the input.
+    if (muxerWrapper.supportsSampleMimeType(inputSampleMimeType)) {
+      return RendererCapabilities.create(C.FORMAT_HANDLED);
+    }
+    throw wrapTransformationException(
+        TransformationException.createForMuxer(
+            new IllegalArgumentException(
+                "The sample MIME inferred from the input is not supported by the muxer. "
+                    + "Input sample MIME type: "
+                    + inputSampleMimeType),
+            TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED));
   }
 
   @Override
@@ -103,16 +124,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
       while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
-      // Transformer extracts the TransformationException from this ExoPlaybackException again. This
-      // temporary wrapping is needed due to the dependence on ExoPlayer's BaseRenderer.
-      throw ExoPlaybackException.createForRenderer(
-          e,
-          "Transformer",
-          getIndex(),
-          /* rendererFormat= */ null,
-          C.FORMAT_HANDLED,
-          /* isRecoverable= */ false,
-          PlaybackException.ERROR_CODE_UNSPECIFIED);
+      throw wrapTransformationException(e);
     }
   }
 
@@ -225,5 +237,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       default:
         return false;
     }
+  }
+
+  /**
+   * Returns an {@link ExoPlaybackException} wrapping the {@link TransformationException}.
+   *
+   * <p>This temporary wrapping is needed due to the dependence on ExoPlayer's BaseRenderer. {@link
+   * Transformer} extracts the {@link TransformationException} from this {@link
+   * ExoPlaybackException} again.
+   */
+  private ExoPlaybackException wrapTransformationException(
+      TransformationException transformationException) {
+    return ExoPlaybackException.createForRenderer(
+        transformationException,
+        "Transformer",
+        getIndex(),
+        /* rendererFormat= */ null,
+        C.FORMAT_HANDLED,
+        /* isRecoverable= */ false,
+        PlaybackException.ERROR_CODE_UNSPECIFIED);
   }
 }
