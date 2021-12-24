@@ -31,7 +31,7 @@ import static androidx.media3.common.Player.EVENT_REPEAT_MODE_CHANGED;
 import static androidx.media3.common.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -43,42 +43,43 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.media.app.NotificationCompat.MediaStyle;
+import androidx.core.content.ContextCompat;
 import androidx.media3.common.C;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.NotificationUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.session.MediaStyleNotificationHelper.MediaStyle;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.checkerframework.checker.initialization.qual.Initialized;
 
 /**
- * Starts, updates and cancels a media style notification reflecting the player state. The actions
+ * Starts, updates and cancels a media style notification for a {@link MediaSession}. The actions
  * included in the notification can be customized along with their drawables, as described below.
  *
- * <p>The notification is cancelled when {@code null} is passed to {@link #setPlayer(Player)} or
- * when the notification is dismissed by the user.
- *
- * <p>If the player is released it must be removed from the manager by calling {@code
- * setPlayer(null)}.
+ * <p>When notification is no longer required, call {@link #release()} to release resources.
  *
  * <h2>Overriding drawables</h2>
  *
@@ -102,7 +103,7 @@ import java.util.Map;
  * <p>Unlike the drawables above, the large icon (i.e. the icon passed to {@link
  * NotificationCompat.Builder#setLargeIcon(Bitmap)} cannot be overridden in this way. Instead, the
  * large icon is obtained from the {@link MediaDescriptionAdapter} passed to {@link
- * Builder#Builder(Context, int, String, MediaDescriptionAdapter)}.
+ * Builder#setMediaDescriptionAdapter(MediaDescriptionAdapter)}.
  */
 @UnstableApi
 public class PlayerNotificationManager {
@@ -115,45 +116,34 @@ public class PlayerNotificationManager {
      *
      * <p>See {@link NotificationCompat.Builder#setContentTitle(CharSequence)}.
      *
-     * @param player The {@link Player} for which a notification is being built.
+     * @param session The {@link MediaSession} for which a notification is being built.
      * @return The content title for the current media item.
      */
-    CharSequence getCurrentContentTitle(Player player);
-
-    /**
-     * Creates a content intent for the current media item.
-     *
-     * <p>See {@link NotificationCompat.Builder#setContentIntent(PendingIntent)}.
-     *
-     * @param player The {@link Player} for which a notification is being built.
-     * @return The content intent for the current media item, or null if no intent should be fired.
-     */
-    @Nullable
-    PendingIntent createCurrentContentIntent(Player player);
+    CharSequence getCurrentContentTitle(MediaSession session);
 
     /**
      * Gets the content text for the current media item.
      *
      * <p>See {@link NotificationCompat.Builder#setContentText(CharSequence)}.
      *
-     * @param player The {@link Player} for which a notification is being built.
+     * @param session The {@link MediaSession} for which a notification is being built.
      * @return The content text for the current media item, or null if no context text should be
      *     displayed.
      */
     @Nullable
-    CharSequence getCurrentContentText(Player player);
+    CharSequence getCurrentContentText(MediaSession session);
 
     /**
      * Gets the content sub text for the current media item.
      *
      * <p>See {@link NotificationCompat.Builder#setSubText(CharSequence)}.
      *
-     * @param player The {@link Player} for which a notification is being built.
+     * @param session The {@link MediaSession} for which a notification is being built.
      * @return The content subtext for the current media item, or null if no subtext should be
      *     displayed.
      */
     @Nullable
-    default CharSequence getCurrentSubText(Player player) {
+    default CharSequence getCurrentSubText(MediaSession session) {
       return null;
     }
 
@@ -167,52 +157,13 @@ public class PlayerNotificationManager {
      *
      * <p>See {@link NotificationCompat.Builder#setLargeIcon(Bitmap)}.
      *
-     * @param player The {@link Player} for which a notification is being built.
+     * @param session The {@link MediaSession} for which a notification is being built.
      * @param callback A {@link BitmapCallback} to provide a {@link Bitmap} asynchronously.
      * @return The large icon for the current media item, or null if the icon will be returned
      *     through the {@link BitmapCallback} or if no icon should be displayed.
      */
     @Nullable
-    Bitmap getCurrentLargeIcon(Player player, BitmapCallback callback);
-  }
-
-  /** Defines and handles custom actions. */
-  public interface CustomActionReceiver {
-
-    /**
-     * Gets the actions handled by this receiver.
-     *
-     * <p>If multiple {@link PlayerNotificationManager} instances are in use at the same time, the
-     * {@code instanceId} must be set as an intent extra with key {@link
-     * PlayerNotificationManager#INTENT_EXTRA_INSTANCE_ID} to avoid sending the action to every
-     * custom action receiver. It's also necessary to ensure something is different about the
-     * actions. This may be any of the {@link Intent} attributes considered by {@link
-     * Intent#filterEquals}, or different request code integers when creating the {@link
-     * PendingIntent}s with {@link PendingIntent#getBroadcast}. The easiest approach is to use the
-     * {@code instanceId} as the request code.
-     *
-     * @param context The {@link Context}.
-     * @param instanceId The instance id of the {@link PlayerNotificationManager}.
-     * @return A map of custom actions.
-     */
-    Map<String, NotificationCompat.Action> createCustomActions(Context context, int instanceId);
-
-    /**
-     * Gets the actions to be included in the notification given the current player state.
-     *
-     * @param player The {@link Player} for which a notification is being built.
-     * @return The actions to be included in the notification.
-     */
-    List<String> getCustomActions(Player player);
-
-    /**
-     * Called when a custom action has been received.
-     *
-     * @param player The player.
-     * @param action The action from {@link Intent#getAction()}.
-     * @param intent The received {@link Intent}.
-     */
-    void onCustomAction(Player player, String action, Intent intent);
+    Bitmap getCurrentLargeIcon(MediaSession session, BitmapCallback callback);
   }
 
   /** A listener for changes to the notification. */
@@ -248,8 +199,9 @@ public class PlayerNotificationManager {
     protected final int notificationId;
     protected final String channelId;
 
+    protected MediaSession session;
+    protected Bundle connectionHints;
     @Nullable protected NotificationListener notificationListener;
-    @Nullable protected CustomActionReceiver customActionReceiver;
     protected MediaDescriptionAdapter mediaDescriptionAdapter;
     protected int channelNameResourceId;
     protected int channelDescriptionResourceId;
@@ -258,34 +210,38 @@ public class PlayerNotificationManager {
     @Nullable protected String groupKey;
 
     /**
-     * @deprecated Use {@link #Builder(Context, int, String)} instead, then call {@link
-     *     #setMediaDescriptionAdapter(MediaDescriptionAdapter)}.
-     */
-    @Deprecated
-    public Builder(
-        Context context,
-        int notificationId,
-        String channelId,
-        MediaDescriptionAdapter mediaDescriptionAdapter) {
-      this(context, notificationId, channelId);
-      this.mediaDescriptionAdapter = mediaDescriptionAdapter;
-    }
-
-    /**
      * Creates an instance.
      *
      * @param context The {@link Context}.
      * @param notificationId The id of the notification to be posted. Must be greater than 0.
+     * @param session The session to build notification with.
      * @param channelId The id of the notification channel.
      */
-    public Builder(Context context, @IntRange(from = 1) int notificationId, String channelId) {
+    public Builder(
+        Context context,
+        MediaSession session,
+        @IntRange(from = 1) int notificationId,
+        String channelId) {
       checkArgument(notificationId > 0);
       this.context = context;
+      this.session = session;
       this.notificationId = notificationId;
       this.channelId = channelId;
+      connectionHints = Bundle.EMPTY;
       channelImportance = NotificationUtil.IMPORTANCE_LOW;
-      mediaDescriptionAdapter = new DefaultMediaDescriptionAdapter(/* pendingIntent= */ null);
+      mediaDescriptionAdapter = new DefaultMediaDescriptionAdapter();
       smallIconResourceId = R.drawable.media3_notification_small_icon;
+    }
+
+    /**
+     * The connection hints for identify {@link MediaController} to deliver commands from the
+     * notification.
+     *
+     * @return This builder
+     */
+    public Builder setConnectionHints(Bundle connectionHints) {
+      this.connectionHints = Assertions.checkNotNull(connectionHints);
+      return this;
     }
 
     /**
@@ -343,18 +299,6 @@ public class PlayerNotificationManager {
     }
 
     /**
-     * The {@link CustomActionReceiver} to be used.
-     *
-     * <p>The default is {@code null}.
-     *
-     * @return This builder.
-     */
-    public Builder setCustomActionReceiver(CustomActionReceiver customActionReceiver) {
-      this.customActionReceiver = customActionReceiver;
-      return this;
-    }
-
-    /**
      * The resource id of the small icon of the notification shown in the status bar. See {@link
      * NotificationCompat.Builder#setSmallIcon(int)}.
      *
@@ -404,11 +348,12 @@ public class PlayerNotificationManager {
 
       return new PlayerNotificationManager(
           context,
+          session,
+          connectionHints,
           channelId,
           notificationId,
           mediaDescriptionAdapter,
           notificationListener,
-          customActionReceiver,
           smallIconResourceId,
           groupKey);
     }
@@ -498,17 +443,16 @@ public class PlayerNotificationManager {
   private static int instanceIdCounter;
 
   private final Context context;
+  private final MediaSession session;
+  private final ListenableFuture<MediaController> controllerFuture;
   private final String channelId;
   private final int notificationId;
   private final MediaDescriptionAdapter mediaDescriptionAdapter;
   @Nullable private final NotificationListener notificationListener;
-  @Nullable private final CustomActionReceiver customActionReceiver;
   private final Handler mainHandler;
   private final NotificationManagerCompat notificationManager;
   private final IntentFilter intentFilter;
-  private final Player.Listener playerListener;
   private final NotificationBroadcastReceiver notificationBroadcastReceiver;
-  private final Map<String, NotificationCompat.Action> customActions;
   private final PendingIntent dismissPendingIntent;
   private final int instanceId;
   private final CommandButton playButton;
@@ -519,10 +463,8 @@ public class PlayerNotificationManager {
   private final CommandButton seekForwardButton;
 
   @Nullable private NotificationCompat.Builder builder;
-  @Nullable private Player player;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
-  @Nullable private MediaSessionCompat.Token mediaSessionToken;
   private int badgeIconType;
   private boolean colorized;
   private int defaults;
@@ -535,20 +477,21 @@ public class PlayerNotificationManager {
 
   protected PlayerNotificationManager(
       Context context,
+      MediaSession session,
+      Bundle connectionHints,
       String channelId,
       int notificationId,
       MediaDescriptionAdapter mediaDescriptionAdapter,
       @Nullable NotificationListener notificationListener,
-      @Nullable CustomActionReceiver customActionReceiver,
       int smallIconResourceId,
       @Nullable String groupKey) {
     context = context.getApplicationContext();
     this.context = context;
+    this.session = session;
     this.channelId = channelId;
     this.notificationId = notificationId;
     this.mediaDescriptionAdapter = mediaDescriptionAdapter;
     this.notificationListener = notificationListener;
-    this.customActionReceiver = customActionReceiver;
     this.smallIconResourceId = smallIconResourceId;
     this.groupKey = groupKey;
     instanceId = instanceIdCounter++;
@@ -558,8 +501,24 @@ public class PlayerNotificationManager {
     @SuppressWarnings("nullness:methodref.receiver.bound")
     Handler mainHandler = Util.createHandler(Looper.getMainLooper(), this::handleMessage);
     this.mainHandler = mainHandler;
+    controllerFuture =
+        new MediaController.Builder(context, session.getToken())
+            .setApplicationLooper(Looper.getMainLooper())
+            .setConnectionHints(connectionHints)
+            .setListener(new MediaControllerListener())
+            .buildAsync();
+    controllerFuture.addListener(
+        () -> {
+          @SuppressWarnings("nullness:assignment")
+          @Initialized
+          PlayerNotificationManager thisRef = this;
+          MediaController controller = thisRef.getMediaControllerOrNull();
+          if (controller != null) {
+            controller.addListener(new PlayerListener());
+          }
+        },
+        ContextCompat.getMainExecutor(context));
     notificationManager = NotificationManagerCompat.from(context);
-    playerListener = new PlayerListener();
     notificationBroadcastReceiver = new NotificationBroadcastReceiver();
     intentFilter = new IntentFilter();
     colorized = true;
@@ -610,56 +569,13 @@ public class PlayerNotificationManager {
     intentFilter.addAction(INTENT_ACTION_COMMAND);
     intentFilter.addAction(INTENT_ACTION_DISMISS);
     intentFilter.addDataScheme(INTENT_SCHEME);
-    customActions =
-        customActionReceiver != null
-            ? customActionReceiver.createCustomActions(context, instanceId)
-            : Collections.emptyMap();
     dismissPendingIntent = createBroadcastIntent(context, INTENT_ACTION_DISMISS, instanceId);
   }
 
-  /**
-   * Sets the {@link Player}.
-   *
-   * <p>Setting the player starts a notification immediately unless the player is in {@link
-   * Player#STATE_IDLE}, in which case the notification is started as soon as the player transitions
-   * away from being idle.
-   *
-   * <p>If the player is released it must be removed from the manager by calling {@code
-   * setPlayer(null)}. This will cancel the notification.
-   *
-   * @param player The {@link Player} to use, or {@code null} to remove the current player. Only
-   *     players which are accessed on the main thread are supported ({@code
-   *     player.getApplicationLooper() == Looper.getMainLooper()}).
-   */
-  public final void setPlayer(@Nullable Player player) {
-    checkState(Looper.myLooper() == Looper.getMainLooper());
-    checkArgument(player == null || player.getApplicationLooper() == Looper.getMainLooper());
-    if (this.player == player) {
-      return;
-    }
-    if (this.player != null) {
-      this.player.removeListener(playerListener);
-      if (player == null) {
-        stopNotification(/* dismissedByUser= */ false);
-      }
-    }
-    this.player = player;
-    if (player != null) {
-      player.addListener(playerListener);
-      postStartOrUpdateNotification();
-    }
-  }
-
-  /**
-   * Sets the {@link MediaSessionCompat.Token}.
-   *
-   * @param token The {@link MediaSessionCompat.Token}.
-   */
-  public final void setMediaSessionToken(MediaSessionCompat.Token token) {
-    if (!Util.areEqual(this.mediaSessionToken, token)) {
-      mediaSessionToken = token;
-      invalidate();
-    }
+  /* Releases all resources, such as internal {@link MediaController}. */
+  public void release() {
+    // This will indirectly call stopNotification(/* dismissedByUser= */ false).
+    MediaController.releaseFuture(controllerFuture);
   }
 
   /**
@@ -735,7 +651,7 @@ public class PlayerNotificationManager {
    *
    * <p>To set the priority for API levels above 25, you can create your own {@link
    * NotificationChannel} with a given importance level and pass the id of the channel to {@link
-   * Builder#Builder(Context, int, String, MediaDescriptionAdapter)}.
+   * Builder#Builder(Context, MediaSession, int, String)}.
    *
    * @param priority The priority which can be one of {@link NotificationCompat#PRIORITY_DEFAULT},
    *     {@link NotificationCompat#PRIORITY_MAX}, {@link NotificationCompat#PRIORITY_HIGH}, {@link
@@ -832,9 +748,23 @@ public class PlayerNotificationManager {
     }
   }
 
-  private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
-    boolean ongoing = getOngoing(player);
-    builder = createNotification(player, builder, ongoing, bitmap);
+  /**
+   * Gets the {@link MediaController} to send command to the session with. Can be {@code null} if
+   * the media controller isn't connected.
+   */
+  @Nullable
+  public final MediaController getMediaControllerOrNull() {
+    try {
+      MediaController controller = controllerFuture.get(0, TimeUnit.MILLISECONDS);
+      return controller.isConnected() ? controller : null;
+    } catch (ExecutionException | InterruptedException | TimeoutException e) {
+      return null;
+    }
+  }
+
+  private void startOrUpdateNotification(@Nullable Bitmap bitmap) {
+    boolean ongoing = getOngoing();
+    builder = createNotification(builder, ongoing, bitmap);
     if (builder == null) {
       stopNotification(/* dismissedByUser= */ false);
       return;
@@ -866,9 +796,8 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Creates the notification given the current player state.
+   * Creates the notification given the current session state.
    *
-   * @param player The player for which state to build a notification.
    * @param builder The builder used to build the last notification, or {@code null}. Re-using the
    *     builder when possible can prevent notification flicker when {@code Util#SDK_INT} &lt; 21.
    * @param ongoing Whether the notification should be ongoing.
@@ -879,10 +808,8 @@ public class PlayerNotificationManager {
    */
   @Nullable
   protected NotificationCompat.Builder createNotification(
-      Player player,
-      @Nullable NotificationCompat.Builder builder,
-      boolean ongoing,
-      @Nullable Bitmap largeIcon) {
+      @Nullable NotificationCompat.Builder builder, boolean ongoing, @Nullable Bitmap largeIcon) {
+    Player player = session.getPlayer();
     if (player.getPlaybackState() == Player.STATE_IDLE && player.getCurrentTimeline().isEmpty()) {
       return null;
     }
@@ -890,7 +817,7 @@ public class PlayerNotificationManager {
     if (builder == null) {
       builder = new NotificationCompat.Builder(context, channelId);
     }
-    List<CommandButton> actionButtons = getActionButtons(player);
+    List<CommandButton> actionButtons = getActionButtons();
     for (int i = 0; i < actionButtons.size(); i++) {
       CommandButton button = actionButtons.get(i);
       NotificationCompat.Action action =
@@ -901,12 +828,8 @@ public class PlayerNotificationManager {
       builder.addAction(action);
     }
 
-    MediaStyle mediaStyle = new MediaStyle();
-    if (mediaSessionToken != null) {
-      mediaStyle.setMediaSession(mediaSessionToken);
-    }
-    mediaStyle.setShowActionsInCompactView(
-        getActionButtonIndicesForCompactView(actionButtons, player));
+    MediaStyle mediaStyle = new MediaStyle(session);
+    mediaStyle.setShowActionsInCompactView(getActionButtonIndicesForCompactView(actionButtons));
     // Configure dismiss action prior to API 21 ('x' button).
     mediaStyle.setShowCancelButton(!ongoing);
     mediaStyle.setCancelButtonIntent(dismissPendingIntent);
@@ -942,16 +865,19 @@ public class PlayerNotificationManager {
     }
 
     // Set media specific notification properties from MediaDescriptionAdapter.
-    builder.setContentTitle(mediaDescriptionAdapter.getCurrentContentTitle(player));
-    builder.setContentText(mediaDescriptionAdapter.getCurrentContentText(player));
-    builder.setSubText(mediaDescriptionAdapter.getCurrentSubText(player));
+    builder.setContentTitle(mediaDescriptionAdapter.getCurrentContentTitle(session));
+    builder.setContentText(mediaDescriptionAdapter.getCurrentContentText(session));
+    builder.setSubText(mediaDescriptionAdapter.getCurrentSubText(session));
     if (largeIcon == null) {
       largeIcon =
           mediaDescriptionAdapter.getCurrentLargeIcon(
-              player, new BitmapCallback(++currentNotificationTag));
+              session, new BitmapCallback(++currentNotificationTag));
     }
     setLargeIcon(builder, largeIcon);
-    builder.setContentIntent(mediaDescriptionAdapter.createCurrentContentIntent(player));
+    MediaController controller = getMediaControllerOrNull();
+    if (controller != null) {
+      builder.setContentIntent(controller.getSessionActivity());
+    }
 
     if (groupKey != null) {
       builder.setGroup(groupKey);
@@ -976,8 +902,8 @@ public class PlayerNotificationManager {
    *
    * <p>This method can be safely overridden.
    */
-  // Disclaimer: Custom action support is temporarily removed, but will be added back in next CL.
-  protected List<CommandButton> getActionButtons(Player player) {
+  protected List<CommandButton> getActionButtons() {
+    Player player = session.getPlayer();
     boolean enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
     boolean enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
     boolean enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
@@ -990,7 +916,7 @@ public class PlayerNotificationManager {
     if (enableRewind) {
       buttons.add(seekBackButton);
     }
-    if (shouldShowPauseButton(player)) {
+    if (shouldShowPauseButton()) {
       buttons.add(pauseButton);
     } else {
       buttons.add(playButton);
@@ -1011,11 +937,9 @@ public class PlayerNotificationManager {
    * first parameter.
    *
    * @param actionButtons The buttons of the actions included in the notification.
-   * @param player The player for which a notification is being built.
    */
   @SuppressWarnings("unused")
-  protected int[] getActionButtonIndicesForCompactView(
-      List<CommandButton> actionButtons, Player player) {
+  protected int[] getActionButtonIndicesForCompactView(List<CommandButton> actionButtons) {
     int previousIndex = C.INDEX_UNSET;
     int nextIndex = C.INDEX_UNSET;
     int playPauseIndex = C.INDEX_UNSET;
@@ -1050,13 +974,15 @@ public class PlayerNotificationManager {
   }
 
   /** Returns whether the generated notification should be ongoing. */
-  protected boolean getOngoing(Player player) {
+  protected boolean getOngoing() {
+    Player player = session.getPlayer();
     int playbackState = player.getPlaybackState();
     return (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
         && player.getPlayWhenReady();
   }
 
-  private boolean shouldShowPauseButton(Player player) {
+  private boolean shouldShowPauseButton() {
+    Player player = session.getPlayer();
     return player.getPlaybackState() != Player.STATE_ENDED
         && player.getPlaybackState() != Player.STATE_IDLE
         && player.getPlayWhenReady();
@@ -1078,13 +1004,11 @@ public class PlayerNotificationManager {
   private boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_START_OR_UPDATE_NOTIFICATION:
-        if (player != null) {
-          startOrUpdateNotification(player, /* bitmap= */ null);
-        }
+        startOrUpdateNotification(/* bitmap= */ null);
         break;
       case MSG_UPDATE_NOTIFICATION_BITMAP:
-        if (player != null && isNotificationStarted && currentNotificationTag == msg.arg1) {
-          startOrUpdateNotification(player, (Bitmap) msg.obj);
+        if (isNotificationStarted && currentNotificationTag == msg.arg1) {
+          startOrUpdateNotification((Bitmap) msg.obj);
         }
         break;
       default:
@@ -1143,13 +1067,27 @@ public class PlayerNotificationManager {
     }
   }
 
+  private class MediaControllerListener implements MediaController.Listener {
+
+    @Override
+    public void onDisconnected(MediaController controller) {
+      stopNotification(/* dismissedByUser= */ false);
+    }
+
+    @Override
+    public void onAvailableSessionCommandsChanged(
+        MediaController controller, SessionCommands commands) {
+      postStartOrUpdateNotification();
+    }
+  }
+
   private class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     @SuppressWarnings("deprecation")
     @Override
     public void onReceive(Context context, Intent intent) {
-      Player player = PlayerNotificationManager.this.player;
-      if (player == null
+      MediaController controller = getMediaControllerOrNull();
+      if (controller == null
           || !isNotificationStarted
           || intent.getIntExtra(INTENT_EXTRA_INSTANCE_ID, instanceId) != instanceId) {
         return;
@@ -1160,38 +1098,43 @@ public class PlayerNotificationManager {
         int playerCommand = intent.getIntExtra(INTENT_EXTRA_PLAYER_COMMAND, COMMAND_INVALID);
         switch (playerCommand) {
           case COMMAND_PLAY_PAUSE:
-            if (!player.getPlayWhenReady()) {
-              if (player.getPlaybackState() == Player.STATE_IDLE) {
-                player.prepare();
-              } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-                player.seekToDefaultPosition(player.getCurrentWindowIndex());
+            if (!controller.getPlayWhenReady()) {
+              if (controller.getPlaybackState() == controller.STATE_IDLE) {
+                controller.prepare();
+              } else if (controller.getPlaybackState() == controller.STATE_ENDED) {
+                controller.seekToDefaultPosition(controller.getCurrentWindowIndex());
               }
             } else {
-              player.pause();
+              controller.pause();
             }
             break;
           case COMMAND_SEEK_TO_PREVIOUS:
-            player.seekToPrevious();
+            controller.seekToPrevious();
             break;
           case COMMAND_SEEK_BACK:
-            player.seekBack();
+            controller.seekBack();
             break;
           case COMMAND_SEEK_FORWARD:
-            player.seekForward();
+            controller.seekForward();
             break;
           case COMMAND_SEEK_TO_NEXT:
-            player.seekToNext();
+            controller.seekToNext();
+            break;
+          case COMMAND_INVALID:
+            SessionCommand sessionCommand =
+                checkStateNotNull(
+                    BundleableUtil.fromNullableBundle(
+                        SessionCommand.CREATOR,
+                        intent.getBundleExtra(INTENT_EXTRA_SESSION_COMMAND)));
+            ListenableFuture<SessionResult> unused =
+                controller.sendCustomCommand(sessionCommand, /* args= */ Bundle.EMPTY);
             break;
           default:
-            Log.w(TAG, "Unsupported player command, playerCommand=" + playerCommand);
+            Log.w(TAG, "Unsupported controller command, playerCommand=" + playerCommand);
             break;
         }
       } else if (INTENT_ACTION_DISMISS.equals(action)) {
         stopNotification(/* dismissedByUser= */ true);
-      } else if (action != null
-          && customActionReceiver != null
-          && customActions.containsKey(action)) {
-        customActionReceiver.onCustomAction(player, action, intent);
       }
     }
   }

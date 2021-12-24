@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import android.app.PendingIntent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
@@ -34,20 +33,12 @@ import androidx.media3.session.PlayerNotificationManager.MediaDescriptionAdapter
 @UnstableApi
 public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAdapter {
 
-  @Nullable private final PendingIntent pendingIntent;
-
-  /**
-   * Creates a default {@link MediaDescriptionAdapter}.
-   *
-   * @param pendingIntent The {@link PendingIntent} to be returned from {@link
-   *     #createCurrentContentIntent(Player)}, or null if no intent should be fired.
-   */
-  public DefaultMediaDescriptionAdapter(@Nullable PendingIntent pendingIntent) {
-    this.pendingIntent = pendingIntent;
-  }
+  /** Creates a default {@link MediaDescriptionAdapter}. */
+  public DefaultMediaDescriptionAdapter() {}
 
   @Override
-  public CharSequence getCurrentContentTitle(Player player) {
+  public CharSequence getCurrentContentTitle(MediaSession session) {
+    Player player = session.getPlayer();
     @Nullable CharSequence displayTitle = player.getMediaMetadata().displayTitle;
     if (!TextUtils.isEmpty(displayTitle)) {
       return displayTitle;
@@ -59,13 +50,8 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
 
   @Nullable
   @Override
-  public PendingIntent createCurrentContentIntent(Player player) {
-    return pendingIntent;
-  }
-
-  @Nullable
-  @Override
-  public CharSequence getCurrentContentText(Player player) {
+  public CharSequence getCurrentContentText(MediaSession session) {
+    Player player = session.getPlayer();
     @Nullable CharSequence artist = player.getMediaMetadata().artist;
     if (!TextUtils.isEmpty(artist)) {
       return artist;
@@ -76,7 +62,8 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
 
   @Nullable
   @Override
-  public Bitmap getCurrentLargeIcon(Player player, BitmapCallback callback) {
+  public Bitmap getCurrentLargeIcon(MediaSession session, BitmapCallback callback) {
+    Player player = session.getPlayer();
     @Nullable byte[] data = player.getMediaMetadata().artworkData;
     if (data == null) {
       return null;
