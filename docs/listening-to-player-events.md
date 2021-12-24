@@ -31,7 +31,8 @@ Changes in player state can be received by implementing
 `Player.Listener`. The player can be in one of four playback states:
 
 * `Player.STATE_IDLE`: This is the initial state, the state when the player is
-  stopped, and when playback failed.
+  stopped, and when playback failed. The player will hold only limited resources
+  in this state.
 * `Player.STATE_BUFFERING`: The player is not able to immediately play from its
   current position. This mostly happens because more data needs to be loaded.
 * `Player.STATE_READY`: The player is able to immediately play from its current
@@ -180,15 +181,15 @@ together in `onEvents`.
 
 ## Using AnalyticsListener ##
 
-When using `SimpleExoPlayer`, an `AnalyticsListener` can be registered with the
-player by calling `addAnalyticsListener`. `AnalyticsListener` implementations
-are able to listen to detailed events that may be useful for analytics and
-logging purposes. Please refer to the [analytics page][] for more details.
+When using `ExoPlayer`, an `AnalyticsListener` can be registered with the player
+by calling `addAnalyticsListener`. `AnalyticsListener` implementations are able
+to listen to detailed events that may be useful for analytics and logging
+purposes. Please refer to the [analytics page][] for more details.
 
 ### Using EventLogger ###
 
 `EventLogger` is an `AnalyticsListener` provided directly by the library for
-logging purposes. It can be added to a `SimpleExoPlayer` to enable useful
+logging purposes. It can be added to an `ExoPlayer` to enable useful
 additional logging with a single line.
 
 ```

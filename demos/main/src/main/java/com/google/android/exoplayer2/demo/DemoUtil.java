@@ -16,12 +16,10 @@
 package com.google.android.exoplayer2.demo;
 
 import android.content.Context;
-import android.os.Build;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
 import com.google.android.exoplayer2.ext.cronet.CronetDataSource;
 import com.google.android.exoplayer2.ext.cronet.CronetUtil;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
@@ -29,7 +27,7 @@ import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
@@ -62,13 +60,6 @@ public final class DemoUtil {
    */
   private static final boolean USE_CRONET_FOR_NETWORKING = true;
 
-  private static final String USER_AGENT =
-      "ExoPlayerDemo/"
-          + ExoPlayerLibraryInfo.VERSION
-          + " (Linux; Android "
-          + Build.VERSION.RELEASE
-          + ") "
-          + ExoPlayerLibraryInfo.VERSION_SLASHY;
   private static final String TAG = "DemoUtil";
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
@@ -105,9 +96,7 @@ public final class DemoUtil {
     if (httpDataSourceFactory == null) {
       if (USE_CRONET_FOR_NETWORKING) {
         context = context.getApplicationContext();
-        @Nullable
-        CronetEngine cronetEngine =
-            CronetUtil.buildCronetEngine(context, USER_AGENT, /* preferGMSCoreCronet= */ false);
+        @Nullable CronetEngine cronetEngine = CronetUtil.buildCronetEngine(context);
         if (cronetEngine != null) {
           httpDataSourceFactory =
               new CronetDataSource.Factory(cronetEngine, Executors.newSingleThreadExecutor());
@@ -118,7 +107,7 @@ public final class DemoUtil {
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
         CookieHandler.setDefault(cookieManager);
-        httpDataSourceFactory = new DefaultHttpDataSource.Factory().setUserAgent(USER_AGENT);
+        httpDataSourceFactory = new DefaultHttpDataSource.Factory();
       }
     }
     return httpDataSourceFactory;
@@ -128,8 +117,8 @@ public final class DemoUtil {
   public static synchronized DataSource.Factory getDataSourceFactory(Context context) {
     if (dataSourceFactory == null) {
       context = context.getApplicationContext();
-      DefaultDataSourceFactory upstreamFactory =
-          new DefaultDataSourceFactory(context, getHttpDataSourceFactory(context));
+      DefaultDataSource.Factory upstreamFactory =
+          new DefaultDataSource.Factory(context, getHttpDataSourceFactory(context));
       dataSourceFactory = buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache(context));
     }
     return dataSourceFactory;
@@ -206,7 +195,7 @@ public final class DemoUtil {
 
   private static synchronized DatabaseProvider getDatabaseProvider(Context context) {
     if (databaseProvider == null) {
-      databaseProvider = new ExoDatabaseProvider(context);
+      databaseProvider = new StandaloneDatabaseProvider(context);
     }
     return databaseProvider;
   }

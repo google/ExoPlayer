@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD availabilityStartTime="2014-06-19T23:07:42" type="dynamic">
+    <Period start="PT7462826.784S" id="0">
+        <AdaptationSet id="0" mimeType="video/mp4">
+            <SupplementalProperty
+                schemeIdUri="urn:mpeg:dash:supplemental-scheme:2050"
+                value="adaptationSupplemental"/>
+            <EssentialProperty
+                schemeIdUri="urn:mpeg:dash:essential-scheme:2050"
+                value="adaptationEssential"/>
+            <Representation id="singleSegment">
+               <SegmentBase/>
+               <SupplementalProperty
+                   schemeIdUri="urn:mpeg:dash:supplemental-scheme:2050"
+                   value="representationSupplemental"/>
+               <EssentialProperty
+                   schemeIdUri="urn:mpeg:dash:essential-scheme:2050"
+                   value="representationEssential"/>
+            </Representation>
+            <Representation id="multiSegment">
+               <SegmentList/>
+               <SupplementalProperty
+                   schemeIdUri="urn:mpeg:dash:supplemental-scheme:2050"
+                   value="representationSupplemental"/>
+               <EssentialProperty
+                   schemeIdUri="urn:mpeg:dash:essential-scheme:2050"
+                   value="representationEssential"/>
+            </Representation>
+        </AdaptationSet>
+    </Period>
+</MPD>

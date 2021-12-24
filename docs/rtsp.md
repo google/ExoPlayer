@@ -17,7 +17,7 @@ You can then create a `MediaItem` for an RTSP URI and pass it to the player.
 
 ~~~
 // Create a player instance.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+ExoPlayer player = new ExoPlayer.Builder(context).build();
 // Set the media item to be played.
 player.setMediaItem(MediaItem.fromUri(rtspUri));
 // Prepare the player.
@@ -43,7 +43,7 @@ MediaSource mediaSource =
     new RtspMediaSource.Factory()
         .createMediaSource(MediaItem.fromUri(rtspUri));
 // Create a player instance.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+ExoPlayer player = new ExoPlayer.Builder(context).build();
 // Set the media source to be played.
 player.setMediaSource(mediaSource);
 // Prepare the player.

@@ -21,11 +21,9 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link WavExtractor}. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
-@DoNotInstrument
 public final class WavExtractorTest {
 
   @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
@@ -54,5 +52,11 @@ public final class WavExtractorTest {
   public void sample_imaAdpcm() throws Exception {
     ExtractorAsserts.assertBehavior(
         WavExtractor::new, "media/wav/sample_ima_adpcm.wav", simulationConfig);
+  }
+
+  @Test
+  public void sample_rf64() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        WavExtractor::new, "media/wav/sample_rf64.wav", simulationConfig);
   }
 }

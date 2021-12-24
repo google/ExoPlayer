@@ -15,17 +15,26 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
+import android.os.Bundle;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Log;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.List;
 
 /** Defines an immutable group of tracks identified by their format identity. */
-public final class TrackGroup implements Parcelable {
+public final class TrackGroup implements Bundleable {
 
   private static final String TAG = "TrackGroup";
 
@@ -37,20 +46,16 @@ public final class TrackGroup implements Parcelable {
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /** @param formats The track formats. At least one {@link Format} must be provided. */
+  /**
+   * Constructs an instance {@code TrackGroup} containing the provided {@code formats}.
+   *
+   * @param formats Non empty array of format.
+   */
   public TrackGroup(Format... formats) {
-    Assertions.checkState(formats.length > 0);
+    checkArgument(formats.length > 0);
     this.formats = formats;
     this.length = formats.length;
     verifyCorrectness();
-  }
-
-  /* package */ TrackGroup(Parcel in) {
-    length = in.readInt();
-    formats = new Format[length];
-    for (int i = 0; i < length; i++) {
-      formats[i] = in.readParcelable(Format.class.getClassLoader());
-    }
   }
 
   /**
@@ -103,34 +108,39 @@ public final class TrackGroup implements Parcelable {
     return length == other.length && Arrays.equals(formats, other.formats);
   }
 
-  // Parcelable implementation.
+  // Bundleable implementation.
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_FORMATS,
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_FORMATS = 0;
 
   @Override
-  public int describeContents() {
-    return 0;
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putParcelableArrayList(
+        keyForField(FIELD_FORMATS), BundleableUtil.toBundleArrayList(Lists.newArrayList(formats)));
+    return bundle;
   }
 
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(length);
-    for (int i = 0; i < length; i++) {
-      dest.writeParcelable(formats[i], 0);
-    }
-  }
-
-  public static final Parcelable.Creator<TrackGroup> CREATOR =
-      new Parcelable.Creator<TrackGroup>() {
-
-        @Override
-        public TrackGroup createFromParcel(Parcel in) {
-          return new TrackGroup(in);
-        }
-
-        @Override
-        public TrackGroup[] newArray(int size) {
-          return new TrackGroup[size];
-        }
+  /** Object that can restore {@code TrackGroup} from a {@link Bundle}. */
+  public static final Creator<TrackGroup> CREATOR =
+      bundle -> {
+        List<Format> formats =
+            BundleableUtil.fromBundleNullableList(
+                Format.CREATOR,
+                bundle.getParcelableArrayList(keyForField(FIELD_FORMATS)),
+                ImmutableList.of());
+        return new TrackGroup(formats.toArray(new Format[0]));
       };
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
+  }
 
   private void verifyCorrectness() {
     // TrackGroups should only contain tracks with exactly the same content (but in different

@@ -38,6 +38,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ui.AdOverlayInfo;
 import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -190,7 +191,7 @@ import java.util.Set;
       DataSchemeDataSource dataSchemeDataSource = new DataSchemeDataSource();
       try {
         dataSchemeDataSource.open(adTagDataSpec);
-        request.setAdsResponse(Util.fromUtf8Bytes(Util.readToEnd(dataSchemeDataSource)));
+        request.setAdsResponse(Util.fromUtf8Bytes(DataSourceUtil.readToEnd(dataSchemeDataSource)));
       } finally {
         dataSchemeDataSource.close();
       }

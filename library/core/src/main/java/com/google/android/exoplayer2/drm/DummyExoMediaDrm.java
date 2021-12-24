@@ -19,6 +19,8 @@ import android.media.MediaDrmException;
 import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +96,12 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
+  public boolean requiresSecureDecoder(byte[] sessionId, String mimeType) {
+    // Should not be invoked. No session should exist.
+    throw new IllegalStateException();
+  }
+
+  @Override
   public void acquire() {
     // Do nothing.
   }
@@ -136,13 +144,14 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public ExoMediaCrypto createMediaCrypto(byte[] sessionId) {
+  public CryptoConfig createCryptoConfig(byte[] sessionId) {
     // Should not be invoked. No session should exist.
     throw new IllegalStateException();
   }
 
   @Override
-  public Class<UnsupportedMediaCrypto> getExoMediaCryptoType() {
-    return UnsupportedMediaCrypto.class;
+  @C.CryptoType
+  public int getCryptoType() {
+    return C.CRYPTO_TYPE_UNSUPPORTED;
   }
 }

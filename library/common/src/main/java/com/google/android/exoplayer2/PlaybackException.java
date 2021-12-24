@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -28,6 +34,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Thrown when a non locally recoverable playback failure occurs. */
 public class PlaybackException extends Exception implements Bundleable {
@@ -40,6 +47,7 @@ public class PlaybackException extends Exception implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       open = true,
       value = {
@@ -312,7 +320,7 @@ public class PlaybackException extends Exception implements Bundleable {
   }
 
   /** An error code which identifies the cause of the playback failure. */
-  @ErrorCode public final int errorCode;
+  public final @ErrorCode int errorCode;
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
@@ -423,7 +431,6 @@ public class PlaybackException extends Exception implements Bundleable {
   protected static final int FIELD_CUSTOM_ID_BASE = 1000;
 
   /** Object that can create a {@link PlaybackException} from a {@link Bundle}. */
-  @SuppressWarnings("unchecked")
   public static final Creator<PlaybackException> CREATOR = PlaybackException::new;
 
   @CallSuper

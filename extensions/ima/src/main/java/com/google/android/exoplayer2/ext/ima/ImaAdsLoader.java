@@ -26,6 +26,7 @@ import android.content.Context;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
@@ -276,7 +277,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRequest#setVastLoadTimeout(float)
      */
-    public Builder setVastLoadTimeoutMs(int vastLoadTimeoutMs) {
+    public Builder setVastLoadTimeoutMs(@IntRange(from = 1) int vastLoadTimeoutMs) {
       checkArgument(vastLoadTimeoutMs > 0);
       this.vastLoadTimeoutMs = vastLoadTimeoutMs;
       return this;
@@ -289,7 +290,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setLoadVideoTimeout(int)
      */
-    public Builder setMediaLoadTimeoutMs(int mediaLoadTimeoutMs) {
+    public Builder setMediaLoadTimeoutMs(@IntRange(from = 1) int mediaLoadTimeoutMs) {
       checkArgument(mediaLoadTimeoutMs > 0);
       this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
       return this;
@@ -302,7 +303,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setBitrateKbps(int)
      */
-    public Builder setMaxMediaBitrate(int bitrate) {
+    public Builder setMaxMediaBitrate(@IntRange(from = 1) int bitrate) {
       checkArgument(bitrate > 0);
       this.mediaBitrate = bitrate;
       return this;
@@ -702,7 +703,7 @@ public final class ImaAdsLoader implements Player.Listener, AdsLoader {
         timeline.getPeriodPosition(
                 window, period, period.windowIndex, /* windowPositionUs= */ C.TIME_UNSET)
             .second;
-    nextAdTagLoader.maybePreloadAds(C.usToMs(periodPositionUs), C.usToMs(period.durationUs));
+    nextAdTagLoader.maybePreloadAds(Util.usToMs(periodPositionUs), Util.usToMs(period.durationUs));
   }
 
   /**

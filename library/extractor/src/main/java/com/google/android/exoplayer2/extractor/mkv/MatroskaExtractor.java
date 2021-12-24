@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.AacUtil;
-import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
@@ -43,6 +42,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.TrueHdSampleRechunker;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -1334,7 +1334,8 @@ public class MatroskaExtractor implements Extractor {
   private void commitSampleToOutput(
       Track track, long timeUs, @C.BufferFlags int flags, int size, int offset) {
     if (track.trueHdSampleRechunker != null) {
-      track.trueHdSampleRechunker.sampleMetadata(track, timeUs, flags, size, offset);
+      track.trueHdSampleRechunker.sampleMetadata(
+          track.output, timeUs, flags, size, offset, track.cryptoData);
     } else {
       if (CODEC_ID_SUBRIP.equals(track.codecId) || CODEC_ID_ASS.equals(track.codecId)) {
         if (blockSampleCount > 1) {
@@ -1899,70 +1900,6 @@ public class MatroskaExtractor implements Extractor {
     }
   }
 
-  /**
-   * Rechunks TrueHD sample data into groups of {@link Ac3Util#TRUEHD_RECHUNK_SAMPLE_COUNT} samples.
-   */
-  private static final class TrueHdSampleRechunker {
-
-    private final byte[] syncframePrefix;
-
-    private boolean foundSyncframe;
-    private int chunkSampleCount;
-    private long chunkTimeUs;
-    private @C.BufferFlags int chunkFlags;
-    private int chunkSize;
-    private int chunkOffset;
-
-    public TrueHdSampleRechunker() {
-      syncframePrefix = new byte[Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH];
-    }
-
-    public void reset() {
-      foundSyncframe = false;
-      chunkSampleCount = 0;
-    }
-
-    public void startSample(ExtractorInput input) throws IOException {
-      if (foundSyncframe) {
-        return;
-      }
-      input.peekFully(syncframePrefix, 0, Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH);
-      input.resetPeekPosition();
-      if (Ac3Util.parseTrueHdSyncframeAudioSampleCount(syncframePrefix) == 0) {
-        return;
-      }
-      foundSyncframe = true;
-    }
-
-    @RequiresNonNull("#1.output")
-    public void sampleMetadata(
-        Track track, long timeUs, @C.BufferFlags int flags, int size, int offset) {
-      if (!foundSyncframe) {
-        return;
-      }
-      if (chunkSampleCount++ == 0) {
-        // This is the first sample in the chunk.
-        chunkTimeUs = timeUs;
-        chunkFlags = flags;
-        chunkSize = 0;
-      }
-      chunkSize += size;
-      chunkOffset = offset; // The offset is to the end of the sample.
-      if (chunkSampleCount >= Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT) {
-        outputPendingSampleMetadata(track);
-      }
-    }
-
-    @RequiresNonNull("#1.output")
-    public void outputPendingSampleMetadata(Track track) {
-      if (chunkSampleCount > 0) {
-        track.output.sampleMetadata(
-            chunkTimeUs, chunkFlags, chunkSize, chunkOffset, track.cryptoData);
-        chunkSampleCount = 0;
-      }
-    }
-  }
-
   private static final class Track {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
@@ -2335,7 +2272,7 @@ public class MatroskaExtractor implements Extractor {
     @RequiresNonNull("output")
     public void outputPendingSampleMetadata() {
       if (trueHdSampleRechunker != null) {
-        trueHdSampleRechunker.outputPendingSampleMetadata(this);
+        trueHdSampleRechunker.outputPendingSampleMetadata(output, cryptoData);
       }
     }
 

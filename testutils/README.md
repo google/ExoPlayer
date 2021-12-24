@@ -1,10 +1,9 @@
-# ExoPlayer test utils #
+# Test utils module
 
-Provides utility classes for ExoPlayer unit and instrumentation tests.
+Provides utility classes for media unit and instrumentation tests.
 
-## Links ##
+## Links
 
-*   [Javadoc][]: Classes matching `com.google.android.exoplayer2.testutil` belong to this
-    module.
+*   [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

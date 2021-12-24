@@ -24,12 +24,12 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
-import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 /** Decodes and renders video using the native VP9 decoder. */
@@ -129,9 +129,7 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
     if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
-    boolean drmIsSupported =
-        format.exoMediaCryptoType == null
-            || VpxLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
+    boolean drmIsSupported = VpxLibrary.supportsCryptoType(format.cryptoType);
     if (!drmIsSupported) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
@@ -140,14 +138,14 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
-  protected VpxDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+  protected VpxDecoder createDecoder(Format format, @Nullable CryptoConfig cryptoConfig)
       throws VpxDecoderException {
     TraceUtil.beginSection("createVpxDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     VpxDecoder decoder =
         new VpxDecoder(
-            numInputBuffers, numOutputBuffers, initialInputBufferSize, mediaCrypto, threads);
+            numInputBuffers, numOutputBuffers, initialInputBufferSize, cryptoConfig, threads);
     this.decoder = decoder;
     TraceUtil.endSection();
     return decoder;

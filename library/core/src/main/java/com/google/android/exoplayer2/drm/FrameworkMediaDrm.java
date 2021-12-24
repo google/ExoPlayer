@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
 import android.media.DeniedByServerException;
+import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
@@ -24,6 +25,7 @@ import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -180,6 +182,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     mediaDrm.closeSession(sessionId);
   }
 
+  // Return values of MediaDrm.KeyRequest.getRequestType are equal to KeyRequest.RequestType.
+  @SuppressLint("WrongConstant")
   @Override
   public KeyRequest getKeyRequest(
       byte[] scope,
@@ -245,6 +249,26 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
+  public boolean requiresSecureDecoder(byte[] sessionId, String mimeType) {
+    if (Util.SDK_INT >= 31) {
+      return Api31.requiresSecureDecoder(mediaDrm, mimeType);
+    }
+
+    MediaCrypto mediaCrypto;
+    try {
+      mediaCrypto = new MediaCrypto(uuid, sessionId);
+    } catch (MediaCryptoException e) {
+      // This shouldn't happen, but if it does then assume that a secure decoder may be required.
+      return true;
+    }
+    try {
+      return mediaCrypto.requiresSecureDecoderComponent(mimeType);
+    } finally {
+      mediaCrypto.release();
+    }
+  }
+
+  @Override
   public synchronized void acquire() {
     Assertions.checkState(referenceCount > 0);
     referenceCount++;
@@ -292,20 +316,21 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public FrameworkMediaCrypto createMediaCrypto(byte[] sessionId) throws MediaCryptoException {
+  public FrameworkCryptoConfig createCryptoConfig(byte[] sessionId) throws MediaCryptoException {
     // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
     // indicate that it required secure video decoders [Internal ref: b/11428937].
     boolean forceAllowInsecureDecoderComponents =
         Util.SDK_INT < 21
             && C.WIDEVINE_UUID.equals(uuid)
             && "L3".equals(getPropertyString("securityLevel"));
-    return new FrameworkMediaCrypto(
+    return new FrameworkCryptoConfig(
         adjustUuid(uuid), sessionId, forceAllowInsecureDecoderComponents);
   }
 
   @Override
-  public Class<FrameworkMediaCrypto> getExoMediaCryptoType() {
-    return FrameworkMediaCrypto.class;
+  @C.CryptoType
+  public int getCryptoType() {
+    return C.CRYPTO_TYPE_FRAMEWORK;
   }
 
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {
@@ -475,5 +500,13 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     newData.putShort((short) (xmlWithMockLaUrl.length() * UTF_16_BYTES_PER_CHARACTER));
     newData.put(xmlWithMockLaUrl.getBytes(Charsets.UTF_16LE));
     return newData.array();
+  }
+
+  @RequiresApi(31)
+  private static class Api31 {
+    @DoNotInline
+    public static boolean requiresSecureDecoder(MediaDrm mediaDrm, String mimeType) {
+      return mediaDrm.requiresSecureDecoder(mimeType);
+    }
   }
 }

@@ -112,11 +112,64 @@ public final class RtspClientTest {
             },
             EMPTY_PLAYBACK_LISTENER,
             /* userAgent= */ "ExoPlayer:RtspClientTest",
-            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()));
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            /* debugLoggingEnabled= */ false);
     rtspClient.start();
     RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);
 
     assertThat(tracksInSession.get()).hasSize(2);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
+  }
+
+  @Test
+  public void connectServerAndClient_describeRedirects_updatesSessionTimeline() throws Exception {
+    class ResponseProvider implements RtspServer.ResponseProvider {
+      @Override
+      public RtspResponse getOptionsResponse() {
+        return new RtspResponse(/* status= */ 200, RtspHeaders.EMPTY);
+      }
+
+      @Override
+      public RtspResponse getDescribeResponse(Uri requestedUri) {
+        if (!requestedUri.getPath().contains("redirect")) {
+          return new RtspResponse(
+              301,
+              new RtspHeaders.Builder()
+                  .add(
+                      RtspHeaders.LOCATION,
+                      requestedUri.buildUpon().appendEncodedPath("redirect").build().toString())
+                  .build());
+        }
+
+        return RtspTestUtils.newDescribeResponseWithSdpMessage(
+            SESSION_DESCRIPTION, rtpPacketStreamDumps, requestedUri);
+      }
+    }
+    rtspServer = new RtspServer(new ResponseProvider());
+
+    AtomicReference<ImmutableList<RtspMediaTrack>> tracksInSession = new AtomicReference<>();
+    rtspClient =
+        new RtspClient(
+            new SessionInfoListener() {
+              @Override
+              public void onSessionTimelineUpdated(
+                  RtspSessionTiming timing, ImmutableList<RtspMediaTrack> tracks) {
+                tracksInSession.set(tracks);
+              }
+
+              @Override
+              public void onSessionTimelineRequestFailed(
+                  String message, @Nullable Throwable cause) {}
+            },
+            EMPTY_PLAYBACK_LISTENER,
+            /* userAgent= */ "ExoPlayer:RtspClientTest",
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            /* debugLoggingEnabled= */ false);
+    rtspClient.start();
+    RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);
+
+    assertThat(tracksInSession.get()).hasSize(2);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 
   @Test
@@ -153,11 +206,13 @@ public final class RtspClientTest {
             },
             EMPTY_PLAYBACK_LISTENER,
             /* userAgent= */ "ExoPlayer:RtspClientTest",
-            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()));
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            /* debugLoggingEnabled= */ false);
     rtspClient.start();
     RobolectricUtil.runMainLooperUntil(() -> tracksInSession.get() != null);
 
     assertThat(tracksInSession.get()).hasSize(2);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 
   @Test
@@ -197,12 +252,14 @@ public final class RtspClientTest {
             },
             EMPTY_PLAYBACK_LISTENER,
             /* userAgent= */ "ExoPlayer:RtspClientTest",
-            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()));
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            /* debugLoggingEnabled= */ false);
     rtspClient.start();
     RobolectricUtil.runMainLooperUntil(() -> failureMessage.get() != null);
 
     assertThat(failureMessage.get()).contains("DESCRIBE not supported.");
     assertThat(clientHasSentDescribeRequest.get()).isFalse();
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 
   @Test
@@ -241,10 +298,12 @@ public final class RtspClientTest {
             },
             EMPTY_PLAYBACK_LISTENER,
             /* userAgent= */ "ExoPlayer:RtspClientTest",
-            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()));
+            RtspTestUtils.getTestUri(rtspServer.startAndGetPortNumber()),
+            /* debugLoggingEnabled= */ false);
     rtspClient.start();
 
     RobolectricUtil.runMainLooperUntil(() -> failureCause.get() != null);
     assertThat(failureCause.get()).hasCauseThat().isInstanceOf(ParserException.class);
+    assertThat(rtspClient.getState()).isEqualTo(RtspClient.RTSP_STATE_UNINITIALIZED);
   }
 }

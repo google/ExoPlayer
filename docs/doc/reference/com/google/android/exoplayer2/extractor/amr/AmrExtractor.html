@@ -207,6 +207,14 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
  otherwise not be possible.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS">FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS</a></span></code></th>
+<td class="colLast">
+<div class="block">Like <a href="#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING"><code>FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</code></a>, except that seeking is also enabled in
+ cases where the content length (and hence the duration of the media) is unknown.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.extractor.Extractor">
@@ -332,7 +340,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <a id="FLAG_ENABLE_CONSTANT_BITRATE_SEEKING">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</h4>
 <pre>public static final&nbsp;int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</pre>
@@ -341,6 +349,25 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.amr.AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS</h4>
+<pre>public static final&nbsp;int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS</pre>
+<div class="block">Like <a href="#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING"><code>FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</code></a>, except that seeking is also enabled in
+ cases where the content length (and hence the duration of the media) is unknown. Application
+ code should ensure that requested seek positions are valid when using this flag, or be ready to
+ handle playback failures reported through <a href="../../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a> with <a href="../../PlaybackException.html#errorCode"><code>PlaybackException.errorCode</code></a> set to <a href="../../PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE"><code>PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</code></a>.
+
+ <p>If this flag is set, then the behavior enabled by <a href="#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING"><code>FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</code></a> is implicitly enabled as well.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.amr.AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>

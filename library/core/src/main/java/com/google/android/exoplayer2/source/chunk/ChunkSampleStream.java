@@ -69,7 +69,7 @@ public class ChunkSampleStream<T extends ChunkSource>
 
   private static final String TAG = "ChunkSampleStream";
 
-  public final int primaryTrackType;
+  public final @C.TrackType int primaryTrackType;
 
   private final int[] embeddedTrackTypes;
   private final Format[] embeddedTrackFormats;
@@ -99,8 +99,7 @@ public class ChunkSampleStream<T extends ChunkSource>
   /**
    * Constructs an instance.
    *
-   * @param primaryTrackType The type of the primary track. One of the {@link C} {@code
-   *     TRACK_TYPE_*} constants.
+   * @param primaryTrackType The {@link C.TrackType type} of the primary track.
    * @param embeddedTrackTypes The types of any embedded tracks, or null.
    * @param embeddedTrackFormats The formats of the embedded tracks, or null.
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
@@ -115,7 +114,7 @@ public class ChunkSampleStream<T extends ChunkSource>
    *     events.
    */
   public ChunkSampleStream(
-      int primaryTrackType,
+      @C.TrackType int primaryTrackType,
       @Nullable int[] embeddedTrackTypes,
       @Nullable Format[] embeddedTrackFormats,
       T chunkSource,
@@ -511,8 +510,8 @@ public class ChunkSampleStream<T extends ChunkSource>
             loadable.trackFormat,
             loadable.trackSelectionReason,
             loadable.trackSelectionData,
-            C.usToMs(loadable.startTimeUs),
-            C.usToMs(loadable.endTimeUs));
+            Util.usToMs(loadable.startTimeUs),
+            Util.usToMs(loadable.endTimeUs));
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
 

@@ -57,11 +57,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link DashDownloader}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DashDownloaderTest {
 
   private SimpleCache cache;

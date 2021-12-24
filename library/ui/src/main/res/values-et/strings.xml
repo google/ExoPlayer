@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Luba subtiitrid</string>
   <string name="exo_controls_playback_speed">Kiirus</string>
   <string name="exo_controls_playback_speed_normal">Tavaline</string>
-  <string name="exo_download_description">Allalaadimine</string>
-  <string name="exo_download_notification_channel_name">Allalaadimised</string>
-  <string name="exo_download_downloading">Allalaadimine</string>
-  <string name="exo_download_completed">Allalaadimine lõpetati</string>
-  <string name="exo_download_failed">Allalaadimine ebaõnnestus</string>
-  <string name="exo_download_removing">Allalaadimiste eemaldamine</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Heli</string>
   <string name="exo_track_selection_title_text">Tekst</string>

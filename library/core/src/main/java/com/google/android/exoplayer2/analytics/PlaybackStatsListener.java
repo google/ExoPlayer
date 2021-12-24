@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.analytics.PlaybackStats.EventTimeAndException;
 import com.google.android.exoplayer2.analytics.PlaybackStats.EventTimeAndFormat;
 import com.google.android.exoplayer2.analytics.PlaybackStats.EventTimeAndPlaybackState;
@@ -34,9 +35,7 @@ import com.google.android.exoplayer2.analytics.PlaybackStats.PlaybackState;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.io.IOException;
@@ -334,7 +333,7 @@ public final class PlaybackStatsListener
                   eventTime.mediaPeriodId.periodUid,
                   eventTime.mediaPeriodId.windowSequenceNumber,
                   eventTime.mediaPeriodId.adGroupIndex),
-              /* eventPlaybackPositionMs= */ C.usToMs(contentWindowPositionUs),
+              /* eventPlaybackPositionMs= */ Util.usToMs(contentWindowPositionUs),
               eventTime.timeline,
               eventTime.currentWindowIndex,
               eventTime.currentMediaPeriodId,
@@ -523,22 +522,11 @@ public final class PlaybackStatsListener
         hasFatalError = false;
       }
       if (isForeground && !isInterruptedByAd) {
-        boolean videoEnabled = false;
-        boolean audioEnabled = false;
-        for (TrackSelection trackSelection : player.getCurrentTrackSelections().getAll()) {
-          if (trackSelection != null && trackSelection.length() > 0) {
-            int trackType = MimeTypes.getTrackType(trackSelection.getFormat(0).sampleMimeType);
-            if (trackType == C.TRACK_TYPE_VIDEO) {
-              videoEnabled = true;
-            } else if (trackType == C.TRACK_TYPE_AUDIO) {
-              audioEnabled = true;
-            }
-          }
-        }
-        if (!videoEnabled) {
+        TracksInfo currentTracksInfo = player.getCurrentTracksInfo();
+        if (!currentTracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
           maybeUpdateVideoFormat(eventTime, /* newFormat= */ null);
         }
-        if (!audioEnabled) {
+        if (!currentTracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO)) {
           maybeUpdateAudioFormat(eventTime, /* newFormat= */ null);
         }
       }

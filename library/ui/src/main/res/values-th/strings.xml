@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">เปิดใช้คำบรรยาย</string>
   <string name="exo_controls_playback_speed">ความเร็ว</string>
   <string name="exo_controls_playback_speed_normal">ปกติ</string>
-  <string name="exo_download_description">ดาวน์โหลด</string>
-  <string name="exo_download_notification_channel_name">ดาวน์โหลด</string>
-  <string name="exo_download_downloading">กำลังดาวน์โหลด</string>
-  <string name="exo_download_completed">การดาวน์โหลดเสร็จสมบูรณ์</string>
-  <string name="exo_download_failed">การดาวน์โหลดล้มเหลว</string>
-  <string name="exo_download_removing">กำลังนำรายการที่ดาวน์โหลดออก</string>
   <string name="exo_track_selection_title_video">วิดีโอ</string>
   <string name="exo_track_selection_title_audio">เสียง</string>
   <string name="exo_track_selection_title_text">ข้อความ</string>

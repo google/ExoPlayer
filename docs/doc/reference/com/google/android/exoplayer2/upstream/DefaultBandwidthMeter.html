@@ -138,7 +138,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 implements <a href="BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>, <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></pre>
 <div class="block">Estimates bandwidth by listening to data transfers.
 
- <p>The bandwidth estimate is calculated using a <a href="../util/SlidingPercentile.html" title="class in com.google.android.exoplayer2.util"><code>SlidingPercentile</code></a> and is updated each
+ <p>The bandwidth estimate is calculated using a <a href="SlidingPercentile.html" title="class in com.google.android.exoplayer2.upstream"><code>SlidingPercentile</code></a> and is updated each
  time a transfer ends. The initial estimate is based on the current operator's network country
  code or the locale of the user, as well as the network connection type. This can be configured in
  the <a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a>.</div>
@@ -195,13 +195,6 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableListMultimap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableListMultimap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS">DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS</a></span></code></th>
-<td class="colLast">
-<div class="block">Country groups used to determine the default initial bitrate estimate.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATE">DEFAULT_INITIAL_BITRATE_ESTIMATE</a></span></code></th>
 <td class="colLast">
@@ -209,49 +202,49 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
  determined, in bits per second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_2G">DEFAULT_INITIAL_BITRATE_ESTIMATES_2G</a></span></code></th>
 <td class="colLast">
 <div class="block">Default initial 2G bitrate estimates in bits per second.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_3G">DEFAULT_INITIAL_BITRATE_ESTIMATES_3G</a></span></code></th>
 <td class="colLast">
 <div class="block">Default initial 3G bitrate estimates in bits per second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_4G">DEFAULT_INITIAL_BITRATE_ESTIMATES_4G</a></span></code></th>
 <td class="colLast">
 <div class="block">Default initial 4G bitrate estimates in bits per second.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA">DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA</a></span></code></th>
 <td class="colLast">
 <div class="block">Default initial 5G-NSA bitrate estimates in bits per second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA">DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA</a></span></code></th>
 <td class="colLast">
 <div class="block">Default initial 5G-SA bitrate estimates in bits per second.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI">DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI</a></span></code></th>
 <td class="colLast">
 <div class="block">Default initial Wifi bitrate estimate in bits per second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SLIDING_WINDOW_MAX_WEIGHT">DEFAULT_SLIDING_WINDOW_MAX_WEIGHT</a></span></code></th>
 <td class="colLast">
@@ -413,17 +406,6 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a id="DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS</h4>
-<pre>public static final&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableListMultimap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableListMultimap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt; DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS</pre>
-<div class="block">Country groups used to determine the default initial bitrate estimate. The group assignment for
- each country is a list for [Wifi, 2G, 3G, 4G, 5G_NSA, 5G_SA].</div>
-</li>
-</ul>
 <a id="DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI">
 <!--   -->
 </a>

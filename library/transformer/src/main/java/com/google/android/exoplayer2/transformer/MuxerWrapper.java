@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 
 /**
@@ -42,20 +43,24 @@ import java.nio.ByteBuffer;
    * <p>The value of this constant has been chosen based on the interleaving observed in a few media
    * files, where continuous chunks of the same track were about 0.5 seconds long.
    */
-  private static final long MAX_TRACK_WRITE_AHEAD_US = C.msToUs(500);
+  private static final long MAX_TRACK_WRITE_AHEAD_US = Util.msToUs(500);
 
   private final Muxer muxer;
+  private final Muxer.Factory muxerFactory;
   private final SparseIntArray trackTypeToIndex;
   private final SparseLongArray trackTypeToTimeUs;
+  private final String containerMimeType;
 
   private int trackCount;
   private int trackFormatCount;
   private boolean isReady;
-  private int previousTrackType;
+  private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
 
-  public MuxerWrapper(Muxer muxer) {
+  public MuxerWrapper(Muxer muxer, Muxer.Factory muxerFactory, String containerMimeType) {
     this.muxer = muxer;
+    this.muxerFactory = muxerFactory;
+    this.containerMimeType = containerMimeType;
     trackTypeToIndex = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
@@ -78,7 +83,7 @@ import java.nio.ByteBuffer;
 
   /** Returns whether the sample {@link MimeTypes MIME type} is supported. */
   public boolean supportsSampleMimeType(@Nullable String mimeType) {
-    return muxer.supportsSampleMimeType(mimeType);
+    return muxerFactory.supportsSampleMimeType(mimeType, containerMimeType);
   }
 
   /**
@@ -99,7 +104,7 @@ import java.nio.ByteBuffer;
     boolean isAudio = MimeTypes.isAudio(sampleMimeType);
     boolean isVideo = MimeTypes.isVideo(sampleMimeType);
     checkState(isAudio || isVideo, "Unsupported track format: " + sampleMimeType);
-    int trackType = MimeTypes.getTrackType(sampleMimeType);
+    @C.TrackType int trackType = MimeTypes.getTrackType(sampleMimeType);
     checkState(
         trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET) == C.INDEX_UNSET,
         "There is already a track of type " + trackType);
@@ -116,8 +121,7 @@ import java.nio.ByteBuffer;
   /**
    * Attempts to write a sample to the muxer.
    *
-   * @param trackType The track type of the sample, defined by the {@code TRACK_TYPE_*} constants in
-   *     {@link C}.
+   * @param trackType The {@link C.TrackType track type} of the sample.
    * @param data The sample to write, or {@code null} if the sample is empty.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
@@ -129,7 +133,10 @@ import java.nio.ByteBuffer;
    *     track of the given track type.
    */
   public boolean writeSample(
-      int trackType, @Nullable ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
+      @C.TrackType int trackType,
+      @Nullable ByteBuffer data,
+      boolean isKeyFrame,
+      long presentationTimeUs) {
     int trackIndex = trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET);
     checkState(
         trackIndex != C.INDEX_UNSET,
@@ -151,9 +158,9 @@ import java.nio.ByteBuffer;
    * Notifies the muxer that all the samples have been {@link #writeSample(int, ByteBuffer, boolean,
    * long) written} for a given track.
    *
-   * @param trackType The track type, defined by the {@code TRACK_TYPE_*} constants in {@link C}.
+   * @param trackType The {@link C.TrackType track type}.
    */
-  public void endTrack(int trackType) {
+  public void endTrack(@C.TrackType int trackType) {
     trackTypeToIndex.delete(trackType);
     trackTypeToTimeUs.delete(trackType);
   }

@@ -83,7 +83,7 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
   private static final PositionHolder POSITION_HOLDER = new PositionHolder();
 
   private final Extractor extractor;
-  private final int primaryTrackType;
+  private final @C.TrackType int primaryTrackType;
   private final Format primaryTrackManifestFormat;
   private final SparseArray<BindingTrackOutput> bindingTrackOutputs;
 
@@ -97,13 +97,12 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
    * Creates an instance.
    *
    * @param extractor The extractor to wrap.
-   * @param primaryTrackType The type of the primary track. Typically one of the {@link
-   *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
+   * @param primaryTrackType The {@link C.TrackType type} of the primary track.
    * @param primaryTrackManifestFormat A manifest defined {@link Format} whose data should be merged
    *     into any sample {@link Format} output from the {@link Extractor} for the primary track.
    */
   public BundledChunkExtractor(
-      Extractor extractor, int primaryTrackType, Format primaryTrackManifestFormat) {
+      Extractor extractor, @C.TrackType int primaryTrackType, Format primaryTrackManifestFormat) {
     this.extractor = extractor;
     this.primaryTrackType = primaryTrackType;
     this.primaryTrackManifestFormat = primaryTrackManifestFormat;

@@ -264,7 +264,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilPosition(int,long)">playUntilPosition</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilPosition(int,long)">playUntilPosition</a></span>&#8203;(int&nbsp;mediaItemIndex,
                  long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules a play action, waits until the player reaches the specified position, and pauses
@@ -273,10 +273,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilStartOfWindow(int)">playUntilStartOfWindow</a></span>&#8203;(int&nbsp;windowIndex)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playUntilStartOfMediaItem(int)">playUntilStartOfMediaItem</a></span>&#8203;(int&nbsp;mediaItemIndex)</code></th>
 <td class="colLast">
-<div class="block">Schedules a play action, waits until the player reaches the start of the specified window,
- and pauses the player again.</div>
+<div class="block">Schedules a play action, waits until the player reaches the start of the specified media
+ item, and pauses the player again.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
@@ -311,7 +311,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(int,long)">seek</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(int,long)">seek</a></span>&#8203;(int&nbsp;mediaItemIndex,
     long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules a seek action.</div>
@@ -319,7 +319,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(int,long,boolean)">seek</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(int,long,boolean)">seek</a></span>&#8203;(int&nbsp;mediaItemIndex,
     long&nbsp;positionMs,
     boolean&nbsp;catchIllegalSeekException)</code></th>
 <td class="colLast">
@@ -343,7 +343,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,int,long)">sendMessage</a></span>&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
-           int&nbsp;windowIndex,
+           int&nbsp;mediaItemIndex,
            long&nbsp;positionMs)</code></th>
 <td class="colLast">
 <div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
@@ -352,7 +352,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendMessage(com.google.android.exoplayer2.PlayerMessage.Target,int,long,boolean)">sendMessage</a></span>&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
-           int&nbsp;windowIndex,
+           int&nbsp;mediaItemIndex,
            long&nbsp;positionMs,
            boolean&nbsp;deleteAfterDelivery)</code></th>
 <td class="colLast">
@@ -385,7 +385,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSources(int,long,com.google.android.exoplayer2.source.MediaSource...)">setMediaSources</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSources(int,long,com.google.android.exoplayer2.source.MediaSource...)">setMediaSources</a></span>&#8203;(int&nbsp;mediaItemIndex,
                long&nbsp;positionMs,
                <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</code></th>
 <td class="colLast">
@@ -408,7 +408,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i30" class="altColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatMode(int)">setRepeatMode</a></span>&#8203;(int&nbsp;repeatMode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">setRepeatMode</a></span>&#8203;(@com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</code></th>
 <td class="colLast">
 <div class="block">Schedules a repeat mode setting action.</div>
 </td>
@@ -478,7 +478,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i40" class="altColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForPlaybackState(int)">waitForPlaybackState</a></span>&#8203;(int&nbsp;targetPlaybackState)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForPlaybackState(@com.google.android.exoplayer2.Player.Stateint)">waitForPlaybackState</a></span>&#8203;(@com.google.android.exoplayer2.Player.State int&nbsp;targetPlaybackState)</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until the playback state changed to the specified state.</div>
 </td>
@@ -506,8 +506,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i44" class="altColor">
 <td class="colFirst"><code><a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForTimelineChanged(com.google.android.exoplayer2.Timeline,int)">waitForTimelineChanged</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
-                      int&nbsp;expectedReason)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitForTimelineChanged(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">waitForTimelineChanged</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
+                      @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;expectedReason)</code></th>
 <td class="colLast">
 <div class="block">Schedules a delay until the timeline changed to a specified expected timeline.</div>
 </td>
@@ -631,12 +631,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;mediaItemIndex,
                                    long&nbsp;positionMs)</pre>
 <div class="block">Schedules a seek action.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The window to seek to.</dd>
+<dd><code>mediaItemIndex</code> - The media item to seek to.</dd>
 <dd><code>positionMs</code> - The seek position.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
@@ -649,13 +649,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>seek</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;seek&#8203;(int&nbsp;mediaItemIndex,
                                    long&nbsp;positionMs,
                                    boolean&nbsp;catchIllegalSeekException)</pre>
 <div class="block">Schedules a seek action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The window to seek to.</dd>
+<dd><code>mediaItemIndex</code> - The media item to seek to.</dd>
 <dd><code>positionMs</code> - The seek position.</dd>
 <dd><code>catchIllegalSeekException</code> - Whether an illegal seek position should be caught or not.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -764,31 +764,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>playUntilPosition</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilPosition&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilPosition&#8203;(int&nbsp;mediaItemIndex,
                                                 long&nbsp;positionMs)</pre>
 <div class="block">Schedules a play action, waits until the player reaches the specified position, and pauses
  the player again.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The window index at which the player should be paused again.</dd>
-<dd><code>positionMs</code> - The position in that window at which the player should be paused again.</dd>
+<dd><code>mediaItemIndex</code> - The media item index at which the player should be paused again.</dd>
+<dd><code>positionMs</code> - The position in that media item at which the player should be paused again.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 </dl>
 </li>
 </ul>
-<a id="playUntilStartOfWindow(int)">
+<a id="playUntilStartOfMediaItem(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>playUntilStartOfWindow</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilStartOfWindow&#8203;(int&nbsp;windowIndex)</pre>
-<div class="block">Schedules a play action, waits until the player reaches the start of the specified window,
- and pauses the player again.</div>
+<h4>playUntilStartOfMediaItem</h4>
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;playUntilStartOfMediaItem&#8203;(int&nbsp;mediaItemIndex)</pre>
+<div class="block">Schedules a play action, waits until the player reaches the start of the specified media
+ item, and pauses the player again.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The window index at which the player should be paused again.</dd>
+<dd><code>mediaItemIndex</code> - The media item index at which the player should be paused again.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 </dl>
@@ -885,17 +885,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setMediaSources&#8203;(int&nbsp;mediaItemIndex,
                                               long&nbsp;positionMs,
                                               <a href="../source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;sources)</pre>
 <div class="block">Schedules a set media items action to be executed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The window index to start playback from or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the
-     playback position should not be reset.</dd>
-<dd><code>positionMs</code> - The position in milliseconds from where playback should start. If <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is passed the default position is used. In any case, if <code>windowIndex</code>
-     is set to <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> the position is not reset at all and this parameter is
-     ignored.</dd>
+<dd><code>mediaItemIndex</code> - The media item index to start playback from or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if
+     the playback position should not be reset.</dd>
+<dd><code>positionMs</code> - The position in milliseconds from where playback should start. If <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is passed the default position is used. In any case, if <code>
+     mediaItemIndex</code> is set to <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> the position is not reset at all and this
+     parameter is ignored.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 </dl>
@@ -1030,14 +1030,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="setRepeatMode(int)">
+<a id="setRepeatMode(@com.google.android.exoplayer2.Player.RepeatModeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatMode</h4>
 <pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;setRepeatMode&#8203;(<a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
-                                            int&nbsp;repeatMode)</pre>
+                                            @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</pre>
 <div class="block">Schedules a repeat mode setting action.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1086,8 +1086,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>positionMs</code> - The position in the current window at which the message should be sent, in
-     milliseconds.</dd>
+<dd><code>positionMs</code> - The position in the current media item at which the message should be sent,
+     in milliseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
 </dl>
@@ -1100,13 +1100,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>sendMessage</h4>
 <pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
-                                          int&nbsp;windowIndex,
+                                          int&nbsp;mediaItemIndex,
                                           long&nbsp;positionMs)</pre>
 <div class="block">Schedules sending a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A message target.</dd>
-<dd><code>windowIndex</code> - The window index at which the message should be sent.</dd>
+<dd><code>mediaItemIndex</code> - The media item index at which the message should be sent.</dd>
 <dd><code>positionMs</code> - The position at which the message should be sent, in milliseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The builder, for convenience.</dd>
@@ -1120,14 +1120,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>sendMessage</h4>
 <pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;sendMessage&#8203;(<a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target,
-                                          int&nbsp;windowIndex,
+                                          int&nbsp;mediaItemIndex,
                                           long&nbsp;positionMs,
                                           boolean&nbsp;deleteAfterDelivery)</pre>
 <div class="block">Schedules to send a <a href="../PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A message target.</dd>
-<dd><code>windowIndex</code> - The window index at which the message should be sent.</dd>
+<dd><code>mediaItemIndex</code> - The media item index at which the message should be sent.</dd>
 <dd><code>positionMs</code> - The position at which the message should be sent, in milliseconds.</dd>
 <dd><code>deleteAfterDelivery</code> - Whether the message will be deleted after delivery.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1149,7 +1149,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="waitForTimelineChanged(com.google.android.exoplayer2.Timeline,int)">
+<a id="waitForTimelineChanged(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1157,7 +1157,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>waitForTimelineChanged</h4>
 <pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForTimelineChanged&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;expectedTimeline,
                                                      <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
-                                                     int&nbsp;expectedReason)</pre>
+                                                     @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;expectedReason)</pre>
 <div class="block">Schedules a delay until the timeline changed to a specified expected timeline.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1198,14 +1198,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="waitForPlaybackState(int)">
+<a id="waitForPlaybackState(@com.google.android.exoplayer2.Player.Stateint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>waitForPlaybackState</h4>
 <pre class="methodSignature">public&nbsp;<a href="ActionSchedule.Builder.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule.Builder</a>&nbsp;waitForPlaybackState&#8203;(<a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
-                                                   int&nbsp;targetPlaybackState)</pre>
+                                                   @com.google.android.exoplayer2.Player.State int&nbsp;targetPlaybackState)</pre>
 <div class="block">Schedules a delay until the playback state changed to the specified state.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

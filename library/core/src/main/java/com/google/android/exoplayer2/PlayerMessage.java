@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Renderer.MessageType;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import java.util.concurrent.TimeoutException;
@@ -39,7 +40,8 @@ public final class PlayerMessage {
      * @throws ExoPlaybackException If an error occurred whilst handling the message. Should only be
      *     thrown by targets that handle messages on the playback thread.
      */
-    void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException;
+    void handleMessage(@MessageType int messageType, @Nullable Object message)
+        throws ExoPlaybackException;
   }
 
   /** A sender for messages. */
@@ -61,7 +63,7 @@ public final class PlayerMessage {
   private int type;
   @Nullable private Object payload;
   private Looper looper;
-  private int windowIndex;
+  private int mediaItemIndex;
   private long positionMs;
   private boolean deleteAfterDelivery;
   private boolean isSent;
@@ -76,8 +78,8 @@ public final class PlayerMessage {
    * @param target The {@link Target} the message is sent to.
    * @param timeline The timeline used when setting the position with {@link #setPosition(long)}. If
    *     set to {@link Timeline#EMPTY}, any position can be specified.
-   * @param defaultWindowIndex The default window index in the {@code timeline} when no other window
-   *     index is specified.
+   * @param defaultMediaItemIndex The default media item index in the {@code timeline} when no other
+   *     media item index is specified.
    * @param clock The {@link Clock}.
    * @param defaultLooper The default {@link Looper} to send the message on when no other looper is
    *     specified.
@@ -86,7 +88,7 @@ public final class PlayerMessage {
       Sender sender,
       Target target,
       Timeline timeline,
-      int defaultWindowIndex,
+      int defaultMediaItemIndex,
       Clock clock,
       Looper defaultLooper) {
     this.sender = sender;
@@ -94,7 +96,7 @@ public final class PlayerMessage {
     this.timeline = timeline;
     this.looper = defaultLooper;
     this.clock = clock;
-    this.windowIndex = defaultWindowIndex;
+    this.mediaItemIndex = defaultMediaItemIndex;
     this.positionMs = C.TIME_UNSET;
     this.deleteAfterDelivery = true;
   }
@@ -171,21 +173,21 @@ public final class PlayerMessage {
   }
 
   /**
-   * Returns position in window at {@link #getWindowIndex()} at which the message will be delivered,
-   * in milliseconds. If {@link C#TIME_UNSET}, the message will be delivered immediately. If {@link
-   * C#TIME_END_OF_SOURCE}, the message will be delivered at the end of the window at {@link
-   * #getWindowIndex()}.
+   * Returns position in the media item at {@link #getMediaItemIndex()} at which the message will be
+   * delivered, in milliseconds. If {@link C#TIME_UNSET}, the message will be delivered immediately.
+   * If {@link C#TIME_END_OF_SOURCE}, the message will be delivered at the end of the media item at
+   * {@link #getMediaItemIndex()}.
    */
   public long getPositionMs() {
     return positionMs;
   }
 
   /**
-   * Sets a position in the current window at which the message will be delivered.
+   * Sets a position in the current media item at which the message will be delivered.
    *
-   * @param positionMs The position in the current window at which the message will be sent, in
+   * @param positionMs The position in the current media item at which the message will be sent, in
    *     milliseconds, or {@link C#TIME_END_OF_SOURCE} to deliver the message at the end of the
-   *     current window.
+   *     current media item.
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
@@ -196,31 +198,32 @@ public final class PlayerMessage {
   }
 
   /**
-   * Sets a position in a window at which the message will be delivered.
+   * Sets a position in a media item at which the message will be delivered.
    *
-   * @param windowIndex The index of the window at which the message will be sent.
-   * @param positionMs The position in the window with index {@code windowIndex} at which the
+   * @param mediaItemIndex The index of the media item at which the message will be sent.
+   * @param positionMs The position in the media item with index {@code mediaItemIndex} at which the
    *     message will be sent, in milliseconds, or {@link C#TIME_END_OF_SOURCE} to deliver the
-   *     message at the end of the window with index {@code windowIndex}.
+   *     message at the end of the media item with index {@code mediaItemIndex}.
    * @return This message.
    * @throws IllegalSeekPositionException If the timeline returned by {@link #getTimeline()} is not
-   *     empty and the provided window index is not within the bounds of the timeline.
+   *     empty and the provided media item index is not within the bounds of the timeline.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
-  public PlayerMessage setPosition(int windowIndex, long positionMs) {
+  public PlayerMessage setPosition(int mediaItemIndex, long positionMs) {
     Assertions.checkState(!isSent);
     Assertions.checkArgument(positionMs != C.TIME_UNSET);
-    if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
-      throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
+    if (mediaItemIndex < 0
+        || (!timeline.isEmpty() && mediaItemIndex >= timeline.getWindowCount())) {
+      throw new IllegalSeekPositionException(timeline, mediaItemIndex, positionMs);
     }
-    this.windowIndex = windowIndex;
+    this.mediaItemIndex = mediaItemIndex;
     this.positionMs = positionMs;
     return this;
   }
 
-  /** Returns window index at which the message will be delivered. */
-  public int getWindowIndex() {
-    return windowIndex;
+  /** Returns media item index at which the message will be delivered. */
+  public int getMediaItemIndex() {
+    return mediaItemIndex;
   }
 
   /**

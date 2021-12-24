@@ -38,8 +38,8 @@ public class SilenceMediaSourceTest {
 
     assertThat(mediaItem).isNotNull();
     assertThat(mediaItem.mediaId).isEqualTo(SilenceMediaSource.MEDIA_ID);
-    assertThat(mediaItem.playbackProperties.uri).isEqualTo(Uri.EMPTY);
-    assertThat(mediaItem.playbackProperties.mimeType).isEqualTo(MimeTypes.AUDIO_RAW);
+    assertThat(mediaItem.localConfiguration.uri).isEqualTo(Uri.EMPTY);
+    assertThat(mediaItem.localConfiguration.mimeType).isEqualTo(MimeTypes.AUDIO_RAW);
   }
 
   @Test
@@ -49,7 +49,7 @@ public class SilenceMediaSourceTest {
     SilenceMediaSource mediaSource =
         new SilenceMediaSource.Factory().setTag(tag).setDurationUs(1_000_000).createMediaSource();
 
-    assertThat(mediaSource.getMediaItem().playbackProperties.tag).isEqualTo(tag);
+    assertThat(mediaSource.getMediaItem().localConfiguration.tag).isEqualTo(tag);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class SilenceMediaSourceTest {
     SilenceMediaSource mediaSource =
         new SilenceMediaSource.Factory().setTag(tag).setDurationUs(1_000_000).createMediaSource();
 
-    assertThat(mediaSource.getMediaItem().playbackProperties.tag).isEqualTo(tag);
+    assertThat(mediaSource.getMediaItem().localConfiguration.tag).isEqualTo(tag);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class SilenceMediaSourceTest {
 
     assertThat(mediaItem).isNotNull();
     assertThat(mediaItem.mediaId).isEqualTo(SilenceMediaSource.MEDIA_ID);
-    assertThat(mediaSource.getMediaItem().playbackProperties.uri).isEqualTo(Uri.EMPTY);
-    assertThat(mediaItem.playbackProperties.mimeType).isEqualTo(MimeTypes.AUDIO_RAW);
+    assertThat(mediaSource.getMediaItem().localConfiguration.uri).isEqualTo(Uri.EMPTY);
+    assertThat(mediaItem.localConfiguration.mimeType).isEqualTo(MimeTypes.AUDIO_RAW);
   }
 }

@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Altyazıları etkinleştir</string>
   <string name="exo_controls_playback_speed">Hız</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">İndir</string>
-  <string name="exo_download_notification_channel_name">İndirilenler</string>
-  <string name="exo_download_downloading">İndiriliyor</string>
-  <string name="exo_download_completed">İndirme işlemi tamamlandı</string>
-  <string name="exo_download_failed">İndirilemedi</string>
-  <string name="exo_download_removing">İndirilenler kaldırılıyor</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Ses</string>
   <string name="exo_track_selection_title_text">Metin</string>

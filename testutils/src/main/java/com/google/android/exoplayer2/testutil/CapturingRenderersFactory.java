@@ -195,6 +195,12 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
     @Nullable
     @Override
+    public Surface getInputSurface() {
+      return delegate.getInputSurface();
+    }
+
+    @Nullable
+    @Override
     public ByteBuffer getOutputBuffer(int index) {
       return delegate.getOutputBuffer(index);
     }
@@ -260,6 +266,12 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     @Override
     public void setVideoScalingMode(int scalingMode) {
       delegate.setVideoScalingMode(scalingMode);
+    }
+
+    @RequiresApi(18)
+    @Override
+    public void signalEndOfInputStream() {
+      delegate.signalEndOfInputStream();
     }
 
     // Dumpable implementation

@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import android.net.Uri;
 import android.os.SystemClock;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
@@ -59,9 +58,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.tag).isEqualTo(tag);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility
@@ -77,9 +76,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
   }
 
   // Tests backwards compatibility
@@ -94,9 +93,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.streamKeys).containsExactly(streamKey);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
   }
 
   // Tests backwards compatibility
@@ -116,9 +115,9 @@ public class HlsMediaSourceTest {
 
     MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(hlsMediaItem.playbackProperties).isNotNull();
-    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(hlsMediaItem.playbackProperties.streamKeys).containsExactly(mediaItemStreamKey);
+    assertThat(hlsMediaItem.localConfiguration).isNotNull();
+    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
+    assertThat(hlsMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 
   @Test
@@ -364,7 +363,11 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(3000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(3000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
@@ -439,7 +442,11 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(3000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(3000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
@@ -469,7 +476,11 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:05.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(1000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(1000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
@@ -502,14 +513,18 @@ public class HlsMediaSourceTest {
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:09.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem =
-        new MediaItem.Builder().setUri(playlistUri).setLiveTargetOffsetMs(20_000).build();
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(20_000).build())
+            .build();
     HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
 
     Timeline timeline = prepareAndWaitForTimeline(mediaSource);
 
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     assertThat(mediaItem.liveConfiguration.targetOffsetMs)
-        .isGreaterThan(C.usToMs(window.durationUs));
+        .isGreaterThan(Util.usToMs(window.durationUs));
     assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(9000);
   }
 

@@ -121,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</li>
+<li><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.ext.av1.Gav1Decoder</li>
@@ -135,11 +135,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">Gav1Decoder</span>
-extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</pre>
+extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</pre>
 <div class="block">Gav1 decoder.</div>
 </li>
 </ul>
@@ -188,14 +188,14 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a></code></td>
+<td class="colFirst"><code>protected <a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createInputBuffer()">createInputBuffer</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Creates a new input buffer.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected <a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a></code></td>
+<td class="colFirst"><code>protected <a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createOutputBuffer()">createOutputBuffer</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Creates a new output buffer.</div>
@@ -210,8 +210,8 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected <a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.video.VideoDecoderInputBuffer,com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,boolean)">decode</a></span>&#8203;(<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>&nbsp;inputBuffer,
-      <a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer,boolean)">decode</a></span>&#8203;(<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
+      <a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
@@ -233,14 +233,14 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer)">releaseOutputBuffer</a></span>&#8203;(<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;buffer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer)">releaseOutputBuffer</a></span>&#8203;(<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
 <div class="block">Releases an output buffer back to the decoder.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderToSurface(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,android.view.Surface)">renderToSurface</a></span>&#8203;(<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderToSurface(com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer,android.view.Surface)">renderToSurface</a></span>&#8203;(<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
                <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
 <div class="block">Renders output buffer to the given surface.</div>
@@ -339,12 +339,12 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>createInputBuffer</h4>
-<pre class="methodSignature">protected&nbsp;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>&nbsp;createInputBuffer()</pre>
+<pre class="methodSignature">protected&nbsp;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;createInputBuffer()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#createInputBuffer()">SimpleDecoder</a></code></span></div>
 <div class="block">Creates a new input buffer.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#createInputBuffer()">createInputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#createInputBuffer()">createInputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -354,30 +354,30 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>createOutputBuffer</h4>
-<pre class="methodSignature">protected&nbsp;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;createOutputBuffer()</pre>
+<pre class="methodSignature">protected&nbsp;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;createOutputBuffer()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#createOutputBuffer()">SimpleDecoder</a></code></span></div>
 <div class="block">Creates a new output buffer.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#createOutputBuffer()">createOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#createOutputBuffer()">createOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a id="decode(com.google.android.exoplayer2.video.VideoDecoderInputBuffer,com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,boolean)">
+<a id="decode(com.google.android.exoplayer2.decoder.DecoderInputBuffer,com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer,boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>decode</h4>
 <pre class="methodSignature">@Nullable
-protected&nbsp;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&nbsp;decode&#8203;(<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>&nbsp;inputBuffer,
-                                      <a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
+protected&nbsp;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&nbsp;decode&#8203;(<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
+                                      <a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
                                       boolean&nbsp;reset)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#decode(I,O,boolean)">SimpleDecoder</a></code></span></div>
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#decode(I,O,boolean)">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#decode(I,O,boolean)">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The buffer to decode.</dd>
 <dd><code>outputBuffer</code> - The output buffer to store decoded data. The flag <a href="../../C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> will be set if the same flag is set on <code>inputBuffer</code>, but
@@ -401,7 +401,7 @@ protected&nbsp;<a href="Gav1DecoderException.html" title="class in com.google.an
 <div class="block">Creates an exception to propagate for an unexpected decode error.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#createUnexpectedDecodeException(java.lang.Throwable)">createUnexpectedDecodeException</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#createUnexpectedDecodeException(java.lang.Throwable)">createUnexpectedDecodeException</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>error</code> - The unexpected decode error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -420,24 +420,24 @@ protected&nbsp;<a href="Gav1DecoderException.html" title="class in com.google.an
 <div class="block">Releases the decoder. Must be called when the decoder is no longer needed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../decoder/Decoder.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/Decoder.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#release()">release</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#release()">release</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a id="releaseOutputBuffer(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer)">
+<a id="releaseOutputBuffer(com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>releaseOutputBuffer</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;releaseOutputBuffer&#8203;(<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;buffer)</pre>
+<pre class="methodSignature">protected&nbsp;void&nbsp;releaseOutputBuffer&#8203;(<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;buffer)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#releaseOutputBuffer(O)">SimpleDecoder</a></code></span></div>
 <div class="block">Releases an output buffer back to the decoder.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../decoder/SimpleDecoder.html#releaseOutputBuffer(O)">releaseOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../video/VideoDecoderInputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderInputBuffer</a>,&#8203;<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
+<dd><code><a href="../../decoder/SimpleDecoder.html#releaseOutputBuffer(O)">releaseOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>,&#8203;<a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - The output buffer being released.</dd>
 </dl>
@@ -458,13 +458,13 @@ protected&nbsp;<a href="Gav1DecoderException.html" title="class in com.google.an
 </dl>
 </li>
 </ul>
-<a id="renderToSurface(com.google.android.exoplayer2.video.VideoDecoderOutputBuffer,android.view.Surface)">
+<a id="renderToSurface(com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer,android.view.Surface)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>renderToSurface</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;renderToSurface&#8203;(<a href="../../video/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.video">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
+<pre class="methodSignature">public&nbsp;void&nbsp;renderToSurface&#8203;(<a href="../../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer,
                             <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)
                      throws <a href="Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1DecoderException</a></pre>
 <div class="block">Renders output buffer to the given surface. Must only be called when in <a href="../../C.html#VIDEO_OUTPUT_MODE_SURFACE_YUV"><code>C.VIDEO_OUTPUT_MODE_SURFACE_YUV</code></a> mode.</div>

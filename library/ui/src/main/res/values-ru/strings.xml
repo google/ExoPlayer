@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Включить субтитры</string>
   <string name="exo_controls_playback_speed">Скорость</string>
   <string name="exo_controls_playback_speed_normal">Стандартная</string>
-  <string name="exo_download_description">Скачать</string>
-  <string name="exo_download_notification_channel_name">Скачивания</string>
-  <string name="exo_download_downloading">Скачивание…</string>
-  <string name="exo_download_completed">Скачивание завершено</string>
-  <string name="exo_download_failed">Ошибка скачивания</string>
-  <string name="exo_download_removing">Удаление скачанных файлов…</string>
   <string name="exo_track_selection_title_video">Видео</string>
   <string name="exo_track_selection_title_audio">Аудио</string>
   <string name="exo_track_selection_title_text">Текст</string>

@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.extractor.FlacFrameReader;
 import com.google.android.exoplayer2.extractor.FlacFrameReader.SampleNumberHolder;
 import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.util.FlacConstants;
 import java.io.IOException;
 
 /**

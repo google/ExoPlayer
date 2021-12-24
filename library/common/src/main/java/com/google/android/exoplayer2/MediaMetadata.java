@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
@@ -26,6 +32,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,6 +75,7 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Integer totalDiscCount;
     @Nullable private CharSequence genre;
     @Nullable private CharSequence compilation;
+    @Nullable private CharSequence station;
     @Nullable private Bundle extras;
 
     public Builder() {}
@@ -103,6 +111,7 @@ public final class MediaMetadata implements Bundleable {
       this.totalDiscCount = mediaMetadata.totalDiscCount;
       this.genre = mediaMetadata.genre;
       this.compilation = mediaMetadata.compilation;
+      this.station = mediaMetadata.station;
       this.extras = mediaMetadata.extras;
     }
 
@@ -339,6 +348,12 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Sets the name of the station streaming the media. */
+    public Builder setStation(@Nullable CharSequence station) {
+      this.station = station;
+      return this;
+    }
+
     /** Sets the extras {@link Bundle}. */
     public Builder setExtras(@Nullable Bundle extras) {
       this.extras = extras;
@@ -383,6 +398,111 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
+    /** Populates all the fields from {@code mediaMetadata}, provided they are non-null. */
+    public Builder populate(@Nullable MediaMetadata mediaMetadata) {
+      if (mediaMetadata == null) {
+        return this;
+      }
+      if (mediaMetadata.title != null) {
+        setTitle(mediaMetadata.title);
+      }
+      if (mediaMetadata.artist != null) {
+        setArtist(mediaMetadata.artist);
+      }
+      if (mediaMetadata.albumTitle != null) {
+        setAlbumTitle(mediaMetadata.albumTitle);
+      }
+      if (mediaMetadata.albumArtist != null) {
+        setAlbumArtist(mediaMetadata.albumArtist);
+      }
+      if (mediaMetadata.displayTitle != null) {
+        setDisplayTitle(mediaMetadata.displayTitle);
+      }
+      if (mediaMetadata.subtitle != null) {
+        setSubtitle(mediaMetadata.subtitle);
+      }
+      if (mediaMetadata.description != null) {
+        setDescription(mediaMetadata.description);
+      }
+      if (mediaMetadata.mediaUri != null) {
+        setMediaUri(mediaMetadata.mediaUri);
+      }
+      if (mediaMetadata.userRating != null) {
+        setUserRating(mediaMetadata.userRating);
+      }
+      if (mediaMetadata.overallRating != null) {
+        setOverallRating(mediaMetadata.overallRating);
+      }
+      if (mediaMetadata.artworkData != null) {
+        setArtworkData(mediaMetadata.artworkData, mediaMetadata.artworkDataType);
+      }
+      if (mediaMetadata.artworkUri != null) {
+        setArtworkUri(mediaMetadata.artworkUri);
+      }
+      if (mediaMetadata.trackNumber != null) {
+        setTrackNumber(mediaMetadata.trackNumber);
+      }
+      if (mediaMetadata.totalTrackCount != null) {
+        setTotalTrackCount(mediaMetadata.totalTrackCount);
+      }
+      if (mediaMetadata.folderType != null) {
+        setFolderType(mediaMetadata.folderType);
+      }
+      if (mediaMetadata.isPlayable != null) {
+        setIsPlayable(mediaMetadata.isPlayable);
+      }
+      if (mediaMetadata.year != null) {
+        setRecordingYear(mediaMetadata.year);
+      }
+      if (mediaMetadata.recordingYear != null) {
+        setRecordingYear(mediaMetadata.recordingYear);
+      }
+      if (mediaMetadata.recordingMonth != null) {
+        setRecordingMonth(mediaMetadata.recordingMonth);
+      }
+      if (mediaMetadata.recordingDay != null) {
+        setRecordingDay(mediaMetadata.recordingDay);
+      }
+      if (mediaMetadata.releaseYear != null) {
+        setReleaseYear(mediaMetadata.releaseYear);
+      }
+      if (mediaMetadata.releaseMonth != null) {
+        setReleaseMonth(mediaMetadata.releaseMonth);
+      }
+      if (mediaMetadata.releaseDay != null) {
+        setReleaseDay(mediaMetadata.releaseDay);
+      }
+      if (mediaMetadata.writer != null) {
+        setWriter(mediaMetadata.writer);
+      }
+      if (mediaMetadata.composer != null) {
+        setComposer(mediaMetadata.composer);
+      }
+      if (mediaMetadata.conductor != null) {
+        setConductor(mediaMetadata.conductor);
+      }
+      if (mediaMetadata.discNumber != null) {
+        setDiscNumber(mediaMetadata.discNumber);
+      }
+      if (mediaMetadata.totalDiscCount != null) {
+        setTotalDiscCount(mediaMetadata.totalDiscCount);
+      }
+      if (mediaMetadata.genre != null) {
+        setGenre(mediaMetadata.genre);
+      }
+      if (mediaMetadata.compilation != null) {
+        setCompilation(mediaMetadata.compilation);
+      }
+      if (mediaMetadata.station != null) {
+        setStation(mediaMetadata.station);
+      }
+      if (mediaMetadata.extras != null) {
+        setExtras(mediaMetadata.extras);
+      }
+
+      return this;
+    }
+
     /** Returns a new {@link MediaMetadata} instance with the current builder values. */
     public MediaMetadata build() {
       return new MediaMetadata(/* builder= */ this);
@@ -398,6 +518,7 @@ public final class MediaMetadata implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     FOLDER_TYPE_NONE,
     FOLDER_TYPE_MIXED,
@@ -435,6 +556,7 @@ public final class MediaMetadata implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({
     PICTURE_TYPE_OTHER,
     PICTURE_TYPE_FILE_ICON,
@@ -512,7 +634,7 @@ public final class MediaMetadata implements Bundleable {
   /** Optional artwork data as a compressed byte array. */
   @Nullable public final byte[] artworkData;
   /** Optional {@link PictureType} of the artwork data. */
-  @Nullable @PictureType public final Integer artworkDataType;
+  @Nullable public final @PictureType Integer artworkDataType;
   /** Optional artwork {@link Uri}. */
   @Nullable public final Uri artworkUri;
   /** Optional track number. */
@@ -520,7 +642,7 @@ public final class MediaMetadata implements Bundleable {
   /** Optional total number of tracks. */
   @Nullable public final Integer totalTrackCount;
   /** Optional {@link FolderType}. */
-  @Nullable @FolderType public final Integer folderType;
+  @Nullable public final @FolderType Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
   /** @deprecated Use {@link #recordingYear} instead. */
@@ -568,6 +690,8 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final CharSequence genre;
   /** Optional compilation. */
   @Nullable public final CharSequence compilation;
+  /** Optional name of the station streaming the media. */
+  @Nullable public final CharSequence station;
 
   /**
    * Optional extras {@link Bundle}.
@@ -609,6 +733,7 @@ public final class MediaMetadata implements Bundleable {
     this.totalDiscCount = builder.totalDiscCount;
     this.genre = builder.genre;
     this.compilation = builder.compilation;
+    this.station = builder.station;
     this.extras = builder.extras;
   }
 
@@ -655,7 +780,8 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(discNumber, that.discNumber)
         && Util.areEqual(totalDiscCount, that.totalDiscCount)
         && Util.areEqual(genre, that.genre)
-        && Util.areEqual(compilation, that.compilation);
+        && Util.areEqual(compilation, that.compilation)
+        && Util.areEqual(station, that.station);
   }
 
   @Override
@@ -690,7 +816,8 @@ public final class MediaMetadata implements Bundleable {
         discNumber,
         totalDiscCount,
         genre,
-        compilation);
+        compilation,
+        station);
   }
 
   // Bundleable implementation.
@@ -728,6 +855,7 @@ public final class MediaMetadata implements Bundleable {
     FIELD_TOTAL_DISC_COUNT,
     FIELD_GENRE,
     FIELD_COMPILATION,
+    FIELD_STATION,
     FIELD_EXTRAS
   })
   private @interface FieldNumber {}
@@ -762,6 +890,7 @@ public final class MediaMetadata implements Bundleable {
   private static final int FIELD_GENRE = 27;
   private static final int FIELD_COMPILATION = 28;
   private static final int FIELD_ARTWORK_DATA_TYPE = 29;
+  private static final int FIELD_STATION = 30;
   private static final int FIELD_EXTRAS = 1000;
 
   @Override
@@ -782,6 +911,7 @@ public final class MediaMetadata implements Bundleable {
     bundle.putCharSequence(keyForField(FIELD_CONDUCTOR), conductor);
     bundle.putCharSequence(keyForField(FIELD_GENRE), genre);
     bundle.putCharSequence(keyForField(FIELD_COMPILATION), compilation);
+    bundle.putCharSequence(keyForField(FIELD_STATION), station);
 
     if (userRating != null) {
       bundle.putBundle(keyForField(FIELD_USER_RATING), userRating.toBundle());
@@ -859,6 +989,7 @@ public final class MediaMetadata implements Bundleable {
         .setConductor(bundle.getCharSequence(keyForField(FIELD_CONDUCTOR)))
         .setGenre(bundle.getCharSequence(keyForField(FIELD_GENRE)))
         .setCompilation(bundle.getCharSequence(keyForField(FIELD_COMPILATION)))
+        .setStation(bundle.getCharSequence(keyForField(FIELD_STATION)))
         .setExtras(bundle.getBundle(keyForField(FIELD_EXTRAS)));
 
     if (bundle.containsKey(keyForField(FIELD_USER_RATING))) {

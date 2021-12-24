@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParametersListener;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
+import com.google.android.exoplayer2.util.Util;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -263,7 +264,7 @@ public class DefaultMediaClockTest {
     mediaClock.onRendererDisabled(mediaClockRenderer);
     fakeClock.advanceTime(SLEEP_TIME_MS);
     assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
-        .isEqualTo(TEST_POSITION_US + C.msToUs(SLEEP_TIME_MS));
+        .isEqualTo(TEST_POSITION_US + Util.msToUs(SLEEP_TIME_MS));
     assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
@@ -329,7 +330,7 @@ public class DefaultMediaClockTest {
     mediaClockRenderer.positionUs = TEST_POSITION_US;
     mediaClock.onRendererDisabled(mediaClockRenderer);
     assertThat(mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false))
-        .isEqualTo(C.msToUs(fakeClock.elapsedRealtime()));
+        .isEqualTo(Util.msToUs(fakeClock.elapsedRealtime()));
   }
 
   @Test

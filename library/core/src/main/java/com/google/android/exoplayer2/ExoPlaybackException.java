@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -234,7 +235,9 @@ public final class ExoPlaybackException extends PlaybackException {
     rendererName = bundle.getString(keyForField(FIELD_RENDERER_NAME));
     rendererIndex =
         bundle.getInt(keyForField(FIELD_RENDERER_INDEX), /* defaultValue= */ C.INDEX_UNSET);
-    rendererFormat = bundle.getParcelable(keyForField(FIELD_RENDERER_FORMAT));
+    rendererFormat =
+        BundleableUtil.fromNullableBundle(
+            Format.CREATOR, bundle.getBundle(keyForField(FIELD_RENDERER_FORMAT)));
     rendererFormatSupport =
         bundle.getInt(
             keyForField(FIELD_RENDERER_FORMAT_SUPPORT), /* defaultValue= */ C.FORMAT_HANDLED);
@@ -356,7 +359,7 @@ public final class ExoPlaybackException extends PlaybackException {
                 + ", format="
                 + rendererFormat
                 + ", format_supported="
-                + C.getFormatSupportString(rendererFormatSupport);
+                + Util.getFormatSupportString(rendererFormatSupport);
         break;
       case TYPE_REMOTE:
         message = "Remote error";
@@ -396,7 +399,8 @@ public final class ExoPlaybackException extends PlaybackException {
     bundle.putInt(keyForField(FIELD_TYPE), type);
     bundle.putString(keyForField(FIELD_RENDERER_NAME), rendererName);
     bundle.putInt(keyForField(FIELD_RENDERER_INDEX), rendererIndex);
-    bundle.putParcelable(keyForField(FIELD_RENDERER_FORMAT), rendererFormat);
+    bundle.putBundle(
+        keyForField(FIELD_RENDERER_FORMAT), BundleableUtil.toNullableBundle(rendererFormat));
     bundle.putInt(keyForField(FIELD_RENDERER_FORMAT_SUPPORT), rendererFormatSupport);
     bundle.putBoolean(keyForField(FIELD_IS_RECOVERABLE), isRecoverable);
     return bundle;

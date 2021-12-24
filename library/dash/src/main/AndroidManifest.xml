@@ -14,4 +14,6 @@
      limitations under the License.
 -->
 
-<manifest package="com.google.android.exoplayer2.source.dash"/>
+<manifest package="com.google.android.exoplayer2.source.dash">
+  <uses-sdk />
+</manifest>

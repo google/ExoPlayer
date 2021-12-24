@@ -21,6 +21,8 @@ if (project.file('src/main/jni/ffmpeg').exists()) {
 }
 
 dependencies {
+    implementation project(modulePrefix + 'library-decoder')
+    // TODO(b/203752526): Remove this dependency.
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion

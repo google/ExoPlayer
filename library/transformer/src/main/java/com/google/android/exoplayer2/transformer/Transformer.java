@@ -37,24 +37,24 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -81,6 +81,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @RequiresApi(18)
 public final class Transformer {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.transformer");
+  }
 
   /** A builder for {@link Transformer} instances. */
   public static final class Builder {
@@ -261,7 +265,8 @@ public final class Transformer {
     }
 
     /**
-     * Sets the factory for muxers that write the media container.
+     * Sets the factory for muxers that write the media container. The default value is a {@link
+     * FrameworkMuxer.Factory}.
      *
      * @param muxerFactory A {@link Muxer.Factory}.
      * @return This builder.
@@ -293,7 +298,13 @@ public final class Transformer {
           muxerFactory.supportsOutputMimeType(outputMimeType),
           "Unsupported output MIME type: " + outputMimeType);
       Transformation transformation =
-          new Transformation(removeAudio, removeVideo, flattenForSlowMotion, outputMimeType);
+          new Transformation(
+              removeAudio,
+              removeVideo,
+              flattenForSlowMotion,
+              outputMimeType,
+              /* audioMimeType= */ null,
+              /* videoMimeType= */ null);
       return new Transformer(
           context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
     }
@@ -354,7 +365,7 @@ public final class Transformer {
 
   private Transformer.Listener listener;
   @Nullable private MuxerWrapper muxerWrapper;
-  @Nullable private SimpleExoPlayer player;
+  @Nullable private ExoPlayer player;
   @ProgressState private int progressState;
 
   private Transformer(
@@ -403,11 +414,12 @@ public final class Transformer {
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
    * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link com.google.android.exoplayer2.source.MediaSource media
-   * sources}, the highest bitrate video and audio streams are selected.
+   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
+   * audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
-   *     output container format and are described in {@link MediaMuxer#addTrack(MediaFormat)}.
+   *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
+   *     described in {@link MediaMuxer#addTrack(MediaFormat)}.
    * @param path The path to the output file.
    * @throws IllegalArgumentException If the path is invalid.
    * @throws IllegalStateException If this method is called from the wrong thread.
@@ -427,11 +439,12 @@ public final class Transformer {
    * <p>Concurrent transformations on the same Transformer object are not allowed.
    *
    * <p>The output can contain at most one video track and one audio track. Other track types are
-   * ignored. For adaptive bitrate {@link com.google.android.exoplayer2.source.MediaSource media
-   * sources}, the highest bitrate video and audio streams are selected.
+   * ignored. For adaptive bitrate {@link MediaSource media sources}, the highest bitrate video and
+   * audio streams are selected.
    *
    * @param mediaItem The {@link MediaItem} to transform. The supported sample formats depend on the
-   *     output container format and are described in {@link MediaMuxer#addTrack(MediaFormat)}.
+   *     {@link Muxer} and on the output container format. For the {@link FrameworkMuxer}, they are
+   *     described in {@link MediaMuxer#addTrack(MediaFormat)}.
    * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the output.
    *     The file referenced by this ParcelFileDescriptor should not be used before the
    *     transformation is completed. It is the responsibility of the caller to close the
@@ -454,7 +467,8 @@ public final class Transformer {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
 
-    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer);
+    MuxerWrapper muxerWrapper =
+        new MuxerWrapper(muxer, muxerFactory, transformation.outputMimeType);
     this.muxerWrapper = muxerWrapper;
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
@@ -472,7 +486,7 @@ public final class Transformer {
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
     player =
-        new SimpleExoPlayer.Builder(
+        new ExoPlayer.Builder(
                 context, new TransformerRenderersFactory(muxerWrapper, transformation))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
@@ -481,7 +495,7 @@ public final class Transformer {
             .setClock(clock)
             .build();
     player.setMediaItem(mediaItem);
-    player.addAnalyticsListener(new TransformerAnalyticsListener(mediaItem, muxerWrapper));
+    player.addListener(new TransformerPlayerListener(mediaItem, muxerWrapper));
     player.prepare();
 
     progressState = PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
@@ -583,37 +597,38 @@ public final class Transformer {
         index++;
       }
       if (!transformation.removeVideo) {
-        renderers[index] = new TransformerVideoRenderer(muxerWrapper, mediaClock, transformation);
+        renderers[index] =
+            new TransformerMuxingVideoRenderer(muxerWrapper, mediaClock, transformation);
         index++;
       }
       return renderers;
     }
   }
 
-  private final class TransformerAnalyticsListener implements AnalyticsListener {
+  private final class TransformerPlayerListener implements Player.Listener {
 
     private final MediaItem mediaItem;
     private final MuxerWrapper muxerWrapper;
 
-    public TransformerAnalyticsListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
+    public TransformerPlayerListener(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
       this.mediaItem = mediaItem;
       this.muxerWrapper = muxerWrapper;
     }
 
     @Override
-    public void onPlaybackStateChanged(EventTime eventTime, int state) {
+    public void onPlaybackStateChanged(int state) {
       if (state == Player.STATE_ENDED) {
         handleTransformationEnded(/* exception= */ null);
       }
     }
 
     @Override
-    public void onTimelineChanged(EventTime eventTime, int reason) {
+    public void onTimelineChanged(Timeline timeline, int reason) {
       if (progressState != PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
         return;
       }
       Timeline.Window window = new Timeline.Window();
-      eventTime.timeline.getWindow(/* windowIndex= */ 0, window);
+      timeline.getWindow(/* windowIndex= */ 0, window);
       if (!window.isPlaceholder) {
         long durationUs = window.durationUs;
         // Make progress permanently unavailable if the duration is unknown, so that it doesn't jump
@@ -628,8 +643,7 @@ public final class Transformer {
     }
 
     @Override
-    public void onTracksChanged(
-        EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
       if (muxerWrapper.getTrackCount() == 0) {
         handleTransformationEnded(
             new IllegalStateException(
@@ -639,7 +653,7 @@ public final class Transformer {
     }
 
     @Override
-    public void onPlayerError(EventTime eventTime, PlaybackException error) {
+    public void onPlayerError(PlaybackException error) {
       handleTransformationEnded(error);
     }
 

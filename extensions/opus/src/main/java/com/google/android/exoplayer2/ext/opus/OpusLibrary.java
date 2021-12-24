@@ -16,10 +16,9 @@
 package com.google.android.exoplayer2.ext.opus;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.LibraryLoader;
-import com.google.android.exoplayer2.util.Util;
 
 /** Configures and queries the underlying native library. */
 public final class OpusLibrary {
@@ -29,7 +28,7 @@ public final class OpusLibrary {
   }
 
   private static final LibraryLoader LOADER = new LibraryLoader("opusV2JNI");
-  @Nullable private static Class<? extends ExoMediaCrypto> exoMediaCryptoType;
+  @C.CryptoType private static int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
 
   private OpusLibrary() {}
 
@@ -38,14 +37,14 @@ public final class OpusLibrary {
    * it must do so before calling any other method defined by this class, and before instantiating a
    * {@link LibopusAudioRenderer} instance.
    *
-   * @param exoMediaCryptoType The {@link ExoMediaCrypto} type expected for decoding protected
-   *     content.
+   * @param cryptoType The {@link C.CryptoType} for which the decoder library supports decrypting
+   *     protected content, or {@link C#CRYPTO_TYPE_UNSUPPORTED} if the library does not support
+   *     decryption.
    * @param libraries The names of the Opus native libraries.
    */
-  public static void setLibraries(
-      Class<? extends ExoMediaCrypto> exoMediaCryptoType, String... libraries) {
+  public static void setLibraries(@C.CryptoType int cryptoType, String... libraries) {
+    OpusLibrary.cryptoType = cryptoType;
     LOADER.setLibraries(libraries);
-    OpusLibrary.exoMediaCryptoType = exoMediaCryptoType;
   }
 
   /** Returns whether the underlying library is available, loading it if necessary. */
@@ -59,13 +58,10 @@ public final class OpusLibrary {
     return isAvailable() ? opusGetVersion() : null;
   }
 
-  /**
-   * Returns whether the given {@link ExoMediaCrypto} type matches the one required for decoding
-   * protected content.
-   */
-  public static boolean matchesExpectedExoMediaCryptoType(
-      Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
-    return Util.areEqual(OpusLibrary.exoMediaCryptoType, exoMediaCryptoType);
+  /** Returns whether the library supports the given {@link C.CryptoType}. */
+  public static boolean supportsCryptoType(@C.CryptoType int cryptoType) {
+    return cryptoType == C.CRYPTO_TYPE_NONE
+        || (cryptoType != C.CRYPTO_TYPE_UNSUPPORTED && cryptoType == OpusLibrary.cryptoType);
   }
 
   public static native String opusGetVersion();

@@ -24,6 +24,7 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -81,16 +82,24 @@ public class AsynchronousMediaCodecCallbackTest {
 
   @Test
   public void dequeInputBufferIndex_withPendingFlush_returnsTryAgain() {
-    Looper callbackThreadLooper = callbackThread.getLooper();
+    AtomicBoolean beforeFlushCompletes = new AtomicBoolean();
     AtomicBoolean flushCompleted = new AtomicBoolean();
+    Looper callbackThreadLooper = callbackThread.getLooper();
+    Handler callbackHandler = new Handler(callbackThreadLooper);
+    ShadowLooper shadowCallbackLooper = shadowOf(callbackThreadLooper);
     // Pause the callback thread so that flush() never completes.
-    shadowOf(callbackThreadLooper).pause();
+    shadowCallbackLooper.pause();
 
     // Send two input buffers to the callback and then flush().
     asynchronousMediaCodecCallback.onInputBufferAvailable(codec, 0);
     asynchronousMediaCodecCallback.onInputBufferAvailable(codec, 1);
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    callbackHandler.post(() -> beforeFlushCompletes.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    callbackHandler.post(() -> flushCompleted.set(true));
+    while (!beforeFlushCompletes.get()) {
+      shadowCallbackLooper.runOneTask();
+    }
+
     assertThat(flushCompleted.get()).isFalse();
     assertThat(asynchronousMediaCodecCallback.dequeueInputBufferIndex())
         .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
@@ -104,8 +113,8 @@ public class AsynchronousMediaCodecCallbackTest {
     // Send two input buffers to the callback and then flush().
     asynchronousMediaCodecCallback.onInputBufferAvailable(codec, 0);
     asynchronousMediaCodecCallback.onInputBufferAvailable(codec, 1);
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
     // Progress the callback thread so that flush() completes.
     shadowOf(callbackThreadLooper).idle();
 
@@ -123,10 +132,11 @@ public class AsynchronousMediaCodecCallbackTest {
     // another input buffer.
     asynchronousMediaCodecCallback.onInputBufferAvailable(codec, 0);
     asynchronousMediaCodecCallback.onInputBufferAvailable(codec, 1);
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
-    // Progress the callback thread so that flush() completes.
-    shadowOf(callbackThreadLooper).idle();
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
+    // Progress the callback thread to complete flush.
+    shadowOf(callbackThread.getLooper()).idle();
+    // Send another input buffer to the callback
     asynchronousMediaCodecCallback.onInputBufferAvailable(codec, 2);
 
     assertThat(flushCompleted.get()).isTrue();
@@ -146,20 +156,6 @@ public class AsynchronousMediaCodecCallbackTest {
   @Test
   public void dequeueInputBufferIndex_afterOnErrorCallback_throwsError() throws Exception {
     asynchronousMediaCodecCallback.onError(codec, createCodecException());
-
-    assertThrows(
-        MediaCodec.CodecException.class,
-        () -> asynchronousMediaCodecCallback.dequeueInputBufferIndex());
-  }
-
-  @Test
-  public void dequeueInputBufferIndex_afterFlushCompletedWithError_throwsError() throws Exception {
-    MediaCodec.CodecException codecException = createCodecException();
-    asynchronousMediaCodecCallback.flushAsync(
-        () -> {
-          throw codecException;
-        });
-    shadowOf(callbackThread.getLooper()).idle();
 
     assertThrows(
         MediaCodec.CodecException.class,
@@ -198,17 +194,24 @@ public class AsynchronousMediaCodecCallbackTest {
 
   @Test
   public void dequeOutputBufferIndex_withPendingFlush_returnsTryAgain() {
-    Looper callbackThreadLooper = callbackThread.getLooper();
+    AtomicBoolean beforeFlushCompletes = new AtomicBoolean();
     AtomicBoolean flushCompleted = new AtomicBoolean();
+    Looper callbackThreadLooper = callbackThread.getLooper();
+    Handler callbackHandler = new Handler(callbackThreadLooper);
+    ShadowLooper shadowCallbackLooper = shadowOf(callbackThreadLooper);
     // Pause the callback thread so that flush() never completes.
-    shadowOf(callbackThreadLooper).pause();
+    shadowCallbackLooper.pause();
 
     // Send two output buffers to the callback and then flush().
     MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 0, bufferInfo);
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 1, bufferInfo);
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    callbackHandler.post(() -> beforeFlushCompletes.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    callbackHandler.post(() -> flushCompleted.set(true));
+    while (beforeFlushCompletes.get()) {
+      shadowCallbackLooper.runOneTask();
+    }
 
     assertThat(flushCompleted.get()).isFalse();
     assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(new MediaCodec.BufferInfo()))
@@ -224,8 +227,8 @@ public class AsynchronousMediaCodecCallbackTest {
     MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 0, bufferInfo);
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 1, bufferInfo);
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
     // Progress the callback looper so that flush() completes.
     shadowOf(callbackThreadLooper).idle();
 
@@ -245,10 +248,11 @@ public class AsynchronousMediaCodecCallbackTest {
     asynchronousMediaCodecCallback.onOutputFormatChanged(codec, createMediaFormat("format0"));
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 0, bufferInfo);
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 1, bufferInfo);
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
     // Progress the callback looper so that flush() completes.
     shadowOf(callbackThreadLooper).idle();
+    // Emulate an output buffer is available.
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 2, bufferInfo);
     MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
 
@@ -271,8 +275,8 @@ public class AsynchronousMediaCodecCallbackTest {
     MediaFormat pendingMediaFormat = new MediaFormat();
     asynchronousMediaCodecCallback.onOutputFormatChanged(codec, pendingMediaFormat);
     // flush() should not discard the last format.
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
     // Progress the callback looper so that flush() completes.
     shadowOf(callbackThreadLooper).idle();
     // Right after flush(), we send an output buffer: the pending output format should be
@@ -298,8 +302,8 @@ public class AsynchronousMediaCodecCallbackTest {
     MediaFormat pendingMediaFormat = new MediaFormat();
     asynchronousMediaCodecCallback.onOutputFormatChanged(codec, pendingMediaFormat);
     // flush() should not discard the last format.
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
     // Progress the callback looper so that flush() completes.
     shadowOf(callbackThreadLooper).idle();
     // The first callback after flush() is a new MediaFormat, it should overwrite the pending
@@ -336,20 +340,6 @@ public class AsynchronousMediaCodecCallbackTest {
   }
 
   @Test
-  public void dequeueOutputBufferIndex_afterFlushCompletedWithError_throwsError() throws Exception {
-    MediaCodec.CodecException codecException = createCodecException();
-    asynchronousMediaCodecCallback.flushAsync(
-        () -> {
-          throw codecException;
-        });
-    shadowOf(callbackThread.getLooper()).idle();
-
-    assertThrows(
-        MediaCodec.CodecException.class,
-        () -> asynchronousMediaCodecCallback.dequeueOutputBufferIndex(new MediaCodec.BufferInfo()));
-  }
-
-  @Test
   public void getOutputFormat_onNewInstance_raisesException() {
     try {
       asynchronousMediaCodecCallback.getOutputFormat();
@@ -377,8 +367,8 @@ public class AsynchronousMediaCodecCallbackTest {
 
     asynchronousMediaCodecCallback.onOutputFormatChanged(codec, format);
     asynchronousMediaCodecCallback.dequeueOutputBufferIndex(new MediaCodec.BufferInfo());
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
     // Progress the callback looper so that flush() completes.
     shadowOf(callbackThreadLooper).idle();
 
@@ -390,7 +380,8 @@ public class AsynchronousMediaCodecCallbackTest {
   public void getOutputFormat_afterFlushWithPendingFormat_returnsPendingFormat() {
     MediaCodec.BufferInfo outInfo = new MediaCodec.BufferInfo();
     AtomicBoolean flushCompleted = new AtomicBoolean();
-    ShadowLooper shadowCallbackLooper = shadowOf(callbackThread.getLooper());
+    Looper callbackThreadLooper = callbackThread.getLooper();
+    ShadowLooper shadowCallbackLooper = shadowOf(callbackThreadLooper);
     shadowCallbackLooper.pause();
 
     asynchronousMediaCodecCallback.onOutputFormatChanged(codec, createMediaFormat("format0"));
@@ -399,8 +390,8 @@ public class AsynchronousMediaCodecCallbackTest {
     asynchronousMediaCodecCallback.onOutputFormatChanged(codec, createMediaFormat("format1"));
     asynchronousMediaCodecCallback.onOutputBufferAvailable(
         codec, /* index= */ 1, new MediaCodec.BufferInfo());
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ () -> flushCompleted.set(true));
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    new Handler(callbackThreadLooper).post(() -> flushCompleted.set(true));
     // Progress the looper so that flush is completed
     shadowCallbackLooper.idle();
     // Enqueue an output buffer to make the pending format available.
@@ -419,7 +410,8 @@ public class AsynchronousMediaCodecCallbackTest {
   public void
       getOutputFormat_withConsecutiveFlushAndPendingFormatFromFirstFlush_returnsPendingFormat() {
     MediaCodec.BufferInfo outInfo = new MediaCodec.BufferInfo();
-    AtomicInteger flushesCompleted = new AtomicInteger();
+    AtomicInteger flushCompleted = new AtomicInteger();
+    Handler callbackThreadHandler = new Handler(callbackThread.getLooper());
     ShadowLooper shadowCallbackLooper = shadowOf(callbackThread.getLooper());
     shadowCallbackLooper.pause();
 
@@ -427,17 +419,17 @@ public class AsynchronousMediaCodecCallbackTest {
     asynchronousMediaCodecCallback.onOutputBufferAvailable(
         codec, /* index= */ 0, new MediaCodec.BufferInfo());
     // Flush and progress the looper so that flush is completed.
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ flushesCompleted::incrementAndGet);
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    callbackThreadHandler.post(flushCompleted::incrementAndGet);
     shadowCallbackLooper.idle();
     // Flush again, the pending format from the first flush should remain as pending.
-    asynchronousMediaCodecCallback.flushAsync(
-        /* onFlushCompleted= */ flushesCompleted::incrementAndGet);
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
+    callbackThreadHandler.post(flushCompleted::incrementAndGet);
     shadowCallbackLooper.idle();
     asynchronousMediaCodecCallback.onOutputBufferAvailable(
         codec, /* index= */ 1, new MediaCodec.BufferInfo());
 
-    assertThat(flushesCompleted.get()).isEqualTo(2);
+    assertThat(flushCompleted.get()).isEqualTo(2);
     assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(outInfo))
         .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
     assertThat(asynchronousMediaCodecCallback.getOutputFormat().getString("name"))
@@ -446,16 +438,21 @@ public class AsynchronousMediaCodecCallbackTest {
   }
 
   @Test
-  public void flush_withPendingFlush_onlyLastFlushCompletes() {
-    ShadowLooper callbackLooperShadow = shadowOf(callbackThread.getLooper());
-    callbackLooperShadow.pause();
-    AtomicInteger flushCompleted = new AtomicInteger();
+  public void flush_withPendingError_resetsError() throws Exception {
+    asynchronousMediaCodecCallback.onError(codec, createCodecException());
+    // Calling flush should clear any pending error.
+    asynchronousMediaCodecCallback.flush(/* codec= */ null);
 
-    asynchronousMediaCodecCallback.flushAsync(/* onFlushCompleted= */ () -> flushCompleted.set(1));
-    asynchronousMediaCodecCallback.flushAsync(/* onFlushCompleted= */ () -> flushCompleted.set(2));
-    callbackLooperShadow.idle();
+    assertThat(asynchronousMediaCodecCallback.dequeueInputBufferIndex())
+        .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
+  }
 
-    assertThat(flushCompleted.get()).isEqualTo(2);
+  @Test
+  public void shutdown_withPendingError_doesNotThrow() throws Exception {
+    asynchronousMediaCodecCallback.onError(codec, createCodecException());
+
+    // Calling shutdown() should not throw.
+    asynchronousMediaCodecCallback.shutdown();
   }
 
   /** Reflectively create a {@link MediaCodec.CodecException}. */

@@ -24,11 +24,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link AtomParsers}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class AtomParsersTest {
 
   private static final String ATOM_HEADER = "000000000000000000000000";

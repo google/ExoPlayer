@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.robolectric.shadows.ShadowBaseLooper.shadowMainLooper;
+import static org.robolectric.shadows.ShadowLooper.shadowMainLooper;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -400,10 +400,10 @@ public class DownloadHelperTest {
 
     DownloadRequest downloadRequest = downloadHelper.getDownloadRequest(data);
 
-    assertThat(downloadRequest.uri).isEqualTo(testMediaItem.playbackProperties.uri);
-    assertThat(downloadRequest.mimeType).isEqualTo(testMediaItem.playbackProperties.mimeType);
+    assertThat(downloadRequest.uri).isEqualTo(testMediaItem.localConfiguration.uri);
+    assertThat(downloadRequest.mimeType).isEqualTo(testMediaItem.localConfiguration.mimeType);
     assertThat(downloadRequest.customCacheKey)
-        .isEqualTo(testMediaItem.playbackProperties.customCacheKey);
+        .isEqualTo(testMediaItem.localConfiguration.customCacheKey);
     assertThat(downloadRequest.data).isEqualTo(data);
     assertThat(downloadRequest.streamKeys)
         .containsExactly(

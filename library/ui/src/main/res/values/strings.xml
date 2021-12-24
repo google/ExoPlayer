@@ -79,19 +79,6 @@
   <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
   <string translatable="false" name="exo_controls_time_placeholder">00:00:00</string>
 
-  <!-- Description for a button that downloads a piece of media content onto the device. [CHAR LIMIT=20] -->
-  <string name="exo_download_description">Download</string>
-  <!-- Default name for a notification channel corresponding to media downloads. [CHAR LIMIT=40] -->
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <!-- Shown in a notification or UI component to indicate a download is currently downloading. [CHAR LIMIT=40] -->
-  <string name="exo_download_downloading">Downloading</string>
-  <!-- Shown in a notification or UI component to indicate a download has finished downloading. [CHAR LIMIT=40] -->
-  <string name="exo_download_completed">Download completed</string>
-  <!-- Shown in a notification or UI component to indicate a download has failed. [CHAR LIMIT=40] -->
-  <string name="exo_download_failed">Download failed</string>
-  <!-- Shown in a notification or UI component to indicate downloads are being removed from the device. [CHAR LIMIT=40] -->
-  <string name="exo_download_removing">Removing downloads</string>
-
   <!-- The title of a track selection view for video tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_title_video">Video</string>
   <!-- The title of a track selection view for audio tracks. [CHAR LIMIT=20] -->

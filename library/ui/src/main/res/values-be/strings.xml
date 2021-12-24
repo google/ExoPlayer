@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Уключыць субцітры</string>
   <string name="exo_controls_playback_speed">Хуткасць</string>
   <string name="exo_controls_playback_speed_normal">Звычайная</string>
-  <string name="exo_download_description">Спампаваць</string>
-  <string name="exo_download_notification_channel_name">Спампоўкі</string>
-  <string name="exo_download_downloading">Спампоўваецца</string>
-  <string name="exo_download_completed">Спампоўка завершана</string>
-  <string name="exo_download_failed">Збой спампоўкі</string>
-  <string name="exo_download_removing">Выдаленне спамповак</string>
   <string name="exo_track_selection_title_video">Відэа</string>
   <string name="exo_track_selection_title_audio">Аўдыя</string>
   <string name="exo_track_selection_title_text">Тэкст</string>

@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Aktiveer onderskrifte</string>
   <string name="exo_controls_playback_speed">Spoed</string>
   <string name="exo_controls_playback_speed_normal">Normaal</string>
-  <string name="exo_download_description">Aflaai</string>
-  <string name="exo_download_notification_channel_name">Aflaaie</string>
-  <string name="exo_download_downloading">Laai tans af</string>
-  <string name="exo_download_completed">Aflaai is voltooi</string>
-  <string name="exo_download_failed">Kon nie aflaai nie</string>
-  <string name="exo_download_removing">Verwyder tans aflaaie</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Oudio</string>
   <string name="exo_track_selection_title_text">Teks</string>

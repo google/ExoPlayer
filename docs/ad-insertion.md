@@ -36,7 +36,11 @@ An ad tag URI can be specified when building a `MediaItem`:
 
 ~~~
 MediaItem mediaItem =
-    new MediaItem.Builder().setUri(videoUri).setAdTagUri(adTagUri).build();
+    new MediaItem.Builder()
+        .setUri(videoUri)
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(adTagUri).build())
+        .build();
 ~~~
 {: .language-java}
 
@@ -49,7 +53,7 @@ MediaSourceFactory mediaSourceFactory =
     new DefaultMediaSourceFactory(context)
         .setAdsLoaderProvider(adsLoaderProvider)
         .setAdViewProvider(playerView);
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+ExoPlayer player = new ExoPlayer.Builder(context)
     .setMediaSourceFactory(mediaSourceFactory)
     .build();
 ~~~
@@ -88,12 +92,18 @@ playlist from start to finish.
 MediaItem firstItem =
     new MediaItem.Builder()
         .setUri(firstVideoUri)
-        .setAdTagUri(adTagUri, /* adsId= */ adTagUri)
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(adTagUri)
+                .setAdsId(adTagUri)
+                .build())
         .build();
 MediaItem secondItem =
     new MediaItem.Builder()
         .setUri(secondVideoUri)
-        .setAdTagUri(adTagUri, /* adsId= */ adTagUri)
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(adTagUri)
+                .setAdsId(adTagUri)
+                .build())
         .build();
 player.addMediaItem(firstItem);
 player.addMediaItem(secondItem);
@@ -168,7 +178,10 @@ MediaItem preRollAd = MediaItem.fromUri(preRollAdUri);
 MediaItem contentStart =
     new MediaItem.Builder()
         .setUri(contentUri)
-        .setClipEndPositionMs(120_000)
+        .setClippingConfiguration(
+            new ClippingConfiguration.Builder()
+                .setEndPositionMs(120_000)
+                .build())
         .build();
 // A mid-roll ad.
 MediaItem midRollAd = MediaItem.fromUri(midRollAdUri);
@@ -176,7 +189,10 @@ MediaItem midRollAd = MediaItem.fromUri(midRollAdUri);
 MediaItem contentEnd =
     new MediaItem.Builder()
         .setUri(contentUri)
-        .setClipStartPositionMs(120_000)
+        .setClippingConfiguration(
+            new ClippingConfiguration.Builder()
+                .setStartPositionMs(120_000)
+                .build())
         .build();
 
 // Build the playlist.
@@ -199,7 +215,7 @@ events to an ad SDK or ad server. For example, the media stream may include
 timed events that need to be reported by the client (see [supported formats][]
 for information on what timed metadata formats are supported by ExoPlayer). Apps
 can listen for timed metadata events from the player, e.g., via
-`SimpleExoPlayer.addMetadataOutput`.
+`ExoPlayer.addMetadataOutput`.
 
 The IMA extension currently only handles client-side ad insertion. It does not
 provide any integration with the DAI part of the IMA SDK.

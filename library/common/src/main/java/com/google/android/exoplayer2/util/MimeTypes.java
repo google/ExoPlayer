@@ -19,8 +19,6 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.audio.AacUtil;
-import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -34,6 +32,8 @@ public final class MimeTypes {
   public static final String BASE_TYPE_TEXT = "text";
   public static final String BASE_TYPE_IMAGE = "image";
   public static final String BASE_TYPE_APPLICATION = "application";
+
+  // video/ MIME types
 
   public static final String VIDEO_MP4 = BASE_TYPE_VIDEO + "/mp4";
   public static final String VIDEO_MATROSKA = BASE_TYPE_VIDEO + "/x-matroska";
@@ -56,6 +56,8 @@ public final class MimeTypes {
   public static final String VIDEO_OGG = BASE_TYPE_VIDEO + "/ogg";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
+  // audio/ MIME types
+
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
   public static final String AUDIO_AAC = BASE_TYPE_AUDIO + "/mp4a-latm";
   public static final String AUDIO_MATROSKA = BASE_TYPE_AUDIO + "/x-matroska";
@@ -76,7 +78,7 @@ public final class MimeTypes {
   public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
   public static final String AUDIO_DTS_EXPRESS = BASE_TYPE_AUDIO + "/vnd.dts.hd;profile=lbr";
-  public static final String AUDIO_DTS_UHD = BASE_TYPE_AUDIO + "/vnd.dts.uhd";
+  public static final String AUDIO_DTS_X = BASE_TYPE_AUDIO + "/vnd.dts.uhd;profile=p2";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
   public static final String AUDIO_AMR = BASE_TYPE_AUDIO + "/amr";
@@ -89,12 +91,22 @@ public final class MimeTypes {
   public static final String AUDIO_WAV = BASE_TYPE_AUDIO + "/wav";
   public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
 
+  // text/ MIME types
+
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
   public static final String TEXT_SSA = BASE_TYPE_TEXT + "/x-ssa";
 
+  public static final String TEXT_EXOPLAYER_CUES = BASE_TYPE_TEXT + "/x-exoplayer-cues";
+
+  public static final String TEXT_UNKNOWN = BASE_TYPE_TEXT + "/x-unknown";
+
+  // application/ MIME types
+
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
+
   public static final String APPLICATION_MATROSKA = BASE_TYPE_APPLICATION + "/x-matroska";
+
   public static final String APPLICATION_MPD = BASE_TYPE_APPLICATION + "/dash+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_SS = BASE_TYPE_APPLICATION + "/vnd.ms-sstr+xml";
@@ -110,7 +122,9 @@ public final class MimeTypes {
   public static final String APPLICATION_VOBSUB = BASE_TYPE_APPLICATION + "/vobsub";
   public static final String APPLICATION_PGS = BASE_TYPE_APPLICATION + "/pgs";
   public static final String APPLICATION_SCTE35 = BASE_TYPE_APPLICATION + "/x-scte35";
+
   public static final String APPLICATION_CAMERA_MOTION = BASE_TYPE_APPLICATION + "/x-camera-motion";
+
   public static final String APPLICATION_EMSG = BASE_TYPE_APPLICATION + "/x-emsg";
   public static final String APPLICATION_DVBSUBS = BASE_TYPE_APPLICATION + "/dvbsubs";
   public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
@@ -118,7 +132,17 @@ public final class MimeTypes {
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
   public static final String APPLICATION_RTSP = BASE_TYPE_APPLICATION + "/x-rtsp";
 
+  // image/ MIME types
+
   public static final String IMAGE_JPEG = BASE_TYPE_IMAGE + "/jpeg";
+
+  /**
+   * A non-standard codec string for E-AC3-JOC. Use of this constant allows for disambiguation
+   * between regular E-AC3 ("ec-3") and E-AC3-JOC ("ec+3") streams from the codec string alone. The
+   * standard is to use "ec-3" for both, as per the <a href="https://mp4ra.org/#/codecs">MP4RA
+   * registered codec types</a>.
+   */
+  public static final String CODEC_E_AC3_JOC = "ec+3";
 
   private static final ArrayList<CustomMimeType> customMimeTypes = new ArrayList<>();
 
@@ -132,10 +156,11 @@ public final class MimeTypes {
    *
    * @param mimeType The custom MIME type to register.
    * @param codecPrefix The RFC 6381 codec string prefix associated with the MIME type.
-   * @param trackType The {@link C}{@code .TRACK_TYPE_*} constant associated with the MIME type.
-   *     This value is ignored if the top-level type of {@code mimeType} is audio, video or text.
+   * @param trackType The {@link C.TrackType track type} associated with the MIME type. This value
+   *     is ignored if the top-level type of {@code mimeType} is audio, video or text.
    */
-  public static void registerCustomMimeType(String mimeType, String codecPrefix, int trackType) {
+  public static void registerCustomMimeType(
+      String mimeType, String codecPrefix, @C.TrackType int trackType) {
     CustomMimeType customMimeType = new CustomMimeType(mimeType, codecPrefix, trackType);
     int customMimeTypeCount = customMimeTypes.size();
     for (int i = 0; i < customMimeTypeCount; i++) {
@@ -176,6 +201,11 @@ public final class MimeTypes {
         || APPLICATION_DVBSUBS.equals(mimeType);
   }
 
+  /** Returns whether the given string is an image MIME type. */
+  public static boolean isImage(@Nullable String mimeType) {
+    return BASE_TYPE_IMAGE.equals(getTopLevelType(mimeType));
+  }
+
   /**
    * Returns true if it is known that all samples in a stream of the given MIME type and codec are
    * guaranteed to be sync samples (i.e., {@link C#BUFFER_FLAG_KEY_FRAME} is guaranteed to be set on
@@ -214,8 +244,7 @@ public final class MimeTypes {
         if (objectType == null) {
           return false;
         }
-        @C.Encoding
-        int encoding = AacUtil.getEncodingForAudioObjectType(objectType.audioObjectTypeIndication);
+        @C.Encoding int encoding = objectType.getEncoding();
         // xHE-AAC is an exception in which it's not true that all samples will be sync samples.
         // Also return false for ENCODING_INVALID, which indicates we weren't able to parse the
         // encoding from the codec string.
@@ -377,7 +406,7 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_AC3;
     } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
       return MimeTypes.AUDIO_E_AC3;
-    } else if (codec.startsWith(Ac3Util.E_AC3_JOC_CODEC_STRING)) {
+    } else if (codec.startsWith(CODEC_E_AC3_JOC)) {
       return MimeTypes.AUDIO_E_AC3_JOC;
     } else if (codec.startsWith("ac-4") || codec.startsWith("dac4")) {
       return MimeTypes.AUDIO_AC4;
@@ -388,7 +417,7 @@ public final class MimeTypes {
     } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
       return MimeTypes.AUDIO_DTS_HD;
     } else if (codec.startsWith("dtsx")) {
-      return MimeTypes.AUDIO_DTS_UHD;
+      return MimeTypes.AUDIO_DTS_X;
     } else if (codec.startsWith("opus")) {
       return MimeTypes.AUDIO_OPUS;
     } else if (codec.startsWith("vorbis")) {
@@ -465,14 +494,14 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the {@link C}{@code .TRACK_TYPE_*} constant corresponding to a specified MIME type, or
-   * {@link C#TRACK_TYPE_UNKNOWN} if it could not be determined.
+   * Returns the {@link C.TrackType track type} constant corresponding to a specified MIME type,
+   * which may be {@link C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    *
    * @param mimeType A MIME type.
-   * @return The corresponding {@link C}{@code .TRACK_TYPE_*}, or {@link C#TRACK_TYPE_UNKNOWN} if it
-   *     could not be determined.
+   * @return The corresponding {@link C.TrackType track type}, which may be {@link
+   *     C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    */
-  public static int getTrackType(@Nullable String mimeType) {
+  public static @C.TrackType int getTrackType(@Nullable String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
       return C.TRACK_TYPE_UNKNOWN;
     } else if (isAudio(mimeType)) {
@@ -481,6 +510,8 @@ public final class MimeTypes {
       return C.TRACK_TYPE_VIDEO;
     } else if (isText(mimeType)) {
       return C.TRACK_TYPE_TEXT;
+    } else if (isImage(mimeType)) {
+      return C.TRACK_TYPE_IMAGE;
     } else if (APPLICATION_ID3.equals(mimeType)
         || APPLICATION_EMSG.equals(mimeType)
         || APPLICATION_SCTE35.equals(mimeType)) {
@@ -514,7 +545,7 @@ public final class MimeTypes {
         if (objectType == null) {
           return C.ENCODING_INVALID;
         }
-        return AacUtil.getEncodingForAudioObjectType(objectType.audioObjectTypeIndication);
+        return objectType.getEncoding();
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
       case MimeTypes.AUDIO_E_AC3:
@@ -538,10 +569,10 @@ public final class MimeTypes {
    * Equivalent to {@code getTrackType(getMediaMimeType(codec))}.
    *
    * @param codec An RFC 6381 codec string.
-   * @return The corresponding {@link C}{@code .TRACK_TYPE_*}, or {@link C#TRACK_TYPE_UNKNOWN} if it
-   *     could not be determined.
+   * @return The corresponding {@link C.TrackType track type}, which may be {@link
+   *     C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    */
-  public static int getTrackTypeOfCodec(String codec) {
+  public static @C.TrackType int getTrackTypeOfCodec(String codec) {
     return getTrackType(getMediaMimeType(codec));
   }
 
@@ -605,7 +636,7 @@ public final class MimeTypes {
     return null;
   }
 
-  private static int getTrackTypeForCustomMimeType(String mimeType) {
+  private static @C.TrackType int getTrackTypeForCustomMimeType(String mimeType) {
     int customMimeTypeCount = customMimeTypes.size();
     for (int i = 0; i < customMimeTypeCount; i++) {
       CustomMimeType customMimeType = customMimeTypes.get(i);
@@ -665,20 +696,42 @@ public final class MimeTypes {
     /** The Object Type Indication of the MP4A codec. */
     public final int objectTypeIndication;
     /** The Audio Object Type Indication of the MP4A codec, or 0 if it is absent. */
-    @AacUtil.AacAudioObjectType public final int audioObjectTypeIndication;
+    public final int audioObjectTypeIndication;
 
     public Mp4aObjectType(int objectTypeIndication, int audioObjectTypeIndication) {
       this.objectTypeIndication = objectTypeIndication;
       this.audioObjectTypeIndication = audioObjectTypeIndication;
+    }
+
+    /** Returns the encoding for {@link #audioObjectTypeIndication}. */
+    @C.Encoding
+    public int getEncoding() {
+      // See AUDIO_OBJECT_TYPE_AAC_* constants in AacUtil.
+      switch (audioObjectTypeIndication) {
+        case 2:
+          return C.ENCODING_AAC_LC;
+        case 5:
+          return C.ENCODING_AAC_HE_V1;
+        case 29:
+          return C.ENCODING_AAC_HE_V2;
+        case 42:
+          return C.ENCODING_AAC_XHE;
+        case 23:
+          return C.ENCODING_AAC_ELD;
+        case 22:
+          return C.ENCODING_AAC_ER_BSAC;
+        default:
+          return C.ENCODING_INVALID;
+      }
     }
   }
 
   private static final class CustomMimeType {
     public final String mimeType;
     public final String codecPrefix;
-    public final int trackType;
+    public final @C.TrackType int trackType;
 
-    public CustomMimeType(String mimeType, String codecPrefix, int trackType) {
+    public CustomMimeType(String mimeType, String codecPrefix, @C.TrackType int trackType) {
       this.mimeType = mimeType;
       this.codecPrefix = codecPrefix;
       this.trackType = trackType;

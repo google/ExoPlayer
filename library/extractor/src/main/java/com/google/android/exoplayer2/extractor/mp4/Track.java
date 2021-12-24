@@ -45,7 +45,7 @@ public final class Track {
   /**
    * One of {@link C#TRACK_TYPE_AUDIO}, {@link C#TRACK_TYPE_VIDEO} and {@link C#TRACK_TYPE_TEXT}.
    */
-  public final int type;
+  public final @C.TrackType int type;
 
   /** The track timescale, defined as the number of time units that pass in one second. */
   public final long timescale;
@@ -81,7 +81,7 @@ public final class Track {
 
   public Track(
       int id,
-      int type,
+      @C.TrackType int type,
       long timescale,
       long movieTimescale,
       long durationUs,

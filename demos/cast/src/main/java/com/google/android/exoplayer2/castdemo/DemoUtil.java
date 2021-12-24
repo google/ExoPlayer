@@ -65,8 +65,10 @@ import java.util.List;
             .setMediaMetadata(
                 new MediaMetadata.Builder().setTitle("Widevine DASH cenc: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
-            .setDrmUuid(C.WIDEVINE_UUID)
-            .setDrmLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
+                    .build())
             .build());
     samples.add(
         new MediaItem.Builder()
@@ -74,8 +76,10 @@ import java.util.List;
             .setMediaMetadata(
                 new MediaMetadata.Builder().setTitle("Widevine DASH cbc1: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
-            .setDrmUuid(C.WIDEVINE_UUID)
-            .setDrmLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
+                    .build())
             .build());
     samples.add(
         new MediaItem.Builder()
@@ -83,8 +87,10 @@ import java.util.List;
             .setMediaMetadata(
                 new MediaMetadata.Builder().setTitle("Widevine DASH cbcs: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
-            .setDrmUuid(C.WIDEVINE_UUID)
-            .setDrmLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
+                    .build())
             .build());
 
     SAMPLES = Collections.unmodifiableList(samples);

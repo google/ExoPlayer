@@ -44,7 +44,7 @@ import java.util.concurrent.Executor;
  * CacheDataSource.Factory cacheDataSourceFactory =
  *     new CacheDataSource.Factory()
  *         .setCache(cache)
- *         .setUpstreamDataSourceFactory(new DefaultHttpDataSourceFactory(userAgent));
+ *         .setUpstreamDataSourceFactory(new DefaultHttpDataSource.Factory());
  * // Create a downloader for the first variant in a master playlist.
  * HlsDownloader hlsDownloader =
  *     new HlsDownloader(

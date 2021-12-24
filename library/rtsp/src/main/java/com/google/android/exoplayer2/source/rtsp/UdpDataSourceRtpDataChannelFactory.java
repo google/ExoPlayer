@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
-import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import java.io.IOException;
 
 /** Factory for {@link UdpDataSourceRtpDataChannel}. */
@@ -60,8 +60,8 @@ import java.io.IOException;
         return secondChannel;
       }
     } catch (IOException e) {
-      Util.closeQuietly(firstChannel);
-      Util.closeQuietly(secondChannel);
+      DataSourceUtil.closeQuietly(firstChannel);
+      DataSourceUtil.closeQuietly(secondChannel);
       throw e;
     }
   }

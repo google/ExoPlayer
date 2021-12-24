@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
@@ -641,8 +642,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* trackFormat= */ null,
             C.SELECTION_REASON_UNKNOWN,
             /* trackSelectionData= */ null,
-            /* mediaStartTimeMs= */ C.usToMs(loadable.seekTimeUs),
-            C.usToMs(durationUs));
+            /* mediaStartTimeMs= */ Util.usToMs(loadable.seekTimeUs),
+            Util.usToMs(durationUs));
     LoadErrorAction loadErrorAction;
     long retryDelayMs =
         loadErrorHandlingPolicy.getRetryDelayMsFor(
@@ -784,9 +785,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           trackFormat = trackFormat.buildUpon().setAverageBitrate(icyHeaders.bitrate).build();
         }
       }
-      trackFormat =
-          trackFormat.copyWithExoMediaCryptoType(
-              drmSessionManager.getExoMediaCryptoType(trackFormat));
+      trackFormat = trackFormat.copyWithCryptoType(drmSessionManager.getCryptoType(trackFormat));
       trackArray[i] = new TrackGroup(trackFormat);
     }
     trackState = new TrackState(new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
@@ -1073,7 +1072,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           } else if (progressiveMediaExtractor.getCurrentInputPosition() != C.POSITION_UNSET) {
             positionHolder.position = progressiveMediaExtractor.getCurrentInputPosition();
           }
-          Util.closeQuietly(dataSource);
+          DataSourceUtil.closeQuietly(dataSource);
         }
       }
     }

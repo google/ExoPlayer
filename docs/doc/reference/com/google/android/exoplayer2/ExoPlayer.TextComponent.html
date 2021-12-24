@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":38,"i1":6,"i2":38};
+var data = {"i0":38};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,8 +129,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dd>
 </dl>
 <hr>
-<pre>public static interface <span class="typeNameLabel">ExoPlayer.TextComponent</span></pre>
-<div class="block">The text component of an <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static interface <span class="typeNameLabel">ExoPlayer.TextComponent</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>, as the <a href="ExoPlayer.TextComponent.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer.TextComponent</code></a> methods are defined by that
+     interface.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -152,27 +156,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTextOutput(com.google.android.exoplayer2.text.TextOutput)">addTextOutput</a></span>&#8203;(<a href="text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;listener)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="text/Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentCues()">getCurrentCues</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the current <a href="text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a>.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeTextOutput(com.google.android.exoplayer2.text.TextOutput)">removeTextOutput</a></span>&#8203;(<a href="text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;listener)</code></th>
-<td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
+<div class="deprecationComment">Use <a href="Player.html#getCurrentCues()"><code>Player.getCurrentCues()</code></a> instead.</div>
 </div>
 </td>
 </tr>
@@ -193,50 +181,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="addTextOutput(com.google.android.exoplayer2.text.TextOutput)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>addTextOutput</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-void&nbsp;addTextOutput&#8203;(<a href="text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;listener)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a>.</div>
-</div>
-<div class="block">Registers an output to receive text events.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The output to register.</dd>
-</dl>
-</li>
-</ul>
-<a id="removeTextOutput(com.google.android.exoplayer2.text.TextOutput)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>removeTextOutput</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-void&nbsp;removeTextOutput&#8203;(<a href="text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;listener)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a>.</div>
-</div>
-<div class="block">Removes a text output.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The output to remove.</dd>
-</dl>
-</li>
-</ul>
 <a id="getCurrentCues()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getCurrentCues</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="text/Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;getCurrentCues()</pre>
-<div class="block">Returns the current <a href="text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a>. This list may be empty.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="text/Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;getCurrentCues()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getCurrentCues()"><code>Player.getCurrentCues()</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </li>

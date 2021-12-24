@@ -23,8 +23,8 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractor.TrackOutputProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data. */
@@ -61,7 +61,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       DataSource dataSource,
       DataSpec dataSpec,
       Format trackFormat,
-      int trackSelectionReason,
+      @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,
@@ -129,7 +129,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
         nextLoadPosition = input.getPosition() - dataSpec.position;
       }
     } finally {
-      Util.closeQuietly(dataSource);
+      DataSourceUtil.closeQuietly(dataSource);
     }
     loadCompleted = !loadCanceled;
   }

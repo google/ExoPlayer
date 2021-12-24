@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Activer les sous-titres</string>
   <string name="exo_controls_playback_speed">Vitesse</string>
   <string name="exo_controls_playback_speed_normal">Normale</string>
-  <string name="exo_download_description">Télécharger</string>
-  <string name="exo_download_notification_channel_name">Téléchargements</string>
-  <string name="exo_download_downloading">Téléchargement en cours…</string>
-  <string name="exo_download_completed">Téléchargement terminé</string>
-  <string name="exo_download_failed">Échec du téléchargement</string>
-  <string name="exo_download_removing">Suppression des téléchargements en cours…</string>
   <string name="exo_track_selection_title_video">Vidéo</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Texte</string>

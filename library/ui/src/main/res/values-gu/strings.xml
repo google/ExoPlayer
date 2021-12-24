@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">સબટાઇટલ ચાલુ કરો</string>
   <string name="exo_controls_playback_speed">ઝડપ</string>
   <string name="exo_controls_playback_speed_normal">સામાન્ય</string>
-  <string name="exo_download_description">ડાઉનલોડ કરો</string>
-  <string name="exo_download_notification_channel_name">ડાઉનલોડ</string>
-  <string name="exo_download_downloading">ડાઉનલોડ કરી રહ્યાં છીએ</string>
-  <string name="exo_download_completed">ડાઉનલોડ પૂર્ણ થયું</string>
-  <string name="exo_download_failed">ડાઉનલોડ નિષ્ફળ થયું</string>
-  <string name="exo_download_removing">ડાઉનલોડ કાઢી નાખી રહ્યાં છીએ</string>
   <string name="exo_track_selection_title_video">વીડિયો</string>
   <string name="exo_track_selection_title_audio">ઑડિયો</string>
   <string name="exo_track_selection_title_text">ટેક્સ્ટ</string>

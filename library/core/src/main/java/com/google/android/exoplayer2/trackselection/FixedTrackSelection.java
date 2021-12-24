@@ -41,13 +41,8 @@ public final class FixedTrackSelection extends BaseTrackSelection {
    * @param track The index of the selected track within the {@link TrackGroup}.
    * @param type The type that will be returned from {@link TrackSelection#getType()}.
    */
-  public FixedTrackSelection(TrackGroup group, int track, int type) {
-    this(
-        group,
-        /* track= */ track,
-        /* type= */ type,
-        /* reason= */ C.SELECTION_REASON_UNKNOWN,
-        null);
+  public FixedTrackSelection(TrackGroup group, int track, @Type int type) {
+    this(group, track, type, C.SELECTION_REASON_UNKNOWN, /* data= */ null);
   }
 
   /**
@@ -58,8 +53,8 @@ public final class FixedTrackSelection extends BaseTrackSelection {
    * @param data Optional data associated with the track selection.
    */
   public FixedTrackSelection(
-      TrackGroup group, int track, int type, int reason, @Nullable Object data) {
-    super(group, /* tracks= */ new int[] {track}, /* type= */ type);
+      TrackGroup group, int track, @Type int type, int reason, @Nullable Object data) {
+    super(group, /* tracks= */ new int[] {track}, type);
     this.reason = reason;
     this.data = data;
   }

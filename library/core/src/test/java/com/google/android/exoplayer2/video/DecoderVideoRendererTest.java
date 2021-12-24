@@ -34,12 +34,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
+import com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -108,7 +109,7 @@ public final class DecoderVideoRendererTest {
           }
 
           @Override
-          protected void onQueueInputBuffer(VideoDecoderInputBuffer buffer) {
+          protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
             // Decoding is done on a background thread we have no control about from the test.
             // Ensure the background calls are predictably serialized by waiting for them to finish:
             //  1. Register queued input buffers here.
@@ -125,17 +126,16 @@ public final class DecoderVideoRendererTest {
 
           @Override
           protected SimpleDecoder<
-                  VideoDecoderInputBuffer,
+                  DecoderInputBuffer,
                   ? extends VideoDecoderOutputBuffer,
                   ? extends DecoderException>
-              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
+              createDecoder(Format format, @Nullable CryptoConfig cryptoConfig) {
             return new SimpleDecoder<
-                VideoDecoderInputBuffer, VideoDecoderOutputBuffer, DecoderException>(
-                new VideoDecoderInputBuffer[10], new VideoDecoderOutputBuffer[10]) {
+                DecoderInputBuffer, VideoDecoderOutputBuffer, DecoderException>(
+                new DecoderInputBuffer[10], new VideoDecoderOutputBuffer[10]) {
               @Override
-              protected VideoDecoderInputBuffer createInputBuffer() {
-                return new VideoDecoderInputBuffer(
-                    DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT) {
+              protected DecoderInputBuffer createInputBuffer() {
+                return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT) {
                   @Override
                   public void clear() {
                     super.clear();
@@ -157,7 +157,7 @@ public final class DecoderVideoRendererTest {
               @Nullable
               @Override
               protected DecoderException decode(
-                  VideoDecoderInputBuffer inputBuffer,
+                  DecoderInputBuffer inputBuffer,
                   VideoDecoderOutputBuffer outputBuffer,
                   boolean reset) {
                 outputBuffer.init(inputBuffer.timeUs, outputMode, /* supplementalData= */ null);

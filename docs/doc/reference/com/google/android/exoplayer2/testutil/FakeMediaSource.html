@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -272,7 +272,7 @@ extends <a href="../source/BaseMediaSource.html" title="class in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -315,13 +315,20 @@ extends <a href="../source/BaseMediaSource.html" title="class in com.google.andr
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaSource</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createWithWindowId(java.lang.Object)">createWithWindowId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowId)</code></th>
+<td class="colLast">
+<div class="block">Convenience method to create a <a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> with the given window id.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source" target="_top">MediaSource.MediaPeriodId</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCreatedMediaPeriods()">getCreatedMediaPeriods</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a list of <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>s, with one element for each created media period.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInitialTimeline()">getInitialTimeline</a></span>()</code></th>
 <td class="colLast">
@@ -329,40 +336,40 @@ extends <a href="../source/BaseMediaSource.html" title="class in com.google.andr
  not yet known, or null to let the player create an initial timeline.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaItem()">getMediaItem</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimeline()">getTimeline</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPrepared()">isPrepared</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the source is currently prepared.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSingleWindow()">isSingleWindow</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns true if the media source is guaranteed to never have zero or more than one window.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowSourceInfoRefreshError()">maybeThrowSourceInfoRefreshError</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Throws any pending error encountered while loading or refreshing source information.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">prepareSourceInternal</a></span>&#8203;(<a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code></th>
 <td class="colLast">
@@ -370,7 +377,7 @@ extends <a href="../source/BaseMediaSource.html" title="class in com.google.andr
  TransferListener)</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseMediaPeriod(com.google.android.exoplayer2.source.MediaPeriod)">releaseMediaPeriod</a></span>&#8203;(<a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code></th>
 <td class="colLast">
@@ -379,35 +386,35 @@ extends <a href="../source/BaseMediaSource.html" title="class in com.google.andr
  DrmSessionEventListener.EventDispatcher, TransferListener)</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">releasePeriod</a></span>&#8203;(<a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code></th>
 <td class="colLast">
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseSourceInternal()">releaseSourceInternal</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the source, see <a href="../source/BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>BaseMediaSource.releaseSource(MediaSourceCaller)</code></a>.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAllowPreparation(boolean)">setAllowPreparation</a></span>&#8203;(boolean&nbsp;allowPreparation)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the next call to <a href="../source/BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)"><code>BaseMediaSource.prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller, com.google.android.exoplayer2.upstream.TransferListener)</code></a> is allowed to finish.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNewSourceInfo(com.google.android.exoplayer2.Timeline)">setNewSourceInfo</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline)</code></th>
 <td class="colLast">
 <div class="block">Sets a new timeline.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNewSourceInfo(com.google.android.exoplayer2.Timeline,boolean)">setNewSourceInfo</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline,
                 boolean&nbsp;sendManifestLoadEvents)</code></th>
@@ -555,6 +562,16 @@ extends <a href="../source/BaseMediaSource.html" title="class in com.google.andr
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="createWithWindowId(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createWithWindowId</h4>
+<pre class="methodSignature">public static&nbsp;<a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaSource</a>&nbsp;createWithWindowId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowId)</pre>
+<div class="block">Convenience method to create a <a href="FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> with the given window id.</div>
+</li>
+</ul>
 <a id="setAllowPreparation(boolean)">
 <!--   -->
 </a>

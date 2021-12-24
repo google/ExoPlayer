@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
 
@@ -61,9 +62,9 @@ public interface DrmSessionManager {
         }
 
         @Override
-        @Nullable
-        public Class<UnsupportedMediaCrypto> getExoMediaCryptoType(Format format) {
-          return format.drmInitData != null ? UnsupportedMediaCrypto.class : null;
+        @C.CryptoType
+        public int getCryptoType(Format format) {
+          return format.drmInitData != null ? C.CRYPTO_TYPE_UNSUPPORTED : C.CRYPTO_TYPE_NONE;
         }
       };
 
@@ -171,19 +172,18 @@ public interface DrmSessionManager {
       Format format);
 
   /**
-   * Returns the {@link ExoMediaCrypto} type associated to sessions acquired for the given {@link
-   * Format}. Returns the {@link UnsupportedMediaCrypto} type if this DRM session manager does not
-   * support any of the DRM schemes defined in the given {@link Format}. Returns null if {@link
-   * Format#drmInitData} is null and {@link #acquireSession} would return null for the given {@link
-   * Format}.
+   * Returns the {@link C.CryptoType} that the DRM session manager will use for a given {@link
+   * Format}. Returns {@link C#CRYPTO_TYPE_UNSUPPORTED} if the manager does not support any of the
+   * DRM schemes defined in the {@link Format}. Returns {@link C#CRYPTO_TYPE_NONE} if {@link
+   * Format#drmInitData} is null and {@link #acquireSession} will return {@code null} for the given
+   * {@link Format}.
    *
-   * @param format The {@link Format} for which to return the {@link ExoMediaCrypto} type.
-   * @return The {@link ExoMediaCrypto} type associated to sessions acquired using the given {@link
-   *     Format}, or {@link UnsupportedMediaCrypto} if this DRM session manager does not support any
-   *     of the DRM schemes defined in the given {@link Format}. May be null if {@link
-   *     Format#drmInitData} is null and {@link #acquireSession} would return null for the given
-   *     {@link Format}.
+   * @param format The {@link Format}.
+   * @return The {@link C.CryptoType} that the manager will use, or @link C#CRYPTO_TYPE_UNSUPPORTED}
+   *     if the manager does not support any of the DRM schemes defined in the {@link Format}. Will
+   *     be {@link C#CRYPTO_TYPE_NONE} if {@link Format#drmInitData} is null and {@link
+   *     #acquireSession} will return null for the given {@link Format}.
    */
-  @Nullable
-  Class<? extends ExoMediaCrypto> getExoMediaCryptoType(Format format);
+  @C.CryptoType
+  int getCryptoType(Format format);
 }

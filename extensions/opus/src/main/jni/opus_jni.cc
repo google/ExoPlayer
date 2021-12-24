@@ -87,7 +87,7 @@ DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
 
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
-      "com/google/android/exoplayer2/decoder/SimpleOutputBuffer");
+      "com/google/android/exoplayer2/decoder/SimpleDecoderOutputBuffer");
   outputBufferInit =
       env->GetMethodID(outputBufferClass, "init", "(JI)Ljava/nio/ByteBuffer;");
 

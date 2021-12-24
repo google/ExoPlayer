@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Zapnout titulky</string>
   <string name="exo_controls_playback_speed">Rychlost</string>
   <string name="exo_controls_playback_speed_normal">Normální</string>
-  <string name="exo_download_description">Stáhnout</string>
-  <string name="exo_download_notification_channel_name">Stahování</string>
-  <string name="exo_download_downloading">Stahování</string>
-  <string name="exo_download_completed">Stahování bylo dokončeno</string>
-  <string name="exo_download_failed">Stažení se nezdařilo</string>
-  <string name="exo_download_removing">Odstraňování staženého obsahu</string>
   <string name="exo_track_selection_title_video">Videa</string>
   <string name="exo_track_selection_title_audio">Zvuk</string>
   <string name="exo_track_selection_title_text">Text</string>

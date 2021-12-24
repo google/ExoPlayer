@@ -43,7 +43,7 @@ public interface ExoTrackSelection extends TrackSelection {
     /** The indices of the selected tracks in {@link #group}. */
     public final int[] tracks;
     /** The type that will be returned from {@link TrackSelection#getType()}. */
-    public final int type;
+    public final @Type int type;
 
     /**
      * @param group The {@link TrackGroup}. Must not be null.
@@ -60,7 +60,7 @@ public interface ExoTrackSelection extends TrackSelection {
      *     null or empty. May be in any order.
      * @param type The type that will be returned from {@link TrackSelection#getType()}.
      */
-    public Definition(TrackGroup group, int[] tracks, int type) {
+    public Definition(TrackGroup group, int[] tracks, @Type int type) {
       this.group = group;
       this.tracks = tracks;
       this.type = type;

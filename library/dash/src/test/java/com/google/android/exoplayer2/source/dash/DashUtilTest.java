@@ -35,11 +35,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit tests for {@link DashUtil}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class DashUtilTest {
 
   @Test
@@ -81,6 +79,8 @@ public final class DashUtilTest {
             baseUrls,
             new SingleSegmentBase(),
             /* inbandEventStreams= */ null,
+            /* essentialProperties= */ ImmutableList.of(),
+            /* supplementalProperties= */ ImmutableList.of(),
             /* cacheKey= */ null,
             /* contentLength= */ 1);
     RangedUri rangedUri = new RangedUri("path/to/resource", /* start= */ 0, /* length= */ 1);
@@ -101,6 +101,8 @@ public final class DashUtilTest {
             baseUrls,
             new SingleSegmentBase(),
             /* inbandEventStreams= */ null,
+            /* essentialProperties= */ ImmutableList.of(),
+            /* supplementalProperties= */ ImmutableList.of(),
             "cacheKey",
             /* contentLength= */ 1);
     RangedUri rangedUri = new RangedUri("path/to/resource", /* start= */ 0, /* length= */ 1);

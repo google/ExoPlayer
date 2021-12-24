@@ -18,12 +18,14 @@ package com.google.android.exoplayer2.source;
 import static java.lang.Math.min;
 
 import android.net.Uri;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -49,16 +51,14 @@ public final class SilenceMediaSource extends BaseMediaSource {
      * @param durationUs The duration of silent audio to output, in microseconds.
      * @return This factory, for convenience.
      */
-    public Factory setDurationUs(long durationUs) {
+    public Factory setDurationUs(@IntRange(from = 1) long durationUs) {
       this.durationUs = durationUs;
       return this;
     }
 
     /**
-     * Sets a tag for the media source which will be published in the {@link
-     * com.google.android.exoplayer2.Timeline} of the source as {@link
-     * com.google.android.exoplayer2.MediaItem.PlaybackProperties#tag
-     * Window#mediaItem.playbackProperties.tag}.
+     * Sets a tag for the media source which will be published in the {@link Timeline} of the source
+     * as {@link MediaItem.LocalConfiguration#tag Window#mediaItem.localConfiguration.tag}.
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.

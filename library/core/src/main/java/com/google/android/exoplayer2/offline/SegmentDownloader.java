@@ -110,10 +110,10 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       Parser<M> manifestParser,
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
-    checkNotNull(mediaItem.playbackProperties);
-    this.manifestDataSpec = getCompressibleDataSpec(mediaItem.playbackProperties.uri);
+    checkNotNull(mediaItem.localConfiguration);
+    this.manifestDataSpec = getCompressibleDataSpec(mediaItem.localConfiguration.uri);
     this.manifestParser = manifestParser;
-    this.streamKeys = new ArrayList<>(mediaItem.playbackProperties.streamKeys);
+    this.streamKeys = new ArrayList<>(mediaItem.localConfiguration.streamKeys);
     this.cacheDataSourceFactory = cacheDataSourceFactory;
     this.executor = executor;
     cache = Assertions.checkNotNull(cacheDataSourceFactory.getCache());

@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Gaitu azpitituluak</string>
   <string name="exo_controls_playback_speed">Abiadura</string>
   <string name="exo_controls_playback_speed_normal">Normala</string>
-  <string name="exo_download_description">Deskargak</string>
-  <string name="exo_download_notification_channel_name">Deskargak</string>
-  <string name="exo_download_downloading">Deskargatzen</string>
-  <string name="exo_download_completed">Osatu da deskarga</string>
-  <string name="exo_download_failed">Ezin izan da deskargatu</string>
-  <string name="exo_download_removing">Deskargak kentzen</string>
   <string name="exo_track_selection_title_video">Bideoa</string>
   <string name="exo_track_selection_title_audio">Audioa</string>
   <string name="exo_track_selection_title_text">Testua</string>

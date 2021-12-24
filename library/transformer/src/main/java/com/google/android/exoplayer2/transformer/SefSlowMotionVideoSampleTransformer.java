@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -366,8 +367,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     public final int maxLayer;
 
     public SegmentInfo(SlowMotionData.Segment segment, int inputMaxLayer, int normalSpeedLayer) {
-      this.startTimeUs = C.msToUs(segment.startTimeMs);
-      this.endTimeUs = C.msToUs(segment.endTimeMs);
+      this.startTimeUs = Util.msToUs(segment.startTimeMs);
+      this.endTimeUs = Util.msToUs(segment.endTimeMs);
       this.speedDivisor = segment.speedDivisor;
       this.maxLayer = getSlowMotionMaxLayer(speedDivisor, inputMaxLayer, normalSpeedLayer);
     }

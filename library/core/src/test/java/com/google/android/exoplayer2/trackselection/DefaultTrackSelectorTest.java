@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import static com.google.android.exoplayer2.C.FORMAT_EXCEEDS_CAPABILITIES;
 import static com.google.android.exoplayer2.C.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.C.FORMAT_UNSUPPORTED_SUBTYPE;
+import static com.google.android.exoplayer2.C.FORMAT_UNSUPPORTED_TYPE;
 import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
@@ -29,15 +30,16 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.content.Context;
-import android.os.Parcel;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -45,10 +47,14 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -101,12 +107,14 @@ public final class DefaultTrackSelectorTest {
   private static final TrackGroup AUDIO_TRACK_GROUP = new TrackGroup(AUDIO_FORMAT);
   private static final TrackGroupArray TRACK_GROUPS =
       new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
+  private static final TrackSelection VIDEO_TRACK_SELECTION =
+      new FixedTrackSelection(VIDEO_TRACK_GROUP, 0);
+  private static final TrackSelection AUDIO_TRACK_SELECTION =
+      new FixedTrackSelection(AUDIO_TRACK_GROUP, 0);
   private static final TrackSelection[] TRACK_SELECTIONS =
-      new TrackSelection[] {
-        new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), new FixedTrackSelection(AUDIO_TRACK_GROUP, 0)
-      };
+      new TrackSelection[] {VIDEO_TRACK_SELECTION, AUDIO_TRACK_SELECTION};
   private static final TrackSelection[] TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER =
-      new TrackSelection[] {new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), null};
+      new TrackSelection[] {VIDEO_TRACK_SELECTION, null};
 
   private static final Timeline TIMELINE = new FakeTimeline();
 
@@ -139,37 +147,34 @@ public final class DefaultTrackSelectorTest {
     assertThat(parameters.buildUpon().build()).isEqualTo(parameters);
   }
 
-  /** Tests {@link Parameters} {@link android.os.Parcelable} implementation. */
+  /** Tests {@link Parameters} {@link Bundleable} implementation. */
   @Test
-  public void parameters_parcelAndUnParcelable() {
-    Parameters parametersToParcel = buildParametersForEqualsTest();
+  public void roundTripViaBundle_ofParameters_yieldsEqualInstance() {
+    Parameters parametersToBundle = buildParametersForEqualsTest();
 
-    Parcel parcel = Parcel.obtain();
-    parametersToParcel.writeToParcel(parcel, 0);
-    parcel.setDataPosition(0);
+    Parameters parametersFromBundle = Parameters.CREATOR.fromBundle(parametersToBundle.toBundle());
 
-    Parameters parametersFromParcel = Parameters.CREATOR.createFromParcel(parcel);
-    assertThat(parametersFromParcel).isEqualTo(parametersToParcel);
-
-    parcel.recycle();
+    assertThat(parametersFromBundle).isEqualTo(parametersToBundle);
   }
 
-  /** Tests {@link SelectionOverride}'s {@link android.os.Parcelable} implementation. */
+  /** Tests that an empty override clears a track selection. */
   @Test
-  public void selectionOverrideParcelable() {
-    int[] tracks = new int[] {2, 3};
-    SelectionOverride selectionOverrideToParcel =
-        new SelectionOverride(/* groupIndex= */ 1, tracks);
+  public void selectTracks_withOverrideWithoutTracks_clearsTrackSelection()
+      throws ExoPlaybackException {
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .addOverride(new TrackSelectionOverride(VIDEO_TRACK_GROUP, ImmutableList.of()))
+                    .build()));
 
-    Parcel parcel = Parcel.obtain();
-    selectionOverrideToParcel.writeToParcel(parcel, 0);
-    parcel.setDataPosition(0);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
 
-    SelectionOverride selectionOverrideFromParcel =
-        SelectionOverride.CREATOR.createFromParcel(parcel);
-    assertThat(selectionOverrideFromParcel).isEqualTo(selectionOverrideToParcel);
-
-    parcel.recycle();
+    assertSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {null, DEFAULT});
   }
 
   /** Tests that a null override clears a track selection. */
@@ -201,6 +206,161 @@ public final class DefaultTrackSelectorTest {
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
 
+  @Test
+  public void selectTrack_withMixedEmptyAndNonEmptyTrackOverrides_appliesNonEmptyOverride()
+      throws Exception {
+    TrackGroup videoGroupHighBitrate =
+        new TrackGroup(VIDEO_FORMAT.buildUpon().setAverageBitrate(1_000_000).build());
+    TrackGroup videoGroupMidBitrate =
+        new TrackGroup(VIDEO_FORMAT.buildUpon().setAverageBitrate(500_000).build());
+    TrackGroup videoGroupLowBitrate =
+        new TrackGroup(VIDEO_FORMAT.buildUpon().setAverageBitrate(100_000).build());
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .addOverride(
+                        new TrackSelectionOverride(
+                            videoGroupHighBitrate, /* trackIndices= */ ImmutableList.of()))
+                    .addOverride(
+                        new TrackSelectionOverride(
+                            videoGroupMidBitrate, /* trackIndices= */ ImmutableList.of(0)))
+                    .addOverride(
+                        new TrackSelectionOverride(
+                            videoGroupLowBitrate, /* trackIndices= */ ImmutableList.of()))
+                    .build()));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(videoGroupHighBitrate, videoGroupMidBitrate, videoGroupLowBitrate),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(new FixedTrackSelection(videoGroupMidBitrate, /* track= */ 0), null)
+        .inOrder();
+  }
+
+  /** Tests that an empty override is not applied for a different set of available track groups. */
+  @Test
+  public void selectTracks_withEmptyTrackOverrideForDifferentTracks_hasNoEffect()
+      throws ExoPlaybackException {
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(
+                        new TrackSelectionOverride(
+                            new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), ImmutableList.of()))
+                    .build()));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactlyElementsIn(TRACK_SELECTIONS).inOrder();
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  @Test
+  public void selectTrack_withOverrideForDifferentRenderer_clearsDefaultSelectionOfSameType()
+      throws Exception {
+    Format videoFormatH264 =
+        VIDEO_FORMAT.buildUpon().setId("H264").setSampleMimeType(MimeTypes.VIDEO_H264).build();
+    Format videoFormatAv1 =
+        VIDEO_FORMAT.buildUpon().setId("AV1").setSampleMimeType(MimeTypes.VIDEO_AV1).build();
+    TrackGroup videoGroupH264 = new TrackGroup(videoFormatH264);
+    TrackGroup videoGroupAv1 = new TrackGroup(videoFormatAv1);
+    Map<String, Integer> rendererCapabilitiesMap =
+        ImmutableMap.of(
+            videoFormatH264.id, FORMAT_HANDLED, videoFormatAv1.id, FORMAT_UNSUPPORTED_TYPE);
+    RendererCapabilities rendererCapabilitiesH264 =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            videoFormatH264.id, FORMAT_UNSUPPORTED_TYPE, videoFormatAv1.id, FORMAT_HANDLED);
+    RendererCapabilities rendererCapabilitiesAv1 =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+
+    // Try to force selection of one TrackGroup in both directions to ensure the default gets
+    // overridden without having to know what the default is.
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(new TrackSelectionOverride(videoGroupH264))
+                    .build()));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
+            new TrackGroupArray(videoGroupH264, videoGroupAv1),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(new FixedTrackSelection(videoGroupH264, /* track= */ 0), null)
+        .inOrder();
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(new TrackSelectionOverride(videoGroupAv1))
+                    .build()));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
+            new TrackGroupArray(videoGroupH264, videoGroupAv1),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections)
+        .asList()
+        .containsExactly(null, new FixedTrackSelection(videoGroupAv1, /* track= */ 0))
+        .inOrder();
+  }
+
+  @Test
+  public void selectTracks_withOverrideForUnmappedGroup_disablesAllRenderersOfSameType()
+      throws Exception {
+    Format audioSupported = AUDIO_FORMAT.buildUpon().setId("supported").build();
+    Format audioUnsupported = AUDIO_FORMAT.buildUpon().setId("unsupported").build();
+    TrackGroup audioGroupSupported = new TrackGroup(audioSupported);
+    TrackGroup audioGroupUnsupported = new TrackGroup(audioUnsupported);
+    Map<String, Integer> audioRendererCapabilitiesMap =
+        ImmutableMap.of(
+            audioSupported.id, FORMAT_HANDLED, audioUnsupported.id, FORMAT_UNSUPPORTED_TYPE);
+    RendererCapabilities audioRendererCapabilties =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, audioRendererCapabilitiesMap);
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setTrackSelectionOverrides(
+                new TrackSelectionOverrides.Builder()
+                    .setOverrideForType(new TrackSelectionOverride(audioGroupUnsupported))
+                    .build()));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, audioRendererCapabilties},
+            new TrackGroupArray(VIDEO_TRACK_GROUP, audioGroupSupported, audioGroupUnsupported),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactly(VIDEO_TRACK_SELECTION, null).inOrder();
+  }
+
   /** Tests that an override is not applied for a different set of available track groups. */
   @Test
   public void selectTracksWithNullOverrideForDifferentTracks() throws ExoPlaybackException {
@@ -217,6 +377,58 @@ public final class DefaultTrackSelectorTest {
     assertSelections(result, TRACK_SELECTIONS);
     assertThat(result.rendererConfigurations)
         .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  /** Tests disabling a track type. */
+  @Test
+  public void selectVideoAudioTracks_withDisabledAudioType_onlyVideoIsSelected()
+      throws ExoPlaybackException {
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO)));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP),
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactly(VIDEO_TRACK_SELECTION, null).inOrder();
+    assertThat(result.rendererConfigurations).asList().containsExactly(DEFAULT, null);
+  }
+
+  /** Tests that a disabled track type can be enabled again. */
+  @Test
+  public void selectTracks_withClearedDisabledTrackType_selectsAll() throws ExoPlaybackException {
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
+            .setDisabledTrackTypes(ImmutableSet.of()));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
+
+    assertThat(result.selections).asList().containsExactlyElementsIn(TRACK_SELECTIONS).inOrder();
+    assertThat(result.rendererConfigurations).asList().containsExactly(DEFAULT, DEFAULT).inOrder();
+  }
+
+  /** Tests disabling NONE track type rendering. */
+  @Test
+  public void selectTracks_withDisabledNoneTracksAndNoSampleRenderer_disablesNoSampleRenderer()
+      throws ExoPlaybackException {
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_NONE)));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, NO_SAMPLE_CAPABILITIES},
+            TRACK_GROUPS,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.selections).asList().containsExactly(VIDEO_TRACK_SELECTION, null).inOrder();
+    assertThat(result.rendererConfigurations).asList().containsExactly(DEFAULT, null).inOrder();
   }
 
   /** Tests disabling a renderer. */
@@ -1643,6 +1855,45 @@ public final class DefaultTrackSelectorTest {
     assertFixedSelection(result.selections[0], trackGroups, formatAac);
   }
 
+  /** Tests audio track selection when there are multiple audio renderers. */
+  @Test
+  public void selectTracks_multipleRenderer_allSelected() throws Exception {
+    RendererCapabilities[] rendererCapabilities =
+        new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES, AUDIO_CAPABILITIES};
+    TrackGroupArray trackGroups = new TrackGroupArray(AUDIO_TRACK_GROUP);
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(3);
+    assertThat(result.rendererConfigurations)
+        .asList()
+        .containsExactly(null, DEFAULT, null)
+        .inOrder();
+    assertThat(result.selections[0]).isNull();
+    assertFixedSelection(result.selections[1], trackGroups, trackGroups.get(0).getFormat(0));
+    assertThat(result.selections[2]).isNull();
+    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos =
+        result.tracksInfo.getTrackGroupInfos();
+    assertThat(trackGroupInfos).hasSize(1);
+    assertThat(trackGroupInfos.get(0).getTrackGroup()).isEqualTo(AUDIO_TRACK_GROUP);
+    assertThat(trackGroupInfos.get(0).isTrackSelected(0)).isTrue();
+    assertThat(trackGroupInfos.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
+  }
+
+  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
+  @Test
+  public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
+    SelectionOverride selectionOverrideToBundle =
+        new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
+
+    SelectionOverride selectionOverrideFromBundle =
+        DefaultTrackSelector.SelectionOverride.CREATOR.fromBundle(
+            selectionOverrideToBundle.toBundle());
+
+    assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
+  }
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
@@ -1764,7 +2015,21 @@ public final class DefaultTrackSelectorTest {
             /* rendererIndex= */ 2,
             new TrackGroupArray(VIDEO_TRACK_GROUP),
             new SelectionOverride(0, 1))
+        .setSelectionOverride(
+            /* rendererIndex= */ 2, new TrackGroupArray(AUDIO_TRACK_GROUP), /* override= */ null)
+        .setSelectionOverride(
+            /* rendererIndex= */ 5, new TrackGroupArray(VIDEO_TRACK_GROUP), /* override= */ null)
+        .setRendererDisabled(1, true)
         .setRendererDisabled(3, true)
+        .setRendererDisabled(5, false)
+        .setTrackSelectionOverrides(
+            new TrackSelectionOverrides.Builder()
+                .setOverrideForType(
+                    new TrackSelectionOverride(
+                        new TrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT),
+                        /* trackIndices= */ ImmutableList.of(0, 2, 3)))
+                .build())
+        .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
         .build();
   }
 

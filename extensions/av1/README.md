@@ -1,20 +1,20 @@
-# ExoPlayer AV1 extension #
+# ExoPlayer AV1 module
 
-The AV1 extension provides `Libgav1VideoRenderer`, which uses libgav1 native
+The AV1 module provides `Libgav1VideoRenderer`, which uses libgav1 native
 library to decode AV1 videos.
 
-## License note ##
+## License note
 
 Please note that whilst the code in this repository is licensed under
-[Apache 2.0][], using this extension also requires building and including one or
+[Apache 2.0][], using this module also requires building and including one or
 more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions (Linux, macOS) ##
+## Build instructions (Linux, macOS)
 
-To use this extension you need to clone the ExoPlayer repository and depend on
-its modules locally. Instructions for doing this can be found in ExoPlayer's
+To use the module you need to clone this GitHub project and depend on its
+modules locally. Instructions for doing this can be found in the
 [top level README][].
 
 In addition, it's necessary to fetch cpu_features library and libgav1 with its
@@ -23,37 +23,36 @@ dependencies as follows:
 * Set the following environment variables:
 
 ```
-cd "<path to exoplayer checkout>"
-EXOPLAYER_ROOT="$(pwd)"
-AV1_EXT_PATH="${EXOPLAYER_ROOT}/extensions/av1/src/main"
+cd "<path to project checkout>"
+AV1_MODULE_PATH="$(pwd)/extensions/av1/src/main"
 ```
 
 * Fetch cpu_features library:
 
 ```
-cd "${AV1_EXT_PATH}/jni" && \
+cd "${AV1_MODULE_PATH}/jni" && \
 git clone https://github.com/google/cpu_features
 ```
 
 * Fetch libgav1:
 
 ```
-cd "${AV1_EXT_PATH}/jni" && \
+cd "${AV1_MODULE_PATH}/jni" && \
 git clone https://chromium.googlesource.com/codecs/libgav1
 ```
 
 * Fetch Abseil:
 
 ```
-cd "${AV1_EXT_PATH}/jni/libgav1" && \
+cd "${AV1_MODULE_PATH}/jni/libgav1" && \
 git clone https://github.com/abseil/abseil-cpp.git third_party/abseil-cpp
 ```
 
 * [Install CMake][].
 
-Having followed these steps, gradle will build the extension automatically when
-run on the command line or via Android Studio, using [CMake][] and [Ninja][]
-to configure and build libgav1 and the extension's [JNI wrapper library][].
+Having followed these steps, gradle will build the module automatically when run
+on the command line or via Android Studio, using [CMake][] and [Ninja][] to
+configure and build libgav1 and the module's [JNI wrapper library][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Install CMake]: https://developer.android.com/studio/projects/install-ndk
@@ -61,77 +60,81 @@ to configure and build libgav1 and the extension's [JNI wrapper library][].
 [Ninja]: https://ninja-build.org
 [JNI wrapper library]: https://github.com/google/ExoPlayer/blob/release-v2/extensions/av1/src/main/jni/gav1_jni.cc
 
-## Build instructions (Windows) ##
+## Build instructions (Windows)
 
-We do not provide support for building this extension on Windows, however it
-should be possible to follow the Linux instructions in [Windows PowerShell][].
+We do not provide support for building this module on Windows, however it should
+be possible to follow the Linux instructions in [Windows PowerShell][].
 
 [Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
-## Using the extension ##
+## Using the module
 
 Once you've followed the instructions above to check out, build and depend on
-the extension, the next step is to tell ExoPlayer to use `Libgav1VideoRenderer`.
+the module, the next step is to tell ExoPlayer to use `Libgav1VideoRenderer`.
 How you do this depends on which player API you're using:
 
-* If you're passing a `DefaultRenderersFactory` to `SimpleExoPlayer.Builder`,
-  you can enable using the extension by setting the `extensionRendererMode`
-  parameter of the `DefaultRenderersFactory` constructor to
-  `EXTENSION_RENDERER_MODE_ON`. This will use `Libgav1VideoRenderer` for
-  playback if `MediaCodecVideoRenderer` doesn't support decoding the input AV1
-  stream. Pass `EXTENSION_RENDERER_MODE_PREFER` to give `Libgav1VideoRenderer`
-  priority over `MediaCodecVideoRenderer`.
-* If you've subclassed `DefaultRenderersFactory`, add a `Libvgav1VideoRenderer`
-  to the output list in `buildVideoRenderers`. ExoPlayer will use the first
-  `Renderer` in the list that supports the input media format.
-* If you've implemented your own `RenderersFactory`, return a
-  `Libgav1VideoRenderer` instance from `createRenderers`. ExoPlayer will use the
-  first `Renderer` in the returned array that supports the input media format.
-* If you're using `ExoPlayer.Builder`, pass a `Libgav1VideoRenderer` in the
-  array of `Renderer`s. ExoPlayer will use the first `Renderer` in the list that
-  supports the input media format.
+*   If you're passing a `DefaultRenderersFactory` to `ExoPlayer.Builder`, you
+    can enable using the module by setting the `extensionRendererMode` parameter
+    of the `DefaultRenderersFactory` constructor to
+    `EXTENSION_RENDERER_MODE_ON`. This will use `Libgav1VideoRenderer` for
+    playback if `MediaCodecVideoRenderer` doesn't support decoding the input AV1
+    stream. Pass `EXTENSION_RENDERER_MODE_PREFER` to give `Libgav1VideoRenderer`
+    priority over `MediaCodecVideoRenderer`.
+*   If you've subclassed `DefaultRenderersFactory`, add a
+    `Libvgav1VideoRenderer` to the output list in `buildVideoRenderers`.
+    ExoPlayer will use the first `Renderer` in the list that supports the input
+    media format.
+*   If you've implemented your own `RenderersFactory`, return a
+    `Libgav1VideoRenderer` instance from `createRenderers`. ExoPlayer will use
+    the first `Renderer` in the returned array that supports the input media
+    format.
+*   If you're using `ExoPlayer.Builder`, pass a `Libgav1VideoRenderer` in the
+    array of `Renderer`s. ExoPlayer will use the first `Renderer` in the list
+    that supports the input media format.
 
 Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation.
 You need to make sure you are passing a `Libgav1VideoRenderer` to the player and
 then you need to implement your own logic to use the renderer for a given track.
 
-## Using the extension in the demo application ##
+## Using the module in the demo application
 
-To try out playback using the extension in the [demo application][], see
+To try out playback using the module in the [demo application][], see
 [enabling extension decoders][].
 
 [demo application]: https://exoplayer.dev/demo-application.html
 [enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
 
-## Rendering options ##
+## Rendering options
 
 There are two possibilities for rendering the output `Libgav1VideoRenderer`
 gets from the libgav1 decoder:
 
 *   GL rendering using GL shader for color space conversion
 
-    *   If you are using `SimpleExoPlayer` with `PlayerView`, enable this option
-        by setting `surface_type` of `PlayerView` to be
+    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
+        enable this option by setting `surface_type` of view to be
         `video_decoder_gl_surface_view`.
     *   Otherwise, enable this option by sending `Libgav1VideoRenderer` a
-        message of type `Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER`
+        message of type `Renderer.MSG_SET_VIDEO_OUTPUT`
         with an instance of `VideoDecoderOutputBufferRenderer` as its object.
+        `VideoDecoderGLSurfaceView` is the concrete
+        `VideoDecoderOutputBufferRenderer` implementation used by
+        `(Styled)PlayerView`.
 
 *   Native rendering using `ANativeWindow`
 
-    *   If you are using `SimpleExoPlayer` with `PlayerView`, this option is
-        enabled by default.
+    *   If you are using `ExoPlayer` with `PlayerView` or `StyledPlayerView`,
+        this option is enabled by default.
     *   Otherwise, enable this option by sending `Libgav1VideoRenderer` a
-        message of type `Renderer.MSG_SET_SURFACE` with an instance of
+        message of type `Renderer.MSG_SET_VIDEO_OUTPUT` with an instance of
         `SurfaceView` as its object.
 
 Note: Although the default option uses `ANativeWindow`, based on our testing the
 GL rendering mode has better performance, so should be preferred
 
-## Links ##
+## Links
 
-* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.av1.*`
-  belong to this module.
+* [Javadoc][]
 
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

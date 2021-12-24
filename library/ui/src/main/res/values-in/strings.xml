@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Aktifkan subtitel</string>
   <string name="exo_controls_playback_speed">Kecepatan</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Download</string>
-  <string name="exo_download_downloading">Mendownload</string>
-  <string name="exo_download_completed">Download selesai</string>
-  <string name="exo_download_failed">Download gagal</string>
-  <string name="exo_download_removing">Menghapus download</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Teks</string>

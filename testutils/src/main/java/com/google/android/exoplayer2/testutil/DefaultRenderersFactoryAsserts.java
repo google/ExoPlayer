@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.test.core.app.ApplicationProvider;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -45,7 +46,8 @@ public final class DefaultRenderersFactoryAsserts {
    * @param clazz The extension renderer class.
    * @param type The type of the renderer.
    */
-  public static void assertExtensionRendererCreated(Class<? extends Renderer> clazz, int type) {
+  public static void assertExtensionRendererCreated(
+      Class<? extends Renderer> clazz, @C.TrackType int type) {
     // In EXTENSION_RENDERER_MODE_OFF the renderer should not be created.
     Renderer[] renderers = createRenderers(EXTENSION_RENDERER_MODE_OFF);
     for (Renderer renderer : renderers) {

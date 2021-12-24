@@ -24,11 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for {@link SlowMotionData} */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class SlowMotionDataTest {
 
   @Test

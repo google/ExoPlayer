@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.android.exoplayer2.playbacktests.gts.GtsTestUtil.shouldSkipWidevineTest;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.pm.PackageManager;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -387,10 +389,8 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH264FixedV18() throws Exception {
-    if (Util.SDK_INT < 18 || shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
@@ -404,12 +404,9 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH264AdaptiveV18() throws Exception {
-    if (Util.SDK_INT < 18
-        || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)
-        || shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeFalse(shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264));
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_h264_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
@@ -424,12 +421,9 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH264AdaptiveWithSeekingV18() throws Exception {
-    if (Util.SDK_INT < 18
-        || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)
-        || shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeFalse(shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264));
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_h264_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
@@ -445,12 +439,9 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH264AdaptiveWithRendererDisablingV18() throws Exception {
-    if (Util.SDK_INT < 18
-        || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)
-        || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeFalse(shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264));
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_h264_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
@@ -468,10 +459,10 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH265FixedV23() throws Exception {
-    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity()) || isPc()) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 23);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+    assumeFalse(isPc());
+
     testRunner
         .setStreamName("test_widevine_h265_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
@@ -485,10 +476,10 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH265AdaptiveV24() throws Exception {
-    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity()) || isPc()) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+    assumeFalse(isPc());
+
     testRunner
         .setStreamName("test_widevine_h265_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
@@ -503,10 +494,10 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH265AdaptiveWithSeekingV24() throws Exception {
-    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity()) || isPc()) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+    assumeFalse(isPc());
+
     testRunner
         .setStreamName("test_widevine_h265_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
@@ -522,10 +513,10 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineH265AdaptiveWithRendererDisablingV24() throws Exception {
-    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity()) || isPc()) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+    assumeFalse(isPc());
+
     testRunner
         .setStreamName("test_widevine_h265_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
@@ -543,10 +534,9 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineVp9Fixed360pV23() throws Exception {
-    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 23);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_vp9_fixed_360p")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
@@ -561,10 +551,9 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineVp9AdaptiveV24() throws Exception {
-    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_vp9_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
@@ -579,10 +568,9 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineVp9AdaptiveWithSeekingV24() throws Exception {
-    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
@@ -598,10 +586,9 @@ public final class DashStreamingTest {
 
   @Test
   public void widevineVp9AdaptiveWithRendererDisablingV24() throws Exception {
-    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
@@ -620,10 +607,9 @@ public final class DashStreamingTest {
   // 23.976 fps.
   @Test
   public void widevine23FpsH264FixedV23() throws Exception {
-    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 23);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_23fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_23_MANIFEST)
@@ -639,10 +625,9 @@ public final class DashStreamingTest {
   // 24 fps.
   @Test
   public void widevine24FpsH264FixedV23() throws Exception {
-    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 23);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_24fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_24_MANIFEST)
@@ -658,10 +643,9 @@ public final class DashStreamingTest {
   // 29.97 fps.
   @Test
   public void widevine29FpsH264FixedV23() throws Exception {
-    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 23);
+    assumeFalse(shouldSkipWidevineTest(testRule.getActivity()));
+
     testRunner
         .setStreamName("test_widevine_29fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_29_MANIFEST)
@@ -687,10 +671,9 @@ public final class DashStreamingTest {
 
   @Test
   public void decoderInfoH265V24() throws Exception {
-    if (Util.SDK_INT < 24 || isPc()) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+    assumeFalse(isPc());
+
     assertThat(
             MediaCodecUtil.getDecoderInfo(
                     MimeTypes.VIDEO_H265, /* secure= */ false, /* tunneling= */ false)
@@ -700,10 +683,8 @@ public final class DashStreamingTest {
 
   @Test
   public void decoderInfoVP9V24() throws Exception {
-    if (Util.SDK_INT < 24) {
-      // Pass.
-      return;
-    }
+    assumeTrue(Util.SDK_INT >= 24);
+
     assertThat(
             MediaCodecUtil.getDecoderInfo(
                     MimeTypes.VIDEO_VP9, /* secure= */ false, /* tunneling= */ false)

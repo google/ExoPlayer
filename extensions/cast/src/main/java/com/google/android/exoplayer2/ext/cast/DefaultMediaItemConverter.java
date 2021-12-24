@@ -52,8 +52,8 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   @Override
   public MediaQueueItem toMediaQueueItem(MediaItem mediaItem) {
-    Assertions.checkNotNull(mediaItem.playbackProperties);
-    if (mediaItem.playbackProperties.mimeType == null) {
+    Assertions.checkNotNull(mediaItem.localConfiguration);
+    if (mediaItem.localConfiguration.mimeType == null) {
       throw new IllegalArgumentException("The item must specify its mimeType");
     }
     MediaMetadata metadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
@@ -61,9 +61,9 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
       metadata.putString(MediaMetadata.KEY_TITLE, mediaItem.mediaMetadata.title.toString());
     }
     MediaInfo mediaInfo =
-        new MediaInfo.Builder(mediaItem.playbackProperties.uri.toString())
+        new MediaInfo.Builder(mediaItem.localConfiguration.uri.toString())
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-            .setContentType(mediaItem.playbackProperties.mimeType)
+            .setContentType(mediaItem.localConfiguration.mimeType)
             .setMetadata(metadata)
             .setCustomData(getCustomData(mediaItem))
             .build();
@@ -96,17 +96,19 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     }
   }
 
-  private static void populateDrmConfiguration(JSONObject json, MediaItem.Builder builder)
+  private static void populateDrmConfiguration(JSONObject json, MediaItem.Builder mediaItem)
       throws JSONException {
-    builder.setDrmUuid(UUID.fromString(json.getString(KEY_UUID)));
-    builder.setDrmLicenseUri(json.getString(KEY_LICENSE_URI));
+    MediaItem.DrmConfiguration.Builder drmConfiguration =
+        new MediaItem.DrmConfiguration.Builder(UUID.fromString(json.getString(KEY_UUID)))
+            .setLicenseUri(json.getString(KEY_LICENSE_URI));
     JSONObject requestHeadersJson = json.getJSONObject(KEY_REQUEST_HEADERS);
     HashMap<String, String> requestHeaders = new HashMap<>();
     for (Iterator<String> iterator = requestHeadersJson.keys(); iterator.hasNext(); ) {
       String key = iterator.next();
       requestHeaders.put(key, requestHeadersJson.getString(key));
     }
-    builder.setDrmLicenseRequestHeaders(requestHeaders);
+    drmConfiguration.setLicenseRequestHeaders(requestHeaders);
+    mediaItem.setDrmConfiguration(drmConfiguration.build());
   }
 
   // Serialization.
@@ -126,15 +128,15 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
   }
 
   private static JSONObject getMediaItemJson(MediaItem mediaItem) throws JSONException {
-    Assertions.checkNotNull(mediaItem.playbackProperties);
+    Assertions.checkNotNull(mediaItem.localConfiguration);
     JSONObject json = new JSONObject();
     json.put(KEY_TITLE, mediaItem.mediaMetadata.title);
-    json.put(KEY_URI, mediaItem.playbackProperties.uri.toString());
-    json.put(KEY_MIME_TYPE, mediaItem.playbackProperties.mimeType);
-    if (mediaItem.playbackProperties.drmConfiguration != null) {
+    json.put(KEY_URI, mediaItem.localConfiguration.uri.toString());
+    json.put(KEY_MIME_TYPE, mediaItem.localConfiguration.mimeType);
+    if (mediaItem.localConfiguration.drmConfiguration != null) {
       json.put(
           KEY_DRM_CONFIGURATION,
-          getDrmConfigurationJson(mediaItem.playbackProperties.drmConfiguration));
+          getDrmConfigurationJson(mediaItem.localConfiguration.drmConfiguration));
     }
     return json;
   }
@@ -142,39 +144,39 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
   private static JSONObject getDrmConfigurationJson(MediaItem.DrmConfiguration drmConfiguration)
       throws JSONException {
     JSONObject json = new JSONObject();
-    json.put(KEY_UUID, drmConfiguration.uuid);
+    json.put(KEY_UUID, drmConfiguration.scheme);
     json.put(KEY_LICENSE_URI, drmConfiguration.licenseUri);
-    json.put(KEY_REQUEST_HEADERS, new JSONObject(drmConfiguration.requestHeaders));
+    json.put(KEY_REQUEST_HEADERS, new JSONObject(drmConfiguration.licenseRequestHeaders));
     return json;
   }
 
   @Nullable
   private static JSONObject getPlayerConfigJson(MediaItem mediaItem) throws JSONException {
-    if (mediaItem.playbackProperties == null
-        || mediaItem.playbackProperties.drmConfiguration == null) {
+    if (mediaItem.localConfiguration == null
+        || mediaItem.localConfiguration.drmConfiguration == null) {
       return null;
     }
-    MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;
+    MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
 
     String drmScheme;
-    if (C.WIDEVINE_UUID.equals(drmConfiguration.uuid)) {
+    if (C.WIDEVINE_UUID.equals(drmConfiguration.scheme)) {
       drmScheme = "widevine";
-    } else if (C.PLAYREADY_UUID.equals(drmConfiguration.uuid)) {
+    } else if (C.PLAYREADY_UUID.equals(drmConfiguration.scheme)) {
       drmScheme = "playready";
     } else {
       return null;
     }
 
-    JSONObject exoPlayerConfigJson = new JSONObject();
-    exoPlayerConfigJson.put("withCredentials", false);
-    exoPlayerConfigJson.put("protectionSystem", drmScheme);
+    JSONObject playerConfigJson = new JSONObject();
+    playerConfigJson.put("withCredentials", false);
+    playerConfigJson.put("protectionSystem", drmScheme);
     if (drmConfiguration.licenseUri != null) {
-      exoPlayerConfigJson.put("licenseUrl", drmConfiguration.licenseUri);
+      playerConfigJson.put("licenseUrl", drmConfiguration.licenseUri);
     }
-    if (!drmConfiguration.requestHeaders.isEmpty()) {
-      exoPlayerConfigJson.put("headers", new JSONObject(drmConfiguration.requestHeaders));
+    if (!drmConfiguration.licenseRequestHeaders.isEmpty()) {
+      playerConfigJson.put("headers", new JSONObject(drmConfiguration.licenseRequestHeaders));
     }
 
-    return exoPlayerConfigJson;
+    return playerConfigJson;
   }
 }

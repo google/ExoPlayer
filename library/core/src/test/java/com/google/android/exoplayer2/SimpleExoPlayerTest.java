@@ -44,6 +44,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link SimpleExoPlayer}. */
+@SuppressWarnings("deprecation") // Testing deprecated type.
 @RunWith(AndroidJUnit4.class)
 public class SimpleExoPlayerTest {
 

@@ -172,7 +172,7 @@ public final class PlaybackStats {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
+  @Target({ElementType.TYPE_USE})
   @IntDef({
     PLAYBACK_STATE_NOT_STARTED,
     PLAYBACK_STATE_JOINING_BACKGROUND,

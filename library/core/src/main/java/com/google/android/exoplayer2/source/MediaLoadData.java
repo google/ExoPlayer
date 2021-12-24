@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.DataType;
+import com.google.android.exoplayer2.C.SelectionReason;
+import com.google.android.exoplayer2.C.TrackType;
 import com.google.android.exoplayer2.Format;
 
 /** Descriptor for data being loaded or selected by a {@link MediaSource}. */
@@ -26,18 +28,18 @@ public final class MediaLoadData {
   /** The {@link DataType data type}. */
   @DataType public final int dataType;
   /**
-   * One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to media of a
-   * specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
+   * One of the {@link TrackType track types}, which is a media track type if the data corresponds
+   * to media of a specific type, or {@link C#TRACK_TYPE_UNKNOWN} otherwise.
    */
-  public final int trackType;
+  public final @TrackType int trackType;
   /**
    * The format of the track to which the data belongs. Null if the data does not belong to a
    * specific track.
    */
   @Nullable public final Format trackFormat;
   /**
-   * One of the {@link C} {@code SELECTION_REASON_*} constants if the data belongs to a track.
-   * {@link C#SELECTION_REASON_UNKNOWN} otherwise.
+   * One of the {@link SelectionReason selection reasons} if the data belongs to a track. {@link
+   * C#SELECTION_REASON_UNKNOWN} otherwise.
    */
   public final int trackSelectionReason;
   /**
@@ -81,9 +83,9 @@ public final class MediaLoadData {
    */
   public MediaLoadData(
       @DataType int dataType,
-      int trackType,
+      @TrackType int trackType,
       @Nullable Format trackFormat,
-      int trackSelectionReason,
+      @SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
       long mediaStartTimeMs,
       long mediaEndTimeMs) {

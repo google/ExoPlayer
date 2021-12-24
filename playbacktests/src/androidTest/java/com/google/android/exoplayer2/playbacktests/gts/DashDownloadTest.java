@@ -21,7 +21,7 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloader;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
@@ -72,8 +72,10 @@ public final class DashDownloadTest {
     tempFolder = Util.createTempDirectory(testRule.getActivity(), "ExoPlayerTest");
     cache =
         new SimpleCache(
-            tempFolder, new NoOpCacheEvictor(), new ExoDatabaseProvider(testRule.getActivity()));
-    httpDataSourceFactory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
+            tempFolder,
+            new NoOpCacheEvictor(),
+            new StandaloneDatabaseProvider(testRule.getActivity()));
+    httpDataSourceFactory = new DefaultHttpDataSource.Factory();
     offlineDataSourceFactory = new CacheDataSource.Factory().setCache(cache);
   }
 

@@ -58,8 +58,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader.EventListener;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AdOverlayInfo;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -350,7 +348,7 @@ import java.util.Map;
       long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
       int adGroupForPositionIndex =
           adPlaybackState.getAdGroupIndexForPositionUs(
-              C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
+              Util.msToUs(contentPositionMs), Util.msToUs(contentDurationMs));
       if (adGroupForPositionIndex != C.INDEX_UNSET
           && imaAdInfo != null
           && imaAdInfo.adGroupIndex != adGroupForPositionIndex) {
@@ -374,7 +372,7 @@ import java.util.Map;
       }
       adPlaybackState =
           adPlaybackState.withAdResumePositionUs(
-              playingAd ? C.msToUs(player.getCurrentPosition()) : 0);
+              playingAd ? Util.msToUs(player.getCurrentPosition()) : 0);
     }
     lastVolumePercent = getPlayerVolumePercent();
     lastAdProgress = getAdVideoProgressUpdate();
@@ -458,7 +456,7 @@ import java.util.Map;
     this.timeline = timeline;
     Player player = checkNotNull(this.player);
     long contentDurationUs = timeline.getPeriod(player.getCurrentPeriodIndex(), period).durationUs;
-    contentDurationMs = C.usToMs(contentDurationUs);
+    contentDurationMs = Util.usToMs(contentDurationUs);
     if (contentDurationUs != adPlaybackState.contentDurationUs) {
       adPlaybackState = adPlaybackState.withContentDurationUs(contentDurationUs);
       updateAdPlaybackState();
@@ -604,10 +602,11 @@ import java.util.Map;
     // Skip ads based on the start position as required.
     int adGroupForPositionIndex =
         adPlaybackState.getAdGroupIndexForPositionUs(
-            C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
+            Util.msToUs(contentPositionMs), Util.msToUs(contentDurationMs));
     if (adGroupForPositionIndex != C.INDEX_UNSET) {
       boolean playAdWhenStartingPlayback =
-          adPlaybackState.getAdGroup(adGroupForPositionIndex).timeUs == C.msToUs(contentPositionMs)
+          adPlaybackState.getAdGroup(adGroupForPositionIndex).timeUs
+                  == Util.msToUs(contentPositionMs)
               || configuration.playAdBeforeStartPosition;
       if (!playAdWhenStartingPlayback) {
         adGroupForPositionIndex++;
@@ -706,8 +705,7 @@ import java.util.Map;
     }
 
     // Check for a selected track using an audio renderer.
-    TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
-    return TrackSelectionUtil.hasTrackOfType(trackSelections, C.TRACK_TYPE_AUDIO) ? 100 : 0;
+    return player.getCurrentTracksInfo().isTypeSelected(C.TRACK_TYPE_AUDIO) ? 100 : 0;
   }
 
   private void handleAdEvent(AdEvent adEvent) {
@@ -793,7 +791,7 @@ import java.util.Map;
       // An ad is available already.
       return false;
     }
-    long adGroupTimeMs = C.usToMs(adGroup.timeUs);
+    long adGroupTimeMs = Util.usToMs(adGroup.timeUs);
     long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
     long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
     return timeUntilAdMs < configuration.adPreloadTimeoutMs;
@@ -843,7 +841,7 @@ import java.util.Map;
       if (!sentContentComplete && !timeline.isEmpty()) {
         long positionMs = getContentPeriodPositionMs(player, timeline, period);
         timeline.getPeriod(player.getCurrentPeriodIndex(), period);
-        int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
+        int newAdGroupIndex = period.getAdGroupIndexForPositionUs(Util.msToUs(positionMs));
         if (newAdGroupIndex != C.INDEX_UNSET) {
           sentPendingContentPositionMs = false;
           pendingContentPositionMs = positionMs;
@@ -883,7 +881,7 @@ import java.util.Map;
       } else {
         // IMA hasn't called playAd yet, so fake the content position.
         fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-        fakeContentProgressOffsetMs = C.usToMs(adGroup.timeUs);
+        fakeContentProgressOffsetMs = Util.usToMs(adGroup.timeUs);
         if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
           fakeContentProgressOffsetMs = contentDurationMs;
         }
@@ -1094,7 +1092,7 @@ import java.util.Map;
       // Send IMA a content position at the ad group so that it will try to play it, at which point
       // we can notify that it failed to load.
       fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-      fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.getAdGroup(adGroupIndex).timeUs);
+      fakeContentProgressOffsetMs = Util.usToMs(adPlaybackState.getAdGroup(adGroupIndex).timeUs);
       if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
         fakeContentProgressOffsetMs = contentDurationMs;
       }
@@ -1195,13 +1193,14 @@ import java.util.Map;
     if (player == null) {
       return C.INDEX_UNSET;
     }
-    long playerPositionUs = C.msToUs(getContentPeriodPositionMs(player, timeline, period));
+    long playerPositionUs = Util.msToUs(getContentPeriodPositionMs(player, timeline, period));
     int adGroupIndex =
-        adPlaybackState.getAdGroupIndexForPositionUs(playerPositionUs, C.msToUs(contentDurationMs));
+        adPlaybackState.getAdGroupIndexForPositionUs(
+            playerPositionUs, Util.msToUs(contentDurationMs));
     if (adGroupIndex == C.INDEX_UNSET) {
       adGroupIndex =
           adPlaybackState.getAdGroupIndexAfterPositionUs(
-              playerPositionUs, C.msToUs(contentDurationMs));
+              playerPositionUs, Util.msToUs(contentDurationMs));
     }
     return adGroupIndex;
   }

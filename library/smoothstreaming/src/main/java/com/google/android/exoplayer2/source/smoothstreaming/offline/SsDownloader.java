@@ -41,7 +41,7 @@ import java.util.concurrent.Executor;
  * CacheDataSource.Factory cacheDataSourceFactory =
  *     new CacheDataSource.Factory()
  *         .setCache(cache)
- *         .setUpstreamDataSourceFactory(new DefaultHttpDataSourceFactory(userAgent));
+ *         .setUpstreamDataSourceFactory(new DefaultHttpDataSource.Factory());
  * // Create a downloader for the first track of the first stream element.
  * SsDownloader ssDownloader =
  *     new SsDownloader(
@@ -87,7 +87,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
             .buildUpon()
             .setUri(
                 Util.fixSmoothStreamingIsmManifestUri(
-                    checkNotNull(mediaItem.playbackProperties).uri))
+                    checkNotNull(mediaItem.localConfiguration).uri))
             .build(),
         new SsManifestParser(),
         cacheDataSourceFactory,

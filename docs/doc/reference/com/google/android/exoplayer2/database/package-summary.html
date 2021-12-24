@@ -106,7 +106,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a></th>
 <td class="colLast">
-<div class="block">Provides <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top"><code>SQLiteDatabase</code></a> instances to ExoPlayer components, which may read and write
+<div class="block">Provides <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top"><code>SQLiteDatabase</code></a> instances to media library components, which may read and write
  tables prefixed with <a href="DatabaseProvider.html#TABLE_PREFIX"><code>DatabaseProvider.TABLE_PREFIX</code></a>.</div>
 </td>
 </tr>
@@ -129,14 +129,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ExoDatabaseProvider.html" title="class in com.google.android.exoplayer2.database">ExoDatabaseProvider</a></th>
-<td class="colLast">
-<div class="block">An <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top"><code>SQLiteOpenHelper</code></a> that provides instances of a standalone ExoPlayer database.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="StandaloneDatabaseProvider.html" title="class in com.google.android.exoplayer2.database"><code>StandaloneDatabaseProvider</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="StandaloneDatabaseProvider.html" title="class in com.google.android.exoplayer2.database">StandaloneDatabaseProvider</a></th>
+<td class="colLast">
+<div class="block">An <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top"><code>SQLiteOpenHelper</code></a> that provides instances of a standalone database.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="VersionTable.html" title="class in com.google.android.exoplayer2.database">VersionTable</a></th>
 <td class="colLast">
-<div class="block">Utility methods for accessing versions of ExoPlayer database components.</div>
+<div class="block">Utility methods for accessing versions of media library database components.</div>
 </td>
 </tr>
 </tbody>

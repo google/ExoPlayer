@@ -136,42 +136,36 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></th>
-<td class="colLast">
-<div class="block">Enables decoding of encrypted data using keys in a DRM session.</div>
-</td>
-</tr>
-<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></th>
 <td class="colLast">
 <div class="block">Used to obtain keys for decrypting protected media streams.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a></th>
 <td class="colLast">
 <div class="block">Called when a DRM event occurs.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a></th>
 <td class="colLast">
 <div class="block">Called when a session expiration update occurs.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a></th>
 <td class="colLast">
 <div class="block">Called when the keys in a DRM session change state.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a></th>
 <td class="colLast">
 <div class="block">Provider for <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instances.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a></th>
 <td class="colLast">
 <div class="block">Performs <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> key and provisioning requests.</div>
@@ -267,10 +261,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a></th>
+<th class="colFirst" scope="row"><a href="FrameworkCryptoConfig.html" title="class in com.google.android.exoplayer2.drm">FrameworkCryptoConfig</a></th>
 <td class="colLast">
-<div class="block">An <a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> implementation that contains the necessary information to build or
- update a framework <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCrypto</code></a>.</div>
+<div class="block">A <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for <a href="../C.html#CRYPTO_TYPE_FRAMEWORK"><code>C.CRYPTO_TYPE_FRAMEWORK</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -298,12 +291,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="UnsupportedMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">UnsupportedMediaCrypto</a></th>
-<td class="colLast">
-<div class="block"><a href="ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type that cannot be used to handle any type of protected content.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="WidevineUtil.html" title="class in com.google.android.exoplayer2.drm">WidevineUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for Widevine.</div>
@@ -321,38 +308,32 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="DecryptionException.html" title="class in com.google.android.exoplayer2.drm">DecryptionException</a></th>
-<td class="colLast">
-<div class="block">Thrown when a non-platform component fails to decrypt data.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DefaultDrmSessionManager.MissingSchemeDataException.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.MissingSchemeDataException</a></th>
 <td class="colLast">
 <div class="block">Signals that the <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> passed to <a href="DefaultDrmSessionManager.html#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>DefaultDrmSessionManager.acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> does not contain
  scheme data for the required UUID.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></th>
 <td class="colLast">
 <div class="block">Wraps the throwable which is the cause of the error state.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="KeysExpiredException.html" title="class in com.google.android.exoplayer2.drm">KeysExpiredException</a></th>
 <td class="colLast">
 <div class="block">Thrown when the drm keys loaded into an open session expire.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="MediaDrmCallbackException.html" title="class in com.google.android.exoplayer2.drm">MediaDrmCallbackException</a></th>
 <td class="colLast">
 <div class="block">Thrown when an error occurs while executing a DRM <a href="MediaDrmCallback.html#executeKeyRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest)"><code>key</code></a>
  or <a href="MediaDrmCallback.html#executeProvisionRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest)"><code>provisioning</code></a> request.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></th>
 <td class="colLast">
 <div class="block">Thrown when the requested DRM scheme is not supported.</div>

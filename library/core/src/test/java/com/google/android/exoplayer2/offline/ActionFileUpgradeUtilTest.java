@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -40,13 +40,13 @@ public class ActionFileUpgradeUtilTest {
   private static final long NOW_MS = 1234;
 
   private File tempFile;
-  private ExoDatabaseProvider databaseProvider;
+  private StandaloneDatabaseProvider databaseProvider;
   private DefaultDownloadIndex downloadIndex;
 
   @Before
   public void setUp() throws Exception {
     tempFile = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    databaseProvider = new ExoDatabaseProvider(ApplicationProvider.getApplicationContext());
+    databaseProvider = new StandaloneDatabaseProvider(ApplicationProvider.getApplicationContext());
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
   }
 

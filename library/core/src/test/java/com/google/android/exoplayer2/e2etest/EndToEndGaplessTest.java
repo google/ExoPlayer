@@ -22,10 +22,10 @@ import android.media.AudioFormat;
 import android.media.MediaFormat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.robolectric.RandomizedMp3Decoder;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
@@ -86,8 +86,8 @@ public class EndToEndGaplessTest {
 
   @Test
   public void testPlayback_twoIdenticalMp3Files() throws Exception {
-    SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext())
+    ExoPlayer player =
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
 

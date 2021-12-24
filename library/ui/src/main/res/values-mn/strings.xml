@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Хадмалыг идэвхжүүлэх</string>
   <string name="exo_controls_playback_speed">Хурд</string>
   <string name="exo_controls_playback_speed_normal">Хэвийн</string>
-  <string name="exo_download_description">Татах</string>
-  <string name="exo_download_notification_channel_name">Татaлт</string>
-  <string name="exo_download_downloading">Татаж байна</string>
-  <string name="exo_download_completed">Татаж дууссан</string>
-  <string name="exo_download_failed">Татаж чадсангүй</string>
-  <string name="exo_download_removing">Татаж авсан файлыг хасаж байна</string>
   <string name="exo_track_selection_title_video">Видео</string>
   <string name="exo_track_selection_title_audio">Дуу</string>
   <string name="exo_track_selection_title_text">Текст</string>

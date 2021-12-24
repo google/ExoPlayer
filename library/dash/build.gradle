@@ -40,7 +40,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-dash'
+    releaseArtifactId = 'exoplayer-dash'
     releaseDescription = 'The ExoPlayer library DASH module.'
 }
 apply from: '../../publish.gradle'

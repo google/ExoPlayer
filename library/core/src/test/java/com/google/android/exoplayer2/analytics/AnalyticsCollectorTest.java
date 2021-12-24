@@ -35,6 +35,7 @@ import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_ME
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYER_ERROR;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYER_RELEASED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAY_WHEN_READY_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_POSITION_DISCONTINUITY;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_RENDERED_FIRST_FRAME;
@@ -55,8 +56,11 @@ import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -69,6 +73,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -76,9 +81,9 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -95,12 +100,12 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.FakeAudioRenderer;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeExoMediaDrm;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
@@ -109,7 +114,6 @@ import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinit
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -127,7 +131,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Integration test for {@link AnalyticsCollector}. */
@@ -172,7 +175,9 @@ public final class AnalyticsCollectorTest {
 
   private final DrmSessionManager drmSessionManager =
       new DefaultDrmSessionManager.Builder()
-          .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+          .setUuidAndExoMediaDrmProvider(
+              DRM_SCHEME_UUID,
+              uuid -> new FakeExoMediaDrm.Builder().setEnforceValidKeyResponses(false).build())
           .setMultiSession(true)
           .build(new EmptyDrmCallback());
 
@@ -1042,7 +1047,7 @@ public final class AnalyticsCollectorTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.addListener(
                         new Player.Listener() {
                           @Override
@@ -1416,7 +1421,7 @@ public final class AnalyticsCollectorTest {
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
-                  public void run(SimpleExoPlayer player) {
+                  public void run(ExoPlayer player) {
                     player.getAnalyticsCollector().notifySeekStarted();
                   }
                 })
@@ -1451,7 +1456,9 @@ public final class AnalyticsCollectorTest {
     BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.returnsEmpty();
     DrmSessionManager blockingDrmSessionManager =
         new DefaultDrmSessionManager.Builder()
-            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid -> new FakeExoMediaDrm.Builder().setEnforceValidKeyResponses(false).build())
             .setMultiSession(true)
             .build(mediaDrmCallback);
     MediaSource mediaSource =
@@ -1517,7 +1524,9 @@ public final class AnalyticsCollectorTest {
     BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.alwaysFailing();
     DrmSessionManager failingDrmSessionManager =
         new DefaultDrmSessionManager.Builder()
-            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setUuidAndExoMediaDrmProvider(
+                DRM_SCHEME_UUID,
+                uuid -> new FakeExoMediaDrm.Builder().setEnforceValidKeyResponses(false).build())
             .setMultiSession(true)
             .build(mediaDrmCallback);
     MediaSource mediaSource =
@@ -1643,7 +1652,7 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void onEvents_isReportedWithCorrectEventTimes() throws Exception {
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
     Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     player.setVideoSurface(surface);
@@ -1944,7 +1953,7 @@ public final class AnalyticsCollectorTest {
   public void recursiveListenerInvocation_arrivesInCorrectOrder() {
     AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
     analyticsCollector.setPlayer(
-        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
         Looper.myLooper());
     AnalyticsListener listener1 = mock(AnalyticsListener.class);
     AnalyticsListener listener2 =
@@ -1964,13 +1973,69 @@ public final class AnalyticsCollectorTest {
         ExoPlaybackException.createForSource(
             new IOException(), PlaybackException.ERROR_CODE_IO_UNSPECIFIED));
 
-    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    InOrder inOrder = inOrder(listener1, listener2, listener3);
     inOrder.verify(listener1).onPlayerError(any(), any());
     inOrder.verify(listener2).onPlayerError(any(), any());
     inOrder.verify(listener3).onPlayerError(any(), any());
     inOrder.verify(listener1).onSurfaceSizeChanged(any(), eq(0), eq(0));
     inOrder.verify(listener2).onSurfaceSizeChanged(any(), eq(0), eq(0));
     inOrder.verify(listener3).onSurfaceSizeChanged(any(), eq(0), eq(0));
+  }
+
+  @Test
+  public void release_withCallbacksArrivingAfterRelease_onPlayerReleasedForwardedLast()
+      throws Exception {
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, /* isAutoAdvancing= */ true);
+    ExoPlayer exoPlayer =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setClock(fakeClock)
+            .build();
+    AnalyticsListener analyticsListener =
+        spy(
+            new AnalyticsListener() {
+              @Override
+              public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
+                // Add delay in callback to test whether event timestamp and release timestamp are
+                // in the correct order.
+                fakeClock.advanceTime(1);
+              }
+            });
+    exoPlayer.addAnalyticsListener(analyticsListener);
+
+    // Prepare with media to ensure video renderer is enabled.
+    exoPlayer.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    exoPlayer.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(exoPlayer, Player.STATE_READY);
+
+    // Release and add delay on releasing thread to verify timestamps of events.
+    exoPlayer.release();
+    long releaseTimeMs = fakeClock.currentTimeMillis();
+    fakeClock.advanceTime(1);
+    ShadowLooper.idleMainLooper();
+
+    // Verify video disable events and release events arrived in order.
+    ArgumentCaptor<AnalyticsListener.EventTime> videoDisabledEventTime =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    ArgumentCaptor<AnalyticsListener.EventTime> releasedEventTime =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    InOrder inOrder = inOrder(analyticsListener);
+    inOrder.verify(analyticsListener).onVideoDisabled(videoDisabledEventTime.capture(), any());
+    inOrder
+        .verify(analyticsListener)
+        .onEvents(same(exoPlayer), argThat(events -> events.contains(EVENT_VIDEO_DISABLED)));
+    inOrder.verify(analyticsListener).onPlayerReleased(releasedEventTime.capture());
+    inOrder
+        .verify(analyticsListener)
+        .onEvents(same(exoPlayer), argThat(events -> events.contains(EVENT_PLAYER_RELEASED)));
+
+    // Verify order of timestamps of these events.
+    // This verification is needed as a regression test against [internal ref: b/195396384]. The
+    // root cause of the regression was an onPlayerReleased timestamp that was less than the
+    // previously reported timestamps for other events triggered as part of the release.
+    long videoDisableTimeMs = videoDisabledEventTime.getValue().realtimeMs;
+    assertThat(videoDisableTimeMs).isGreaterThan(releaseTimeMs);
+    assertThat(releasedEventTime.getValue().realtimeMs).isGreaterThan(videoDisableTimeMs);
   }
 
   private static TestAnalyticsListener runAnalyticsTest(MediaSource mediaSource) throws Exception {
@@ -2157,8 +2222,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onTracksChanged(
-        EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    public void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {
       reportedEvents.add(new ReportedEvent(EVENT_TRACKS_CHANGED, eventTime));
     }
 

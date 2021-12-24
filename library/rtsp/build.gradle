@@ -43,7 +43,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-rtsp'
+    releaseArtifactId = 'exoplayer-rtsp'
     releaseDescription = 'The ExoPlayer library RTSP module.'
 }
 apply from: '../../publish.gradle'

@@ -114,10 +114,15 @@ import java.util.regex.Pattern;
   /**
    * Serializes an {@link RtspRequest} to an {@link ImmutableList} of strings.
    *
+   * <p>The {@link RtspRequest} must include the {@link RtspHeaders#CSEQ} header, or this method
+   * throws {@link IllegalArgumentException}.
+   *
    * @param request The {@link RtspRequest}.
    * @return A list of the lines of the {@link RtspRequest}, without line terminators (CRLF).
    */
   public static ImmutableList<String> serializeRequest(RtspRequest request) {
+    checkArgument(request.headers.get(RtspHeaders.CSEQ) != null);
+
     ImmutableList.Builder<String> builder = new ImmutableList.Builder<>();
     // Request line.
     builder.add(
@@ -140,10 +145,15 @@ import java.util.regex.Pattern;
   /**
    * Serializes an {@link RtspResponse} to an {@link ImmutableList} of strings.
    *
+   * <p>The {@link RtspResponse} must include the {@link RtspHeaders#CSEQ} header, or this method
+   * throws {@link IllegalArgumentException}.
+   *
    * @param response The {@link RtspResponse}.
    * @return A list of the lines of the {@link RtspResponse}, without line terminators (CRLF).
    */
   public static ImmutableList<String> serializeResponse(RtspResponse response) {
+    checkArgument(response.headers.get(RtspHeaders.CSEQ) != null);
+
     ImmutableList.Builder<String> builder = new ImmutableList.Builder<>();
     // Request line.
     builder.add(
@@ -327,6 +337,16 @@ import java.util.regex.Pattern;
         || STATUS_LINE_PATTERN.matcher(line).matches();
   }
 
+  /**
+   * Returns whether the RTSP message is an RTSP response.
+   *
+   * @param lines The non-empty list of received lines, with line terminators removed.
+   * @return Whether the lines represent an RTSP response.
+   */
+  public static boolean isRtspResponse(List<String> lines) {
+    return STATUS_LINE_PATTERN.matcher(lines.get(0)).matches();
+  }
+
   /** Returns the lines in an RTSP message body split by the line terminator used in body. */
   public static String[] splitRtspMessageBody(String body) {
     return Util.split(body, body.contains(CRLF) ? CRLF : LF);
@@ -442,6 +462,10 @@ import java.util.regex.Pattern;
     switch (statusCode) {
       case 200:
         return "OK";
+      case 301:
+        return "Move Permanently";
+      case 302:
+        return "Move Temporarily";
       case 400:
         return "Bad Request";
       case 401:

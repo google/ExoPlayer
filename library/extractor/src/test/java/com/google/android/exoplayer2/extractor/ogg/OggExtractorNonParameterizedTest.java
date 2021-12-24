@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /**
  * Tests for {@link OggExtractor} that test specific behaviours and don't need to be parameterized.
@@ -37,7 +36,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  * OggExtractorParameterizedTest}.
  */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public final class OggExtractorNonParameterizedTest {
 
   @Test

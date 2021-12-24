@@ -95,12 +95,24 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     switch (messageType) {
       case MSG_SET_VIDEO_OUTPUT:
         output = message;
         renderedFirstFrameAfterReset = false;
         break;
+
+      case Renderer.MSG_SET_AUDIO_ATTRIBUTES:
+      case Renderer.MSG_SET_AUDIO_SESSION_ID:
+      case Renderer.MSG_SET_AUX_EFFECT_INFO:
+      case Renderer.MSG_SET_CAMERA_MOTION_LISTENER:
+      case Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
+      case Renderer.MSG_SET_SCALING_MODE:
+      case Renderer.MSG_SET_SKIP_SILENCE_ENABLED:
+      case Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
+      case Renderer.MSG_SET_VOLUME:
+      case Renderer.MSG_SET_WAKEUP_LISTENER:
       default:
         super.handleMessage(messageType, message);
     }

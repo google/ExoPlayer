@@ -50,6 +50,7 @@ import java.util.Map;
   public static final String CSEQ = "CSeq";
   public static final String DATE = "Date";
   public static final String EXPIRES = "Expires";
+  public static final String LOCATION = "Location";
   public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
   public static final String PROXY_REQUIRE = "Proxy-Require";
   public static final String PUBLIC = "Public";
@@ -76,6 +77,23 @@ import java.util.Map;
     /** Creates a new instance. */
     public Builder() {
       namesAndValuesBuilder = new ImmutableListMultimap.Builder<>();
+    }
+
+    /**
+     * Creates a new instance with common header values.
+     *
+     * @param userAgent The user agent string.
+     * @param sessionId The RTSP session ID; use {@code null} when the session is not yet set up.
+     * @param cSeq The RTSP cSeq sequence number.
+     */
+    public Builder(String userAgent, @Nullable String sessionId, int cSeq) {
+      this();
+
+      add(USER_AGENT, userAgent);
+      add(CSEQ, String.valueOf(cSeq));
+      if (sessionId != null) {
+        add(SESSION, sessionId);
+      }
     }
 
     /**
@@ -234,6 +252,8 @@ import java.util.Map;
       return DATE;
     } else if (Ascii.equalsIgnoreCase(messageHeaderName, EXPIRES)) {
       return EXPIRES;
+    } else if (Ascii.equalsIgnoreCase(messageHeaderName, LOCATION)) {
+      return LOCATION;
     } else if (Ascii.equalsIgnoreCase(messageHeaderName, PROXY_AUTHENTICATE)) {
       return PROXY_AUTHENTICATE;
     } else if (Ascii.equalsIgnoreCase(messageHeaderName, PROXY_REQUIRE)) {

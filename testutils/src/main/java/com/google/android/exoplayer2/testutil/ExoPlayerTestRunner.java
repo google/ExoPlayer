@@ -26,6 +26,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.MediaItem;
@@ -33,13 +34,10 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -72,7 +70,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
           .build();
 
   /**
-   * Builder to set-up a {@link ExoPlayerTestRunner}. Default fake implementations will be used for
+   * Builder to set-up an {@link ExoPlayerTestRunner}. Default fake implementations will be used for
    * unset test properties.
    */
   public static final class Builder {
@@ -87,7 +85,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     private AnalyticsListener analyticsListener;
     private Integer expectedPlayerEndedCount;
     private boolean pauseAtEndOfMediaItems;
-    private int initialWindowIndex;
+    private int initialMediaItemIndex;
     private long initialPositionMs;
     private boolean skipSettingMediaSources;
 
@@ -95,7 +93,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
       testPlayerBuilder = new TestExoPlayerBuilder(context);
       mediaSources = new ArrayList<>();
       supportedFormats = new Format[] {VIDEO_FORMAT};
-      initialWindowIndex = C.INDEX_UNSET;
+      initialMediaItemIndex = C.INDEX_UNSET;
       initialPositionMs = C.TIME_UNSET;
     }
 
@@ -135,12 +133,12 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     /**
      * Seeks before setting the media sources and preparing the player.
      *
-     * @param windowIndex The window index to seek to.
+     * @param mediaItemIndex The media item index to seek to.
      * @param positionMs The position in milliseconds to seek to.
      * @return This builder.
      */
-    public Builder initialSeek(int windowIndex, long positionMs) {
-      this.initialWindowIndex = windowIndex;
+    public Builder initialSeek(int mediaItemIndex, long positionMs) {
+      this.initialMediaItemIndex = mediaItemIndex;
       this.initialPositionMs = positionMs;
       return this;
     }
@@ -178,10 +176,9 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     }
 
     /**
-     * Skips calling {@link com.google.android.exoplayer2.ExoPlayer#setMediaSources(List)} before
-     * preparing. Calling this method is not allowed after calls to {@link
-     * #setMediaSources(MediaSource...)}, {@link #setTimeline(Timeline)} and/or {@link
-     * #setManifest(Object)}.
+     * Skips calling {@link ExoPlayer#setMediaSources(List)} before preparing. Calling this method
+     * is not allowed after calls to {@link #setMediaSources(MediaSource...)}, {@link
+     * #setTimeline(Timeline)} and/or {@link #setManifest(Object)}.
      *
      * @return This builder.
      */
@@ -269,7 +266,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
 
     /**
      * Sets an {@link ActionSchedule} to be run by the test runner. The first action will be
-     * executed immediately before {@link SimpleExoPlayer#prepare()}.
+     * executed immediately before {@link ExoPlayer#prepare()}.
      *
      * @param actionSchedule An {@link ActionSchedule} to be used by the test runner.
      * @return This builder.
@@ -346,7 +343,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
           testPlayerBuilder,
           mediaSources,
           skipSettingMediaSources,
-          initialWindowIndex,
+          initialMediaItemIndex,
           initialPositionMs,
           surface,
           actionSchedule,
@@ -360,7 +357,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   private final TestExoPlayerBuilder playerBuilder;
   private final List<MediaSource> mediaSources;
   private final boolean skipSettingMediaSources;
-  private final int initialWindowIndex;
+  private final int initialMediaItemIndex;
   private final long initialPositionMs;
   @Nullable private final Surface surface;
   @Nullable private final ActionSchedule actionSchedule;
@@ -381,16 +378,15 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   private final ArrayList<Integer> playbackStates;
   private final boolean pauseAtEndOfMediaItems;
 
-  private SimpleExoPlayer player;
+  private ExoPlayer player;
   private Exception exception;
-  private TrackGroupArray trackGroups;
   private boolean playerWasPrepared;
 
   private ExoPlayerTestRunner(
       TestExoPlayerBuilder playerBuilder,
       List<MediaSource> mediaSources,
       boolean skipSettingMediaSources,
-      int initialWindowIndex,
+      int initialMediaItemIndex,
       long initialPositionMs,
       @Nullable Surface surface,
       @Nullable ActionSchedule actionSchedule,
@@ -401,7 +397,7 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
     this.playerBuilder = playerBuilder;
     this.mediaSources = mediaSources;
     this.skipSettingMediaSources = skipSettingMediaSources;
-    this.initialWindowIndex = initialWindowIndex;
+    this.initialMediaItemIndex = initialMediaItemIndex;
     this.initialPositionMs = initialPositionMs;
     this.surface = surface;
     this.actionSchedule = actionSchedule;
@@ -470,8 +466,8 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
                   handler,
                   /* callback= */ ExoPlayerTestRunner.this);
             }
-            if (initialWindowIndex != C.INDEX_UNSET) {
-              player.seekTo(initialWindowIndex, initialPositionMs);
+            if (initialMediaItemIndex != C.INDEX_UNSET) {
+              player.seekTo(initialMediaItemIndex, initialPositionMs);
             }
             if (!skipSettingMediaSources) {
               player.setMediaSources(mediaSources, /* resetPosition= */ false);
@@ -555,43 +551,11 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
   }
 
   /**
-   * Asserts that the media items reported by {@link
-   * Player.Listener#onMediaItemTransition(MediaItem, int)} are the same as the provided media
-   * items.
-   *
-   * @param mediaItems A list of expected {@link MediaItem media items}.
-   */
-  public void assertMediaItemsTransitionedSame(MediaItem... mediaItems) {
-    assertThat(this.mediaItems).containsExactlyElementsIn(mediaItems).inOrder();
-  }
-
-  /**
-   * Asserts that the media item transition reasons reported by {@link
-   * Player.Listener#onMediaItemTransition(MediaItem, int)} are the same as the provided reasons.
-   *
-   * @param reasons A list of expected transition reasons.
-   */
-  public void assertMediaItemsTransitionReasonsEqual(Integer... reasons) {
-    assertThat(this.mediaItemTransitionReasons).containsExactlyElementsIn(reasons).inOrder();
-  }
-
-  /**
    * Asserts that the playback states reported by {@link
    * Player.Listener#onPlaybackStateChanged(int)} are equal to the provided playback states.
    */
   public void assertPlaybackStatesEqual(Integer... states) {
     assertThat(playbackStates).containsExactlyElementsIn(states).inOrder();
-  }
-
-  /**
-   * Asserts that the last track group array reported by {@link
-   * Player.Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)} is equal to the provided
-   * track group array.
-   *
-   * @param trackGroupArray The expected {@link TrackGroupArray}.
-   */
-  public void assertTrackGroupsEqual(TrackGroupArray trackGroupArray) {
-    assertThat(this.trackGroups).isEqualTo(trackGroupArray);
   }
 
   /**
@@ -675,11 +639,6 @@ public final class ExoPlayerTestRunner implements Player.Listener, ActionSchedul
       @Nullable MediaItem mediaItem, @Player.MediaItemTransitionReason int reason) {
     mediaItems.add(mediaItem);
     mediaItemTransitionReasons.add(reason);
-  }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    this.trackGroups = trackGroups;
   }
 
   @Override

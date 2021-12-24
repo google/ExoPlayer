@@ -177,7 +177,7 @@ import com.google.common.collect.ImmutableMap;
     NalUnitUtil.SpsData spsData =
         NalUnitUtil.parseSpsNalUnit(
             spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
-    formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthAspectRatio);
+    formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);
 

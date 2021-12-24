@@ -25,11 +25,11 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -44,7 +44,7 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -192,7 +192,7 @@ public final class ImaPlaybackTest {
     private final List<AdId> expectedAdIds;
     private final List<AdId> seenAdIds;
     private @MonotonicNonNull ImaAdsLoader imaAdsLoader;
-    private @MonotonicNonNull SimpleExoPlayer player;
+    private @MonotonicNonNull ExoPlayer player;
 
     private ImaHostedTest(Uri contentUri, String adsResponse, AdId... expectedAdIds) {
       // fullPlaybackNoSeeking is false as the playback lasts longer than the content source
@@ -207,7 +207,7 @@ public final class ImaPlaybackTest {
     }
 
     @Override
-    protected SimpleExoPlayer buildExoPlayer(
+    protected ExoPlayer buildExoPlayer(
         HostActivity host, Surface surface, MappingTrackSelector trackSelector) {
       player = super.buildExoPlayer(host, surface, trackSelector);
       player.addAnalyticsListener(
@@ -235,7 +235,7 @@ public final class ImaPlaybackTest {
     protected MediaSource buildSource(
         HostActivity host, DrmSessionManager drmSessionManager, FrameLayout overlayFrameLayout) {
       Context context = host.getApplicationContext();
-      DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context);
+      DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
       MediaSource contentMediaSource =
           new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(contentUri));
       return new AdsMediaSource(

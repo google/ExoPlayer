@@ -21,57 +21,69 @@ if (gradle.ext.has('exoplayerModulePrefix')) {
     modulePrefix += gradle.ext.exoplayerModulePrefix
 }
 
-include modulePrefix + 'library'
-project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
 include modulePrefix + 'library-common'
 project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')
+
+include modulePrefix + 'extension-mediasession'
+project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
+include modulePrefix + 'extension-media2'
+project(modulePrefix + 'extension-media2').projectDir = new File(rootDir, 'extensions/media2')
+
 include modulePrefix + 'library-core'
 project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
+include modulePrefix + 'library'
+project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
 include modulePrefix + 'library-dash'
 project(modulePrefix + 'library-dash').projectDir = new File(rootDir, 'library/dash')
-include modulePrefix + 'library-extractor'
-project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'library/extractor')
 include modulePrefix + 'library-hls'
 project(modulePrefix + 'library-hls').projectDir = new File(rootDir, 'library/hls')
 include modulePrefix + 'library-rtsp'
 project(modulePrefix + 'library-rtsp').projectDir = new File(rootDir, 'library/rtsp')
 include modulePrefix + 'library-smoothstreaming'
 project(modulePrefix + 'library-smoothstreaming').projectDir = new File(rootDir, 'library/smoothstreaming')
-include modulePrefix + 'library-transformer'
-project(modulePrefix + 'library-transformer').projectDir = new File(rootDir, 'library/transformer')
+include modulePrefix + 'extension-ima'
+project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensions/ima')
+include modulePrefix + 'extension-workmanager'
+project(modulePrefix + 'extension-workmanager').projectDir = new File(rootDir, 'extensions/workmanager')
+
 include modulePrefix + 'library-ui'
 project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
+include modulePrefix + 'extension-leanback'
+project(modulePrefix + 'extension-leanback').projectDir = new File(rootDir, 'extensions/leanback')
 
+include modulePrefix + 'library-database'
+project(modulePrefix + 'library-database').projectDir = new File(rootDir, 'library/database')
+
+include modulePrefix + 'library-datasource'
+project(modulePrefix + 'library-datasource').projectDir = new File(rootDir, 'library/datasource')
+include modulePrefix + 'extension-cronet'
+project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
+include modulePrefix + 'extension-rtmp'
+project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
+include modulePrefix + 'extension-okhttp'
+project(modulePrefix + 'extension-okhttp').projectDir = new File(rootDir, 'extensions/okhttp')
+
+include modulePrefix + 'library-decoder'
+project(modulePrefix + 'library-decoder').projectDir = new File(rootDir, 'library/decoder')
 include modulePrefix + 'extension-av1'
 project(modulePrefix + 'extension-av1').projectDir = new File(rootDir, 'extensions/av1')
 include modulePrefix + 'extension-ffmpeg'
 project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'extensions/ffmpeg')
 include modulePrefix + 'extension-flac'
 project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')
-include modulePrefix + 'extension-gvr'
-project(modulePrefix + 'extension-gvr').projectDir = new File(rootDir, 'extensions/gvr')
-include modulePrefix + 'extension-ima'
-project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensions/ima')
-include modulePrefix + 'extension-cast'
-project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensions/cast')
-include modulePrefix + 'extension-cronet'
-project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
-include modulePrefix + 'extension-mediasession'
-project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
-include modulePrefix + 'extension-media2'
-project(modulePrefix + 'extension-media2').projectDir = new File(rootDir, 'extensions/media2')
-include modulePrefix + 'extension-okhttp'
-project(modulePrefix + 'extension-okhttp').projectDir = new File(rootDir, 'extensions/okhttp')
 include modulePrefix + 'extension-opus'
 project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensions/opus')
 include modulePrefix + 'extension-vp9'
 project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')
-include modulePrefix + 'extension-rtmp'
-project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
-include modulePrefix + 'extension-leanback'
-project(modulePrefix + 'extension-leanback').projectDir = new File(rootDir, 'extensions/leanback')
-include modulePrefix + 'extension-workmanager'
-project(modulePrefix + 'extension-workmanager').projectDir = new File(rootDir, 'extensions/workmanager')
+
+include modulePrefix + 'library-extractor'
+project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'library/extractor')
+
+include modulePrefix + 'extension-cast'
+project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensions/cast')
+
+include modulePrefix + 'library-transformer'
+project(modulePrefix + 'library-transformer').projectDir = new File(rootDir, 'library/transformer')
 
 include modulePrefix + 'robolectricutils'
 project(modulePrefix + 'robolectricutils').projectDir = new File(rootDir, 'robolectricutils')

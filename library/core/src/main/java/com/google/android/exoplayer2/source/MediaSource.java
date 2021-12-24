@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
@@ -25,8 +26,8 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
 /**
- * Defines and provides media to be played by an {@link com.google.android.exoplayer2.ExoPlayer}. A
- * MediaSource has two main responsibilities:
+ * Defines and provides media to be played by an {@link ExoPlayer}. A MediaSource has two main
+ * responsibilities:
  *
  * <ul>
  *   <li>To provide the player with a {@link Timeline} defining the structure of its media, and to

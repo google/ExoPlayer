@@ -27,11 +27,9 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Unit test for creating DASH media sources with the {@link DefaultMediaSourceFactory}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class DefaultMediaSourceFactoryTest {
 
   private static final String URI_MEDIA = "http://exoplayer.dev/video";
@@ -62,7 +60,7 @@ public class DefaultMediaSourceFactoryTest {
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
-    assertThat(mediaSource.getMediaItem().playbackProperties.tag).isEqualTo(tag);
+    assertThat(mediaSource.getMediaItem().localConfiguration.tag).isEqualTo(tag);
   }
 
   @Test

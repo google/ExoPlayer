@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">வசனங்களை இயக்கும்</string>
   <string name="exo_controls_playback_speed">வேகம்</string>
   <string name="exo_controls_playback_speed_normal">இயல்பு</string>
-  <string name="exo_download_description">பதிவிறக்கும் பட்டன்</string>
-  <string name="exo_download_notification_channel_name">பதிவிறக்கங்கள்</string>
-  <string name="exo_download_downloading">பதிவிறக்குகிறது</string>
-  <string name="exo_download_completed">பதிவிறக்கப்பட்டது</string>
-  <string name="exo_download_failed">பதிவிறக்க முடியவில்லை</string>
-  <string name="exo_download_removing">பதிவிறக்கங்கள் அகற்றப்படுகின்றன</string>
   <string name="exo_track_selection_title_video">வீடியோ</string>
   <string name="exo_track_selection_title_audio">ஆடியோ</string>
   <string name="exo_track_selection_title_text">உரை</string>

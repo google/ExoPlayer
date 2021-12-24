@@ -63,10 +63,12 @@ For protected content, the media item's DRM properties should be set:
 ~~~
 MediaItem mediaItem = new MediaItem.Builder()
     .setUri(videoUri)
-    .setDrmUuid(C.WIDEVINE_UUID)
-    .setDrmLicenseUri(licenseUri)
-    .setDrmLicenseRequestHeaders(httpRequestHeaders)
-    .setDrmMultiSession(true)
+    .setDrmConfiguration(
+        new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+            .setLicenseUri(licenseUri)
+            .setMultiSession(true)
+            .setLicenseRequestHeaders(httpRequestHeaders)
+            .build())
     .build();
 ~~~
 {: .language-java}
@@ -84,17 +86,17 @@ To sideload subtitle tracks, `MediaItem.Subtitle` instances can be added when
 when building a media item:
 
 ~~~
-MediaItem.Subtitle subtitle =
-    new MediaItem.Subtitle(
-        subtitleUri,
-        MimeTypes.APPLICATION_SUBRIP, // The correct MIME type.
-        language, // The subtitle language. May be null.
-        selectionFlags); // Selection flags for the track.
-
-MediaItem mediaItem = new MediaItem.Builder()
-    .setUri(videoUri)
-    .setSubtitles(Lists.newArrayList(subtitle))
-    .build();
+MediaItem.SubtitleConfiguration subtitle =
+    new MediaItem.SubtitleConfiguration.Builder(subtitleUri)
+        .setMimeType(MimeTypes.APPLICATION_SUBRIP) // The correct MIME type (required).
+        .setLanguage(language) // The subtitle language (optional).
+        .setSelectionFlags(selectionFlags) // Selection flags for the track (optional).
+        .build();
+MediaItem mediaItem =
+    new MediaItem.Builder()
+        .setUri(videoUri)
+        .setSubtitleConfigurations(ImmutableList.of(subtitle))
+        .build();
 ~~~
 {: .language-java}
 
@@ -108,11 +110,15 @@ It's possible to clip the content referred to by a media item by setting custom
 start and end positions:
 
 ~~~
-MediaItem mediaItem = new MediaItem.Builder()
-    .setUri(videoUri)
-    .setClipStartPositionMs(startPositionMs)
-    .setClipEndPositionMs(endPositionMs)
-    .build();
+MediaItem mediaItem =
+    new MediaItem.Builder()
+        .setUri(videoUri)
+        .setClippingConfiguration(
+            new ClippingConfiguration.Builder()
+                .setStartPositionMs(startPositionMs)
+                .setEndPositionMs(endPositionMs)
+                .build())
+        .build();
 ~~~
 {: .language-java}
 
@@ -135,7 +141,8 @@ To insert ads, a media item's ad tag URI property should be set:
 ~~~
 MediaItem mediaItem = new MediaItem.Builder()
     .setUri(videoUri)
-    .setAdTagUri(adTagUri)
+    .setAdsConfiguration(
+        new MediaItem.AdsConfiguration.Builder(adTagUri).build())
     .build();
 ~~~
 {: .language-java}

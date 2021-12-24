@@ -49,12 +49,6 @@
   <string name="exo_controls_cc_disabled_description">Iespējot subtitrus</string>
   <string name="exo_controls_playback_speed">Ātrums</string>
   <string name="exo_controls_playback_speed_normal">Parasts</string>
-  <string name="exo_download_description">Lejupielādēt</string>
-  <string name="exo_download_notification_channel_name">Lejupielādes</string>
-  <string name="exo_download_downloading">Notiek lejupielāde</string>
-  <string name="exo_download_completed">Lejupielāde ir pabeigta</string>
-  <string name="exo_download_failed">Lejupielāde neizdevās</string>
-  <string name="exo_download_removing">Notiek lejupielāžu noņemšana</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Teksts</string>

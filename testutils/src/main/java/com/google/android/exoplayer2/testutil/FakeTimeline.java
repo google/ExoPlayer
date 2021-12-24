@@ -367,7 +367,7 @@ public final class FakeTimeline extends Timeline {
         manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ windowDefinition.isLive
-            ? C.usToMs(windowDefinition.windowOffsetInFirstPeriodUs)
+            ? Util.usToMs(windowDefinition.windowOffsetInFirstPeriodUs)
             : C.TIME_UNSET,
         /* elapsedRealtimeEpochOffsetMs= */ windowDefinition.isLive ? 0 : C.TIME_UNSET,
         windowDefinition.isSeekable,

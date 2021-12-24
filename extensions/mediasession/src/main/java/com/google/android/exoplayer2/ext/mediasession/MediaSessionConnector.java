@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.ext.mediasession;
 import static androidx.media.utils.MediaConstants.PLAYBACK_STATE_EXTRAS_KEY_MEDIA_ID;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_WINDOW;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
@@ -45,10 +45,7 @@ import android.view.KeyEvent;
 import androidx.annotation.LongDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -173,21 +170,13 @@ public final class MediaSessionConnector {
      * receiver may handle the command, but is not required to do so.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
-     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
-     *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param command The command name.
      * @param extras Optional parameters for the command, may be null.
      * @param cb A result receiver to which a result may be sent by the command, may be null.
      * @return Whether the receiver handled the command.
      */
     boolean onCommand(
-        Player player,
-        @Deprecated ControlDispatcher controlDispatcher,
-        String command,
-        @Nullable Bundle extras,
-        @Nullable ResultReceiver cb);
+        Player player, String command, @Nullable Bundle extras, @Nullable ResultReceiver cb);
   }
 
   /** Interface to which playback preparation and play actions are delegated. */
@@ -274,12 +263,13 @@ public final class MediaSessionConnector {
      * @param player The player connected to the media session.
      */
     void onTimelineChanged(Player player);
+
     /**
-     * Called when the current window index changed.
+     * Called when the current media item index changed.
      *
      * @param player The player connected to the media session.
      */
-    void onCurrentWindowIndexChanged(Player player);
+    default void onCurrentMediaItemIndexChanged(Player player) {}
     /**
      * Gets the id of the currently active queue item, or {@link
      * MediaSessionCompat.QueueItem#UNKNOWN_ID} if the active item is unknown.
@@ -296,32 +286,20 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onSkipToPrevious()}.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
-     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
-     *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
-    void onSkipToPrevious(Player player, @Deprecated ControlDispatcher controlDispatcher);
+    void onSkipToPrevious(Player player);
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToQueueItem(long)}.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
-     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
-     *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
-    void onSkipToQueueItem(Player player, @Deprecated ControlDispatcher controlDispatcher, long id);
+    void onSkipToQueueItem(Player player, long id);
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToNext()}.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
-     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
-     *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      */
-    void onSkipToNext(Player player, @Deprecated ControlDispatcher controlDispatcher);
+    void onSkipToNext(Player player);
   }
 
   /** Handles media session queue edits. */
@@ -374,15 +352,10 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
      *
      * @param player The {@link Player}.
-     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
-     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
-     *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param mediaButtonEvent The {@link Intent}.
      * @return True if the event was handled, false otherwise.
      */
-    boolean onMediaButtonEvent(
-        Player player, @Deprecated ControlDispatcher controlDispatcher, Intent mediaButtonEvent);
+    boolean onMediaButtonEvent(Player player, Intent mediaButtonEvent);
   }
 
   /**
@@ -394,18 +367,10 @@ public final class MediaSessionConnector {
      * Called when a custom action provided by this provider is sent to the media session.
      *
      * @param player The player connected to the media session.
-     * @param controlDispatcher This parameter is deprecated. Use {@code player} instead. Operations
-     *     can be customized by passing a {@link ForwardingPlayer} to {@link #setPlayer(Player)}, or
-     *     when configuring the player (for example by using {@code
-     *     SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
      * @param action The name of the action which was sent by a media controller.
      * @param extras Optional extras sent by a media controller, may be null.
      */
-    void onCustomAction(
-        Player player,
-        @Deprecated ControlDispatcher controlDispatcher,
-        String action,
-        @Nullable Bundle extras);
+    void onCustomAction(Player player, String action, @Nullable Bundle extras);
 
     /**
      * Returns a {@link PlaybackStateCompat.CustomAction} which will be published to the media
@@ -484,7 +449,6 @@ public final class MediaSessionConnector {
   private final ArrayList<CommandReceiver> commandReceivers;
   private final ArrayList<CommandReceiver> customCommandReceivers;
 
-  private ControlDispatcher controlDispatcher;
   private CustomActionProvider[] customActionProviders;
   private Map<String, CustomActionProvider> customActionMap;
   @Nullable private MediaMetadataProvider mediaMetadataProvider;
@@ -514,7 +478,6 @@ public final class MediaSessionConnector {
     componentListener = new ComponentListener();
     commandReceivers = new ArrayList<>();
     customCommandReceivers = new ArrayList<>();
-    controlDispatcher = new DefaultControlDispatcher();
     customActionProviders = new CustomActionProvider[0];
     customActionMap = Collections.emptyMap();
     mediaMetadataProvider =
@@ -555,19 +518,6 @@ public final class MediaSessionConnector {
       unregisterCommandReceiver(this.playbackPreparer);
       this.playbackPreparer = playbackPreparer;
       registerCommandReceiver(playbackPreparer);
-      invalidateMediaSessionPlaybackState();
-    }
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@code SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}).
-   */
-  @Deprecated
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    if (this.controlDispatcher != controlDispatcher) {
-      this.controlDispatcher = controlDispatcher;
       invalidateMediaSessionPlaybackState();
     }
   }
@@ -931,11 +881,9 @@ public final class MediaSessionConnector {
   }
 
   private long buildPlaybackActions(Player player) {
-    boolean enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_WINDOW);
-    boolean enableRewind =
-        player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
-    boolean enableFastForward =
-        player.isCommandAvailable(COMMAND_SEEK_FORWARD) && controlDispatcher.isFastForwardEnabled();
+    boolean enableSeeking = player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM);
+    boolean enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
+    boolean enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
 
     boolean enableSetRating = false;
     boolean enableSetCaptioningEnabled = false;
@@ -1022,8 +970,8 @@ public final class MediaSessionConnector {
     return player != null && mediaButtonEventHandler != null;
   }
 
-  private void seekTo(Player player, int windowIndex, long positionMs) {
-    controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
+  private void seekTo(Player player, int mediaItemIndex, long positionMs) {
+    player.seekTo(mediaItemIndex, positionMs);
   }
 
   private static int getMediaSessionPlaybackState(
@@ -1076,7 +1024,7 @@ public final class MediaSessionConnector {
       }
       builder.putLong(
           MediaMetadataCompat.METADATA_KEY_DURATION,
-          player.isCurrentWindowDynamic() || player.getDuration() == C.TIME_UNSET
+          player.isCurrentMediaItemDynamic() || player.getDuration() == C.TIME_UNSET
               ? -1
               : player.getDuration());
       long activeQueueItemId = mediaController.getPlaybackState().getActiveQueueItemId();
@@ -1150,7 +1098,7 @@ public final class MediaSessionConnector {
 
   private class ComponentListener extends MediaSessionCompat.Callback implements Player.Listener {
 
-    private int currentWindowIndex;
+    private int currentMediaItemIndex;
     private int currentWindowCount;
 
     // Player.Listener implementation.
@@ -1160,9 +1108,9 @@ public final class MediaSessionConnector {
       boolean invalidatePlaybackState = false;
       boolean invalidateMetadata = false;
       if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
-        if (currentWindowIndex != player.getCurrentWindowIndex()) {
+        if (currentMediaItemIndex != player.getCurrentMediaItemIndex()) {
           if (queueNavigator != null) {
-            queueNavigator.onCurrentWindowIndexChanged(player);
+            queueNavigator.onCurrentMediaItemIndexChanged(player);
           }
           invalidateMetadata = true;
         }
@@ -1171,11 +1119,11 @@ public final class MediaSessionConnector {
 
       if (events.contains(Player.EVENT_TIMELINE_CHANGED)) {
         int windowCount = player.getCurrentTimeline().getWindowCount();
-        int windowIndex = player.getCurrentWindowIndex();
+        int mediaItemIndex = player.getCurrentMediaItemIndex();
         if (queueNavigator != null) {
           queueNavigator.onTimelineChanged(player);
           invalidatePlaybackState = true;
-        } else if (currentWindowCount != windowCount || currentWindowIndex != windowIndex) {
+        } else if (currentWindowCount != windowCount || currentMediaItemIndex != mediaItemIndex) {
           // active queue item and queue navigation actions may need to be updated
           invalidatePlaybackState = true;
         }
@@ -1183,8 +1131,8 @@ public final class MediaSessionConnector {
         invalidateMetadata = true;
       }
 
-      // Update currentWindowIndex after comparisons above.
-      currentWindowIndex = player.getCurrentWindowIndex();
+      // Update currentMediaItemIndex after comparisons above.
+      currentMediaItemIndex = player.getCurrentMediaItemIndex();
 
       if (events.containsAny(
           EVENT_PLAYBACK_STATE_CHANGED,
@@ -1220,48 +1168,48 @@ public final class MediaSessionConnector {
           if (playbackPreparer != null) {
             playbackPreparer.onPrepare(/* playWhenReady= */ true);
           } else {
-            controlDispatcher.dispatchPrepare(player);
+            player.prepare();
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          seekTo(player, player.getCurrentMediaItemIndex(), C.TIME_UNSET);
         }
-        controlDispatcher.dispatchSetPlayWhenReady(
-            Assertions.checkNotNull(player), /* playWhenReady= */ true);
+        Assertions.checkNotNull(player).play();
       }
     }
 
     @Override
     public void onPause() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PAUSE)) {
-        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+        player.pause();
       }
     }
 
     @Override
     public void onSeekTo(long positionMs) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SEEK_TO)) {
-        seekTo(player, player.getCurrentWindowIndex(), positionMs);
+        seekTo(player, player.getCurrentMediaItemIndex(), positionMs);
       }
     }
 
     @Override
     public void onFastForward() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_FAST_FORWARD)) {
-        controlDispatcher.dispatchFastForward(player);
+        player.seekForward();
       }
     }
 
     @Override
     public void onRewind() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_REWIND)) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       }
     }
 
     @Override
     public void onStop() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_STOP)) {
-        controlDispatcher.dispatchStop(player, /* reset= */ true);
+        player.stop();
+        player.clearMediaItems();
       }
     }
 
@@ -1280,7 +1228,7 @@ public final class MediaSessionConnector {
             shuffleModeEnabled = false;
             break;
         }
-        controlDispatcher.dispatchSetShuffleModeEnabled(player, shuffleModeEnabled);
+        player.setShuffleModeEnabled(shuffleModeEnabled);
       }
     }
 
@@ -1302,43 +1250,42 @@ public final class MediaSessionConnector {
             repeatMode = Player.REPEAT_MODE_OFF;
             break;
         }
-        controlDispatcher.dispatchSetRepeatMode(player, repeatMode);
+        player.setRepeatMode(repeatMode);
       }
     }
 
     @Override
     public void onSetPlaybackSpeed(float speed) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED) && speed > 0) {
-        controlDispatcher.dispatchSetPlaybackParameters(
-            player, player.getPlaybackParameters().withSpeed(speed));
+        player.setPlaybackParameters(player.getPlaybackParameters().withSpeed(speed));
       }
     }
 
     @Override
     public void onSkipToNext() {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)) {
-        queueNavigator.onSkipToNext(player, controlDispatcher);
+        queueNavigator.onSkipToNext(player);
       }
     }
 
     @Override
     public void onSkipToPrevious() {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)) {
-        queueNavigator.onSkipToPrevious(player, controlDispatcher);
+        queueNavigator.onSkipToPrevious(player);
       }
     }
 
     @Override
     public void onSkipToQueueItem(long id) {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {
-        queueNavigator.onSkipToQueueItem(player, controlDispatcher, id);
+        queueNavigator.onSkipToQueueItem(player, id);
       }
     }
 
     @Override
     public void onCustomAction(String action, @Nullable Bundle extras) {
       if (player != null && customActionMap.containsKey(action)) {
-        customActionMap.get(action).onCustomAction(player, controlDispatcher, action, extras);
+        customActionMap.get(action).onCustomAction(player, action, extras);
         invalidateMediaSessionPlaybackState();
       }
     }
@@ -1347,14 +1294,12 @@ public final class MediaSessionConnector {
     public void onCommand(String command, @Nullable Bundle extras, @Nullable ResultReceiver cb) {
       if (player != null) {
         for (int i = 0; i < commandReceivers.size(); i++) {
-          if (commandReceivers.get(i).onCommand(player, controlDispatcher, command, extras, cb)) {
+          if (commandReceivers.get(i).onCommand(player, command, extras, cb)) {
             return;
           }
         }
         for (int i = 0; i < customCommandReceivers.size(); i++) {
-          if (customCommandReceivers
-              .get(i)
-              .onCommand(player, controlDispatcher, command, extras, cb)) {
+          if (customCommandReceivers.get(i).onCommand(player, command, extras, cb)) {
             return;
           }
         }
@@ -1456,8 +1401,7 @@ public final class MediaSessionConnector {
     public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
       boolean isHandled =
           canDispatchMediaButtonEvent()
-              && mediaButtonEventHandler.onMediaButtonEvent(
-                  player, controlDispatcher, mediaButtonEvent);
+              && mediaButtonEventHandler.onMediaButtonEvent(player, mediaButtonEvent);
       return isHandled || super.onMediaButtonEvent(mediaButtonEvent);
     }
   }

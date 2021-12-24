@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Увімкнути субтитри</string>
   <string name="exo_controls_playback_speed">Швидкість</string>
   <string name="exo_controls_playback_speed_normal">Звичайна</string>
-  <string name="exo_download_description">Завантажити</string>
-  <string name="exo_download_notification_channel_name">Завантаження</string>
-  <string name="exo_download_downloading">Завантажується</string>
-  <string name="exo_download_completed">Завантаження завершено</string>
-  <string name="exo_download_failed">Не вдалося завантажити</string>
-  <string name="exo_download_removing">Завантаження видаляються</string>
   <string name="exo_track_selection_title_video">Відео</string>
   <string name="exo_track_selection_title_audio">Аудіо</string>
   <string name="exo_track_selection_title_text">Текст</string>

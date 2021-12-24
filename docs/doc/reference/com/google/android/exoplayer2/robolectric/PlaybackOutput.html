@@ -169,7 +169,7 @@ implements <a href="../testutil/Dumper.Dumpable.html" title="interface in com.go
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="PlaybackOutput.html" title="class in com.google.android.exoplayer2.robolectric">PlaybackOutput</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.testutil.CapturingRenderersFactory)">register</a></span>&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.testutil.CapturingRenderersFactory)">register</a></span>&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
         <a href="../testutil/CapturingRenderersFactory.html" title="class in com.google.android.exoplayer2.testutil">CapturingRenderersFactory</a>&nbsp;capturingRenderersFactory)</code></th>
 <td class="colLast">
 <div class="block">Create an instance that captures the metadata and text output from <code>player</code> and the audio
@@ -200,13 +200,13 @@ implements <a href="../testutil/Dumper.Dumpable.html" title="interface in com.go
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="register(com.google.android.exoplayer2.SimpleExoPlayer,com.google.android.exoplayer2.testutil.CapturingRenderersFactory)">
+<a id="register(com.google.android.exoplayer2.ExoPlayer,com.google.android.exoplayer2.testutil.CapturingRenderersFactory)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>register</h4>
-<pre class="methodSignature">public static&nbsp;<a href="PlaybackOutput.html" title="class in com.google.android.exoplayer2.robolectric">PlaybackOutput</a>&nbsp;register&#8203;(<a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;player,
+<pre class="methodSignature">public static&nbsp;<a href="PlaybackOutput.html" title="class in com.google.android.exoplayer2.robolectric">PlaybackOutput</a>&nbsp;register&#8203;(<a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
                                       <a href="../testutil/CapturingRenderersFactory.html" title="class in com.google.android.exoplayer2.testutil">CapturingRenderersFactory</a>&nbsp;capturingRenderersFactory)</pre>
 <div class="block">Create an instance that captures the metadata and text output from <code>player</code> and the audio
  and video output via <code>capturingRenderersFactory</code>.
@@ -215,7 +215,7 @@ implements <a href="../testutil/Dumper.Dumpable.html" title="interface in com.go
  correctly.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> to capture metadata and text output from.</dd>
+<dd><code>player</code> - The <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> to capture metadata and text output from.</dd>
 <dd><code>capturingRenderersFactory</code> - The <a href="../testutil/CapturingRenderersFactory.html" title="class in com.google.android.exoplayer2.testutil"><code>CapturingRenderersFactory</code></a> to capture audio and
      video output from.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

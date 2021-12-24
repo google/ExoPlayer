@@ -32,7 +32,7 @@ ext {
 apply from: '../../javadoc_library.gradle'
 
 ext {
-    releaseArtifact = 'exoplayer-ui'
+    releaseArtifactId = 'exoplayer-ui'
     releaseDescription = 'The ExoPlayer library UI module.'
 }
 apply from: '../../publish.gradle'

@@ -34,8 +34,11 @@ import java.util.regex.Pattern;
   // under the given tag follows an optional space.
   private static final Pattern SDP_LINE_PATTERN = Pattern.compile("([a-z])=\\s?(.+)");
   // Matches an attribute line (with a= sdp tag removed. Example: range:npt=0-50.0).
-  // Attribute can also be a flag, i.e. without a value, like recvonly.
-  private static final Pattern ATTRIBUTE_PATTERN = Pattern.compile("([0-9A-Za-z-]+)(?::(.*))?");
+  // Attribute can also be a flag, i.e. without a value, like recvonly. Reference RFC4566 Section 9
+  // Page 43, under "token-char".
+  private static final Pattern ATTRIBUTE_PATTERN =
+      Pattern.compile(
+          "([\\x21\\x23-\\x27\\x2a\\x2b\\x2d\\x2e\\x30-\\x39\\x41-\\x5a\\x5e-\\x7e]+)(?::(.*))?");
   // SDP media description line: <mediaType> <port> <transmissionProtocol> <rtpPayloadType>
   // For instance: audio 0 RTP/AVP 97
   private static final Pattern MEDIA_DESCRIPTION_PATTERN =

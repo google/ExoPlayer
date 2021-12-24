@@ -628,6 +628,7 @@ public final class HlsMediaPeriod
         numberOfAudioCodecs <= 1
             && numberOfVideoCodecs <= 1
             && numberOfAudioCodecs + numberOfVideoCodecs > 0;
+    @C.TrackType
     int trackType =
         !useVideoVariantsOnly && numberOfAudioCodecs > 0
             ? C.TRACK_TYPE_AUDIO
@@ -754,7 +755,7 @@ public final class HlsMediaPeriod
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(
-      int trackType,
+      @C.TrackType int trackType,
       Uri[] playlistUrls,
       Format[] playlistFormats,
       @Nullable Format muxedAudioFormat,

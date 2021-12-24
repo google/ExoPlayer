@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -251,48 +251,57 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setConstantBitrateSeekingAlwaysEnabled(boolean)">setConstantBitrateSeekingAlwaysEnabled</a></span>&#8203;(boolean&nbsp;constantBitrateSeekingAlwaysEnabled)</code></th>
+<td class="colLast">
+<div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
+ be enabled for all extractors that support it, and if it should be enabled even if the content
+ length (and hence the duration of the media) is unknown.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setConstantBitrateSeekingEnabled(boolean)">setConstantBitrateSeekingEnabled</a></span>&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</code></th>
 <td class="colLast">
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlacExtractorFlags(int)">setFlacExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Sets flags for <a href="flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFragmentedMp4ExtractorFlags(int)">setFragmentedMp4ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Sets flags for <a href="mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMatroskaExtractorFlags(int)">setMatroskaExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Sets flags for <a href="mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMp3ExtractorFlags(int)">setMp3ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Sets flags for <a href="mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMp4ExtractorFlags(int)">setMp4ExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Sets flags for <a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorFlags(int)">setTsExtractorFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
 <td class="colLast">
@@ -300,14 +309,14 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
  created by the factory.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorMode(int)">setTsExtractorMode</a></span>&#8203;(int&nbsp;mode)</code></th>
 <td class="colLast">
 <div class="block">Sets the mode for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorTimestampSearchBytes(int)">setTsExtractorTimestampSearchBytes</a></span>&#8203;(int&nbsp;timestampSearchBytes)</code></th>
 <td class="colLast">
@@ -374,6 +383,34 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>constantBitrateSeekingEnabled</code> - Whether approximate seeking using a constant bitrate
      assumption should be enabled for all extractors that support it.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="setConstantBitrateSeekingAlwaysEnabled(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setConstantBitrateSeekingAlwaysEnabled</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingAlwaysEnabled&#8203;(boolean&nbsp;constantBitrateSeekingAlwaysEnabled)</pre>
+<div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
+ be enabled for all extractors that support it, and if it should be enabled even if the content
+ length (and hence the duration of the media) is unknown. If set to true, the flags required to
+ enable this functionality will be OR'd with those passed to the setters when creating extractor
+ instances. If set to false then the flags passed to the setters will be used without
+ modification.
+
+ <p>When seeking into content where the length is unknown, application code should ensure that
+ requested seek positions are valid, or should be ready to handle playback failures reported
+ through <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)"><code>Player.Listener.onPlayerError(com.google.android.exoplayer2.PlaybackException)</code></a> with <a href="../PlaybackException.html#errorCode"><code>PlaybackException.errorCode</code></a> set to
+ <a href="../PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE"><code>PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>constantBitrateSeekingAlwaysEnabled</code> - Whether approximate seeking using a constant bitrate
+     assumption should be enabled for all extractors that support it, including when the content
+     duration is unknown.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The factory, for convenience.</dd>
 </dl>

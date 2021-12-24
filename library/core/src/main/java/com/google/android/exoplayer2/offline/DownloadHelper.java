@@ -321,7 +321,7 @@ public final class DownloadHelper {
    * @throws IllegalStateException If the media item is of type DASH, HLS or SmoothStreaming.
    */
   public static DownloadHelper forMediaItem(Context context, MediaItem mediaItem) {
-    Assertions.checkArgument(isProgressive(checkNotNull(mediaItem.playbackProperties)));
+    Assertions.checkArgument(isProgressive(checkNotNull(mediaItem.localConfiguration)));
     return forMediaItem(
         mediaItem,
         getDefaultTrackSelectorParameters(context),
@@ -411,7 +411,7 @@ public final class DownloadHelper {
       @Nullable RenderersFactory renderersFactory,
       @Nullable DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    boolean isProgressive = isProgressive(checkNotNull(mediaItem.playbackProperties));
+    boolean isProgressive = isProgressive(checkNotNull(mediaItem.localConfiguration));
     Assertions.checkArgument(isProgressive || dataSourceFactory != null);
     return new DownloadHelper(
         mediaItem,
@@ -452,7 +452,7 @@ public final class DownloadHelper {
         downloadRequest.toMediaItem(), dataSourceFactory, drmSessionManager);
   }
 
-  private final MediaItem.PlaybackProperties playbackProperties;
+  private final MediaItem.LocalConfiguration localConfiguration;
   @Nullable private final MediaSource mediaSource;
   private final DefaultTrackSelector trackSelector;
   private final RendererCapabilities[] rendererCapabilities;
@@ -485,7 +485,7 @@ public final class DownloadHelper {
       @Nullable MediaSource mediaSource,
       DefaultTrackSelector.Parameters trackSelectorParameters,
       RendererCapabilities[] rendererCapabilities) {
-    this.playbackProperties = checkNotNull(mediaItem.playbackProperties);
+    this.localConfiguration = checkNotNull(mediaItem.localConfiguration);
     this.mediaSource = mediaSource;
     this.trackSelector =
         new DefaultTrackSelector(trackSelectorParameters, new DownloadTrackSelection.Factory());
@@ -726,7 +726,7 @@ public final class DownloadHelper {
    * @return The built {@link DownloadRequest}.
    */
   public DownloadRequest getDownloadRequest(@Nullable byte[] data) {
-    return getDownloadRequest(playbackProperties.uri.toString(), data);
+    return getDownloadRequest(localConfiguration.uri.toString(), data);
   }
 
   /**
@@ -739,13 +739,13 @@ public final class DownloadHelper {
    */
   public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
     DownloadRequest.Builder requestBuilder =
-        new DownloadRequest.Builder(id, playbackProperties.uri)
-            .setMimeType(playbackProperties.mimeType)
+        new DownloadRequest.Builder(id, localConfiguration.uri)
+            .setMimeType(localConfiguration.mimeType)
             .setKeySetId(
-                playbackProperties.drmConfiguration != null
-                    ? playbackProperties.drmConfiguration.getKeySetId()
+                localConfiguration.drmConfiguration != null
+                    ? localConfiguration.drmConfiguration.getKeySetId()
                     : null)
-            .setCustomCacheKey(playbackProperties.customCacheKey)
+            .setCustomCacheKey(localConfiguration.customCacheKey)
             .setData(data);
     if (mediaSource == null) {
       return requestBuilder.build();
@@ -896,9 +896,9 @@ public final class DownloadHelper {
         .createMediaSource(mediaItem);
   }
 
-  private static boolean isProgressive(MediaItem.PlaybackProperties playbackProperties) {
+  private static boolean isProgressive(MediaItem.LocalConfiguration localConfiguration) {
     return Util.inferContentTypeForUriAndMimeType(
-            playbackProperties.uri, playbackProperties.mimeType)
+            localConfiguration.uri, localConfiguration.mimeType)
         == C.TYPE_OTHER;
   }
 
@@ -1096,6 +1096,7 @@ public final class DownloadHelper {
     }
 
     @Override
+    @C.SelectionReason
     public int getSelectionReason() {
       return C.SELECTION_REASON_UNKNOWN;
     }

@@ -15,9 +15,15 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * A track selection consisting of a static subset of selected tracks belonging to a {@link
@@ -27,6 +33,17 @@ import com.google.android.exoplayer2.source.TrackGroup;
  */
 public interface TrackSelection {
 
+  /**
+   * Represents a type track selection. Either {@link #TYPE_UNSET} or an app-defined value (see
+   * {@link #TYPE_CUSTOM_BASE}).
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({ElementType.TYPE_USE})
+  @IntDef(
+      open = true,
+      value = {TYPE_UNSET})
+  @interface Type {}
   /** An unspecified track selection type. */
   int TYPE_UNSET = 0;
   /** The first value that can be used for application specific track selection types. */
@@ -40,6 +57,7 @@ public interface TrackSelection {
    * starting from {@link #TYPE_CUSTOM_BASE} to ensure they don't conflict with any types that may
    * be added to the library in the future.
    */
+  @Type
   int getType();
 
   /** Returns the {@link TrackGroup} to which the selected tracks belong. */

@@ -42,10 +42,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public int[] trunLength;
   /** The size of each sample in the fragment. */
   public int[] sampleSizeTable;
-  /** The composition time offset of each sample in the fragment, in microseconds. */
-  public int[] sampleCompositionTimeOffsetUsTable;
-  /** The decoding time of each sample in the fragment, in microseconds. */
-  public long[] sampleDecodingTimeUsTable;
+  /** The presentation time of each sample in the fragment, in microseconds. */
+  public long[] samplePresentationTimesUs;
   /** Indicates which samples are sync frames. */
   public boolean[] sampleIsSyncFrameTable;
   /** Whether the fragment defines encryption data. */
@@ -80,8 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     trunDataPosition = new long[0];
     trunLength = new int[0];
     sampleSizeTable = new int[0];
-    sampleCompositionTimeOffsetUsTable = new int[0];
-    sampleDecodingTimeUsTable = new long[0];
+    samplePresentationTimesUs = new long[0];
     sampleIsSyncFrameTable = new boolean[0];
     sampleHasSubsampleEncryptionTable = new boolean[0];
     sampleEncryptionData = new ParsableByteArray();
@@ -123,8 +120,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // likely. The choice of 25% is relatively arbitrary.
       int tableSize = (sampleCount * 125) / 100;
       sampleSizeTable = new int[tableSize];
-      sampleCompositionTimeOffsetUsTable = new int[tableSize];
-      sampleDecodingTimeUsTable = new long[tableSize];
+      samplePresentationTimesUs = new long[tableSize];
       sampleIsSyncFrameTable = new boolean[tableSize];
       sampleHasSubsampleEncryptionTable = new boolean[tableSize];
     }
@@ -173,7 +169,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @return The presentation timestamps of this sample in microseconds.
    */
   public long getSamplePresentationTimeUs(int index) {
-    return sampleDecodingTimeUsTable[index] + sampleCompositionTimeOffsetUsTable[index];
+    return samplePresentationTimesUs[index];
   }
 
   /** Returns whether the sample at the given index has a subsample encryption table. */

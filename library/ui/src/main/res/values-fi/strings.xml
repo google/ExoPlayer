@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Ota tekstitykset käyttöön</string>
   <string name="exo_controls_playback_speed">Nopeus</string>
   <string name="exo_controls_playback_speed_normal">Normaali</string>
-  <string name="exo_download_description">Lataa</string>
-  <string name="exo_download_notification_channel_name">Lataukset</string>
-  <string name="exo_download_downloading">Ladataan</string>
-  <string name="exo_download_completed">Lataus valmis</string>
-  <string name="exo_download_failed">Lataus epäonnistui</string>
-  <string name="exo_download_removing">Poistetaan latauksia</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Ääni</string>
   <string name="exo_track_selection_title_text">Teksti</string>

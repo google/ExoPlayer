@@ -187,15 +187,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionReason">trackSelectionReason</a></span></code></th>
 <td class="colLast">
-<div class="block">One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>SELECTION_REASON_*</code> constants if the data belongs to a track.</div>
+<div class="block">One of the <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the data belongs to a track.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackType">trackType</a></span></code></th>
 <td class="colLast">
-<div class="block">One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants if the data corresponds to media of a
- specific type.</div>
+<div class="block">One of the <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track types</code></a>, which is a media track type if the data corresponds
+ to media of a specific type, or <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> otherwise.</div>
 </td>
 </tr>
 </table>
@@ -222,8 +222,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">MediaLoadData</a></span>&#8203;(int&nbsp;dataType,
-             int&nbsp;trackType,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">MediaLoadData</a></span>&#8203;(int&nbsp;dataType,
+             @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
              int&nbsp;trackSelectionReason,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
@@ -284,9 +284,9 @@ public final&nbsp;int dataType</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>trackType</h4>
-<pre>public final&nbsp;int trackType</pre>
-<div class="block">One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants if the data corresponds to media of a
- specific type. <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> otherwise.</div>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.TrackType int trackType</pre>
+<div class="block">One of the <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track types</code></a>, which is a media track type if the data corresponds
+ to media of a specific type, or <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> otherwise.</div>
 </li>
 </ul>
 <a id="trackFormat">
@@ -308,8 +308,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>trackSelectionReason</h4>
 <pre>public final&nbsp;int trackSelectionReason</pre>
-<div class="block">One of the <a href="../C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>SELECTION_REASON_*</code> constants if the data belongs to a track.
- <a href="../C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> otherwise.</div>
+<div class="block">One of the <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the data belongs to a track. <a href="../C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> otherwise.</div>
 </li>
 </ul>
 <a id="trackSelectionData">
@@ -367,7 +366,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <div class="block">Creates an instance with the given <a href="#dataType"><code>dataType</code></a>.</div>
 </li>
 </ul>
-<a id="&lt;init&gt;(int,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
+<a id="&lt;init&gt;(int,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -375,9 +374,10 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>MediaLoadData</h4>
 <pre>public&nbsp;MediaLoadData&#8203;(<a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
                      int&nbsp;dataType,
-                     int&nbsp;trackType,
+                     @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                      @Nullable
                      <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                     <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
                      int&nbsp;trackSelectionReason,
                      @Nullable
                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,

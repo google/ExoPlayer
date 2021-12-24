@@ -87,13 +87,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -122,7 +122,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code>, <code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code>, <code><a href="hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code>, <code><a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource.Factory</a></code>, <code><a href="rtsp/RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code>, <code><a href="smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></dd>
+<dd><code><a href="dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code>, <code><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></code>, <code><a href="../testutil/FakeMediaSourceFactory.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaSourceFactory</a></code>, <code><a href="hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code>, <code><a href="ProgressiveMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource.Factory</a></code>, <code><a href="rtsp/RtspMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource.Factory</a></code>, <code><a href="smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">MediaSourceFactory</span></pre>
@@ -133,6 +133,32 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNSUPPORTED">UNSUPPORTED</a></span></code></th>
+<td class="colLast">
+<div class="block">An instance that throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink"><code>UnsupportedOperationException</code></a> from <a href="#createMediaSource(com.google.android.exoplayer2.MediaItem)" target="_top"><code>createMediaSource(com.google.android.exoplayer2.MediaItem)</code></a>
+ and <a href="#getSupportedTypes()"><code>getSupportedTypes()</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -223,7 +249,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStreamKeys(java.util.List)">setStreamKeys</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../MediaItem.PlaybackProperties.html#streamKeys"><code>MediaItem.PlaybackProperties.streamKeys</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="../MediaItem.LocalConfiguration.html#streamKeys"><code>MediaItem.LocalConfiguration.streamKeys</code></a> instead.</div>
 </div>
 </td>
 </tr>
@@ -237,6 +263,27 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="UNSUPPORTED">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>UNSUPPORTED</h4>
+<pre>static final&nbsp;<a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a> UNSUPPORTED</pre>
+<div class="block">An instance that throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink"><code>UnsupportedOperationException</code></a> from <a href="#createMediaSource(com.google.android.exoplayer2.MediaItem)" target="_top"><code>createMediaSource(com.google.android.exoplayer2.MediaItem)</code></a>
+ and <a href="#getSupportedTypes()"><code>getSupportedTypes()</code></a>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section role="region">
 <ul class="blockList">
@@ -254,7 +301,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 default&nbsp;<a href="MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a>&nbsp;setStreamKeys&#8203;(@Nullable
                                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="../MediaItem.PlaybackProperties.html#streamKeys"><code>MediaItem.PlaybackProperties.streamKeys</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="../MediaItem.LocalConfiguration.html#streamKeys"><code>MediaItem.LocalConfiguration.streamKeys</code></a> instead.</div>
 </div>
 </li>
 </ul>
@@ -327,7 +374,7 @@ default&nbsp;<a href="MediaSourceFactory.html" title="interface in com.google.an
  <p>Calls to this method are ignored if either a <a href="#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)"><code>DrmSessionManager provider</code></a> or <a href="#setDrmSessionManager(com.google.android.exoplayer2.drm.DrmSessionManager)"><code>concrete DrmSessionManager</code></a> are provided.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../upstream/DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSourceFactory</code></a>.</dd>
+<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../upstream/DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource.Factory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -478,13 +525,13 @@ default&nbsp;<a href="MediaSource.html" title="interface in com.google.android.e
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

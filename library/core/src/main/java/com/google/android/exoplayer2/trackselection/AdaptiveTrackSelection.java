@@ -53,6 +53,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     private final int minDurationForQualityIncreaseMs;
     private final int maxDurationForQualityDecreaseMs;
     private final int minDurationToRetainAfterDiscardMs;
+    private final int maxWidthToDiscard;
+    private final int maxHeightToDiscard;
     private final float bandwidthFraction;
     private final float bufferedFractionToLiveEdgeForQualityIncrease;
     private final Clock clock;
@@ -63,9 +65,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
           DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
           DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
-          DEFAULT_BANDWIDTH_FRACTION,
-          DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-          Clock.DEFAULT);
+          DEFAULT_BANDWIDTH_FRACTION);
     }
 
     /**
@@ -75,9 +75,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      *     selected track to switch to one of higher quality.
      * @param maxDurationForQualityDecreaseMs The maximum duration of buffered data required for the
      *     selected track to switch to one of lower quality.
-     * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
-     *     quality, the selection may indicate that media already buffered at the lower quality can
-     *     be discarded to speed up the switch. This is the minimum duration of media that must be
+     * @param minDurationToRetainAfterDiscardMs When switching to a video track of higher quality,
+     *     the selection may indicate that media already buffered at the lower quality can be
+     *     discarded to speed up the switch. This is the minimum duration of media that must be
      *     retained at the lower quality. It must be at least {@code
      *     minDurationForQualityIncreaseMs}.
      * @param bandwidthFraction The fraction of the available bandwidth that the selection should
@@ -93,6 +93,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           minDurationForQualityIncreaseMs,
           maxDurationForQualityDecreaseMs,
           minDurationToRetainAfterDiscardMs,
+          DEFAULT_MAX_WIDTH_TO_DISCARD,
+          DEFAULT_MAX_HEIGHT_TO_DISCARD,
           bandwidthFraction,
           DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
           Clock.DEFAULT);
@@ -105,9 +107,47 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      *     selected track to switch to one of higher quality.
      * @param maxDurationForQualityDecreaseMs The maximum duration of buffered data required for the
      *     selected track to switch to one of lower quality.
-     * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
-     *     quality, the selection may indicate that media already buffered at the lower quality can
-     *     be discarded to speed up the switch. This is the minimum duration of media that must be
+     * @param minDurationToRetainAfterDiscardMs When switching to a video track of higher quality,
+     *     the selection may indicate that media already buffered at the lower quality can be
+     *     discarded to speed up the switch. This is the minimum duration of media that must be
+     *     retained at the lower quality. It must be at least {@code
+     *     minDurationForQualityIncreaseMs}.
+     * @param maxWidthToDiscard The maximum video width that the selector may discard from the
+     *     buffer to speed up switching to a higher quality.
+     * @param maxHeightToDiscard The maximum video height that the selector may discard from the
+     *     buffer to speed up switching to a higher quality.
+     * @param bandwidthFraction The fraction of the available bandwidth that the selection should
+     *     consider available for use. Setting to a value less than 1 is recommended to account for
+     *     inaccuracies in the bandwidth estimator.
+     */
+    public Factory(
+        int minDurationForQualityIncreaseMs,
+        int maxDurationForQualityDecreaseMs,
+        int minDurationToRetainAfterDiscardMs,
+        int maxWidthToDiscard,
+        int maxHeightToDiscard,
+        float bandwidthFraction) {
+      this(
+          minDurationForQualityIncreaseMs,
+          maxDurationForQualityDecreaseMs,
+          minDurationToRetainAfterDiscardMs,
+          maxWidthToDiscard,
+          maxHeightToDiscard,
+          bandwidthFraction,
+          DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
+          Clock.DEFAULT);
+    }
+
+    /**
+     * Creates an adaptive track selection factory.
+     *
+     * @param minDurationForQualityIncreaseMs The minimum duration of buffered data required for the
+     *     selected track to switch to one of higher quality.
+     * @param maxDurationForQualityDecreaseMs The maximum duration of buffered data required for the
+     *     selected track to switch to one of lower quality.
+     * @param minDurationToRetainAfterDiscardMs When switching to a video track of higher quality,
+     *     the selection may indicate that media already buffered at the lower quality can be
+     *     discarded to speed up the switch. This is the minimum duration of media that must be
      *     retained at the lower quality. It must be at least {@code
      *     minDurationForQualityIncreaseMs}.
      * @param bandwidthFraction The fraction of the available bandwidth that the selection should
@@ -128,9 +168,58 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         float bandwidthFraction,
         float bufferedFractionToLiveEdgeForQualityIncrease,
         Clock clock) {
+      this(
+          minDurationForQualityIncreaseMs,
+          maxDurationForQualityDecreaseMs,
+          minDurationToRetainAfterDiscardMs,
+          DEFAULT_MAX_WIDTH_TO_DISCARD,
+          DEFAULT_MAX_HEIGHT_TO_DISCARD,
+          bandwidthFraction,
+          bufferedFractionToLiveEdgeForQualityIncrease,
+          clock);
+    }
+
+    /**
+     * Creates an adaptive track selection factory.
+     *
+     * @param minDurationForQualityIncreaseMs The minimum duration of buffered data required for the
+     *     selected track to switch to one of higher quality.
+     * @param maxDurationForQualityDecreaseMs The maximum duration of buffered data required for the
+     *     selected track to switch to one of lower quality.
+     * @param minDurationToRetainAfterDiscardMs When switching to a video track of higher quality,
+     *     the selection may indicate that media already buffered at the lower quality can be
+     *     discarded to speed up the switch. This is the minimum duration of media that must be
+     *     retained at the lower quality. It must be at least {@code
+     *     minDurationForQualityIncreaseMs}.
+     * @param maxWidthToDiscard The maximum video width that the selector may discard from the
+     *     buffer to speed up switching to a higher quality.
+     * @param maxHeightToDiscard The maximum video height that the selector may discard from the
+     *     buffer to speed up switching to a higher quality.
+     * @param bandwidthFraction The fraction of the available bandwidth that the selection should
+     *     consider available for use. Setting to a value less than 1 is recommended to account for
+     *     inaccuracies in the bandwidth estimator.
+     * @param bufferedFractionToLiveEdgeForQualityIncrease For live streaming, the fraction of the
+     *     duration from current playback position to the live edge that has to be buffered before
+     *     the selected track can be switched to one of higher quality. This parameter is only
+     *     applied when the playback position is closer to the live edge than {@code
+     *     minDurationForQualityIncreaseMs}, which would otherwise prevent switching to a higher
+     *     quality from happening.
+     * @param clock A {@link Clock}.
+     */
+    public Factory(
+        int minDurationForQualityIncreaseMs,
+        int maxDurationForQualityDecreaseMs,
+        int minDurationToRetainAfterDiscardMs,
+        int maxWidthToDiscard,
+        int maxHeightToDiscard,
+        float bandwidthFraction,
+        float bufferedFractionToLiveEdgeForQualityIncrease,
+        Clock clock) {
       this.minDurationForQualityIncreaseMs = minDurationForQualityIncreaseMs;
       this.maxDurationForQualityDecreaseMs = maxDurationForQualityDecreaseMs;
       this.minDurationToRetainAfterDiscardMs = minDurationToRetainAfterDiscardMs;
+      this.maxWidthToDiscard = maxWidthToDiscard;
+      this.maxHeightToDiscard = maxHeightToDiscard;
       this.bandwidthFraction = bandwidthFraction;
       this.bufferedFractionToLiveEdgeForQualityIncrease =
           bufferedFractionToLiveEdgeForQualityIncrease;
@@ -192,6 +281,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           minDurationForQualityIncreaseMs,
           maxDurationForQualityDecreaseMs,
           minDurationToRetainAfterDiscardMs,
+          maxWidthToDiscard,
+          maxHeightToDiscard,
           bandwidthFraction,
           bufferedFractionToLiveEdgeForQualityIncrease,
           adaptationCheckpoints,
@@ -202,6 +293,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   public static final int DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS = 10_000;
   public static final int DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS = 25_000;
   public static final int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS = 25_000;
+  public static final int DEFAULT_MAX_WIDTH_TO_DISCARD = 1279;
+  public static final int DEFAULT_MAX_HEIGHT_TO_DISCARD = 719;
   public static final float DEFAULT_BANDWIDTH_FRACTION = 0.7f;
   public static final float DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE = 0.75f;
 
@@ -211,6 +304,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   private final long minDurationForQualityIncreaseUs;
   private final long maxDurationForQualityDecreaseUs;
   private final long minDurationToRetainAfterDiscardUs;
+  private final int maxWidthToDiscard;
+  private final int maxHeightToDiscard;
   private final float bandwidthFraction;
   private final float bufferedFractionToLiveEdgeForQualityIncrease;
   private final ImmutableList<AdaptationCheckpoint> adaptationCheckpoints;
@@ -237,6 +332,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
         DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
         DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+        DEFAULT_MAX_WIDTH_TO_DISCARD,
+        DEFAULT_MAX_HEIGHT_TO_DISCARD,
         DEFAULT_BANDWIDTH_FRACTION,
         DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
         /* adaptationCheckpoints= */ ImmutableList.of(),
@@ -253,10 +350,14 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    *     selected track to switch to one of higher quality.
    * @param maxDurationForQualityDecreaseMs The maximum duration of buffered data required for the
    *     selected track to switch to one of lower quality.
-   * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
-   *     quality, the selection may indicate that media already buffered at the lower quality can be
-   *     discarded to speed up the switch. This is the minimum duration of media that must be
-   *     retained at the lower quality. It must be at least {@code minDurationForQualityIncreaseMs}.
+   * @param minDurationToRetainAfterDiscardMs When switching to a video track of higher quality, the
+   *     selection may indicate that media already buffered at the lower quality can be discarded to
+   *     speed up the switch. This is the minimum duration of media that must be retained at the
+   *     lower quality. It must be at least {@code minDurationForQualityIncreaseMs}.
+   * @param maxWidthToDiscard The maximum video width that the selector may discard from the buffer
+   *     to speed up switching to a higher quality.
+   * @param maxHeightToDiscard The maximum video height that the selector may discard from the
+   *     buffer to speed up switching to a higher quality.
    * @param bandwidthFraction The fraction of the available bandwidth that the selection should
    *     consider available for use. Setting to a value less than 1 is recommended to account for
    *     inaccuracies in the bandwidth estimator.
@@ -273,11 +374,13 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   protected AdaptiveTrackSelection(
       TrackGroup group,
       int[] tracks,
-      int type,
+      @Type int type,
       BandwidthMeter bandwidthMeter,
       long minDurationForQualityIncreaseMs,
       long maxDurationForQualityDecreaseMs,
       long minDurationToRetainAfterDiscardMs,
+      int maxWidthToDiscard,
+      int maxHeightToDiscard,
       float bandwidthFraction,
       float bufferedFractionToLiveEdgeForQualityIncrease,
       List<AdaptationCheckpoint> adaptationCheckpoints,
@@ -294,6 +397,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.minDurationForQualityIncreaseUs = minDurationForQualityIncreaseMs * 1000L;
     this.maxDurationForQualityDecreaseUs = maxDurationForQualityDecreaseMs * 1000L;
     this.minDurationToRetainAfterDiscardUs = minDurationToRetainAfterDiscardMs * 1000L;
+    this.maxWidthToDiscard = maxWidthToDiscard;
+    this.maxHeightToDiscard = maxHeightToDiscard;
     this.bandwidthFraction = bandwidthFraction;
     this.bufferedFractionToLiveEdgeForQualityIncrease =
         bufferedFractionToLiveEdgeForQualityIncrease;
@@ -410,9 +515,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     }
     int idealSelectedIndex = determineIdealSelectedIndex(nowMs, getLastChunkDurationUs(queue));
     Format idealFormat = getFormat(idealSelectedIndex);
-    // If the chunks contain video, discard from the first SD chunk beyond
-    // minDurationToRetainAfterDiscardUs whose resolution and bitrate are both lower than the ideal
-    // track.
+    // If chunks contain video, discard from the first chunk after minDurationToRetainAfterDiscardUs
+    // whose resolution and bitrate are both lower than the ideal track, and whose width and height
+    // are less than or equal to maxWidthToDiscard and maxHeightToDiscard respectively.
     for (int i = 0; i < queueSize; i++) {
       MediaChunk chunk = queue.get(i);
       Format format = chunk.trackFormat;
@@ -422,9 +527,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       if (playoutDurationBeforeThisChunkUs >= minDurationToRetainAfterDiscardUs
           && format.bitrate < idealFormat.bitrate
           && format.height != Format.NO_VALUE
-          && format.height < 720
+          && format.height <= maxHeightToDiscard
           && format.width != Format.NO_VALUE
-          && format.width < 1280
+          && format.width <= maxWidthToDiscard
           && format.height < idealFormat.height) {
         return i;
       }

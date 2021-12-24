@@ -110,44 +110,38 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a></th>
-<td class="colLast">Deprecated.
-<div class="deprecationComment">Use <a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2"><code>Player.Listener</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
 <th class="colFirst" scope="row"><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></th>
 <td class="colLast">
 <div class="block">Interface for audio processors, which take audio data as input and transform it, potentially
  modifying its channel count, encoding and/or sample rate.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a></th>
 <td class="colLast">
 <div class="block">Listener of audio <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></th>
 <td class="colLast">
 <div class="block">A sink that consumes audio data.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a></th>
 <td class="colLast">
 <div class="block">Listener for audio sink events.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></th>
 <td class="colLast">
 <div class="block">Provides a chain of audio processors, which are used for any user-defined processing and
  applying playback parameters (if supported).</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio">TeeAudioProcessor.AudioBufferSink</a></th>
 <td class="colLast">
 <div class="block">A sink for audio buffers handled by the audio processor.</div>
@@ -252,7 +246,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;T extends <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;? extends <a href="../decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,&#8203;? extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</th>
+<th class="colFirst" scope="row"><a href="DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;T extends <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;? extends <a href="../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;? extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</th>
 <td class="colLast">
 <div class="block">Decodes and renders audio using a <a href="../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.</div>
 </td>

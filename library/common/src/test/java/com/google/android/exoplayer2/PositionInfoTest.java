@@ -32,6 +32,7 @@ public class PositionInfoTest {
         new PositionInfo(
             /* windowUid= */ null,
             /* windowIndex= */ 23,
+            new MediaItem.Builder().setMediaId("1234").build(),
             /* periodUid= */ null,
             /* periodIndex= */ 11,
             /* positionMs= */ 8787L,
@@ -48,6 +49,7 @@ public class PositionInfoTest {
         new PositionInfo(
             /* windowUid= */ new Object(),
             /* windowIndex= */ 23,
+            MediaItem.fromUri("https://exoplayer.dev"),
             /* periodUid= */ null,
             /* periodIndex= */ 11,
             /* positionMs= */ 8787L,
@@ -65,6 +67,7 @@ public class PositionInfoTest {
         new PositionInfo(
             /* windowUid= */ null,
             /* windowIndex= */ 23,
+            MediaItem.fromUri("https://exoplayer.dev"),
             /* periodUid= */ new Object(),
             /* periodIndex= */ 11,
             /* positionMs= */ 8787L,

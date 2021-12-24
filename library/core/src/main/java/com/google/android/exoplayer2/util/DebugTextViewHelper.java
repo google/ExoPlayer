@@ -18,32 +18,32 @@ package com.google.android.exoplayer2.util;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.widget.TextView;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import java.util.Locale;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
- * a {@link SimpleExoPlayer}.
+ * an {@link ExoPlayer}.
  */
 public class DebugTextViewHelper implements Player.Listener, Runnable {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
-  private final SimpleExoPlayer player;
+  private final ExoPlayer player;
   private final TextView textView;
 
   private boolean started;
 
   /**
-   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained. Only
+   * @param player The {@link ExoPlayer} from which debug information should be obtained. Only
    *     players which are accessed on the main thread are supported ({@code
    *     player.getApplicationLooper() == Looper.getMainLooper()}).
    * @param textView The {@link TextView} that should be updated to display the information.
    */
-  public DebugTextViewHelper(SimpleExoPlayer player, TextView textView) {
+  public DebugTextViewHelper(ExoPlayer player, TextView textView) {
     Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
     this.player = player;
     this.textView = textView;
@@ -138,8 +138,8 @@ public class DebugTextViewHelper implements Player.Listener, Runnable {
         break;
     }
     return String.format(
-        "playWhenReady:%s playbackState:%s window:%s",
-        player.getPlayWhenReady(), playbackStateString, player.getCurrentWindowIndex());
+        "playWhenReady:%s playbackState:%s item:%s",
+        player.getPlayWhenReady(), playbackStateString, player.getCurrentMediaItemIndex());
   }
 
   /** Returns a string containing video debugging information. */

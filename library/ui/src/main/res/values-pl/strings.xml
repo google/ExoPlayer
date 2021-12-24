@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Włącz napisy</string>
   <string name="exo_controls_playback_speed">Szybkość</string>
   <string name="exo_controls_playback_speed_normal">Normalna</string>
-  <string name="exo_download_description">Pobierz</string>
-  <string name="exo_download_notification_channel_name">Pobieranie</string>
-  <string name="exo_download_downloading">Pobieram</string>
-  <string name="exo_download_completed">Zakończono pobieranie</string>
-  <string name="exo_download_failed">Nie udało się pobrać</string>
-  <string name="exo_download_removing">Usuwam pobrane</string>
   <string name="exo_track_selection_title_video">Film</string>
   <string name="exo_track_selection_title_audio">Dźwięk</string>
   <string name="exo_track_selection_title_text">Tekst</string>

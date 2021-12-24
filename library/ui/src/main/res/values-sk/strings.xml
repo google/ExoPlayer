@@ -51,12 +51,6 @@
   <string name="exo_controls_cc_disabled_description">Povoliť titulky</string>
   <string name="exo_controls_playback_speed">Rýchlosť</string>
   <string name="exo_controls_playback_speed_normal">Normálna</string>
-  <string name="exo_download_description">Stiahnuť</string>
-  <string name="exo_download_notification_channel_name">Stiahnuté</string>
-  <string name="exo_download_downloading">Sťahuje sa</string>
-  <string name="exo_download_completed">Sťahovanie bolo dokončené</string>
-  <string name="exo_download_failed">Nepodarilo sa stiahnuť</string>
-  <string name="exo_download_removing">Odstraňuje sa stiahnutý obsah</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Zvuk</string>
   <string name="exo_track_selection_title_text">Text</string>

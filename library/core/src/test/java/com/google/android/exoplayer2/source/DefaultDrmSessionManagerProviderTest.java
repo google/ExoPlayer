@@ -43,8 +43,10 @@ public class DefaultDrmSessionManagerProviderTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.EMPTY)
-            .setDrmLicenseUri(Uri.EMPTY)
-            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri(Uri.EMPTY)
+                    .build())
             .build();
 
     DrmSessionManager drmSessionManager = new DefaultDrmSessionManagerProvider().get(mediaItem);
@@ -57,20 +59,22 @@ public class DefaultDrmSessionManagerProviderTest {
     MediaItem mediaItem1 =
         new MediaItem.Builder()
             .setUri("https://example.test/content-1")
-            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID).build())
             .build();
     // Same DRM info as item1, but different URL to check it doesn't prevent re-using a manager.
     MediaItem mediaItem2 =
         new MediaItem.Builder()
             .setUri("https://example.test/content-2")
-            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID).build())
             .build();
     // Different DRM info to 1 and 2, needs a different manager instance.
     MediaItem mediaItem3 =
         new MediaItem.Builder()
             .setUri("https://example.test/content-3")
-            .setDrmUuid(C.WIDEVINE_UUID)
-            .setDrmLicenseUri("https://example.test/license")
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri("https://example.test/license")
+                    .build())
             .build();
 
     DefaultDrmSessionManagerProvider provider = new DefaultDrmSessionManagerProvider();

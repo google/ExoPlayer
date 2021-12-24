@@ -41,10 +41,10 @@ public class SsMediaSourceTest {
 
     MediaItem ssMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(ssMediaItem.playbackProperties).isNotNull();
-    assertThat(ssMediaItem.playbackProperties.uri)
-        .isEqualTo(castNonNull(mediaItem.playbackProperties).uri);
-    assertThat(ssMediaItem.playbackProperties.tag).isEqualTo(tag);
+    assertThat(ssMediaItem.localConfiguration).isNotNull();
+    assertThat(ssMediaItem.localConfiguration.uri)
+        .isEqualTo(castNonNull(mediaItem.localConfiguration).uri);
+    assertThat(ssMediaItem.localConfiguration.tag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility
@@ -60,10 +60,10 @@ public class SsMediaSourceTest {
 
     MediaItem ssMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(ssMediaItem.playbackProperties).isNotNull();
-    assertThat(ssMediaItem.playbackProperties.uri)
-        .isEqualTo(castNonNull(mediaItem.playbackProperties).uri);
-    assertThat(ssMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
+    assertThat(ssMediaItem.localConfiguration).isNotNull();
+    assertThat(ssMediaItem.localConfiguration.uri)
+        .isEqualTo(castNonNull(mediaItem.localConfiguration).uri);
+    assertThat(ssMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
   }
 
   // Tests backwards compatibility
@@ -78,10 +78,10 @@ public class SsMediaSourceTest {
 
     MediaItem ssMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(ssMediaItem.playbackProperties).isNotNull();
-    assertThat(ssMediaItem.playbackProperties.uri)
-        .isEqualTo(castNonNull(mediaItem.playbackProperties).uri);
-    assertThat(ssMediaItem.playbackProperties.streamKeys).containsExactly(streamKey);
+    assertThat(ssMediaItem.localConfiguration).isNotNull();
+    assertThat(ssMediaItem.localConfiguration.uri)
+        .isEqualTo(castNonNull(mediaItem.localConfiguration).uri);
+    assertThat(ssMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
   }
 
   // Tests backwards compatibility
@@ -101,9 +101,9 @@ public class SsMediaSourceTest {
 
     MediaItem ssMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(ssMediaItem.playbackProperties).isNotNull();
-    assertThat(ssMediaItem.playbackProperties.uri)
-        .isEqualTo(castNonNull(mediaItem.playbackProperties).uri);
-    assertThat(ssMediaItem.playbackProperties.streamKeys).containsExactly(mediaItemStreamKey);
+    assertThat(ssMediaItem.localConfiguration).isNotNull();
+    assertThat(ssMediaItem.localConfiguration.uri)
+        .isEqualTo(castNonNull(mediaItem.localConfiguration).uri);
+    assertThat(ssMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 }

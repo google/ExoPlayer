@@ -27,18 +27,15 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Seeking tests for {@link FlvExtractor}. */
 @RunWith(AndroidJUnit4.class)
-@DoNotInstrument
 public class FlvExtractorSeekTest {
 
   private static final String TEST_FILE_KEY_FRAME_INDEX =
@@ -55,7 +52,7 @@ public class FlvExtractorSeekTest {
     extractor = new FlvExtractor();
     extractorOutput = new FakeExtractorOutput();
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
+        new DefaultDataSource.Factory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

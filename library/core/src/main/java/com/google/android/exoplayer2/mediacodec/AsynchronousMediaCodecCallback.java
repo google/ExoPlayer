@@ -24,10 +24,8 @@ import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.util.IntArrayQueue;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -36,8 +34,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @RequiresApi(23)
 /* package */ final class AsynchronousMediaCodecCallback extends MediaCodec.Callback {
   private final Object lock;
-
   private final HandlerThread callbackThread;
+
   private @MonotonicNonNull Handler handler;
 
   @GuardedBy("lock")
@@ -194,29 +192,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Initiates a flush asynchronously, which will be completed on the callback thread. When the
    * flush is complete, it will trigger {@code onFlushCompleted} from the callback thread.
    *
-   * @param onFlushCompleted A {@link Runnable} that will be called when flush is completed. {@code
-   *     onFlushCompleted} will be called from the scallback thread, therefore it should execute
-   *     synchronized and thread-safe code.
+   * @param codec A {@link MediaCodec} to {@link MediaCodec#start start} after all pending callbacks
+   *     are handled, or {@code null} if starting the {@link MediaCodec} is performed elsewhere.
    */
-  public void flushAsync(Runnable onFlushCompleted) {
+  public void flush(@Nullable MediaCodec codec) {
     synchronized (lock) {
       ++pendingFlushCount;
-      Util.castNonNull(handler).post(() -> this.onFlushCompleted(onFlushCompleted));
+      Util.castNonNull(handler).post(() -> this.onFlushCompleted(codec));
     }
   }
 
   // Called from the callback thread.
 
   @Override
-  public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
+  public void onInputBufferAvailable(MediaCodec codec, int index) {
     synchronized (lock) {
       availableInputBuffers.add(index);
     }
   }
 
   @Override
-  public void onOutputBufferAvailable(
-      @NonNull MediaCodec codec, int index, @NonNull MediaCodec.BufferInfo info) {
+  public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
     synchronized (lock) {
       if (pendingOutputFormat != null) {
         addOutputFormat(pendingOutputFormat);
@@ -228,48 +224,45 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException e) {
+  public void onError(MediaCodec codec, MediaCodec.CodecException e) {
     synchronized (lock) {
       mediaCodecException = e;
     }
   }
 
   @Override
-  public void onOutputFormatChanged(@NonNull MediaCodec codec, @NonNull MediaFormat format) {
+  public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
     synchronized (lock) {
       addOutputFormat(format);
       pendingOutputFormat = null;
     }
   }
 
-  private void onFlushCompleted(Runnable onFlushCompleted) {
+  private void onFlushCompleted(@Nullable MediaCodec codec) {
     synchronized (lock) {
-      onFlushCompletedSynchronized(onFlushCompleted);
-    }
-  }
+      if (shutDown) {
+        return;
+      }
 
-  @GuardedBy("lock")
-  private void onFlushCompletedSynchronized(Runnable onFlushCompleted) {
-    if (shutDown) {
-      return;
-    }
-
-    --pendingFlushCount;
-    if (pendingFlushCount > 0) {
-      // Another flush() has been called.
-      return;
-    } else if (pendingFlushCount < 0) {
-      // This should never happen.
-      setInternalException(new IllegalStateException());
-      return;
-    }
-    flushInternal();
-    try {
-      onFlushCompleted.run();
-    } catch (IllegalStateException e) {
-      setInternalException(e);
-    } catch (Exception e) {
-      setInternalException(new IllegalStateException(e));
+      --pendingFlushCount;
+      if (pendingFlushCount > 0) {
+        // Another flush() has been called.
+        return;
+      } else if (pendingFlushCount < 0) {
+        // This should never happen.
+        setInternalException(new IllegalStateException());
+        return;
+      }
+      flushInternal();
+      if (codec != null) {
+        try {
+          codec.start();
+        } catch (IllegalStateException e) {
+          setInternalException(e);
+        } catch (Exception e) {
+          setInternalException(new IllegalStateException(e));
+        }
+      }
     }
   }
 
@@ -278,10 +271,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void flushInternal() {
     if (!formats.isEmpty()) {
       pendingOutputFormat = formats.getLast();
-    } else {
-      // pendingOutputFormat may already be non-null following a previous flush, and remains set in
-      // this case.
     }
+    // else, pendingOutputFormat may already be non-null following a previous flush, and remains
+    // set in this case.
+
     availableInputBuffers.clear();
     availableOutputBuffers.clear();
     bufferInfos.clear();

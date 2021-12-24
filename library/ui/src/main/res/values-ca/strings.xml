@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">Activa els subtítols</string>
   <string name="exo_controls_playback_speed">Velocitat</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_download_description">Baixa</string>
-  <string name="exo_download_notification_channel_name">Baixades</string>
-  <string name="exo_download_downloading">S\'està baixant</string>
-  <string name="exo_download_completed">S\'ha completat la baixada</string>
-  <string name="exo_download_failed">No s\'ha pogut baixar</string>
-  <string name="exo_download_removing">S\'estan suprimint les baixades</string>
   <string name="exo_track_selection_title_video">Vídeo</string>
   <string name="exo_track_selection_title_audio">Àudio</string>
   <string name="exo_track_selection_title_text">Text</string>

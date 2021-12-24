@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.drm;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
@@ -30,6 +31,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
@@ -140,7 +142,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private int referenceCount;
   @Nullable private HandlerThread requestHandlerThread;
   @Nullable private RequestHandler requestHandler;
-  @Nullable private ExoMediaCrypto mediaCrypto;
+  @Nullable private CryptoConfig cryptoConfig;
   @Nullable private DrmSessionException lastException;
   @Nullable private byte[] sessionId;
   private byte @MonotonicNonNull [] offlineLicenseKeySetId;
@@ -259,7 +261,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public final @Nullable DrmSessionException getError() {
+  @Nullable
+  public final DrmSessionException getError() {
     return state == STATE_ERROR ? lastException : null;
   }
 
@@ -269,8 +272,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public final @Nullable ExoMediaCrypto getMediaCrypto() {
-    return mediaCrypto;
+  @Nullable
+  public final CryptoConfig getCryptoConfig() {
+    return cryptoConfig;
   }
 
   @Override
@@ -286,8 +290,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
+  public boolean requiresSecureDecoder(String mimeType) {
+    return mediaDrm.requiresSecureDecoder(checkStateNotNull(sessionId), mimeType);
+  }
+
+  @Override
   public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
-    checkState(referenceCount >= 0);
+    if (referenceCount < 0) {
+      Log.e(TAG, "Session reference count less than zero: " + referenceCount);
+      referenceCount = 0;
+    }
     if (eventDispatcher != null) {
       eventDispatchers.add(eventDispatcher);
     }
@@ -311,7 +323,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
-    checkState(referenceCount > 0);
+    if (referenceCount <= 0) {
+      Log.e(TAG, "release() called on a session that's already fully released.");
+      return;
+    }
     if (--referenceCount == 0) {
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
@@ -320,7 +335,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       requestHandler = null;
       Util.castNonNull(requestHandlerThread).quit();
       requestHandlerThread = null;
-      mediaCrypto = null;
+      cryptoConfig = null;
       lastException = null;
       currentKeyRequest = null;
       currentProvisionRequest = null;
@@ -355,7 +370,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     try {
       sessionId = mediaDrm.openSession();
-      mediaCrypto = mediaDrm.createMediaCrypto(sessionId);
+      cryptoConfig = mediaDrm.createCryptoConfig(sessionId);
       state = STATE_OPENED;
       // Capture state into a local so a consistent value is seen by the lambda.
       int localState = state;

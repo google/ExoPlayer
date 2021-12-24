@@ -47,12 +47,6 @@
   <string name="exo_controls_cc_disabled_description">სუბტიტრების ჩართვა</string>
   <string name="exo_controls_playback_speed">სიჩქარე</string>
   <string name="exo_controls_playback_speed_normal">ჩვეულებრივი</string>
-  <string name="exo_download_description">ჩამოტვირთვა</string>
-  <string name="exo_download_notification_channel_name">ჩამოტვირთვები</string>
-  <string name="exo_download_downloading">მიმდინარეობს ჩამოტვირთვა</string>
-  <string name="exo_download_completed">ჩამოტვირთვა დასრულდა</string>
-  <string name="exo_download_failed">ჩამოტვირთვა ვერ მოხერხდა</string>
-  <string name="exo_download_removing">მიმდინარეობს ჩამოტვირთვების ამოშლა</string>
   <string name="exo_track_selection_title_video">ვიდეო</string>
   <string name="exo_track_selection_title_audio">აუდიო</string>
   <string name="exo_track_selection_title_text">ტექსტი</string>

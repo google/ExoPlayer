@@ -46,16 +46,13 @@ import android.os.Message;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
@@ -348,7 +345,7 @@ public class PlayerNotificationManager {
      * @param notificationId The id of the notification to be posted. Must be greater than 0.
      * @param channelId The id of the notification channel.
      */
-    public Builder(Context context, int notificationId, String channelId) {
+    public Builder(Context context, @IntRange(from = 1) int notificationId, String channelId) {
       checkArgument(notificationId > 0);
       this.context = context;
       this.notificationId = notificationId;
@@ -608,9 +605,9 @@ public class PlayerNotificationManager {
   public static final String ACTION_PLAY = "com.google.android.exoplayer.play";
   /** The action which pauses playback. */
   public static final String ACTION_PAUSE = "com.google.android.exoplayer.pause";
-  /** The action which skips to the previous window. */
+  /** The action which skips to the previous media item. */
   public static final String ACTION_PREVIOUS = "com.google.android.exoplayer.prev";
-  /** The action which skips to the next window. */
+  /** The action which skips to the next media item. */
   public static final String ACTION_NEXT = "com.google.android.exoplayer.next";
   /** The action which fast forwards. */
   public static final String ACTION_FAST_FORWARD = "com.google.android.exoplayer.ffwd";
@@ -683,7 +680,6 @@ public class PlayerNotificationManager {
   @Nullable private NotificationCompat.Builder builder;
   @Nullable private List<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
-  private ControlDispatcher controlDispatcher;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
   @Nullable private MediaSessionCompat.Token mediaSessionToken;
@@ -732,7 +728,6 @@ public class PlayerNotificationManager {
     this.customActionReceiver = customActionReceiver;
     this.smallIconResourceId = smallIconResourceId;
     this.groupKey = groupKey;
-    controlDispatcher = new DefaultControlDispatcher();
     instanceId = instanceIdCounter++;
     // This fails the nullness checker because handleMessage() is 'called' while `this` is still
     // @UnderInitialization. No tasks are scheduled on mainHandler before the constructor completes,
@@ -813,21 +808,6 @@ public class PlayerNotificationManager {
     if (player != null) {
       player.addListener(playerListener);
       postStartOrUpdateNotification();
-    }
-  }
-
-  /**
-   * @deprecated Use a {@link ForwardingPlayer} and pass it to {@link #setPlayer(Player)} instead.
-   *     You can also customize some operations when configuring the player (for example by using
-   *     {@link SimpleExoPlayer.Builder#setSeekBackIncrementMs(long)}), or configure whether the
-   *     rewind and fast forward actions should be used with {{@link #setUseRewindAction(boolean)}}
-   *     and {@link #setUseFastForwardAction(boolean)}.
-   */
-  @Deprecated
-  public final void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    if (this.controlDispatcher != controlDispatcher) {
-      this.controlDispatcher = controlDispatcher;
-      invalidate();
     }
   }
 
@@ -1115,7 +1095,7 @@ public class PlayerNotificationManager {
    *
    * <ul>
    *   <li>The media is {@link Player#isPlaying() actively playing}.
-   *   <li>The media is not {@link Player#isCurrentWindowDynamic() dynamically changing its
+   *   <li>The media is not {@link Player#isCurrentMediaItemDynamic() dynamically changing its
    *       duration} (like for example a live stream).
    *   <li>The media is not {@link Player#isPlayingAd() interrupted by an ad}.
    *   <li>The media is played at {@link Player#getPlaybackParameters() regular speed}.
@@ -1273,7 +1253,7 @@ public class PlayerNotificationManager {
         && useChronometer
         && player.isPlaying()
         && !player.isPlayingAd()
-        && !player.isCurrentWindowDynamic()
+        && !player.isCurrentMediaItemDynamic()
         && player.getPlaybackParameters().speed == 1f) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
@@ -1324,10 +1304,8 @@ public class PlayerNotificationManager {
    */
   protected List<String> getActions(Player player) {
     boolean enablePrevious = player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS);
-    boolean enableRewind =
-        player.isCommandAvailable(COMMAND_SEEK_BACK) && controlDispatcher.isRewindEnabled();
-    boolean enableFastForward =
-        player.isCommandAvailable(COMMAND_SEEK_FORWARD) && controlDispatcher.isFastForwardEnabled();
+    boolean enableRewind = player.isCommandAvailable(COMMAND_SEEK_BACK);
+    boolean enableFastForward = player.isCommandAvailable(COMMAND_SEEK_FORWARD);
     boolean enableNext = player.isCommandAvailable(COMMAND_SEEK_TO_NEXT);
 
     List<String> stringActions = new ArrayList<>();
@@ -1551,23 +1529,23 @@ public class PlayerNotificationManager {
       String action = intent.getAction();
       if (ACTION_PLAY.equals(action)) {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
-          controlDispatcher.dispatchPrepare(player);
+          player.prepare();
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          player.seekToDefaultPosition(player.getCurrentMediaItemIndex());
         }
-        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+        player.play();
       } else if (ACTION_PAUSE.equals(action)) {
-        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
+        player.pause();
       } else if (ACTION_PREVIOUS.equals(action)) {
-        controlDispatcher.dispatchPrevious(player);
+        player.seekToPrevious();
       } else if (ACTION_REWIND.equals(action)) {
-        controlDispatcher.dispatchRewind(player);
+        player.seekBack();
       } else if (ACTION_FAST_FORWARD.equals(action)) {
-        controlDispatcher.dispatchFastForward(player);
+        player.seekForward();
       } else if (ACTION_NEXT.equals(action)) {
-        controlDispatcher.dispatchNext(player);
+        player.seekToNext();
       } else if (ACTION_STOP.equals(action)) {
-        controlDispatcher.dispatchStop(player, /* reset= */ true);
+        player.stop(/* reset= */ true);
       } else if (ACTION_DISMISS.equals(action)) {
         stopNotification(/* dismissedByUser= */ true);
       } else if (action != null
