@@ -84,12 +84,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   })
   private @interface AudioFocusState {}
   /** No audio focus is currently being held. */
+  //你已经失去音频焦点很长时间了，必须终止所有的音频播放。因为长时间的失去焦点后，不应该在期望有焦点返回，这是一个尽可能清除不用资源的好位置
   private static final int AUDIO_FOCUS_STATE_NO_FOCUS = 0;
   /** The requested audio focus is currently held. */
   private static final int AUDIO_FOCUS_STATE_HAVE_FOCUS = 1;
   /** Audio focus has been temporarily lost. */
+  //这说明你临时失去了音频焦点，但是在不久就会再返回来。此时，你必须终止所有的音频播放，但是保留你的播放资源，因为可能不久就会返回来
   private static final int AUDIO_FOCUS_STATE_LOSS_TRANSIENT = 2;
   /** Audio focus has been temporarily lost, but playback may continue with reduced volume. */
+  //这说明你已经临时失去了音频焦点，但允许你安静的播放音频（低音量），而不是完全的终止音频播放
   private static final int AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK = 3;
 
   private static final String TAG = "AudioFocusManager";

@@ -109,7 +109,7 @@ public final class MediaCodecInfo {
 
   /**
    * Whether the codec is hardware accelerated.
-   *
+   * 如果编解码器由硬件加速，则返回 true。
    * <p>This could be an approximation as the exact information is only provided in API levels 29+.
    *
    * @see android.media.MediaCodecInfo#isHardwareAccelerated()
@@ -118,7 +118,7 @@ public final class MediaCodecInfo {
 
   /**
    * Whether the codec is software only.
-   *
+   * 如果编解码器仅在软件中运行，则返回 true。软件编解码器不保证渲染性能。
    * <p>This could be an approximation as the exact information is only provided in API levels 29+.
    *
    * @see android.media.MediaCodecInfo#isSoftwareOnly()
@@ -127,7 +127,7 @@ public final class MediaCodecInfo {
 
   /**
    * Whether the codec is from the vendor.
-   *
+   * 如果编解码器由设备供应商提供，则返回 true；如果由 Android 平台提供，则返回 false。
    * <p>This could be an approximation as the exact information is only provided in API levels 29+.
    *
    * @see android.media.MediaCodecInfo#isVendor()

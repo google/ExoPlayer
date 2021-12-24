@@ -332,7 +332,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     // of each array is to store data associated with track groups that cannot be associated with
     // any renderer.
     int[] rendererTrackGroupCounts = new int[rendererCapabilities.length + 1];
-    TrackGroup[][] rendererTrackGroups = new TrackGroup[rendererCapabilities.length + 1][];
+      TrackGroup[][] rendererTrackGroups = new TrackGroup[rendererCapabilities.length + 1][];
     @Capabilities int[][][] rendererFormatSupports = new int[rendererCapabilities.length + 1][][];
     for (int i = 0; i < rendererTrackGroups.length; i++) {
       rendererTrackGroups[i] = new TrackGroup[trackGroups.length];
@@ -413,7 +413,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * Given mapped track information, returns a track selection and configuration for each renderer.
    *
    * @param mappedTrackInfo Mapped track information.
-   * @param rendererFormatSupports The {@link Capabilities} for ach mapped track, indexed by
+   * @param rendererFormatSupports The {@link Capabilities} for each mapped track, indexed by
    *     renderer, track group and track (in that order).
    * @param rendererMixedMimeTypeAdaptationSupport The {@link AdaptiveSupport} for mixed MIME type
    *     adaptation for the renderer.

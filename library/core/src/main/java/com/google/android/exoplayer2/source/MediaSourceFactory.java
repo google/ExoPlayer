@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.util.List;
 
-/**
+/*
  * Factory for creating {@link MediaSource}s from URIs.
  *
  * <h3>DrmSessionManager creation for protected content</h3>

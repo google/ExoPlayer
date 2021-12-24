@@ -1066,8 +1066,6 @@ public interface Player {
    */
   int REPEAT_MODE_OFF = 0;
   /**
-   * 仅播放一次
-   *
    * Repeats the currently playing window infinitely during ongoing playback. "Previous" and "Next"
    * actions behave as they do in {@link #REPEAT_MODE_OFF}, moving to the previous and next windows
    * respectively, and doing nothing when there is no previous or next window to move to.
@@ -1687,8 +1685,9 @@ public interface Player {
 
   /**
    * Seeks to the default position associated with the current window. The position can depend on
-   * the type of media being played. For live streams it will typically be the live edge of the
-   * window. For other streams it will typically be the start of the window.
+   * the type of media being played.
+   * 1.For live streams it will typically be the live edge of the window.
+   * 2.For other streams it will typically be the start of the window.
    */
   void seekToDefaultPosition();
 
@@ -1933,9 +1932,10 @@ public interface Player {
    * Returns the current combined {@link MediaMetadata}, or {@link MediaMetadata#EMPTY} if not
    * supported.
    *
-   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
-   * static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections'
-   * formats} and {@link MetadataOutput#onMetadata(Metadata)}.
+   * <p>This {@link MediaMetadata} is
+   * 1. a combination of the {@link MediaItem#mediaMetadata} and
+   * 2. the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track selections' formats} and
+   * 3. {@link MetadataOutput#onMetadata(Metadata)}.
    */
   MediaMetadata getMediaMetadata();
 

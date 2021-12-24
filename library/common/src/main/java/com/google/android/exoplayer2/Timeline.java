@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Timeline.html
+ * <p>https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Timeline.html</p>
  *
  * A flexible representation of the structure of media. A timeline is able to represent the
  * structure of a wide variety of media, from simple cases like a single media file through to
@@ -135,14 +135,6 @@ import java.util.List;
  * <p>This case includes mid-roll ad groups, which are defined as part of the timeline's single
  * period. The period can be queried for information about the ad groups and the ads they contain.
  *
- *
- * <p>A timeline consists of Windows and Periods.
- *
- * <li>A Timeline.Window usually corresponds to one playlist item. It may span one or more periods and it defines the region within those periods that's currently available for playback.
- * The window also provides additional information such as whether seeking is supported within the window and the default position,
- * which is the position from which playback will start when the player starts playing the window.
- * <li>A Timeline.Period defines a single logical piece of media, for example a media file. It may also define groups of ads inserted into the media,
- * along with information about whether those ads have been loaded and played.
  */
 public abstract class Timeline implements Bundleable {
 

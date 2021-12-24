@@ -272,10 +272,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
     internalPlaybackThread = new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
     // 启动一个线程，准备接受任务
     internalPlaybackThread.start();
+    playbackLooper = internalPlaybackThread.getLooper();
     // 这个地方比较关键clock.createHandler的意思是使用特定的looper和特定callback来处理消息
     // 而这里传的callback是this，所以通过该handler发送的消息都会传递到ExoPlayerImplInternal类的handleMessage方法
     // clock是一个可以获取系统时间的类,又通过clock创建了一个ExoPlayerImplInternal使用的handler
-    playbackLooper = internalPlaybackThread.getLooper();
     handler = clock.createHandler(playbackLooper, this);
   }
 
@@ -958,9 +958,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   /**
-   * doSomeWork()方法会不断的去绘制，然后每次绘制完一部分就会继续循环调用该方法去绘制下一个媒体片段。看到核心功能在updatePeriods()方法，通过循环来不断的去加载下一个媒体片段，来达到播放的功能
+   * doSomeWork()方法会不断的去绘制，然后每次绘制完一部分就会继续循环调用该方法去绘制下一个媒体片段。
+   * 看到核心功能在updatePeriods()方法，通过循环来不断的去加载下一个媒体片段，来达到播放的功能
    *
-   * doSomeWork每次循环都会去调用具体的render类进行处理，在第一次调用的时候，会根据对应的mime type去初始化codec，在最下层的适配器中会去调用Android原生的MediaCodec接口，之后就会去不停地去生产和消耗解码后的数据了。
+   * doSomeWork每次循环都会去调用具体的render类进行处理，在第一次调用的时候，会根据对应的mime type去初始化codec，
+   * 在最下层的适配器中会去调用Android原生的MediaCodec接口，之后就会去不停地去生产和消耗解码后的数据了。
    */
   private void doSomeWork() throws ExoPlaybackException, IOException {
     // 获取系统时间

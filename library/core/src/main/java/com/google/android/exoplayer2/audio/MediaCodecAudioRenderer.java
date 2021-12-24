@@ -275,7 +275,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     boolean formatHasDrm = format.exoMediaCryptoType != null;
     boolean supportsFormatDrm = supportsFormatDrm(format);
     // In direct mode, if the format has DRM then we need to use a decoder that only decrypts.
-    // Else we don't don't need a decoder at all.
+    // Else we don't need a decoder at all.
     if (supportsFormatDrm
         && audioSink.supportsFormat(format)
         && (!formatHasDrm || MediaCodecUtil.getDecryptOnlyDecoderInfo() != null)) {
