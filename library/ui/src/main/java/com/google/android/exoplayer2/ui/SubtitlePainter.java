@@ -32,7 +32,6 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import androidx.annotation.Nullable;
@@ -263,6 +262,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         cueTextEdge.removeSpan(foregroundColorSpan);
       }
     }
+    Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
 
     // EDGE_TYPE_NONE & EDGE_TYPE_DROP_SHADOW both paint in one pass, they ignore cueTextEdge.
     // In other cases we use two painters and we need to apply the background in the first one only,
@@ -272,17 +272,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (edgeType == CaptionStyleCompat.EDGE_TYPE_NONE
           || edgeType == CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW) {
         cueText.setSpan(
-            new BackgroundColorSpan(backgroundColor), 0, cueText.length(), Spanned.SPAN_PRIORITY);
+            new PaddingBackgroundColorSpan(backgroundColor, textAlignment), 0, cueText.length(), Spanned.SPAN_PRIORITY);
       } else {
         cueTextEdge.setSpan(
-            new BackgroundColorSpan(backgroundColor),
+            new PaddingBackgroundColorSpan(backgroundColor, textAlignment),
             0,
             cueTextEdge.length(),
             Spanned.SPAN_PRIORITY);
       }
     }
 
-    Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
     textLayout =
         new StaticLayout(
             cueText, textPaint, availableWidth, textAlignment, spacingMult, spacingAdd, true);
@@ -443,6 +442,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       textPaint.setShadowLayer(shadowRadius, -offset, -offset, colorUp);
       edgeLayout.draw(canvas);
       textPaint.setShadowLayer(shadowRadius, offset, offset, colorDown);
+    }
+
+    if (cueTextSizePx > 0) {
+      textPaint.setTextSize(cueTextSizePx);
+    } else {
+      textPaint.setTextSize(defaultTextSizePx);
     }
 
     textPaint.setColor(foregroundColor);
