@@ -86,6 +86,9 @@
 *   RTSP:
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
+*   Cast extension
+    *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
+        correctly.
 *   Remove deprecated symbols:
     *   Remove `MediaSourceFactory#setDrmSessionManager`,
         `MediaSourceFactory#setDrmHttpDataSourceFactory`, and
