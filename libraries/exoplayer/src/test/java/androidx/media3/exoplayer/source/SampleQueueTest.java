@@ -1758,8 +1758,7 @@ public final class SampleQueueTest {
     }
 
     @Override
-    @C.CryptoType
-    public int getCryptoType(Format format) {
+    public @C.CryptoType int getCryptoType(Format format) {
       return mockPlaceholderDrmSession != null || format.drmInitData != null
           ? FakeCryptoConfig.TYPE
           : C.CRYPTO_TYPE_NONE;
