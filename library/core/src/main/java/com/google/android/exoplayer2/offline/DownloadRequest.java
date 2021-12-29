@@ -47,11 +47,16 @@ public final class DownloadRequest implements Parcelable {
     @Nullable private byte[] keySetId;
     @Nullable private String customCacheKey;
     @Nullable private byte[] data;
-
+    private Boolean offlineContentHint;
     /** Creates a new instance with the specified id and uri. */
     public Builder(String id, Uri uri) {
       this.id = id;
       this.uri = uri;
+    }
+
+    public Builder setOfflineContentHint(Boolean offlineContentHint){
+      this.offlineContentHint = offlineContentHint;
+      return this;
     }
 
     /** Sets the {@link DownloadRequest#mimeType}. */
@@ -92,7 +97,8 @@ public final class DownloadRequest implements Parcelable {
           streamKeys != null ? streamKeys : ImmutableList.of(),
           keySetId,
           customCacheKey,
-          data);
+          data,
+          offlineContentHint);
     }
   }
 
@@ -117,6 +123,7 @@ public final class DownloadRequest implements Parcelable {
   @Nullable public final String customCacheKey;
   /** Application defined data associated with the download. May be empty. */
   public final byte[] data;
+  public final Boolean offlineContentHint;
 
   /**
    * @param id See {@link #id}.
@@ -133,7 +140,8 @@ public final class DownloadRequest implements Parcelable {
       List<StreamKey> streamKeys,
       @Nullable byte[] keySetId,
       @Nullable String customCacheKey,
-      @Nullable byte[] data) {
+      @Nullable byte[] data,
+      Boolean offlineContentHint) {
     @C.ContentType int contentType = Util.inferContentTypeForUriAndMimeType(uri, mimeType);
     if (contentType == C.TYPE_DASH || contentType == C.TYPE_HLS || contentType == C.TYPE_SS) {
       Assertions.checkArgument(
@@ -148,6 +156,7 @@ public final class DownloadRequest implements Parcelable {
     this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
     this.customCacheKey = customCacheKey;
     this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
+    this.offlineContentHint = offlineContentHint;
   }
 
   /* package */ DownloadRequest(Parcel in) {
@@ -163,6 +172,7 @@ public final class DownloadRequest implements Parcelable {
     keySetId = in.createByteArray();
     customCacheKey = in.readString();
     data = castNonNull(in.createByteArray());
+    offlineContentHint = in.readByte() != 0;;
   }
 
   /**
@@ -172,7 +182,7 @@ public final class DownloadRequest implements Parcelable {
    * @return The copy with the specified ID.
    */
   public DownloadRequest copyWithId(String id) {
-    return new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, customCacheKey, data);
+    return new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, customCacheKey, data, offlineContentHint);
   }
 
   /**
@@ -182,7 +192,7 @@ public final class DownloadRequest implements Parcelable {
    * @return The copy with the specified key set ID.
    */
   public DownloadRequest copyWithKeySetId(@Nullable byte[] keySetId) {
-    return new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, customCacheKey, data);
+    return new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, customCacheKey, data, offlineContentHint);
   }
 
   /**
@@ -218,7 +228,7 @@ public final class DownloadRequest implements Parcelable {
         mergedKeys,
         newRequest.keySetId,
         newRequest.customCacheKey,
-        newRequest.data);
+        newRequest.data, newRequest.offlineContentHint);
   }
 
   /** Returns a {@link MediaItem} for the content defined by the request. */
@@ -249,7 +259,8 @@ public final class DownloadRequest implements Parcelable {
         && streamKeys.equals(that.streamKeys)
         && Arrays.equals(keySetId, that.keySetId)
         && Util.areEqual(customCacheKey, that.customCacheKey)
-        && Arrays.equals(data, that.data);
+        && Arrays.equals(data, that.data)
+        && offlineContentHint==that.offlineContentHint;
   }
 
   @Override
@@ -261,6 +272,7 @@ public final class DownloadRequest implements Parcelable {
     result = 31 * result + Arrays.hashCode(keySetId);
     result = 31 * result + (customCacheKey != null ? customCacheKey.hashCode() : 0);
     result = 31 * result + Arrays.hashCode(data);
+    result = 31 * result + offlineContentHint.hashCode();
     return result;
   }
 
@@ -283,6 +295,7 @@ public final class DownloadRequest implements Parcelable {
     dest.writeByteArray(keySetId);
     dest.writeString(customCacheKey);
     dest.writeByteArray(data);
+    dest.writeByte((byte) (offlineContentHint ? 1 : 0));
   }
 
   public static final Parcelable.Creator<DownloadRequest> CREATOR =

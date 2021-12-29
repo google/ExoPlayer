@@ -727,7 +727,7 @@ public final class DownloadHelper {
    * @return The built {@link DownloadRequest}.
    */
   public DownloadRequest getDownloadRequest(@Nullable byte[] data) {
-    return getDownloadRequest(localConfiguration.uri.toString(), data);
+    return getDownloadRequest(localConfiguration.uri.toString(), data, false);
   }
 
   /**
@@ -739,6 +739,29 @@ public final class DownloadHelper {
    * @return The built {@link DownloadRequest}.
    */
   public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
+    return getDownloadRequest(id, data, false);
+  }
+
+  /**
+   * Builds a {@link DownloadRequest} for downloading the selected tracks. Must not be called until
+   * after preparation completes. The uri of the {@link DownloadRequest} will be used as content id.
+   *
+   * @param data Application provided data to store in {@link DownloadRequest#data}.
+   * @return The built {@link DownloadRequest}.
+   */
+  public DownloadRequest getDownloadRequest(@Nullable byte[] data, boolean offlineHint) {
+    return getDownloadRequest(localConfiguration.uri.toString(), data, offlineHint);
+  }
+
+  /**
+   * Builds a {@link DownloadRequest} for downloading the selected tracks. Must not be called until
+   * after preparation completes.
+   *
+   * @param id The unique content id.
+   * @param data Application provided data to store in {@link DownloadRequest#data}.
+   * @return The built {@link DownloadRequest}.
+   */
+  public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data, boolean offlineHint) {
     DownloadRequest.Builder requestBuilder =
         new DownloadRequest.Builder(id, localConfiguration.uri)
             .setMimeType(localConfiguration.mimeType)
@@ -747,6 +770,7 @@ public final class DownloadHelper {
                     ? localConfiguration.drmConfiguration.getKeySetId()
                     : null)
             .setCustomCacheKey(localConfiguration.customCacheKey)
+            .setOfflineContentHint(offlineHint)
             .setData(data);
     if (mediaSource == null) {
       return requestBuilder.build();
