@@ -229,7 +229,7 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Creates an instance for an audio processing related exception.
+   * Creates an instance for an {@link AudioProcessor} related exception.
    *
    * @param cause The cause of the failure.
    * @param componentName The name of the {@link AudioProcessor} used.
@@ -241,6 +241,18 @@ public final class TransformationException extends Exception {
       Throwable cause, String componentName, AudioFormat audioFormat, int errorCode) {
     return new TransformationException(
         componentName + " error, audio_format = " + audioFormat, cause, errorCode);
+  }
+
+  /**
+   * Creates an instance for a {@link FrameEditor} related exception.
+   *
+   * @param cause The cause of the failure.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  /* package */ static TransformationException createForFrameEditor(
+      Throwable cause, int errorCode) {
+    return new TransformationException("FrameEditor error", cause, errorCode);
   }
 
   /**
