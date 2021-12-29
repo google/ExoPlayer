@@ -1016,7 +1016,7 @@ public final class DownloadManager {
         return activeTask;
       }
 
-      if (!canDownloadsRun() || activeDownloadTaskCount >= maxParallelDownloads) {
+      if (!canDownloadsRun(download) || activeDownloadTaskCount >= maxParallelDownloads) {
         return null;
       }
 
@@ -1042,7 +1042,7 @@ public final class DownloadManager {
     private void syncDownloadingDownload(
         Task activeTask, Download download, int accumulatingDownloadTaskCount) {
       Assertions.checkState(!activeTask.isRemove);
-      if (!canDownloadsRun() || accumulatingDownloadTaskCount >= maxParallelDownloads) {
+      if (!canDownloadsRun(download) || accumulatingDownloadTaskCount >= maxParallelDownloads) {
         putDownloadWithState(download, STATE_QUEUED, STOP_REASON_NONE);
         activeTask.cancel(/* released= */ false);
       }
@@ -1203,8 +1203,8 @@ public final class DownloadManager {
 
     // Helper methods.
 
-    private boolean canDownloadsRun() {
-      return !downloadsPaused && notMetRequirements == 0;
+    private boolean canDownloadsRun(Download download) {
+      return !downloadsPaused && (notMetRequirements == 0 || ((notMetRequirements == Requirements.NETWORK || notMetRequirements == Requirements.NETWORK_UNMETERED) && download.request.offlineContentHint));
     }
 
     private Download putDownloadWithState(
