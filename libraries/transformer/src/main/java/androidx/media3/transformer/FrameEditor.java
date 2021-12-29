@@ -52,6 +52,9 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param outputSurface The {@link Surface}.
    * @param debugViewProvider Provider for optional debug views to show intermediate output.
    * @return A configured {@code FrameEditor}.
+   * @throws TransformationException If the {@code pixelWidthHeightRatio} isn't 1, reading shader
+   *     files fails, or an OpenGL error occurs while creating and configuring the OpenGL
+   *     components.
    */
   public static FrameEditor create(
       Context context,
@@ -63,29 +66,70 @@ import java.util.concurrent.atomic.AtomicInteger;
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
     if (pixelWidthHeightRatio != 1.0f) {
-      // TODO(http://b/211782176): Consider implementing support for non-square pixels.
-      throw new TransformationException(
-          "FrameEditor Error",
-          new IllegalArgumentException(
+      // TODO(b/211782176): Consider implementing support for non-square pixels.
+      throw TransformationException.createForFrameEditor(
+          new UnsupportedOperationException(
               "Transformer's frame editor currently does not support frame edits on non-square"
                   + " pixels. The pixelWidthHeightRatio is: "
                   + pixelWidthHeightRatio),
           TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
 
-    EGLDisplay eglDisplay = GlUtil.createEglDisplay();
-    EGLContext eglContext = GlUtil.createEglContext(eglDisplay);
-    EGLSurface eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
-    GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-    int textureId = GlUtil.createExternalTexture();
+    @Nullable
+    SurfaceView debugSurfaceView =
+        debugViewProvider.getDebugPreviewSurfaceView(outputWidth, outputHeight);
+
+    EGLDisplay eglDisplay;
+    EGLContext eglContext;
+    EGLSurface eglSurface;
+    int textureId;
     GlUtil.Program glProgram;
+    @Nullable EGLSurface debugPreviewEglSurface;
     try {
-      // TODO(internal b/205002913): check the loaded program is consistent with the attributes
-      // and uniforms expected in the code.
-      glProgram = new GlUtil.Program(context, VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH);
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
+      eglDisplay = GlUtil.createEglDisplay();
+      eglContext = GlUtil.createEglContext(eglDisplay);
+      eglSurface = GlUtil.getEglSurface(eglDisplay, outputSurface);
+      GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      textureId = GlUtil.createExternalTexture();
+      glProgram = configureGlProgram(context, transformationMatrix, textureId);
+      debugPreviewEglSurface =
+          debugSurfaceView == null
+              ? null
+              : GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
+    } catch (IOException | GlUtil.GlException e) {
+      throw TransformationException.createForFrameEditor(
+          e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
+
+    int debugPreviewWidth;
+    int debugPreviewHeight;
+    if (debugSurfaceView != null) {
+      debugPreviewWidth = debugSurfaceView.getWidth();
+      debugPreviewHeight = debugSurfaceView.getHeight();
+    } else {
+      debugPreviewWidth = C.LENGTH_UNSET;
+      debugPreviewHeight = C.LENGTH_UNSET;
+    }
+
+    return new FrameEditor(
+        eglDisplay,
+        eglContext,
+        eglSurface,
+        textureId,
+        glProgram,
+        outputWidth,
+        outputHeight,
+        debugPreviewEglSurface,
+        debugPreviewWidth,
+        debugPreviewHeight);
+  }
+
+  private static GlUtil.Program configureGlProgram(
+      Context context, Matrix transformationMatrix, int textureId) throws IOException {
+    // TODO(b/205002913): check the loaded program is consistent with the attributes
+    // and uniforms expected in the code.
+    GlUtil.Program glProgram =
+        new GlUtil.Program(context, VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH);
 
     glProgram.setBufferAttribute(
         "aPosition",
@@ -109,34 +153,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     float[] transformationMatrixArray = getGlMatrixArray(transformationMatrix);
     glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrixArray);
-
-    @Nullable
-    SurfaceView debugSurfaceView =
-        debugViewProvider.getDebugPreviewSurfaceView(outputWidth, outputHeight);
-    @Nullable EGLSurface debugPreviewEglSurface;
-    int debugPreviewWidth;
-    int debugPreviewHeight;
-    if (debugSurfaceView != null) {
-      debugPreviewEglSurface =
-          GlUtil.getEglSurface(eglDisplay, checkNotNull(debugSurfaceView.getHolder()));
-      debugPreviewWidth = debugSurfaceView.getWidth();
-      debugPreviewHeight = debugSurfaceView.getHeight();
-    } else {
-      debugPreviewEglSurface = null;
-      debugPreviewWidth = C.LENGTH_UNSET;
-      debugPreviewHeight = C.LENGTH_UNSET;
-    }
-    return new FrameEditor(
-        eglDisplay,
-        eglContext,
-        eglSurface,
-        textureId,
-        glProgram,
-        outputWidth,
-        outputHeight,
-        debugPreviewEglSurface,
-        debugPreviewWidth,
-        debugPreviewHeight);
+    return glProgram;
   }
 
   /**
@@ -240,22 +257,31 @@ import java.util.concurrent.atomic.AtomicInteger;
     return pendingInputFrameCount.get() > 0;
   }
 
-  /** Processes pending input frame. */
-  public void processData() {
-    inputSurfaceTexture.updateTexImage();
-    inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-    glProgram.setFloatsUniform("uTexTransform", textureTransformMatrix);
-    glProgram.bindAttributesAndUniforms();
+  /**
+   * Processes pending input frame.
+   *
+   * @throws TransformationException If an OpenGL error occurs while processing the data.
+   */
+  public void processData() throws TransformationException {
+    try {
+      inputSurfaceTexture.updateTexImage();
+      inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
+      glProgram.setFloatsUniform("uTexTransform", textureTransformMatrix);
+      glProgram.bindAttributesAndUniforms();
 
-    focusAndDrawQuad(eglSurface, outputWidth, outputHeight);
-    long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
-    EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
-    EGL14.eglSwapBuffers(eglDisplay, eglSurface);
-    pendingInputFrameCount.decrementAndGet();
+      focusAndDrawQuad(eglSurface, outputWidth, outputHeight);
+      long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
+      EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
+      EGL14.eglSwapBuffers(eglDisplay, eglSurface);
+      pendingInputFrameCount.decrementAndGet();
 
-    if (debugPreviewEglSurface != null) {
-      focusAndDrawQuad(debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
-      EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
+      if (debugPreviewEglSurface != null) {
+        focusAndDrawQuad(debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
+        EGL14.eglSwapBuffers(eglDisplay, debugPreviewEglSurface);
+      }
+    } catch (GlUtil.GlException e) {
+      throw TransformationException.createForFrameEditor(
+          e, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED);
     }
   }
 

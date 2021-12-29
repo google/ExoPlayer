@@ -81,7 +81,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     // The decoder rotates videos to their intended display orientation. The frameEditor rotates
     // them back for improved encoder compatibility.
-    // TODO(internal b/201293185): After fragment shader transformations are implemented, put
+    // TODO(b/201293185): After fragment shader transformations are implemented, put
     // postrotation in a later vertex shader.
     transformationRequest.transformationMatrix.postRotate(outputRotationDegrees);
 
@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public boolean processData() {
+  public boolean processData() throws TransformationException {
     if (decoder.isEnded()) {
       return false;
     }
@@ -155,7 +155,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Transformer}, using this method requires API level 29 or higher.
    */
   @RequiresApi(29)
-  private boolean processDataV29() {
+  private boolean processDataV29() throws TransformationException {
     if (frameEditor != null) {
       while (frameEditor.hasInputData()) {
         // Processes as much frames in one invocation: FrameEditor's output surface will block
@@ -170,7 +170,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (decoder.isEnded()) {
-      // TODO(internal b/208986865): Handle possible last frame drop.
+      // TODO(b/208986865): Handle possible last frame drop.
       encoder.signalEndOfInputStream();
       return false;
     }
@@ -179,7 +179,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Processes input data. */
-  private boolean processDataDefault() {
+  private boolean processDataDefault() throws TransformationException {
     if (frameEditor != null) {
       if (frameEditor.hasInputData()) {
         waitingForFrameEditorInput = false;
