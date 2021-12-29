@@ -30,7 +30,7 @@ public final class OpusLibrary {
   }
 
   private static final LibraryLoader LOADER = new LibraryLoader("opusV2JNI");
-  @C.CryptoType private static int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
+  private static @C.CryptoType int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
 
   private OpusLibrary() {}
 
