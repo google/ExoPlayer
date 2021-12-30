@@ -243,7 +243,8 @@ public class DashManifestParserTest {
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_RAWCC);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA608);
     assertThat(format.codecs).isEqualTo("cea608");
-    assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE);
+    assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE | C.ROLE_FLAG_MAIN);
+    assertThat(format.selectionFlags).isEqualTo(0);
     assertThat(adaptationSets.get(0).type).isEqualTo(C.TRACK_TYPE_TEXT);
 
     format = adaptationSets.get(1).representations.get(0).format;

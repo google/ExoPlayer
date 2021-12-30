@@ -8,6 +8,7 @@
   </SegmentTemplate>
   <AdaptationSet id="0" mimeType="application/x-rawcc" subsegmentAlignment="true">
    <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="subtitle"/>
+   <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="main"/>
    <Representation id="0" codecs="cea608" bandwidth="16">
     <BaseURL>https://test.com/0</BaseURL>
    </Representation>
