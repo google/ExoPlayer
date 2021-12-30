@@ -59,6 +59,7 @@
 *   DASH:
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
+    *   Stop interpreting the `main` track role as `C.SELECTION_FLAG_DEFAULT`.
 *   HLS:
     *   Use chunkless preparation by default to improve start up time. If your
         renditions contain muxed closed-caption tracks that are *not* declared

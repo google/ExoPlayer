@@ -1472,8 +1472,6 @@ public class DashManifestParser extends DefaultHandler
       return 0;
     }
     switch (value) {
-      case "main":
-        return C.SELECTION_FLAG_DEFAULT;
       case "forced_subtitle":
         // Support both hyphen and underscore (https://github.com/google/ExoPlayer/issues/9727).
       case "forced-subtitle":
