@@ -60,12 +60,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
+    // Scale width and height to desired transformationRequest.outputHeight, preserving aspect
+    // ratio.
     // TODO(internal b/209781577): Think about which edge length should be set for portrait videos.
+    float inputAspectRatio = (float) inputFormat.width / inputFormat.height;
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
     if (transformationRequest.outputHeight != C.LENGTH_UNSET
         && transformationRequest.outputHeight != inputFormat.height) {
-      outputWidth = inputFormat.width * transformationRequest.outputHeight / inputFormat.height;
+      outputWidth = Math.round(inputAspectRatio * transformationRequest.outputHeight);
       outputHeight = transformationRequest.outputHeight;
     }
 
@@ -79,10 +82,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } else {
       outputRotationDegrees = inputFormat.rotationDegrees;
     }
+    if ((inputFormat.rotationDegrees % 180) != 0) {
+      inputAspectRatio = 1.0f / inputAspectRatio;
+    }
+
+    // Scale frames by input aspect ratio, to account for FrameEditor normalized device coordinates
+    // (-1 to 1) and preserve frame relative dimensions during transformations (ex. rotations).
+    transformationRequest.transformationMatrix.preScale(inputAspectRatio, 1);
+    transformationRequest.transformationMatrix.postScale(1.0f / inputAspectRatio, 1);
+
     // The decoder rotates videos to their intended display orientation. The frameEditor rotates
     // them back for improved encoder compatibility.
     // TODO(b/201293185): After fragment shader transformations are implemented, put
-    // postrotation in a later vertex shader.
+    // postRotate in a later vertex shader.
     transformationRequest.transformationMatrix.postRotate(outputRotationDegrees);
 
     encoder =
