@@ -141,6 +141,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @RtspState private int rtspState;
   private boolean hasUpdatedTimelineAndTracks;
   private boolean receivedAuthorizationRequest;
+  private boolean hasPendingPauseRequest;
   private long pendingSeekPositionUs;
 
   /**
@@ -235,7 +236,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param positionUs The seek time measured in microseconds.
    */
   public void seekToUs(long positionUs) {
-    messageSender.sendPauseRequest(uri, checkNotNull(sessionId));
+    // RTSP state is PLAYING after sending out a PAUSE, before receiving the PAUSE response. Sends
+    // out PAUSE only when state PLAYING and no PAUSE is sent.
+    if (rtspState == RTSP_STATE_PLAYING && !hasPendingPauseRequest) {
+      messageSender.sendPauseRequest(uri, checkNotNull(sessionId));
+    }
     pendingSeekPositionUs = positionUs;
   }
 
@@ -399,6 +404,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       sendRequest(
           getRequestWithCommonHeaders(
               METHOD_PAUSE, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
+      hasPendingPauseRequest = true;
     }
 
     public void retryLastRequest() {
@@ -690,15 +696,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         keepAliveMonitor.start();
       }
 
+      pendingSeekPositionUs = C.TIME_UNSET;
+      // onPlaybackStarted could initiate another seek request, which will set
+      // pendingSeekPositionUs.
       playbackEventListener.onPlaybackStarted(
           Util.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
-      pendingSeekPositionUs = C.TIME_UNSET;
     }
 
     private void onPauseResponseReceived() {
       checkState(rtspState == RTSP_STATE_PLAYING);
 
       rtspState = RTSP_STATE_READY;
+      hasPendingPauseRequest = false;
       if (pendingSeekPositionUs != C.TIME_UNSET) {
         startPlayback(Util.usToMs(pendingSeekPositionUs));
       }
