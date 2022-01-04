@@ -76,7 +76,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    if (shouldTranscode(inputFormat)) {
+    String sampleMimeType = checkNotNull(inputFormat.sampleMimeType);
+    if (transformationRequest.audioMimeType == null
+        && !muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
+      throw TransformationException.createForMuxer(
+          new IllegalArgumentException(
+              "The output sample MIME inferred from the input format is not supported by the muxer."
+                  + " Sample MIME type: "
+                  + sampleMimeType),
+          TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
+    }
+    if (shouldPassthrough(inputFormat)) {
+      samplePipeline = new PassthroughSamplePipeline(inputFormat);
+    } else {
       samplePipeline =
           new VideoSamplePipeline(
               context,
@@ -85,8 +97,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               encoderFactory,
               decoderFactory,
               debugViewProvider);
-    } else {
-      samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
     if (transformationRequest.flattenForSlowMotion) {
       sefSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
@@ -94,19 +104,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return true;
   }
 
-  private boolean shouldTranscode(Format inputFormat) {
+  private boolean shouldPassthrough(Format inputFormat) {
     if (transformationRequest.videoMimeType != null
         && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
-      return true;
+      return false;
     }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET
         && transformationRequest.outputHeight != inputFormat.height) {
-      return true;
+      return false;
     }
     if (!transformationRequest.transformationMatrix.isIdentity()) {
-      return true;
+      return false;
     }
-    return false;
+    return true;
   }
 
   /**

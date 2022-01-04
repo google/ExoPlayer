@@ -26,6 +26,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 
 /**
@@ -82,6 +83,14 @@ import java.nio.ByteBuffer;
   /** Returns whether the sample {@link MimeTypes MIME type} is supported. */
   public boolean supportsSampleMimeType(@Nullable String mimeType) {
     return muxerFactory.supportsSampleMimeType(mimeType, containerMimeType);
+  }
+
+  /**
+   * Returns the supported {@link MimeTypes MIME types} for the given {@link C.TrackType track
+   * type}.
+   */
+  public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+    return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
   }
 
   /**

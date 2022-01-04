@@ -33,6 +33,7 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
@@ -40,6 +41,7 @@ import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -731,6 +733,12 @@ public final class TransformerTest {
     @Override
     public boolean supportsSampleMimeType(String sampleMimeType, String outputMimeType) {
       return frameworkMuxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType);
+    }
+
+    @Override
+    public ImmutableList<String> getSupportedSampleMimeTypes(
+        @C.TrackType int trackType, String containerMimeType) {
+      return frameworkMuxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
     }
   }
 }

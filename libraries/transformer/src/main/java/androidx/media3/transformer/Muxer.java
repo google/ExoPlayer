@@ -17,8 +17,10 @@ package androidx.media3.transformer;
 
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -69,6 +71,13 @@ import java.nio.ByteBuffer;
      * {@link MimeTypes MIME type}.
      */
     boolean supportsSampleMimeType(@Nullable String sampleMimeType, String containerMimeType);
+
+    /**
+     * Returns the supported sample {@link MimeTypes MIME types} for the given {@link C.TrackType}
+     * and container {@link MimeTypes MIME type}.
+     */
+    ImmutableList<String> getSupportedSampleMimeTypes(
+        @C.TrackType int trackType, String containerMimeType);
   }
 
   /**

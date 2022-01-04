@@ -16,7 +16,6 @@
 
 package androidx.media3.transformer;
 
-import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import androidx.annotation.Nullable;
@@ -59,45 +58,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Returns whether the renderer supports the track type of the given input format.
+   * Returns whether the renderer supports the track type of the given format.
    *
-   * @param inputFormat The input format.
+   * @param format The format.
    * @return The {@link Capabilities} for this format.
-   * @throws ExoPlaybackException If the muxer does not support the output sample MIME type derived
-   *     from the input {@code format} and {@link TransformationRequest}.
    */
   @Override
   @Capabilities
-  public final int supportsFormat(Format inputFormat) throws ExoPlaybackException {
-    @Nullable String inputSampleMimeType = inputFormat.sampleMimeType;
-    if (inputSampleMimeType == null
-        || MimeTypes.getTrackType(inputSampleMimeType) != getTrackType()) {
-      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
-    }
-
-    // If the output sample MIME type is given in the transformationRequest it has already been
-    // validated by the builder.
-    if (MimeTypes.isAudio(inputSampleMimeType) && transformationRequest.audioMimeType != null) {
-      checkState(muxerWrapper.supportsSampleMimeType(transformationRequest.audioMimeType));
-      return RendererCapabilities.create(C.FORMAT_HANDLED);
-    }
-    if (MimeTypes.isVideo(inputSampleMimeType) && transformationRequest.videoMimeType != null) {
-      checkState(muxerWrapper.supportsSampleMimeType(transformationRequest.videoMimeType));
-      return RendererCapabilities.create(C.FORMAT_HANDLED);
-    }
-
-    // When the output sample MIME type is not given in the transformationRequest, it is inferred
-    // from the input.
-    if (muxerWrapper.supportsSampleMimeType(inputSampleMimeType)) {
-      return RendererCapabilities.create(C.FORMAT_HANDLED);
-    }
-    throw wrapTransformationException(
-        TransformationException.createForMuxer(
-            new IllegalArgumentException(
-                "The sample MIME inferred from the input is not supported by the muxer. "
-                    + "Input sample MIME type: "
-                    + inputSampleMimeType),
-            TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED));
+  public final int supportsFormat(Format format) {
+    return RendererCapabilities.create(
+        MimeTypes.getTrackType(format.sampleMimeType) == getTrackType()
+            ? C.FORMAT_HANDLED
+            : C.FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
