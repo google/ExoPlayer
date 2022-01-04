@@ -67,6 +67,8 @@
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
     *   Correctly populate `Format.label` for audio only HLS streams
         ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
+    *   Timestamp adjuster initialization occurs after opening the `DataSource`
+        ([#9777](https://github.com/google/ExoPlayer/pull/9777)).
 *   UI:
     *   Fix the color of the numbers in `StyledPlayerView` rewind and
         fastforward buttons when using certain themes
