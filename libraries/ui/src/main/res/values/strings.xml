@@ -74,11 +74,20 @@
   <string name="exo_controls_playback_speed">Speed</string>
   <!-- Shown to indicate that the current playback speed is normal (i.e., 1.0x). [CHAR_LIMIT=16] -->
   <string name="exo_controls_playback_speed_normal">Normal</string>
+  <!-- Different media playback speeds from one quarter normal speed ("0.25x") to double normal speed ("2x"). The fourth item ("Normal") corresponds to normal playback speed. [CHAR_LIMIT=16] -->
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>Normal</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
   <!-- Shown to indicate a custom playback speed. [CHAR_LIMIT=16] -->
   <string translatable="false" name="exo_controls_custom_playback_speed"><xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x</string>
   <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
   <string translatable="false" name="exo_controls_time_placeholder">00:00:00</string>
-
   <!-- The title of a track selection view for video tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_title_video">Video</string>
   <!-- The title of a track selection view for audio tracks. [CHAR LIMIT=20] -->
