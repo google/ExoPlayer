@@ -31,12 +31,40 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /** Muxer implementation that uses a {@link MediaMuxer}. */
 /* package */ final class FrameworkMuxer implements Muxer {
+
+  // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
+  private static final ImmutableMap<String, ImmutableList<String>>
+      SUPPORTED_CONTAINER_TO_VIDEO_SAMPLE_MIME_TYPES =
+          ImmutableMap.of(
+              MimeTypes.VIDEO_MP4,
+              Util.SDK_INT >= 24
+                  ? ImmutableList.of(
+                      MimeTypes.VIDEO_H263,
+                      MimeTypes.VIDEO_H264,
+                      MimeTypes.VIDEO_MP4V,
+                      MimeTypes.VIDEO_H265)
+                  : ImmutableList.of(
+                      MimeTypes.VIDEO_H263, MimeTypes.VIDEO_H264, MimeTypes.VIDEO_MP4V),
+              MimeTypes.VIDEO_WEBM,
+              Util.SDK_INT >= 24
+                  ? ImmutableList.of(MimeTypes.VIDEO_VP8, MimeTypes.VIDEO_VP9)
+                  : ImmutableList.of(MimeTypes.VIDEO_VP8));
+
+  private static final ImmutableMap<String, ImmutableList<String>>
+      SUPPORTED_CONTAINER_TO_AUDIO_SAMPLE_MIME_TYPES =
+          ImmutableMap.of(
+              MimeTypes.VIDEO_MP4,
+              ImmutableList.of(MimeTypes.AUDIO_AAC, MimeTypes.AUDIO_AMR_NB, MimeTypes.AUDIO_AMR_WB),
+              MimeTypes.VIDEO_WEBM,
+              ImmutableList.of(MimeTypes.AUDIO_VORBIS));
 
   public static final class Factory implements Muxer.Factory {
     @Override
@@ -69,29 +97,22 @@ import java.nio.ByteBuffer;
     @Override
     public boolean supportsSampleMimeType(
         @Nullable String sampleMimeType, String containerMimeType) {
+      return getSupportedSampleMimeTypes(MimeTypes.getTrackType(sampleMimeType), containerMimeType)
+          .contains(sampleMimeType);
+    }
+
+    @Override
+    public ImmutableList<String> getSupportedSampleMimeTypes(
+        @C.TrackType int trackType, String containerMimeType) {
       // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
-      boolean isAudio = MimeTypes.isAudio(sampleMimeType);
-      boolean isVideo = MimeTypes.isVideo(sampleMimeType);
-      if (containerMimeType.equals(MimeTypes.VIDEO_MP4)) {
-        if (isVideo) {
-          return MimeTypes.VIDEO_H263.equals(sampleMimeType)
-              || MimeTypes.VIDEO_H264.equals(sampleMimeType)
-              || MimeTypes.VIDEO_MP4V.equals(sampleMimeType)
-              || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_H265.equals(sampleMimeType));
-        } else if (isAudio) {
-          return MimeTypes.AUDIO_AAC.equals(sampleMimeType)
-              || MimeTypes.AUDIO_AMR_NB.equals(sampleMimeType)
-              || MimeTypes.AUDIO_AMR_WB.equals(sampleMimeType);
-        }
-      } else if (containerMimeType.equals(MimeTypes.VIDEO_WEBM) && SDK_INT >= 21) {
-        if (isVideo) {
-          return MimeTypes.VIDEO_VP8.equals(sampleMimeType)
-              || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_VP9.equals(sampleMimeType));
-        } else if (isAudio) {
-          return MimeTypes.AUDIO_VORBIS.equals(sampleMimeType);
-        }
+      if (trackType == C.TRACK_TYPE_VIDEO) {
+        return SUPPORTED_CONTAINER_TO_VIDEO_SAMPLE_MIME_TYPES.getOrDefault(
+            containerMimeType, ImmutableList.of());
+      } else if (trackType == C.TRACK_TYPE_AUDIO) {
+        return SUPPORTED_CONTAINER_TO_AUDIO_SAMPLE_MIME_TYPES.getOrDefault(
+            containerMimeType, ImmutableList.of());
       }
-      return false;
+      return ImmutableList.of();
     }
   }
 

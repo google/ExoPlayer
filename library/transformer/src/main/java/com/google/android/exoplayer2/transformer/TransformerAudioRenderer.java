@@ -67,25 +67,35 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    if (shouldTranscode(inputFormat)) {
+    String sampleMimeType = checkNotNull(inputFormat.sampleMimeType);
+    if (transformationRequest.audioMimeType == null
+        && !muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
+      throw TransformationException.createForMuxer(
+          new IllegalArgumentException(
+              "The output sample MIME inferred from the input format is not supported by the muxer."
+                  + " Sample MIME type: "
+                  + sampleMimeType),
+          TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
+    }
+    if (shouldPassthrough(inputFormat)) {
+      samplePipeline = new PassthroughSamplePipeline(inputFormat);
+    } else {
       samplePipeline =
           new AudioSamplePipeline(
               inputFormat, transformationRequest, encoderFactory, decoderFactory);
-    } else {
-      samplePipeline = new PassthroughSamplePipeline(inputFormat);
     }
     return true;
   }
 
-  private boolean shouldTranscode(Format inputFormat) {
+  private boolean shouldPassthrough(Format inputFormat) {
     if (transformationRequest.audioMimeType != null
         && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
-      return true;
+      return false;
     }
     if (transformationRequest.flattenForSlowMotion && isSlowMotion(inputFormat)) {
-      return true;
+      return false;
     }
-    return false;
+    return true;
   }
 
   private static boolean isSlowMotion(Format format) {

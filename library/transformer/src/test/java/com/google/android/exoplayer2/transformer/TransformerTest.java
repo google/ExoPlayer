@@ -35,11 +35,13 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -731,6 +733,12 @@ public final class TransformerTest {
     @Override
     public boolean supportsSampleMimeType(String sampleMimeType, String outputMimeType) {
       return frameworkMuxerFactory.supportsSampleMimeType(sampleMimeType, outputMimeType);
+    }
+
+    @Override
+    public ImmutableList<String> getSupportedSampleMimeTypes(
+        @C.TrackType int trackType, String containerMimeType) {
+      return frameworkMuxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
     }
   }
 }
