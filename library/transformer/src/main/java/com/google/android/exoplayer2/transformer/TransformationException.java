@@ -311,7 +311,7 @@ public final class TransformationException extends Exception {
    * @param errorCode A number which identifies the cause of the error. May be one of the {@link
    *     ErrorCode ErrorCodes}.
    */
-  public TransformationException(
+  private TransformationException(
       @Nullable String message, @Nullable Throwable cause, @ErrorCode int errorCode) {
     super(message, cause);
     this.errorCode = errorCode;
