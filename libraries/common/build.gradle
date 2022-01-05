@@ -13,6 +13,16 @@
 // limitations under the License.
 apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 
+// Make sure this project is evaluated after all other libraries. This ensures
+// the Gradle properties of each library are populated and we can automatically
+// check if a 'releaseArtifactId' exists.
+rootProject.allprojects.forEach {
+    if ((it.name.contains('lib-') || it.name.contains('test-'))
+            && !it.name.endsWith('-common')) {
+        evaluationDependsOn(modulePrefix + it.name)
+    }
+}
+// copybara:media3-only
 android {
     buildTypes {
         debug {
@@ -22,6 +32,15 @@ android {
 }
 
 dependencies {
+    constraints {
+        // List all released targets as constraints. This ensures they are all
+        // resolved to the same version.
+        rootProject.allprojects.forEach {
+            if (it.hasProperty('releaseArtifactId')) {
+                implementation project(modulePrefix + it.name)
+            }
+        }
+    }
     api ('com.google.guava:guava:' + guavaVersion) {
         // Exclude dependencies that are only used by Guava at compile time
         // (but declared as runtime deps) [internal b/168188131].
