@@ -21,7 +21,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import android.net.Uri;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist;
@@ -50,8 +52,15 @@ public class HlsChunkSourceTest {
   private static final String PLAYLIST_EMPTY = "media/m3u8/media_playlist_empty";
   private static final Uri PLAYLIST_URI = Uri.parse("http://example.com/");
   private static final long PLAYLIST_START_PERIOD_OFFSET_US = 8_000_000L;
-
-  private final HlsExtractorFactory mockExtractorFactory = HlsExtractorFactory.DEFAULT;
+  private static final Uri IFRAME_URI = Uri.parse("http://example.com/iframe");
+  private static final Format IFRAME_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setAverageBitrate(30_000)
+          .setWidth(1280)
+          .setHeight(720)
+          .setRoleFlags(C.ROLE_FLAG_TRICK_PLAY)
+          .build();
 
   @Mock private HlsPlaylistTracker mockPlaylistTracker;
   private HlsChunkSource testChunkSource;
@@ -70,10 +79,10 @@ public class HlsChunkSourceTest {
 
     testChunkSource =
         new HlsChunkSource(
-            mockExtractorFactory,
+            HlsExtractorFactory.DEFAULT,
             mockPlaylistTracker,
-            new Uri[] {PLAYLIST_URI},
-            new Format[] {ExoPlayerTestRunner.VIDEO_FORMAT},
+            new Uri[] {IFRAME_URI, PLAYLIST_URI},
+            new Format[] {IFRAME_FORMAT, ExoPlayerTestRunner.VIDEO_FORMAT},
             new DefaultHlsDataSourceFactory(new FakeDataSource.Factory()),
             /* mediaTransferListener= */ null,
             new TimestampAdjusterProvider(),
