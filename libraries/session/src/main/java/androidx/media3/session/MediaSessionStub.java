@@ -81,9 +81,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -96,19 +99,17 @@ import java.util.concurrent.ExecutionException;
 
   private static final String TAG = "MediaSessionStub";
 
-  private final Object lock;
   private final WeakReference<MediaSessionImpl> sessionImpl;
   private final MediaSessionManager sessionManager;
   private final ConnectedControllersManager<IBinder> connectedControllersManager;
+  private final Set<ControllerInfo> pendingControllers;
 
   public MediaSessionStub(MediaSessionImpl sessionImpl) {
-    // Initialize default values.
-    lock = new Object();
-
     // Initialize members with params.
     this.sessionImpl = new WeakReference<>(sessionImpl);
     sessionManager = MediaSessionManager.getSessionManager(sessionImpl.getContext());
     connectedControllersManager = new ConnectedControllersManager<>(sessionImpl);
+    pendingControllers = Collections.newSetFromMap(new ConcurrentHashMap<>());
   }
 
   public ConnectedControllersManager<IBinder> getConnectedControllersManager() {
@@ -331,50 +332,58 @@ import java.util.concurrent.ExecutionException;
             connectionHints);
     @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
     if (sessionImpl == null || sessionImpl.isReleased()) {
+      try {
+        caller.onDisconnected(/* seq= */ 0);
+      } catch (RemoteException e) {
+        // Controller may be died prematurely.
+        // Not an issue because we'll ignore it anyway.
+      }
       return;
     }
+    pendingControllers.add(controllerInfo);
     postOrRun(
         sessionImpl.getApplicationHandler(),
         () -> {
-          if (sessionImpl.isReleased()) {
-            return;
-          }
-          IBinder callbackBinder =
-              checkStateNotNull((Controller2Cb) controllerInfo.getControllerCb())
-                  .getCallbackBinder();
-          MediaSession.ConnectionResult connectionResult =
-              sessionImpl.onConnectOnHandler(controllerInfo);
-          // Don't reject connection for the request from trusted app.
-          // Otherwise server will fail to retrieve session's information to dispatch
-          // media keys to.
-          boolean accept = connectionResult.isAccepted || controllerInfo.isTrusted();
-          if (accept) {
+          boolean connected = false;
+          try {
+            pendingControllers.remove(controllerInfo);
+            if (sessionImpl.isReleased()) {
+              return;
+            }
+            IBinder callbackBinder =
+                checkStateNotNull((Controller2Cb) controllerInfo.getControllerCb())
+                    .getCallbackBinder();
+            MediaSession.ConnectionResult connectionResult =
+                sessionImpl.onConnectOnHandler(controllerInfo);
+            // Don't reject connection for the request from trusted app.
+            // Otherwise server will fail to retrieve session's information to dispatch
+            // media keys to.
+            if (!connectionResult.isAccepted && !controllerInfo.isTrusted()) {
+              return;
+            }
             if (!connectionResult.isAccepted) {
-              // For trusted apps, send non-null allowed commands to keep
-              // connection.
+              // For the accepted controller, send non-null allowed commands to keep connection.
               connectionResult =
                   MediaSession.ConnectionResult.accept(
                       SessionCommands.EMPTY, Player.Commands.EMPTY);
             }
             SequencedFutureManager sequencedFutureManager;
-            synchronized (lock) {
-              if (connectedControllersManager.isConnected(controllerInfo)) {
-                Log.w(
-                    TAG,
-                    "Controller "
-                        + controllerInfo
-                        + " has sent connection"
-                        + " request multiple times");
-              }
-              connectedControllersManager.addController(
-                  callbackBinder,
-                  controllerInfo,
-                  connectionResult.availableSessionCommands,
-                  connectionResult.availablePlayerCommands);
-              sequencedFutureManager =
-                  checkStateNotNull(
-                      connectedControllersManager.getSequencedFutureManager(controllerInfo));
+            if (connectedControllersManager.isConnected(controllerInfo)) {
+              Log.w(
+                  TAG,
+                  "Controller "
+                      + controllerInfo
+                      + " has sent connection"
+                      + " request multiple times");
             }
+            connectedControllersManager.addController(
+                callbackBinder,
+                controllerInfo,
+                connectionResult.availableSessionCommands,
+                connectionResult.availablePlayerCommands);
+            sequencedFutureManager =
+                checkStateNotNull(
+                    connectedControllersManager.getSequencedFutureManager(controllerInfo));
             // If connection is accepted, notify the current state to the controller.
             // It's needed because we cannot call synchronous calls between
             // session/controller.
@@ -399,20 +408,46 @@ import java.util.concurrent.ExecutionException;
             try {
               caller.onConnected(
                   sequencedFutureManager.obtainNextSequenceNumber(), state.toBundle());
+              connected = true;
             } catch (RemoteException e) {
               // Controller may be died prematurely.
             }
-
             sessionImpl.onPostConnectOnHandler(controllerInfo);
-          } else {
-            try {
-              caller.onDisconnected(0);
-            } catch (RemoteException e) {
-              // Controller may be died prematurely.
-              // Not an issue because we'll ignore it anyway.
+          } finally {
+            if (!connected) {
+              try {
+                caller.onDisconnected(/* seq= */ 0);
+              } catch (RemoteException e) {
+                // Controller may be died prematurely.
+                // Not an issue because we'll ignore it anyway.
+              }
             }
           }
         });
+  }
+
+  public void release() {
+    List<ControllerInfo> controllers = connectedControllersManager.getConnectedControllers();
+    for (ControllerInfo controller : controllers) {
+      ControllerCb cb = controller.getControllerCb();
+      if (cb != null) {
+        try {
+          cb.onDisconnected(/* seq= */ 0);
+        } catch (RemoteException e) {
+          // Ignore. We're releasing.
+        }
+      }
+    }
+    for (ControllerInfo controller : pendingControllers) {
+      ControllerCb cb = controller.getControllerCb();
+      if (cb != null) {
+        try {
+          cb.onDisconnected(/* seq= */ 0);
+        } catch (RemoteException e) {
+          // Ignore. We're releasing.
+        }
+      }
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////

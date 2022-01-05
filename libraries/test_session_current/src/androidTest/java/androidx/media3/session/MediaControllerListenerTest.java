@@ -83,6 +83,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -170,6 +171,21 @@ public class MediaControllerListenerTest {
     MediaController controller =
         controllerTestRule.createController(remoteSession.getCompatToken());
     assertThat(controller).isNotNull();
+  }
+
+  @Test
+  public void connection_toReleasedSession() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    SessionToken token = remoteSession.getToken();
+    remoteSession.release();
+    ListenableFuture<MediaController> controllerFuture =
+        new MediaController.Builder(context, token)
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .buildAsync();
+    controllerFuture.addListener(() -> latch.countDown(), threadTestRule.getHandler()::post);
+    latch.await(TIMEOUT_MS, MILLISECONDS);
+    Assert.assertThrows(
+        ExecutionException.class, () -> controllerFuture.get(/* timeout= */ 0, MILLISECONDS));
   }
 
   @Test

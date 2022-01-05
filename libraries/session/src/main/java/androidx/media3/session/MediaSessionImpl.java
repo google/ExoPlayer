@@ -313,7 +313,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     if (broadcastReceiver != null) {
       context.unregisterReceiver(broadcastReceiver);
     }
-    dispatchRemoteControllerTaskWithoutReturn(ControllerCb::onDisconnected);
+    sessionStub.release();
   }
 
   public PlayerWrapper getPlayerWrapper() {
@@ -604,7 +604,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         // 0 is OK for legacy controllers, because they didn't have sequence numbers.
         seq = 0;
       }
-      task.run(checkStateNotNull(controller.getControllerCb()), seq);
+      ControllerCb cb = controller.getControllerCb();
+      if (cb != null) {
+        task.run(cb, seq);
+      }
     } catch (DeadObjectException e) {
       onDeadObjectException(controller, e);
     } catch (RemoteException e) {
@@ -637,7 +640,10 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         // Tell that operation is successful, although we don't know the actual result.
         future = Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
       }
-      task.run(checkStateNotNull(controller.getControllerCb()), seq);
+      ControllerCb cb = controller.getControllerCb();
+      if (cb != null) {
+        task.run(cb, seq);
+      }
       return future;
     } catch (DeadObjectException e) {
       onDeadObjectException(controller, e);

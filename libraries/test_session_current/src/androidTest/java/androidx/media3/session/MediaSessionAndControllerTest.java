@@ -22,14 +22,21 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.util.concurrent.ListenableFuture;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -98,6 +105,53 @@ public class MediaSessionAndControllerTest {
                 controller.seekToPreviousMediaItem();
               }
             });
+  }
+
+  /** Tests to ensure that disconnection is notified. */
+  @Test
+  public void connecting_whileSessionIsReleasing_notified() throws Exception {
+    MockPlayer player =
+        new MockPlayer.Builder()
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .build();
+    Handler mainHandler = new Handler(Looper.getMainLooper());
+    Executor mainExecutor = (runnable) -> Util.postOrRun(mainHandler, runnable);
+    for (int i = 0; i < 100; i++) {
+      int idx = i;
+      MediaSession session =
+          sessionTestRule.ensureReleaseAfterTest(
+              new MediaSession.Builder(context, player).setId(TAG).build());
+      CountDownLatch latch = new CountDownLatch(1);
+      mainHandler.post(
+          () -> {
+            ListenableFuture<MediaController> controllerFuture =
+                new MediaController.Builder(context, session.getToken())
+                    .setListener(
+                        new MediaController.Listener() {
+                          @Override
+                          public void onDisconnected(MediaController controller) {
+                            latch.countDown();
+                          }
+                        })
+                    .buildAsync();
+            controllerFuture.addListener(
+                () -> {
+                  try {
+                    MediaController controller =
+                        controllerFuture.get(/* timeout=* */ 0, MILLISECONDS);
+                    assertThat(controller).isNotNull();
+                  } catch (ExecutionException
+                      | InterruptedException
+                      | CancellationException
+                      | TimeoutException e) {
+                    latch.countDown();
+                  }
+                },
+                mainExecutor);
+          });
+      threadTestRule.getHandler().postAndSync(session::release);
+      assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    }
   }
 
   @Test
