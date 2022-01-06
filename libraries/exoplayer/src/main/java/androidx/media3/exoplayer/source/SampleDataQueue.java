@@ -207,14 +207,14 @@ import java.util.Arrays;
    * @param fromNode The node from which to clear.
    */
   private void clearAllocationNodes(AllocationNode fromNode) {
-    if (!fromNode.wasInitialized) {
+    if (fromNode.allocation == null) {
       return;
     }
     // Bulk release allocations for performance (it's significantly faster when using
     // DefaultAllocator because the allocator's lock only needs to be acquired and released once)
     // [Internal: See b/29542039].
     int allocationCount =
-        (writeAllocationNode.wasInitialized ? 1 : 0)
+        (writeAllocationNode.allocation != null ? 1 : 0)
             + ((int) (writeAllocationNode.startPosition - fromNode.startPosition)
                 / allocationLength);
     Allocation[] allocationsToRelease = new Allocation[allocationCount];
@@ -235,7 +235,7 @@ import java.util.Arrays;
    *     {@code length}.
    */
   private int preAppend(int length) {
-    if (!writeAllocationNode.wasInitialized) {
+    if (writeAllocationNode.allocation == null) {
       writeAllocationNode.initialize(
           allocator.allocate(),
           new AllocationNode(writeAllocationNode.endPosition, allocationLength));
@@ -472,13 +472,13 @@ import java.util.Arrays;
     public final long startPosition;
     /** The absolute position of the end of the data (exclusive). */
     public final long endPosition;
-    /** Whether the node has been initialized. Remains true after {@link #clear()}. */
-    public boolean wasInitialized;
-    /** The {@link Allocation}, or {@code null} if the node is not initialized. */
+    /**
+     * The {@link Allocation}, or {@code null} if the node is not {@link #initialize initialized}.
+     */
     @Nullable public Allocation allocation;
     /**
-     * The next {@link AllocationNode} in the list, or {@code null} if the node has not been
-     * initialized. Remains set after {@link #clear()}.
+     * The next {@link AllocationNode} in the list, or {@code null} if the node is not {@link
+     * #initialize initialized}.
      */
     @Nullable public AllocationNode next;
 
@@ -501,7 +501,6 @@ import java.util.Arrays;
     public void initialize(Allocation allocation, AllocationNode next) {
       this.allocation = allocation;
       this.next = next;
-      wasInitialized = true;
     }
 
     /**
