@@ -340,7 +340,8 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformationException exception = TransformerTestRunner.runUntilError(transformer);
 
-    assertThat(exception).hasCauseThat().isInstanceOf(IOException.class);
+    assertThat(exception).hasCauseThat().hasCauseThat().isInstanceOf(IOException.class);
+    assertThat(exception.errorCode).isEqualTo(TransformationException.ERROR_CODE_IO_FILE_NOT_FOUND);
   }
 
   @Test
