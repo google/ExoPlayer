@@ -133,7 +133,7 @@ public final class RtspMediaPeriodTest {
                           .add(RtspHeaders.CSEQ, headers.get(RtspHeaders.CSEQ))
                           .add(
                               RtspHeaders.WWW_AUTHENTICATE,
-                              "Digest realm=\"LIVE555 Streaming Media\","
+                              "Digest realm=\"RTSP server\","
                                   + " nonce=\"0cdfe9719e7373b7d5bb2913e2115f3f\","
                                   + " opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"")
                           .add(RtspHeaders.WWW_AUTHENTICATE, "BASIC realm=\"WallyWorld\"")

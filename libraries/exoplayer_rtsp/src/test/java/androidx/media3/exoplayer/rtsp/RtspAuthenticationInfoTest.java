@@ -50,7 +50,7 @@ public class RtspAuthenticationInfoTest {
     RtspAuthenticationInfo authenticator =
         new RtspAuthenticationInfo(
             RtspAuthenticationInfo.DIGEST,
-            /* realm= */ "LIVE555 Streaming Media",
+            /* realm= */ "RTSP server",
             /* nonce= */ "0cdfe9719e7373b7d5bb2913e2115f3f",
             /* opaque= */ "5ccc069c403ebaf9f0171e9517f40e41");
 
@@ -60,10 +60,10 @@ public class RtspAuthenticationInfoTest {
                 Uri.parse("rtsp://localhost:554/imax_cd_2k_264_6ch.mkv"),
                 RtspRequest.METHOD_DESCRIBE))
         .isEqualTo(
-            "Digest username=\"username\", realm=\"LIVE555 Streaming Media\","
+            "Digest username=\"username\", realm=\"RTSP server\","
                 + " nonce=\"0cdfe9719e7373b7d5bb2913e2115f3f\","
                 + " uri=\"rtsp://localhost:554/imax_cd_2k_264_6ch.mkv\","
-                + " response=\"ba9433847439387776f7fb905db3fcae\","
+                + " response=\"cb635712efbdd027f0c823d0623449f6\","
                 + " opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"");
   }
 }
