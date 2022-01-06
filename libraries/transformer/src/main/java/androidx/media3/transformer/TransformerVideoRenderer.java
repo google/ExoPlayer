@@ -77,7 +77,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
     String sampleMimeType = checkNotNull(inputFormat.sampleMimeType);
-    if (transformationRequest.audioMimeType == null
+    if (transformationRequest.videoMimeType == null
         && !muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
       throw TransformationException.createForMuxer(
           new IllegalArgumentException(

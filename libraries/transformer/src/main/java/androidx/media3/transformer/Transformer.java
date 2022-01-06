@@ -99,7 +99,6 @@ public final class Transformer {
     private boolean removeAudio;
     private boolean removeVideo;
     private String containerMimeType;
-    // TODO(b/204869912): Make final once deprecated setters are removed.
     private TransformationRequest transformationRequest;
     private Transformer.Listener listener;
     private DebugViewProvider debugViewProvider;
