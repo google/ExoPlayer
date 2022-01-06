@@ -45,7 +45,7 @@ public final class RtspServer implements Closeable {
     RtspResponse getOptionsResponse();
 
     /** Returns an RTSP DESCRIBE {@link RtspResponse response}. */
-    default RtspResponse getDescribeResponse(Uri requestedUri) {
+    default RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
       return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
     }
 
@@ -143,7 +143,7 @@ public final class RtspServer implements Closeable {
           break;
 
         case METHOD_DESCRIBE:
-          sendResponse(responseProvider.getDescribeResponse(request.uri), cSeq);
+          sendResponse(responseProvider.getDescribeResponse(request.uri, request.headers), cSeq);
           break;
 
         case METHOD_SETUP:

@@ -209,7 +209,7 @@ public final class RtspPlaybackTest {
     }
 
     @Override
-    public RtspResponse getDescribeResponse(Uri requestedUri) {
+    public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
       return RtspTestUtils.newDescribeResponseWithSdpMessage(
           SESSION_DESCRIPTION, rtpPacketStreamDumps, requestedUri);
     }
