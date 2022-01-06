@@ -36,6 +36,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   private static final String KEY_MEDIA_ITEM = "mediaItem";
   private static final String KEY_PLAYER_CONFIG = "exoPlayerConfig";
+  private static final String KEY_MEDIA_ID = "mediaId";
   private static final String KEY_URI = "uri";
   private static final String KEY_TITLE = "title";
   private static final String KEY_MIME_TYPE = "mimeType";
@@ -79,6 +80,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
       JSONObject mediaItemJson = customData.getJSONObject(KEY_MEDIA_ITEM);
       MediaItem.Builder builder = new MediaItem.Builder();
       builder.setUri(Uri.parse(mediaItemJson.getString(KEY_URI)));
+      builder.setMediaId(mediaItemJson.getString(KEY_MEDIA_ID));
       if (mediaItemJson.has(KEY_TITLE)) {
         androidx.media3.common.MediaMetadata mediaMetadata =
             new androidx.media3.common.MediaMetadata.Builder()
@@ -132,6 +134,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
   private static JSONObject getMediaItemJson(MediaItem mediaItem) throws JSONException {
     Assertions.checkNotNull(mediaItem.localConfiguration);
     JSONObject json = new JSONObject();
+    json.put(KEY_MEDIA_ID, mediaItem.mediaId);
     json.put(KEY_TITLE, mediaItem.mediaMetadata.title);
     json.put(KEY_URI, mediaItem.localConfiguration.uri.toString());
     json.put(KEY_MIME_TYPE, mediaItem.localConfiguration.mimeType);
