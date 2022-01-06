@@ -554,14 +554,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           case 401:
             if (rtspAuthUserInfo != null && !receivedAuthorizationRequest) {
               // Unauthorized.
-              @Nullable
-              String wwwAuthenticateHeader = response.headers.get(RtspHeaders.WWW_AUTHENTICATE);
-              if (wwwAuthenticateHeader == null) {
+              ImmutableList<String> wwwAuthenticateHeaders =
+                  response.headers.values(RtspHeaders.WWW_AUTHENTICATE);
+              if (wwwAuthenticateHeaders.isEmpty()) {
                 throw ParserException.createForMalformedManifest(
                     "Missing WWW-Authenticate header in a 401 response.", /* cause= */ null);
               }
-              rtspAuthenticationInfo =
-                  RtspMessageUtil.parseWwwAuthenticateHeader(wwwAuthenticateHeader);
+
+              for (int i = 0; i < wwwAuthenticateHeaders.size(); i++) {
+                rtspAuthenticationInfo =
+                    RtspMessageUtil.parseWwwAuthenticateHeader(wwwAuthenticateHeaders.get(i));
+                if (rtspAuthenticationInfo.authenticationMechanism
+                    == RtspAuthenticationInfo.DIGEST) {
+                  // Prefers DIGEST when RTSP servers sends both BASIC and DIGEST auth info.
+                  break;
+                }
+              }
+
               messageSender.retryLastRequest();
               receivedAuthorizationRequest = true;
               return;

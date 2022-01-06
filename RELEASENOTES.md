@@ -87,6 +87,8 @@
 *   RTSP:
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
+    *   Prefers DIGEST authentication method over BASIC if both are present.
+        ([#9800](https://github.com/google/ExoPlayer/issues/9800)).
 *   Cast extension
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
         correctly.

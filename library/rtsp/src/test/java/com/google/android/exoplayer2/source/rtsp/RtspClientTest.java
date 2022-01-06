@@ -92,7 +92,7 @@ public final class RtspClientTest {
       }
 
       @Override
-      public RtspResponse getDescribeResponse(Uri requestedUri) {
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
         return RtspTestUtils.newDescribeResponseWithSdpMessage(
             SESSION_DESCRIPTION, rtpPacketStreamDumps, requestedUri);
       }
@@ -167,7 +167,7 @@ public final class RtspClientTest {
       }
 
       @Override
-      public RtspResponse getDescribeResponse(Uri requestedUri) {
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
         return RtspTestUtils.newDescribeResponseWithSdpMessage(
             SESSION_DESCRIPTION, rtpPacketStreamDumps, requestedUri);
       }
@@ -209,7 +209,7 @@ public final class RtspClientTest {
       }
 
       @Override
-      public RtspResponse getDescribeResponse(Uri requestedUri) {
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
         if (!requestedUri.getPath().contains("redirect")) {
           return new RtspResponse(
               301,
@@ -263,7 +263,7 @@ public final class RtspClientTest {
       }
 
       @Override
-      public RtspResponse getDescribeResponse(Uri requestedUri) {
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
         return RtspTestUtils.newDescribeResponseWithSdpMessage(
             SESSION_DESCRIPTION, rtpPacketStreamDumps, requestedUri);
       }
@@ -310,7 +310,7 @@ public final class RtspClientTest {
       }
 
       @Override
-      public RtspResponse getDescribeResponse(Uri requestedUri) {
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
         clientHasSentDescribeRequest.set(true);
         return RtspTestUtils.RTSP_ERROR_METHOD_NOT_ALLOWED;
       }
@@ -356,7 +356,7 @@ public final class RtspClientTest {
       }
 
       @Override
-      public RtspResponse getDescribeResponse(Uri requestedUri) {
+      public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
         // This session description misses required the o, t and s tags.
         return RtspTestUtils.newDescribeResponseWithSdpMessage(
             /* sessionDescription= */ "v=0\r\n", rtpPacketStreamDumps, requestedUri);
