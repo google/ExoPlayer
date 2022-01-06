@@ -286,17 +286,18 @@ public final class TransformationException extends Exception {
   }
 
   /**
-   * Converts a {@link PlaybackException} to a {@code TransformationException}.
+   * Creates an instance for a {@link PlaybackException}.
    *
-   * <p>If no corresponding error code exists, the created instance will have {@link
-   * #ERROR_CODE_UNSPECIFIED}.
+   * <p>If there is a corresponding {@link TransformationException.ErrorCode} for the {@link
+   * PlaybackException.ErrorCode}, this error code and the same message are used for the created
+   * instance. Otherwise, this is equivalent to {@link #createForUnexpected(Exception)}.
    */
   /* package */ static TransformationException createForPlaybackException(
       PlaybackException exception) {
-    return new TransformationException(
-        exception.getMessage(),
-        exception.getCause(),
-        getErrorCodeForName(exception.getErrorCodeName()));
+    @ErrorCode int errorCode = getErrorCodeForName(exception.getErrorCodeName());
+    return errorCode == ERROR_CODE_UNSPECIFIED
+        ? createForUnexpected(exception)
+        : new TransformationException(exception.getMessage(), exception, errorCode);
   }
 
   /** An error code which identifies the cause of the transformation failure. */
