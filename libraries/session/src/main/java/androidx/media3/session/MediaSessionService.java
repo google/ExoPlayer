@@ -357,9 +357,10 @@ public abstract class MediaSessionService extends Service {
       if (session == null) {
         ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
         session = onGetSession(controllerInfo);
-      }
-      if (session == null) {
-        return START_STICKY;
+        if (session == null) {
+          return START_STICKY;
+        }
+        addSession(session);
       }
       KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
       if (keyEvent != null) {
