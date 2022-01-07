@@ -114,10 +114,15 @@ import java.io.IOException;
       // More events may be appended later.
       return C.RESULT_NOTHING_READ;
     }
-    int sampleIndex = currentIndex++;
-    byte[] serializedEvent = eventMessageEncoder.encode(eventStream.events[sampleIndex]);
-    buffer.ensureSpaceForWrite(serializedEvent.length);
-    buffer.data.put(serializedEvent);
+    int sampleIndex = currentIndex;
+    if ((readFlags & SampleStream.FLAG_PEEK) == 0) {
+      currentIndex++;
+    }
+    if ((readFlags & SampleStream.FLAG_OMIT_SAMPLE_DATA) == 0) {
+      byte[] serializedEvent = eventMessageEncoder.encode(eventStream.events[sampleIndex]);
+      buffer.ensureSpaceForWrite(serializedEvent.length);
+      buffer.data.put(serializedEvent);
+    }
     buffer.timeUs = eventTimesUs[sampleIndex];
     buffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
     return C.RESULT_BUFFER_READ;
