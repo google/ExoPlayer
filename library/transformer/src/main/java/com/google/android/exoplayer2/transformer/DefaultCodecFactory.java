@@ -36,6 +36,18 @@ import java.io.IOException;
 /* package */ final class DefaultCodecFactory
     implements Codec.DecoderFactory, Codec.EncoderFactory {
 
+  private static final MediaCodecInfo PLACEHOLDER_MEDIA_CODEC_INFO =
+      MediaCodecInfo.newInstance(
+          /* name= */ "name-placeholder",
+          /* mimeType= */ "mime-type-placeholder",
+          /* codecMimeType= */ "mime-type-placeholder",
+          /* capabilities= */ null,
+          /* hardwareAccelerated= */ false,
+          /* softwareOnly= */ false,
+          /* vendor= */ false,
+          /* forceDisableAdaptive= */ false,
+          /* forceSecure= */ false);
+
   @Override
   public Codec createForAudioDecoding(Format format) throws TransformationException {
     MediaFormat mediaFormat =
@@ -51,7 +63,7 @@ import java.io.IOException;
           new MediaCodecFactory()
               .createAdapter(
                   MediaCodecAdapter.Configuration.createForAudioDecoding(
-                      createPlaceholderMediaCodecInfo(), mediaFormat, format, /* crypto= */ null));
+                      PLACEHOLDER_MEDIA_CODEC_INFO, mediaFormat, format, /* crypto= */ null));
     } catch (Exception e) {
       throw createTransformationException(e, format, /* isVideo= */ false, /* isDecoder= */ true);
     }
@@ -81,7 +93,7 @@ import java.io.IOException;
           new MediaCodecFactory()
               .createAdapter(
                   MediaCodecAdapter.Configuration.createForVideoDecoding(
-                      createPlaceholderMediaCodecInfo(),
+                      PLACEHOLDER_MEDIA_CODEC_INFO,
                       mediaFormat,
                       format,
                       surface,
@@ -105,7 +117,7 @@ import java.io.IOException;
           new MediaCodecFactory()
               .createAdapter(
                   MediaCodecAdapter.Configuration.createForAudioEncoding(
-                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
+                      PLACEHOLDER_MEDIA_CODEC_INFO, mediaFormat, format));
     } catch (Exception e) {
       throw createTransformationException(e, format, /* isVideo= */ false, /* isDecoder= */ false);
     }
@@ -135,7 +147,7 @@ import java.io.IOException;
           new MediaCodecFactory()
               .createAdapter(
                   MediaCodecAdapter.Configuration.createForVideoEncoding(
-                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
+                      PLACEHOLDER_MEDIA_CODEC_INFO, mediaFormat, format));
     } catch (Exception e) {
       throw createTransformationException(e, format, /* isVideo= */ true, /* isDecoder= */ false);
     }
@@ -153,19 +165,6 @@ import java.io.IOException;
           ? MediaCodec.createDecoderByType(checkNotNull(sampleMimeType))
           : MediaCodec.createEncoderByType(checkNotNull(sampleMimeType));
     }
-  }
-
-  private static MediaCodecInfo createPlaceholderMediaCodecInfo() {
-    return MediaCodecInfo.newInstance(
-        /* name= */ "name-placeholder",
-        /* mimeType= */ "mime-type-placeholder",
-        /* codecMimeType= */ "mime-type-placeholder",
-        /* capabilities= */ null,
-        /* hardwareAccelerated= */ false,
-        /* softwareOnly= */ false,
-        /* vendor= */ false,
-        /* forceDisableAdaptive= */ false,
-        /* forceSecure= */ false);
   }
 
   private static TransformationException createTransformationException(
