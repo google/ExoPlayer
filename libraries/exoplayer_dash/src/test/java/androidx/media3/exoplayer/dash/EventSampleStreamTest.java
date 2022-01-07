@@ -23,6 +23,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.dash.manifest.EventStream;
+import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.extractor.metadata.MetadataInputBuffer;
 import androidx.media3.extractor.metadata.emsg.EventMessage;
 import androidx.media3.extractor.metadata.emsg.EventMessageEncoder;
@@ -130,6 +131,58 @@ public final class EventSampleStreamTest {
     int result = readData(sampleStream);
     assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
     assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage));
+  }
+
+  @Test
+  public void readData_peek_doesNotAdvanceSampleIndex() {
+    long presentationTimeUs = 1000000;
+    EventMessage eventMessage = newEventMessageWithId(1);
+    EventStream eventStream =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs},
+            new EventMessage[] {eventMessage});
+    EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
+    // first read - read format
+    readData(sampleStream);
+
+    // read the event with FLAG_PEEK
+    int result = readData(sampleStream, SampleStream.FLAG_PEEK);
+    assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
+    assertThat(inputBuffer.isKeyFrame()).isTrue();
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage));
+    // read again gives the same message again (there is only one msg)
+    result = readData(sampleStream);
+    assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
+    assertThat(inputBuffer.isKeyFrame()).isTrue();
+    assertThat(inputBuffer.data.array()).isEqualTo(getEncodedMessage(eventMessage));
+    // read again gives end of stream
+    result = readData(sampleStream);
+    assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
+    assertThat(inputBuffer.isEndOfStream()).isTrue();
+  }
+
+  @Test
+  public void readData_omitSampleData_doesOmitSampleData() {
+    long presentationTimeUs = 1000000;
+    EventMessage eventMessage = newEventMessageWithId(1);
+    EventStream eventStream =
+        new EventStream(
+            SCHEME_ID,
+            VALUE,
+            TIME_SCALE,
+            new long[] {presentationTimeUs},
+            new EventMessage[] {eventMessage});
+    EventSampleStream sampleStream = new EventSampleStream(eventStream, FORMAT, false);
+    // first read - read format
+    readData(sampleStream);
+
+    // read the event with FLAG_OMIT_SAMPLE_DATA
+    int result = readData(sampleStream, SampleStream.FLAG_OMIT_SAMPLE_DATA);
+    assertThat(result).isEqualTo(C.RESULT_BUFFER_READ);
+    assertThat(inputBuffer.data).isNull();
   }
 
   /**
@@ -390,8 +443,12 @@ public final class EventSampleStreamTest {
   }
 
   private int readData(EventSampleStream sampleStream) {
+    return readData(sampleStream, /* readFlags= */ 0);
+  }
+
+  private int readData(EventSampleStream sampleStream, @SampleStream.ReadFlags int readFlags) {
     inputBuffer.clear();
-    return sampleStream.readData(formatHolder, inputBuffer, /* readFlags= */ 0);
+    return sampleStream.readData(formatHolder, inputBuffer, readFlags);
   }
 
   private EventMessage newEventMessageWithId(int id) {
