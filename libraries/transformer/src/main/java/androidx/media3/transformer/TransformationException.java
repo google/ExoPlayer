@@ -73,7 +73,6 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_GL_INIT_FAILED,
         ERROR_CODE_GL_PROCESSING_FAILED,
-        ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED,
       })
   public @interface ErrorCode {}
 
@@ -156,12 +155,7 @@ public final class TransformationException extends Exception {
   /** Caused by a failure while using or releasing a GL program. */
   public static final int ERROR_CODE_GL_PROCESSING_FAILED = 5002;
 
-  // Audio editing errors (6xxx).
-
-  /** Caused by an audio processor initialization failure. */
-  public static final int ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED = 6001;
-
-  // Muxing errors (7xxx).
+  // Muxing errors (6xxx).
 
   /**
    * Caused by an output sample MIME type inferred from the input not being supported by the muxer.
@@ -169,7 +163,7 @@ public final class TransformationException extends Exception {
    * <p>Use {@link TransformationRequest.Builder#setAudioMimeType(String)} or {@link
    * TransformationRequest.Builder#setVideoMimeType(String)} to transcode to a supported MIME type.
    */
-  public static final int ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED = 7001;
+  public static final int ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED = 6001;
 
   private static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
@@ -191,7 +185,6 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED", ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED)
           .put("ERROR_CODE_GL_INIT_FAILED", ERROR_CODE_GL_INIT_FAILED)
           .put("ERROR_CODE_GL_PROCESSING_FAILED", ERROR_CODE_GL_PROCESSING_FAILED)
-          .put("ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED", ERROR_CODE_AUDIO_PROCESSOR_INIT_FAILED)
           .put(
               "ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED",
               ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED)
