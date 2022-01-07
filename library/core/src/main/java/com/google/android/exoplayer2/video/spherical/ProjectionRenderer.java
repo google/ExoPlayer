@@ -115,6 +115,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Initializes of the GL components. */
   public void init() {
     program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
+    program.use();
     mvpMatrixHandle = program.getUniformLocation("uMvpMatrix");
     uTexMatrixHandle = program.getUniformLocation("uTexMatrix");
     positionHandle = program.getAttributeArrayLocationAndEnable("aPosition");
