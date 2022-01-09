@@ -12,6 +12,6 @@
 -keep class com.google.android.exoplayer2.extractor.FlacStreamMetadata {
     *;
 }
--keep class com.google.android.exoplayer2.metadata.flac.PictureFrame {
+-keep class com.google.android.exoplayer2.metadata.xiph.PictureFrame {
     *;
 }

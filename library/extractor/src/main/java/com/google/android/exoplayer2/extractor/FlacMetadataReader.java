@@ -20,11 +20,11 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.VorbisUtil.CommentHeader;
 import com.google.android.exoplayer2.extractor.flac.FlacConstants;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.flac.PictureFrame;
+import com.google.android.exoplayer2.metadata.xiph.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.common.base.Charsets;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -168,7 +168,10 @@ public final class FlacMetadataReader {
         metadataHolder.flacStreamMetadata =
             flacStreamMetadata.copyWithVorbisComments(vorbisComments);
       } else if (type == FlacConstants.METADATA_TYPE_PICTURE) {
-        PictureFrame pictureFrame = readPictureMetadataBlock(input, length);
+        ParsableByteArray pic_scratch = new ParsableByteArray(length);
+        input.readFully(pic_scratch.getData(), 0, length);
+        pic_scratch.skipBytes(FlacConstants.METADATA_BLOCK_HEADER_SIZE);
+        PictureFrame pictureFrame = VorbisUtil.buildPictureFrame(pic_scratch);
         metadataHolder.flacStreamMetadata =
             flacStreamMetadata.copyWithPictureFrames(Collections.singletonList(pictureFrame));
       } else {
@@ -266,29 +269,6 @@ public final class FlacMetadataReader {
         VorbisUtil.readVorbisCommentHeader(
             scratch, /* hasMetadataHeader= */ false, /* hasFramingBit= */ false);
     return Arrays.asList(commentHeader.comments);
-  }
-
-  private static PictureFrame readPictureMetadataBlock(ExtractorInput input, int length)
-      throws IOException {
-    ParsableByteArray scratch = new ParsableByteArray(length);
-    input.readFully(scratch.getData(), 0, length);
-    scratch.skipBytes(FlacConstants.METADATA_BLOCK_HEADER_SIZE);
-
-    int pictureType = scratch.readInt();
-    int mimeTypeLength = scratch.readInt();
-    String mimeType = scratch.readString(mimeTypeLength, Charsets.US_ASCII);
-    int descriptionLength = scratch.readInt();
-    String description = scratch.readString(descriptionLength);
-    int width = scratch.readInt();
-    int height = scratch.readInt();
-    int depth = scratch.readInt();
-    int colors = scratch.readInt();
-    int pictureDataLength = scratch.readInt();
-    byte[] pictureData = new byte[pictureDataLength];
-    scratch.readBytes(pictureData, 0, pictureDataLength);
-
-    return new PictureFrame(
-        pictureType, mimeType, description, width, height, depth, colors, pictureData);
   }
 
   private FlacMetadataReader() {}

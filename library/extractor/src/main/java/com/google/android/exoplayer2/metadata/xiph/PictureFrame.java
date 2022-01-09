@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.metadata.flac;
+package com.google.android.exoplayer2.metadata.xiph;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 

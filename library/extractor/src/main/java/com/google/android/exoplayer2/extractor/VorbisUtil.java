@@ -15,16 +15,19 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import android.util.Base64;
+
 import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.flac.PictureFrame;
-import com.google.android.exoplayer2.metadata.flac.VorbisComment;
+import com.google.android.exoplayer2.metadata.xiph.PictureFrame;
+import com.google.android.exoplayer2.metadata.xiph.VorbisComment;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -260,11 +263,30 @@ public final class VorbisUtil {
     return new CommentHeader(vendor, comments, length);
   }
 
+  /**
+   * Builds a metadata instance from Vorbis comments.
+   *
+   * METADATA_BLOCK_PICTURE comments will be transformed into picture frames.
+   * All others will be transformed into vorbis comments.
+   *
+   * @param vorbisComments The raw input of comments, as a key-value pair KEY=VAL.
+   * @return A metadata instance containing the processed tags.
+   */
   @Nullable
   public static Metadata buildMetadata(List<String> vorbisComments) {
     return buildMetadata(vorbisComments, Collections.emptyList());
   }
 
+  /**
+   * Builds a metadata instance from Vorbis comments.
+   *
+   * METADATA_BLOCK_PICTURE comments will be transformed into picture frames.
+   * All others will be transformed into vorbis comments.
+   *
+   * @param vorbisComments The raw input of comments, as a key-value pair KEY=VAL.
+   * @param pictureFrames Any picture frames that were parsed beforehand.
+   * @return A metadata instance containing the processed tags.
+   */
   @Nullable
   public static Metadata buildMetadata(List<String> vorbisComments, List<PictureFrame> pictureFrames) {
     if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
@@ -279,13 +301,48 @@ public final class VorbisUtil {
       if (keyAndValue.length != 2) {
         Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
       } else {
-        VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
-        metadataEntries.add(entry);
+        if (keyAndValue[0].equals("METADATA_BLOCK_PICTURE")) {
+          // This tag is a special cover art tag. Decode it from Base64 and make it a
+          // PictureFrame.
+          try {
+            byte[] decoded = Base64.decode(keyAndValue[1], Base64.DEFAULT);
+            metadataEntries.add(buildPictureFrame(new ParsableByteArray(decoded)));
+          } catch (Exception e) {
+            Log.w(TAG, "Failed to parse vorbis picture");
+          }
+        } else {
+          VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
+          metadataEntries.add(entry);
+        }
       }
     }
     metadataEntries.addAll(pictureFrames);
 
     return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
+  }
+
+  /**
+   * Transforms a picture metadata block into a picture frame.
+   *
+   * @param input The bytes of the picture.
+   * @return A picture frame from the input data.
+   */
+  static PictureFrame buildPictureFrame(ParsableByteArray input) {
+    int pictureType = input.readInt();
+    int mimeTypeLength = input.readInt();
+    String mimeType = input.readString(mimeTypeLength, Charsets.US_ASCII);
+    int descriptionLength = input.readInt();
+    String description = input.readString(descriptionLength);
+    int width = input.readInt();
+    int height = input.readInt();
+    int depth = input.readInt();
+    int colors = input.readInt();
+    int pictureDataLength = input.readInt();
+    byte[] pictureData = new byte[pictureDataLength];
+    input.readBytes(pictureData, 0, pictureDataLength);
+
+    return new PictureFrame(
+        pictureType, mimeType, description, width, height, depth, colors, pictureData);
   }
 
   /**

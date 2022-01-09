@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @NonNullApi
-package com.google.android.exoplayer2.metadata.flac;
+package com.google.android.exoplayer2.metadata.xiph;
 
 import com.google.android.exoplayer2.util.NonNullApi;
