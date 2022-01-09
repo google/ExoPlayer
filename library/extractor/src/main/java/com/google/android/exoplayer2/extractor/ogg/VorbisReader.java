@@ -117,8 +117,6 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
         Arrays.asList(vorbisSetup.commentHeader.comments)
     );
 
-    Log.d("VorbisReader", "hi metadata" + vorbisMetadata.toString());
-
     setupData.format =
         new Format.Builder()
             .setSampleMimeType(MimeTypes.AUDIO_VORBIS)

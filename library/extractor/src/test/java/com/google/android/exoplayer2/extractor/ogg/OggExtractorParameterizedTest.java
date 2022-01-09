@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
