@@ -20,8 +20,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
-import com.google.android.exoplayer2.metadata.flac.VorbisComment;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.Util;
@@ -56,12 +54,8 @@ public final class FlacStreamMetadata {
     }
   }
 
-  private static final String TAG = "FlacStreamMetadata";
-
   /** Indicates that a value is not in the corresponding lookup table. */
   public static final int NOT_IN_LOOKUP_TABLE = -1;
-  /** Separator between the field name of a Vorbis comment and the corresponding value. */
-  private static final String SEPARATOR = "=";
 
   /** Minimum number of samples per block. */
   public final int minBlockSizeSamples;
@@ -149,7 +143,7 @@ public final class FlacStreamMetadata {
         bitsPerSample,
         totalSamples,
         /* seekTable= */ null,
-        buildMetadata(vorbisComments, pictureFrames));
+        VorbisUtil.buildMetadata(vorbisComments, pictureFrames));
   }
 
   private FlacStreamMetadata(
@@ -275,7 +269,7 @@ public final class FlacStreamMetadata {
     @Nullable
     Metadata appendedMetadata =
         getMetadataCopyWithAppendedEntriesFrom(
-            buildMetadata(vorbisComments, Collections.emptyList()));
+            VorbisUtil.buildMetadata(vorbisComments, Collections.emptyList()));
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,
@@ -294,7 +288,7 @@ public final class FlacStreamMetadata {
     @Nullable
     Metadata appendedMetadata =
         getMetadataCopyWithAppendedEntriesFrom(
-            buildMetadata(Collections.emptyList(), pictureFrames));
+            VorbisUtil.buildMetadata(Collections.emptyList(), pictureFrames));
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,
@@ -352,28 +346,5 @@ public final class FlacStreamMetadata {
       default:
         return NOT_IN_LOOKUP_TABLE;
     }
-  }
-
-  @Nullable
-  private static Metadata buildMetadata(
-      List<String> vorbisComments, List<PictureFrame> pictureFrames) {
-    if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
-      return null;
-    }
-
-    ArrayList<Metadata.Entry> metadataEntries = new ArrayList<>();
-    for (int i = 0; i < vorbisComments.size(); i++) {
-      String vorbisComment = vorbisComments.get(i);
-      String[] keyAndValue = Util.splitAtFirst(vorbisComment, SEPARATOR);
-      if (keyAndValue.length != 2) {
-        Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
-      } else {
-        VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
-        metadataEntries.add(entry);
-      }
-    }
-    metadataEntries.addAll(pictureFrames);
-
-    return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
   }
 }

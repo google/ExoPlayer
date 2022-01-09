@@ -15,14 +15,26 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.flac.PictureFrame;
+import com.google.android.exoplayer2.metadata.flac.VorbisComment;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /** Utility methods for parsing Vorbis streams. */
 public final class VorbisUtil {
+  /** Separator between the field name of a Vorbis comment and the corresponding value. */
+  private static final String SEPARATOR = "=";
 
   /** Vorbis comment header. */
   public static final class CommentHeader {
@@ -246,6 +258,34 @@ public final class VorbisUtil {
     }
     length += 1;
     return new CommentHeader(vendor, comments, length);
+  }
+
+  @Nullable
+  public static Metadata buildMetadata(List<String> vorbisComments) {
+    return buildMetadata(vorbisComments, Collections.emptyList());
+  }
+
+  @Nullable
+  public static Metadata buildMetadata(List<String> vorbisComments, List<PictureFrame> pictureFrames) {
+    if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
+      return null;
+    }
+
+    ArrayList<Metadata.Entry> metadataEntries = new ArrayList<>();
+    for (int i = 0; i < vorbisComments.size(); i++) {
+      String vorbisComment = vorbisComments.get(i);
+      String[] keyAndValue = Util.splitAtFirst(vorbisComment, SEPARATOR);
+
+      if (keyAndValue.length != 2) {
+        Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
+      } else {
+        VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
+        metadataEntries.add(entry);
+      }
+    }
+    metadataEntries.addAll(pictureFrames);
+
+    return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
   }
 
   /**
