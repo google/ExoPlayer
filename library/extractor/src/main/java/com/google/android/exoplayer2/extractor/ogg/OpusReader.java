@@ -17,10 +17,16 @@ package com.google.android.exoplayer2.extractor.ogg;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.OpusUtil;
+import com.google.android.exoplayer2.extractor.VorbisUtil;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -28,18 +34,18 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 /** {@link StreamReader} to extract Opus data out of Ogg byte stream. */
 /* package */ final class OpusReader extends StreamReader {
 
-  private static final int OPUS_CODE = 0x4f707573;
-  private static final byte[] OPUS_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
+  private static final byte[] OPUS_ID_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
+  private static final byte[] OPUS_TAG_SIGNATURE = {'O', 'p', 'u', 's', 'T', 'a', 'g', 's'};
 
   private boolean headerRead;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
-    if (data.bytesLeft() < OPUS_SIGNATURE.length) {
+    if (data.bytesLeft() < OPUS_ID_SIGNATURE.length) {
       return false;
     }
-    byte[] header = new byte[OPUS_SIGNATURE.length];
-    data.readBytes(header, 0, OPUS_SIGNATURE.length);
-    return Arrays.equals(header, OPUS_SIGNATURE);
+    byte[] header = new byte[OPUS_ID_SIGNATURE.length];
+    data.readBytes(header, 0, OPUS_ID_SIGNATURE.length);
+    return Arrays.equals(header, OPUS_ID_SIGNATURE);
   }
 
   @Override
@@ -57,7 +63,8 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
   @Override
   @EnsuresNonNullIf(expression = "#3.format", result = false)
-  protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
+  protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData)
+    throws IOException {
     if (!headerRead) {
       byte[] headerBytes = Arrays.copyOf(packet.getData(), packet.limit());
       int channelCount = OpusUtil.getChannelCount(headerBytes);
@@ -69,13 +76,41 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
               .setSampleRate(OpusUtil.SAMPLE_RATE)
               .setInitializationData(initializationData)
               .build();
+
       headerRead = true;
       return true;
     } else {
       checkNotNull(setupData.format); // Has been set when the header was read.
-      boolean headerPacket = packet.readInt() == OPUS_CODE;
-      packet.setPosition(0);
-      return headerPacket;
+
+      // Handle the comments frame if we are working with one.
+      boolean isComment;
+
+      if (packet.bytesLeft() < OPUS_TAG_SIGNATURE.length) {
+        isComment = false;
+      } else {
+        byte[] header = new byte[OPUS_TAG_SIGNATURE.length];
+        packet.readBytes(header, 0, OPUS_TAG_SIGNATURE.length);
+        isComment = Arrays.equals(header, OPUS_TAG_SIGNATURE);
+      }
+
+      if (isComment) {
+        VorbisUtil.CommentHeader commentHeader = VorbisUtil.readVorbisCommentHeader(
+            packet, false, false);
+
+        @Nullable Metadata vorbisMetadata = VorbisUtil.buildMetadata(
+            Arrays.asList(commentHeader.comments)
+        );
+
+        setupData.format = setupData.format
+            .buildUpon()
+            .setMetadata(vorbisMetadata)
+            .build();
+
+        return true;
+      } else {
+        packet.setPosition(0);
+        return false;
+      }
     }
   }
 

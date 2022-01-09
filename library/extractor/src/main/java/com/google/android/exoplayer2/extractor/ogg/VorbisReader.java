@@ -114,8 +114,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     codecInitializationData.add(vorbisSetup.setupHeaderData);
 
     @Nullable Metadata vorbisMetadata = VorbisUtil.buildMetadata(
-        Arrays.asList(vorbisSetup.commentHeader.comments)
-    );
+        Arrays.asList(vorbisSetup.commentHeader.comments));
 
     setupData.format =
         new Format.Builder()
