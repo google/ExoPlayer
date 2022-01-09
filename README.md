@@ -7,10 +7,6 @@ supported by Android’s MediaPlayer API, including DASH and SmoothStreaming
 adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to customize
 and extend, and can be updated through Play Store application updates.
 
-This fork implements metadata parsing for OGG files. It contains a bit of a breaking
-change, as I renamed the `metadata.flac` module to `metadata.xiph` to reflect it's
-new nature.
-
 ## Documentation
 
 * The [developer guide][] provides a wealth of information.

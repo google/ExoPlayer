@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.metadata.xiph;
+package com.google.android.exoplayer2.metadata.flac;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 import java.util.Arrays;
 
-/** A picture parsed from a FLAC file. */
+/** @deprecated Use {@link com.google.android.exoplayer2.metadata.vorbis.PictureFrame} instead. */
+@Deprecated
 public final class PictureFrame implements Metadata.Entry {
 
   /** The type of the picture. */
@@ -134,8 +134,8 @@ public final class PictureFrame implements Metadata.Entry {
     return 0;
   }
 
-  public static final Parcelable.Creator<PictureFrame> CREATOR =
-      new Parcelable.Creator<PictureFrame>() {
+  public static final Creator<PictureFrame> CREATOR =
+      new Creator<PictureFrame>() {
 
         @Override
         public PictureFrame createFromParcel(Parcel in) {

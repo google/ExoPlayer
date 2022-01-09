@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.VorbisUtil.CommentHeader;
 import com.google.android.exoplayer2.extractor.flac.FlacConstants;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.xiph.PictureFrame;
+import com.google.android.exoplayer2.metadata.vorbis.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
