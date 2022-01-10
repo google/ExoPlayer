@@ -178,9 +178,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Render.
     GLES20.glDrawArrays(meshData.drawMode, /* first= */ 0, meshData.vertexCount);
     checkGlError();
-
-    GLES20.glDisableVertexAttribArray(positionHandle);
-    GLES20.glDisableVertexAttribArray(texCoordsHandle);
   }
 
   /** Cleans up GL resources. */
