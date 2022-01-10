@@ -48,7 +48,7 @@ import java.util.List;
   // Int for defining the UX state where the views are being animated to be shown.
   private static final int UX_STATE_ANIMATING_SHOW = 4;
 
-  private final StyledPlayerControlView styledPlayerControlView;
+  private final StyledPlayerControlView playerControlView;
 
   @Nullable private final View controlsBackground;
   @Nullable private final ViewGroup centerControls;
@@ -84,8 +84,8 @@ import java.util.List;
   private boolean animationEnabled;
 
   @SuppressWarnings({"nullness:method.invocation", "nullness:methodref.receiver.bound"})
-  public StyledPlayerControlViewLayoutManager(StyledPlayerControlView styledPlayerControlView) {
-    this.styledPlayerControlView = styledPlayerControlView;
+  public StyledPlayerControlViewLayoutManager(StyledPlayerControlView playerControlView) {
+    this.playerControlView = playerControlView;
     showAllBarsRunnable = this::showAllBars;
     hideAllBarsRunnable = this::hideAllBars;
     hideProgressBarRunnable = this::hideProgressBar;
@@ -97,26 +97,25 @@ import java.util.List;
     shownButtons = new ArrayList<>();
 
     // Relating to Center View
-    controlsBackground = styledPlayerControlView.findViewById(R.id.exo_controls_background);
-    centerControls = styledPlayerControlView.findViewById(R.id.exo_center_controls);
+    controlsBackground = playerControlView.findViewById(R.id.exo_controls_background);
+    centerControls = playerControlView.findViewById(R.id.exo_center_controls);
 
     // Relating to Minimal Layout
-    minimalControls = styledPlayerControlView.findViewById(R.id.exo_minimal_controls);
+    minimalControls = playerControlView.findViewById(R.id.exo_minimal_controls);
 
     // Relating to Bottom Bar View
-    bottomBar = styledPlayerControlView.findViewById(R.id.exo_bottom_bar);
+    bottomBar = playerControlView.findViewById(R.id.exo_bottom_bar);
 
     // Relating to Bottom Bar Left View
-    timeView = styledPlayerControlView.findViewById(R.id.exo_time);
-    timeBar = styledPlayerControlView.findViewById(R.id.exo_progress);
+    timeView = playerControlView.findViewById(R.id.exo_time);
+    timeBar = playerControlView.findViewById(R.id.exo_progress);
 
     // Relating to Bottom Bar Right View
-    basicControls = styledPlayerControlView.findViewById(R.id.exo_basic_controls);
-    extraControls = styledPlayerControlView.findViewById(R.id.exo_extra_controls);
-    extraControlsScrollView =
-        styledPlayerControlView.findViewById(R.id.exo_extra_controls_scroll_view);
-    overflowShowButton = styledPlayerControlView.findViewById(R.id.exo_overflow_show);
-    View overflowHideButton = styledPlayerControlView.findViewById(R.id.exo_overflow_hide);
+    basicControls = playerControlView.findViewById(R.id.exo_basic_controls);
+    extraControls = playerControlView.findViewById(R.id.exo_extra_controls);
+    extraControlsScrollView = playerControlView.findViewById(R.id.exo_extra_controls_scroll_view);
+    overflowShowButton = playerControlView.findViewById(R.id.exo_overflow_show);
+    View overflowHideButton = playerControlView.findViewById(R.id.exo_overflow_hide);
     if (overflowShowButton != null && overflowHideButton != null) {
       overflowShowButton.setOnClickListener(this::onOverflowButtonClick);
       overflowHideButton.setOnClickListener(this::onOverflowButtonClick);
@@ -194,7 +193,7 @@ import java.util.List;
           }
         });
 
-    Resources resources = styledPlayerControlView.getResources();
+    Resources resources = playerControlView.getResources();
     float translationYForProgressBar =
         resources.getDimension(R.dimen.exo_styled_bottom_bar_height)
             - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
@@ -213,7 +212,7 @@ import java.util.List;
           public void onAnimationEnd(Animator animation) {
             setUxState(UX_STATE_ONLY_PROGRESS_VISIBLE);
             if (needToShowBars) {
-              styledPlayerControlView.post(showAllBarsRunnable);
+              playerControlView.post(showAllBarsRunnable);
               needToShowBars = false;
             }
           }
@@ -236,7 +235,7 @@ import java.util.List;
           public void onAnimationEnd(Animator animation) {
             setUxState(UX_STATE_NONE_VISIBLE);
             if (needToShowBars) {
-              styledPlayerControlView.post(showAllBarsRunnable);
+              playerControlView.post(showAllBarsRunnable);
               needToShowBars = false;
             }
           }
@@ -258,7 +257,7 @@ import java.util.List;
           public void onAnimationEnd(Animator animation) {
             setUxState(UX_STATE_NONE_VISIBLE);
             if (needToShowBars) {
-              styledPlayerControlView.post(showAllBarsRunnable);
+              playerControlView.post(showAllBarsRunnable);
               needToShowBars = false;
             }
           }
@@ -352,10 +351,10 @@ import java.util.List;
   }
 
   public void show() {
-    if (!styledPlayerControlView.isVisible()) {
-      styledPlayerControlView.setVisibility(View.VISIBLE);
-      styledPlayerControlView.updateAll();
-      styledPlayerControlView.requestPlayPauseFocus();
+    if (!playerControlView.isVisible()) {
+      playerControlView.setVisibility(View.VISIBLE);
+      playerControlView.updateAll();
+      playerControlView.requestPlayPauseFocus();
     }
     showAllBars();
   }
@@ -395,7 +394,7 @@ import java.util.List;
       return;
     }
     removeHideCallbacks();
-    int showTimeoutMs = styledPlayerControlView.getShowTimeoutMs();
+    int showTimeoutMs = playerControlView.getShowTimeoutMs();
     if (showTimeoutMs > 0) {
       if (!animationEnabled) {
         postDelayedRunnable(hideControllerRunnable, showTimeoutMs);
@@ -408,22 +407,22 @@ import java.util.List;
   }
 
   public void removeHideCallbacks() {
-    styledPlayerControlView.removeCallbacks(hideControllerRunnable);
-    styledPlayerControlView.removeCallbacks(hideAllBarsRunnable);
-    styledPlayerControlView.removeCallbacks(hideMainBarRunnable);
-    styledPlayerControlView.removeCallbacks(hideProgressBarRunnable);
+    playerControlView.removeCallbacks(hideControllerRunnable);
+    playerControlView.removeCallbacks(hideAllBarsRunnable);
+    playerControlView.removeCallbacks(hideMainBarRunnable);
+    playerControlView.removeCallbacks(hideProgressBarRunnable);
   }
 
   public void onAttachedToWindow() {
-    styledPlayerControlView.addOnLayoutChangeListener(onLayoutChangeListener);
+    playerControlView.addOnLayoutChangeListener(onLayoutChangeListener);
   }
 
   public void onDetachedFromWindow() {
-    styledPlayerControlView.removeOnLayoutChangeListener(onLayoutChangeListener);
+    playerControlView.removeOnLayoutChangeListener(onLayoutChangeListener);
   }
 
   public boolean isFullyVisible() {
-    return uxState == UX_STATE_ALL_VISIBLE && styledPlayerControlView.isVisible();
+    return uxState == UX_STATE_ALL_VISIBLE && playerControlView.isVisible();
   }
 
   public void setShowButton(@Nullable View button, boolean showButton) {
@@ -451,14 +450,14 @@ import java.util.List;
     int prevUxState = this.uxState;
     this.uxState = uxState;
     if (uxState == UX_STATE_NONE_VISIBLE) {
-      styledPlayerControlView.setVisibility(View.GONE);
+      playerControlView.setVisibility(View.GONE);
     } else if (prevUxState == UX_STATE_NONE_VISIBLE) {
-      styledPlayerControlView.setVisibility(View.VISIBLE);
+      playerControlView.setVisibility(View.VISIBLE);
     }
     // TODO(insun): Notify specific uxState. Currently reuses legacy visibility listener for API
     //  compatibility.
     if (prevUxState != uxState) {
-      styledPlayerControlView.notifyOnVisibilityChange();
+      playerControlView.notifyOnVisibilityChange();
     }
   }
 
@@ -550,7 +549,7 @@ import java.util.List;
 
   private void postDelayedRunnable(Runnable runnable, long interval) {
     if (interval >= 0) {
-      styledPlayerControlView.postDelayed(runnable, interval);
+      playerControlView.postDelayed(runnable, interval);
     }
   }
 
@@ -571,13 +570,13 @@ import java.util.List;
 
   private boolean useMinimalMode() {
     int width =
-        styledPlayerControlView.getWidth()
-            - styledPlayerControlView.getPaddingLeft()
-            - styledPlayerControlView.getPaddingRight();
+        playerControlView.getWidth()
+            - playerControlView.getPaddingLeft()
+            - playerControlView.getPaddingRight();
     int height =
-        styledPlayerControlView.getHeight()
-            - styledPlayerControlView.getPaddingBottom()
-            - styledPlayerControlView.getPaddingTop();
+        playerControlView.getHeight()
+            - playerControlView.getPaddingBottom()
+            - playerControlView.getPaddingTop();
 
     int centerControlWidth =
         getWidthWithMargins(centerControls)
@@ -607,7 +606,7 @@ import java.util.List;
     if (timeBar != null) {
       MarginLayoutParams timeBarParams = (MarginLayoutParams) timeBar.getLayoutParams();
       int timeBarMarginBottom =
-          styledPlayerControlView
+          playerControlView
               .getResources()
               .getDimensionPixelSize(R.dimen.exo_styled_progress_margin_bottom);
       timeBarParams.bottomMargin = (isMinimalMode ? 0 : timeBarMarginBottom);
@@ -646,9 +645,9 @@ import java.util.List;
     }
 
     int width =
-        styledPlayerControlView.getWidth()
-            - styledPlayerControlView.getPaddingLeft()
-            - styledPlayerControlView.getPaddingRight();
+        playerControlView.getWidth()
+            - playerControlView.getPaddingLeft()
+            - playerControlView.getPaddingRight();
 
     // Reset back to all controls being basic controls and the overflow not being needed. The last
     // child of extraControls is the overflow hide button, which shouldn't be moved back.
