@@ -302,8 +302,9 @@ public final class VorbisUtil {
         Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
       } else {
         if (keyAndValue[0].equals("METADATA_BLOCK_PICTURE")) {
-          // This tag is a special cover art tag. Decode it from Base64 and make it a
-          // PictureFrame.
+          // This tag is a special cover art tag, outlined by
+          // https://wiki.xiph.org/index.php/VorbisComment#Cover_art.
+          // Decode it from Base64 and transform it into a PictureFrame.
           try {
             byte[] decoded = Base64.decode(keyAndValue[1], Base64.DEFAULT);
             metadataEntries.add(buildPictureFrame(new ParsableByteArray(decoded)));
@@ -324,22 +325,22 @@ public final class VorbisUtil {
   /**
    * Transforms a picture metadata block into a picture frame.
    *
-   * @param input The bytes of the picture.
-   * @return A picture frame from the input data.
+   * @param scratch The bytes of the picture.
+   * @return A picture frame from the scratch data.
    */
-  static PictureFrame buildPictureFrame(ParsableByteArray input) {
-    int pictureType = input.readInt();
-    int mimeTypeLength = input.readInt();
-    String mimeType = input.readString(mimeTypeLength, Charsets.US_ASCII);
-    int descriptionLength = input.readInt();
-    String description = input.readString(descriptionLength);
-    int width = input.readInt();
-    int height = input.readInt();
-    int depth = input.readInt();
-    int colors = input.readInt();
-    int pictureDataLength = input.readInt();
+  static PictureFrame buildPictureFrame(ParsableByteArray scratch) {
+    int pictureType = scratch.readInt();
+    int mimeTypeLength = scratch.readInt();
+    String mimeType = scratch.readString(mimeTypeLength, Charsets.US_ASCII);
+    int descriptionLength = scratch.readInt();
+    String description = scratch.readString(descriptionLength);
+    int width = scratch.readInt();
+    int height = scratch.readInt();
+    int depth = scratch.readInt();
+    int colors = scratch.readInt();
+    int pictureDataLength = scratch.readInt();
     byte[] pictureData = new byte[pictureDataLength];
-    input.readBytes(pictureData, 0, pictureDataLength);
+    scratch.readBytes(pictureData, 0, pictureDataLength);
 
     return new PictureFrame(
         pictureType, mimeType, description, width, height, depth, colors, pictureData);
