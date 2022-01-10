@@ -1167,16 +1167,30 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that the default track selector will select a forced text track matching the selected
-   * audio language when no text language preferences match.
+   * Tests that the default track selector will select:
+   *
+   * <ul>
+   *   <li>A forced text track with unknown language if the selected audio language is also unknown.
+   *   <li>A forced text track matching the selected audio language.
+   *   <li>A default text track matching the selected audio language when a default text track in
+   *       another language is present.
+   *   <li>A default text track that doesn't match the selected audio language when a default text
+   *       track in the selected audio language is not present (but other text tracks in this
+   *       language are present).
+   * </ul>
    */
   @Test
-  public void selectingForcedTextTrackMatchesAudioLanguage() throws ExoPlaybackException {
-    Format.Builder formatBuilder =
+  public void forcedAndDefaultTextTracksInteractWithSelectedAudioLanguageAsExpected()
+      throws ExoPlaybackException {
+    Format.Builder forcedTextBuilder =
         TEXT_FORMAT.buildUpon().setSelectionFlags(C.SELECTION_FLAG_FORCED);
-    Format forcedEnglish = formatBuilder.setLanguage("eng").build();
-    Format forcedGerman = formatBuilder.setLanguage("deu").build();
-    Format forcedNoLanguage = formatBuilder.setLanguage(C.LANGUAGE_UNDETERMINED).build();
+    Format.Builder defaultTextBuilder =
+        TEXT_FORMAT.buildUpon().setSelectionFlags(C.SELECTION_FLAG_DEFAULT);
+    Format forcedEnglish = forcedTextBuilder.setLanguage("eng").build();
+    Format defaultEnglish = defaultTextBuilder.setLanguage("eng").build();
+    Format forcedGerman = forcedTextBuilder.setLanguage("deu").build();
+    Format defaultGerman = defaultTextBuilder.setLanguage("deu").build();
+    Format forcedNoLanguage = forcedTextBuilder.setLanguage(C.LANGUAGE_UNDETERMINED).build();
 
     Format noLanguageAudio = AUDIO_FORMAT.buildUpon().setLanguage(null).build();
     Format germanAudio = AUDIO_FORMAT.buildUpon().setLanguage("deu").build();
@@ -1209,6 +1223,19 @@ public final class DefaultTrackSelectorTest {
     trackGroups = wrapFormats(germanAudio, forcedEnglish, forcedGerman);
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections[1], trackGroups, forcedGerman);
+
+    // The audio declares german. The default german track should be selected (in favour of the
+    // default english track and forced german track).
+    trackGroups =
+        wrapFormats(germanAudio, forcedGerman, defaultGerman, forcedEnglish, defaultEnglish);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[1], trackGroups, defaultGerman);
+
+    // The audio declares german. The default english track should be selected because there's no
+    // default german track.
+    trackGroups = wrapFormats(germanAudio, forcedGerman, forcedEnglish, defaultEnglish);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[1], trackGroups, defaultEnglish);
   }
 
   /**
