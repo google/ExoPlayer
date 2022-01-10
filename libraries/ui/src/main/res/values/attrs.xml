@@ -105,7 +105,7 @@
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
     <attr name="resize_mode"/>
-    <!-- LegacyPlayerControlView attributes -->
+    <!-- StyledPlayerControlView attributes -->
     <attr name="show_timeout"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_shuffle_button"/>

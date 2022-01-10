@@ -112,7 +112,7 @@ gets from the libgav1 decoder:
         `VideoDecoderOutputBufferRenderer` as its object.
         `VideoDecoderGLSurfaceView` is the concrete
         `VideoDecoderOutputBufferRenderer` implementation used by
-        `(Styled)PlayerView`.
+        `StyledPlayerView` and `LegacyPlayerView`.
 
 *   Native rendering using `ANativeWindow`
 
