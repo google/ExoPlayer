@@ -101,6 +101,13 @@
         `MediaItem.Builder#setStreamKeys` instead.
     *   Remove `MediaSourceFactory#createMediaSource(Uri)`. Use
         `MediaSourceFactory#createMediaSource(MediaItem)` instead.
+    *   Remove `setTag` from `DashMediaSource`, `HlsMediaSource` and
+        `SsMediaSource`. Use `MediaItem.Builder#setTag` instead.
+    *   Remove `DashMediaSource#setLivePresentationDelayMs(long, boolean)`. Use
+        `MediaItem.Builder#setLiveConfiguration` and
+        `MediaItem.LiveConfiguration.Builder#setTargetOffsetMs` to override the
+        manifest, or `DashMediaSource#setFallbackTargetLiveOffsetMs` to provide
+        a fallback value.
 
 ### 2.16.1 (2021-11-18)
 

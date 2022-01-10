@@ -99,40 +99,6 @@ public final class DashMediaSourceTest {
     }
   }
 
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nullMediaItemTag_setsMediaItemTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(tag);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nonNullMediaItemTag_doesNotOverrideMediaItemTag() {
-    Object factoryTag = new Object();
-    Object mediaItemTag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(mediaItemTag).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(factoryTag);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
-
   @Test
   public void replaceManifestUri_doesNotChangeMediaItem() {
     DashMediaSource.Factory factory = new DashMediaSource.Factory(new FileDataSource.Factory());
@@ -159,47 +125,6 @@ public final class DashMediaSourceTest {
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
     assertThat(dashMediaItem.liveConfiguration.targetOffsetMs).isEqualTo(2L);
-  }
-
-  @Test
-  public void factorySetLivePresentationDelayMs_withMediaLiveTargetOffset_usesMediaOffset() {
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri(Uri.EMPTY)
-            .setLiveConfiguration(
-                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2L).build())
-            .build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setLivePresentationDelayMs(1234L, /* overridesManifest= */ true);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.liveConfiguration.targetOffsetMs).isEqualTo(2L);
-  }
-
-  @Test
-  public void factorySetLivePresentationDelayMs_overridingManifest_mixedIntoMediaItem() {
-    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setLivePresentationDelayMs(2000L, /* overridesManifest= */ true);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.liveConfiguration.targetOffsetMs).isEqualTo(2000L);
-  }
-
-  @Test
-  public void factorySetLivePresentationDelayMs_notOverridingManifest_unsetInMediaItem() {
-    MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.EMPTY).build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setLivePresentationDelayMs(2000L, /* overridesManifest= */ false);
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.liveConfiguration.targetOffsetMs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test

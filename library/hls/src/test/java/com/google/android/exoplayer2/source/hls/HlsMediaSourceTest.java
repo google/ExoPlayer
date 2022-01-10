@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -31,7 +30,6 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -45,40 +43,6 @@ import org.junit.runner.RunWith;
 /** Unit test for {@link HlsMediaSource}. */
 @RunWith(AndroidJUnit4.class)
 public class HlsMediaSourceTest {
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nullMediaItemTag_setsMediaItemTag() {
-    Object tag = new Object();
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(tag);
-
-    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(hlsMediaItem.localConfiguration).isNotNull();
-    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(tag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetTag_nonNullMediaItemTag_doesNotOverrideMediaItemTag() {
-    Object factoryTag = new Object();
-    Object mediaItemTag = new Object();
-    MediaItem mediaItem =
-        new MediaItem.Builder().setUri("http://www.google.com").setTag(mediaItemTag).build();
-    HlsMediaSource.Factory factory =
-        new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(factoryTag);
-
-    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(hlsMediaItem.localConfiguration).isNotNull();
-    assertThat(hlsMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(hlsMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
 
   @Test
   public void loadLivePlaylist_noTargetLiveOffsetDefined_fallbackToThreeTargetDuration()

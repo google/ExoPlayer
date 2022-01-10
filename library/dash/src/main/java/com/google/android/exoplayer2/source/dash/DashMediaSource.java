@@ -106,10 +106,8 @@ public final class DashMediaSource extends BaseMediaSource {
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-    private long targetLiveOffsetOverrideMs;
     private long fallbackTargetLiveOffsetMs;
     @Nullable private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
-    @Nullable private Object tag;
 
     /**
      * Creates a new factory for {@link DashMediaSource}s.
@@ -137,19 +135,8 @@ public final class DashMediaSource extends BaseMediaSource {
       this.manifestDataSourceFactory = manifestDataSourceFactory;
       drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
-      targetLiveOffsetOverrideMs = C.TIME_UNSET;
       fallbackTargetLiveOffsetMs = DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setTag(@Nullable Object tag) {
-      this.tag = tag;
-      return this;
     }
 
     @Override
@@ -175,21 +162,6 @@ public final class DashMediaSource extends BaseMediaSource {
           loadErrorHandlingPolicy != null
               ? loadErrorHandlingPolicy
               : new DefaultLoadErrorHandlingPolicy();
-      return this;
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setLiveConfiguration(MediaItem.LiveConfiguration)}
-     *     and {@link MediaItem.LiveConfiguration.Builder#setTargetOffsetMs(long)} to override the
-     *     manifest, or {@link #setFallbackTargetLiveOffsetMs(long)} to provide a fallback value.
-     */
-    @Deprecated
-    public Factory setLivePresentationDelayMs(
-        long livePresentationDelayMs, boolean overridesManifest) {
-      targetLiveOffsetOverrideMs = overridesManifest ? livePresentationDelayMs : C.TIME_UNSET;
-      if (!overridesManifest) {
-        setFallbackTargetLiveOffsetMs(livePresentationDelayMs);
-      }
       return this;
     }
 
@@ -253,7 +225,6 @@ public final class DashMediaSource extends BaseMediaSource {
               .setUri(Uri.EMPTY)
               .setMediaId(DEFAULT_MEDIA_ID)
               .setMimeType(MimeTypes.APPLICATION_MPD)
-              .setTag(tag)
               .build());
     }
 
@@ -272,17 +243,6 @@ public final class DashMediaSource extends BaseMediaSource {
           mediaItem.buildUpon().setMimeType(MimeTypes.APPLICATION_MPD);
       if (mediaItem.localConfiguration == null) {
         mediaItemBuilder.setUri(Uri.EMPTY);
-      }
-      if (mediaItem.localConfiguration == null || mediaItem.localConfiguration.tag == null) {
-        mediaItemBuilder.setTag(tag);
-      }
-      if (mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET) {
-        mediaItemBuilder.setLiveConfiguration(
-            mediaItem
-                .liveConfiguration
-                .buildUpon()
-                .setTargetOffsetMs(targetLiveOffsetOverrideMs)
-                .build());
       }
       mediaItem = mediaItemBuilder.build();
       return new DashMediaSource(
@@ -316,25 +276,6 @@ public final class DashMediaSource extends BaseMediaSource {
         manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
 
-      boolean needsTag = mediaItem.localConfiguration.tag == null && tag != null;
-      boolean needsTargetLiveOffset =
-          mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
-              && targetLiveOffsetOverrideMs != C.TIME_UNSET;
-      if (needsTag || needsTargetLiveOffset) {
-        MediaItem.Builder builder = mediaItem.buildUpon();
-        if (needsTag) {
-          builder.setTag(tag);
-        }
-        if (needsTargetLiveOffset) {
-          builder.setLiveConfiguration(
-              mediaItem
-                  .liveConfiguration
-                  .buildUpon()
-                  .setTargetOffsetMs(targetLiveOffsetOverrideMs)
-                  .build());
-        }
-        mediaItem = builder.build();
-      }
       return new DashMediaSource(
           mediaItem,
           /* manifest= */ null,

@@ -87,7 +87,6 @@ public final class SsMediaSource extends BaseMediaSource
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
     @Nullable private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
-    @Nullable private Object tag;
 
     /**
      * Creates a new factory for {@link SsMediaSource}s.
@@ -117,16 +116,6 @@ public final class SsMediaSource extends BaseMediaSource
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setTag(@Nullable Object tag) {
-      this.tag = tag;
-      return this;
     }
 
     /**
@@ -231,13 +220,11 @@ public final class SsMediaSource extends BaseMediaSource
         manifest = manifest.copy(streamKeys);
       }
       boolean hasUri = mediaItem.localConfiguration != null;
-      boolean hasTag = hasUri && mediaItem.localConfiguration.tag != null;
       mediaItem =
           mediaItem
               .buildUpon()
               .setMimeType(MimeTypes.APPLICATION_SS)
               .setUri(hasUri ? mediaItem.localConfiguration.uri : Uri.EMPTY)
-              .setTag(hasTag ? mediaItem.localConfiguration.tag : tag)
               .build();
       return new SsMediaSource(
           mediaItem,
@@ -270,9 +257,6 @@ public final class SsMediaSource extends BaseMediaSource
         manifestParser = new FilteringManifestParser<>(manifestParser, streamKeys);
       }
 
-      if (mediaItem.localConfiguration.tag == null && tag != null) {
-        mediaItem = mediaItem.buildUpon().setTag(tag).build();
-      }
       return new SsMediaSource(
           mediaItem,
           /* manifest= */ null,
