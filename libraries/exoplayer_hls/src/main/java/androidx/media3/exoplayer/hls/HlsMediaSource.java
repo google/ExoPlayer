@@ -108,7 +108,6 @@ public final class HlsMediaSource extends BaseMediaSource
     private boolean allowChunklessPreparation;
     private @MetadataType int metadataType;
     private boolean useSessionKeys;
-    @Nullable private Object tag;
     private long elapsedRealTimeOffsetMs;
 
     /**
@@ -139,16 +138,6 @@ public final class HlsMediaSource extends BaseMediaSource
       metadataType = METADATA_TYPE_ID3;
       elapsedRealTimeOffsetMs = C.TIME_UNSET;
       allowChunklessPreparation = true;
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setTag(@Nullable Object tag) {
-      this.tag = tag;
-      return this;
     }
 
     /**
@@ -324,9 +313,6 @@ public final class HlsMediaSource extends BaseMediaSource
             new FilteringHlsPlaylistParserFactory(playlistParserFactory, streamKeys);
       }
 
-      if (mediaItem.localConfiguration.tag == null && tag != null) {
-        mediaItem = mediaItem.buildUpon().setTag(tag).build();
-      }
       return new HlsMediaSource(
           mediaItem,
           hlsDataSourceFactory,
