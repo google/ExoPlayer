@@ -20,6 +20,7 @@ import static java.lang.Math.min;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.DataReader;
+import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoInfo;
@@ -79,6 +80,7 @@ import java.util.Arrays;
    *     discarded, or 0 if the queue is now empty.
    */
   public void discardUpstreamSampleBytes(long totalBytesWritten) {
+    Assertions.checkArgument(totalBytesWritten <= this.totalBytesWritten);
     this.totalBytesWritten = totalBytesWritten;
     if (this.totalBytesWritten == 0
         || this.totalBytesWritten == firstAllocationNode.startPosition) {
@@ -92,8 +94,8 @@ import java.util.Arrays;
       while (this.totalBytesWritten > lastNodeToKeep.endPosition) {
         lastNodeToKeep = lastNodeToKeep.next;
       }
-      // Discard all subsequent nodes.
-      AllocationNode firstNodeToDiscard = lastNodeToKeep.next;
+      // Discard all subsequent nodes. lastNodeToKeep is initialized, therefore next cannot be null.
+      AllocationNode firstNodeToDiscard = Assertions.checkNotNull(lastNodeToKeep.next);
       clearAllocationNodes(firstNodeToDiscard);
       // Reset the successor of the last node to be an uninitialized node.
       lastNodeToKeep.next = new AllocationNode(lastNodeToKeep.endPosition, allocationLength);
@@ -213,17 +215,8 @@ import java.util.Arrays;
     // Bulk release allocations for performance (it's significantly faster when using
     // DefaultAllocator because the allocator's lock only needs to be acquired and released once)
     // [Internal: See b/29542039].
-    int allocationCount =
-        (writeAllocationNode.allocation != null ? 1 : 0)
-            + ((int) (writeAllocationNode.startPosition - fromNode.startPosition)
-                / allocationLength);
-    Allocation[] allocationsToRelease = new Allocation[allocationCount];
-    AllocationNode currentNode = fromNode;
-    for (int i = 0; i < allocationsToRelease.length; i++) {
-      allocationsToRelease[i] = currentNode.allocation;
-      currentNode = currentNode.clear();
-    }
-    allocator.release(allocationsToRelease);
+    allocator.release(fromNode);
+    fromNode.clear();
   }
 
   /**
@@ -466,7 +459,7 @@ import java.util.Arrays;
   }
 
   /** A node in a linked list of {@link Allocation}s held by the output. */
-  private static final class AllocationNode {
+  private static final class AllocationNode implements Allocator.AllocationNode {
 
     /** The absolute position of the start of the data (inclusive). */
     public final long startPosition;
@@ -524,6 +517,23 @@ import java.util.Arrays;
       AllocationNode temp = next;
       next = null;
       return temp;
+    }
+
+    // AllocationChainNode implementation.
+
+    @Override
+    public Allocation getAllocation() {
+      return Assertions.checkNotNull(allocation);
+    }
+
+    @Override
+    @Nullable
+    public Allocator.AllocationNode next() {
+      if (next == null || next.allocation == null) {
+        return null;
+      } else {
+        return next;
+      }
     }
   }
 }

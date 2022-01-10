@@ -131,6 +131,17 @@ public final class DefaultAllocator implements Allocator {
   }
 
   @Override
+  public synchronized void release(@Nullable AllocationNode allocationNode) {
+    while (allocationNode != null) {
+      availableAllocations[availableCount++] = allocationNode.getAllocation();
+      allocatedCount--;
+      allocationNode = allocationNode.next();
+    }
+    // Wake up threads waiting for the allocated size to drop.
+    notifyAll();
+  }
+
+  @Override
   public synchronized void trim() {
     int targetAllocationCount = Util.ceilDivide(targetBufferSize, individualAllocationSize);
     int targetAvailableCount = max(0, targetAllocationCount - allocatedCount);

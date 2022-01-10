@@ -15,11 +15,23 @@
  */
 package androidx.media3.exoplayer.upstream;
 
+import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
 
 /** A source of allocations. */
 @UnstableApi
 public interface Allocator {
+
+  /** A node in a chain of {@link Allocation Allocations}. */
+  interface AllocationNode {
+
+    /** Returns the {@link Allocation} associated to this chain node. */
+    Allocation getAllocation();
+
+    /** Returns the next chain node, or {@code null} if this is the last node in the chain. */
+    @Nullable
+    AllocationNode next();
+  }
 
   /**
    * Obtain an {@link Allocation}.
@@ -39,15 +51,23 @@ public interface Allocator {
   void release(Allocation allocation);
 
   /**
-   * Releases an array of {@link Allocation}s back to the allocator.
+   * Releases an array of {@link Allocation Allocations} back to the allocator.
    *
    * @param allocations The array of {@link Allocation}s being released.
    */
   void release(Allocation[] allocations);
 
   /**
+   * Releases all {@link Allocation Allocations} in the chain starting at the given {@link
+   * AllocationNode}.
+   *
+   * <p>Implementations must not make memory allocations.
+   */
+  void release(AllocationNode allocationNode);
+
+  /**
    * Hints to the allocator that it should make a best effort to release any excess {@link
-   * Allocation}s.
+   * Allocation Allocations}.
    */
   void trim();
 
