@@ -69,7 +69,7 @@ public final class TransformerTestRunner {
   private static TransformationException runUntilListenerCalled(Transformer transformer)
       throws TimeoutException {
     TransformationResult transformationResult = new TransformationResult();
-    Transformer.Listener listener =
+    transformer.addListener(
         new Transformer.Listener() {
           @Override
           public void onTransformationCompleted(MediaItem inputMediaItem) {
@@ -81,8 +81,7 @@ public final class TransformerTestRunner {
               MediaItem inputMediaItem, TransformationException exception) {
             transformationResult.exception = exception;
           }
-        };
-    transformer.setListener(listener);
+        });
     runLooperUntil(
         transformer.getApplicationLooper(),
         () -> transformationResult.isCompleted || transformationResult.exception != null);

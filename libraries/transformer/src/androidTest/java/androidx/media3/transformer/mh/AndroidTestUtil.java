@@ -72,7 +72,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     Transformer testTransformer =
         transformer
             .buildUpon()
-            .setListener(
+            .addListener(
                 new Transformer.Listener() {
                   @Override
                   public void onTransformationCompleted(MediaItem inputMediaItem) {
