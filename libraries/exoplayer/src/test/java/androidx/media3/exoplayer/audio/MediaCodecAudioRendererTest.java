@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.audio;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.format;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -37,6 +38,8 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.exoplayer.ExoPlaybackException;
+import androidx.media3.exoplayer.RendererCapabilities;
+import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
@@ -84,8 +87,14 @@ public class MediaCodecAudioRendererTest {
     // audioSink isEnded can always be true because the MediaCodecAudioRenderer isEnded =
     // super.isEnded && audioSink.isEnded.
     when(audioSink.isEnded()).thenReturn(true);
-
     when(audioSink.handleBuffer(any(), anyLong(), anyInt())).thenReturn(true);
+    when(audioSink.supportsFormat(any()))
+        .thenAnswer(
+            invocation -> {
+              Format format = invocation.getArgument(/* index= */ 0, Format.class);
+              return MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)
+                  && format.pcmEncoding == C.ENCODING_PCM_16BIT;
+            });
 
     mediaCodecSelector =
         (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) ->
@@ -313,6 +322,43 @@ public class MediaCodecAudioRendererTest {
 
     shadowOf(Looper.getMainLooper()).idle();
     verify(audioRendererEventListener).onAudioSinkError(error);
+  }
+
+  @Test
+  public void supportsFormat_withEac3JocMediaAndEac3Decoder_returnsTrue() throws Exception {
+    Format mediaFormat =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.AUDIO_E_AC3_JOC)
+            .setCodecs(MimeTypes.CODEC_E_AC3_JOC)
+            .build();
+    MediaCodecSelector mediaCodecSelector =
+        (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) ->
+            !mimeType.equals(MimeTypes.AUDIO_E_AC3)
+                ? ImmutableList.of()
+                : ImmutableList.of(
+                    MediaCodecInfo.newInstance(
+                        /* name= */ "eac3-codec",
+                        /* mimeType= */ mimeType,
+                        /* codecMimeType= */ mimeType,
+                        /* capabilities= */ null,
+                        /* hardwareAccelerated= */ false,
+                        /* softwareOnly= */ true,
+                        /* vendor= */ false,
+                        /* forceDisableAdaptive= */ false,
+                        /* forceSecure= */ false));
+    MediaCodecAudioRenderer renderer =
+        new MediaCodecAudioRenderer(
+            ApplicationProvider.getApplicationContext(),
+            mediaCodecSelector,
+            /* enableDecoderFallback= */ false,
+            /* eventHandler= */ new Handler(Looper.getMainLooper()),
+            audioRendererEventListener,
+            audioSink);
+    renderer.init(/* index= */ 0, PlayerId.UNSET);
+
+    @Capabilities int capabilities = renderer.supportsFormat(mediaFormat);
+
+    assertThat(RendererCapabilities.getFormatSupport(capabilities)).isEqualTo(C.FORMAT_HANDLED);
   }
 
   private static Format getAudioSinkFormat(Format inputFormat) {

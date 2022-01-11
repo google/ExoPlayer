@@ -36,6 +36,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -183,9 +184,9 @@ public final class MediaCodecUtil {
       }
     }
     applyWorkarounds(mimeType, decoderInfos);
-    List<MediaCodecInfo> unmodifiableDecoderInfos = Collections.unmodifiableList(decoderInfos);
-    decoderInfosCache.put(key, unmodifiableDecoderInfos);
-    return unmodifiableDecoderInfos;
+    ImmutableList<MediaCodecInfo> immutableDecoderInfos = ImmutableList.copyOf(decoderInfos);
+    decoderInfosCache.put(key, immutableDecoderInfos);
+    return immutableDecoderInfos;
   }
 
   /**
@@ -266,6 +267,41 @@ public final class MediaCodecUtil {
       default:
         return null;
     }
+  }
+
+  /**
+   * Returns an alternative codec MIME type (besides the default {@link Format#sampleMimeType}) that
+   * can be used to decode samples of the provided {@link Format}.
+   *
+   * @param format The media format.
+   * @return An alternative MIME type of a codec that be used decode samples of the provided {@code
+   *     Format} (besides the default {@link Format#sampleMimeType}), or null if no such alternative
+   *     exists.
+   */
+  @Nullable
+  public static String getAlternativeCodecMimeType(Format format) {
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType)) {
+      // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
+      return MimeTypes.AUDIO_E_AC3;
+    }
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      // H.264/AVC or H.265/HEVC decoders can decode the base layer of some DV profiles. This can't
+      // be done for profile CodecProfileLevel.DolbyVisionProfileDvheStn and profile
+      // CodecProfileLevel.DolbyVisionProfileDvheDtb because the first one is not backward
+      // compatible and the second one is deprecated and is not always backward compatible.
+      @Nullable
+      Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+      if (codecProfileAndLevel != null) {
+        int profile = codecProfileAndLevel.first;
+        if (profile == CodecProfileLevel.DolbyVisionProfileDvheDtr
+            || profile == CodecProfileLevel.DolbyVisionProfileDvheSt) {
+          return MimeTypes.VIDEO_H265;
+        } else if (profile == CodecProfileLevel.DolbyVisionProfileDvavSe) {
+          return MimeTypes.VIDEO_H264;
+        }
+      }
+    }
+    return null;
   }
 
   // Internal methods.
