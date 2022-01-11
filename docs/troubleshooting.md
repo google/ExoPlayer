@@ -6,7 +6,7 @@ redirect_from:
 ---
 
 * [Fixing "Cleartext HTTP traffic not permitted" errors][]
-* [Fixing "SSLHandshakeException" and "CertPathValidatorException" errors][]
+* [Fixing "SSLHandshakeException", "CertPathValidatorException" and "ERR_CERT_AUTHORITY_INVALID" errors][]
 * [Why are some media files not seekable?][]
 * [Why is seeking inaccurate in some MP3 files?][]
 * [Why do some MPEG-TS files fail to play?][]
@@ -43,11 +43,11 @@ The ExoPlayer demo app uses the default Network Security Configuration, and so
 does not allow cleartext HTTP traffic. You can enable it using the instructions
 above.
 
-#### Fixing "SSLHandshakeException" and "CertPathValidatorException" errors ####
+#### Fixing "SSLHandshakeException", "CertPathValidatorException" and "ERR_CERT_AUTHORITY_INVALID" errors ####
 
-`SSLHandshakeException` and `CertPathValidatorException` both indicate a problem
-with the server's SSL certificate. These errors are not ExoPlayer specific.
-Please see
+`SSLHandshakeException`, `CertPathValidatorException` and
+`ERR_CERT_AUTHORITY_INVALID` all indicate a problem with the server's SSL
+certificate. These errors are not ExoPlayer specific. Please see
 [Android's SSL documentation](https://developer.android.com/training/articles/security-ssl#CommonProblems)
 for more details.
 
@@ -294,7 +294,7 @@ Android Player API](https://developers.google.com/youtube/android/player/) which
 is the official way to play YouTube videos on Android.
 
 [Fixing "Cleartext HTTP traffic not permitted" errors]: #fixing-cleartext-http-traffic-not-permitted-errors
-[Fixing "SSLHandshakeException" and "CertPathValidatorException" errors]: #fixing-sslhandshakeexception-and-certpathvalidatorexception-errors
+[Fixing "SSLHandshakeException", "CertPathValidatorException" and "ERR_CERT_AUTHORITY_INVALID" errors]: #fixing-sslhandshakeexception-certpathvalidatorexception-and-err_cert_authority_invalid-errors
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
 [Why is seeking inaccurate in some MP3 files?]: #why-is-seeking-inaccurate-in-some-mp3-files
