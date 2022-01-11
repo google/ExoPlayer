@@ -29,18 +29,17 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
-import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A wrapper around {@link MediaCodecAdapter}.
+ * A wrapper around {@link MediaCodec}.
  *
- * <p>Provides a layer of abstraction for callers that need to interact with {@link MediaCodec}
- * through {@link MediaCodecAdapter}. This is done by simplifying the calls needed to queue and
- * dequeue buffers, removing the need to track buffer indices and codec events.
+ * <p>Provides a layer of abstraction for callers that need to interact with {@link MediaCodec}.
+ * This is done by simplifying the calls needed to queue and dequeue buffers, removing the need to
+ * track buffer indices and codec events.
  */
 @UnstableApi
 public final class Codec {
@@ -66,11 +65,12 @@ public final class Codec {
      *
      * @param format The {@link Format} (of the input data) used to determine the underlying {@link
      *     MediaCodec} and its configuration values.
-     * @param surface The {@link Surface} to which the decoder output is rendered.
+     * @param outputSurface The {@link Surface} to which the decoder output is rendered.
      * @return A configured and started decoder wrapper.
      * @throws TransformationException If the underlying codec cannot be created.
      */
-    Codec createForVideoDecoding(Format format, Surface surface) throws TransformationException;
+    Codec createForVideoDecoding(Format format, Surface outputSurface)
+        throws TransformationException;
   }
 
   /** A factory for {@link Codec encoder} instances. */
@@ -108,7 +108,8 @@ public final class Codec {
   private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
 
   private final BufferInfo outputBufferInfo;
-  private final MediaCodecAdapter mediaCodecAdapter;
+  private final MediaCodec mediaCodec;
+  @Nullable private final Surface inputSurface;
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
@@ -118,9 +119,10 @@ public final class Codec {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
 
-  /** Creates a {@code Codec} from a configured and started {@link MediaCodecAdapter}. */
-  public Codec(MediaCodecAdapter mediaCodecAdapter) {
-    this.mediaCodecAdapter = mediaCodecAdapter;
+  /** Creates a {@code Codec} from a configured and started {@link MediaCodec}. */
+  public Codec(MediaCodec mediaCodec, @Nullable Surface inputSurface) {
+    this.mediaCodec = mediaCodec;
+    this.inputSurface = inputSurface;
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
@@ -129,7 +131,7 @@ public final class Codec {
   /** Returns the input {@link Surface}, or null if the input is not a surface. */
   @Nullable
   public Surface getInputSurface() {
-    return mediaCodecAdapter.getInputSurface();
+    return inputSurface;
   }
 
   /**
@@ -144,11 +146,11 @@ public final class Codec {
       return false;
     }
     if (inputBufferIndex < 0) {
-      inputBufferIndex = mediaCodecAdapter.dequeueInputBufferIndex();
+      inputBufferIndex = mediaCodec.dequeueInputBuffer(/* timeoutUs= */ 0);
       if (inputBufferIndex < 0) {
         return false;
       }
-      inputBuffer.data = mediaCodecAdapter.getInputBuffer(inputBufferIndex);
+      inputBuffer.data = mediaCodec.getInputBuffer(inputBufferIndex);
       inputBuffer.clear();
     }
     checkNotNull(inputBuffer.data);
@@ -174,13 +176,13 @@ public final class Codec {
       inputStreamEnded = true;
       flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
     }
-    mediaCodecAdapter.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
+    mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
     inputBufferIndex = C.INDEX_UNSET;
     inputBuffer.data = null;
   }
 
   public void signalEndOfInputStream() {
-    mediaCodecAdapter.signalEndOfInputStream();
+    mediaCodec.signalEndOfInputStream();
   }
 
   /** Returns the current output format, if available. */
@@ -224,7 +226,7 @@ public final class Codec {
    */
   public void releaseOutputBuffer(boolean render) {
     outputBuffer = null;
-    mediaCodecAdapter.releaseOutputBuffer(outputBufferIndex, render);
+    mediaCodec.releaseOutputBuffer(outputBufferIndex, render);
     outputBufferIndex = C.INDEX_UNSET;
   }
 
@@ -236,7 +238,10 @@ public final class Codec {
   /** Releases the underlying codec. */
   public void release() {
     outputBuffer = null;
-    mediaCodecAdapter.release();
+    if (inputSurface != null) {
+      inputSurface.release();
+    }
+    mediaCodec.release();
   }
 
   /**
@@ -249,7 +254,7 @@ public final class Codec {
       return false;
     }
 
-    outputBuffer = checkNotNull(mediaCodecAdapter.getOutputBuffer(outputBufferIndex));
+    outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
     outputBuffer.position(outputBufferInfo.offset);
     outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
     return true;
@@ -267,10 +272,10 @@ public final class Codec {
       return false;
     }
 
-    outputBufferIndex = mediaCodecAdapter.dequeueOutputBufferIndex(outputBufferInfo);
+    outputBufferIndex = mediaCodec.dequeueOutputBuffer(outputBufferInfo, /* timeoutUs= */ 0);
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = getFormat(mediaCodecAdapter.getOutputFormat());
+        outputFormat = getFormat(mediaCodec.getOutputFormat());
       }
       return false;
     }

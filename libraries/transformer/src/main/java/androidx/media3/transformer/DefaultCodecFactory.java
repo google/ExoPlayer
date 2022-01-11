@@ -25,28 +25,16 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaFormat;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.MediaFormatUtil;
-import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter;
-import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
-import androidx.media3.exoplayer.mediacodec.SynchronousMediaCodecAdapter;
+import androidx.media3.common.util.TraceUtil;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default {@link Codec.DecoderFactory} and {@link Codec.EncoderFactory}. */
 /* package */ final class DefaultCodecFactory
     implements Codec.DecoderFactory, Codec.EncoderFactory {
-
-  private static final MediaCodecInfo PLACEHOLDER_MEDIA_CODEC_INFO =
-      MediaCodecInfo.newInstance(
-          /* name= */ "name-placeholder",
-          /* mimeType= */ "mime-type-placeholder",
-          /* codecMimeType= */ "mime-type-placeholder",
-          /* capabilities= */ null,
-          /* hardwareAccelerated= */ false,
-          /* softwareOnly= */ false,
-          /* vendor= */ false,
-          /* forceDisableAdaptive= */ false,
-          /* forceSecure= */ false);
 
   @Override
   public Codec createForAudioDecoding(Format format) throws TransformationException {
@@ -57,22 +45,17 @@ import java.io.IOException;
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
 
-    MediaCodecAdapter adapter;
-    try {
-      adapter =
-          new MediaCodecFactory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForAudioDecoding(
-                      PLACEHOLDER_MEDIA_CODEC_INFO, mediaFormat, format, /* crypto= */ null));
-    } catch (Exception e) {
-      throw createTransformationException(e, format, /* isVideo= */ false, /* isDecoder= */ true);
-    }
-    return new Codec(adapter);
+    return createCodec(
+        format,
+        mediaFormat,
+        /* isVideo= */ false,
+        /* isDecoder= */ true,
+        /* outputSurface= */ null);
   }
 
   @Override
   @SuppressLint("InlinedApi")
-  public Codec createForVideoDecoding(Format format, Surface surface)
+  public Codec createForVideoDecoding(Format format, Surface outputSurface)
       throws TransformationException {
     MediaFormat mediaFormat =
         MediaFormat.createVideoFormat(
@@ -87,21 +70,8 @@ import java.io.IOException;
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
     }
 
-    MediaCodecAdapter adapter;
-    try {
-      adapter =
-          new MediaCodecFactory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForVideoDecoding(
-                      PLACEHOLDER_MEDIA_CODEC_INFO,
-                      mediaFormat,
-                      format,
-                      surface,
-                      /* crypto= */ null));
-    } catch (Exception e) {
-      throw createTransformationException(e, format, /* isVideo= */ true, /* isDecoder= */ true);
-    }
-    return new Codec(adapter);
+    return createCodec(
+        format, mediaFormat, /* isVideo= */ true, /* isDecoder= */ true, outputSurface);
   }
 
   @Override
@@ -111,17 +81,12 @@ import java.io.IOException;
             checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
     mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
 
-    MediaCodecAdapter adapter;
-    try {
-      adapter =
-          new MediaCodecFactory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForAudioEncoding(
-                      PLACEHOLDER_MEDIA_CODEC_INFO, mediaFormat, format));
-    } catch (Exception e) {
-      throw createTransformationException(e, format, /* isVideo= */ false, /* isDecoder= */ false);
-    }
-    return new Codec(adapter);
+    return createCodec(
+        format,
+        mediaFormat,
+        /* isVideo= */ false,
+        /* isDecoder= */ false,
+        /* outputSurface= */ null);
   }
 
   @Override
@@ -141,36 +106,70 @@ import java.io.IOException;
     mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
     mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 413_000);
 
-    MediaCodecAdapter adapter;
-    try {
-      adapter =
-          new MediaCodecFactory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForVideoEncoding(
-                      PLACEHOLDER_MEDIA_CODEC_INFO, mediaFormat, format));
-    } catch (Exception e) {
-      throw createTransformationException(e, format, /* isVideo= */ true, /* isDecoder= */ false);
-    }
-    return new Codec(adapter);
+    return createCodec(
+        format,
+        mediaFormat,
+        /* isVideo= */ true,
+        /* isDecoder= */ false,
+        /* outputSurface= */ null);
   }
 
-  private static final class MediaCodecFactory extends SynchronousMediaCodecAdapter.Factory {
-    @Override
-    protected MediaCodec createCodec(MediaCodecAdapter.Configuration configuration)
-        throws IOException {
-      String sampleMimeType =
-          checkNotNull(configuration.mediaFormat.getString(MediaFormat.KEY_MIME));
-      boolean isDecoder = (configuration.flags & MediaCodec.CONFIGURE_FLAG_ENCODE) == 0;
-      return isDecoder
-          ? MediaCodec.createDecoderByType(checkNotNull(sampleMimeType))
-          : MediaCodec.createEncoderByType(checkNotNull(sampleMimeType));
+  @RequiresNonNull("#1.sampleMimeType")
+  private static Codec createCodec(
+      Format format,
+      MediaFormat mediaFormat,
+      boolean isVideo,
+      boolean isDecoder,
+      @Nullable Surface outputSurface)
+      throws TransformationException {
+    @Nullable MediaCodec mediaCodec = null;
+    @Nullable Surface inputSurface = null;
+    try {
+      mediaCodec =
+          isDecoder
+              ? MediaCodec.createDecoderByType(format.sampleMimeType)
+              : MediaCodec.createEncoderByType(format.sampleMimeType);
+      configureCodec(mediaCodec, mediaFormat, isDecoder, outputSurface);
+      if (isVideo && !isDecoder) {
+        inputSurface = mediaCodec.createInputSurface();
+      }
+      startCodec(mediaCodec);
+    } catch (Exception e) {
+      if (inputSurface != null) {
+        inputSurface.release();
+      }
+      if (mediaCodec != null) {
+        mediaCodec.release();
+      }
+      throw createTransformationException(e, format, isVideo, isDecoder);
     }
+    return new Codec(mediaCodec, inputSurface);
+  }
+
+  private static void configureCodec(
+      MediaCodec codec,
+      MediaFormat mediaFormat,
+      boolean isDecoder,
+      @Nullable Surface outputSurface) {
+    TraceUtil.beginSection("configureCodec");
+    codec.configure(
+        mediaFormat,
+        outputSurface,
+        /* crypto= */ null,
+        isDecoder ? 0 : MediaCodec.CONFIGURE_FLAG_ENCODE);
+    TraceUtil.endSection();
+  }
+
+  private static void startCodec(MediaCodec codec) {
+    TraceUtil.beginSection("startCodec");
+    codec.start();
+    TraceUtil.endSection();
   }
 
   private static TransformationException createTransformationException(
       Exception cause, Format format, boolean isVideo, boolean isDecoder) {
     String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
-    if (cause instanceof IOException) {
+    if (cause instanceof IOException || cause instanceof MediaCodec.CodecException) {
       return TransformationException.createForCodec(
           cause,
           componentName,
