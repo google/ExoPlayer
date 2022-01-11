@@ -22,6 +22,9 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.media.MediaCrypto;
@@ -246,6 +249,77 @@ public final class TransformerTest {
 
     DumpFileAsserts.assertOutput(
         context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".novideo"));
+  }
+
+  @Test
+  public void startTransformation_withMultipleListeners_callsEachOnCompletion() throws Exception {
+    Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
+    Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
+    Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .addListener(mockListener1)
+            .addListener(mockListener2)
+            .addListener(mockListener3)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer);
+
+    verify(mockListener1, times(1)).onTransformationCompleted(mediaItem);
+    verify(mockListener2, times(1)).onTransformationCompleted(mediaItem);
+    verify(mockListener3, times(1)).onTransformationCompleted(mediaItem);
+  }
+
+  @Test
+  public void startTransformation_withMultipleListeners_callsEachOnError() throws Exception {
+    Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
+    Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
+    Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .addListener(mockListener1)
+            .addListener(mockListener2)
+            .addListener(mockListener3)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformationException exception = TransformerTestRunner.runUntilError(transformer);
+
+    verify(mockListener1, times(1)).onTransformationError(mediaItem, exception);
+    verify(mockListener2, times(1)).onTransformationError(mediaItem, exception);
+    verify(mockListener3, times(1)).onTransformationError(mediaItem, exception);
+  }
+
+  @Test
+  public void startTransformation_afterBuildUponWithListenerRemoved_onlyCallsRemainingListeners()
+      throws Exception {
+    Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
+    Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
+    Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
+    Transformer transformer1 =
+        new Transformer.Builder(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .addListener(mockListener1)
+            .addListener(mockListener2)
+            .addListener(mockListener3)
+            .build();
+    Transformer transformer2 = transformer1.buildUpon().removeListener(mockListener2).build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer2.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer2);
+
+    verify(mockListener1, times(1)).onTransformationCompleted(mediaItem);
+    verify(mockListener2, times(0)).onTransformationCompleted(mediaItem);
+    verify(mockListener3, times(1)).onTransformationCompleted(mediaItem);
   }
 
   @Test

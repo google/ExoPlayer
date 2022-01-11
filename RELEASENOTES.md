@@ -83,6 +83,7 @@
     *   `TransformationException` is now used to describe errors that occur
         during a transformation.
     *   Add `TransformationRequest` for specifying the transformation options.
+    *   Allow multiple listeners to be registered.
 *   MediaSession extension:
     *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
         opt-out flag for apps that don't want to clear the playlist on stop.

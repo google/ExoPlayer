@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -98,7 +99,7 @@ public final class Transformer {
     private boolean removeVideo;
     private String containerMimeType;
     private TransformationRequest transformationRequest;
-    private Transformer.Listener listener;
+    private ListenerSet<Transformer.Listener> listeners;
     private DebugViewProvider debugViewProvider;
     private Looper looper;
     private Clock clock;
@@ -108,9 +109,9 @@ public final class Transformer {
     @Deprecated
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
-      listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
+      listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
       encoderFactory = Codec.EncoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
@@ -125,9 +126,9 @@ public final class Transformer {
     public Builder(Context context) {
       this.context = context.getApplicationContext();
       muxerFactory = new FrameworkMuxer.Factory();
-      listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
       clock = Clock.DEFAULT;
+      listeners = new ListenerSet<>(looper, clock, (listener, flags) -> {});
       encoderFactory = Codec.EncoderFactory.DEFAULT;
       debugViewProvider = DebugViewProvider.NONE;
       containerMimeType = MimeTypes.VIDEO_MP4;
@@ -143,7 +144,7 @@ public final class Transformer {
       this.removeVideo = transformer.removeVideo;
       this.containerMimeType = transformer.containerMimeType;
       this.transformationRequest = transformer.transformationRequest;
-      this.listener = transformer.listener;
+      this.listeners = transformer.listeners;
       this.looper = transformer.looper;
       this.encoderFactory = transformer.encoderFactory;
       this.debugViewProvider = transformer.debugViewProvider;
@@ -265,15 +266,51 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link Transformer.Listener} to listen to the transformation events.
+     * @deprecated Use {@link #addListener(Listener)}, {@link #removeListener(Listener)} or {@link
+     *     #removeAllListeners()} instead.
+     */
+    @Deprecated
+    public Builder setListener(Transformer.Listener listener) {
+      this.listeners.clear();
+      this.listeners.add(listener);
+      return this;
+    }
+
+    /**
+     * Adds a {@link Transformer.Listener} to listen to the transformation events.
      *
-     * <p>This is equivalent to {@link Transformer#setListener(Listener)}.
+     * <p>This is equivalent to {@link Transformer#addListener(Listener)}.
      *
      * @param listener A {@link Transformer.Listener}.
      * @return This builder.
      */
-    public Builder setListener(Transformer.Listener listener) {
-      this.listener = listener;
+    public Builder addListener(Transformer.Listener listener) {
+      this.listeners.add(listener);
+      return this;
+    }
+
+    /**
+     * Removes a {@link Transformer.Listener}.
+     *
+     * <p>This is equivalent to {@link Transformer#removeListener(Listener)}.
+     *
+     * @param listener A {@link Transformer.Listener}.
+     * @return This builder.
+     */
+    public Builder removeListener(Transformer.Listener listener) {
+      this.listeners.remove(listener);
+      return this;
+    }
+
+    /**
+     * Removes all {@link Transformer.Listener listeners}.
+     *
+     * <p>This is equivalent to {@link Transformer#removeAllListeners()}.
+     *
+     * @return This builder.
+     */
+    public Builder removeAllListeners() {
+      this.listeners.clear();
       return this;
     }
 
@@ -288,6 +325,7 @@ public final class Transformer {
      */
     public Builder setLooper(Looper looper) {
       this.looper = looper;
+      this.listeners = listeners.copy(looper, (listener, flags) -> {});
       return this;
     }
 
@@ -328,6 +366,7 @@ public final class Transformer {
     @VisibleForTesting
     /* package */ Builder setClock(Clock clock) {
       this.clock = clock;
+      this.listeners = listeners.copy(looper, clock, (listener, flags) -> {});
       return this;
     }
 
@@ -381,7 +420,7 @@ public final class Transformer {
           removeVideo,
           containerMimeType,
           transformationRequest,
-          listener,
+          listeners,
           looper,
           clock,
           encoderFactory,
@@ -480,8 +519,8 @@ public final class Transformer {
   private final Codec.EncoderFactory encoderFactory;
   private final Codec.DecoderFactory decoderFactory;
   private final Transformer.DebugViewProvider debugViewProvider;
+  private final ListenerSet<Transformer.Listener> listeners;
 
-  private Transformer.Listener listener;
   @Nullable private MuxerWrapper muxerWrapper;
   @Nullable private ExoPlayer player;
   @ProgressState private int progressState;
@@ -494,7 +533,7 @@ public final class Transformer {
       boolean removeVideo,
       String containerMimeType,
       TransformationRequest transformationRequest,
-      Transformer.Listener listener,
+      ListenerSet<Transformer.Listener> listeners,
       Looper looper,
       Clock clock,
       Codec.EncoderFactory encoderFactory,
@@ -508,7 +547,7 @@ public final class Transformer {
     this.removeVideo = removeVideo;
     this.containerMimeType = containerMimeType;
     this.transformationRequest = transformationRequest;
-    this.listener = listener;
+    this.listeners = listeners;
     this.looper = looper;
     this.clock = clock;
     this.encoderFactory = encoderFactory;
@@ -523,20 +562,52 @@ public final class Transformer {
   }
 
   /**
-   * Sets the {@link Transformer.Listener} to listen to the transformation events.
+   * @deprecated Use {@link #addListener(Listener)}, {@link #removeListener(Listener)} or {@link
+   *     #removeAllListeners()} instead.
+   */
+  @Deprecated
+  public void setListener(Transformer.Listener listener) {
+    verifyApplicationThread();
+    this.listeners.clear();
+    this.listeners.add(listener);
+  }
+
+  /**
+   * Adds a {@link Transformer.Listener} to listen to the transformation events.
    *
    * @param listener A {@link Transformer.Listener}.
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
-  public void setListener(Transformer.Listener listener) {
+  public void addListener(Transformer.Listener listener) {
     verifyApplicationThread();
-    this.listener = listener;
+    this.listeners.add(listener);
+  }
+
+  /**
+   * Removes a {@link Transformer.Listener}.
+   *
+   * @param listener A {@link Transformer.Listener}.
+   * @throws IllegalStateException If this method is called from the wrong thread.
+   */
+  public void removeListener(Transformer.Listener listener) {
+    verifyApplicationThread();
+    this.listeners.remove(listener);
+  }
+
+  /**
+   * Removes all {@link Transformer.Listener listeners}.
+   *
+   * @throws IllegalStateException If this method is called from the wrong thread.
+   */
+  public void removeAllListeners() {
+    verifyApplicationThread();
+    this.listeners.clear();
   }
 
   /**
    * Starts an asynchronous operation to transform the given {@link MediaItem}.
    *
-   * <p>The transformation state is notified through the {@link Builder#setListener(Listener)
+   * <p>The transformation state is notified through the {@link Builder#addListener(Listener)
    * listener}.
    *
    * <p>Concurrent transformations on the same Transformer object are not allowed.
@@ -559,7 +630,7 @@ public final class Transformer {
   /**
    * Starts an asynchronous operation to transform the given {@link MediaItem}.
    *
-   * <p>The transformation state is notified through the {@link Builder#setListener(Listener)
+   * <p>The transformation state is notified through the {@link Builder#addListener(Listener)
    * listener}.
    *
    * <p>Concurrent transformations on the same Transformer object are not allowed.
@@ -840,16 +911,26 @@ public final class Transformer {
       }
 
       if (exception == null && resourceReleaseException == null) {
-        listener.onTransformationCompleted(mediaItem);
+        // TODO(b/213341814): Add event flags for Transformer events.
+        listeners.queueEvent(
+            /* eventFlag= */ C.INDEX_UNSET,
+            listener -> listener.onTransformationCompleted(mediaItem));
+        listeners.flushEvents();
         return;
       }
 
       if (exception != null) {
-        listener.onTransformationError(mediaItem, exception);
+        listeners.queueEvent(
+            /* eventFlag= */ C.INDEX_UNSET,
+            listener -> listener.onTransformationError(mediaItem, exception));
       }
       if (resourceReleaseException != null) {
-        listener.onTransformationError(mediaItem, resourceReleaseException);
+        TransformationException finalResourceReleaseException = resourceReleaseException;
+        listeners.queueEvent(
+            /* eventFlag= */ C.INDEX_UNSET,
+            listener -> listener.onTransformationError(mediaItem, finalResourceReleaseException));
       }
+      listeners.flushEvents();
     }
   }
 }
