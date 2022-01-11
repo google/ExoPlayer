@@ -109,7 +109,7 @@ import java.nio.ByteBuffer;
    * @param data Buffer containing the sample data to write to the container.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
-   * @throws MuxerException If the muxer fails to start or an error occurs while writing the sample.
+   * @throws MuxerException If the muxer fails to write the sample.
    */
   void writeSampleData(int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
       throws MuxerException;
