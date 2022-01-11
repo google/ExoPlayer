@@ -73,6 +73,8 @@ public final class TransformationException extends Exception {
         ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_GL_INIT_FAILED,
         ERROR_CODE_GL_PROCESSING_FAILED,
+        ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED,
+        ERROR_CODE_MUXING_FAILED,
       })
   public @interface ErrorCode {}
 
@@ -164,6 +166,8 @@ public final class TransformationException extends Exception {
    * TransformationRequest.Builder#setVideoMimeType(String)} to transcode to a supported MIME type.
    */
   public static final int ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED = 6001;
+  /** Caused by a failure while muxing media samples. */
+  public static final int ERROR_CODE_MUXING_FAILED = 6002;
 
   private static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
@@ -188,6 +192,7 @@ public final class TransformationException extends Exception {
           .put(
               "ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED",
               ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED)
+          .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
 
   /** Returns the {@code errorCode} for a given name. */

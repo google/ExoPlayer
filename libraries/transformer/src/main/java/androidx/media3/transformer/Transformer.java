@@ -672,7 +672,11 @@ public final class Transformer {
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
   public void cancel() {
-    releaseResources(/* forCancellation= */ true);
+    try {
+      releaseResources(/* forCancellation= */ true);
+    } catch (TransformationException impossible) {
+      throw new IllegalStateException(impossible);
+    }
   }
 
   /**
@@ -681,17 +685,22 @@ public final class Transformer {
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
    * @throws IllegalStateException If this method is called from the wrong thread.
-   * @throws IllegalStateException If the muxer is in the wrong state and {@code forCancellation} is
-   *     false.
+   * @throws TransformationException If the muxer is in the wrong state and {@code forCancellation}
+   *     is false.
    */
-  private void releaseResources(boolean forCancellation) {
+  private void releaseResources(boolean forCancellation) throws TransformationException {
     verifyApplicationThread();
     if (player != null) {
       player.release();
       player = null;
     }
     if (muxerWrapper != null) {
-      muxerWrapper.release(forCancellation);
+      try {
+        muxerWrapper.release(forCancellation);
+      } catch (Muxer.MuxerException e) {
+        throw TransformationException.createForMuxer(
+            e, TransformationException.ERROR_CODE_MUXING_FAILED);
+      }
       muxerWrapper = null;
     }
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
@@ -826,9 +835,9 @@ public final class Transformer {
       @Nullable TransformationException resourceReleaseException = null;
       try {
         releaseResources(/* forCancellation= */ false);
-      } catch (IllegalStateException e) {
-        // TODO(internal b/209469847): Use a more specific error code when the IllegalStateException
-        // is caused by the muxer.
+      } catch (TransformationException e) {
+        resourceReleaseException = e;
+      } catch (RuntimeException e) {
         resourceReleaseException = TransformationException.createForUnexpected(e);
       }
 
