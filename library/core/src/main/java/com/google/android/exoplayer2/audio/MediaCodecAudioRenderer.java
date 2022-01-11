@@ -56,9 +56,8 @@ import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -381,27 +380,29 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       throws DecoderQueryException {
     @Nullable String mimeType = format.sampleMimeType;
     if (mimeType == null) {
-      return Collections.emptyList();
+      return ImmutableList.of();
     }
     if (audioSink.supportsFormat(format)) {
       // The format is supported directly, so a codec is only needed for decryption.
       @Nullable MediaCodecInfo codecInfo = MediaCodecUtil.getDecryptOnlyDecoderInfo();
       if (codecInfo != null) {
-        return Collections.singletonList(codecInfo);
+        return ImmutableList.of(codecInfo);
       }
     }
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
             mimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
-      // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
-      List<MediaCodecInfo> decoderInfosWithEac3 = new ArrayList<>(decoderInfos);
-      decoderInfosWithEac3.addAll(
-          mediaCodecSelector.getDecoderInfos(
-              MimeTypes.AUDIO_E_AC3, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false));
-      decoderInfos = decoderInfosWithEac3;
+    @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format);
+    if (alternativeMimeType == null) {
+      return ImmutableList.copyOf(decoderInfos);
     }
-    return Collections.unmodifiableList(decoderInfos);
+    List<MediaCodecInfo> alternativeDecoderInfos =
+        mediaCodecSelector.getDecoderInfos(
+            alternativeMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+    return ImmutableList.<MediaCodecInfo>builder()
+        .addAll(decoderInfos)
+        .addAll(alternativeDecoderInfos)
+        .build();
   }
 
   @Override

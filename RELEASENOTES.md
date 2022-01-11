@@ -26,6 +26,8 @@
         live edge ((#9784)[https://github.com/google/ExoPlayer/issues/9784]).
     *   Fix Maven dependency resolution
         ((#8353)[https://github.com/google/ExoPlayer/issues/8353]).
+    *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC) and Dolby Vision
+        to use a compatible base decoder (E-AC3 or H264/H265) if needed.
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
