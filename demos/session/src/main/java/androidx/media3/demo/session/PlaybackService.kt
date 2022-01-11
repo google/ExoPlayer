@@ -87,12 +87,12 @@ class PlaybackService : MediaLibraryService() {
       // Only accept query with pattern "play [Title]" or "[Title]"
       // Where [Title]: must be exactly matched
       // If no media with exact name found, play a random media instead
-      lateinit var mediaTitle: String
-      if (query.lowercase().startsWith("play ")) {
-        mediaTitle = query.subSequence(5, query.length).toString()
-      } else {
-        mediaTitle = query
-      }
+      val mediaTitle =
+        if (query.startsWith("play ", ignoreCase = true)) {
+          query.drop(5)
+        } else {
+          query
+        }
 
       val item = MediaItemTree.getItemFromTitle(mediaTitle) ?: MediaItemTree.getRandomItem()
       player.setMediaItem(item)
