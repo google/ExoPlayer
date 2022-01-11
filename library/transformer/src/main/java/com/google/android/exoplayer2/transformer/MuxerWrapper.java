@@ -103,8 +103,10 @@ import java.nio.ByteBuffer;
    * @param format The {@link Format} to be added.
    * @throws IllegalStateException If the format is unsupported or if there is already a track
    *     format of the same type (audio or video).
+   * @throws Muxer.MuxerException If the underlying muxer encounters a problem while adding the
+   *     track.
    */
-  public void addTrackFormat(Format format) {
+  public void addTrackFormat(Format format) throws Muxer.MuxerException {
     checkState(trackCount > 0, "All tracks should be registered before the formats are added.");
     checkState(trackFormatCount < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
@@ -138,9 +140,11 @@ import java.nio.ByteBuffer;
    *     good interleaving.
    * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
    *     track of the given track type.
+   * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
    */
   public boolean writeSample(
-      @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
+      @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      throws Muxer.MuxerException {
     int trackIndex = trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET);
     checkState(
         trackIndex != C.INDEX_UNSET,
@@ -174,8 +178,10 @@ import java.nio.ByteBuffer;
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
+   * @throws Muxer.MuxerException If the underlying muxer fails to stop and to release resources and
+   *     {@code forCancellation} is false.
    */
-  public void release(boolean forCancellation) {
+  public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
     muxer.release(forCancellation);
   }

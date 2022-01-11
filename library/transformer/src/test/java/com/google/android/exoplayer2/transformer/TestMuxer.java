@@ -45,7 +45,7 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
   // Muxer implementation.
 
   @Override
-  public int addTrack(Format format) {
+  public int addTrack(Format format) throws MuxerException {
     int trackIndex = muxer.addTrack(format);
     dumpables.add(new DumpableFormat(format, trackIndex));
     return trackIndex;
@@ -53,13 +53,14 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
   @Override
   public void writeSampleData(
-      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
+      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      throws MuxerException {
     dumpables.add(new DumpableSample(trackIndex, data, isKeyFrame, presentationTimeUs));
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
   }
 
   @Override
-  public void release(boolean forCancellation) {
+  public void release(boolean forCancellation) throws MuxerException {
     dumpables.add(dumper -> dumper.add("released", true));
     muxer.release(forCancellation);
   }

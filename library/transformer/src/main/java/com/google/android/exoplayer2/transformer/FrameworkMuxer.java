@@ -127,7 +127,7 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public int addTrack(Format format) {
+  public int addTrack(Format format) throws MuxerException {
     String sampleMimeType = checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat;
     if (MimeTypes.isAudio(sampleMimeType)) {
@@ -137,29 +137,56 @@ import java.nio.ByteBuffer;
     } else {
       mediaFormat =
           MediaFormat.createVideoFormat(castNonNull(sampleMimeType), format.width, format.height);
-      mediaMuxer.setOrientationHint(format.rotationDegrees);
+      try {
+        mediaMuxer.setOrientationHint(format.rotationDegrees);
+      } catch (RuntimeException e) {
+        throw new MuxerException(
+            "Failed to set orientation hint with rotationDegrees=" + format.rotationDegrees, e);
+      }
     }
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-    return mediaMuxer.addTrack(mediaFormat);
+    int trackIndex;
+    try {
+      trackIndex = mediaMuxer.addTrack(mediaFormat);
+    } catch (RuntimeException e) {
+      throw new MuxerException("Failed to add track with format=" + format, e);
+    }
+    return trackIndex;
   }
 
   @SuppressLint("WrongConstant") // C.BUFFER_FLAG_KEY_FRAME equals MediaCodec.BUFFER_FLAG_KEY_FRAME.
   @Override
   public void writeSampleData(
-      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
+      int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      throws MuxerException {
     if (!isStarted) {
       isStarted = true;
-      mediaMuxer.start();
+      try {
+        mediaMuxer.start();
+      } catch (RuntimeException e) {
+        throw new MuxerException("Failed to start the muxer", e);
+      }
     }
     int offset = data.position();
     int size = data.limit() - offset;
     int flags = isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0;
     bufferInfo.set(offset, size, presentationTimeUs, flags);
-    mediaMuxer.writeSampleData(trackIndex, data, bufferInfo);
+    try {
+      mediaMuxer.writeSampleData(trackIndex, data, bufferInfo);
+    } catch (RuntimeException e) {
+      throw new MuxerException(
+          "Failed to write sample for trackIndex="
+              + trackIndex
+              + ", presentationTimeUs="
+              + presentationTimeUs
+              + ", size="
+              + size,
+          e);
+    }
   }
 
   @Override
-  public void release(boolean forCancellation) {
+  public void release(boolean forCancellation) throws MuxerException {
     if (!isStarted) {
       mediaMuxer.release();
       return;
@@ -168,7 +195,7 @@ import java.nio.ByteBuffer;
     isStarted = false;
     try {
       mediaMuxer.stop();
-    } catch (IllegalStateException e) {
+    } catch (RuntimeException e) {
       if (SDK_INT < 30) {
         // Set the muxer state to stopped even if mediaMuxer.stop() failed so that
         // mediaMuxer.release() doesn't attempt to stop the muxer and therefore doesn't throw the
@@ -187,7 +214,7 @@ import java.nio.ByteBuffer;
       }
       // It doesn't matter that stopping the muxer throws if the transformation is being cancelled.
       if (!forCancellation) {
-        throw e;
+        throw new MuxerException("Failed to stop the muxer", e);
       }
     } finally {
       mediaMuxer.release();

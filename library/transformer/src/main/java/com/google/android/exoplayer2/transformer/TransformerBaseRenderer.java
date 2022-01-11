@@ -97,6 +97,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
       throw wrapTransformationException(e);
+    } catch (Muxer.MuxerException e) {
+      throw wrapTransformationException(
+          TransformationException.createForMuxer(
+              e, TransformationException.ERROR_CODE_MUXING_FAILED));
     }
   }
 
@@ -145,7 +149,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return Whether it may be possible to write more data immediately by calling this method again.
    */
   @RequiresNonNull("samplePipeline")
-  private boolean feedMuxerFromPipeline() {
+  private boolean feedMuxerFromPipeline() throws Muxer.MuxerException {
     if (!muxerWrapperTrackAdded) {
       @Nullable Format samplePipelineOutputFormat = samplePipeline.getOutputFormat();
       if (samplePipelineOutputFormat == null) {
