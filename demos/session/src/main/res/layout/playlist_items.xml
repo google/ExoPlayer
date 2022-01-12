@@ -35,7 +35,7 @@
     android:layout_width="50dp"
     android:layout_height="match_parent"
     android:id="@+id/delete_button"
-    android:background="@android:drawable/ic_menu_close_clear_cancel"
+    android:background="@drawable/baseline_playlist_remove_white_48"
     />
 
 </LinearLayout>

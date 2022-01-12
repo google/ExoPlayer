@@ -34,7 +34,7 @@
     android:layout_width="50dp"
     android:layout_height="match_parent"
     android:id="@+id/add_button"
-    android:background="@android:drawable/ic_input_add"
+    android:background="@drawable/baseline_playlist_add_white_48"
     />
 
 </LinearLayout>
