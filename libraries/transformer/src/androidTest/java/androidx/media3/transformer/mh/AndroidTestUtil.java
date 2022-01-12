@@ -43,12 +43,45 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Information about the result of successfully running a transformer. */
   public static final class TransformationResult {
-    public final String testId;
-    public final long outputSizeBytes;
 
-    private TransformationResult(String testId, long outputSizeBytes) {
+    /** A builder for {@link TransformationResult} instances. */
+    public static final class Builder {
+      private final String testId;
+      @Nullable private Long fileSizeBytes;
+
+      public Builder(String testId) {
+        this.testId = testId;
+      }
+
+      public Builder setFileSizeBytes(long fileSizeBytes) {
+        this.fileSizeBytes = fileSizeBytes;
+        return this;
+      }
+
+      public TransformationResult build() {
+        return new TransformationResult(testId, fileSizeBytes);
+      }
+    }
+
+    public final String testId;
+    @Nullable public final Long fileSizeBytes;
+
+    private TransformationResult(String testId, @Nullable Long fileSizeBytes) {
       this.testId = testId;
-      this.outputSizeBytes = outputSizeBytes;
+      this.fileSizeBytes = fileSizeBytes;
+    }
+
+    /**
+     * Returns all the analysis data from the test.
+     *
+     * <p>If a value was not generated, it will not be part of the return value.
+     */
+    public String getFormattedAnalysis() {
+      String analysis = "test=" + testId;
+      if (fileSizeBytes != null) {
+        analysis += ", fileSizeBytes=" + fileSizeBytes;
+      }
+      return analysis;
     }
   }
 
@@ -108,9 +141,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (exception != null) {
       throw exception;
     }
-    long outputSizeBytes = outputVideoFile.length();
 
-    TransformationResult result = new TransformationResult(testId, outputSizeBytes);
+    TransformationResult result =
+        new TransformationResult.Builder(testId).setFileSizeBytes(outputVideoFile.length()).build();
+
     writeTransformationResultToFile(context, result);
     return result;
   }
@@ -121,16 +155,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         createExternalCacheFile(context, /* fileName= */ result.testId + "-result.txt");
     try (FileWriter fileWriter = new FileWriter(analysisFile)) {
       String fileContents =
-          "test="
-              + result.testId
+          result.getFormattedAnalysis()
+              + ", deviceFingerprint="
+              + Build.FINGERPRINT
               + ", deviceBrand="
               + Build.MANUFACTURER
               + ", deviceModel="
               + Build.MODEL
               + ", sdkVersion="
-              + Build.VERSION.SDK_INT
-              + ", outputSizeBytes="
-              + result.outputSizeBytes;
+              + Build.VERSION.SDK_INT;
       fileWriter.write(fileContents);
     }
   }
