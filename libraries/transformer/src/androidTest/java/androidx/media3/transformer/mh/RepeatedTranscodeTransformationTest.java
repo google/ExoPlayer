@@ -28,12 +28,13 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests repeated transcoding operations (as a stress test and to help reproduce flakiness). */
 @RunWith(AndroidJUnit4.class)
-// @Ignore("Internal - b/206917996")
+@Ignore("Internal - b/206917996")
 public final class RepeatedTranscodeTransformationTest {
   private static final int TRANSCODE_COUNT = 10;
 
