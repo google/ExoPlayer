@@ -166,6 +166,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   private final Context context;
   private final SessionToken token;
+  private final Bundle connectionHints;
   private final IBinder.DeathRecipient deathRecipient;
   private final SurfaceCallback surfaceCallback;
   private final ListenerSet<Listener> listeners;
@@ -211,12 +212,24 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     sequencedFutureManager = new SequencedFutureManager();
     controllerStub = new MediaControllerStub(this);
     this.token = token;
+    this.connectionHints = connectionHints;
     deathRecipient =
         () ->
             MediaControllerImplBase.this.instance.runOnApplicationLooper(
                 MediaControllerImplBase.this.instance::release);
     surfaceCallback = new SurfaceCallback();
 
+    serviceConnection =
+        (this.token.getType() == TYPE_SESSION)
+            ? null
+            : new SessionServiceConnection(connectionHints);
+    flushCommandQueueHandler = new FlushCommandQueueHandler(instance.getApplicationLooper());
+    lastReturnedContentPositionMs = C.TIME_UNSET;
+    lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
+  }
+
+  @Override
+  public void connect() {
     boolean connectionRequested;
     if (this.token.getType() == TYPE_SESSION) {
       // Session
@@ -229,9 +242,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!connectionRequested) {
       this.instance.runOnApplicationLooper(MediaControllerImplBase.this.instance::release);
     }
-    flushCommandQueueHandler = new FlushCommandQueueHandler(instance.getApplicationLooper());
-    lastReturnedContentPositionMs = C.TIME_UNSET;
-    lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
   }
 
   @Override

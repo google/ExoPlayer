@@ -155,9 +155,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.instance = instance;
     controllerCompatCallback = new ControllerCompatCallback();
     this.token = token;
+  }
 
+  @Override
+  public void connect() {
     if (this.token.getType() == SessionToken.TYPE_SESSION) {
-      browserCompat = null;
       connectToSession((MediaSessionCompat.Token) checkStateNotNull(this.token.getBinder()));
     } else {
       connectToService();
