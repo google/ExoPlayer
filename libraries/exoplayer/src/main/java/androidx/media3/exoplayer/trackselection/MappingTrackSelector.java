@@ -70,7 +70,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
       RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS,
       RENDERER_SUPPORT_PLAYABLE_TRACKS
     })
-    @interface RendererSupport {}
+    public @interface RendererSupport {}
     /** The renderer does not have any associated tracks. */
     public static final int RENDERER_SUPPORT_NO_TRACKS = 0;
     /**
