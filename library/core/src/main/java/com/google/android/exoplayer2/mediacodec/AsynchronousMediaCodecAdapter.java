@@ -109,8 +109,7 @@ import java.nio.ByteBuffer;
             configuration.mediaFormat,
             configuration.surface,
             configuration.crypto,
-            configuration.flags,
-            configuration.createInputSurface);
+            configuration.flags);
         return codecAdapter;
       } catch (Exception e) {
         if (codecAdapter != null) {
@@ -139,7 +138,6 @@ import java.nio.ByteBuffer;
   private final boolean enableImmediateCodecStartAfterFlush;
   private boolean codecReleased;
   @State private int state;
-  @Nullable private Surface inputSurface;
 
   private AsynchronousMediaCodecAdapter(
       MediaCodec codec,
@@ -159,15 +157,11 @@ import java.nio.ByteBuffer;
       @Nullable MediaFormat mediaFormat,
       @Nullable Surface surface,
       @Nullable MediaCrypto crypto,
-      int flags,
-      boolean createInputSurface) {
+      int flags) {
     asynchronousMediaCodecCallback.initialize(codec);
     TraceUtil.beginSection("configureCodec");
     codec.configure(mediaFormat, surface, crypto, flags);
     TraceUtil.endSection();
-    if (createInputSurface) {
-      inputSurface = codec.createInputSurface();
-    }
     bufferEnqueuer.start();
     TraceUtil.beginSection("startCodec");
     codec.start();
@@ -225,12 +219,6 @@ import java.nio.ByteBuffer;
 
   @Override
   @Nullable
-  public Surface getInputSurface() {
-    return inputSurface;
-  }
-
-  @Override
-  @Nullable
   public ByteBuffer getOutputBuffer(int index) {
     return codec.getOutputBuffer(index);
   }
@@ -263,9 +251,6 @@ import java.nio.ByteBuffer;
       }
       state = STATE_SHUT_DOWN;
     } finally {
-      if (inputSurface != null) {
-        inputSurface.release();
-      }
       if (!codecReleased) {
         codec.release();
         codecReleased = true;
@@ -299,12 +284,6 @@ import java.nio.ByteBuffer;
   public void setVideoScalingMode(@C.VideoScalingMode int scalingMode) {
     maybeBlockOnQueueing();
     codec.setVideoScalingMode(scalingMode);
-  }
-
-  @Override
-  public void signalEndOfInputStream() {
-    maybeBlockOnQueueing();
-    codec.signalEndOfInputStream();
   }
 
   @Override
