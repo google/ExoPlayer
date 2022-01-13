@@ -131,12 +131,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
+  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
     return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
   }
 
   @Override
-  public void queueInputBuffer() {
+  public void queueInputBuffer() throws TransformationException {
     decoder.queueInputBuffer(decoderInputBuffer);
   }
 
@@ -217,7 +217,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   @Nullable
-  public Format getOutputFormat() {
+  public Format getOutputFormat() throws TransformationException {
     Format format = encoder.getOutputFormat();
     return format == null
         ? null
@@ -226,7 +226,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   @Nullable
-  public DecoderInputBuffer getOutputBuffer() {
+  public DecoderInputBuffer getOutputBuffer() throws TransformationException {
     encoderOutputBuffer.data = encoder.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
@@ -238,7 +238,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void releaseOutputBuffer() {
+  public void releaseOutputBuffer() throws TransformationException {
     encoder.releaseOutputBuffer();
   }
 

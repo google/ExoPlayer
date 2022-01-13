@@ -122,10 +122,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Queues the input buffer to the sample pipeline unless it should be dropped because of slow
    * motion flattening.
+   *
+   * @param inputBuffer The {@link DecoderInputBuffer}.
+   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
    */
   @Override
   @RequiresNonNull({"samplePipeline", "#1.data"})
-  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer) {
+  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
+      throws TransformationException {
     ByteBuffer data = inputBuffer.data;
     boolean shouldDropSample =
         sefSlowMotionFlattener != null && sefSlowMotionFlattener.dropOrTransformSample(inputBuffer);

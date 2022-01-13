@@ -113,17 +113,17 @@ import java.nio.ByteBuffer;
 
   @Override
   @Nullable
-  public DecoderInputBuffer dequeueInputBuffer() {
+  public DecoderInputBuffer dequeueInputBuffer() throws TransformationException {
     return decoder.maybeDequeueInputBuffer(decoderInputBuffer) ? decoderInputBuffer : null;
   }
 
   @Override
-  public void queueInputBuffer() {
+  public void queueInputBuffer() throws TransformationException {
     decoder.queueInputBuffer(decoderInputBuffer);
   }
 
   @Override
-  public boolean processData() {
+  public boolean processData() throws TransformationException {
     if (sonicAudioProcessor.isActive()) {
       return feedEncoderFromSonic() || feedSonicFromDecoder();
     } else {
@@ -133,13 +133,13 @@ import java.nio.ByteBuffer;
 
   @Override
   @Nullable
-  public Format getOutputFormat() {
+  public Format getOutputFormat() throws TransformationException {
     return encoder != null ? encoder.getOutputFormat() : null;
   }
 
   @Override
   @Nullable
-  public DecoderInputBuffer getOutputBuffer() {
+  public DecoderInputBuffer getOutputBuffer() throws TransformationException {
     if (encoder != null) {
       encoderOutputBuffer.data = encoder.getOutputBuffer();
       if (encoderOutputBuffer.data != null) {
@@ -152,7 +152,7 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public void releaseOutputBuffer() {
+  public void releaseOutputBuffer() throws TransformationException {
     checkStateNotNull(encoder).releaseOutputBuffer();
   }
 
@@ -174,7 +174,7 @@ import java.nio.ByteBuffer;
    * Attempts to pass decoder output data to the encoder, and returns whether it may be possible to
    * pass more data immediately by calling this method again.
    */
-  private boolean feedEncoderFromDecoder() {
+  private boolean feedEncoderFromDecoder() throws TransformationException {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
@@ -203,7 +203,7 @@ import java.nio.ByteBuffer;
    * Attempts to pass audio processor output data to the encoder, and returns whether it may be
    * possible to pass more data immediately by calling this method again.
    */
-  private boolean feedEncoderFromSonic() {
+  private boolean feedEncoderFromSonic() throws TransformationException {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
       return false;
     }
@@ -226,7 +226,7 @@ import java.nio.ByteBuffer;
    * Attempts to process decoder output data, and returns whether it may be possible to process more
    * data immediately by calling this method again.
    */
-  private boolean feedSonicFromDecoder() {
+  private boolean feedSonicFromDecoder() throws TransformationException {
     if (drainingSonicForSpeedChange) {
       if (sonicAudioProcessor.isEnded() && !sonicOutputBuffer.hasRemaining()) {
         flushSonicAndSetSpeed(currentSpeed);
@@ -267,7 +267,7 @@ import java.nio.ByteBuffer;
    * Feeds as much data as possible between the current position and limit of the specified {@link
    * ByteBuffer} to the encoder, and advances its position by the number of bytes fed.
    */
-  private void feedEncoder(ByteBuffer inputBuffer) {
+  private void feedEncoder(ByteBuffer inputBuffer) throws TransformationException {
     ByteBuffer encoderInputBufferData = checkNotNull(encoderInputBuffer.data);
     int bufferLimit = inputBuffer.limit();
     inputBuffer.limit(min(bufferLimit, inputBuffer.position() + encoderInputBufferData.capacity()));
@@ -283,7 +283,7 @@ import java.nio.ByteBuffer;
     encoder.queueInputBuffer(encoderInputBuffer);
   }
 
-  private void queueEndOfStreamToEncoder() {
+  private void queueEndOfStreamToEncoder() throws TransformationException {
     checkState(checkNotNull(encoderInputBuffer.data).position() == 0);
     encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
     encoderInputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
