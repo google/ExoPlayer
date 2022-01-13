@@ -44,6 +44,11 @@ import com.google.common.collect.ImmutableMap;
   // Format specific parameter names.
   private static final String PARAMETER_PROFILE_LEVEL_ID = "profile-level-id";
   private static final String PARAMETER_SPROP_PARAMS = "sprop-parameter-sets";
+  private static final String H265_SPS = "sprop-sps";
+  private static final String H265_PPS = "sprop-pps";
+  private static final String H265_VPS = "sprop-vps";
+  private static final String H265_MAX_DON_DIFF = "sprop-max-don-diff";
+
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
   /** Prefix for the RFC6381 codecs string for AVC formats. */
@@ -120,6 +125,10 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(!fmtpParameters.isEmpty());
         processH264FmtpAttribute(formatBuilder, fmtpParameters);
         break;
+      case MimeTypes.VIDEO_H265:
+        checkArgument(!fmtpParameters.isEmpty());
+        processH265FmtpAttribute(formatBuilder, fmtpParameters);
+        break;
       case MimeTypes.AUDIO_AC3:
         // AC3 does not require a FMTP attribute. Fall through.
       default:
@@ -168,8 +177,8 @@ import com.google.common.collect.ImmutableMap;
     checkArgument(parameterSets.length == 2);
     ImmutableList<byte[]> initializationData =
         ImmutableList.of(
-            getH264InitializationDataFromParameterSet(parameterSets[0]),
-            getH264InitializationDataFromParameterSet(parameterSets[1]));
+            getInitializationDataFromParameterSet(parameterSets[0]),
+            getInitializationDataFromParameterSet(parameterSets[1]));
     formatBuilder.setInitializationData(initializationData);
 
     // Process SPS (Sequence Parameter Set).
@@ -191,7 +200,7 @@ import com.google.common.collect.ImmutableMap;
     }
   }
 
-  private static byte[] getH264InitializationDataFromParameterSet(String parameterSet) {
+  private static byte[] getInitializationDataFromParameterSet(String parameterSet) {
     byte[] decodedParameterNalData = Base64.decode(parameterSet, Base64.DEFAULT);
     byte[] decodedParameterNalUnit =
         new byte[decodedParameterNalData.length + NAL_START_CODE.length];
@@ -208,6 +217,47 @@ import com.google.common.collect.ImmutableMap;
         /* destPos= */ NAL_START_CODE.length,
         decodedParameterNalData.length);
     return decodedParameterNalUnit;
+  }
+
+  private static void processH265FmtpAttribute(
+      Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
+    if (fmtpAttributes.containsKey(H265_MAX_DON_DIFF)) {
+      checkArgument(Integer.parseInt(checkNotNull(fmtpAttributes.get(H265_MAX_DON_DIFF))) == 0);
+    }
+
+    checkArgument(fmtpAttributes.containsKey(H265_SPS));
+    String spropSPS = checkNotNull(fmtpAttributes.get(H265_SPS));
+    checkArgument(fmtpAttributes.containsKey(H265_PPS));
+    String spropPPS = checkNotNull(fmtpAttributes.get(H265_PPS));
+    checkArgument(fmtpAttributes.containsKey(H265_VPS));
+    String spropVPS = checkNotNull(fmtpAttributes.get(H265_VPS));
+    String[] parameterSets = new String[] {spropSPS, spropPPS, spropVPS};
+
+    checkArgument(parameterSets.length == 3);
+    ImmutableList<byte[]> initializationData =
+        ImmutableList.of(
+            getInitializationDataFromParameterSet(parameterSets[0]),
+            getInitializationDataFromParameterSet(parameterSets[1]),
+            getInitializationDataFromParameterSet(parameterSets[2]));
+    formatBuilder.setInitializationData(initializationData);
+
+    // Process SPS (Sequence Parameter Set).
+    byte[] spsNalDataWithStartCode = initializationData.get(0);
+    NalUnitUtil.H265SpsData spsData =
+        NalUnitUtil.parseH265SpsNalUnit(
+            spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
+    formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
+    formatBuilder.setHeight(spsData.height);
+    formatBuilder.setWidth(spsData.width);
+
+    formatBuilder.setCodecs(
+        CodecSpecificDataUtil.buildHevcCodecString(
+            spsData.generalProfileSpace,
+            spsData.generalTierFlag,
+            spsData.generalProfileIdc,
+            spsData.generalProfileCompatibilityFlags,
+            spsData.constraintBytes,
+            spsData.generalLevelIdc));
   }
 
   /**
