@@ -32,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.opengl.GLSurfaceView;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -46,6 +47,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GestureDetectorCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
@@ -281,6 +283,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   private static final int SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW = 4;
 
   private final ComponentListener componentListener;
+  private final GestureDetectorCompat gestureDetector;
   @Nullable private final AspectRatioFrameLayout contentFrame;
   @Nullable private final View shutterView;
   @Nullable private final View surfaceView;
@@ -307,7 +310,6 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   private boolean controllerHideDuringAds;
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
-  private boolean isTouching;
   private static final int PICTURE_TYPE_FRONT_COVER = 3;
   private static final int PICTURE_TYPE_NOT_SET = -1;
 
@@ -324,6 +326,21 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     super(context, attrs, defStyleAttr);
 
     componentListener = new ComponentListener();
+    gestureDetector = new GestureDetectorCompat(
+        getContext(),
+        new GestureDetector.SimpleOnGestureListener() {
+          @Override
+          public boolean onDown(MotionEvent e) {
+            return true;
+          }
+
+          @Override
+          public boolean onSingleTapUp(MotionEvent e) {
+            performClick();
+            return  true;
+          }
+        }
+    );
 
     if (isInEditMode()) {
       contentFrame = null;
@@ -1105,24 +1122,14 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     return subtitleView;
   }
 
+  // performClick handled by GestureDetector
+  @SuppressLint("ClickableViewAccessibility")
   @Override
   public boolean onTouchEvent(MotionEvent event) {
     if (!useController() || player == null) {
       return false;
     }
-    switch (event.getAction()) {
-      case MotionEvent.ACTION_DOWN:
-        isTouching = true;
-        return true;
-      case MotionEvent.ACTION_UP:
-        if (isTouching) {
-          isTouching = false;
-          return performClick();
-        }
-        return false;
-      default:
-        return false;
-    }
+    return gestureDetector.onTouchEvent(event);
   }
 
   @Override
