@@ -52,15 +52,15 @@ import androidx.media3.exoplayer.source.ads.AdsLoader;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.util.DebugTextViewHelper;
 import androidx.media3.exoplayer.util.EventLogger;
-import androidx.media3.ui.StyledPlayerControlView;
-import androidx.media3.ui.StyledPlayerView;
+import androidx.media3.ui.PlayerControlView;
+import androidx.media3.ui.PlayerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /** An activity that plays media using {@link ExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, StyledPlayerControlView.VisibilityListener {
+    implements OnClickListener, PlayerControlView.VisibilityListener {
 
   // Saved instance state keys.
 
@@ -69,7 +69,7 @@ public class PlayerActivity extends AppCompatActivity
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
 
-  protected StyledPlayerView playerView;
+  protected PlayerView playerView;
   protected LinearLayout debugRootView;
   protected TextView debugTextView;
   protected @Nullable ExoPlayer player;
@@ -234,7 +234,7 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  // StyledPlayerControlView.VisibilityListener implementation
+  // PlayerControlView.VisibilityListener implementation
 
   @Override
   public void onVisibilityChange(int visibility) {

@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <androidx.media3.ui.StyledPlayerView android:id="@+id/player_view"
+  <androidx.media3.ui.PlayerView android:id="@+id/player_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1"

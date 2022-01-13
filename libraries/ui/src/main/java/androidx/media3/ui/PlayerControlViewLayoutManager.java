@@ -31,7 +31,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/* package */ final class StyledPlayerControlViewLayoutManager {
+/* package */ final class PlayerControlViewLayoutManager {
   private static final long ANIMATION_INTERVAL_MS = 2_000;
   private static final long DURATION_FOR_HIDING_ANIMATION_MS = 250;
   private static final long DURATION_FOR_SHOWING_ANIMATION_MS = 250;
@@ -48,7 +48,7 @@ import java.util.List;
   // Int for defining the UX state where the views are being animated to be shown.
   private static final int UX_STATE_ANIMATING_SHOW = 4;
 
-  private final StyledPlayerControlView playerControlView;
+  private final PlayerControlView playerControlView;
 
   @Nullable private final View controlsBackground;
   @Nullable private final ViewGroup centerControls;
@@ -84,7 +84,7 @@ import java.util.List;
   private boolean animationEnabled;
 
   @SuppressWarnings({"nullness:method.invocation", "nullness:methodref.receiver.bound"})
-  public StyledPlayerControlViewLayoutManager(StyledPlayerControlView playerControlView) {
+  public PlayerControlViewLayoutManager(PlayerControlView playerControlView) {
     this.playerControlView = playerControlView;
     showAllBarsRunnable = this::showAllBars;
     hideAllBarsRunnable = this::hideAllBars;

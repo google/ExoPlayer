@@ -24,7 +24,7 @@
     <enum name="zoom" value="4"/>
   </attr>
 
-  <!-- Must be kept in sync with LegacyPlayerView and StyledPlayerView -->
+  <!-- Must be kept in sync with LegacyPlayerView and PlayerView -->
   <attr name="surface_type" format="enum">
     <enum name="none" value="0"/>
     <enum name="surface_view" value="1"/>
@@ -40,7 +40,7 @@
     <flag name="all" value="2"/>
   </attr>
 
-  <!-- LegacyPlayerView and StyledPlayerView attributes -->
+  <!-- LegacyPlayerView and PlayerView attributes -->
   <attr name="use_artwork" format="boolean"/>
   <attr name="shutter_background_color" format="color"/>
   <attr name="default_artwork" format="reference"/>
@@ -56,7 +56,7 @@
   <attr name="keep_content_on_player_reset" format="boolean"/>
   <attr name="player_layout_id" format="reference"/>
 
-  <!-- LegacyPlayerControlView and StyledPlayerControlView attributes -->
+  <!-- LegacyPlayerControlView and PlayerControlView attributes -->
   <attr name="show_timeout" format="integer"/>
   <attr name="show_rewind_button" format="boolean"/>
   <attr name="show_fastforward_button" format="boolean"/>
@@ -91,7 +91,7 @@
   <attr name="ad_marker_color" format="color"/>
   <attr name="played_ad_marker_color" format="color"/>
 
-  <declare-styleable name="StyledPlayerView">
+  <declare-styleable name="PlayerView">
     <attr name="use_artwork"/>
     <attr name="shutter_background_color"/>
     <attr name="default_artwork"/>
@@ -105,7 +105,7 @@
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
     <attr name="resize_mode"/>
-    <!-- StyledPlayerControlView attributes -->
+    <!-- PlayerControlView attributes -->
     <attr name="show_timeout"/>
     <attr name="repeat_toggle_modes"/>
     <attr name="show_shuffle_button"/>

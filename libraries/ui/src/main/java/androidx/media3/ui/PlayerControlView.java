@@ -158,7 +158,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_styled_player_control_view}
+ *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
  *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a
  *       StyledPlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar}
@@ -193,7 +193,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <h2>Overriding the layout file</h2>
  *
  * To customize the layout of StyledPlayerControlView throughout your app, or just for certain
- * configurations, you can define {@code exo_styled_player_control_view.xml} layout files in your
+ * configurations, you can define {@code exo_player_control_view.xml} layout files in your
  * application {@code res/layout*} directories. But, in this case, you need to be careful since the
  * default animation implementation expects certain relative positions between children. See also <a
  * href="CustomLayout">Specifying a custom layout file</a>.
@@ -297,18 +297,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * <h2 id="CustomLayout">Specifying a custom layout file</h2>
  *
- * Defining your own {@code exo_styled_player_control_view.xml} is useful to customize the layout of
+ * Defining your own {@code exo_player_control_view.xml} is useful to customize the layout of
  * StyledPlayerControlView throughout your application. It's also possible to customize the layout
  * for a single instance in a layout file. This is achieved by setting the {@code
  * controller_layout_id} attribute on a StyledPlayerControlView. This will cause the specified
- * layout to be inflated instead of {@code exo_styled_player_control_view.xml} for only the instance
- * on which the attribute is set.
+ * layout to be inflated instead of {@code exo_player_control_view.xml} for only the instance on
+ * which the attribute is set.
  *
  * <p>You need to be careful when you set the {@code controller_layout_id}, because the default
  * animation implementation expects certain relative positions between children.
  */
 @UnstableApi
-public class StyledPlayerControlView extends FrameLayout {
+public class PlayerControlView extends FrameLayout {
 
   static {
     MediaLibraryInfo.registerModule("media3.ui");
@@ -426,7 +426,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private boolean[] extraPlayedAdGroups;
   private long currentWindowOffset;
 
-  private StyledPlayerControlViewLayoutManager controlViewLayoutManager;
+  private PlayerControlViewLayoutManager controlViewLayoutManager;
   private Resources resources;
 
   private RecyclerView settingsView;
@@ -448,15 +448,15 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private View playbackSpeedButton;
   @Nullable private View audioTrackButton;
 
-  public StyledPlayerControlView(Context context) {
+  public PlayerControlView(Context context) {
     this(context, /* attrs= */ null);
   }
 
-  public StyledPlayerControlView(Context context, @Nullable AttributeSet attrs) {
+  public PlayerControlView(Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, /* defStyleAttr= */ 0);
   }
 
-  public StyledPlayerControlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+  public PlayerControlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     this(context, attrs, defStyleAttr, attrs);
   }
 
@@ -466,13 +466,13 @@ public class StyledPlayerControlView extends FrameLayout {
     "nullness:method.invocation",
     "nullness:methodref.receiver.bound"
   })
-  public StyledPlayerControlView(
+  public PlayerControlView(
       Context context,
       @Nullable AttributeSet attrs,
       int defStyleAttr,
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
-    int controllerLayoutId = R.layout.exo_styled_player_control_view;
+    int controllerLayoutId = R.layout.exo_player_control_view;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
@@ -646,7 +646,7 @@ public class StyledPlayerControlView extends FrameLayout {
       updateButton(/* enabled= */ false, vrButton);
     }
 
-    controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
+    controlViewLayoutManager = new PlayerControlViewLayoutManager(this);
     controlViewLayoutManager.setAnimationEnabled(animationEnabled);
 
     String[] settingTexts = new String[2];
@@ -1767,7 +1767,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
     @Override
     public void onClick(View view) {
-      @Nullable Player player = StyledPlayerControlView.this.player;
+      @Nullable Player player = PlayerControlView.this.player;
       if (player == null) {
         return;
       }

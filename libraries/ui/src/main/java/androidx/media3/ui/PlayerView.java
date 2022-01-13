@@ -75,15 +75,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A high level view for {@link Player} media playbacks. It displays video, subtitles and album art
- * during playback, and displays playback controls using a {@link StyledPlayerControlView}.
+ * during playback, and displays playback controls using a {@link PlayerControlView}.
  *
- * <p>A StyledPlayerView can be customized by setting attributes (or calling corresponding methods),
+ * <p>A PlayerView can be customized by setting attributes (or calling corresponding methods),
  * overriding drawables, overriding the view's layout file, or by specifying a custom view layout
  * file.
  *
  * <h2>Attributes</h2>
  *
- * The following attributes can be set on a StyledPlayerView when used in a layout XML file:
+ * The following attributes can be set on a PlayerView when used in a layout XML file:
  *
  * <ul>
  *   <li><b>{@code use_artwork}</b> - Whether artwork is used if available in audio streams.
@@ -159,33 +159,33 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_styled_player_view}
+ *         <li>Default: {@code R.layout.exo_player_view}
  *       </ul>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout resource to be
- *       inflated by the child {@link StyledPlayerControlView}. See below for more details.
+ *       inflated by the child {@link PlayerControlView}. See below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.layout.exo_styled_player_control_view}
+ *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
- *   <li>All attributes that can be set on {@link StyledPlayerControlView} and {@link
- *       DefaultTimeBar} can also be set on a StyledPlayerView, and will be propagated to the
- *       inflated {@link StyledPlayerControlView} unless the layout is overridden to specify a
- *       custom {@code exo_controller} (see below).
+ *   <li>All attributes that can be set on {@link PlayerControlView} and {@link DefaultTimeBar} can
+ *       also be set on a PlayerView, and will be propagated to the inflated {@link
+ *       PlayerControlView} unless the layout is overridden to specify a custom {@code
+ *       exo_controller} (see below).
  * </ul>
  *
  * <h2>Overriding drawables</h2>
  *
- * The drawables used by {@link StyledPlayerControlView} (with its default layout file) can be
- * overridden by drawables with the same names defined in your application. See the {@link
- * StyledPlayerControlView} documentation for a list of drawables that can be overridden.
+ * The drawables used by {@link PlayerControlView} (with its default layout file) can be overridden
+ * by drawables with the same names defined in your application. See the {@link PlayerControlView}
+ * documentation for a list of drawables that can be overridden.
  *
  * <h2>Overriding the layout file</h2>
  *
- * To customize the layout of StyledPlayerView throughout your app, or just for certain
- * configurations, you can define {@code exo_styled_player_view.xml} layout files in your
- * application {@code res/layout*} directories. These layouts will override the one provided by the
- * library, and will be inflated for use by StyledPlayerView. The view identifies and binds its
- * children by looking for the following ids:
+ * To customize the layout of PlayerView throughout your app, or just for certain configurations,
+ * you can define {@code exo_player_view.xml} layout files in your application {@code res/layout*}
+ * directories. These layouts will override the one provided by the library, and will be inflated
+ * for use by PlayerView. The view identifies and binds its children by looking for the following
+ * ids:
  *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
@@ -219,17 +219,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *         <li>Type: {@link TextView}
  *       </ul>
  *   <li><b>{@code exo_controller_placeholder}</b> - A placeholder that's replaced with the inflated
- *       {@link StyledPlayerControlView}. Ignored if an {@code exo_controller} view exists.
+ *       {@link PlayerControlView}. Ignored if an {@code exo_controller} view exists.
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
- *   <li><b>{@code exo_controller}</b> - An already inflated {@link StyledPlayerControlView}. Allows
- *       use of a custom extension of {@link StyledPlayerControlView}. {@link
- *       StyledPlayerControlView} and {@link DefaultTimeBar} attributes set on the StyledPlayerView
- *       will not be automatically propagated through to this instance. If a view exists with this
- *       id, any {@code exo_controller_placeholder} view will be ignored.
+ *   <li><b>{@code exo_controller}</b> - An already inflated {@link PlayerControlView}. Allows use
+ *       of a custom extension of {@link PlayerControlView}. {@link PlayerControlView} and {@link
+ *       DefaultTimeBar} attributes set on the PlayerView will not be automatically propagated
+ *       through to this instance. If a view exists with this id, any {@code
+ *       exo_controller_placeholder} view will be ignored.
  *       <ul>
- *         <li>Type: {@link StyledPlayerControlView}
+ *         <li>Type: {@link PlayerControlView}
  *       </ul>
  *   <li><b>{@code exo_ad_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
  *       is used to show ad UI (if applicable).
@@ -248,14 +248,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *
  * <h2>Specifying a custom layout file</h2>
  *
- * Defining your own {@code exo_styled_player_view.xml} is useful to customize the layout of
- * StyledPlayerView throughout your application. It's also possible to customize the layout for a
- * single instance in a layout file. This is achieved by setting the {@code player_layout_id}
- * attribute on a StyledPlayerView. This will cause the specified layout to be inflated instead of
- * {@code exo_styled_player_view.xml} for only the instance on which the attribute is set.
+ * Defining your own {@code exo_player_view.xml} is useful to customize the layout of PlayerView
+ * throughout your application. It's also possible to customize the layout for a single instance in
+ * a layout file. This is achieved by setting the {@code player_layout_id} attribute on a
+ * PlayerView. This will cause the specified layout to be inflated instead of {@code
+ * exo_player_view.xml} for only the instance on which the attribute is set.
  */
 @UnstableApi
-public class StyledPlayerView extends FrameLayout implements AdViewProvider {
+public class PlayerView extends FrameLayout implements AdViewProvider {
 
   /**
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
@@ -293,13 +293,13 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   @Nullable private final SubtitleView subtitleView;
   @Nullable private final View bufferingView;
   @Nullable private final TextView errorMessageView;
-  @Nullable private final StyledPlayerControlView controller;
+  @Nullable private final PlayerControlView controller;
   @Nullable private final FrameLayout adOverlayFrameLayout;
   @Nullable private final FrameLayout overlayFrameLayout;
 
   @Nullable private Player player;
   private boolean useController;
-  @Nullable private StyledPlayerControlView.VisibilityListener controllerVisibilityListener;
+  @Nullable private PlayerControlView.VisibilityListener controllerVisibilityListener;
   private boolean useArtwork;
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
@@ -315,16 +315,16 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   private static final int PICTURE_TYPE_FRONT_COVER = 3;
   private static final int PICTURE_TYPE_NOT_SET = -1;
 
-  public StyledPlayerView(Context context) {
+  public PlayerView(Context context) {
     this(context, /* attrs= */ null);
   }
 
-  public StyledPlayerView(Context context, @Nullable AttributeSet attrs) {
+  public PlayerView(Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, /* defStyleAttr= */ 0);
   }
 
   @SuppressWarnings({"nullness:argument", "nullness:method.invocation"})
-  public StyledPlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+  public PlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
     componentListener = new ComponentListener();
@@ -353,13 +353,13 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
     boolean shutterColorSet = false;
     int shutterColor = 0;
-    int playerLayoutId = R.layout.exo_styled_player_view;
+    int playerLayoutId = R.layout.exo_player_view;
     boolean useArtwork = true;
     int defaultArtworkId = 0;
     boolean useController = true;
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
-    int controllerShowTimeoutMs = StyledPlayerControlView.DEFAULT_SHOW_TIMEOUT_MS;
+    int controllerShowTimeoutMs = PlayerControlView.DEFAULT_SHOW_TIMEOUT_MS;
     boolean controllerHideOnTouch = true;
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
@@ -369,32 +369,28 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
           context
               .getTheme()
               .obtainStyledAttributes(
-                  attrs, R.styleable.StyledPlayerView, defStyleAttr, /* defStyleRes= */ 0);
+                  attrs, R.styleable.PlayerView, defStyleAttr, /* defStyleRes= */ 0);
       try {
-        shutterColorSet = a.hasValue(R.styleable.StyledPlayerView_shutter_background_color);
-        shutterColor =
-            a.getColor(R.styleable.StyledPlayerView_shutter_background_color, shutterColor);
-        playerLayoutId =
-            a.getResourceId(R.styleable.StyledPlayerView_player_layout_id, playerLayoutId);
-        useArtwork = a.getBoolean(R.styleable.StyledPlayerView_use_artwork, useArtwork);
+        shutterColorSet = a.hasValue(R.styleable.PlayerView_shutter_background_color);
+        shutterColor = a.getColor(R.styleable.PlayerView_shutter_background_color, shutterColor);
+        playerLayoutId = a.getResourceId(R.styleable.PlayerView_player_layout_id, playerLayoutId);
+        useArtwork = a.getBoolean(R.styleable.PlayerView_use_artwork, useArtwork);
         defaultArtworkId =
-            a.getResourceId(R.styleable.StyledPlayerView_default_artwork, defaultArtworkId);
-        useController = a.getBoolean(R.styleable.StyledPlayerView_use_controller, useController);
-        surfaceType = a.getInt(R.styleable.StyledPlayerView_surface_type, surfaceType);
-        resizeMode = a.getInt(R.styleable.StyledPlayerView_resize_mode, resizeMode);
+            a.getResourceId(R.styleable.PlayerView_default_artwork, defaultArtworkId);
+        useController = a.getBoolean(R.styleable.PlayerView_use_controller, useController);
+        surfaceType = a.getInt(R.styleable.PlayerView_surface_type, surfaceType);
+        resizeMode = a.getInt(R.styleable.PlayerView_resize_mode, resizeMode);
         controllerShowTimeoutMs =
-            a.getInt(R.styleable.StyledPlayerView_show_timeout, controllerShowTimeoutMs);
+            a.getInt(R.styleable.PlayerView_show_timeout, controllerShowTimeoutMs);
         controllerHideOnTouch =
-            a.getBoolean(R.styleable.StyledPlayerView_hide_on_touch, controllerHideOnTouch);
-        controllerAutoShow =
-            a.getBoolean(R.styleable.StyledPlayerView_auto_show, controllerAutoShow);
-        showBuffering = a.getInteger(R.styleable.StyledPlayerView_show_buffering, showBuffering);
+            a.getBoolean(R.styleable.PlayerView_hide_on_touch, controllerHideOnTouch);
+        controllerAutoShow = a.getBoolean(R.styleable.PlayerView_auto_show, controllerAutoShow);
+        showBuffering = a.getInteger(R.styleable.PlayerView_show_buffering, showBuffering);
         keepContentOnPlayerReset =
             a.getBoolean(
-                R.styleable.StyledPlayerView_keep_content_on_player_reset,
-                keepContentOnPlayerReset);
+                R.styleable.PlayerView_keep_content_on_player_reset, keepContentOnPlayerReset);
         controllerHideDuringAds =
-            a.getBoolean(R.styleable.StyledPlayerView_hide_during_ads, controllerHideDuringAds);
+            a.getBoolean(R.styleable.PlayerView_hide_during_ads, controllerHideDuringAds);
       } finally {
         a.recycle();
       }
@@ -451,9 +447,9 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
           break;
       }
       surfaceView.setLayoutParams(params);
-      // We don't want surfaceView to be clickable separately to the StyledPlayerView itself, but we
+      // We don't want surfaceView to be clickable separately to the PlayerView itself, but we
       // do want to register as an OnClickListener so that surfaceView implementations can propagate
-      // click events up to the StyledPlayerView by calling their own performClick method.
+      // click events up to the PlayerView by calling their own performClick method.
       surfaceView.setOnClickListener(componentListener);
       surfaceView.setClickable(false);
       contentFrame.addView(surfaceView, 0);
@@ -496,14 +492,14 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     }
 
     // Playback control view.
-    StyledPlayerControlView customController = findViewById(R.id.exo_controller);
+    PlayerControlView customController = findViewById(R.id.exo_controller);
     View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
     if (customController != null) {
       this.controller = customController;
     } else if (controllerPlaceholder != null) {
       // Propagate attrs as playbackAttrs so that StyledPlayerControlView's custom attributes are
       // transferred, but standard attributes (e.g. background) are not.
-      this.controller = new StyledPlayerControlView(context, null, 0, attrs);
+      this.controller = new PlayerControlView(context, null, 0, attrs);
       controller.setId(R.id.exo_controller);
       controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
       ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
@@ -533,9 +529,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
    * @param newPlayerView The new view to attach to the player.
    */
   public static void switchTargetView(
-      Player player,
-      @Nullable StyledPlayerView oldPlayerView,
-      @Nullable StyledPlayerView newPlayerView) {
+      Player player, @Nullable PlayerView oldPlayerView, @Nullable PlayerView newPlayerView) {
     if (oldPlayerView == newPlayerView) {
       return;
     }
@@ -561,10 +555,10 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
    * Sets the {@link Player} to use.
    *
    * <p>To transition a {@link Player} from targeting one view to another, it's recommended to use
-   * {@link #switchTargetView(Player, StyledPlayerView, StyledPlayerView)} rather than this method.
-   * If you do wish to use this method directly, be sure to attach the player to the new view
-   * <em>before</em> calling {@code setPlayer(null)} to detach it from the old one. This ordering is
-   * significantly more efficient and may allow for more seamless transitions.
+   * {@link #switchTargetView(Player, PlayerView, PlayerView)} rather than this method. If you do
+   * wish to use this method directly, be sure to attach the player to the new view <em>before</em>
+   * calling {@code setPlayer(null)} to detach it from the old one. This ordering is significantly
+   * more efficient and may allow for more seamless transitions.
    *
    * @param player The {@link Player} to use, or {@code null} to detach the current player. Only
    *     players which are accessed on the main thread are supported ({@code
@@ -913,13 +907,13 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Sets the {@link StyledPlayerControlView.VisibilityListener}.
+   * Sets the {@link PlayerControlView.VisibilityListener}.
    *
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
    */
   public void setControllerVisibilityListener(
-      @Nullable StyledPlayerControlView.VisibilityListener listener) {
+      @Nullable PlayerControlView.VisibilityListener listener) {
     Assertions.checkStateNotNull(controller);
     if (this.controllerVisibilityListener == listener) {
       return;
@@ -934,13 +928,13 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Sets the {@link StyledPlayerControlView.OnFullScreenModeChangedListener}.
+   * Sets the {@link PlayerControlView.OnFullScreenModeChangedListener}.
    *
    * @param listener The listener to be notified when the fullscreen button is clicked, or null to
    *     remove the current listener and hide the fullscreen button.
    */
   public void setControllerOnFullScreenModeChangedListener(
-      @Nullable StyledPlayerControlView.OnFullScreenModeChangedListener listener) {
+      @Nullable PlayerControlView.OnFullScreenModeChangedListener listener) {
     Assertions.checkStateNotNull(controller);
     controller.setOnFullScreenModeChangedListener(listener);
   }
@@ -1496,7 +1490,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       implements Player.Listener,
           OnLayoutChangeListener,
           OnClickListener,
-          StyledPlayerControlView.VisibilityListener {
+          PlayerControlView.VisibilityListener {
 
     private final Period period;
     private @Nullable Object lastPeriodUidWithTracks;
@@ -1531,7 +1525,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
-      Player player = checkNotNull(StyledPlayerView.this.player);
+      Player player = checkNotNull(PlayerView.this.player);
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;

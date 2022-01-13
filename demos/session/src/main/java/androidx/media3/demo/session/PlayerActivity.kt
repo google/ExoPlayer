@@ -34,7 +34,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import androidx.media3.ui.StyledPlayerView
+import androidx.media3.ui.PlayerView
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 
@@ -43,7 +43,7 @@ class PlayerActivity : AppCompatActivity() {
   private val controller: MediaController?
     get() = if (controllerFuture.isDone) controllerFuture.get() else null
 
-  private lateinit var playerView: StyledPlayerView
+  private lateinit var playerView: PlayerView
   private lateinit var mediaList: ListView
   private lateinit var mediaListAdapter: PlayingMediaItemArrayAdapter
   private val subItemMediaList: MutableList<MediaItem> = mutableListOf()
