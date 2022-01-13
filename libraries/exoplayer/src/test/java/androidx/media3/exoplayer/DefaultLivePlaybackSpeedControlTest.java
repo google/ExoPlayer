@@ -49,8 +49,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     assertThat(defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs()).isEqualTo(42_000);
@@ -66,8 +66,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(4321)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     assertThat(defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs()).isEqualTo(400_000);
@@ -83,8 +83,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(3)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     assertThat(defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs()).isEqualTo(5_000);
@@ -101,8 +101,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
@@ -122,8 +122,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
@@ -143,8 +143,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
@@ -165,6 +165,22 @@ public class DefaultLivePlaybackSpeedControlTest {
   }
 
   @Test
+  public void getTargetLiveOffsetUs_withUnitSpeed_returnsUnset() {
+    DefaultLivePlaybackSpeedControl defaultLivePlaybackSpeedControl =
+        new DefaultLivePlaybackSpeedControl.Builder().build();
+    defaultLivePlaybackSpeedControl.setLiveConfiguration(
+        new LiveConfiguration.Builder()
+            .setTargetOffsetMs(42)
+            .setMinPlaybackSpeed(1f)
+            .setMaxPlaybackSpeed(1f)
+            .build());
+
+    long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
+
+    assertThat(targetLiveOffsetUs).isEqualTo(C.TIME_UNSET);
+  }
+
+  @Test
   public void
       getTargetLiveOffsetUs_afterSetTargetLiveOffsetOverrideWithTimeUnset_returnsMediaLiveOffset() {
     DefaultLivePlaybackSpeedControl defaultLivePlaybackSpeedControl =
@@ -175,8 +191,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
     defaultLivePlaybackSpeedControl.setTargetLiveOffsetOverrideUs(C.TIME_UNSET);
 
@@ -196,8 +212,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     long targetLiveOffsetBeforeUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
@@ -219,8 +235,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     List<Long> targetOffsetsUs = new ArrayList<>();
@@ -245,8 +261,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     defaultLivePlaybackSpeedControl.notifyRebuffer();
@@ -267,8 +283,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     defaultLivePlaybackSpeedControl.notifyRebuffer();
@@ -290,8 +306,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     long targetLiveOffsetBeforeUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
@@ -322,8 +338,8 @@ public class DefaultLivePlaybackSpeedControlTest {
             .setTargetOffsetMs(42)
             .setMinOffsetMs(5)
             .setMaxOffsetMs(400)
-            .setMinPlaybackSpeed(1f)
-            .setMaxPlaybackSpeed(1f)
+            .setMinPlaybackSpeed(0.95f)
+            .setMaxPlaybackSpeed(1.05f)
             .build());
 
     defaultLivePlaybackSpeedControl.notifyRebuffer();

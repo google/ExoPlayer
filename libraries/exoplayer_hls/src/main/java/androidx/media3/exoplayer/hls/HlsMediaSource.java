@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaItem.LiveConfiguration;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.StreamKey;
 import androidx.media3.common.util.UnstableApi;
@@ -476,7 +477,7 @@ public final class HlsMediaSource extends BaseMediaSource
     targetLiveOffsetUs =
         Util.constrainValue(
             targetLiveOffsetUs, liveEdgeOffsetUs, playlist.durationUs + liveEdgeOffsetUs);
-    maybeUpdateLiveConfiguration(targetLiveOffsetUs);
+    updateLiveConfiguration(playlist, targetLiveOffsetUs);
     long windowDefaultStartPositionUs =
         getLiveWindowDefaultStartPositionUs(playlist, liveEdgeOffsetUs);
     boolean suppressPositionProjection =
@@ -566,12 +567,18 @@ public final class HlsMediaSource extends BaseMediaSource
     return segment.relativeStartTimeUs;
   }
 
-  private void maybeUpdateLiveConfiguration(long targetLiveOffsetUs) {
-    long targetLiveOffsetMs = Util.usToMs(targetLiveOffsetUs);
-    if (targetLiveOffsetMs != liveConfiguration.targetOffsetMs) {
-      liveConfiguration =
-          liveConfiguration.buildUpon().setTargetOffsetMs(targetLiveOffsetMs).build();
-    }
+  private void updateLiveConfiguration(HlsMediaPlaylist playlist, long targetLiveOffsetUs) {
+    boolean disableSpeedAdjustment =
+        mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
+            && mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
+            && playlist.serverControl.holdBackUs == C.TIME_UNSET
+            && playlist.serverControl.partHoldBackUs == C.TIME_UNSET;
+    liveConfiguration =
+        new LiveConfiguration.Builder()
+            .setTargetOffsetMs(Util.usToMs(targetLiveOffsetUs))
+            .setMinPlaybackSpeed(disableSpeedAdjustment ? 1f : liveConfiguration.minPlaybackSpeed)
+            .setMaxPlaybackSpeed(disableSpeedAdjustment ? 1f : liveConfiguration.maxPlaybackSpeed)
+            .build();
   }
 
   /**
