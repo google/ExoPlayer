@@ -42,7 +42,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for frame processing via {@link FrameEditor#processData()}. */
+/**
+ * Pixel test for frame processing via {@link FrameEditor#processData()}. Expected images are taken
+ * from emulators, so tests on physical devices may fail. To test on physical devices, please modify
+ * the MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE.
+ */
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorDataProcessingTest {
 
@@ -54,6 +58,12 @@ public final class FrameEditorDataProcessingTest {
    * test to pass. The value is chosen so that differences in decoder behavior across emulator
    * versions shouldn't affect whether the test passes, but substantial distortions introduced by
    * changes in the behavior of the frame editor will cause the test to fail.
+   *
+   * <p>To run this test on physical devices, please use a value of 5f, rather than 0.1f. This
+   * higher value will ignore some very small errors, but will allow for some differences caused by
+   * graphics implementations to be ignored. When the difference is close to the threshold, manually
+   * inspect expected/actual bitmaps to confirm failure, as it's possible this is caused by a
+   * difference in the codec or graphics implementation as opposed to a FrameEditor issue.
    */
   private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 0.1f;
   /** Timeout for dequeueing buffers from the codec, in microseconds. */
