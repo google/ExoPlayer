@@ -21,6 +21,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.MediaCodec;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -216,14 +217,25 @@ public final class TransformationException extends Exception {
    *
    * @param cause The cause of the failure.
    * @param componentName The name of the component used, e.g. 'VideoEncoder'.
-   * @param format The {@link Format} used for the decoder/encoder.
+   * @param configurationFormat The {@link Format} used for configuring the decoder/encoder.
+   * @param mediaCodecName The name of the {@link MediaCodec} used, if known.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
   public static TransformationException createForCodec(
-      Throwable cause, String componentName, Format format, int errorCode) {
+      Throwable cause,
+      String componentName,
+      Format configurationFormat,
+      @Nullable String mediaCodecName,
+      int errorCode) {
     return new TransformationException(
-        componentName + " error, format = " + format, cause, errorCode);
+        componentName
+            + " error, format = "
+            + configurationFormat
+            + ", mediaCodecName="
+            + mediaCodecName,
+        cause,
+        errorCode);
   }
 
   /**

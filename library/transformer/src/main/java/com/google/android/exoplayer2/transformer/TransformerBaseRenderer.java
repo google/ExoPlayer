@@ -139,7 +139,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected abstract boolean ensureConfigured() throws TransformationException;
 
   @RequiresNonNull({"samplePipeline", "#1.data"})
-  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer) {
+  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
+      throws TransformationException {
     samplePipeline.queueInputBuffer();
   }
 
@@ -147,9 +148,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to write sample pipeline output data to the muxer.
    *
    * @return Whether it may be possible to write more data immediately by calling this method again.
+   * @throws Muxer.MuxerException If a muxing problem occurs.
+   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
    */
   @RequiresNonNull("samplePipeline")
-  private boolean feedMuxerFromPipeline() throws Muxer.MuxerException {
+  private boolean feedMuxerFromPipeline() throws Muxer.MuxerException, TransformationException {
     if (!muxerWrapperTrackAdded) {
       @Nullable Format samplePipelineOutputFormat = samplePipeline.getOutputFormat();
       if (samplePipelineOutputFormat == null) {
@@ -185,9 +188,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to read input data and pass the input data to the sample pipeline.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
+   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
    */
   @RequiresNonNull("samplePipeline")
-  private boolean feedPipelineFromInput() {
+  private boolean feedPipelineFromInput() throws TransformationException {
     @Nullable DecoderInputBuffer samplePipelineInputBuffer = samplePipeline.dequeueInputBuffer();
     if (samplePipelineInputBuffer == null) {
       return false;

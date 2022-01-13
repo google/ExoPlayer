@@ -107,6 +107,7 @@ public final class Codec {
 
   private final BufferInfo outputBufferInfo;
   private final MediaCodec mediaCodec;
+  private final Format configurationFormat;
   @Nullable private final Surface inputSurface;
 
   private @MonotonicNonNull Format outputFormat;
@@ -117,13 +118,34 @@ public final class Codec {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
 
-  /** Creates a {@code Codec} from a configured and started {@link MediaCodec}. */
-  public Codec(MediaCodec mediaCodec, @Nullable Surface inputSurface) {
+  /**
+   * Creates a {@code Codec} from a configured and started {@link MediaCodec}.
+   *
+   * @param mediaCodec The configured and started {@link MediaCodec}.
+   * @param configurationFormat See {@link #getConfigurationFormat()}.
+   * @param inputSurface The input {@link Surface} if the {@link MediaCodec} receives input from a
+   *     surface.
+   */
+  public Codec(MediaCodec mediaCodec, Format configurationFormat, @Nullable Surface inputSurface) {
     this.mediaCodec = mediaCodec;
+    this.configurationFormat = configurationFormat;
     this.inputSurface = inputSurface;
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
+  }
+
+  /**
+   * Returns the {@link Format} used for configuring the codec.
+   *
+   * <p>The configuration {@link Format} is the input {@link Format} used by the {@link
+   * DecoderFactory} or output {@link Format} used by the {@link EncoderFactory} for selecting and
+   * configuring the underlying {@link MediaCodec}.
+   */
+  // TODO(b/214012830): Use this to check whether the Format passed to the factory and actual
+  // configuration format differ to see whether fallback was applied.
+  public Format getConfigurationFormat() {
+    return configurationFormat;
   }
 
   /** Returns the input {@link Surface}, or null if the input is not a surface. */
@@ -137,18 +159,28 @@ public final class Codec {
    *
    * @param inputBuffer The buffer where the dequeued buffer data is stored.
    * @return Whether an input buffer is ready to be used.
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
   @EnsuresNonNullIf(expression = "#1.data", result = true)
-  public boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer) {
+  public boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer)
+      throws TransformationException {
     if (inputStreamEnded) {
       return false;
     }
     if (inputBufferIndex < 0) {
-      inputBufferIndex = mediaCodec.dequeueInputBuffer(/* timeoutUs= */ 0);
+      try {
+        inputBufferIndex = mediaCodec.dequeueInputBuffer(/* timeoutUs= */ 0);
+      } catch (RuntimeException e) {
+        throw createTransformationException(e);
+      }
       if (inputBufferIndex < 0) {
         return false;
       }
-      inputBuffer.data = mediaCodec.getInputBuffer(inputBufferIndex);
+      try {
+        inputBuffer.data = mediaCodec.getInputBuffer(inputBufferIndex);
+      } catch (RuntimeException e) {
+        throw createTransformationException(e);
+      }
       inputBuffer.clear();
     }
     checkNotNull(inputBuffer.data);
@@ -158,8 +190,13 @@ public final class Codec {
   /**
    * Queues an input buffer to the decoder. No buffers may be queued after an {@link
    * DecoderInputBuffer#isEndOfStream() end of stream} buffer has been queued.
+   *
+   * @param inputBuffer The {@link DecoderInputBuffer input buffer}.
+   * @throws IllegalStateException If called again after an {@link
+   *     DecoderInputBuffer#isEndOfStream() end of stream} buffer has been queued.
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
-  public void queueInputBuffer(DecoderInputBuffer inputBuffer) {
+  public void queueInputBuffer(DecoderInputBuffer inputBuffer) throws TransformationException {
     checkState(
         !inputStreamEnded, "Input buffer can not be queued after the input stream has ended.");
 
@@ -174,32 +211,64 @@ public final class Codec {
       inputStreamEnded = true;
       flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
     }
-    mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
+    try {
+      mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
+    } catch (RuntimeException e) {
+      throw createTransformationException(e);
+    }
     inputBufferIndex = C.INDEX_UNSET;
     inputBuffer.data = null;
   }
 
-  public void signalEndOfInputStream() {
-    mediaCodec.signalEndOfInputStream();
+  /**
+   * Signals end-of-stream on input to a video encoder.
+   *
+   * <p>This method does not need to be called for audio/video decoders or audio encoders. For these
+   * the {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag should be set on the last input buffer
+   * {@link #queueInputBuffer(DecoderInputBuffer) queued}.
+   *
+   * @throws IllegalStateException If the codec is not an encoder receiving input from a {@link
+   *     Surface}.
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
+   */
+  public void signalEndOfInputStream() throws TransformationException {
+    checkState(mediaCodec.getCodecInfo().isEncoder() && inputSurface != null);
+    try {
+      mediaCodec.signalEndOfInputStream();
+    } catch (RuntimeException e) {
+      throw createTransformationException(e);
+    }
   }
 
-  /** Returns the current output format, if available. */
+  /**
+   * Returns the current output format, if available.
+   *
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
+   */
   @Nullable
-  public Format getOutputFormat() {
+  public Format getOutputFormat() throws TransformationException {
     // The format is updated when dequeueing a 'special' buffer index, so attempt to dequeue now.
     maybeDequeueOutputBuffer();
     return outputFormat;
   }
 
-  /** Returns the current output {@link ByteBuffer}, if available. */
+  /**
+   * Returns the current output {@link ByteBuffer}, if available.
+   *
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
+   */
   @Nullable
-  public ByteBuffer getOutputBuffer() {
+  public ByteBuffer getOutputBuffer() throws TransformationException {
     return maybeDequeueAndSetOutputBuffer() ? outputBuffer : null;
   }
 
-  /** Returns the {@link BufferInfo} associated with the current output buffer, if available. */
+  /**
+   * Returns the {@link BufferInfo} associated with the current output buffer, if available.
+   *
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
+   */
   @Nullable
-  public BufferInfo getOutputBufferInfo() {
+  public BufferInfo getOutputBufferInfo() throws TransformationException {
     return maybeDequeueOutputBuffer() ? outputBufferInfo : null;
   }
 
@@ -208,8 +277,10 @@ public final class Codec {
    *
    * <p>This should be called after the buffer has been processed. The next output buffer will not
    * be available until the previous has been released.
+   *
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
-  public void releaseOutputBuffer() {
+  public void releaseOutputBuffer() throws TransformationException {
     releaseOutputBuffer(/* render= */ false);
   }
 
@@ -221,10 +292,17 @@ public final class Codec {
    *
    * <p>This should be called after the buffer has been processed. The next output buffer will not
    * be available until the previous has been released.
+   *
+   * @param render Whether the buffer needs to be sent to the output {@link Surface}.
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
-  public void releaseOutputBuffer(boolean render) {
+  public void releaseOutputBuffer(boolean render) throws TransformationException {
     outputBuffer = null;
-    mediaCodec.releaseOutputBuffer(outputBufferIndex, render);
+    try {
+      mediaCodec.releaseOutputBuffer(outputBufferIndex, render);
+    } catch (RuntimeException e) {
+      throw createTransformationException(e);
+    }
     outputBufferIndex = C.INDEX_UNSET;
   }
 
@@ -246,13 +324,18 @@ public final class Codec {
    * Tries obtaining an output buffer and sets {@link #outputBuffer} to the obtained output buffer.
    *
    * @return {@code true} if a buffer is successfully obtained, {@code false} otherwise.
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
-  private boolean maybeDequeueAndSetOutputBuffer() {
+  private boolean maybeDequeueAndSetOutputBuffer() throws TransformationException {
     if (!maybeDequeueOutputBuffer()) {
       return false;
     }
 
-    outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
+    try {
+      outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
+    } catch (RuntimeException e) {
+      throw createTransformationException(e);
+    }
     outputBuffer.position(outputBufferInfo.offset);
     outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
     return true;
@@ -261,8 +344,10 @@ public final class Codec {
   /**
    * Returns true if there is already an output buffer pending. Otherwise attempts to dequeue an
    * output buffer and returns whether there is a new output buffer.
+   *
+   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
-  private boolean maybeDequeueOutputBuffer() {
+  private boolean maybeDequeueOutputBuffer() throws TransformationException {
     if (outputBufferIndex >= 0) {
       return true;
     }
@@ -270,7 +355,11 @@ public final class Codec {
       return false;
     }
 
-    outputBufferIndex = mediaCodec.dequeueOutputBuffer(outputBufferInfo, /* timeoutUs= */ 0);
+    try {
+      outputBufferIndex = mediaCodec.dequeueOutputBuffer(outputBufferInfo, /* timeoutUs= */ 0);
+    } catch (RuntimeException e) {
+      throw createTransformationException(e);
+    }
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
         outputFormat = getFormat(mediaCodec.getOutputFormat());
@@ -290,6 +379,20 @@ public final class Codec {
       return false;
     }
     return true;
+  }
+
+  private TransformationException createTransformationException(Exception cause) {
+    boolean isEncoder = mediaCodec.getCodecInfo().isEncoder();
+    boolean isVideo = MimeTypes.isVideo(configurationFormat.sampleMimeType);
+    String componentName = (isVideo ? "Video" : "Audio") + (isEncoder ? "Encoder" : "Decoder");
+    return TransformationException.createForCodec(
+        cause,
+        componentName,
+        configurationFormat,
+        mediaCodec.getName(),
+        isEncoder
+            ? TransformationException.ERROR_CODE_ENCODING_FAILED
+            : TransformationException.ERROR_CODE_DECODING_FAILED);
   }
 
   private static Format getFormat(MediaFormat mediaFormat) {

@@ -138,12 +138,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (inputSurface != null) {
         inputSurface.release();
       }
+      @Nullable String mediaCodecName = null;
       if (mediaCodec != null) {
+        mediaCodecName = mediaCodec.getName();
         mediaCodec.release();
       }
-      throw createTransformationException(e, format, isVideo, isDecoder);
+      throw createTransformationException(e, format, isVideo, isDecoder, mediaCodecName);
     }
-    return new Codec(mediaCodec, inputSurface);
+    return new Codec(mediaCodec, format, inputSurface);
   }
 
   private static void configureCodec(
@@ -167,13 +169,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private static TransformationException createTransformationException(
-      Exception cause, Format format, boolean isVideo, boolean isDecoder) {
+      Exception cause,
+      Format format,
+      boolean isVideo,
+      boolean isDecoder,
+      @Nullable String mediaCodecName) {
     String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
     if (cause instanceof IOException || cause instanceof MediaCodec.CodecException) {
       return TransformationException.createForCodec(
           cause,
           componentName,
           format,
+          mediaCodecName,
           isDecoder
               ? TransformationException.ERROR_CODE_DECODER_INIT_FAILED
               : TransformationException.ERROR_CODE_ENCODER_INIT_FAILED);
@@ -183,6 +190,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           cause,
           componentName,
           format,
+          mediaCodecName,
           isDecoder
               ? TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
               : TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
