@@ -49,13 +49,6 @@ public interface Allocator {
   void release(Allocation allocation);
 
   /**
-   * Releases an array of {@link Allocation Allocations} back to the allocator.
-   *
-   * @param allocations The array of {@link Allocation}s being released.
-   */
-  void release(Allocation[] allocations);
-
-  /**
    * Releases all {@link Allocation Allocations} in the chain starting at the given {@link
    * AllocationNode}.
    *

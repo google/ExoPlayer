@@ -31,7 +31,6 @@ public final class DefaultAllocator implements Allocator {
   private final boolean trimOnReset;
   private final int individualAllocationSize;
   @Nullable private final byte[] initialAllocationBlock;
-  private final Allocation[] singleAllocationReleaseHolder;
 
   private int targetBufferSize;
   private int allocatedCount;
@@ -76,7 +75,6 @@ public final class DefaultAllocator implements Allocator {
     } else {
       initialAllocationBlock = null;
     }
-    singleAllocationReleaseHolder = new Allocation[1];
   }
 
   public synchronized void reset() {
@@ -114,16 +112,8 @@ public final class DefaultAllocator implements Allocator {
 
   @Override
   public synchronized void release(Allocation allocation) {
-    singleAllocationReleaseHolder[0] = allocation;
-    release(singleAllocationReleaseHolder);
-  }
-
-  @Override
-  public synchronized void release(Allocation[] allocations) {
-    for (Allocation allocation : allocations) {
-      availableAllocations[availableCount++] = allocation;
-    }
-    allocatedCount -= allocations.length;
+    availableAllocations[availableCount++] = allocation;
+    allocatedCount--;
     // Wake up threads waiting for the allocated size to drop.
     notifyAll();
   }
