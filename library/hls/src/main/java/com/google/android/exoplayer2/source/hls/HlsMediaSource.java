@@ -26,6 +26,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -474,7 +475,7 @@ public final class HlsMediaSource extends BaseMediaSource
     targetLiveOffsetUs =
         Util.constrainValue(
             targetLiveOffsetUs, liveEdgeOffsetUs, playlist.durationUs + liveEdgeOffsetUs);
-    maybeUpdateLiveConfiguration(targetLiveOffsetUs);
+    updateLiveConfiguration(playlist, targetLiveOffsetUs);
     long windowDefaultStartPositionUs =
         getLiveWindowDefaultStartPositionUs(playlist, liveEdgeOffsetUs);
     boolean suppressPositionProjection =
@@ -564,12 +565,18 @@ public final class HlsMediaSource extends BaseMediaSource
     return segment.relativeStartTimeUs;
   }
 
-  private void maybeUpdateLiveConfiguration(long targetLiveOffsetUs) {
-    long targetLiveOffsetMs = Util.usToMs(targetLiveOffsetUs);
-    if (targetLiveOffsetMs != liveConfiguration.targetOffsetMs) {
-      liveConfiguration =
-          liveConfiguration.buildUpon().setTargetOffsetMs(targetLiveOffsetMs).build();
-    }
+  private void updateLiveConfiguration(HlsMediaPlaylist playlist, long targetLiveOffsetUs) {
+    boolean disableSpeedAdjustment =
+        mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
+            && mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
+            && playlist.serverControl.holdBackUs == C.TIME_UNSET
+            && playlist.serverControl.partHoldBackUs == C.TIME_UNSET;
+    liveConfiguration =
+        new LiveConfiguration.Builder()
+            .setTargetOffsetMs(Util.usToMs(targetLiveOffsetUs))
+            .setMinPlaybackSpeed(disableSpeedAdjustment ? 1f : liveConfiguration.minPlaybackSpeed)
+            .setMaxPlaybackSpeed(disableSpeedAdjustment ? 1f : liveConfiguration.maxPlaybackSpeed)
+            .build();
   }
 
   /**

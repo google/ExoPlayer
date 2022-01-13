@@ -17,7 +17,7 @@
     *   Sleep and retry when creating a `MediaCodec` instance fails. This works
         around an issue that occurs on some devices when switching a surface
         from a secure codec to another codec
-        (#8696)[https://github.com/google/ExoPlayer/issues/8696].
+        ((#8696)[https://github.com/google/ExoPlayer/issues/8696]).
     *   Add `MediaCodecAdapter.getMetrics()` to allow users obtain metrics data
         from `MediaCodec`.
         ([#9766](https://github.com/google/ExoPlayer/issues/9766)).
@@ -28,6 +28,9 @@
         ((#8353)[https://github.com/google/ExoPlayer/issues/8353]).
     *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC) and Dolby Vision
         to use a compatible base decoder (E-AC3 or H264/H265) if needed.
+    *   Disable automatic speed adjustment for live streams that neither have
+        low-latency features nor a user request setting the speed
+        ((#9329)[https://github.com/google/ExoPlayer/issues/9329]).
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier

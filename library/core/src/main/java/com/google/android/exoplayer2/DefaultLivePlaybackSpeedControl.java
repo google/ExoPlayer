@@ -308,6 +308,10 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
         liveConfiguration.maxPlaybackSpeed != C.RATE_UNSET
             ? liveConfiguration.maxPlaybackSpeed
             : fallbackMaxPlaybackSpeed;
+    if (minPlaybackSpeed == 1f && maxPlaybackSpeed == 1f) {
+      // Don't bother calculating adjustments if it's not possible to change the speed.
+      mediaConfigurationTargetLiveOffsetUs = C.TIME_UNSET;
+    }
     maybeResetTargetLiveOffsetUs();
   }
 
