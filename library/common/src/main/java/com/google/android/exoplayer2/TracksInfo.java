@@ -225,7 +225,10 @@ public final class TracksInfo implements Bundleable {
     return trackGroupInfos;
   }
 
-  /** Returns if there is at least one track of type {@code trackType} but none are supported. */
+  /**
+   * Returns true if at least one track of type {@code trackType} is {@link
+   * TrackGroupInfo#isTrackSupported(int) supported}, or there are no tracks of this type.
+   */
   public boolean isTypeSupportedOrEmpty(@C.TrackType int trackType) {
     boolean supported = true;
     for (int i = 0; i < trackGroupInfos.size(); i++) {
@@ -240,7 +243,7 @@ public final class TracksInfo implements Bundleable {
     return supported;
   }
 
-  /** Returns if at least one track of the type {@code trackType} is selected for playback. */
+  /** Returns true if at least one track of the type {@code trackType} is selected for playback. */
   public boolean isTypeSelected(@C.TrackType int trackType) {
     for (int i = 0; i < trackGroupInfos.size(); i++) {
       TrackGroupInfo trackGroupInfo = trackGroupInfos.get(i);
