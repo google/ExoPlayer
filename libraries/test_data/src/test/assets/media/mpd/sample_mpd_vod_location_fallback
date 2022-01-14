@@ -4,7 +4,7 @@
   xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011"
   xmlns:dvb="urn:dvb:dash:dash-extensions:2014-1"
   minBufferTime="PT1S"
-  profiles="urn:mpeg:dash:profile:isoff-main:2011"
+  profiles="urn:mpeg:dash:profile:isoff-main:2011,urn:dvb:dash:profile:dvb-dash:2014"
   type="static"
   mediaPresentationDuration="PT904S">
   <BaseURL serviceLocation="a" dvb:priority="1" dvb:weight="1">http://video.com/baseUrl/a/</BaseURL>
