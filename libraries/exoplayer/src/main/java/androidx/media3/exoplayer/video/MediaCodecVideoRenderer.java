@@ -493,7 +493,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       releaseCodec();
     }
     eventDispatcher.enabled(decoderCounters);
-    frameReleaseHelper.onEnabled();
     mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
     renderedFirstFrameAfterEnable = false;
   }
@@ -561,7 +560,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     haveReportedFirstFrameRenderedForCurrentSurface = false;
-    frameReleaseHelper.onDisabled();
     tunnelingOnFrameRenderedListener = null;
     try {
       super.onDisabled();
