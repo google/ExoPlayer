@@ -23,12 +23,16 @@ import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableSet;
 
 /** A media transformation request. */
 public final class TransformationRequest {
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
+
+    private static final ImmutableSet<Integer> SUPPORTED_OUTPUT_HEIGHTS =
+        ImmutableSet.of(144, 240, 360, 480, 720, 1080, 1440, 2160);
 
     private Matrix transformationMatrix;
     private boolean flattenForSlowMotion;
@@ -113,8 +117,9 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the output resolution using the output height. The default value is the same height as
-     * the input. Output width will scale to preserve the input video's aspect ratio.
+     * Sets the output resolution using the output height. The default value {@link C#LENGTH_UNSET}
+     * corresponds to using the same height as the input. Output width will scale to preserve the
+     * input video's aspect ratio.
      *
      * <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
      * supported, to ensure compatibility on different devices.
@@ -128,24 +133,16 @@ public final class TransformationRequest {
       // TODO(b/201293185): Restructure to input a Presentation class.
       // TODO(b/201293185): Check encoder codec capabilities in order to allow arbitrary
       // resolutions and reasonable fallbacks.
-      if (outputHeight != 144
-          && outputHeight != 240
-          && outputHeight != 360
-          && outputHeight != 480
-          && outputHeight != 720
-          && outputHeight != 1080
-          && outputHeight != 1440
-          && outputHeight != 2160) {
-        throw new IllegalArgumentException(
-            "Please use a height of 144, 240, 360, 480, 720, 1080, 1440, or 2160.");
+      if (outputHeight != C.LENGTH_UNSET && !SUPPORTED_OUTPUT_HEIGHTS.contains(outputHeight)) {
+        throw new IllegalArgumentException("Unsupported outputHeight: " + outputHeight);
       }
       this.outputHeight = outputHeight;
       return this;
     }
 
     /**
-     * Sets the video MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
+     * Sets the video MIME type of the output. The default value is {@code null} which corresponds
+     * to using the same MIME type as the input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_H263}
@@ -157,7 +154,7 @@ public final class TransformationRequest {
      * @param videoMimeType The MIME type of the video samples in the output.
      * @return This builder.
      */
-    public Builder setVideoMimeType(String videoMimeType) {
+    public Builder setVideoMimeType(@Nullable String videoMimeType) {
       // TODO(b/209469847): Validate videoMimeType here once deprecated
       // Transformer.Builder#setOuputMimeType(String) has been removed.
       this.videoMimeType = videoMimeType;
@@ -165,8 +162,8 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
+     * Sets the audio MIME type of the output. The default value is {@code null} which corresponds
+     * to using the same MIME type as the input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#AUDIO_AAC}
@@ -177,7 +174,7 @@ public final class TransformationRequest {
      * @param audioMimeType The MIME type of the audio samples in the output.
      * @return This builder.
      */
-    public Builder setAudioMimeType(String audioMimeType) {
+    public Builder setAudioMimeType(@Nullable String audioMimeType) {
       // TODO(b/209469847): Validate audioMimeType here once deprecated
       // Transformer.Builder#setOuputMimeType(String) has been removed.
       this.audioMimeType = audioMimeType;

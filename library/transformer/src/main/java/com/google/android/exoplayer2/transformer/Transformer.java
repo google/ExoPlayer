@@ -462,6 +462,20 @@ public final class Transformer {
      */
     default void onTransformationError(
         MediaItem inputMediaItem, TransformationException exception) {}
+
+    /**
+     * Called when fallback to an alternative {@link TransformationRequest} is necessary to comply
+     * with muxer or device constraints.
+     *
+     * @param inputMediaItem The {@link MediaItem} for which the transformation is requested.
+     * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
+     *     building {@link Transformer}.
+     * @param fallbackTransformationRequest The alternative {@link TransformationRequest}.
+     */
+    default void onFallbackApplied(
+        MediaItem inputMediaItem,
+        TransformationRequest originalTransformationRequest,
+        TransformationRequest fallbackTransformationRequest) {}
   }
 
   /** Provider for views to show diagnostic information during transformation, for debugging. */
