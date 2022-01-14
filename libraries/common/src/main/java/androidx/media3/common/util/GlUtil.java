@@ -203,6 +203,9 @@ public final class GlUtil {
   /** Whether to throw a {@link GlException} in case of an OpenGL error. */
   public static boolean glAssertionsEnabled = false;
 
+  /** Number of vertices in a rectangle. */
+  public static final int RECTANGLE_VERTICES_COUNT = 4;
+
   private static final String TAG = "GlUtil";
 
   private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
@@ -210,6 +213,26 @@ public final class GlUtil {
 
   /** Class only contains static methods. */
   private GlUtil() {}
+
+  /** Bounds of normalized device coordinates, commonly used for defining viewport boundaries. */
+  public static float[] getNormalizedCoordinateBounds() {
+    return new float[] {
+      -1, -1, 0, 1,
+      1, -1, 0, 1,
+      -1, 1, 0, 1,
+      1, 1, 0, 1
+    };
+  }
+
+  /** Typical bounds used for sampling from textures. */
+  public static float[] getTextureCoordinateBounds() {
+    return new float[] {
+      0, 0, 0, 1,
+      1, 0, 0, 1,
+      0, 1, 0, 1,
+      1, 1, 0, 1
+    };
+  }
 
   /**
    * Returns whether creating a GL context with {@value #EXTENSION_PROTECTED_CONTENT} is possible.

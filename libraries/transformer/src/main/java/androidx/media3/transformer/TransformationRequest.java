@@ -63,6 +63,9 @@ public final class TransformationRequest {
      * <p>This can be used to perform operations supported by {@link Matrix}, like scaling and
      * rotating the video.
      *
+     * <p>The video dimensions will be on the x axis, from -aspectRatio to aspectRatio, and on the y
+     * axis, from -1 to 1.
+     *
      * <p>For now, resolution will not be affected by this method.
      *
      * @param transformationMatrix The transformation to apply to video frames.
@@ -73,6 +76,10 @@ public final class TransformationRequest {
       // allow transformations to change the resolution, by scaling to the appropriate min/max
       // values. This will also be required to create the VertexTransformation class, in order to
       // have aspect ratio helper methods (which require resolution to change).
+
+      // TODO(b/213198690): Consider changing how transformationMatrix is applied, so that
+      // dimensions will be from -1 to 1 on both x and y axes, but transformations will be applied
+      // in a predictable manner.
       this.transformationMatrix = transformationMatrix;
       return this;
     }
