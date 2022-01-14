@@ -213,7 +213,7 @@ public abstract class Representation {
           new RangedUri(null, initializationStart, initializationEnd - initializationStart + 1);
       SingleSegmentBase segmentBase =
           new SingleSegmentBase(rangedUri, 1, 0, indexStart, indexEnd - indexStart + 1);
-      List<BaseUrl> baseUrls = ImmutableList.of(new BaseUrl(uri));
+      ImmutableList<BaseUrl> baseUrls = ImmutableList.of(new BaseUrl(uri));
       return new SingleSegmentRepresentation(
           revisionId,
           format,

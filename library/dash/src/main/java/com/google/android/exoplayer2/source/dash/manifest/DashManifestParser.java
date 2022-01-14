@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import static com.google.android.exoplayer2.source.dash.manifest.BaseUrl.DEFAULT_DVB_PRIORITY;
+import static com.google.android.exoplayer2.source.dash.manifest.BaseUrl.DEFAULT_WEIGHT;
+import static com.google.android.exoplayer2.source.dash.manifest.BaseUrl.PRIORITY_UNSET;
+
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -103,14 +107,16 @@ public class DashManifestParser extends DefaultHandler
             "inputStream does not contain a valid media presentation description",
             /* cause= */ null);
       }
-      return parseMediaPresentationDescription(xpp, new BaseUrl(uri.toString()));
+      return parseMediaPresentationDescription(xpp, uri);
     } catch (XmlPullParserException e) {
       throw ParserException.createForMalformedManifest(/* message= */ null, /* cause= */ e);
     }
   }
 
-  protected DashManifest parseMediaPresentationDescription(
-      XmlPullParser xpp, BaseUrl documentBaseUrl) throws XmlPullParserException, IOException {
+  protected DashManifest parseMediaPresentationDescription(XmlPullParser xpp, Uri documentBaseUri)
+      throws XmlPullParserException, IOException {
+    boolean dvbProfileDeclared =
+        isDvbProfileDeclared(parseProfiles(xpp, "profiles", new String[0]));
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", C.TIME_UNSET);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", C.TIME_UNSET);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", C.TIME_UNSET);
@@ -128,6 +134,12 @@ public class DashManifestParser extends DefaultHandler
     Uri location = null;
     ServiceDescriptionElement serviceDescription = null;
     long baseUrlAvailabilityTimeOffsetUs = dynamic ? 0 : C.TIME_UNSET;
+    BaseUrl documentBaseUrl =
+        new BaseUrl(
+            documentBaseUri.toString(),
+            /* serviceLocation= */ documentBaseUri.toString(),
+            dvbProfileDeclared ? DEFAULT_DVB_PRIORITY : PRIORITY_UNSET,
+            DEFAULT_WEIGHT);
     ArrayList<BaseUrl> parentBaseUrls = Lists.newArrayList(documentBaseUrl);
 
     List<Period> periods = new ArrayList<>();
@@ -143,7 +155,7 @@ public class DashManifestParser extends DefaultHandler
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
           seenFirstBaseUrl = true;
         }
-        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls, dvbProfileDeclared));
       } else if (XmlPullParserUtil.isStartTag(xpp, "ProgramInformation")) {
         programInformation = parseProgramInformation(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "UTCTiming")) {
@@ -160,7 +172,8 @@ public class DashManifestParser extends DefaultHandler
                 nextPeriodStartMs,
                 baseUrlAvailabilityTimeOffsetUs,
                 availabilityStartTime,
-                timeShiftBufferDepthMs);
+                timeShiftBufferDepthMs,
+                dvbProfileDeclared);
         Period period = periodWithDurationMs.first;
         if (period.startMs == C.TIME_UNSET) {
           if (dynamic) {
@@ -280,7 +293,8 @@ public class DashManifestParser extends DefaultHandler
       long defaultStartMs,
       long baseUrlAvailabilityTimeOffsetUs,
       long availabilityStartTimeMs,
-      long timeShiftBufferDepthMs)
+      long timeShiftBufferDepthMs,
+      boolean dvbProfileDeclared)
       throws XmlPullParserException, IOException {
     @Nullable String id = xpp.getAttributeValue(null, "id");
     long startMs = parseDuration(xpp, "start", defaultStartMs);
@@ -302,7 +316,7 @@ public class DashManifestParser extends DefaultHandler
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
           seenFirstBaseUrl = true;
         }
-        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls, dvbProfileDeclared));
       } else if (XmlPullParserUtil.isStartTag(xpp, "AdaptationSet")) {
         adaptationSets.add(
             parseAdaptationSet(
@@ -313,7 +327,8 @@ public class DashManifestParser extends DefaultHandler
                 baseUrlAvailabilityTimeOffsetUs,
                 segmentBaseAvailabilityTimeOffsetUs,
                 periodStartUnixTimeMs,
-                timeShiftBufferDepthMs));
+                timeShiftBufferDepthMs,
+                dvbProfileDeclared));
       } else if (XmlPullParserUtil.isStartTag(xpp, "EventStream")) {
         eventStreams.add(parseEventStream(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
@@ -373,7 +388,8 @@ public class DashManifestParser extends DefaultHandler
       long baseUrlAvailabilityTimeOffsetUs,
       long segmentBaseAvailabilityTimeOffsetUs,
       long periodStartUnixTimeMs,
-      long timeShiftBufferDepthMs)
+      long timeShiftBufferDepthMs,
+      boolean dvbProfileDeclared)
       throws XmlPullParserException, IOException {
     int id = parseInt(xpp, "id", AdaptationSet.ID_UNSET);
     @C.TrackType int contentType = parseContentType(xpp);
@@ -406,7 +422,7 @@ public class DashManifestParser extends DefaultHandler
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
           seenFirstBaseUrl = true;
         }
-        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls, dvbProfileDeclared));
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
         Pair<String, SchemeData> contentProtection = parseContentProtection(xpp);
         if (contentProtection.first != null) {
@@ -450,7 +466,8 @@ public class DashManifestParser extends DefaultHandler
                 periodDurationMs,
                 baseUrlAvailabilityTimeOffsetUs,
                 segmentBaseAvailabilityTimeOffsetUs,
-                timeShiftBufferDepthMs);
+                timeShiftBufferDepthMs,
+                dvbProfileDeclared);
         contentType =
             checkContentTypeConsistency(
                 contentType, MimeTypes.getTrackType(representationInfo.format.sampleMimeType));
@@ -650,7 +667,8 @@ public class DashManifestParser extends DefaultHandler
       long periodDurationMs,
       long baseUrlAvailabilityTimeOffsetUs,
       long segmentBaseAvailabilityTimeOffsetUs,
-      long timeShiftBufferDepthMs)
+      long timeShiftBufferDepthMs,
+      boolean dvbProfileDeclared)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth", Format.NO_VALUE);
@@ -679,7 +697,7 @@ public class DashManifestParser extends DefaultHandler
               parseAvailabilityTimeOffsetUs(xpp, baseUrlAvailabilityTimeOffsetUs);
           seenFirstBaseUrl = true;
         }
-        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls));
+        baseUrls.addAll(parseBaseUrl(xpp, parentBaseUrls, dvbProfileDeclared));
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
@@ -1371,35 +1389,42 @@ public class DashManifestParser extends DefaultHandler
    *
    * @param xpp The parser from which to read.
    * @param parentBaseUrls The parent base URLs for resolving the parsed URLs.
+   * @param dvbProfileDeclared Whether the dvb profile is declared.
    * @throws XmlPullParserException If an error occurs parsing the element.
    * @throws IOException If an error occurs reading the element.
    * @return The list of parsed and resolved URLs.
    */
-  protected List<BaseUrl> parseBaseUrl(XmlPullParser xpp, List<BaseUrl> parentBaseUrls)
+  protected List<BaseUrl> parseBaseUrl(
+      XmlPullParser xpp, List<BaseUrl> parentBaseUrls, boolean dvbProfileDeclared)
       throws XmlPullParserException, IOException {
     @Nullable String priorityValue = xpp.getAttributeValue(null, "dvb:priority");
     int priority =
-        priorityValue != null ? Integer.parseInt(priorityValue) : BaseUrl.DEFAULT_PRIORITY;
+        priorityValue != null
+            ? Integer.parseInt(priorityValue)
+            : (dvbProfileDeclared ? DEFAULT_DVB_PRIORITY : PRIORITY_UNSET);
     @Nullable String weightValue = xpp.getAttributeValue(null, "dvb:weight");
-    int weight = weightValue != null ? Integer.parseInt(weightValue) : BaseUrl.DEFAULT_WEIGHT;
+    int weight = weightValue != null ? Integer.parseInt(weightValue) : DEFAULT_WEIGHT;
     @Nullable String serviceLocation = xpp.getAttributeValue(null, "serviceLocation");
     String baseUrl = parseText(xpp, "BaseURL");
-    if (serviceLocation == null) {
-      serviceLocation = baseUrl;
-    }
     if (UriUtil.isAbsolute(baseUrl)) {
+      if (serviceLocation == null) {
+        serviceLocation = baseUrl;
+      }
       return Lists.newArrayList(new BaseUrl(baseUrl, serviceLocation, priority, weight));
     }
 
     List<BaseUrl> baseUrls = new ArrayList<>();
     for (int i = 0; i < parentBaseUrls.size(); i++) {
       BaseUrl parentBaseUrl = parentBaseUrls.get(i);
-      priority = parentBaseUrl.priority;
-      weight = parentBaseUrl.weight;
-      serviceLocation = parentBaseUrl.serviceLocation;
-      baseUrls.add(
-          new BaseUrl(
-              UriUtil.resolve(parentBaseUrl.url, baseUrl), serviceLocation, priority, weight));
+      String resolvedBaseUri = UriUtil.resolve(parentBaseUrl.url, baseUrl);
+      String resolvedServiceLocation = serviceLocation == null ? resolvedBaseUri : serviceLocation;
+      if (dvbProfileDeclared) {
+        // Inherit parent properties only if dvb profile is declared.
+        priority = parentBaseUrl.priority;
+        weight = parentBaseUrl.weight;
+        resolvedServiceLocation = parentBaseUrl.serviceLocation;
+      }
+      baseUrls.add(new BaseUrl(resolvedBaseUri, resolvedServiceLocation, priority, weight));
     }
     return baseUrls;
   }
@@ -1579,6 +1604,14 @@ public class DashManifestParser extends DefaultHandler
       default:
         return 0;
     }
+  }
+
+  protected String[] parseProfiles(XmlPullParser xpp, String attributeName, String[] defaultValue) {
+    @Nullable String attributeValue = xpp.getAttributeValue(/* namespace= */ null, attributeName);
+    if (attributeValue == null) {
+      return defaultValue;
+    }
+    return attributeValue.split(",");
   }
 
   // Utility methods.
@@ -1905,6 +1938,15 @@ public class DashManifestParser extends DefaultHandler
       availabilityTimeOffsetUs = C.TIME_UNSET;
     }
     return availabilityTimeOffsetUs;
+  }
+
+  private boolean isDvbProfileDeclared(String[] profiles) {
+    for (String profile : profiles) {
+      if (profile.startsWith("urn:dvb:dash:profile:dvb-dash:")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /** A parsed Representation element. */

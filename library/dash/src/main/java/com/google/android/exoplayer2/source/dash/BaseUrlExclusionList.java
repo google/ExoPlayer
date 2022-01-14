@@ -66,7 +66,9 @@ public final class BaseUrlExclusionList {
   public void exclude(BaseUrl baseUrlToExclude, long exclusionDurationMs) {
     long excludeUntilMs = SystemClock.elapsedRealtime() + exclusionDurationMs;
     addExclusion(baseUrlToExclude.serviceLocation, excludeUntilMs, excludedServiceLocations);
-    addExclusion(baseUrlToExclude.priority, excludeUntilMs, excludedPriorities);
+    if (baseUrlToExclude.priority != BaseUrl.PRIORITY_UNSET) {
+      addExclusion(baseUrlToExclude.priority, excludeUntilMs, excludedPriorities);
+    }
   }
 
   /**

@@ -65,6 +65,10 @@
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
     *   Stop interpreting the `main` track role as `C.SELECTION_FLAG_DEFAULT`.
+    *   Fix bug when base URLs have been assigned the same service location and
+        priority in manifests that do not declare the dvb namespace. This
+        prevents the exclusion logic to exclude base URL when they actually
+        should be used as a fallback base URL.
 *   HLS:
     *   Use chunkless preparation by default to improve start up time. If your
         renditions contain muxed closed-caption tracks that are *not* declared

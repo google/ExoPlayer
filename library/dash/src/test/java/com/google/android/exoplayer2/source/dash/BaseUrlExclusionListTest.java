@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static com.google.android.exoplayer2.source.dash.manifest.BaseUrl.DEFAULT_DVB_PRIORITY;
+import static com.google.android.exoplayer2.source.dash.manifest.BaseUrl.DEFAULT_WEIGHT;
 import static com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_LOCATION_EXCLUSION_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -174,6 +176,32 @@ public class BaseUrlExclusionListTest {
   }
 
   @Test
+  public void selectBaseUrl_priorityUnset_isNotExcluded() {
+    BaseUrlExclusionList baseUrlExclusionList = new BaseUrlExclusionList();
+    ImmutableList<BaseUrl> baseUrls =
+        ImmutableList.of(
+            new BaseUrl(
+                /* url= */ "a-1",
+                /* serviceLocation= */ "a",
+                BaseUrl.PRIORITY_UNSET,
+                /* weight= */ 1),
+            new BaseUrl(
+                /* url= */ "a-2",
+                /* serviceLocation= */ "a",
+                BaseUrl.PRIORITY_UNSET,
+                /* weight= */ 1),
+            new BaseUrl(
+                /* url= */ "b",
+                /* serviceLocation= */ "b",
+                BaseUrl.PRIORITY_UNSET,
+                /* weight= */ 1));
+
+    baseUrlExclusionList.exclude(baseUrls.get(0), 10_000);
+
+    assertThat(baseUrlExclusionList.selectBaseUrl(baseUrls).serviceLocation).isEqualTo("b");
+  }
+
+  @Test
   public void selectBaseUrl_emptyBaseUrlList_selectionIsNull() {
     BaseUrlExclusionList baseUrlExclusionList = new BaseUrlExclusionList();
 
@@ -183,7 +211,8 @@ public class BaseUrlExclusionListTest {
   @Test
   public void reset_dropsAllExclusions() {
     BaseUrlExclusionList baseUrlExclusionList = new BaseUrlExclusionList();
-    List<BaseUrl> baseUrls = ImmutableList.of(new BaseUrl("a"));
+    ImmutableList<BaseUrl> baseUrls =
+        ImmutableList.of(new BaseUrl("a", "a", DEFAULT_DVB_PRIORITY, DEFAULT_WEIGHT));
     baseUrlExclusionList.exclude(baseUrls.get(0), 5000);
 
     baseUrlExclusionList.reset();
