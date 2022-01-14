@@ -86,9 +86,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throw new IllegalStateException(e);
     }
     program.setBufferAttribute(
-        "a_position", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     program.setBufferAttribute(
-        "a_texcoord", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
+        "aTexCoords", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     GLES20.glGenTextures(1, textures, 0);
     GLES20.glBindTexture(GL10.GL_TEXTURE_2D, textures[0]);
     GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
@@ -118,11 +118,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Run the shader program.
     GlUtil.Program program = checkNotNull(this.program);
-    program.setSamplerTexIdUniform("tex_sampler_0", frameTexture, /* unit= */ 0);
-    program.setSamplerTexIdUniform("tex_sampler_1", textures[0], /* unit= */ 1);
-    program.setFloatUniform("scaleX", bitmapScaleX);
-    program.setFloatUniform("scaleY", bitmapScaleY);
-    program.setFloatsUniform("tex_transform", transformMatrix);
+    program.setSamplerTexIdUniform("uTexSampler0", frameTexture, /* unit= */ 0);
+    program.setSamplerTexIdUniform("uTexSampler1", textures[0], /* unit= */ 1);
+    program.setFloatUniform("uScaleX", bitmapScaleX);
+    program.setFloatUniform("uScaleY", bitmapScaleY);
+    program.setFloatsUniform("uTexTransform", transformMatrix);
     program.bindAttributesAndUniforms();
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
