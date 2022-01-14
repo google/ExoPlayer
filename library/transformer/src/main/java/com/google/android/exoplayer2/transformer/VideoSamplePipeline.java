@@ -63,12 +63,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Scale width and height to desired transformationRequest.outputHeight, preserving aspect
     // ratio.
     // TODO(internal b/209781577): Think about which edge length should be set for portrait videos.
-    float inputAspectRatio = (float) inputFormat.width / inputFormat.height;
+    float inputFormatAspectRatio = (float) inputFormat.width / inputFormat.height;
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
     if (transformationRequest.outputHeight != C.LENGTH_UNSET
         && transformationRequest.outputHeight != inputFormat.height) {
-      outputWidth = Math.round(inputAspectRatio * transformationRequest.outputHeight);
+      outputWidth = Math.round(inputFormatAspectRatio * transformationRequest.outputHeight);
       outputHeight = transformationRequest.outputHeight;
     }
 
@@ -82,14 +82,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } else {
       outputRotationDegrees = inputFormat.rotationDegrees;
     }
-    if ((inputFormat.rotationDegrees % 180) != 0) {
-      inputAspectRatio = 1.0f / inputAspectRatio;
-    }
+    float displayAspectRatio =
+        (inputFormat.rotationDegrees % 180) == 0
+            ? inputFormatAspectRatio
+            : 1.0f / inputFormatAspectRatio;
 
-    // Scale frames by input aspect ratio, to account for FrameEditor normalized device coordinates
-    // (-1 to 1) and preserve frame relative dimensions during transformations (ex. rotations).
-    transformationRequest.transformationMatrix.preScale(inputAspectRatio, 1);
-    transformationRequest.transformationMatrix.postScale(1.0f / inputAspectRatio, 1);
+    // Scale frames by input aspect ratio, to account for FrameEditor's square normalized device
+    // coordinates (-1 to 1) and preserve frame relative dimensions during transformations
+    // (ex. rotations). After this scaling, transformationMatrix operations operate on a rectangle
+    // for x from -displayAspectRatio to displayAspectRatio, and y from -1 to 1
+    transformationRequest.transformationMatrix.preScale(displayAspectRatio, 1);
+    transformationRequest.transformationMatrix.postScale(1.0f / displayAspectRatio, 1);
 
     // The decoder rotates videos to their intended display orientation. The frameEditor rotates
     // them back for improved encoder compatibility.

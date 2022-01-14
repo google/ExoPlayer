@@ -131,24 +131,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     GlUtil.Program glProgram =
         new GlUtil.Program(context, VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH);
 
+    // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
-        "aPosition",
-        new float[] {
-          -1.0f, -1.0f, 0.0f, 1.0f,
-          1.0f, -1.0f, 0.0f, 1.0f,
-          -1.0f, 1.0f, 0.0f, 1.0f,
-          1.0f, 1.0f, 0.0f, 1.0f,
-        },
-        /* size= */ 4);
+        "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setBufferAttribute(
-        "aTexCoords",
-        new float[] {
-          0.0f, 0.0f, 0.0f, 1.0f,
-          1.0f, 0.0f, 0.0f, 1.0f,
-          0.0f, 1.0f, 0.0f, 1.0f,
-          1.0f, 1.0f, 0.0f, 1.0f,
-        },
-        /* size= */ 4);
+        "aTexCoords", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     glProgram.setSamplerTexIdUniform("uTexSampler", textureId, /* unit= */ 0);
 
     float[] transformationMatrixArray = getGlMatrixArray(transformationMatrix);

@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-attribute vec4 aPosition;
+attribute vec4 aFramePosition;
 attribute vec4 aTexCoords;
 uniform mat4 uTexTransform;
 uniform mat4 uTransformationMatrix;
 varying vec2 vTexCoords;
 void main() {
-  gl_Position = uTransformationMatrix * aPosition;
+  gl_Position = uTransformationMatrix * aFramePosition;
   vTexCoords = (uTexTransform * aTexCoords).xy;
 }
