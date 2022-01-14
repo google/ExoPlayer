@@ -29,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 public interface RendererCapabilities {
 
   /** @deprecated Use {@link C.FormatSupport} instead. */
-  @SuppressWarnings("Deprecation")
+  @SuppressWarnings("deprecation")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
