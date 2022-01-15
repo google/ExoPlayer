@@ -543,6 +543,11 @@
     "name": "Misc",
     "samples": [
       {
+        "name": "AVI",
+        "uri": "https://drive.google.com/u/0/uc?id=1K6oLKCS56WFbhz33TgilTJBqfMYFTeUd&?export=download",
+        "extension": "avi"
+      },
+      {
         "name": "Dizzy (MP4)",
         "uri": "https://html5demos.com/assets/dizzy.mp4"
       },

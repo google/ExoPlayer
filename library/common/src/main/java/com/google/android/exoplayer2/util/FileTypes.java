@@ -38,7 +38,7 @@ public final class FileTypes {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG
+    UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG, AVI
   })
   public @interface Type {}
   /** Unknown file type. */
@@ -73,6 +73,8 @@ public final class FileTypes {
   public static final int WEBVTT = 13;
   /** File type for the JPEG format. */
   public static final int JPEG = 14;
+  /** File type for the AVI format. */
+  public static final int AVI = 15;
 
   @VisibleForTesting /* package */ static final String HEADER_CONTENT_TYPE = "Content-Type";
 
@@ -105,6 +107,7 @@ public final class FileTypes {
   private static final String EXTENSION_WEBVTT = ".webvtt";
   private static final String EXTENSION_JPG = ".jpg";
   private static final String EXTENSION_JPEG = ".jpeg";
+  private static final String EXTENSION_AVI = ".avi";
 
   private FileTypes() {}
 
@@ -167,6 +170,8 @@ public final class FileTypes {
         return FileTypes.WEBVTT;
       case MimeTypes.IMAGE_JPEG:
         return FileTypes.JPEG;
+      case MimeTypes.VIDEO_AVI:
+        return FileTypes.AVI;
       default:
         return FileTypes.UNKNOWN;
     }
@@ -229,6 +234,8 @@ public final class FileTypes {
       return FileTypes.WEBVTT;
     } else if (filename.endsWith(EXTENSION_JPG) || filename.endsWith(EXTENSION_JPEG)) {
       return FileTypes.JPEG;
+    } else if (filename.endsWith(EXTENSION_AVI)) {
+      return FileTypes.AVI;
     } else {
       return FileTypes.UNKNOWN;
     }
