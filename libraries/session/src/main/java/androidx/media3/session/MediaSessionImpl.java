@@ -138,8 +138,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   // Should be only accessed on the application looper
   private long sessionPositionUpdateDelayMs;
 
-  @Nullable private MediaSession.ForegroundServiceEventCallback foregroundServiceEventCallback;
-
   public MediaSessionImpl(
       MediaSession instance,
       Context context,
@@ -298,9 +296,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             if (playerListener != null) {
               playerWrapper.removeListener(playerListener);
             }
-            if (foregroundServiceEventCallback != null) {
-              foregroundServiceEventCallback.onSessionReleased(instance);
-            }
           });
     } catch (Exception e) {
       // Catch all exceptions to ensure the rest of this method to be executed as exceptions may be
@@ -375,9 +370,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   private void dispatchOnPlayerInfoChanged(boolean excludeTimeline) {
-    if (foregroundServiceEventCallback != null) {
-      foregroundServiceEventCallback.onPlayerInfoChanged(instance, lastPlayerInfo, playerInfo);
-    }
     lastPlayerInfo = playerInfo;
 
     List<ControllerInfo> controllers =
@@ -548,15 +540,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     applicationHandler.removeCallbacks(this::notifyPeriodicSessionPositionInfoChangesOnHandler);
     applicationHandler.postDelayed(
         this::notifyPeriodicSessionPositionInfoChangesOnHandler, updateDelayMs);
-  }
-
-  protected void setForegroundServiceEventCallback(
-      MediaSession.ForegroundServiceEventCallback foregroundServiceEventCallback) {
-    this.foregroundServiceEventCallback = foregroundServiceEventCallback;
-  }
-
-  protected void clearForegroundServiceEventCallback() {
-    foregroundServiceEventCallback = null;
   }
 
   @Nullable

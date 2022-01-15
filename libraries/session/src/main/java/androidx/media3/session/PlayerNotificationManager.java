@@ -1104,8 +1104,9 @@ public class PlayerNotificationManager {
               } else if (controller.getPlaybackState() == controller.STATE_ENDED) {
                 controller.seekToDefaultPosition(controller.getCurrentWindowIndex());
               }
+              controller.setPlayWhenReady(true);
             } else {
-              controller.pause();
+              controller.setPlayWhenReady(false);
             }
             break;
           case COMMAND_SEEK_TO_PREVIOUS:

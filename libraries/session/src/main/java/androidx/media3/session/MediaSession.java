@@ -740,23 +740,6 @@ public class MediaSession {
     impl.setSessionPositionUpdateDelayMsOnHandler(updateDelayMs);
   }
 
-  /**
-   * Sets a {@link ForegroundServiceEventCallback} to the session. Should be called on the
-   * application looper of the underlying player.
-   */
-  /* package */ void setForegroundServiceEventCallback(
-      ForegroundServiceEventCallback foregroundServiceEventCallback) {
-    impl.setForegroundServiceEventCallback(foregroundServiceEventCallback);
-  }
-
-  /**
-   * Clears the {@link ForegroundServiceEventCallback} from the session. Should be called on the
-   * application looper of the underlying player.
-   */
-  /* package */ void clearForegroundServiceEventCallback() {
-    impl.clearForegroundServiceEventCallback();
-  }
-
   private Uri getUri() {
     return impl.getUri();
   }
@@ -1064,14 +1047,6 @@ public class MediaSession {
       return new ConnectionResult(
           /* accepted= */ false, SessionCommands.EMPTY, Player.Commands.EMPTY);
     }
-  }
-
-  /* package */ interface ForegroundServiceEventCallback {
-
-    void onPlayerInfoChanged(
-        MediaSession session, PlayerInfo oldPlayerInfo, PlayerInfo newPlayerInfo);
-
-    void onSessionReleased(MediaSession session);
   }
 
   /* package */ interface ControllerCb {

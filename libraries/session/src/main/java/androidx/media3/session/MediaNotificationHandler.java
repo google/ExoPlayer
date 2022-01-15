@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
+ * limitations under the License
  */
 package androidx.media3.session;
 
@@ -30,30 +30,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
-import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.Util;
+import com.google.common.util.concurrent.ListenableFuture;
+import java.util.HashMap;
 import java.util.List;
-import java.util.WeakHashMap;
+import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Class to provide default media notification for {@link MediaSessionService}, and set the service
  * as foreground/background according to the player state.
  */
-/* package */ class MediaNotificationHandler
-    implements MediaSession.ForegroundServiceEventCallback {
+/* package */ class MediaNotificationHandler {
 
   private static final int NOTIFICATION_ID = 1001;
   private static final String NOTIFICATION_CHANNEL_ID = "default_channel_id";
 
-  private final Object lock;
   private final MediaSessionService service;
+  private final Executor mainExecutor;
   private final NotificationManager notificationManager;
   private final String notificationChannelName;
 
@@ -63,13 +71,14 @@ import java.util.WeakHashMap;
   private final NotificationCompat.Action skipToPrevAction;
   private final NotificationCompat.Action skipToNextAction;
 
-  @GuardedBy("lock")
-  private final WeakHashMap<MediaSession, PlayerInfo> playerInfoMap;
+  private final Map<MediaSession, ListenableFuture<MediaController>> controllerMap;
 
   public MediaNotificationHandler(MediaSessionService service) {
-    lock = new Object();
     this.service = service;
+    Handler mainHandler = new Handler(Looper.getMainLooper());
+    mainExecutor = (runnable) -> Util.postOrRun(mainHandler, runnable);
     startSelfIntent = new Intent(service, service.getClass());
+    controllerMap = new HashMap<>();
 
     notificationManager =
         (NotificationManager) service.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -100,8 +109,45 @@ import java.util.WeakHashMap;
             android.R.drawable.ic_media_next,
             R.string.media3_controls_seek_to_next_description,
             ACTION_SKIP_TO_NEXT);
+  }
 
-    playerInfoMap = new WeakHashMap<>();
+  public void addSession(MediaSession session) {
+    if (controllerMap.containsKey(session)) {
+      return;
+    }
+    MediaControllerListener listener = new MediaControllerListener(session);
+    ListenableFuture<MediaController> controllerFuture =
+        new MediaController.Builder(service, session.getToken())
+            .setListener(listener)
+            .setApplicationLooper(Looper.getMainLooper())
+            .buildAsync();
+    controllerFuture.addListener(
+        () -> {
+          MediaController controller;
+          try {
+            controller = controllerFuture.get(/* time= */ 0, TimeUnit.MILLISECONDS);
+          } catch (CancellationException
+              | ExecutionException
+              | InterruptedException
+              | TimeoutException e) {
+            // MediaSession or MediaController is released too early. Stop monitoring session.
+            service.removeSession(session);
+            return;
+          }
+          if (controller != null) {
+            listener.onConnected();
+            controller.addListener(listener);
+          }
+        },
+        mainExecutor);
+    controllerMap.put(session, controllerFuture);
+  }
+
+  public void removeSession(MediaSession session) {
+    ListenableFuture<MediaController> controllerFuture = controllerMap.remove(session);
+    if (controllerFuture != null) {
+      MediaController.releaseFuture(controllerFuture);
+    }
   }
 
   private void updateNotificationIfNeeded(MediaSession session) {
@@ -124,8 +170,8 @@ import java.util.WeakHashMap;
       notification.extras.putParcelable(Notification.EXTRA_MEDIA_SESSION, fwkToken);
     }
 
-    PlayerInfo playerInfo = getPlayerInfoOfSession(session);
-    if (playerInfo.playWhenReady) {
+    Player player = session.getPlayer();
+    if (player.getPlayWhenReady()) {
       ContextCompat.startForegroundService(service, startSelfIntent);
       service.startForeground(id, notification);
     } else {
@@ -134,30 +180,11 @@ import java.util.WeakHashMap;
     }
   }
 
-  @Override
-  public void onPlayerInfoChanged(
-      MediaSession session, PlayerInfo oldPlayerInfo, PlayerInfo newPlayerInfo) {
-    synchronized (lock) {
-      playerInfoMap.put(session, newPlayerInfo);
-    }
-    if (Util.areEqual(oldPlayerInfo.mediaMetadata, newPlayerInfo.mediaMetadata)
-        && oldPlayerInfo.playWhenReady == newPlayerInfo.playWhenReady) {
-      return;
-    }
-    updateNotificationIfNeeded(session);
-  }
-
-  @Override
-  public void onSessionReleased(MediaSession session) {
-    service.removeSession(session);
-    stopForegroundServiceIfNeeded();
-  }
-
   private void stopForegroundServiceIfNeeded() {
     List<MediaSession> sessions = service.getSessions();
     for (int i = 0; i < sessions.size(); i++) {
-      PlayerInfo playerInfo = getPlayerInfoOfSession(sessions.get(i));
-      if (playerInfo.playWhenReady) {
+      Player player = sessions.get(i).getPlayer();
+      if (player.getPlayWhenReady()) {
         return;
       }
     }
@@ -169,7 +196,7 @@ import java.util.WeakHashMap;
 
   /** Creates a default media style notification for {@link MediaSessionService}. */
   public MediaSessionService.MediaNotification onUpdateNotification(MediaSession session) {
-    PlayerInfo playerInfo = getPlayerInfoOfSession(session);
+    Player player = session.getPlayer();
 
     ensureNotificationChannel();
 
@@ -178,7 +205,7 @@ import java.util.WeakHashMap;
 
     // TODO(b/193193926): Filter actions depending on the player's available commands.
     builder.addAction(skipToPrevAction);
-    if (playerInfo.playWhenReady) {
+    if (player.getPlayWhenReady()) {
       builder.addAction(pauseAction);
     } else {
       builder.addAction(playAction);
@@ -186,7 +213,7 @@ import java.util.WeakHashMap;
     builder.addAction(skipToNextAction);
 
     // Set metadata info in the notification.
-    MediaMetadata metadata = playerInfo.mediaMetadata;
+    MediaMetadata metadata = player.getMediaMetadata();
     builder.setContentTitle(metadata.title).setContentText(metadata.artist);
     if (metadata.artworkData != null) {
       Bitmap artworkBitmap =
@@ -236,14 +263,6 @@ import java.util.WeakHashMap;
     }
   }
 
-  private PlayerInfo getPlayerInfoOfSession(MediaSession session) {
-    @Nullable PlayerInfo playerInfo;
-    synchronized (lock) {
-      playerInfo = playerInfoMap.get(session);
-    }
-    return playerInfo == null ? PlayerInfo.DEFAULT : playerInfo;
-  }
-
   private static NotificationCompat.Action createNotificationAction(
       MediaSessionService service,
       int iconResId,
@@ -269,6 +288,32 @@ import java.util.WeakHashMap;
           /* requestCode= */ keyCode,
           intent,
           Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
+    }
+  }
+
+  private final class MediaControllerListener implements MediaController.Listener, Player.Listener {
+    private final MediaSession session;
+
+    public MediaControllerListener(MediaSession session) {
+      this.session = session;
+    }
+
+    public void onConnected() {
+      updateNotificationIfNeeded(session);
+    }
+
+    @Override
+    public void onEvents(Player player, Player.Events events) {
+      if (events.containsAny(
+          Player.EVENT_PLAY_WHEN_READY_CHANGED, Player.EVENT_MEDIA_METADATA_CHANGED)) {
+        updateNotificationIfNeeded(session);
+      }
+    }
+
+    @Override
+    public void onDisconnected(MediaController controller) {
+      service.removeSession(session);
+      stopForegroundServiceIfNeeded();
     }
   }
 }

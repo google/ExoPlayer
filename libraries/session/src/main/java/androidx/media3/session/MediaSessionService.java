@@ -30,6 +30,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.view.KeyEvent;
 import androidx.annotation.CallSuper;
@@ -130,6 +131,7 @@ public abstract class MediaSessionService extends Service {
   private static final String TAG = "MSSImpl";
 
   private final Object lock;
+  private final Handler mainHandler;
 
   @GuardedBy("lock")
   private final Map<String, MediaSession> sessions;
@@ -145,6 +147,7 @@ public abstract class MediaSessionService extends Service {
   /** Creates a service. */
   public MediaSessionService() {
     lock = new Object();
+    mainHandler = new Handler(Looper.getMainLooper());
     sessions = new ArrayMap<>();
   }
 
@@ -225,18 +228,7 @@ public abstract class MediaSessionService extends Service {
       synchronized (lock) {
         handler = checkStateNotNull(notificationHandler);
       }
-      postOrRun(
-          session.getImpl().getApplicationHandler(),
-          () -> {
-            handler.onPlayerInfoChanged(
-                session,
-                /* oldPlayerInfo= */ PlayerInfo.DEFAULT,
-                /* newPlayerInfo= */ session
-                    .getImpl()
-                    .getPlayerWrapper()
-                    .createPlayerInfoForBundling());
-            session.setForegroundServiceEventCallback(handler);
-          });
+      postOrRun(mainHandler, () -> handler.addSession(session));
     }
   }
 
@@ -250,11 +242,12 @@ public abstract class MediaSessionService extends Service {
    */
   public final void removeSession(MediaSession session) {
     checkNotNull(session, "session must not be null");
+    MediaNotificationHandler handler;
     synchronized (lock) {
       sessions.remove(session.getId());
+      handler = checkStateNotNull(notificationHandler);
     }
-    postOrRun(
-        session.getImpl().getApplicationHandler(), session::clearForegroundServiceEventCallback);
+    postOrRun(mainHandler, () -> handler.removeSession(session));
   }
 
   /**
