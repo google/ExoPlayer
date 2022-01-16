@@ -49,9 +49,10 @@ public final class FilteringHlsPlaylistParserFactory implements HlsPlaylistParse
 
   @Override
   public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser(
-      HlsMasterPlaylist masterPlaylist, @Nullable HlsMediaPlaylist previousMediaPlaylist) {
+      HlsMultivariantPlaylist multivariantPlaylist,
+      @Nullable HlsMediaPlaylist previousMediaPlaylist) {
     return new FilteringManifestParser<>(
-        hlsPlaylistParserFactory.createPlaylistParser(masterPlaylist, previousMediaPlaylist),
+        hlsPlaylistParserFactory.createPlaylistParser(multivariantPlaylist, previousMediaPlaylist),
         streamKeys);
   }
 }

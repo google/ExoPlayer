@@ -34,6 +34,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.source.mediaparser.InputReaderAdapterV30;
@@ -42,6 +43,7 @@ import com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 
@@ -60,7 +62,8 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
           muxedCaptionFormats,
           timestampAdjuster,
           responseHeaders,
-          sniffingExtractorInput) -> {
+          sniffingExtractorInput,
+          playerId) -> {
         if (FileTypes.inferFileTypeFromMimeType(format.sampleMimeType) == FileTypes.WEBVTT) {
           // The segment contains WebVTT. MediaParser does not support WebVTT parsing, so we use the
           // bundled extractor.
@@ -100,6 +103,7 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
                 format,
                 overrideInBandCaptionDeclarations,
                 muxedCaptionMediaFormats,
+                playerId,
                 MediaParser.PARSER_NAME_FMP4,
                 MediaParser.PARSER_NAME_AC3,
                 MediaParser.PARSER_NAME_AC4,
@@ -119,7 +123,8 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
             format,
             overrideInBandCaptionDeclarations,
             muxedCaptionMediaFormats,
-            /* leadingBytesToSkip= */ peekingInputReader.totalPeekedBytes);
+            /* leadingBytesToSkip= */ peekingInputReader.totalPeekedBytes,
+            playerId);
       };
 
   private final OutputConsumerAdapterV30 outputConsumerAdapter;
@@ -128,6 +133,8 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
   private final Format format;
   private final boolean overrideInBandCaptionDeclarations;
   private final ImmutableList<MediaFormat> muxedCaptionMediaFormats;
+  private final PlayerId playerId;
+
   private int pendingSkipBytes;
 
   /**
@@ -146,6 +153,7 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
    *     that {@link MediaParser} should expose.
    * @param leadingBytesToSkip The number of bytes to skip from the start of the input before
    *     starting extraction.
+   * @param playerId The {@link PlayerId} of the player using this chunk extractor.
    */
   public MediaParserHlsMediaChunkExtractor(
       MediaParser mediaParser,
@@ -153,12 +161,14 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
       Format format,
       boolean overrideInBandCaptionDeclarations,
       ImmutableList<MediaFormat> muxedCaptionMediaFormats,
-      int leadingBytesToSkip) {
+      int leadingBytesToSkip,
+      PlayerId playerId) {
     this.mediaParser = mediaParser;
     this.outputConsumerAdapter = outputConsumerAdapter;
     this.overrideInBandCaptionDeclarations = overrideInBandCaptionDeclarations;
     this.muxedCaptionMediaFormats = muxedCaptionMediaFormats;
     this.format = format;
+    this.playerId = playerId;
     pendingSkipBytes = leadingBytesToSkip;
     inputReaderAdapter = new InputReaderAdapterV30();
   }
@@ -203,12 +213,14 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
             format,
             overrideInBandCaptionDeclarations,
             muxedCaptionMediaFormats,
+            playerId,
             mediaParser.getParserName()),
         outputConsumerAdapter,
         format,
         overrideInBandCaptionDeclarations,
         muxedCaptionMediaFormats,
-        /* leadingBytesToSkip= */ 0);
+        /* leadingBytesToSkip= */ 0,
+        playerId);
   }
 
   @Override
@@ -223,6 +235,7 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
       Format format,
       boolean overrideInBandCaptionDeclarations,
       ImmutableList<MediaFormat> muxedCaptionMediaFormats,
+      PlayerId playerId,
       String... parserNames) {
     MediaParser mediaParser =
         parserNames.length == 1
@@ -247,6 +260,9 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
       if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
         mediaParser.setParameter(PARAMETER_TS_IGNORE_AVC_STREAM, true);
       }
+    }
+    if (Util.SDK_INT >= 31) {
+      MediaParserUtil.setLogSessionIdOnMediaParser(mediaParser, playerId);
     }
     return mediaParser;
   }

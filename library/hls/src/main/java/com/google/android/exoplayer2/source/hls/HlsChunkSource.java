@@ -26,6 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
@@ -122,6 +124,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final TrackGroup trackGroup;
   @Nullable private final List<Format> muxedCaptionFormats;
   private final FullSegmentEncryptionKeyCache keyCache;
+  private final PlayerId playerId;
 
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
@@ -151,7 +154,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@link HlsChunkSource}s are used for a single playback, they should all share the same
    *     provider.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
-   *     information is available in the master playlist.
+   *     information is available in the multivariant playlist.
    */
   public HlsChunkSource(
       HlsExtractorFactory extractorFactory,
@@ -161,13 +164,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
-      @Nullable List<Format> muxedCaptionFormats) {
+      @Nullable List<Format> muxedCaptionFormats,
+      PlayerId playerId) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
     this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
+    this.playerId = playerId;
     keyCache = new FullSegmentEncryptionKeyCache(KEY_CACHE_SIZE);
     scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
@@ -235,6 +240,54 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void setIsTimestampMaster(boolean isTimestampMaster) {
     this.isTimestampMaster = isTimestampMaster;
+  }
+
+  /**
+   * Adjusts a seek position given the specified {@link SeekParameters}.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed.
+   * @return The adjusted seek position, in microseconds.
+   */
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    int selectedIndex = trackSelection.getSelectedIndex();
+    @Nullable
+    HlsMediaPlaylist mediaPlaylist =
+        selectedIndex < playlistUrls.length && selectedIndex != C.INDEX_UNSET
+            ? playlistTracker.getPlaylistSnapshot(
+                playlistUrls[trackSelection.getSelectedIndexInTrackGroup()],
+                /* isForPlayback= */ true)
+            : null;
+
+    if (mediaPlaylist == null
+        || mediaPlaylist.segments.isEmpty()
+        || !mediaPlaylist.hasIndependentSegments) {
+      return positionUs;
+    }
+
+    // Segments start with sync samples (i.e., EXT-X-INDEPENDENT-SEGMENTS is set) and the playlist
+    // is non-empty, so we can use segment start times as sync points. Note that in the rare case
+    // that (a) an adaptive quality switch occurs between the adjustment and the seek being
+    // performed, and (b) segment start times are not aligned across variants, it's possible that
+    // the adjusted position may not be at a sync point when it was intended to be. However, this is
+    // very much an edge case, and getting it wrong is worth it for getting the vast majority of
+    // cases right whilst keeping the implementation relatively simple.
+    long startOfPlaylistInPeriodUs =
+        mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+    long relativePositionUs = positionUs - startOfPlaylistInPeriodUs;
+    int segmentIndex =
+        Util.binarySearchFloor(
+            mediaPlaylist.segments,
+            relativePositionUs,
+            /* inclusive= */ true,
+            /* stayInBounds= */ true);
+    long firstSyncUs = mediaPlaylist.segments.get(segmentIndex).relativeStartTimeUs;
+    long secondSyncUs = firstSyncUs;
+    if (segmentIndex != mediaPlaylist.segments.size() - 1) {
+      secondSyncUs = mediaPlaylist.segments.get(segmentIndex + 1).relativeStartTimeUs;
+    }
+    return seekParameters.resolveSeekPositionUs(relativePositionUs, firstSyncUs, secondSyncUs)
+        + startOfPlaylistInPeriodUs;
   }
 
   /**
@@ -453,7 +506,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             previous,
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
-            shouldSpliceIn);
+            shouldSpliceIn,
+            playerId);
   }
 
   @Nullable
@@ -823,8 +877,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     public InitializationTrackSelection(TrackGroup group, int[] tracks) {
       super(group, tracks);
-      // The initially selected index corresponds to the first EXT-X-STREAMINF tag in the master
-      // playlist.
+      // The initially selected index corresponds to the first EXT-X-STREAMINF tag in the
+      // multivariant playlist.
       selectedIndex = indexOf(group.getFormat(tracks[0]));
     }
 

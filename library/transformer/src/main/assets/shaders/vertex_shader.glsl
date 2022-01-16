@@ -11,10 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#extension GL_OES_EGL_image_external : require
-precision mediump float;
-uniform samplerExternalOES tex_sampler;
-varying vec2 v_texcoord;
+attribute vec4 aPosition;
+attribute vec4 aTexCoords;
+uniform mat4 uTexTransform;
+uniform mat4 uTransformationMatrix;
+varying vec2 vTexCoords;
 void main() {
-  gl_FragColor = texture2D(tex_sampler, v_texcoord);
+  gl_Position = uTransformationMatrix * aPosition;
+  vTexCoords = (uTexTransform * aTexCoords).xy;
 }

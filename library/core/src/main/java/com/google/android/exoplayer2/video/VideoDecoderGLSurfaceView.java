@@ -166,9 +166,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
       program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
-      program.use();
-      int posLocation = program.getAttribLocation("in_pos");
-      GLES20.glEnableVertexAttribArray(posLocation);
+      int posLocation = program.getAttributeArrayLocationAndEnable("in_pos");
       GLES20.glVertexAttribPointer(
           posLocation,
           2,
@@ -176,13 +174,9 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
           /* normalized= */ false,
           /* stride= */ 0,
           TEXTURE_VERTICES);
-      texLocations[0] = program.getAttribLocation("in_tc_y");
-      GLES20.glEnableVertexAttribArray(texLocations[0]);
-      texLocations[1] = program.getAttribLocation("in_tc_u");
-      GLES20.glEnableVertexAttribArray(texLocations[1]);
-      texLocations[2] = program.getAttribLocation("in_tc_v");
-      GLES20.glEnableVertexAttribArray(texLocations[2]);
-      GlUtil.checkGlError();
+      texLocations[0] = program.getAttributeArrayLocationAndEnable("in_tc_y");
+      texLocations[1] = program.getAttributeArrayLocationAndEnable("in_tc_u");
+      texLocations[2] = program.getAttributeArrayLocationAndEnable("in_tc_v");
       colorMatrixLocation = program.getUniformLocation("mColorConversion");
       GlUtil.checkGlError();
       setupTextures();
@@ -255,9 +249,9 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
       int[] widths = new int[3];
       widths[0] = outputBuffer.width;
-      // TODO: Handle streams where chroma channels are not stored at half width and height
-      // compared to luma channel. See [Internal: b/142097774].
-      // U and V planes are being stored at half width compared to Y.
+      // TODO(b/142097774): Handle streams where chroma channels are not stored at half width and
+      // height compared to the luma channel. U and V planes are being stored at half width compared
+      // to Y.
       widths[1] = widths[2] = (widths[0] + 1) / 2;
       for (int i = 0; i < 3; i++) {
         // Set cropping of stride if either width or stride has changed.

@@ -190,14 +190,15 @@ Note that overriding these drawables will also affect the appearance of
 All of the view components inflate their layouts from corresponding layout
 files, which are specified in their Javadoc. For example when a
 `PlayerControlView` is instantiated, it inflates its layout from
-`exo_player_control_view.xml`. To customize these layouts, an application can
-define layout files with the same names in its own `res/layout*` directories.
-These layout files will override the ones provided by the ExoPlayer library.
+`exo_player_control_view.xml`. To customize these layouts, an application
+can define layout files with the same names in its own `res/layout*`
+directories. These layout files will override the ones provided by the ExoPlayer
+library.
 
 As an example, suppose we want our playback controls to consist of only a
 play/pause button positioned in the center of the view. We can achieve this by
-creating an `exo_player_control_view.xml` file in the application’s `res/layout`
-directory, containing:
+creating an `exo_player_control_view.xml` file in the application’s
+`res/layout` directory, containing:
 
 ~~~
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"

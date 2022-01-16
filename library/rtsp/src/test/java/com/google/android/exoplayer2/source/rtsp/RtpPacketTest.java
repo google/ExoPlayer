@@ -16,6 +16,8 @@
 
 package com.google.android.exoplayer2.source.rtsp;
 
+import static com.google.android.exoplayer2.source.rtsp.RtpPacket.getNextSequenceNumber;
+import static com.google.android.exoplayer2.source.rtsp.RtpPacket.getPreviousSequenceNumber;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.getBytesFromHexString;
 import static com.google.common.truth.Truth.assertThat;
@@ -183,5 +185,27 @@ public final class RtpPacketTest {
     byte[] builtPacketBytes = new byte[packetSize];
     builtPacket.writeToBuffer(builtPacketBytes, /* offset= */ 0, packetSize);
     assertThat(builtPacketBytes).isEqualTo(rtpDataWithLargeTimestamp);
+  }
+
+  @Test
+  public void getNextSequenceNumber_invokingAtWrapOver() {
+    assertThat(getNextSequenceNumber(65534)).isEqualTo(65535);
+    assertThat(getNextSequenceNumber(65535)).isEqualTo(0);
+    assertThat(getNextSequenceNumber(0)).isEqualTo(1);
+  }
+
+  @Test
+  public void getPreviousSequenceNumber_invokingAtWrapOver() {
+    assertThat(getPreviousSequenceNumber(1)).isEqualTo(0);
+    assertThat(getPreviousSequenceNumber(0)).isEqualTo(65535);
+    assertThat(getPreviousSequenceNumber(65535)).isEqualTo(65534);
+  }
+
+  @Test
+  public void getSequenceNumber_isSymmetric() {
+    for (int i = 0; i < RtpPacket.MAX_SEQUENCE_NUMBER; i++) {
+      assertThat(getPreviousSequenceNumber(getNextSequenceNumber(i))).isEqualTo(i);
+      assertThat(getNextSequenceNumber(getPreviousSequenceNumber(i))).isEqualTo(i);
+    }
   }
 }

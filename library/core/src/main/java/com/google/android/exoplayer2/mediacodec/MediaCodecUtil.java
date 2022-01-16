@@ -27,6 +27,7 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
@@ -105,11 +106,8 @@ public final class MediaCodecUtil {
     }
   }
 
-  /**
-   * Clears the codec cache.
-   *
-   * <p>This method should only be called in tests.
-   */
+  /* Clears the codec cache.*/
+  @VisibleForTesting
   public static synchronized void clearDecoderInfoCache() {
     decoderInfosCache.clear();
   }
@@ -322,8 +320,8 @@ public final class MediaCodecUtil {
           if ((!key.secure && secureRequired) || (key.secure && !secureSupported)) {
             continue;
           }
-          boolean hardwareAccelerated = isHardwareAccelerated(codecInfo);
-          boolean softwareOnly = isSoftwareOnly(codecInfo);
+          boolean hardwareAccelerated = isHardwareAccelerated(codecInfo, mimeType);
+          boolean softwareOnly = isSoftwareOnly(codecInfo, mimeType);
           boolean vendor = isVendor(codecInfo);
           if ((secureDecodersExplicit && key.secure == secureSupported)
               || (!secureDecodersExplicit && !key.secure)) {
@@ -514,8 +512,10 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // MTK E-AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType) && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
+    // MTK AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
+    if (Util.SDK_INT <= 23
+        && MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)
+        && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
       return false;
     }
 
@@ -603,13 +603,14 @@ public final class MediaCodecUtil {
    * The result of {@link android.media.MediaCodecInfo#isHardwareAccelerated()} for API levels 29+,
    * or a best-effort approximation for lower levels.
    */
-  private static boolean isHardwareAccelerated(android.media.MediaCodecInfo codecInfo) {
+  private static boolean isHardwareAccelerated(
+      android.media.MediaCodecInfo codecInfo, String mimeType) {
     if (Util.SDK_INT >= 29) {
       return isHardwareAcceleratedV29(codecInfo);
     }
     // codecInfo.isHardwareAccelerated() != codecInfo.isSoftwareOnly() is not necessarily true.
     // However, we assume this to be true as an approximation.
-    return !isSoftwareOnly(codecInfo);
+    return !isSoftwareOnly(codecInfo, mimeType);
   }
 
   @RequiresApi(29)
@@ -621,12 +622,17 @@ public final class MediaCodecUtil {
    * The result of {@link android.media.MediaCodecInfo#isSoftwareOnly()} for API levels 29+, or a
    * best-effort approximation for lower levels.
    */
-  private static boolean isSoftwareOnly(android.media.MediaCodecInfo codecInfo) {
+  private static boolean isSoftwareOnly(android.media.MediaCodecInfo codecInfo, String mimeType) {
     if (Util.SDK_INT >= 29) {
       return isSoftwareOnlyV29(codecInfo);
     }
+    if (MimeTypes.isAudio(mimeType)) {
+      // Assume audio decoders are software only.
+      return true;
+    }
     String codecName = Ascii.toLowerCase(codecInfo.getName());
-    if (codecName.startsWith("arc.")) { // App Runtime for Chrome (ARC) codecs
+    if (codecName.startsWith("arc.")) {
+      // App Runtime for Chrome (ARC) codecs
       return false;
     }
     return codecName.startsWith("omx.google.")

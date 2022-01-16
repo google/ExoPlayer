@@ -29,8 +29,8 @@ import java.io.IOException;
  * <p>The playlist tracker is responsible for exposing the seeking window, which is defined by the
  * segments that one of the playlists exposes. This playlist is called primary and needs to be
  * periodically refreshed in the case of live streams. Note that the primary playlist is one of the
- * media playlists while the master playlist is an optional kind of playlist defined by the HLS
- * specification (RFC 8216).
+ * media playlists while the multivariant playlist is an optional kind of playlist defined by the
+ * HLS specification (RFC 8216).
  *
  * <p>Playlist loads might encounter errors. The tracker may choose to exclude them to ensure a
  * primary playlist is always available.
@@ -120,8 +120,8 @@ public interface HlsPlaylistTracker {
    * <p>Must be called from the playback thread. A tracker may be restarted after a {@link #stop()}
    * call.
    *
-   * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a master
-   *     playlist.
+   * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a
+   *     multivariant playlist.
    * @param eventDispatcher A dispatcher to notify of events.
    * @param primaryPlaylistListener A callback for the primary playlist change events.
    */
@@ -152,15 +152,15 @@ public interface HlsPlaylistTracker {
   void removeListener(PlaylistEventListener listener);
 
   /**
-   * Returns the master playlist.
+   * Returns the multivariant playlist.
    *
-   * <p>If the uri passed to {@link #start} points to a media playlist, an {@link HlsMasterPlaylist}
-   * with a single variant for said media playlist is returned.
+   * <p>If the uri passed to {@link #start} points to a media playlist, an {@link
+   * HlsMultivariantPlaylist} with a single variant for said media playlist is returned.
    *
-   * @return The master playlist. Null if the initial playlist has yet to be loaded.
+   * @return The multivariant playlist. Null if the initial playlist has yet to be loaded.
    */
   @Nullable
-  HlsMasterPlaylist getMasterPlaylist();
+  HlsMultivariantPlaylist getMultivariantPlaylist();
 
   /**
    * Returns the most recent snapshot available of the playlist referenced by the provided {@link
@@ -192,8 +192,8 @@ public interface HlsPlaylistTracker {
   boolean isSnapshotValid(Uri url);
 
   /**
-   * If the tracker is having trouble refreshing the master playlist or the primary playlist, this
-   * method throws the underlying error. Otherwise, does nothing.
+   * If the tracker is having trouble refreshing the multivariant playlist or the primary playlist,
+   * this method throws the underlying error. Otherwise, does nothing.
    *
    * @throws IOException The underlying error.
    */

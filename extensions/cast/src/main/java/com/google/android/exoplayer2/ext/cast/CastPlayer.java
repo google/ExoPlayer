@@ -816,13 +816,7 @@ public final class CastPlayer extends BasePlayer {
         !getCurrentTimeline().isEmpty()
             ? getCurrentTimeline().getPeriod(oldWindowIndex, period, /* setIds= */ true).uid
             : null;
-    boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
     updatePlayerStateAndNotifyIfChanged(/* resultCallback= */ null);
-    boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
-    if (wasPlaying != isPlaying) {
-      listeners.queueEvent(
-          Player.EVENT_IS_PLAYING_CHANGED, listener -> listener.onIsPlayingChanged(isPlaying));
-    }
     updateRepeatModeAndNotifyIfChanged(/* resultCallback= */ null);
     updatePlaybackRateAndNotifyIfChanged(/* resultCallback= */ null);
     boolean playingPeriodChangedByTimelineChange = updateTimelineAndNotifyIfChanged();
@@ -1058,7 +1052,8 @@ public final class CastPlayer extends BasePlayer {
         new TracksInfo.TrackGroupInfo[castMediaTracks.size()];
     for (int i = 0; i < castMediaTracks.size(); i++) {
       MediaTrack mediaTrack = castMediaTracks.get(i);
-      trackGroups[i] = new TrackGroup(CastUtils.mediaTrackToFormat(mediaTrack));
+      trackGroups[i] =
+          new TrackGroup(/* id= */ Integer.toString(i), CastUtils.mediaTrackToFormat(mediaTrack));
 
       long id = mediaTrack.getId();
       @C.TrackType int trackType = MimeTypes.getTrackType(mediaTrack.getContentType());
@@ -1092,7 +1087,7 @@ public final class CastPlayer extends BasePlayer {
 
   private void updateAvailableCommandsAndNotifyIfChanged() {
     Commands previousAvailableCommands = availableCommands;
-    availableCommands = getAvailableCommands(PERMANENT_AVAILABLE_COMMANDS);
+    availableCommands = Util.getAvailableCommands(/* player= */ this, PERMANENT_AVAILABLE_COMMANDS);
     if (!availableCommands.equals(previousAvailableCommands)) {
       listeners.queueEvent(
           Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
@@ -1215,6 +1210,7 @@ public final class CastPlayer extends BasePlayer {
       boolean playWhenReady,
       @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason,
       @Player.State int playbackState) {
+    boolean wasPlaying = this.playbackState == Player.STATE_READY && this.playWhenReady.value;
     boolean playWhenReadyChanged = this.playWhenReady.value != playWhenReady;
     boolean playbackStateChanged = this.playbackState != playbackState;
     if (playWhenReadyChanged || playbackStateChanged) {
@@ -1232,6 +1228,11 @@ public final class CastPlayer extends BasePlayer {
         listeners.queueEvent(
             Player.EVENT_PLAY_WHEN_READY_CHANGED,
             listener -> listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason));
+      }
+      boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady;
+      if (wasPlaying != isPlaying) {
+        listeners.queueEvent(
+            Player.EVENT_IS_PLAYING_CHANGED, listener -> listener.onIsPlayingChanged(isPlaying));
       }
     }
   }

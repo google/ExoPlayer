@@ -217,6 +217,19 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
 
     /**
+     * Returns the {@link Capabilities} of the renderer for an individual track.
+     *
+     * @param rendererIndex The renderer index.
+     * @param groupIndex The index of the track group to which the track belongs.
+     * @param trackIndex The index of the track within the track group.
+     * @return The {@link Capabilities}.
+     */
+    @Capabilities
+    public int getCapabilities(int rendererIndex, int groupIndex, int trackIndex) {
+      return rendererFormatSupports[rendererIndex][groupIndex][trackIndex];
+    }
+
+    /**
      * Returns the extent to which an individual track is supported by the renderer.
      *
      * @param rendererIndex The renderer index.
@@ -227,7 +240,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     @FormatSupport
     public int getTrackSupport(int rendererIndex, int groupIndex, int trackIndex) {
       return RendererCapabilities.getFormatSupport(
-          rendererFormatSupports[rendererIndex][groupIndex][trackIndex]);
+          getCapabilities(rendererIndex, groupIndex, trackIndex));
     }
 
     /**
@@ -560,13 +573,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           trackSupport[trackIndex] =
               mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex);
-          // Suppressing reference equality warning because the track group stored in the track
-          // selection must point to the exact track group object to be considered part of it.
-          @SuppressWarnings("ReferenceEquality")
           boolean isTrackSelected =
-              (trackSelection != null)
-                  && (trackSelection.getTrackGroup() == trackGroup)
-                  && (trackSelection.indexOf(trackIndex) != C.INDEX_UNSET);
+              trackSelection != null
+                  && trackSelection.getTrackGroup().equals(trackGroup)
+                  && trackSelection.indexOf(trackIndex) != C.INDEX_UNSET;
           selected[trackIndex] = isTrackSelected;
         }
         @C.TrackType int trackGroupType = mappedTrackInfo.getRendererType(rendererIndex);

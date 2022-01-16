@@ -19,6 +19,7 @@ import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -49,6 +50,7 @@ public interface DashChunkSource extends ChunkSource {
      * @param closedCaptionFormats The {@link Format Formats} of closed caption tracks to be output.
      * @param transferListener The transfer listener which should be informed of any data transfers.
      *     May be null if no listener is available.
+     * @param playerId The {@link PlayerId} of the player using this chunk source.
      * @return The created {@link DashChunkSource}.
      */
     DashChunkSource createDashChunkSource(
@@ -63,7 +65,8 @@ public interface DashChunkSource extends ChunkSource {
         boolean enableEventMessageTrack,
         List<Format> closedCaptionFormats,
         @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
-        @Nullable TransferListener transferListener);
+        @Nullable TransferListener transferListener,
+        PlayerId playerId);
   }
 
   /**

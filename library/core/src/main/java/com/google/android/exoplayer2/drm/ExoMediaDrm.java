@@ -26,6 +26,7 @@ import android.os.PersistableBundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.lang.annotation.Documented;
@@ -394,6 +395,14 @@ public interface ExoMediaDrm {
    * @param sessionId The ID of the session to close.
    */
   void closeSession(byte[] sessionId);
+
+  /**
+   * Sets the {@link PlayerId} of the player using a session.
+   *
+   * @param sessionId The ID of the session.
+   * @param playerId The {@link PlayerId} of the player using the session.
+   */
+  default void setPlayerIdForSession(byte[] sessionId, PlayerId playerId) {}
 
   /**
    * Generates a key request.

@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -132,45 +131,6 @@ public final class DashMediaSourceTest {
     assertThat(dashMediaItem.localConfiguration).isNotNull();
     assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
     assertThat(dashMediaItem.localConfiguration.tag).isEqualTo(mediaItemTag);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_emptyMediaItemStreamKeys_setsMediaItemStreamKeys() {
-    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
-    StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(ImmutableList.of(streamKey));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(streamKey);
-  }
-
-  // Tests backwards compatibility
-  @SuppressWarnings("deprecation")
-  @Test
-  public void factorySetStreamKeys_withMediaItemStreamKeys_doesNotOverrideMediaItemStreamKeys() {
-    StreamKey mediaItemStreamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
-    MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setUri("http://www.google.com")
-            .setStreamKeys(ImmutableList.of(mediaItemStreamKey))
-            .build();
-    DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(new FileDataSource.Factory())
-            .setStreamKeys(
-                ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
-
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
-
-    assertThat(dashMediaItem.localConfiguration).isNotNull();
-    assertThat(dashMediaItem.localConfiguration.uri).isEqualTo(mediaItem.localConfiguration.uri);
-    assertThat(dashMediaItem.localConfiguration.streamKeys).containsExactly(mediaItemStreamKey);
   }
 
   @Test
@@ -352,7 +312,7 @@ public final class DashMediaSourceTest {
                     .setTargetOffsetMs(876L)
                     .setMinPlaybackSpeed(23f)
                     .setMaxPlaybackSpeed(42f)
-                    .setMinOffsetMs(200L)
+                    .setMinOffsetMs(600L)
                     .setMaxOffsetMs(999L)
                     .build())
             .build();
@@ -368,7 +328,7 @@ public final class DashMediaSourceTest {
         prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
     assertThat(liveConfiguration.targetOffsetMs).isEqualTo(876L);
-    assertThat(liveConfiguration.minOffsetMs).isEqualTo(200L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(600L);
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
     assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
@@ -422,6 +382,33 @@ public final class DashMediaSourceTest {
     assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
     assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
+  }
+
+  @Test
+  public void
+      prepare_withMinMaxOffsetOverridesOutsideOfLiveWindow_adjustsOverridesToBeWithinWindow()
+          throws Exception {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.EMPTY)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder()
+                    .setMinOffsetMs(0L)
+                    .setMaxOffsetMs(1_000_000_000L)
+                    .build())
+            .build();
+    DashMediaSource mediaSource =
+        new DashMediaSource.Factory(
+                () ->
+                    createSampleMpdDataSource(
+                        SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S_MIN_BUFFER_TIME_500MS))
+            .createMediaSource(mediaItem);
+
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
+
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(500L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
   }
 
   @Test
@@ -484,7 +471,7 @@ public final class DashMediaSourceTest {
             countDownLatch.countDown();
           }
         };
-    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null);
+    mediaSource.prepareSource(caller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     while (!countDownLatch.await(/* timeout= */ 10, MILLISECONDS)) {
       ShadowLooper.idleMainLooper();
     }

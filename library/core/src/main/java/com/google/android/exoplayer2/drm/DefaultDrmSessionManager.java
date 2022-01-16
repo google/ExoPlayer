@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.annotation.SuppressLint;
 import android.media.ResourceBusyException;
@@ -31,6 +32,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
@@ -59,7 +61,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}.
  *
  * <p>This implementation supports pre-acquisition of sessions using {@link
- * #preacquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}.
+ * #preacquireSession(DrmSessionEventListener.EventDispatcher, Format)}.
  */
 @RequiresApi(18)
 public class DefaultDrmSessionManager implements DrmSessionManager {
@@ -302,6 +304,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private @MonotonicNonNull Handler playbackHandler;
   private int mode;
   @Nullable private byte[] offlineLicenseKeySetId;
+  private @MonotonicNonNull PlayerId playerId;
 
   /* package */ volatile @Nullable MediaDrmHandler mediaDrmHandler;
 
@@ -419,8 +422,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
-   * called before {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}
-   * is called.
+   * called before {@link #acquireSession(DrmSessionEventListener.EventDispatcher, Format)} is
+   * called.
    *
    * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
    * required.
@@ -488,12 +491,16 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public DrmSessionReference preacquireSession(
-      Looper playbackLooper,
-      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-      Format format) {
-    checkState(prepareCallsCount > 0);
+  public void setPlayer(Looper playbackLooper, PlayerId playerId) {
     initPlaybackLooper(playbackLooper);
+    this.playerId = playerId;
+  }
+
+  @Override
+  public DrmSessionReference preacquireSession(
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format) {
+    checkState(prepareCallsCount > 0);
+    checkStateNotNull(playbackLooper);
     PreacquiredSessionReference preacquiredSessionReference =
         new PreacquiredSessionReference(eventDispatcher);
     preacquiredSessionReference.acquire(format);
@@ -503,11 +510,9 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Override
   @Nullable
   public DrmSession acquireSession(
-      Looper playbackLooper,
-      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-      Format format) {
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher, Format format) {
     checkState(prepareCallsCount > 0);
-    initPlaybackLooper(playbackLooper);
+    checkStateNotNull(playbackLooper);
     return acquireSession(
         playbackLooper,
         eventDispatcher,
@@ -774,7 +779,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
             keyRequestParameters,
             callback,
             checkNotNull(playbackLooper),
-            loadErrorHandlingPolicy);
+            loadErrorHandlingPolicy,
+            checkNotNull(playerId));
     // Acquire the session once on behalf of the caller to DrmSessionManager - this is the
     // reference 'assigned' to the caller which they're responsible for releasing. Do this first,
     // to ensure that eventDispatcher receives all events related to the initial
@@ -977,7 +983,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      * Constructs an instance.
      *
      * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} passed to {@link
-     *     #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}.
+     *     #acquireSession(DrmSessionEventListener.EventDispatcher, Format)}.
      */
     public PreacquiredSessionReference(
         @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {

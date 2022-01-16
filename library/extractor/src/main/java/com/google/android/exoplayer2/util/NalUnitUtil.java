@@ -779,7 +779,7 @@ public final class NalUnitUtil {
         bitArray.skipBit(); // delta_rps_sign
         bitArray.readUnsignedExpGolombCodedInt(); // abs_delta_rps_minus1
         for (int j = 0; j <= previousNumDeltaPocs; j++) {
-          if (bitArray.readBit()) { // used_by_curr_pic_flag[j]
+          if (!bitArray.readBit()) { // used_by_curr_pic_flag[j]
             bitArray.skipBit(); // use_delta_flag[j]
           }
         }

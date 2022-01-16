@@ -539,10 +539,10 @@ public final class RtspMessageUtilTest {
   public void parseWWWAuthenticateHeader_withDigestAuthentication_succeeds() throws Exception {
     RtspAuthenticationInfo authenticationInfo =
         RtspMessageUtil.parseWwwAuthenticateHeader(
-            "Digest realm=\"LIVE555 Streaming Media\", nonce=\"0cdfe9719e7373b7d5bb2913e2115f3f\"");
+            "Digest realm=\"RTSP server\", nonce=\"0cdfe9719e7373b7d5bb2913e2115f3f\"");
     assertThat(authenticationInfo.authenticationMechanism).isEqualTo(RtspAuthenticationInfo.DIGEST);
     assertThat(authenticationInfo.nonce).isEqualTo("0cdfe9719e7373b7d5bb2913e2115f3f");
-    assertThat(authenticationInfo.realm).isEqualTo("LIVE555 Streaming Media");
+    assertThat(authenticationInfo.realm).isEqualTo("RTSP server");
     assertThat(authenticationInfo.opaque).isEmpty();
   }
 

@@ -272,6 +272,20 @@ public final class C {
   /** @see AudioFormat#ENCODING_DOLBY_TRUEHD */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
 
+  /** Represents the behavior affecting whether spatialization will be used. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
+  @IntDef({SPATIALIZATION_BEHAVIOR_AUTO, SPATIALIZATION_BEHAVIOR_NEVER})
+  public @interface SpatializationBehavior {}
+
+  // TODO[b/190759307]: Update constant values and javadoc to use SDK once compile SDK target is set
+  //  to 32.
+  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO */
+  public static final int SPATIALIZATION_BEHAVIOR_AUTO = 0;
+  /** See AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER */
+  public static final int SPATIALIZATION_BEHAVIOR_NEVER = 1;
+
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link
    * #STREAM_TYPE_DTMF}, {@link #STREAM_TYPE_MUSIC}, {@link #STREAM_TYPE_NOTIFICATION}, {@link
@@ -590,6 +604,7 @@ public final class C {
       flag = true,
       value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
   public @interface SelectionFlags {}
+  // LINT.IfChange(selection_flags)
   /** Indicates that the track should be selected if user preferences do not state otherwise. */
   public static final int SELECTION_FLAG_DEFAULT = 1;
   /**
@@ -1055,6 +1070,7 @@ public final class C {
         ROLE_FLAG_TRICK_PLAY
       })
   public @interface RoleFlags {}
+  // LINT.IfChange(role_flags)
   /** Indicates a main track. */
   public static final int ROLE_FLAG_MAIN = 1;
   /**

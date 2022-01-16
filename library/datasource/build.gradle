@@ -42,6 +42,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     androidTestImplementation(project(modulePrefix + 'testutils')) {
         exclude module: modulePrefix.substring(1) + 'library-core'
     }

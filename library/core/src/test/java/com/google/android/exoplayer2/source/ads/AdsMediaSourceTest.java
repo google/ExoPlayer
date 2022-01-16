@@ -29,10 +29,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.ads.AdsLoader.EventListener;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
@@ -100,7 +101,7 @@ public final class AdsMediaSourceTest {
     // later.
     contentMediaSource = new FakeMediaSource(/* timeline= */ null);
     prerollAdMediaSource = new FakeMediaSource(/* timeline= */ null);
-    MediaSourceFactory adMediaSourceFactory = mock(MediaSourceFactory.class);
+    MediaSource.Factory adMediaSourceFactory = mock(MediaSource.Factory.class);
     when(adMediaSourceFactory.createMediaSource(any(MediaItem.class)))
         .thenReturn(prerollAdMediaSource);
 
@@ -117,7 +118,8 @@ public final class AdsMediaSourceTest {
             adMediaSourceFactory,
             mockAdsLoader,
             mockAdViewProvider);
-    adsMediaSource.prepareSource(mockMediaSourceCaller, /* mediaTransferListener= */ null);
+    adsMediaSource.prepareSource(
+        mockMediaSourceCaller, /* mediaTransferListener= */ null, PlayerId.UNSET);
     shadowOf(Looper.getMainLooper()).idle();
     verify(mockAdsLoader)
         .start(

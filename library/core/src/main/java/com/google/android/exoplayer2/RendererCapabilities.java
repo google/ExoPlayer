@@ -60,16 +60,16 @@ public interface RendererCapabilities {
   @interface AdaptiveSupport {}
 
   /** A mask to apply to {@link Capabilities} to obtain the {@link AdaptiveSupport} only. */
-  int ADAPTIVE_SUPPORT_MASK = 0b11000;
+  int ADAPTIVE_SUPPORT_MASK = 0b11 << 3;
   /** The {@link Renderer} can seamlessly adapt between formats. */
-  int ADAPTIVE_SEAMLESS = 0b10000;
+  int ADAPTIVE_SEAMLESS = 0b10 << 3;
   /**
    * The {@link Renderer} can adapt between formats, but may suffer a brief discontinuity
    * (~50-100ms) when adaptation occurs.
    */
-  int ADAPTIVE_NOT_SEAMLESS = 0b01000;
+  int ADAPTIVE_NOT_SEAMLESS = 0b01 << 3;
   /** The {@link Renderer} does not support adaptation between formats. */
-  int ADAPTIVE_NOT_SUPPORTED = 0b00000;
+  int ADAPTIVE_NOT_SUPPORTED = 0;
 
   /**
    * Level of renderer support for tunneling. One of {@link #TUNNELING_SUPPORTED} or {@link
@@ -80,20 +80,62 @@ public interface RendererCapabilities {
   @IntDef({TUNNELING_SUPPORTED, TUNNELING_NOT_SUPPORTED})
   @interface TunnelingSupport {}
 
-  /** A mask to apply to {@link Capabilities} to obtain the {@link TunnelingSupport} only. */
-  int TUNNELING_SUPPORT_MASK = 0b100000;
+  /** A mask to apply to {@link Capabilities} to obtain {@link TunnelingSupport} only. */
+  int TUNNELING_SUPPORT_MASK = 0b1 << 5;
   /** The {@link Renderer} supports tunneled output. */
-  int TUNNELING_SUPPORTED = 0b100000;
+  int TUNNELING_SUPPORTED = 0b1 << 5;
   /** The {@link Renderer} does not support tunneled output. */
-  int TUNNELING_NOT_SUPPORTED = 0b000000;
+  int TUNNELING_NOT_SUPPORTED = 0;
+
+  /**
+   * Level of renderer support for hardware acceleration. One of {@link
+   * #HARDWARE_ACCELERATION_SUPPORTED} and {@link #HARDWARE_ACCELERATION_NOT_SUPPORTED}.
+   *
+   * <p>For video renderers, the level of support is indicated for non-tunneled output.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    HARDWARE_ACCELERATION_SUPPORTED,
+    HARDWARE_ACCELERATION_NOT_SUPPORTED,
+  })
+  @interface HardwareAccelerationSupport {}
+  /** A mask to apply to {@link Capabilities} to obtain {@link HardwareAccelerationSupport} only. */
+  int HARDWARE_ACCELERATION_SUPPORT_MASK = 0b1 << 6;
+  /** The renderer is able to use hardware acceleration. */
+  int HARDWARE_ACCELERATION_SUPPORTED = 0b1 << 6;
+  /** The renderer is not able to use hardware acceleration. */
+  int HARDWARE_ACCELERATION_NOT_SUPPORTED = 0;
+
+  /**
+   * Level of decoder support. One of {@link #DECODER_SUPPORT_PRIMARY} and {@link
+   * #DECODER_SUPPORT_FALLBACK}.
+   *
+   * <p>For video renderers, the level of support is indicated for non-tunneled output.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    DECODER_SUPPORT_PRIMARY,
+    DECODER_SUPPORT_FALLBACK,
+  })
+  @interface DecoderSupport {}
+  /** A mask to apply to {@link Capabilities} to obtain {@link DecoderSupport} only. */
+  int MODE_SUPPORT_MASK = 0b1 << 7;
+  /** The renderer is able to use the primary decoder for the format's MIME type. */
+  int DECODER_SUPPORT_PRIMARY = 0b1 << 7;
+  /** The renderer will use a fallback decoder. */
+  int DECODER_SUPPORT_FALLBACK = 0;
 
   /**
    * Combined renderer capabilities.
    *
-   * <p>This is a bitwise OR of {@link C.FormatSupport}, {@link AdaptiveSupport} and {@link
-   * TunnelingSupport}. Use {@link #getFormatSupport(int)}, {@link #getAdaptiveSupport(int)} or
-   * {@link #getTunnelingSupport(int)} to obtain the individual flags. And use {@link #create(int)}
-   * or {@link #create(int, int, int)} to create the combined capabilities.
+   * <p>This is a bitwise OR of {@link C.FormatSupport}, {@link AdaptiveSupport}, {@link
+   * TunnelingSupport}, {@link HardwareAccelerationSupport} and {@link DecoderSupport}. Use {@link
+   * #getFormatSupport}, {@link #getAdaptiveSupport}, {@link #getTunnelingSupport}, {@link
+   * #getHardwareAccelerationSupport} and {@link #getDecoderSupport} to obtain individual
+   * components. Use {@link #create(int)}, {@link #create(int, int, int)} or {@link #create(int,
+   * int, int, int, int)} to create combined capabilities from individual components.
    *
    * <p>Possible values:
    *
@@ -111,6 +153,11 @@ public interface RendererCapabilities {
    *       #TUNNELING_SUPPORTED} and {@link #TUNNELING_NOT_SUPPORTED}. Only set if the level of
    *       support for the format itself is {@link C#FORMAT_HANDLED} or {@link
    *       C#FORMAT_EXCEEDS_CAPABILITIES}.
+   *   <li>{@link HardwareAccelerationSupport}: The level of support for hardware acceleration. One
+   *       of {@link #HARDWARE_ACCELERATION_SUPPORTED} and {@link
+   *       #HARDWARE_ACCELERATION_NOT_SUPPORTED}.
+   *   <li>{@link DecoderSupport}: The level of decoder support. One of {@link
+   *       #DECODER_SUPPORT_PRIMARY} and {@link #DECODER_SUPPORT_FALLBACK}.
    * </ul>
    */
   @Documented
@@ -122,8 +169,10 @@ public interface RendererCapabilities {
   /**
    * Returns {@link Capabilities} for the given {@link C.FormatSupport}.
    *
-   * <p>The {@link AdaptiveSupport} is set to {@link #ADAPTIVE_NOT_SUPPORTED} and {{@link
-   * TunnelingSupport} is set to {@link #TUNNELING_NOT_SUPPORTED}.
+   * <p>{@link AdaptiveSupport} is set to {@link #ADAPTIVE_NOT_SUPPORTED}, {@link TunnelingSupport}
+   * is set to {@link #TUNNELING_NOT_SUPPORTED}, {@link HardwareAccelerationSupport} is set to
+   * {@link #HARDWARE_ACCELERATION_NOT_SUPPORTED} and {@link DecoderSupport} is set to {@link
+   * #DECODER_SUPPORT_PRIMARY}.
    *
    * @param formatSupport The {@link C.FormatSupport}.
    * @return The combined {@link Capabilities} of the given {@link C.FormatSupport}, {@link
@@ -138,9 +187,37 @@ public interface RendererCapabilities {
    * Returns {@link Capabilities} combining the given {@link C.FormatSupport}, {@link
    * AdaptiveSupport} and {@link TunnelingSupport}.
    *
+   * <p>{@link HardwareAccelerationSupport} is set to {@link #HARDWARE_ACCELERATION_NOT_SUPPORTED}
+   * and {@link DecoderSupport} is set to {@link #DECODER_SUPPORT_PRIMARY}.
+   *
    * @param formatSupport The {@link C.FormatSupport}.
    * @param adaptiveSupport The {@link AdaptiveSupport}.
    * @param tunnelingSupport The {@link TunnelingSupport}.
+   * @return The combined {@link Capabilities}.
+   */
+  @Capabilities
+  static int create(
+      @C.FormatSupport int formatSupport,
+      @AdaptiveSupport int adaptiveSupport,
+      @TunnelingSupport int tunnelingSupport) {
+    return create(
+        formatSupport,
+        adaptiveSupport,
+        tunnelingSupport,
+        HARDWARE_ACCELERATION_NOT_SUPPORTED,
+        DECODER_SUPPORT_PRIMARY);
+  }
+
+  /**
+   * Returns {@link Capabilities} combining the given {@link C.FormatSupport}, {@link
+   * AdaptiveSupport}, {@link TunnelingSupport}, {@link HardwareAccelerationSupport} and {@link
+   * DecoderSupport}.
+   *
+   * @param formatSupport The {@link C.FormatSupport}.
+   * @param adaptiveSupport The {@link AdaptiveSupport}.
+   * @param tunnelingSupport The {@link TunnelingSupport}.
+   * @param hardwareAccelerationSupport The {@link HardwareAccelerationSupport}.
+   * @param decoderSupport The {@link DecoderSupport}.
    * @return The combined {@link Capabilities}.
    */
   // Suppression needed for IntDef casting.
@@ -149,8 +226,14 @@ public interface RendererCapabilities {
   static int create(
       @C.FormatSupport int formatSupport,
       @AdaptiveSupport int adaptiveSupport,
-      @TunnelingSupport int tunnelingSupport) {
-    return formatSupport | adaptiveSupport | tunnelingSupport;
+      @TunnelingSupport int tunnelingSupport,
+      @HardwareAccelerationSupport int hardwareAccelerationSupport,
+      @DecoderSupport int decoderSupport) {
+    return formatSupport
+        | adaptiveSupport
+        | tunnelingSupport
+        | hardwareAccelerationSupport
+        | decoderSupport;
   }
 
   /**
@@ -190,6 +273,32 @@ public interface RendererCapabilities {
   @TunnelingSupport
   static int getTunnelingSupport(@Capabilities int supportFlags) {
     return supportFlags & TUNNELING_SUPPORT_MASK;
+  }
+
+  /**
+   * Returns the {@link HardwareAccelerationSupport} from the combined {@link Capabilities}.
+   *
+   * @param supportFlags The combined {@link Capabilities}.
+   * @return The {@link HardwareAccelerationSupport} only.
+   */
+  // Suppression needed for IntDef casting.
+  @SuppressLint("WrongConstant")
+  @HardwareAccelerationSupport
+  static int getHardwareAccelerationSupport(@Capabilities int supportFlags) {
+    return supportFlags & HARDWARE_ACCELERATION_SUPPORT_MASK;
+  }
+
+  /**
+   * Returns the {@link DecoderSupport} from the combined {@link Capabilities}.
+   *
+   * @param supportFlags The combined {@link Capabilities}.
+   * @return The {@link DecoderSupport} only.
+   */
+  // Suppression needed for IntDef casting.
+  @SuppressLint("WrongConstant")
+  @DecoderSupport
+  static int getDecoderSupport(@Capabilities int supportFlags) {
+    return supportFlags & MODE_SUPPORT_MASK;
   }
 
   /** Returns the name of the {@link Renderer}. */

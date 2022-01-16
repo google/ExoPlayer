@@ -394,9 +394,7 @@ When building the `MediaItem`, `MediaItem.playbackProperties.streamKeys` must be
 set to match those in the `DownloadRequest` so that the player only tries to
 play the subset of tracks that have been downloaded. Using
 `Download.request.toMediaItem` and `DownloadRequest.toMediaItem` to build the
-`MediaItem` will take care of this for you. If building a `MediaSource` to pass
-directly to the player, it is similarly important to configure the stream keys
-by calling `MediaSourceFactory.setStreamKeys`.
+`MediaItem` will take care of this for you.
 
 If you see data being requested from the network when trying to play downloaded
 adaptive content, the most likely cause is that the player is trying to adapt to

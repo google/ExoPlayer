@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -46,7 +46,7 @@ public class TestExoPlayerBuilder {
   private BandwidthMeter bandwidthMeter;
   @Nullable private Renderer[] renderers;
   @Nullable private RenderersFactory renderersFactory;
-  @Nullable private MediaSourceFactory mediaSourceFactory;
+  @Nullable private MediaSource.Factory mediaSourceFactory;
   private boolean useLazyPreparation;
   private @MonotonicNonNull Looper looper;
   private long seekBackIncrementMs;
@@ -222,21 +222,21 @@ public class TestExoPlayerBuilder {
   }
 
   /**
-   * Returns the {@link MediaSourceFactory} that will be used by the player, or null if no {@link
-   * MediaSourceFactory} has been set yet and no default is available.
+   * Returns the {@link MediaSource.Factory} that will be used by the player, or null if no {@link
+   * MediaSource.Factory} has been set yet and no default is available.
    */
   @Nullable
-  public MediaSourceFactory getMediaSourceFactory() {
+  public MediaSource.Factory getMediaSourceFactory() {
     return mediaSourceFactory;
   }
 
   /**
-   * Sets the {@link MediaSourceFactory} to be used by the player.
+   * Sets the {@link MediaSource.Factory} to be used by the player.
    *
-   * @param mediaSourceFactory The {@link MediaSourceFactory} to be used by the player.
+   * @param mediaSourceFactory The {@link MediaSource.Factory} to be used by the player.
    * @return This builder.
    */
-  public TestExoPlayerBuilder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+  public TestExoPlayerBuilder setMediaSourceFactory(MediaSource.Factory mediaSourceFactory) {
     this.mediaSourceFactory = mediaSourceFactory;
     return this;
   }

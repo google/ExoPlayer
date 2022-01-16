@@ -123,6 +123,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final SessionInfoListener sessionInfoListener;
   private final PlaybackEventListener playbackEventListener;
   private final String userAgent;
+  private final SocketFactory socketFactory;
   private final boolean debugLoggingEnabled;
   private final ArrayDeque<RtpLoadInfo> pendingSetupRtpLoadInfos;
   // TODO(b/172331505) Add a timeout monitor for pending requests.
@@ -140,6 +141,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @RtspState private int rtspState;
   private boolean hasUpdatedTimelineAndTracks;
   private boolean receivedAuthorizationRequest;
+  private boolean hasPendingPauseRequest;
   private long pendingSeekPositionUs;
 
   /**
@@ -155,16 +157,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param playbackEventListener The {@link PlaybackEventListener}.
    * @param userAgent The user agent.
    * @param uri The RTSP playback URI.
+   * @param socketFactory A socket factory for the RTSP connection.
+   * @param debugLoggingEnabled Whether to log RTSP messages.
    */
   public RtspClient(
       SessionInfoListener sessionInfoListener,
       PlaybackEventListener playbackEventListener,
       String userAgent,
       Uri uri,
+      SocketFactory socketFactory,
       boolean debugLoggingEnabled) {
     this.sessionInfoListener = sessionInfoListener;
     this.playbackEventListener = playbackEventListener;
     this.userAgent = userAgent;
+    this.socketFactory = socketFactory;
     this.debugLoggingEnabled = debugLoggingEnabled;
     this.pendingSetupRtpLoadInfos = new ArrayDeque<>();
     this.pendingRequests = new SparseArray<>();
@@ -230,7 +236,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param positionUs The seek time measured in microseconds.
    */
   public void seekToUs(long positionUs) {
-    messageSender.sendPauseRequest(uri, checkNotNull(sessionId));
+    // RTSP state is PLAYING after sending out a PAUSE, before receiving the PAUSE response. Sends
+    // out PAUSE only when state PLAYING and no PAUSE is sent.
+    if (rtspState == RTSP_STATE_PLAYING && !hasPendingPauseRequest) {
+      messageSender.sendPauseRequest(uri, checkNotNull(sessionId));
+    }
     pendingSeekPositionUs = positionUs;
   }
 
@@ -286,10 +296,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Returns a {@link Socket} that is connected to the {@code uri}. */
-  private static Socket getSocket(Uri uri) throws IOException {
+  private Socket getSocket(Uri uri) throws IOException {
     checkArgument(uri.getHost() != null);
     int rtspPort = uri.getPort() > 0 ? uri.getPort() : DEFAULT_RTSP_PORT;
-    return SocketFactory.getDefault().createSocket(checkNotNull(uri.getHost()), rtspPort);
+    return socketFactory.createSocket(checkNotNull(uri.getHost()), rtspPort);
   }
 
   private void dispatchRtspError(Throwable error) {
@@ -394,6 +404,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       sendRequest(
           getRequestWithCommonHeaders(
               METHOD_PAUSE, sessionId, /* additionalHeaders= */ ImmutableMap.of(), uri));
+      hasPendingPauseRequest = true;
     }
 
     public void retryLastRequest() {
@@ -543,14 +554,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           case 401:
             if (rtspAuthUserInfo != null && !receivedAuthorizationRequest) {
               // Unauthorized.
-              @Nullable
-              String wwwAuthenticateHeader = response.headers.get(RtspHeaders.WWW_AUTHENTICATE);
-              if (wwwAuthenticateHeader == null) {
+              ImmutableList<String> wwwAuthenticateHeaders =
+                  response.headers.values(RtspHeaders.WWW_AUTHENTICATE);
+              if (wwwAuthenticateHeaders.isEmpty()) {
                 throw ParserException.createForMalformedManifest(
                     "Missing WWW-Authenticate header in a 401 response.", /* cause= */ null);
               }
-              rtspAuthenticationInfo =
-                  RtspMessageUtil.parseWwwAuthenticateHeader(wwwAuthenticateHeader);
+
+              for (int i = 0; i < wwwAuthenticateHeaders.size(); i++) {
+                rtspAuthenticationInfo =
+                    RtspMessageUtil.parseWwwAuthenticateHeader(wwwAuthenticateHeaders.get(i));
+                if (rtspAuthenticationInfo.authenticationMechanism
+                    == RtspAuthenticationInfo.DIGEST) {
+                  // Prefers DIGEST when RTSP servers sends both BASIC and DIGEST auth info.
+                  break;
+                }
+              }
+
               messageSender.retryLastRequest();
               receivedAuthorizationRequest = true;
               return;
@@ -685,15 +705,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         keepAliveMonitor.start();
       }
 
+      pendingSeekPositionUs = C.TIME_UNSET;
+      // onPlaybackStarted could initiate another seek request, which will set
+      // pendingSeekPositionUs.
       playbackEventListener.onPlaybackStarted(
           Util.msToUs(response.sessionTiming.startTimeMs), response.trackTimingList);
-      pendingSeekPositionUs = C.TIME_UNSET;
     }
 
     private void onPauseResponseReceived() {
       checkState(rtspState == RTSP_STATE_PLAYING);
 
       rtspState = RTSP_STATE_READY;
+      hasPendingPauseRequest = false;
       if (pendingSeekPositionUs != C.TIME_UNSET) {
         startPlayback(Util.usToMs(pendingSeekPositionUs));
       }

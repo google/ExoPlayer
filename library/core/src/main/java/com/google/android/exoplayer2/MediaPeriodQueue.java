@@ -661,18 +661,18 @@ import com.google.common.collect.ImmutableList;
         // forward by the duration of the buffer, and start buffering from this point.
         contentPositionUs = C.TIME_UNSET;
         @Nullable
-        Pair<Object, Long> defaultPosition =
-            timeline.getPeriodPosition(
+        Pair<Object, Long> defaultPositionUs =
+            timeline.getPeriodPositionUs(
                 window,
                 period,
                 nextWindowIndex,
                 /* windowPositionUs= */ C.TIME_UNSET,
                 /* defaultPositionProjectionUs= */ max(0, bufferedDurationUs));
-        if (defaultPosition == null) {
+        if (defaultPositionUs == null) {
           return null;
         }
-        nextPeriodUid = defaultPosition.first;
-        startPositionUs = defaultPosition.second;
+        nextPeriodUid = defaultPositionUs.first;
+        startPositionUs = defaultPositionUs.second;
         MediaPeriodHolder nextMediaPeriodHolder = mediaPeriodHolder.getNext();
         if (nextMediaPeriodHolder != null && nextMediaPeriodHolder.uid.equals(nextPeriodUid)) {
           windowSequenceNumber = nextMediaPeriodHolder.info.id.windowSequenceNumber;
@@ -716,17 +716,17 @@ import com.google.common.collect.ImmutableList;
           // If we're transitioning from an ad group to content starting from its default position,
           // project the start position forward as if this were a transition to a new window.
           @Nullable
-          Pair<Object, Long> defaultPosition =
-              timeline.getPeriodPosition(
+          Pair<Object, Long> defaultPositionUs =
+              timeline.getPeriodPositionUs(
                   window,
                   period,
                   period.windowIndex,
                   /* windowPositionUs= */ C.TIME_UNSET,
                   /* defaultPositionProjectionUs= */ max(0, bufferedDurationUs));
-          if (defaultPosition == null) {
+          if (defaultPositionUs == null) {
             return null;
           }
-          startPositionUs = defaultPosition.second;
+          startPositionUs = defaultPositionUs.second;
         }
         long minStartPositionUs =
             getMinStartPositionAfterAdGroupUs(

@@ -179,11 +179,11 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
           windowStartPositionUs = windowPreparePositionUs;
         }
       }
-      Pair<Object, Long> periodPosition =
-          newTimeline.getPeriodPosition(
+      Pair<Object, Long> periodUidAndPositionUs =
+          newTimeline.getPeriodPositionUs(
               window, period, /* windowIndex= */ 0, windowStartPositionUs);
-      Object periodUid = periodPosition.first;
-      long periodPositionUs = periodPosition.second;
+      Object periodUid = periodUidAndPositionUs.first;
+      long periodPositionUs = periodUidAndPositionUs.second;
       timeline =
           hasRealTimeline
               ? timeline.cloneWithUpdatedTimeline(newTimeline)

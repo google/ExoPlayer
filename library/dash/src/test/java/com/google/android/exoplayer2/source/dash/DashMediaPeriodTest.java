@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
@@ -79,12 +80,13 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "0",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format,
                 adaptationSets.get(2).representations.get(0).format,
                 adaptationSets.get(2).representations.get(1).format,
                 adaptationSets.get(3).representations.get(0).format),
-            new TrackGroup(adaptationSets.get(1).representations.get(0).format));
+            new TrackGroup(/* id= */ "3", adaptationSets.get(1).representations.get(0).format));
 
     MediaPeriodAsserts.assertTrackGroups(dashMediaPeriod, expectedTrackGroups);
   }
@@ -100,10 +102,12 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "0",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format,
                 adaptationSets.get(1).representations.get(0).format),
             new TrackGroup(
+                /* id= */ "2",
                 adaptationSets.get(2).representations.get(0).format,
                 adaptationSets.get(2).representations.get(1).format,
                 adaptationSets.get(3).representations.get(0).format));
@@ -123,6 +127,7 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "0",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format,
                 adaptationSets.get(1).representations.get(0).format,
@@ -146,9 +151,11 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "123",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format),
             new TrackGroup(
+                /* id= */ "123:cc",
                 cea608FormatBuilder
                     .setId("123:cea608:1")
                     .setLanguage("eng")
@@ -176,9 +183,11 @@ public final class DashMediaPeriodTest {
     TrackGroupArray expectedTrackGroups =
         new TrackGroupArray(
             new TrackGroup(
+                /* id= */ "123",
                 adaptationSets.get(0).representations.get(0).format,
                 adaptationSets.get(0).representations.get(1).format),
             new TrackGroup(
+                /* id= */ "123:cc",
                 cea608FormatBuilder
                     .setId("123:cea708:1")
                     .setLanguage("eng")
@@ -212,7 +221,8 @@ public final class DashMediaPeriodTest {
         mock(LoaderErrorThrower.class),
         mock(Allocator.class),
         mock(CompositeSequenceableLoaderFactory.class),
-        mock(PlayerEmsgCallback.class));
+        mock(PlayerEmsgCallback.class),
+        PlayerId.UNSET);
   }
 
   private static DashManifest parseManifest(String fileName) throws IOException {

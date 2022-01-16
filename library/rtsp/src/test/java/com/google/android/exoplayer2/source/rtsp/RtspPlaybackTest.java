@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.net.SocketFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -156,6 +157,7 @@ public final class RtspPlaybackTest {
             MediaItem.fromUri(RtspTestUtils.getTestUri(serverRtspPortNumber)),
             rtpDataChannelFactory,
             "ExoPlayer:PlaybackTest",
+            SocketFactory.getDefault(),
             /* debugLoggingEnabled= */ false),
         false);
     return player;
@@ -207,7 +209,7 @@ public final class RtspPlaybackTest {
     }
 
     @Override
-    public RtspResponse getDescribeResponse(Uri requestedUri) {
+    public RtspResponse getDescribeResponse(Uri requestedUri, RtspHeaders headers) {
       return RtspTestUtils.newDescribeResponseWithSdpMessage(
           SESSION_DESCRIPTION, rtpPacketStreamDumps, requestedUri);
     }

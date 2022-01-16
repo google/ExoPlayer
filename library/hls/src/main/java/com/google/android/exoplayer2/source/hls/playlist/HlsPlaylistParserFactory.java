@@ -29,14 +29,16 @@ public interface HlsPlaylistParserFactory {
 
   /**
    * Returns a playlist parser for playlists that were referenced by the given {@link
-   * HlsMasterPlaylist}. Returned {@link HlsMediaPlaylist} instances may inherit attributes from
-   * {@code masterPlaylist}.
+   * HlsMultivariantPlaylist}. Returned {@link HlsMediaPlaylist} instances may inherit attributes
+   * from {@code multivariantPlaylist}.
    *
-   * @param masterPlaylist The master playlist that referenced any parsed media playlists.
+   * @param multivariantPlaylist The multivariant playlist that referenced any parsed media
+   *     playlists.
    * @param previousMediaPlaylist The previous media playlist or null if there is no previous media
    *     playlist.
    * @return A parser for HLS playlists.
    */
   ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser(
-      HlsMasterPlaylist masterPlaylist, @Nullable HlsMediaPlaylist previousMediaPlaylist);
+      HlsMultivariantPlaylist multivariantPlaylist,
+      @Nullable HlsMediaPlaylist previousMediaPlaylist);
 }

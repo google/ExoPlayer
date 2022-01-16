@@ -22,7 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Unit test for {@link DefaultRenderersFactoryTest} with {@link FfmpegAudioRenderer}.
+ * Unit test for {@link DefaultRenderersFactoryTest} with {@link FfmpegAudioRenderer} and {@link
+ * FfmpegVideoRenderer}.
  */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultRenderersFactoryTest {
@@ -31,5 +32,11 @@ public final class DefaultRenderersFactoryTest {
   public void createRenderers_instantiatesFfmpegAudioRenderer() {
     DefaultRenderersFactoryAsserts.assertExtensionRendererCreated(
         FfmpegAudioRenderer.class, C.TRACK_TYPE_AUDIO);
+  }
+
+  @Test
+  public void createRenderers_instantiatesFfmpegVideoRenderer() {
+    DefaultRenderersFactoryAsserts.assertExtensionRendererCreated(
+        FfmpegVideoRenderer.class, C.TRACK_TYPE_VIDEO);
   }
 }

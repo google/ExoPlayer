@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
@@ -45,7 +46,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void setIndex(int index) {
+  public final void init(int index, PlayerId playerId) {
     this.index = index;
   }
 

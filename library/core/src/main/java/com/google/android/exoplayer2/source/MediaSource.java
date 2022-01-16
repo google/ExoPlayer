@@ -17,11 +17,18 @@ package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
@@ -34,7 +41,7 @@ import java.io.IOException;
  *       provide a new timeline whenever the structure of the media changes. The MediaSource
  *       provides these timelines by calling {@link MediaSourceCaller#onSourceInfoRefreshed} on the
  *       {@link MediaSourceCaller}s passed to {@link #prepareSource(MediaSourceCaller,
- *       TransferListener)}.
+ *       TransferListener, PlayerId)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
  *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator, long)}, and provide a
  *       way for the player to load and read the media.
@@ -45,6 +52,52 @@ import java.io.IOException;
  * re-used, but only for one {@link ExoPlayer} instance simultaneously.
  */
 public interface MediaSource {
+
+  /** Factory for creating {@link MediaSource MediaSources} from {@link MediaItem MediaItems}. */
+  interface Factory {
+
+    /**
+     * An instance that throws {@link UnsupportedOperationException} from {@link #createMediaSource}
+     * and {@link #getSupportedTypes()}.
+     */
+    @SuppressWarnings("deprecation")
+    Factory UNSUPPORTED = MediaSourceFactory.UNSUPPORTED;
+
+    /**
+     * Sets the {@link DrmSessionManagerProvider} used to obtain a {@link DrmSessionManager} for a
+     * {@link MediaItem}.
+     *
+     * <p>If not set, {@link DefaultDrmSessionManagerProvider} is used.
+     *
+     * @return This factory, for convenience.
+     */
+    Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider);
+
+    /**
+     * Sets an optional {@link LoadErrorHandlingPolicy}.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}, or {@code null} to use the
+     *     {@link DefaultLoadErrorHandlingPolicy}.
+     * @return This factory, for convenience.
+     */
+    Factory setLoadErrorHandlingPolicy(@Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
+
+    /**
+     * Returns the {@link C.ContentType content types} supported by media sources created by this
+     * factory.
+     */
+    @C.ContentType
+    int[] getSupportedTypes();
+
+    /**
+     * Creates a new {@link MediaSource} with the specified {@link MediaItem}.
+     *
+     * @param mediaItem The media item to play.
+     * @return The new {@link MediaSource media source}.
+     */
+    MediaSource createMediaSource(MediaItem mediaItem);
+  }
 
   /** A caller of media sources, which will be notified of source events. */
   interface MediaSourceCaller {
@@ -184,6 +237,16 @@ public interface MediaSource {
   MediaItem getMediaItem();
 
   /**
+   * @deprecated Implement {@link #prepareSource(MediaSourceCaller, TransferListener, PlayerId)}
+   *     instead.
+   */
+  @Deprecated
+  default void prepareSource(
+      MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
+    prepareSource(caller, mediaTransferListener, PlayerId.UNSET);
+  }
+
+  /**
    * Registers a {@link MediaSourceCaller}. Starts source preparation if needed and enables the
    * source for the creation of {@link MediaPeriod MediaPerods}.
    *
@@ -200,15 +263,20 @@ public interface MediaSource {
    *     transfers. May be null if no listener is available. Note that this listener should be only
    *     informed of transfers related to the media loads and not of auxiliary loads for manifests
    *     and other data.
+   * @param playerId The {@link PlayerId} of the player using this media source.
    */
-  void prepareSource(MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener);
+  void prepareSource(
+      MediaSourceCaller caller,
+      @Nullable TransferListener mediaTransferListener,
+      PlayerId playerId);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener,
+   * PlayerId)}.
    */
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
@@ -217,7 +285,8 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener)}.
+   * <p>Must only be called after {@link #prepareSource(MediaSourceCaller, TransferListener,
+   * PlayerId)}.
    *
    * @param caller The {@link MediaSourceCaller} enabling the source.
    */

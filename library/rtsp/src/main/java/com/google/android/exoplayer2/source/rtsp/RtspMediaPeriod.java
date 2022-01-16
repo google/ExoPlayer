@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.SocketFactory;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -85,8 +86,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private IOException preparationError;
   @Nullable private RtspPlaybackException playbackException;
 
-  private long lastSeekPositionUs;
+  private long requestedSeekPositionUs;
   private long pendingSeekPositionUs;
+  private long pendingSeekPositionUsForTcpRetry;
   private boolean loadingFinished;
   private boolean released;
   private boolean prepared;
@@ -102,6 +104,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param uri The RTSP playback {@link Uri}.
    * @param listener A {@link Listener} to receive session information updates.
    * @param userAgent The user agent.
+   * @param socketFactory A socket factory for {@link RtspClient}'s connection.
+   * @param debugLoggingEnabled Whether to log RTSP messages.
    */
   public RtspMediaPeriod(
       Allocator allocator,
@@ -109,6 +113,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Uri uri,
       Listener listener,
       String userAgent,
+      SocketFactory socketFactory,
       boolean debugLoggingEnabled) {
     this.allocator = allocator;
     this.rtpDataChannelFactory = rtpDataChannelFactory;
@@ -122,11 +127,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* playbackEventListener= */ internalListener,
             /* userAgent= */ userAgent,
             /* uri= */ uri,
+            socketFactory,
             debugLoggingEnabled);
     rtspLoaderWrappers = new ArrayList<>();
     selectedLoadInfos = new ArrayList<>();
 
     pendingSeekPositionUs = C.TIME_UNSET;
+    requestedSeekPositionUs = C.TIME_UNSET;
+    pendingSeekPositionUsForTcpRetry = C.TIME_UNSET;
   }
 
   /** Releases the {@link RtspMediaPeriod}. */
@@ -240,17 +248,52 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public long seekToUs(long positionUs) {
+    // Handles all RTSP seeking cases:
+    // 1. Seek before the first RTP/UDP packet is received. The seek position is cached to be used
+    //    after retrying playback with RTP/TCP.
+    // 2a. Normal RTSP seek: if no additional seek is requested after the first seek. Request RTSP
+    //   PAUSE and then PLAY at the seek position.
+    // 2b. If additional seek is requested after the first seek, records the new seek position,
+    //   2b.1. If RTSP PLAY (for the first seek) is already sent, the new seek position is used to
+    //     initiate another seek upon receiving PLAY response by invoking this method again.
+    //   2b.2. If RTSP PLAY (for the first seek) has not been sent, the new seek position will be
+    //     used in the following PLAY request.
+
+    // TODO(internal: b/198620566) Handle initial seek.
+    // TODO(internal: b/213153670) Handle dropped seek position.
+    if (getBufferedPositionUs() == 0 && !isUsingRtpTcp) {
+      // Stores the seek position for later, if no RTP packet is received when using UDP.
+      pendingSeekPositionUsForTcpRetry = positionUs;
+      return positionUs;
+    }
+
+    discardBuffer(positionUs, /* toKeyframe= */ false);
+    requestedSeekPositionUs = positionUs;
+
     if (isSeekPending()) {
-      // TODO(internal b/172331505) Allow seek when a seek is pending.
-      // Does not allow another seek if a seek is pending.
-      return pendingSeekPositionUs;
+      switch (rtspClient.getState()) {
+        case RtspClient.RTSP_STATE_READY:
+          // PLAY request is sent, yet to receive the response. requestedSeekPositionUs stores the
+          // new position to do another seek upon receiving the PLAY response.
+          return positionUs;
+        case RtspClient.RTSP_STATE_PLAYING:
+          // Pending PAUSE response, updates client with the newest seek position for the following
+          // PLAY request.
+          pendingSeekPositionUs = positionUs;
+          rtspClient.seekToUs(pendingSeekPositionUs);
+          return positionUs;
+        case RtspClient.RTSP_STATE_UNINITIALIZED:
+        case RtspClient.RTSP_STATE_INIT:
+        default:
+          // Never happens.
+          throw new IllegalStateException();
+      }
     }
 
     if (seekInsideBufferUs(positionUs)) {
       return positionUs;
     }
 
-    lastSeekPositionUs = positionUs;
     pendingSeekPositionUs = positionUs;
     rtspClient.seekToUs(positionUs);
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
@@ -270,8 +313,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return C.TIME_END_OF_SOURCE;
     }
 
-    if (isSeekPending()) {
-      return pendingSeekPositionUs;
+    if (requestedSeekPositionUs != C.TIME_UNSET) {
+      return requestedSeekPositionUs;
     }
 
     boolean allLoaderWrappersAreCanceled = true;
@@ -285,7 +328,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     return allLoaderWrappersAreCanceled || bufferedPositionUs == Long.MIN_VALUE
-        ? lastSeekPositionUs
+        ? 0
         : bufferedPositionUs;
   }
 
@@ -400,7 +443,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     SampleQueue sampleQueue;
     for (int i = 0; i < rtspLoaderWrappers.size(); i++) {
       sampleQueue = rtspLoaderWrappers.get(i).sampleQueue;
-      listBuilder.add(new TrackGroup(checkNotNull(sampleQueue.getUpstreamFormat())));
+      listBuilder.add(
+          new TrackGroup(
+              /* id= */ Integer.toString(i), checkNotNull(sampleQueue.getUpstreamFormat())));
     }
     return listBuilder.build();
   }
@@ -434,7 +479,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public void onLoadCompleted(
         RtpDataLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
-      // TODO(b/172331505) Allow for retry when loading is not ending.
       if (getBufferedPositionUs() == 0) {
         if (!isUsingRtpTcp) {
           // Retry playback with TCP if no sample has been received so far, and we are not already
@@ -530,13 +574,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         dataLoadable.setTimestamp(trackTiming.rtpTimestamp);
         dataLoadable.setSequenceNumber(trackTiming.sequenceNumber);
 
-        if (isSeekPending()) {
+        if (isSeekPending() && pendingSeekPositionUs == requestedSeekPositionUs) {
+          // Seek loadable only when all pending seeks are processed, or SampleQueues will report
+          // inconsistent bufferedPosition.
           dataLoadable.seekToUs(startPositionUs, trackTiming.rtpTimestamp);
         }
       }
 
       if (isSeekPending()) {
-        pendingSeekPositionUs = C.TIME_UNSET;
+        if (pendingSeekPositionUs == requestedSeekPositionUs) {
+          // No seek request was made after the current pending seek.
+          pendingSeekPositionUs = C.TIME_UNSET;
+          requestedSeekPositionUs = C.TIME_UNSET;
+        } else {
+          // Resets pendingSeekPositionUs to perform a fresh RTSP seek.
+          pendingSeekPositionUs = C.TIME_UNSET;
+          seekToUs(requestedSeekPositionUs);
+        }
+      } else if (pendingSeekPositionUsForTcpRetry != C.TIME_UNSET) {
+        seekToUs(pendingSeekPositionUsForTcpRetry);
+        pendingSeekPositionUsForTcpRetry = C.TIME_UNSET;
       }
     }
 

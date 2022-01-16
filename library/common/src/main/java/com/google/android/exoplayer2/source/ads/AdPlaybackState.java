@@ -300,6 +300,28 @@ public final class AdPlaybackState implements Bundleable {
           timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
     }
 
+    /**
+     * Returns an instance with all ads in final states (played, skipped, error) reset to either
+     * available or unavailable, which allows to play them again.
+     */
+    @CheckResult
+    public AdGroup withAllAdsReset() {
+      if (count == C.LENGTH_UNSET) {
+        return this;
+      }
+      int count = this.states.length;
+      @AdState int[] states = Arrays.copyOf(this.states, count);
+      for (int i = 0; i < count; i++) {
+        if (states[i] == AD_STATE_PLAYED
+            || states[i] == AD_STATE_SKIPPED
+            || states[i] == AD_STATE_ERROR) {
+          states[i] = uris[i] == null ? AD_STATE_UNAVAILABLE : AD_STATE_AVAILABLE;
+        }
+      }
+      return new AdGroup(
+          timeUs, count, states, uris, durationsUs, contentResumeOffsetUs, isServerSideInserted);
+    }
+
     @CheckResult
     private static @AdState int[] copyStatesWithSpaceForAdCount(@AdState int[] states, int count) {
       int oldStateCount = states.length;
@@ -779,6 +801,19 @@ public final class AdPlaybackState implements Bundleable {
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adjustedIndex] =
         adGroups[adjustedIndex].withIsServerSideInserted(isServerSideInserted);
+    return new AdPlaybackState(
+        adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
+  }
+
+  /**
+   * Returns an instance with all ads in the specified ad group reset from final states (played,
+   * skipped, error) to either available or unavailable, which allows to play them again.
+   */
+  @CheckResult
+  public AdPlaybackState withResetAdGroup(@IntRange(from = 0) int adGroupIndex) {
+    int adjustedIndex = adGroupIndex - removedAdGroupCount;
+    AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
+    adGroups[adjustedIndex] = adGroups[adjustedIndex].withAllAdsReset();
     return new AdPlaybackState(
         adsId, adGroups, adResumePositionUs, contentDurationUs, removedAdGroupCount);
   }

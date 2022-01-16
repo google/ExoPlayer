@@ -19,8 +19,8 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -45,14 +45,14 @@ import java.util.concurrent.Executor;
  *     new CacheDataSource.Factory()
  *         .setCache(cache)
  *         .setUpstreamDataSourceFactory(new DefaultHttpDataSource.Factory());
- * // Create a downloader for the first variant in a master playlist.
+ * // Create a downloader for the first variant in a multivariant playlist.
  * HlsDownloader hlsDownloader =
  *     new HlsDownloader(
  *         new MediaItem.Builder()
  *             .setUri(playlistUri)
  *             .setStreamKeys(
  *                 Collections.singletonList(
- *                     new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0)))
+ *                     new StreamKey(HlsMultivariantPlaylist.GROUP_INDEX_VARIANT, 0)))
  *             .build(),
  *         Collections.singletonList();
  * // Perform the download.
@@ -113,9 +113,9 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
   protected List<Segment> getSegments(DataSource dataSource, HlsPlaylist playlist, boolean removing)
       throws IOException, InterruptedException {
     ArrayList<DataSpec> mediaPlaylistDataSpecs = new ArrayList<>();
-    if (playlist instanceof HlsMasterPlaylist) {
-      HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
-      addMediaPlaylistDataSpecs(masterPlaylist.mediaPlaylistUrls, mediaPlaylistDataSpecs);
+    if (playlist instanceof HlsMultivariantPlaylist) {
+      HlsMultivariantPlaylist multivariantPlaylist = (HlsMultivariantPlaylist) playlist;
+      addMediaPlaylistDataSpecs(multivariantPlaylist.mediaPlaylistUrls, mediaPlaylistDataSpecs);
     } else {
       mediaPlaylistDataSpecs.add(
           SegmentDownloader.getCompressibleDataSpec(Uri.parse(playlist.baseUri)));

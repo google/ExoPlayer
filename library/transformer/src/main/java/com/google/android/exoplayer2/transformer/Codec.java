@@ -16,30 +16,21 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
-import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
-import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration;
-import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
-import com.google.android.exoplayer2.mediacodec.SynchronousMediaCodecAdapter;
-import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Map;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -50,15 +41,72 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * through {@link MediaCodecAdapter}. This is done by simplifying the calls needed to queue and
  * dequeue buffers, removing the need to track buffer indices and codec events.
  */
-@RequiresApi(18)
-/* package */ final class MediaCodecAdapterWrapper {
+public final class Codec {
+
+  /** A factory for {@link Codec decoder} instances. */
+  public interface DecoderFactory {
+
+    /** A default {@code DecoderFactory} implementation. */
+    DecoderFactory DEFAULT = new DefaultCodecFactory();
+
+    /**
+     * Returns a {@link Codec} for audio decoding.
+     *
+     * @param format The {@link Format} (of the input data) used to determine the underlying {@link
+     *     MediaCodec} and its configuration values.
+     * @return A configured and started decoder wrapper.
+     * @throws TransformationException If the underlying codec cannot be created.
+     */
+    Codec createForAudioDecoding(Format format) throws TransformationException;
+
+    /**
+     * Returns a {@link Codec} for video decoding.
+     *
+     * @param format The {@link Format} (of the input data) used to determine the underlying {@link
+     *     MediaCodec} and its configuration values.
+     * @param surface The {@link Surface} to which the decoder output is rendered.
+     * @return A configured and started decoder wrapper.
+     * @throws TransformationException If the underlying codec cannot be created.
+     */
+    Codec createForVideoDecoding(Format format, Surface surface) throws TransformationException;
+  }
+
+  /** A factory for {@link Codec encoder} instances. */
+  public interface EncoderFactory {
+
+    /** A default {@code EncoderFactory} implementation. */
+    EncoderFactory DEFAULT = new DefaultCodecFactory();
+
+    /**
+     * Returns a {@link Codec} for audio encoding.
+     *
+     * @param format The {@link Format} (of the output data) used to determine the underlying {@link
+     *     MediaCodec} and its configuration values.
+     * @return A configured and started encoder wrapper.
+     * @throws TransformationException If the underlying codec cannot be created.
+     */
+    Codec createForAudioEncoding(Format format) throws TransformationException;
+
+    /**
+     * Returns a {@link Codec} for video encoding.
+     *
+     * @param format The {@link Format} (of the output data) used to determine the underlying {@link
+     *     MediaCodec} and its configuration values. {@link Format#sampleMimeType}, {@link
+     *     Format#width} and {@link Format#height} must be set to those of the desired output video
+     *     format. {@link Format#rotationDegrees} should be 0. The video should always be in
+     *     landscape orientation.
+     * @return A configured and started encoder wrapper.
+     * @throws TransformationException If the underlying codec cannot be created.
+     */
+    Codec createForVideoEncoding(Format format) throws TransformationException;
+  }
 
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
   // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
   private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
 
   private final BufferInfo outputBufferInfo;
-  private final MediaCodecAdapter codec;
+  private final MediaCodecAdapter mediaCodecAdapter;
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
@@ -68,183 +116,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
 
-  private static class Factory extends SynchronousMediaCodecAdapter.Factory {
-    @Override
-    protected MediaCodec createCodec(Configuration configuration) throws IOException {
-      String sampleMimeType =
-          checkNotNull(configuration.mediaFormat.getString(MediaFormat.KEY_MIME));
-      boolean isDecoder = (configuration.flags & MediaCodec.CONFIGURE_FLAG_ENCODE) == 0;
-      return isDecoder
-          ? MediaCodec.createDecoderByType(checkNotNull(sampleMimeType))
-          : MediaCodec.createEncoderByType(checkNotNull(sampleMimeType));
-    }
-  }
-
-  private static MediaCodecInfo createPlaceholderMediaCodecInfo() {
-    return MediaCodecInfo.newInstance(
-        /* name= */ "name-placeholder",
-        /* mimeType= */ "mime-type-placeholder",
-        /* codecMimeType= */ "mime-type-placeholder",
-        /* capabilities= */ null,
-        /* hardwareAccelerated= */ false,
-        /* softwareOnly= */ false,
-        /* vendor= */ false,
-        /* forceDisableAdaptive= */ false,
-        /* forceSecure= */ false);
-  }
-
-  /**
-   * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
-   * MediaCodecAdapter} audio decoder.
-   *
-   * @param format The {@link Format} (of the input data) used to determine the underlying {@link
-   *     MediaCodec} and its configuration values.
-   * @return A configured and started decoder wrapper.
-   * @throws IOException If the underlying codec cannot be created.
-   */
-  public static MediaCodecAdapterWrapper createForAudioDecoding(Format format) throws IOException {
-    @Nullable MediaCodecAdapter adapter = null;
-    try {
-      MediaFormat mediaFormat =
-          MediaFormat.createAudioFormat(
-              checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
-      MediaFormatUtil.maybeSetInteger(
-          mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
-      MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-      adapter =
-          new Factory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForAudioDecoding(
-                      createPlaceholderMediaCodecInfo(), mediaFormat, format, /* crypto= */ null));
-      return new MediaCodecAdapterWrapper(adapter);
-    } catch (Exception e) {
-      if (adapter != null) {
-        adapter.release();
-      }
-      throw e;
-    }
-  }
-
-  /**
-   * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
-   * MediaCodecAdapter} video decoder.
-   *
-   * @param format The {@link Format} (of the input data) used to determine the underlying {@link
-   *     MediaCodec} and its configuration values.
-   * @param surface The {@link Surface} to which the decoder output is rendered.
-   * @return A configured and started decoder wrapper.
-   * @throws IOException If the underlying codec cannot be created.
-   */
-  public static MediaCodecAdapterWrapper createForVideoDecoding(Format format, Surface surface)
-      throws IOException {
-    @Nullable MediaCodecAdapter adapter = null;
-    try {
-      MediaFormat mediaFormat =
-          MediaFormat.createVideoFormat(
-              checkNotNull(format.sampleMimeType), format.width, format.height);
-      MediaFormatUtil.maybeSetInteger(
-          mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
-      MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-      adapter =
-          new Factory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForVideoDecoding(
-                      createPlaceholderMediaCodecInfo(),
-                      mediaFormat,
-                      format,
-                      surface,
-                      /* crypto= */ null));
-      return new MediaCodecAdapterWrapper(adapter);
-    } catch (Exception e) {
-      if (adapter != null) {
-        adapter.release();
-      }
-      throw e;
-    }
-  }
-
-  /**
-   * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
-   * MediaCodecAdapter} audio encoder.
-   *
-   * @param format The {@link Format} (of the output data) used to determine the underlying {@link
-   *     MediaCodec} and its configuration values.
-   * @return A configured and started encoder wrapper.
-   * @throws IOException If the underlying codec cannot be created.
-   */
-  public static MediaCodecAdapterWrapper createForAudioEncoding(Format format) throws IOException {
-    @Nullable MediaCodec encoder = null;
-    @Nullable MediaCodecAdapter adapter = null;
-    try {
-      MediaFormat mediaFormat =
-          MediaFormat.createAudioFormat(
-              checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
-      mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
-      adapter =
-          new Factory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForAudioEncoding(
-                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
-      return new MediaCodecAdapterWrapper(adapter);
-    } catch (Exception e) {
-      if (adapter != null) {
-        adapter.release();
-      } else if (encoder != null) {
-        encoder.release();
-      }
-      throw e;
-    }
-  }
-
-  /**
-   * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
-   * MediaCodecAdapter} video encoder.
-   *
-   * @param format The {@link Format} (of the output data) used to determine the underlying {@link
-   *     MediaCodec} and its configuration values. {@link Format#sampleMimeType}, {@link
-   *     Format#width} and {@link Format#height} must be set to those of the desired output video
-   *     format.
-   * @param additionalEncoderConfig A map of {@link MediaFormat}'s integer settings, where the keys
-   *     are from {@code MediaFormat.KEY_*} constants. Its values will override those in {@code
-   *     format}.
-   * @return A configured and started encoder wrapper.
-   * @throws IOException If the underlying codec cannot be created.
-   */
-  public static MediaCodecAdapterWrapper createForVideoEncoding(
-      Format format, Map<String, Integer> additionalEncoderConfig) throws IOException {
-    checkArgument(format.width != Format.NO_VALUE);
-    checkArgument(format.height != Format.NO_VALUE);
-
-    @Nullable MediaCodecAdapter adapter = null;
-    try {
-      MediaFormat mediaFormat =
-          MediaFormat.createVideoFormat(
-              checkNotNull(format.sampleMimeType), format.width, format.height);
-      mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, CodecCapabilities.COLOR_FormatSurface);
-      mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
-      mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
-      mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, 413_000);
-
-      for (Map.Entry<String, Integer> encoderSetting : additionalEncoderConfig.entrySet()) {
-        mediaFormat.setInteger(encoderSetting.getKey(), encoderSetting.getValue());
-      }
-
-      adapter =
-          new Factory()
-              .createAdapter(
-                  MediaCodecAdapter.Configuration.createForVideoEncoding(
-                      createPlaceholderMediaCodecInfo(), mediaFormat, format));
-      return new MediaCodecAdapterWrapper(adapter);
-    } catch (Exception e) {
-      if (adapter != null) {
-        adapter.release();
-      }
-      throw e;
-    }
-  }
-
-  private MediaCodecAdapterWrapper(MediaCodecAdapter codec) {
-    this.codec = codec;
+  /** Creates a {@code Codec} from a configured and started {@link MediaCodecAdapter}. */
+  public Codec(MediaCodecAdapter mediaCodecAdapter) {
+    this.mediaCodecAdapter = mediaCodecAdapter;
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
@@ -253,7 +127,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Returns the input {@link Surface}, or null if the input is not a surface. */
   @Nullable
   public Surface getInputSurface() {
-    return codec.getInputSurface();
+    return mediaCodecAdapter.getInputSurface();
   }
 
   /**
@@ -268,11 +142,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return false;
     }
     if (inputBufferIndex < 0) {
-      inputBufferIndex = codec.dequeueInputBufferIndex();
+      inputBufferIndex = mediaCodecAdapter.dequeueInputBufferIndex();
       if (inputBufferIndex < 0) {
         return false;
       }
-      inputBuffer.data = codec.getInputBuffer(inputBufferIndex);
+      inputBuffer.data = mediaCodecAdapter.getInputBuffer(inputBufferIndex);
       inputBuffer.clear();
     }
     checkNotNull(inputBuffer.data);
@@ -298,14 +172,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       inputStreamEnded = true;
       flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
     }
-    codec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
+    mediaCodecAdapter.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
     inputBufferIndex = C.INDEX_UNSET;
     inputBuffer.data = null;
   }
 
-  @RequiresApi(18)
   public void signalEndOfInputStream() {
-    codec.signalEndOfInputStream();
+    mediaCodecAdapter.signalEndOfInputStream();
   }
 
   /** Returns the current output format, if available. */
@@ -349,7 +222,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void releaseOutputBuffer(boolean render) {
     outputBuffer = null;
-    codec.releaseOutputBuffer(outputBufferIndex, render);
+    mediaCodecAdapter.releaseOutputBuffer(outputBufferIndex, render);
     outputBufferIndex = C.INDEX_UNSET;
   }
 
@@ -361,7 +234,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Releases the underlying codec. */
   public void release() {
     outputBuffer = null;
-    codec.release();
+    mediaCodecAdapter.release();
   }
 
   /**
@@ -374,7 +247,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return false;
     }
 
-    outputBuffer = checkNotNull(codec.getOutputBuffer(outputBufferIndex));
+    outputBuffer = checkNotNull(mediaCodecAdapter.getOutputBuffer(outputBufferIndex));
     outputBuffer.position(outputBufferInfo.offset);
     outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
     return true;
@@ -392,10 +265,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return false;
     }
 
-    outputBufferIndex = codec.dequeueOutputBufferIndex(outputBufferInfo);
+    outputBufferIndex = mediaCodecAdapter.dequeueOutputBufferIndex(outputBufferInfo);
     if (outputBufferIndex < 0) {
       if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = getFormat(codec.getOutputFormat());
+        outputFormat = getFormat(mediaCodecAdapter.getOutputFormat());
       }
       return false;
     }

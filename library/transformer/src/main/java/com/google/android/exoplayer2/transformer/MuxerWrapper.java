@@ -22,11 +22,11 @@ import static com.google.android.exoplayer2.util.Util.minValue;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 
 /**
@@ -34,7 +34,6 @@ import java.nio.ByteBuffer;
  *
  * <p>This wrapper can contain at most one video track and one audio track.
  */
-@RequiresApi(18)
 /* package */ final class MuxerWrapper {
 
   /**
@@ -87,6 +86,14 @@ import java.nio.ByteBuffer;
   }
 
   /**
+   * Returns the supported {@link MimeTypes MIME types} for the given {@link C.TrackType track
+   * type}.
+   */
+  public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+    return muxerFactory.getSupportedSampleMimeTypes(trackType, containerMimeType);
+  }
+
+  /**
    * Adds a track format to the muxer.
    *
    * <p>The tracks must all be {@link #registerTrack() registered} before any format is added and
@@ -122,7 +129,7 @@ import java.nio.ByteBuffer;
    * Attempts to write a sample to the muxer.
    *
    * @param trackType The {@link C.TrackType track type} of the sample.
-   * @param data The sample to write, or {@code null} if the sample is empty.
+   * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
    * @return Whether the sample was successfully written. This is {@code false} if the muxer hasn't
@@ -133,10 +140,7 @@ import java.nio.ByteBuffer;
    *     track of the given track type.
    */
   public boolean writeSample(
-      @C.TrackType int trackType,
-      @Nullable ByteBuffer data,
-      boolean isKeyFrame,
-      long presentationTimeUs) {
+      @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
     int trackIndex = trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET);
     checkState(
         trackIndex != C.INDEX_UNSET,
@@ -144,8 +148,6 @@ import java.nio.ByteBuffer;
 
     if (!canWriteSampleOfType(trackType)) {
       return false;
-    } else if (data == null) {
-      return true;
     }
 
     muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);

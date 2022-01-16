@@ -1325,7 +1325,12 @@ public class MatroskaExtractor implements Extractor {
     }
   }
 
-  private Track getCurrentTrack(int currentElementId) throws ParserException {
+  /**
+   * Returns the track corresponding to the current TrackEntry element.
+   *
+   * @throws ParserException if the element id is not in a TrackEntry.
+   */
+  protected Track getCurrentTrack(int currentElementId) throws ParserException {
     assertInTrackEntry(currentElementId);
     return currentTrack;
   }
@@ -1900,7 +1905,8 @@ public class MatroskaExtractor implements Extractor {
     }
   }
 
-  private static final class Track {
+  /** Holds data corresponding to a single track. */
+  protected static final class Track {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
     private static final int MAX_CHROMATICITY = 50_000; // Defined in CTA-861.3.

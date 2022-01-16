@@ -16,6 +16,15 @@
 package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
@@ -63,6 +72,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.Commands;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import java.io.ByteArrayOutputStream;
@@ -1128,6 +1139,18 @@ public final class Util {
    */
   public static long msToUs(long timeMs) {
     return (timeMs == C.TIME_UNSET || timeMs == C.TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
+  }
+
+  /**
+   * Converts a time in seconds to the corresponding time in microseconds.
+   *
+   * @param timeSec The time in seconds.
+   * @return The corresponding time in microseconds.
+   */
+  public static long secToUs(double timeSec) {
+    return BigDecimal.valueOf(timeSec)
+        .multiply(BigDecimal.valueOf(C.MICROS_PER_SECOND))
+        .longValue();
   }
 
   /**
@@ -2475,6 +2498,43 @@ public final class Util {
       default:
         throw new IllegalStateException();
     }
+  }
+
+  /**
+   * Returns the {@link Commands} available in the {@link Player}.
+   *
+   * @param player The {@link Player}.
+   * @param permanentAvailableCommands The commands permanently available in the player.
+   * @return The available {@link Commands}.
+   */
+  public static Commands getAvailableCommands(Player player, Commands permanentAvailableCommands) {
+    boolean isPlayingAd = player.isPlayingAd();
+    boolean isCurrentMediaItemSeekable = player.isCurrentMediaItemSeekable();
+    boolean hasPreviousMediaItem = player.hasPreviousMediaItem();
+    boolean hasNextMediaItem = player.hasNextMediaItem();
+    boolean isCurrentMediaItemLive = player.isCurrentMediaItemLive();
+    boolean isCurrentMediaItemDynamic = player.isCurrentMediaItemDynamic();
+    boolean isTimelineEmpty = player.getCurrentTimeline().isEmpty();
+    return new Commands.Builder()
+        .addAll(permanentAvailableCommands)
+        .addIf(COMMAND_SEEK_TO_DEFAULT_POSITION, !isPlayingAd)
+        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentMediaItemSeekable && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPreviousMediaItem && !isPlayingAd)
+        .addIf(
+            COMMAND_SEEK_TO_PREVIOUS,
+            !isTimelineEmpty
+                && (hasPreviousMediaItem || !isCurrentMediaItemLive || isCurrentMediaItemSeekable)
+                && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNextMediaItem && !isPlayingAd)
+        .addIf(
+            COMMAND_SEEK_TO_NEXT,
+            !isTimelineEmpty
+                && (hasNextMediaItem || (isCurrentMediaItemLive && isCurrentMediaItemDynamic))
+                && !isPlayingAd)
+        .addIf(COMMAND_SEEK_TO_MEDIA_ITEM, !isPlayingAd)
+        .addIf(COMMAND_SEEK_BACK, isCurrentMediaItemSeekable && !isPlayingAd)
+        .addIf(COMMAND_SEEK_FORWARD, isCurrentMediaItemSeekable && !isPlayingAd)
+        .build();
   }
 
   @Nullable

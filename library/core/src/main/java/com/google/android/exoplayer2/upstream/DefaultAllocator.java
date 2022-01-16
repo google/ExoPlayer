@@ -102,6 +102,12 @@ public final class DefaultAllocator implements Allocator {
       availableAllocations[availableCount] = null;
     } else {
       allocation = new Allocation(new byte[individualAllocationSize], 0);
+      if (allocatedCount > availableAllocations.length) {
+        // Make availableAllocations be large enough to contain all allocations made by this
+        // allocator so that release() does not need to grow the availableAllocations array. See
+        // [Internal ref: b/209801945].
+        availableAllocations = Arrays.copyOf(availableAllocations, availableAllocations.length * 2);
+      }
     }
     return allocation;
   }
@@ -114,12 +120,6 @@ public final class DefaultAllocator implements Allocator {
 
   @Override
   public synchronized void release(Allocation[] allocations) {
-    if (availableCount + allocations.length >= availableAllocations.length) {
-      availableAllocations =
-          Arrays.copyOf(
-              availableAllocations,
-              max(availableAllocations.length * 2, availableCount + allocations.length));
-    }
     for (Allocation allocation : allocations) {
       availableAllocations[availableCount++] = allocation;
     }

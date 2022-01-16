@@ -135,7 +135,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
       return true;
     }
     switch (message.what) {
-      case (EMSG_MANIFEST_EXPIRED):
+      case EMSG_MANIFEST_EXPIRED:
         ManifestExpiryEventInfo messageObj = (ManifestExpiryEventInfo) message.obj;
         handleManifestExpiredMessage(
             messageObj.eventTimeUs, messageObj.manifestPublishTimeMsInEmsg);

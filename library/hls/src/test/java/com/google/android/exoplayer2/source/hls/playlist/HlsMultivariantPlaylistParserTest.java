@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Variant;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
@@ -36,9 +36,9 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for {@link HlsMasterPlaylist}. */
+/** Test for {@link HlsMultivariantPlaylist}. */
 @RunWith(AndroidJUnit4.class)
-public class HlsMasterPlaylistParserTest {
+public class HlsMultivariantPlaylistParserTest {
 
   private static final String PLAYLIST_URI = "https://example.com/test.m3u8";
 
@@ -233,12 +233,13 @@ public class HlsMasterPlaylistParserTest {
           + "#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=1313400,RESOLUTION=1920x1080,CODECS=\"avc1.640028\",URI=\"iframe_1313400/index.m3u8\"\n";
 
   @Test
-  public void parseMasterPlaylist_withSimple_success() throws IOException {
-    HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
+  public void parseMultivariantPlaylist_withSimple_success() throws IOException {
+    HlsMultivariantPlaylist multivariantPlaylist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
 
-    List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
+    List<HlsMultivariantPlaylist.Variant> variants = multivariantPlaylist.variants;
     assertThat(variants).hasSize(5);
-    assertThat(masterPlaylist.muxedCaptionFormats).isNull();
+    assertThat(multivariantPlaylist.muxedCaptionFormats).isNull();
 
     assertThat(variants.get(0).format.bitrate).isEqualTo(1280000);
     assertThat(variants.get(0).format.codecs).isEqualTo("mp4a.40.2,avc1.66.30");
@@ -274,20 +275,20 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_withAverageBandwidth_success() throws IOException {
-    HlsMasterPlaylist masterPlaylist =
-        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AVG_BANDWIDTH);
+  public void parseMultivariantPlaylist_withAverageBandwidth_success() throws IOException {
+    HlsMultivariantPlaylist multivariantPlaylist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AVG_BANDWIDTH);
 
-    List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
+    List<HlsMultivariantPlaylist.Variant> variants = multivariantPlaylist.variants;
 
     assertThat(variants.get(0).format.bitrate).isEqualTo(1280000);
     assertThat(variants.get(1).format.bitrate).isEqualTo(1280000);
   }
 
   @Test
-  public void parseMasterPlaylist_withInvalidHeader_throwsException() throws IOException {
+  public void parseMultivariantPlaylist_withInvalidHeader_throwsException() throws IOException {
     try {
-      parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_INVALID_HEADER);
+      parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_INVALID_HEADER);
       fail("Expected exception not thrown.");
     } catch (ParserException e) {
       // Expected due to invalid header.
@@ -295,8 +296,8 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_withClosedCaption_success() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
+  public void parseMultivariantPlaylist_withClosedCaption_success() throws IOException {
+    HlsMultivariantPlaylist playlist = parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
     assertThat(playlist.muxedCaptionFormats).hasSize(1);
     Format closedCaptionFormat = playlist.muxedCaptionFormats.get(0);
     assertThat(closedCaptionFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA708);
@@ -305,10 +306,10 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_withChannelsAttribute_success() throws IOException {
-    HlsMasterPlaylist playlist =
-        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CHANNELS_ATTRIBUTE);
-    List<HlsMasterPlaylist.Rendition> audios = playlist.audios;
+  public void parseMultivariantPlaylist_withChannelsAttribute_success() throws IOException {
+    HlsMultivariantPlaylist playlist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CHANNELS_ATTRIBUTE);
+    List<HlsMultivariantPlaylist.Rendition> audios = playlist.audios;
     assertThat(audios).hasSize(3);
     assertThat(audios.get(0).format.channelCount).isEqualTo(6);
     assertThat(audios.get(1).format.channelCount).isEqualTo(2);
@@ -316,14 +317,15 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_withoutClosedCaption_success() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITHOUT_CC);
+  public void parseMultivariantPlaylist_withoutClosedCaption_success() throws IOException {
+    HlsMultivariantPlaylist playlist = parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITHOUT_CC);
     assertThat(playlist.muxedCaptionFormats).isEmpty();
   }
 
   @Test
-  public void parseMasterPlaylist_withAudio_codecPropagated() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
+  public void parseMultivariantPlaylist_withAudio_codecPropagated() throws IOException {
+    HlsMultivariantPlaylist playlist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
 
     Format firstAudioFormat = playlist.audios.get(0).format;
     assertThat(firstAudioFormat.codecs).isEqualTo("mp4a.40.2");
@@ -335,8 +337,9 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_withAudio_audioIdPropagated() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
+  public void parseMultivariantPlaylist_withAudio_audioIdPropagated() throws IOException {
+    HlsMultivariantPlaylist playlist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
 
     Format firstAudioFormat = playlist.audios.get(0).format;
     assertThat(firstAudioFormat.id).isEqualTo("aud1:English");
@@ -346,16 +349,17 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_withCc_cCIdPropagated() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
+  public void parseMultivariantPlaylist_withCc_cCIdPropagated() throws IOException {
+    HlsMultivariantPlaylist playlist = parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
 
     Format firstTextFormat = playlist.muxedCaptionFormats.get(0);
     assertThat(firstTextFormat.id).isEqualTo("cc1:Eng");
   }
 
   @Test
-  public void parseMasterPlaylist_withSubtitles_subtitlesIdPropagated() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLES);
+  public void parseMultivariantPlaylist_withSubtitles_subtitlesIdPropagated() throws IOException {
+    HlsMultivariantPlaylist playlist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLES);
 
     Format firstTextFormat = playlist.subtitles.get(0).format;
     assertThat(firstTextFormat.id).isEqualTo("sub1:Eng");
@@ -363,39 +367,40 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_subtitlesWithoutUri_skipsSubtitles() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLES_NO_URI);
+  public void parseMultivariantPlaylist_subtitlesWithoutUri_skipsSubtitles() throws IOException {
+    HlsMultivariantPlaylist playlist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLES_NO_URI);
 
     assertThat(playlist.subtitles).isEmpty();
   }
 
   @Test
-  public void parseMasterPlaylist_withIndependentSegments_hasNoIndenpendentSegments()
+  public void parseMultivariantPlaylist_withIndependentSegments_hasNoIndenpendentSegments()
       throws IOException {
-    HlsMasterPlaylist playlistWithIndependentSegments =
-        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_INDEPENDENT_SEGMENTS);
+    HlsMultivariantPlaylist playlistWithIndependentSegments =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_INDEPENDENT_SEGMENTS);
     assertThat(playlistWithIndependentSegments.hasIndependentSegments).isTrue();
 
-    HlsMasterPlaylist playlistWithoutIndependentSegments =
-        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
+    HlsMultivariantPlaylist playlistWithoutIndependentSegments =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
     assertThat(playlistWithoutIndependentSegments.hasIndependentSegments).isFalse();
   }
 
   @Test
-  public void parseMasterPlaylist_withVariableSubstitution_success() throws IOException {
-    HlsMasterPlaylist playlistWithSubstitutions =
-        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_VARIABLE_SUBSTITUTION);
-    HlsMasterPlaylist.Variant variant = playlistWithSubstitutions.variants.get(0);
+  public void parseMultivariantPlaylist_withVariableSubstitution_success() throws IOException {
+    HlsMultivariantPlaylist playlistWithSubstitutions =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_VARIABLE_SUBSTITUTION);
+    HlsMultivariantPlaylist.Variant variant = playlistWithSubstitutions.variants.get(0);
     assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
     assertThat(variant.url)
         .isEqualTo(Uri.parse("http://example.com/This/{$nested}/reference/shouldnt/work"));
   }
 
   @Test
-  public void parseMasterPlaylist_withTtmlSubtitle() throws IOException {
-    HlsMasterPlaylist playlistWithTtmlSubtitle =
-        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_TTML_SUBTITLE);
-    HlsMasterPlaylist.Variant variant = playlistWithTtmlSubtitle.variants.get(0);
+  public void parseMultivariantPlaylist_withTtmlSubtitle() throws IOException {
+    HlsMultivariantPlaylist playlistWithTtmlSubtitle =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_TTML_SUBTITLE);
+    HlsMultivariantPlaylist.Variant variant = playlistWithTtmlSubtitle.variants.get(0);
     Format firstTextFormat = playlistWithTtmlSubtitle.subtitles.get(0).format;
     assertThat(firstTextFormat.id).isEqualTo("sub1:English");
     assertThat(firstTextFormat.containerMimeType).isEqualTo(MimeTypes.APPLICATION_M3U8);
@@ -404,9 +409,9 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void parseMasterPlaylist_withMatchingStreamInfUrls_success() throws IOException {
-    HlsMasterPlaylist playlist =
-        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_MATCHING_STREAM_INF_URLS);
+  public void parseMultivariantPlaylist_withMatchingStreamInfUrls_success() throws IOException {
+    HlsMultivariantPlaylist playlist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_MATCHING_STREAM_INF_URLS);
     assertThat(playlist.variants).hasSize(4);
     assertThat(playlist.variants.get(0).format.metadata)
         .isEqualTo(
@@ -441,7 +446,8 @@ public class HlsMasterPlaylistParserTest {
 
   @Test
   public void testIFrameVariant() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_IFRAME_VARIANTS);
+    HlsMultivariantPlaylist playlist =
+        parseMultivariantPlaylist(PLAYLIST_URI, PLAYLIST_WITH_IFRAME_VARIANTS);
     assertThat(playlist.variants).hasSize(5);
     for (int i = 0; i < 4; i++) {
       assertThat(playlist.variants.get(i).format.roleFlags).isEqualTo(0);
@@ -472,11 +478,11 @@ public class HlsMasterPlaylistParserTest {
         /* captionGroupId= */ "cc1");
   }
 
-  private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)
-      throws IOException {
+  private static HlsMultivariantPlaylist parseMultivariantPlaylist(
+      String uri, String playlistString) throws IOException {
     Uri playlistUri = Uri.parse(uri);
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(playlistString.getBytes(Charsets.UTF_8));
-    return (HlsMasterPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    return (HlsMultivariantPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
   }
 }

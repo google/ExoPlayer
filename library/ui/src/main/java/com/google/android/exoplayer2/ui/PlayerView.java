@@ -443,8 +443,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           break;
       }
       surfaceView.setLayoutParams(params);
-      // We don't want surfaceView to be clickable separately to the PlayerView itself, but we do
-      // want to register as an OnClickListener so that surfaceView implementations can propagate
+      // We don't want surfaceView to be clickable separately to the PlayerView itself, but we
+      // do want to register as an OnClickListener so that surfaceView implementations can propagate
       // click events up to the PlayerView by calling their own performClick method.
       surfaceView.setOnClickListener(componentListener);
       surfaceView.setClickable(false);

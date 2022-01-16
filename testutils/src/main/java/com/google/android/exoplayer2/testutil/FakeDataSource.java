@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A fake {@link DataSource} capable of simulating various scenarios. It uses a {@link FakeDataSet}
@@ -43,8 +42,12 @@ public class FakeDataSource extends BaseDataSource {
   /** Factory to create a {@link FakeDataSource}. */
   public static class Factory implements DataSource.Factory {
 
-    protected @MonotonicNonNull FakeDataSet fakeDataSet;
+    protected FakeDataSet fakeDataSet;
     protected boolean isNetwork;
+
+    public Factory() {
+      fakeDataSet = new FakeDataSet();
+    }
 
     public final Factory setFakeDataSet(FakeDataSet fakeDataSet) {
       this.fakeDataSet = fakeDataSet;
@@ -58,7 +61,7 @@ public class FakeDataSource extends BaseDataSource {
 
     @Override
     public FakeDataSource createDataSource() {
-      return new FakeDataSource(Assertions.checkStateNotNull(fakeDataSet), isNetwork);
+      return new FakeDataSource(fakeDataSet, isNetwork);
     }
   }
 

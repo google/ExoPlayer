@@ -19,7 +19,6 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.NalUnitUtil.NAL_START_CODE;
-import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
@@ -34,13 +33,12 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * {@link SampleTransformer} that flattens SEF slow motion video samples.
+ * Sample transformer that flattens SEF slow motion video samples.
  *
  * <p>Such samples follow the ITU-T Recommendation H.264 with temporal SVC.
  *
@@ -50,7 +48,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>The mathematical formulas used in this class are explained in [Internal ref:
  * http://go/exoplayer-sef-slomo-video-flattening].
  */
-/* package */ final class SefSlowMotionVideoSampleTransformer implements SampleTransformer {
+/* package */ final class SefSlowMotionFlattener {
 
   /**
    * The frame rate of SEF slow motion videos, in fps.
@@ -109,7 +107,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private long frameTimeDeltaUs;
 
-  public SefSlowMotionVideoSampleTransformer(Format format) {
+  public SefSlowMotionFlattener(Format format) {
     scratch = new byte[NAL_START_CODE_LENGTH];
     MetadataInfo metadataInfo = getMetadataInfo(format.metadata);
     slowMotionData = metadataInfo.slowMotionData;
@@ -130,14 +128,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  @Override
-  public void transformSample(DecoderInputBuffer buffer) {
+  /**
+   * Applies slow motion flattening by either indicating that the buffer's data should be dropped or
+   * transforming it in place.
+   *
+   * @return Whether the buffer should be dropped.
+   */
+  @RequiresNonNull("#1.data")
+  public boolean dropOrTransformSample(DecoderInputBuffer buffer) {
     if (slowMotionData == null) {
       // The input is not an SEF slow motion video.
-      return;
+      return false;
     }
 
-    ByteBuffer data = castNonNull(buffer.data);
+    ByteBuffer data = buffer.data;
     int originalPosition = data.position();
     data.position(originalPosition + NAL_START_CODE_LENGTH);
     data.get(scratch, 0, 4); // Read nal_unit_header_svc_extension.
@@ -148,12 +152,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         "Missing SVC extension prefix NAL unit.");
     int layer = (scratch[3] & 0xFF) >> 5;
     boolean shouldKeepFrame = processCurrentFrame(layer, buffer.timeUs);
+    // Update the timestamp regardless of whether the buffer is dropped as the timestamp may be
+    // reused for the empty end-of-stream buffer.
+    buffer.timeUs = getCurrentFrameOutputTimeUs(/* inputTimeUs= */ buffer.timeUs);
     if (shouldKeepFrame) {
-      buffer.timeUs = getCurrentFrameOutputTimeUs(/* inputTimeUs= */ buffer.timeUs);
-      skipToNextNalUnit(data); // Skip over prefix_nal_unit_svc.
-    } else {
-      buffer.data = null;
+      data.position(originalPosition);
+      return false;
     }
+    return true;
   }
 
   /**
@@ -252,25 +258,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           (inputTimeUs - currentSegmentInfo.startTimeUs) * (currentSegmentInfo.speedDivisor - 1);
     }
     return Math.round(outputTimeUs * INPUT_FRAME_RATE / captureFrameRate);
-  }
-
-  /**
-   * Advances the position of {@code data} to the start of the next NAL unit.
-   *
-   * @throws IllegalStateException If no NAL unit is found.
-   */
-  private void skipToNextNalUnit(ByteBuffer data) {
-    int newPosition = data.position();
-    while (data.remaining() >= NAL_START_CODE_LENGTH) {
-      data.get(scratch, 0, NAL_START_CODE_LENGTH);
-      if (Arrays.equals(scratch, NAL_START_CODE)) {
-        data.position(newPosition);
-        return;
-      }
-      newPosition++;
-      data.position(newPosition);
-    }
-    throw new IllegalStateException("Could not find NAL unit start code.");
   }
 
   /** Returns the {@link MetadataInfo} derived from the {@link Metadata} provided. */
