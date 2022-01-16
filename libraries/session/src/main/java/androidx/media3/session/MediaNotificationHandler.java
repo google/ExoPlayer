@@ -259,7 +259,7 @@ import java.util.concurrent.TimeoutException;
       return appIcon;
     } else {
       // App icon is not set.
-      return R.drawable.media_session_service_notification_ic_music_note;
+      return Util.SDK_INT >= 21 ? R.drawable.media_session_service_notification_ic_music_note : 0;
     }
   }
 
