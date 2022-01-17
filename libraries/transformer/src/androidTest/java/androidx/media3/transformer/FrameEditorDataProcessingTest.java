@@ -301,6 +301,10 @@ public final class FrameEditorDataProcessingTest {
     assertThat(height).isEqualTo(expected.getHeight());
     assertThat(actual.getConfig()).isEqualTo(Bitmap.Config.ARGB_8888);
     long sumMaximumAbsoluteDifferences = 0;
+    // Debug-only image diff without alpha. To use, set a breakpoint right before the method return
+    // to view the difference between the expected and actual bitmaps. A passing test should show
+    // an image that is completely black (color == 0).
+    Bitmap debugDiff = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         int actualColor = actual.getPixel(x, y);
@@ -310,6 +314,7 @@ public final class FrameEditorDataProcessingTest {
         int redDifference = abs(Color.red(actualColor) - Color.red(expectedColor));
         int blueDifference = abs(Color.blue(actualColor) - Color.blue(expectedColor));
         int greenDifference = abs(Color.green(actualColor) - Color.green(expectedColor));
+        debugDiff.setPixel(x, y, Color.rgb(redDifference, blueDifference, greenDifference));
 
         int maximumAbsoluteDifference = 0;
         maximumAbsoluteDifference = max(maximumAbsoluteDifference, alphaDifference);
