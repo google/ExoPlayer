@@ -40,11 +40,11 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
+import androidx.media3.common.C.ContentType;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
@@ -638,19 +638,23 @@ public final class MediaMetricsListener
   }
 
   private static int getStreamType(MediaItem mediaItem) {
-    if (mediaItem.localConfiguration == null || mediaItem.localConfiguration.mimeType == null) {
+    if (mediaItem.localConfiguration == null) {
       return PlaybackMetrics.STREAM_TYPE_UNKNOWN;
     }
-    String mimeType = mediaItem.localConfiguration.mimeType;
-    switch (mimeType) {
-      case MimeTypes.APPLICATION_M3U8:
+    @ContentType
+    int contentType =
+        Util.inferContentTypeForUriAndMimeType(
+            mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
+    switch (contentType) {
+      case C.TYPE_HLS:
         return PlaybackMetrics.STREAM_TYPE_HLS;
-      case MimeTypes.APPLICATION_MPD:
+      case C.TYPE_DASH:
         return PlaybackMetrics.STREAM_TYPE_DASH;
-      case MimeTypes.APPLICATION_SS:
+      case C.TYPE_SS:
         return PlaybackMetrics.STREAM_TYPE_SS;
+      case C.TYPE_RTSP:
       default:
-        return PlaybackMetrics.STREAM_TYPE_PROGRESSIVE;
+        return PlaybackMetrics.STREAM_TYPE_OTHER;
     }
   }
 
