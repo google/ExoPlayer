@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 
 /** A vorbis comment, extracted from a FLAC or OGG file. */
-public final class VorbisComment implements Metadata.Entry {
+public class VorbisComment implements Metadata.Entry {
 
   /** The key. */
   public final String key;

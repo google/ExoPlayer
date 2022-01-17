@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import java.util.Arrays;
 
 /** A picture parsed from a FLAC file. */
-public final class PictureFrame implements Metadata.Entry {
+public class PictureFrame implements Metadata.Entry {
 
   /** The type of the picture. */
   public final int pictureType;
