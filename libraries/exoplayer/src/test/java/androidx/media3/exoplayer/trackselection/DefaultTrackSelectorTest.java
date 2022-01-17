@@ -20,6 +20,10 @@ import static androidx.media3.common.C.FORMAT_HANDLED;
 import static androidx.media3.common.C.FORMAT_UNSUPPORTED_SUBTYPE;
 import static androidx.media3.common.C.FORMAT_UNSUPPORTED_TYPE;
 import static androidx.media3.exoplayer.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
+import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_FALLBACK;
+import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_PRIMARY;
+import static androidx.media3.exoplayer.RendererCapabilities.HARDWARE_ACCELERATION_NOT_SUPPORTED;
+import static androidx.media3.exoplayer.RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
 import static androidx.media3.exoplayer.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static androidx.media3.exoplayer.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
@@ -44,6 +48,7 @@ import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.RendererCapabilities;
+import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector.Parameters;
@@ -1626,6 +1631,122 @@ public final class DefaultTrackSelectorTest {
   }
 
   @Test
+  public void selectTracksWithMultipleAudioTracksWithMixedDecoderSupportLevels() throws Exception {
+    Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
+    Format format0 = formatBuilder.setId("0").setAverageBitrate(200).build();
+    Format format1 = formatBuilder.setId("1").setAverageBitrate(400).build();
+    Format format2 = formatBuilder.setId("2").setAverageBitrate(600).build();
+    Format format3 = formatBuilder.setId("3").setAverageBitrate(800).build();
+    TrackGroupArray trackGroups = singleTrackGroup(format0, format1, format2, format3);
+    @Capabilities int unsupported = RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+    @Capabilities
+    int primaryHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int primarySoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int fallbackHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+    @Capabilities
+    int fallbackSoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+
+    // Select all tracks supported by primary, hardware decoder by default.
+    ImmutableMap<String, Integer> rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            primaryHardware,
+            "1",
+            primaryHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackHardware);
+    RendererCapabilities rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 1, 0);
+
+    // Select all tracks supported by primary, software decoder by default if no primary, hardware
+    // decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            fallbackHardware,
+            "1",
+            fallbackHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups.get(0), 2);
+
+    // Select all tracks supported by fallback, hardware decoder if no primary decoder is
+    // available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackHardware, "1", unsupported, "2", fallbackSoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 0);
+
+    // Select all tracks supported by fallback, software decoder if no other decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackSoftware, "1", fallbackSoftware, "2", unsupported, "3", fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 1, 0);
+
+    // Select all tracks if mixed decoder support is allowed.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", primaryHardware, "1", unsupported, "2", primarySoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, rendererCapabilitiesMap);
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioMixedDecoderSupportAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 2, 0);
+  }
+
+  @Test
   public void selectTracksWithMultipleAudioTracksOverrideReturnsAdaptiveTrackSelection()
       throws Exception {
     Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
@@ -1773,6 +1894,122 @@ public final class DefaultTrackSelectorTest {
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
     assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void selectTracksWithMultipleVideoTracksWithMixedDecoderSupportLevels() throws Exception {
+    Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
+    Format format0 = formatBuilder.setId("0").setAverageBitrate(200).build();
+    Format format1 = formatBuilder.setId("1").setAverageBitrate(400).build();
+    Format format2 = formatBuilder.setId("2").setAverageBitrate(600).build();
+    Format format3 = formatBuilder.setId("3").setAverageBitrate(800).build();
+    TrackGroupArray trackGroups = singleTrackGroup(format0, format1, format2, format3);
+    @Capabilities int unsupported = RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+    @Capabilities
+    int primaryHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int primarySoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_PRIMARY);
+    @Capabilities
+    int fallbackHardware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+    @Capabilities
+    int fallbackSoftware =
+        RendererCapabilities.create(
+            FORMAT_HANDLED,
+            ADAPTIVE_NOT_SEAMLESS,
+            TUNNELING_NOT_SUPPORTED,
+            HARDWARE_ACCELERATION_NOT_SUPPORTED,
+            DECODER_SUPPORT_FALLBACK);
+
+    // Select all tracks supported by primary, hardware decoder by default.
+    ImmutableMap<String, Integer> rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            primaryHardware,
+            "1",
+            primaryHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackHardware);
+    RendererCapabilities rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 1, 0);
+
+    // Select all tracks supported by primary, software decoder by default if no primary, hardware
+    // decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0",
+            fallbackHardware,
+            "1",
+            fallbackHardware,
+            "2",
+            primarySoftware,
+            "3",
+            fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections[0], trackGroups.get(0), 2);
+
+    // Select all tracks supported by fallback, hardware decoder if no primary decoder is
+    // available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackHardware, "1", unsupported, "2", fallbackSoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 0);
+
+    // Select all tracks supported by fallback, software decoder if no other decoder is available.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", fallbackSoftware, "1", fallbackSoftware, "2", unsupported, "3", fallbackSoftware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 1, 0);
+
+    // Select all tracks if mixed decoder support is allowed.
+    rendererCapabilitiesMap =
+        ImmutableMap.of(
+            "0", primaryHardware, "1", unsupported, "2", primarySoftware, "3", fallbackHardware);
+    rendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_VIDEO, rendererCapabilitiesMap);
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowVideoMixedDecoderSupportAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
+    assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 2, 0);
   }
 
   @Test
@@ -2121,6 +2358,7 @@ public final class DefaultTrackSelectorTest {
         .setExceedVideoConstraintsIfNecessary(false)
         .setAllowVideoMixedMimeTypeAdaptiveness(true)
         .setAllowVideoNonSeamlessAdaptiveness(false)
+        .setAllowVideoMixedDecoderSupportAdaptiveness(true)
         .setViewportSize(
             /* viewportWidth= */ 8,
             /* viewportHeight= */ 9,
@@ -2135,6 +2373,7 @@ public final class DefaultTrackSelectorTest {
         .setAllowAudioMixedMimeTypeAdaptiveness(true)
         .setAllowAudioMixedSampleRateAdaptiveness(false)
         .setAllowAudioMixedChannelCountAdaptiveness(true)
+        .setAllowAudioMixedDecoderSupportAdaptiveness(false)
         .setPreferredAudioMimeTypes(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3)
         // Text
         .setPreferredTextLanguages("de", "en")
