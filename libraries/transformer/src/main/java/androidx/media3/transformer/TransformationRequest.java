@@ -132,6 +132,8 @@ public final class TransformationRequest {
      * @return This builder.
      */
     public Builder setResolution(int outputHeight) {
+      // TODO(b/209781577): Define outputHeight in the javadoc as height can be ambiguous for videos
+      // where rotationDegrees is set in the Format.
       // TODO(b/201293185): Restructure to input a Presentation class.
       // TODO(b/201293185): Check encoder codec capabilities in order to allow arbitrary
       // resolutions and reasonable fallbacks.
@@ -190,10 +192,37 @@ public final class TransformationRequest {
     }
   }
 
+  /**
+   * A {@link Matrix transformation matrix} to apply to video frames.
+   *
+   * @see Builder#setTransformationMatrix(Matrix)
+   */
   public final Matrix transformationMatrix;
+  /**
+   * Whether the input should be flattened for media containing slow motion markers.
+   *
+   * @see Builder#setFlattenForSlowMotion(boolean)
+   */
   public final boolean flattenForSlowMotion;
+  /**
+   * The requested height of the output video, or {@link C#LENGTH_UNSET} if inferred from the input.
+   *
+   * @see Builder#setResolution(int)
+   */
   public final int outputHeight;
+  /**
+   * The requested output audio sample {@link MimeTypes MIME type}, or {@code null} if inferred from
+   * the input.
+   *
+   * @see Builder#setAudioMimeType(String)
+   */
   @Nullable public final String audioMimeType;
+  /**
+   * The requested output video sample {@link MimeTypes MIME type}, or {@code null} if inferred from
+   * the input.
+   *
+   * @see Builder#setVideoMimeType(String)
+   */
   @Nullable public final String videoMimeType;
 
   private TransformationRequest(
