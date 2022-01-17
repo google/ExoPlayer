@@ -16,6 +16,8 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.graphics.Matrix;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -128,6 +130,7 @@ public final class TransformationRequest {
      *
      * @param outputHeight The output height in pixels.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code outputHeight} is not supported.
      */
     public Builder setResolution(int outputHeight) {
       // TODO(b/209781577): Define outputHeight in the javadoc as height can be ambiguous for videos
@@ -135,9 +138,9 @@ public final class TransformationRequest {
       // TODO(b/201293185): Restructure to input a Presentation class.
       // TODO(b/201293185): Check encoder codec capabilities in order to allow arbitrary
       // resolutions and reasonable fallbacks.
-      if (outputHeight != C.LENGTH_UNSET && !SUPPORTED_OUTPUT_HEIGHTS.contains(outputHeight)) {
-        throw new IllegalArgumentException("Unsupported outputHeight: " + outputHeight);
-      }
+      checkArgument(
+          outputHeight == C.LENGTH_UNSET || SUPPORTED_OUTPUT_HEIGHTS.contains(outputHeight),
+          "Unsupported outputHeight: " + outputHeight);
       this.outputHeight = outputHeight;
       return this;
     }
@@ -155,10 +158,13 @@ public final class TransformationRequest {
      *
      * @param videoMimeType The MIME type of the video samples in the output.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code videoMimeType} is non-null but not a video
+     *     {@link MimeTypes MIME type}.
      */
     public Builder setVideoMimeType(@Nullable String videoMimeType) {
-      // TODO(b/209469847): Validate videoMimeType here once deprecated
-      // Transformer.Builder#setOuputMimeType(String) has been removed.
+      checkArgument(
+          videoMimeType == null || MimeTypes.isVideo(videoMimeType),
+          "Not a video MIME type: " + videoMimeType);
       this.videoMimeType = videoMimeType;
       return this;
     }
@@ -175,10 +181,13 @@ public final class TransformationRequest {
      *
      * @param audioMimeType The MIME type of the audio samples in the output.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code audioMimeType} is non-null but not an audio
+     *     {@link MimeTypes MIME type}.
      */
     public Builder setAudioMimeType(@Nullable String audioMimeType) {
-      // TODO(b/209469847): Validate audioMimeType here once deprecated
-      // Transformer.Builder#setOuputMimeType(String) has been removed.
+      checkArgument(
+          audioMimeType == null || MimeTypes.isAudio(audioMimeType),
+          "Not an audio MIME type: " + audioMimeType);
       this.audioMimeType = audioMimeType;
       return this;
     }
