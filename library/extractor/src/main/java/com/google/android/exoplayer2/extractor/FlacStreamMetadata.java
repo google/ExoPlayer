@@ -143,8 +143,7 @@ public final class FlacStreamMetadata {
         bitsPerSample,
         totalSamples,
         /* seekTable= */ null,
-        new Metadata(pictureFrames)
-          .copyWithAppendedEntriesFrom(VorbisUtil.parseVorbisComments(vorbisComments)));
+        concatenateVorbisMetadata(vorbisComments, pictureFrames));
   }
 
   private FlacStreamMetadata(
@@ -248,6 +247,22 @@ public final class FlacStreamMetadata {
   @Nullable
   public Metadata getMetadataCopyWithAppendedEntriesFrom(@Nullable Metadata other) {
     return metadata == null ? other : metadata.copyWithAppendedEntriesFrom(other);
+  }
+
+  /** Returns */
+  @Nullable
+  private static Metadata concatenateVorbisMetadata(
+      List<String> vorbisComments,
+      List<PictureFrame> pictureFrames
+  ) {
+    @Nullable Metadata parsedVorbisComments = VorbisUtil.parseVorbisComments(vorbisComments);
+
+    if (parsedVorbisComments == null && pictureFrames.isEmpty()) {
+      return null;
+    }
+
+    return new Metadata(pictureFrames)
+        .copyWithAppendedEntriesFrom(parsedVorbisComments);
   }
 
   /** Returns a copy of {@code this} with the seek table replaced by the one given. */
