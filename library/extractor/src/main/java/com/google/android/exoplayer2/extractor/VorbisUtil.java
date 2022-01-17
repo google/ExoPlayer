@@ -331,7 +331,7 @@ public final class VorbisUtil {
    * @param scratch The bytes of the picture.
    * @return A picture frame from the scratch data.
    */
-  public static PictureFrame buildPictureFrame(ParsableByteArray scratch) {
+  /* package */ static PictureFrame buildPictureFrame(ParsableByteArray scratch) {
     int pictureType = scratch.readInt();
     int mimeTypeLength = scratch.readInt();
     String mimeType = scratch.readString(mimeTypeLength, Charsets.US_ASCII);

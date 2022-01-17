@@ -87,7 +87,6 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
       checkNotNull(setupData.format); // Has been set when the header was read
 
       int startPosition = packet.getPosition();
-
       if (!validateCommentHeaderSignature(packet)) {
         packet.setPosition(startPosition);
         return false;
