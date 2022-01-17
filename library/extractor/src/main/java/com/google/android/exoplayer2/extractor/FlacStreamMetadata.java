@@ -269,7 +269,7 @@ public final class FlacStreamMetadata {
     @Nullable
     Metadata appendedMetadata =
         getMetadataCopyWithAppendedEntriesFrom(
-            VorbisUtil.buildMetadata(vorbisComments, Collections.emptyList()));
+            VorbisUtil.buildMetadata(vorbisComments));
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,

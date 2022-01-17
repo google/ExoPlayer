@@ -270,7 +270,8 @@ public final class VorbisUtil {
    * All others will be transformed into vorbis comments.
    *
    * @param vorbisComments The raw input of comments, as a key-value pair KEY=VAL.
-   * @return A metadata instance containing the processed tags.
+   * @return A Metadata instance containing the parsed metadata entries. Null if there are no
+   * valid metadata entries that can be parsed.
    */
   @Nullable
   public static Metadata buildMetadata(List<String> vorbisComments) {
@@ -285,7 +286,8 @@ public final class VorbisUtil {
    *
    * @param vorbisComments The raw input of comments, as a key-value pair KEY=VAL.
    * @param pictureFrames Any picture frames that were parsed beforehand.
-   * @return A metadata instance containing the processed tags.
+   * @return A Metadata instance containing the parsed metadata entries. Null if there are no
+   * valid metadata entries that can be parsed.
    */
   @Nullable
   public static Metadata buildMetadata(List<String> vorbisComments, List<PictureFrame> pictureFrames) {
@@ -300,21 +302,22 @@ public final class VorbisUtil {
 
       if (keyAndValue.length != 2) {
         Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
-      } else {
-        if (keyAndValue[0].equals("METADATA_BLOCK_PICTURE")) {
-          // This tag is a special cover art tag, outlined by
-          // https://wiki.xiph.org/index.php/VorbisComment#Cover_art.
-          // Decode it from Base64 and transform it into a PictureFrame.
-          try {
-            byte[] decoded = Base64.decode(keyAndValue[1], Base64.DEFAULT);
-            metadataEntries.add(buildPictureFrame(new ParsableByteArray(decoded)));
-          } catch (Exception e) {
-            Log.w(TAG, "Failed to parse vorbis picture");
-          }
-        } else {
-          VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
-          metadataEntries.add(entry);
+        continue;
+      }
+
+      if (keyAndValue[0].equals("METADATA_BLOCK_PICTURE")) {
+        // This tag is a special cover art tag, outlined by
+        // https://wiki.xiph.org/index.php/VorbisComment#Cover_art.
+        // Decode it from Base64 and transform it into a PictureFrame.
+        try {
+          byte[] decoded = Base64.decode(keyAndValue[1], Base64.DEFAULT);
+          metadataEntries.add(buildPictureFrame(new ParsableByteArray(decoded)));
+        } catch (Exception e) {
+          Log.w(TAG, "Failed to parse vorbis picture");
         }
+      } else {
+        VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
+        metadataEntries.add(entry);
       }
     }
     metadataEntries.addAll(pictureFrames);
@@ -328,7 +331,7 @@ public final class VorbisUtil {
    * @param scratch The bytes of the picture.
    * @return A picture frame from the scratch data.
    */
-  static PictureFrame buildPictureFrame(ParsableByteArray scratch) {
+  public static PictureFrame buildPictureFrame(ParsableByteArray scratch) {
     int pictureType = scratch.readInt();
     int mimeTypeLength = scratch.readInt();
     String mimeType = scratch.readString(mimeTypeLength, Charsets.US_ASCII);
