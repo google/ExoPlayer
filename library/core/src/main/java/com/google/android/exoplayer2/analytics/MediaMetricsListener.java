@@ -40,6 +40,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
@@ -65,7 +66,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NetworkTypeObserver;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -636,19 +636,23 @@ public final class MediaMetricsListener
   }
 
   private static int getStreamType(MediaItem mediaItem) {
-    if (mediaItem.localConfiguration == null || mediaItem.localConfiguration.mimeType == null) {
+    if (mediaItem.localConfiguration == null) {
       return PlaybackMetrics.STREAM_TYPE_UNKNOWN;
     }
-    String mimeType = mediaItem.localConfiguration.mimeType;
-    switch (mimeType) {
-      case MimeTypes.APPLICATION_M3U8:
+    @ContentType
+    int contentType =
+        Util.inferContentTypeForUriAndMimeType(
+            mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
+    switch (contentType) {
+      case C.TYPE_HLS:
         return PlaybackMetrics.STREAM_TYPE_HLS;
-      case MimeTypes.APPLICATION_MPD:
+      case C.TYPE_DASH:
         return PlaybackMetrics.STREAM_TYPE_DASH;
-      case MimeTypes.APPLICATION_SS:
+      case C.TYPE_SS:
         return PlaybackMetrics.STREAM_TYPE_SS;
+      case C.TYPE_RTSP:
       default:
-        return PlaybackMetrics.STREAM_TYPE_PROGRESSIVE;
+        return PlaybackMetrics.STREAM_TYPE_OTHER;
     }
   }
 
