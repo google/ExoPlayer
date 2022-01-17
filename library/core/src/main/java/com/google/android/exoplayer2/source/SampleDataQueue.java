@@ -66,7 +66,7 @@ import java.util.Arrays;
   /** Clears all sample data. */
   public void reset() {
     clearAllocationNodes(firstAllocationNode);
-    firstAllocationNode = new AllocationNode(0, allocationLength);
+    firstAllocationNode.reset(/* startPosition= */ 0, allocationLength);
     readAllocationNode = firstAllocationNode;
     writeAllocationNode = firstAllocationNode;
     totalBytesWritten = 0;
@@ -462,9 +462,9 @@ import java.util.Arrays;
   private static final class AllocationNode implements Allocator.AllocationNode {
 
     /** The absolute position of the start of the data (inclusive). */
-    public final long startPosition;
+    public long startPosition;
     /** The absolute position of the end of the data (exclusive). */
-    public final long endPosition;
+    public long endPosition;
     /**
      * The {@link Allocation}, or {@code null} if the node is not {@link #initialize initialized}.
      */
@@ -481,6 +481,17 @@ import java.util.Arrays;
      *     initialized.
      */
     public AllocationNode(long startPosition, int allocationLength) {
+      reset(startPosition, allocationLength);
+    }
+
+    /**
+     * Sets the {@link #startPosition} and the {@link Allocation} length.
+     *
+     * <p>Must only be called for uninitialized instances, where {@link #allocation} is {@code
+     * null}.
+     */
+    public void reset(long startPosition, int allocationLength) {
+      Assertions.checkState(allocation == null);
       this.startPosition = startPosition;
       this.endPosition = startPosition + allocationLength;
     }
