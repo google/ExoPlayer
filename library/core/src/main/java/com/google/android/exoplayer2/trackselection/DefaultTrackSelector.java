@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
@@ -107,11 +108,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean exceedVideoConstraintsIfNecessary;
     private boolean allowVideoMixedMimeTypeAdaptiveness;
     private boolean allowVideoNonSeamlessAdaptiveness;
+    private boolean allowVideoMixedDecoderSupportAdaptiveness;
     // Audio
     private boolean exceedAudioConstraintsIfNecessary;
     private boolean allowAudioMixedMimeTypeAdaptiveness;
     private boolean allowAudioMixedSampleRateAdaptiveness;
     private boolean allowAudioMixedChannelCountAdaptiveness;
+    private boolean allowAudioMixedDecoderSupportAdaptiveness;
     // Text
     @C.SelectionFlags private int disabledTextTrackSelectionFlags;
     // General
@@ -160,12 +163,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       exceedVideoConstraintsIfNecessary = initialValues.exceedVideoConstraintsIfNecessary;
       allowVideoMixedMimeTypeAdaptiveness = initialValues.allowVideoMixedMimeTypeAdaptiveness;
       allowVideoNonSeamlessAdaptiveness = initialValues.allowVideoNonSeamlessAdaptiveness;
+      allowVideoMixedDecoderSupportAdaptiveness =
+          initialValues.allowVideoMixedDecoderSupportAdaptiveness;
       // Audio
       exceedAudioConstraintsIfNecessary = initialValues.exceedAudioConstraintsIfNecessary;
       allowAudioMixedMimeTypeAdaptiveness = initialValues.allowAudioMixedMimeTypeAdaptiveness;
       allowAudioMixedSampleRateAdaptiveness = initialValues.allowAudioMixedSampleRateAdaptiveness;
       allowAudioMixedChannelCountAdaptiveness =
           initialValues.allowAudioMixedChannelCountAdaptiveness;
+      allowAudioMixedDecoderSupportAdaptiveness =
+          initialValues.allowAudioMixedDecoderSupportAdaptiveness;
       // General
       exceedRendererCapabilitiesIfNecessary = initialValues.exceedRendererCapabilitiesIfNecessary;
       tunnelingEnabled = initialValues.tunnelingEnabled;
@@ -192,6 +199,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           bundle.getBoolean(
               Parameters.keyForField(Parameters.FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS),
               defaultValue.allowVideoNonSeamlessAdaptiveness));
+      setAllowVideoMixedDecoderSupportAdaptiveness(
+          bundle.getBoolean(
+              Parameters.keyForField(
+                  Parameters.FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
+              defaultValue.allowVideoMixedDecoderSupportAdaptiveness));
       // Audio
       setExceedAudioConstraintsIfNecessary(
           bundle.getBoolean(
@@ -209,6 +221,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           bundle.getBoolean(
               Parameters.keyForField(Parameters.FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS),
               defaultValue.allowAudioMixedChannelCountAdaptiveness));
+      setAllowAudioMixedDecoderSupportAdaptiveness(
+          bundle.getBoolean(
+              Parameters.keyForField(
+                  Parameters.FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
+              defaultValue.allowAudioMixedDecoderSupportAdaptiveness));
       // Text
       setDisabledTextTrackSelectionFlags(
           bundle.getInt(
@@ -340,6 +357,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return this;
     }
 
+    /**
+     * Sets whether to allow adaptive video selections with mixed levels of {@link
+     * RendererCapabilities.DecoderSupport} and {@link
+     * RendererCapabilities.HardwareAccelerationSupport}.
+     *
+     * @param allowVideoMixedDecoderSupportAdaptiveness Whether to allow adaptive video selections
+     *     with mixed levels of decoder and hardware acceleration support.
+     * @return This builder.
+     */
+    public ParametersBuilder setAllowVideoMixedDecoderSupportAdaptiveness(
+        boolean allowVideoMixedDecoderSupportAdaptiveness) {
+      this.allowVideoMixedDecoderSupportAdaptiveness = allowVideoMixedDecoderSupportAdaptiveness;
+      return this;
+    }
+
     @Override
     public ParametersBuilder setViewportSizeToPhysicalDisplaySize(
         Context context, boolean viewportOrientationMayChange) {
@@ -467,6 +499,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public ParametersBuilder setAllowAudioMixedChannelCountAdaptiveness(
         boolean allowAudioMixedChannelCountAdaptiveness) {
       this.allowAudioMixedChannelCountAdaptiveness = allowAudioMixedChannelCountAdaptiveness;
+      return this;
+    }
+
+    /**
+     * Sets whether to allow adaptive audio selections with mixed levels of {@link
+     * RendererCapabilities.DecoderSupport} and {@link
+     * RendererCapabilities.HardwareAccelerationSupport}.
+     *
+     * @param allowAudioMixedDecoderSupportAdaptiveness Whether to allow adaptive audio selections
+     *     with mixed levels of decoder and hardware acceleration support.
+     * @return This builder.
+     */
+    public ParametersBuilder setAllowAudioMixedDecoderSupportAdaptiveness(
+        boolean allowAudioMixedDecoderSupportAdaptiveness) {
+      this.allowAudioMixedDecoderSupportAdaptiveness = allowAudioMixedDecoderSupportAdaptiveness;
       return this;
     }
 
@@ -740,11 +787,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       exceedVideoConstraintsIfNecessary = true;
       allowVideoMixedMimeTypeAdaptiveness = false;
       allowVideoNonSeamlessAdaptiveness = true;
+      allowVideoMixedDecoderSupportAdaptiveness = false;
       // Audio
       exceedAudioConstraintsIfNecessary = true;
       allowAudioMixedMimeTypeAdaptiveness = false;
       allowAudioMixedSampleRateAdaptiveness = false;
       allowAudioMixedChannelCountAdaptiveness = false;
+      allowAudioMixedDecoderSupportAdaptiveness = false;
       // Text
       disabledTextTrackSelectionFlags = 0;
       // General
@@ -865,6 +914,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final boolean allowVideoNonSeamlessAdaptiveness;
     /**
+     * Whether to allow adaptive video selections with mixed levels of {@link
+     * RendererCapabilities.DecoderSupport} and {@link
+     * RendererCapabilities.HardwareAccelerationSupport}.
+     */
+    public final boolean allowVideoMixedDecoderSupportAdaptiveness;
+    /**
      * Whether to exceed the {@link #maxAudioChannelCount} and {@link #maxAudioBitrate} constraints
      * when no selection can be made otherwise. The default value is {@code true}.
      */
@@ -885,6 +940,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * false}.
      */
     public final boolean allowAudioMixedChannelCountAdaptiveness;
+    /**
+     * Whether to allow adaptive audio selections with mixed levels of {@link
+     * RendererCapabilities.DecoderSupport} and {@link
+     * RendererCapabilities.HardwareAccelerationSupport}.
+     */
+    public final boolean allowAudioMixedDecoderSupportAdaptiveness;
     /**
      * Whether to exceed renderer capabilities when no selection can be made otherwise.
      *
@@ -918,11 +979,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       exceedVideoConstraintsIfNecessary = builder.exceedVideoConstraintsIfNecessary;
       allowVideoMixedMimeTypeAdaptiveness = builder.allowVideoMixedMimeTypeAdaptiveness;
       allowVideoNonSeamlessAdaptiveness = builder.allowVideoNonSeamlessAdaptiveness;
+      allowVideoMixedDecoderSupportAdaptiveness = builder.allowVideoMixedDecoderSupportAdaptiveness;
       // Audio
       exceedAudioConstraintsIfNecessary = builder.exceedAudioConstraintsIfNecessary;
       allowAudioMixedMimeTypeAdaptiveness = builder.allowAudioMixedMimeTypeAdaptiveness;
       allowAudioMixedSampleRateAdaptiveness = builder.allowAudioMixedSampleRateAdaptiveness;
       allowAudioMixedChannelCountAdaptiveness = builder.allowAudioMixedChannelCountAdaptiveness;
+      allowAudioMixedDecoderSupportAdaptiveness = builder.allowAudioMixedDecoderSupportAdaptiveness;
       // Text
       disabledTextTrackSelectionFlags = builder.disabledTextTrackSelectionFlags;
       // General
@@ -1000,12 +1063,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && exceedVideoConstraintsIfNecessary == other.exceedVideoConstraintsIfNecessary
           && allowVideoMixedMimeTypeAdaptiveness == other.allowVideoMixedMimeTypeAdaptiveness
           && allowVideoNonSeamlessAdaptiveness == other.allowVideoNonSeamlessAdaptiveness
+          && allowVideoMixedDecoderSupportAdaptiveness
+              == other.allowVideoMixedDecoderSupportAdaptiveness
           // Audio
           && exceedAudioConstraintsIfNecessary == other.exceedAudioConstraintsIfNecessary
           && allowAudioMixedMimeTypeAdaptiveness == other.allowAudioMixedMimeTypeAdaptiveness
           && allowAudioMixedSampleRateAdaptiveness == other.allowAudioMixedSampleRateAdaptiveness
           && allowAudioMixedChannelCountAdaptiveness
               == other.allowAudioMixedChannelCountAdaptiveness
+          && allowAudioMixedDecoderSupportAdaptiveness
+              == other.allowAudioMixedDecoderSupportAdaptiveness
           // Text
           && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags
           // General
@@ -1025,11 +1092,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (exceedVideoConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (allowVideoMixedMimeTypeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowVideoNonSeamlessAdaptiveness ? 1 : 0);
+      result = 31 * result + (allowVideoMixedDecoderSupportAdaptiveness ? 1 : 0);
       // Audio
       result = 31 * result + (exceedAudioConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (allowAudioMixedMimeTypeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedSampleRateAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedChannelCountAdaptiveness ? 1 : 0);
+      result = 31 * result + (allowAudioMixedDecoderSupportAdaptiveness ? 1 : 0);
       // Text
       result = 31 * result + disabledTextTrackSelectionFlags;
       // General
@@ -1060,6 +1129,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS,
       FIELD_SELECTION_OVERRIDES,
       FIELD_RENDERER_DISABLED_INDICES,
+      FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS,
+      FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS
     })
     private @interface FieldNumber {}
 
@@ -1079,6 +1150,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private static final int FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS = 1012;
     private static final int FIELD_SELECTION_OVERRIDES = 1013;
     private static final int FIELD_RENDERER_DISABLED_INDICES = 1014;
+    private static final int FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS = 1015;
+    private static final int FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS = 1016;
 
     @Override
     public Bundle toBundle() {
@@ -1094,6 +1167,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       bundle.putBoolean(
           keyForField(FIELD_ALLOW_VIDEO_NON_SEAMLESS_ADAPTIVENESS),
           allowVideoNonSeamlessAdaptiveness);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_VIDEO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
+          allowVideoMixedDecoderSupportAdaptiveness);
       // Audio
       bundle.putBoolean(
           keyForField(FIELD_EXCEED_AUDIO_CONSTRAINTS_IF_NCESSARY),
@@ -1107,6 +1183,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       bundle.putBoolean(
           keyForField(FIELD_ALLOW_AUDIO_MIXED_CHANNEL_COUNT_ADAPTIVENESS),
           allowAudioMixedChannelCountAdaptiveness);
+      bundle.putBoolean(
+          keyForField(FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS),
+          allowAudioMixedDecoderSupportAdaptiveness);
       // Text
       bundle.putInt(
           keyForField(FIELD_DISABLED_TEXT_TRACK_SELECTION_FLAGS), disabledTextTrackSelectionFlags);
@@ -1850,7 +1929,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   @Nullable
-  private <T extends TrackInfo> Pair<ExoTrackSelection.Definition, Integer> selectTracksForType(
+  private <T extends TrackInfo<T>> Pair<ExoTrackSelection.Definition, Integer> selectTracksForType(
       @C.TrackType int trackType,
       MappedTrackInfo mappedTrackInfo,
       @Capabilities int[][][] formatSupport,
@@ -2121,10 +2200,32 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     return Integer.bitCount(trackRoleFlags & preferredRoleFlags);
   }
 
+  /**
+   * Returns preference score for primary, hardware-accelerated video codecs, with higher score
+   * being preferred.
+   */
+  private static int getVideoCodecPreferenceScore(@Nullable String mimeType) {
+    if (mimeType == null) {
+      return 0;
+    }
+    switch (mimeType) {
+      case MimeTypes.VIDEO_AV1:
+        return 4;
+      case MimeTypes.VIDEO_H265:
+        return 3;
+      case MimeTypes.VIDEO_VP9:
+        return 2;
+      case MimeTypes.VIDEO_H264:
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
   /** Base class for track selection information of a {@link Format}. */
-  private abstract static class TrackInfo {
+  private abstract static class TrackInfo<T extends TrackInfo<T>> {
     /** Factory for {@link TrackInfo} implementations for a given {@link TrackGroup}. */
-    public interface Factory<T extends TrackInfo> {
+    public interface Factory<T extends TrackInfo<T>> {
       List<T> create(int rendererIndex, TrackGroup trackGroup, @Capabilities int[] formatSupports);
     }
 
@@ -2148,10 +2249,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Returns whether this track is compatible for an adaptive selection with the specified other
      * track.
      */
-    public abstract boolean isCompatibleForAdaptationWith(TrackInfo otherTrack);
+    public abstract boolean isCompatibleForAdaptationWith(T otherTrack);
   }
 
-  private static final class VideoTrackInfo extends TrackInfo {
+  private static final class VideoTrackInfo extends TrackInfo<VideoTrackInfo> {
 
     public static ImmutableList<VideoTrackInfo> createForTrackGroup(
         int rendererIndex,
@@ -2195,6 +2296,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final boolean hasMainOrNoRoleFlag;
     private final boolean allowMixedMimeTypes;
     @SelectionEligibility private final int selectionEligibility;
+    private final boolean usesPrimaryDecoder;
+    private final boolean usesHardwareAcceleration;
+    private final int codecPreferenceScore;
 
     public VideoTrackInfo(
         int rendererIndex,
@@ -2247,6 +2351,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         }
       }
       preferredMimeTypeMatchIndex = bestMimeTypeMatchIndex;
+      usesPrimaryDecoder =
+          RendererCapabilities.getDecoderSupport(formatSupport)
+              == RendererCapabilities.DECODER_SUPPORT_PRIMARY;
+      usesHardwareAcceleration =
+          RendererCapabilities.getHardwareAccelerationSupport(formatSupport)
+              == RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
+      codecPreferenceScore = getVideoCodecPreferenceScore(format.sampleMimeType);
       selectionEligibility = evaluateSelectionEligibility(formatSupport, requiredAdaptiveSupport);
     }
 
@@ -2257,9 +2368,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public boolean isCompatibleForAdaptationWith(TrackInfo otherTrack) {
-      return allowMixedMimeTypes
-          || Util.areEqual(format.sampleMimeType, otherTrack.format.sampleMimeType);
+    public boolean isCompatibleForAdaptationWith(VideoTrackInfo otherTrack) {
+      return (allowMixedMimeTypes
+              || Util.areEqual(format.sampleMimeType, otherTrack.format.sampleMimeType))
+          && (parameters.allowVideoMixedDecoderSupportAdaptiveness
+              || (this.usesPrimaryDecoder == otherTrack.usesPrimaryDecoder
+                  && this.usesHardwareAcceleration == otherTrack.usesHardwareAcceleration));
     }
 
     @SelectionEligibility
@@ -2287,20 +2401,28 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     private static int compareNonQualityPreferences(VideoTrackInfo info1, VideoTrackInfo info2) {
-      return ComparisonChain.start()
-          .compareFalseFirst(info1.isWithinRendererCapabilities, info2.isWithinRendererCapabilities)
-          // 1. Compare match with specific content preferences set by the parameters.
-          .compare(info1.preferredRoleFlagsScore, info2.preferredRoleFlagsScore)
-          // 2. Compare match with implicit content preferences set by the media.
-          .compareFalseFirst(info1.hasMainOrNoRoleFlag, info2.hasMainOrNoRoleFlag)
-          // 3. Compare match with technical preferences set by the parameters.
-          .compareFalseFirst(info1.isWithinMaxConstraints, info2.isWithinMaxConstraints)
-          .compareFalseFirst(info1.isWithinMinConstraints, info2.isWithinMinConstraints)
-          .compare(
-              info1.preferredMimeTypeMatchIndex,
-              info2.preferredMimeTypeMatchIndex,
-              Ordering.natural().reverse())
-          .result();
+      ComparisonChain chain =
+          ComparisonChain.start()
+              .compareFalseFirst(
+                  info1.isWithinRendererCapabilities, info2.isWithinRendererCapabilities)
+              // 1. Compare match with specific content preferences set by the parameters.
+              .compare(info1.preferredRoleFlagsScore, info2.preferredRoleFlagsScore)
+              // 2. Compare match with implicit content preferences set by the media.
+              .compareFalseFirst(info1.hasMainOrNoRoleFlag, info2.hasMainOrNoRoleFlag)
+              // 3. Compare match with technical preferences set by the parameters.
+              .compareFalseFirst(info1.isWithinMaxConstraints, info2.isWithinMaxConstraints)
+              .compareFalseFirst(info1.isWithinMinConstraints, info2.isWithinMinConstraints)
+              .compare(
+                  info1.preferredMimeTypeMatchIndex,
+                  info2.preferredMimeTypeMatchIndex,
+                  Ordering.natural().reverse())
+              // 4. Compare match with renderer capability preferences.
+              .compareFalseFirst(info1.usesPrimaryDecoder, info2.usesPrimaryDecoder)
+              .compareFalseFirst(info1.usesHardwareAcceleration, info2.usesHardwareAcceleration);
+      if (info1.usesPrimaryDecoder && info1.usesHardwareAcceleration) {
+        chain = chain.compare(info1.codecPreferenceScore, info2.codecPreferenceScore);
+      }
+      return chain.result();
     }
 
     private static int compareQualityPreferences(VideoTrackInfo info1, VideoTrackInfo info2) {
@@ -2344,7 +2466,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
   }
 
-  private static final class AudioTrackInfo extends TrackInfo
+  private static final class AudioTrackInfo extends TrackInfo<AudioTrackInfo>
       implements Comparable<AudioTrackInfo> {
 
     public static ImmutableList<AudioTrackInfo> createForTrackGroup(
@@ -2383,6 +2505,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final int sampleRate;
     private final int bitrate;
     private final int preferredMimeTypeMatchIndex;
+    private final boolean usesPrimaryDecoder;
+    private final boolean usesHardwareAcceleration;
 
     public AudioTrackInfo(
         int rendererIndex,
@@ -2447,6 +2571,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         }
       }
       preferredMimeTypeMatchIndex = bestMimeTypeMatchIndex;
+      usesPrimaryDecoder =
+          RendererCapabilities.getDecoderSupport(formatSupport)
+              == RendererCapabilities.DECODER_SUPPORT_PRIMARY;
+      usesHardwareAcceleration =
+          RendererCapabilities.getHardwareAccelerationSupport(formatSupport)
+              == RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
       selectionEligibility = evaluateSelectionEligibility(formatSupport, hasMappedVideoTracks);
     }
 
@@ -2457,7 +2587,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public boolean isCompatibleForAdaptationWith(TrackInfo otherTrack) {
+    public boolean isCompatibleForAdaptationWith(AudioTrackInfo otherTrack) {
       return (parameters.allowAudioMixedChannelCountAdaptiveness
               || (format.channelCount != Format.NO_VALUE
                   && format.channelCount == otherTrack.format.channelCount))
@@ -2466,7 +2596,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                   && TextUtils.equals(format.sampleMimeType, otherTrack.format.sampleMimeType)))
           && (parameters.allowAudioMixedSampleRateAdaptiveness
               || (format.sampleRate != Format.NO_VALUE
-                  && format.sampleRate == otherTrack.format.sampleRate));
+                  && format.sampleRate == otherTrack.format.sampleRate))
+          && (parameters.allowAudioMixedDecoderSupportAdaptiveness
+              || (this.usesPrimaryDecoder == otherTrack.usesPrimaryDecoder
+                  && this.usesHardwareAcceleration == otherTrack.usesHardwareAcceleration));
     }
 
     @Override
@@ -2504,7 +2637,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               this.bitrate,
               other.bitrate,
               parameters.forceLowestBitrate ? FORMAT_VALUE_ORDERING.reverse() : NO_ORDER)
-          // 4. Compare technical quality.
+          // 4. Compare match with renderer capability preferences.
+          .compareFalseFirst(this.usesPrimaryDecoder, other.usesPrimaryDecoder)
+          .compareFalseFirst(this.usesHardwareAcceleration, other.usesHardwareAcceleration)
+          // 5. Compare technical quality.
           .compare(this.channelCount, other.channelCount, qualityOrdering)
           .compare(this.sampleRate, other.sampleRate, qualityOrdering)
           .compare(
@@ -2540,7 +2676,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
   }
 
-  private static final class TextTrackInfo extends TrackInfo implements Comparable<TextTrackInfo> {
+  private static final class TextTrackInfo extends TrackInfo<TextTrackInfo>
+      implements Comparable<TextTrackInfo> {
 
     public static ImmutableList<TextTrackInfo> createForTrackGroup(
         int rendererIndex,
@@ -2633,7 +2770,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public boolean isCompatibleForAdaptationWith(TrackInfo otherTrack) {
+    public boolean isCompatibleForAdaptationWith(TextTrackInfo otherTrack) {
       return false;
     }
 

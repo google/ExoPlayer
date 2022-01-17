@@ -34,6 +34,12 @@
     *   Update video track selection logic to take preferred MIME types and role
         flags into account when selecting multiple video tracks for adaptation
         ((#9519)[https://github.com/google/ExoPlayer/issues/9519]).
+    *   Update video and audio track selection logic to only choose formats for
+        adaptive selections that have the same level of decoder and hardware
+        support ((#9565)[https://github.com/google/ExoPlayer/issues/9565]).
+    *   Update video track selection logic to prefer more efficient codecs if
+        multiple codecs are supported by primary, hardware-accelerated decoders
+        ((#4835)[https://github.com/google/ExoPlayer/issues/4835]).
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
