@@ -31,6 +31,9 @@
     *   Disable automatic speed adjustment for live streams that neither have
         low-latency features nor a user request setting the speed
         ((#9329)[https://github.com/google/ExoPlayer/issues/9329]).
+    *   Update video track selection logic to take preferred MIME types and role
+        flags into account when selecting multiple video tracks for adaptation
+        ((#9519)[https://github.com/google/ExoPlayer/issues/9519]).
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier

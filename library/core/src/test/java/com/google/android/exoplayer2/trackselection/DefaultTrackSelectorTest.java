@@ -1859,11 +1859,17 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     Format formatAv1 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_AV1).build();
     Format formatVp9 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_VP9).build();
-    Format formatH264 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build();
-    TrackGroupArray trackGroups = wrapFormats(formatAv1, formatVp9, formatH264);
+    Format formatH264Low =
+        new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).setAverageBitrate(400).build();
+    Format formatH264High =
+        new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).setAverageBitrate(800).build();
+    // Use an adaptive group to check that MIME type has a higher priority than number of tracks.
+    TrackGroup adaptiveGroup = new TrackGroup(formatH264Low, formatH264High);
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(formatAv1), new TrackGroup(formatVp9), adaptiveGroup);
 
     trackSelector.setParameters(
-        trackSelector.buildUponParameters().setPreferredVideoMimeType(MimeTypes.VIDEO_VP9));
+        defaultParameters.buildUpon().setPreferredVideoMimeType(MimeTypes.VIDEO_VP9));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
@@ -1871,8 +1877,8 @@ public final class DefaultTrackSelectorTest {
     assertFixedSelection(result.selections[0], trackGroups, formatVp9);
 
     trackSelector.setParameters(
-        trackSelector
-            .buildUponParameters()
+        defaultParameters
+            .buildUpon()
             .setPreferredVideoMimeTypes(MimeTypes.VIDEO_VP9, MimeTypes.VIDEO_AV1));
     result =
         trackSelector.selectTracks(
@@ -1881,23 +1887,22 @@ public final class DefaultTrackSelectorTest {
     assertFixedSelection(result.selections[0], trackGroups, formatVp9);
 
     trackSelector.setParameters(
-        trackSelector
-            .buildUponParameters()
+        defaultParameters
+            .buildUpon()
             .setPreferredVideoMimeTypes(MimeTypes.VIDEO_DIVX, MimeTypes.VIDEO_H264));
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
-    assertFixedSelection(result.selections[0], trackGroups, formatH264);
+    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks...= */ 1, 0);
 
-    // Select first in the list if no preference is specified.
-    trackSelector.setParameters(
-        trackSelector.buildUponParameters().setPreferredVideoMimeType(null));
+    // Select default (=most tracks) if no preference is specified.
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredVideoMimeType(null));
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
-    assertFixedSelection(result.selections[0], trackGroups, formatAv1);
+    assertAdaptiveSelection(result.selections[0], adaptiveGroup, /* expectedTracks...= */ 1, 0);
   }
 
   /**
@@ -1907,13 +1912,18 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void selectTracks_withPreferredVideoRoleFlags_selectPreferredTrack() throws Exception {
     Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
-    Format noRoleFlags = formatBuilder.build();
+    Format noRoleFlagsLow = formatBuilder.setAverageBitrate(4000).build();
+    Format noRoleFlagsHigh = formatBuilder.setAverageBitrate(8000).build();
     Format lessRoleFlags = formatBuilder.setRoleFlags(C.ROLE_FLAG_CAPTION).build();
     Format moreRoleFlags =
         formatBuilder
             .setRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY | C.ROLE_FLAG_DUB)
             .build();
-    TrackGroupArray trackGroups = wrapFormats(noRoleFlags, moreRoleFlags, lessRoleFlags);
+    // Use an adaptive group to check that role flags have higher priority than number of tracks.
+    TrackGroup adaptiveNoRoleFlagsGroup = new TrackGroup(noRoleFlagsLow, noRoleFlagsHigh);
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(
+            adaptiveNoRoleFlagsGroup, new TrackGroup(moreRoleFlags), new TrackGroup(lessRoleFlags));
 
     trackSelector.setParameters(
         defaultParameters

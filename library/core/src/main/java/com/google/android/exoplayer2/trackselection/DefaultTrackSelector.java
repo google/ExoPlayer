@@ -57,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1358,7 +1357,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    */
   private static final float FRACTION_TO_CONSIDER_FULLSCREEN = 0.98f;
 
-  private static final int[] NO_TRACKS = new int[0];
   /** Ordering of two format values. A known value is considered greater than Format#NO_VALUE. */
   private static final Ordering<Integer> FORMAT_VALUE_ORDERING =
       Ordering.from(
@@ -1650,20 +1648,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     ExoTrackSelection.@NullableType Definition[] definitions =
         new ExoTrackSelection.Definition[rendererCount];
 
-    boolean selectedVideoTracks = false;
-    for (int i = 0; i < rendererCount; i++) {
-      if (C.TRACK_TYPE_VIDEO == mappedTrackInfo.getRendererType(i)) {
-        if (!selectedVideoTracks) {
-          definitions[i] =
-              selectVideoTrack(
-                  mappedTrackInfo.getTrackGroups(i),
-                  rendererFormatSupports[i],
-                  rendererMixedMimeTypeAdaptationSupports[i],
-                  params,
-                  /* enableAdaptiveTrackSelection= */ true);
-          selectedVideoTracks = definitions[i] != null;
-        }
-      }
+    @Nullable
+    Pair<ExoTrackSelection.Definition, Integer> selectedVideo =
+        selectVideoTrack(
+            mappedTrackInfo,
+            rendererFormatSupports,
+            rendererMixedMimeTypeAdaptationSupports,
+            params);
+    if (selectedVideo != null) {
+      definitions[selectedVideo.second] = selectedVideo.first;
     }
 
     @Nullable
@@ -1707,303 +1700,34 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /**
    * Called by {@link #selectAllTracks(MappedTrackInfo, int[][][], int[], Parameters)} to create a
-   * {@link ExoTrackSelection} for a video renderer.
+   * {@link ExoTrackSelection.Definition} for a video track selection.
    *
-   * @param groups The {@link TrackGroupArray} mapped to the renderer.
-   * @param formatSupport The {@link Capabilities} for each mapped track, indexed by track group and
-   *     track (in that order).
-   * @param mixedMimeTypeAdaptationSupports The {@link AdaptiveSupport} for mixed MIME type
-   *     adaptation for the renderer.
+   * @param mappedTrackInfo Mapped track information.
+   * @param rendererFormatSupports The {@link Capabilities} for each mapped track, indexed by
+   *     renderer, track group and track (in that order).
+   * @param mixedMimeTypeSupports The {@link AdaptiveSupport} for mixed MIME type adaptation for the
+   *     renderer.
    * @param params The selector's current constraint parameters.
-   * @param enableAdaptiveTrackSelection Whether adaptive track selection is allowed.
-   * @return The {@link ExoTrackSelection.Definition} for the renderer, or null if no selection was
-   *     made.
+   * @return A pair of the selected {@link ExoTrackSelection.Definition} and the corresponding
+   *     renderer index, or null if no selection was made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
+  @SuppressLint("WrongConstant") // Lint doesn't understand arrays of IntDefs.
   @Nullable
-  protected ExoTrackSelection.Definition selectVideoTrack(
-      TrackGroupArray groups,
-      @Capabilities int[][] formatSupport,
-      @AdaptiveSupport int mixedMimeTypeAdaptationSupports,
-      Parameters params,
-      boolean enableAdaptiveTrackSelection)
+  protected Pair<ExoTrackSelection.Definition, Integer> selectVideoTrack(
+      MappedTrackInfo mappedTrackInfo,
+      @Capabilities int[][][] rendererFormatSupports,
+      @AdaptiveSupport int[] mixedMimeTypeSupports,
+      Parameters params)
       throws ExoPlaybackException {
-    ExoTrackSelection.Definition definition = null;
-    if (!params.forceHighestSupportedBitrate
-        && !params.forceLowestBitrate
-        && enableAdaptiveTrackSelection) {
-      definition =
-          selectAdaptiveVideoTrack(groups, formatSupport, mixedMimeTypeAdaptationSupports, params);
-    }
-    if (definition == null) {
-      definition = selectFixedVideoTrack(groups, formatSupport, params);
-    }
-    return definition;
-  }
-
-  @Nullable
-  private static ExoTrackSelection.Definition selectAdaptiveVideoTrack(
-      TrackGroupArray groups,
-      @Capabilities int[][] formatSupport,
-      @AdaptiveSupport int mixedMimeTypeAdaptationSupports,
-      Parameters params) {
-    int requiredAdaptiveSupport =
-        params.allowVideoNonSeamlessAdaptiveness
-            ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS | RendererCapabilities.ADAPTIVE_SEAMLESS)
-            : RendererCapabilities.ADAPTIVE_SEAMLESS;
-    boolean allowMixedMimeTypes =
-        params.allowVideoMixedMimeTypeAdaptiveness
-            && (mixedMimeTypeAdaptationSupports & requiredAdaptiveSupport) != 0;
-    for (int i = 0; i < groups.length; i++) {
-      TrackGroup group = groups.get(i);
-      int[] adaptiveTracks =
-          getAdaptiveVideoTracksForGroup(
-              group,
-              formatSupport[i],
-              allowMixedMimeTypes,
-              requiredAdaptiveSupport,
-              params.maxVideoWidth,
-              params.maxVideoHeight,
-              params.maxVideoFrameRate,
-              params.maxVideoBitrate,
-              params.minVideoWidth,
-              params.minVideoHeight,
-              params.minVideoFrameRate,
-              params.minVideoBitrate,
-              params.viewportWidth,
-              params.viewportHeight,
-              params.viewportOrientationMayChange);
-      if (adaptiveTracks.length > 0) {
-        return new ExoTrackSelection.Definition(group, adaptiveTracks);
-      }
-    }
-    return null;
-  }
-
-  private static int[] getAdaptiveVideoTracksForGroup(
-      TrackGroup group,
-      @Capabilities int[] formatSupport,
-      boolean allowMixedMimeTypes,
-      int requiredAdaptiveSupport,
-      int maxVideoWidth,
-      int maxVideoHeight,
-      int maxVideoFrameRate,
-      int maxVideoBitrate,
-      int minVideoWidth,
-      int minVideoHeight,
-      int minVideoFrameRate,
-      int minVideoBitrate,
-      int viewportWidth,
-      int viewportHeight,
-      boolean viewportOrientationMayChange) {
-    if (group.length < 2) {
-      return NO_TRACKS;
-    }
-
-    List<Integer> selectedTrackIndices =
-        getViewportFilteredTrackIndices(
-            group, viewportWidth, viewportHeight, viewportOrientationMayChange);
-    if (selectedTrackIndices.size() < 2) {
-      return NO_TRACKS;
-    }
-
-    String selectedMimeType = null;
-    if (!allowMixedMimeTypes) {
-      // Select the mime type for which we have the most adaptive tracks.
-      HashSet<@NullableType String> seenMimeTypes = new HashSet<>();
-      int selectedMimeTypeTrackCount = 0;
-      for (int i = 0; i < selectedTrackIndices.size(); i++) {
-        int trackIndex = selectedTrackIndices.get(i);
-        String sampleMimeType = group.getFormat(trackIndex).sampleMimeType;
-        if (seenMimeTypes.add(sampleMimeType)) {
-          int countForMimeType =
-              getAdaptiveVideoTrackCountForMimeType(
-                  group,
-                  formatSupport,
-                  requiredAdaptiveSupport,
-                  sampleMimeType,
-                  maxVideoWidth,
-                  maxVideoHeight,
-                  maxVideoFrameRate,
-                  maxVideoBitrate,
-                  minVideoWidth,
-                  minVideoHeight,
-                  minVideoFrameRate,
-                  minVideoBitrate,
-                  selectedTrackIndices);
-          if (countForMimeType > selectedMimeTypeTrackCount) {
-            selectedMimeType = sampleMimeType;
-            selectedMimeTypeTrackCount = countForMimeType;
-          }
-        }
-      }
-    }
-
-    // Filter by the selected mime type.
-    filterAdaptiveVideoTrackCountForMimeType(
-        group,
-        formatSupport,
-        requiredAdaptiveSupport,
-        selectedMimeType,
-        maxVideoWidth,
-        maxVideoHeight,
-        maxVideoFrameRate,
-        maxVideoBitrate,
-        minVideoWidth,
-        minVideoHeight,
-        minVideoFrameRate,
-        minVideoBitrate,
-        selectedTrackIndices);
-
-    return selectedTrackIndices.size() < 2 ? NO_TRACKS : Ints.toArray(selectedTrackIndices);
-  }
-
-  private static int getAdaptiveVideoTrackCountForMimeType(
-      TrackGroup group,
-      @Capabilities int[] formatSupport,
-      int requiredAdaptiveSupport,
-      @Nullable String mimeType,
-      int maxVideoWidth,
-      int maxVideoHeight,
-      int maxVideoFrameRate,
-      int maxVideoBitrate,
-      int minVideoWidth,
-      int minVideoHeight,
-      int minVideoFrameRate,
-      int minVideoBitrate,
-      List<Integer> selectedTrackIndices) {
-    int adaptiveTrackCount = 0;
-    for (int i = 0; i < selectedTrackIndices.size(); i++) {
-      int trackIndex = selectedTrackIndices.get(i);
-      if (isSupportedAdaptiveVideoTrack(
-          group.getFormat(trackIndex),
-          mimeType,
-          formatSupport[trackIndex],
-          requiredAdaptiveSupport,
-          maxVideoWidth,
-          maxVideoHeight,
-          maxVideoFrameRate,
-          maxVideoBitrate,
-          minVideoWidth,
-          minVideoHeight,
-          minVideoFrameRate,
-          minVideoBitrate)) {
-        adaptiveTrackCount++;
-      }
-    }
-    return adaptiveTrackCount;
-  }
-
-  private static void filterAdaptiveVideoTrackCountForMimeType(
-      TrackGroup group,
-      @Capabilities int[] formatSupport,
-      int requiredAdaptiveSupport,
-      @Nullable String mimeType,
-      int maxVideoWidth,
-      int maxVideoHeight,
-      int maxVideoFrameRate,
-      int maxVideoBitrate,
-      int minVideoWidth,
-      int minVideoHeight,
-      int minVideoFrameRate,
-      int minVideoBitrate,
-      List<Integer> selectedTrackIndices) {
-    for (int i = selectedTrackIndices.size() - 1; i >= 0; i--) {
-      int trackIndex = selectedTrackIndices.get(i);
-      if (!isSupportedAdaptiveVideoTrack(
-          group.getFormat(trackIndex),
-          mimeType,
-          formatSupport[trackIndex],
-          requiredAdaptiveSupport,
-          maxVideoWidth,
-          maxVideoHeight,
-          maxVideoFrameRate,
-          maxVideoBitrate,
-          minVideoWidth,
-          minVideoHeight,
-          minVideoFrameRate,
-          minVideoBitrate)) {
-        selectedTrackIndices.remove(i);
-      }
-    }
-  }
-
-  private static boolean isSupportedAdaptiveVideoTrack(
-      Format format,
-      @Nullable String mimeType,
-      @Capabilities int formatSupport,
-      int requiredAdaptiveSupport,
-      int maxVideoWidth,
-      int maxVideoHeight,
-      int maxVideoFrameRate,
-      int maxVideoBitrate,
-      int minVideoWidth,
-      int minVideoHeight,
-      int minVideoFrameRate,
-      int minVideoBitrate) {
-    if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
-      // Ignore trick-play tracks for now.
-      return false;
-    }
-    return isSupported(formatSupport, /* allowExceedsCapabilities= */ false)
-        && ((formatSupport & requiredAdaptiveSupport) != 0)
-        && (mimeType == null || Util.areEqual(format.sampleMimeType, mimeType))
-        && (format.width == Format.NO_VALUE
-            || (minVideoWidth <= format.width && format.width <= maxVideoWidth))
-        && (format.height == Format.NO_VALUE
-            || (minVideoHeight <= format.height && format.height <= maxVideoHeight))
-        && (format.frameRate == Format.NO_VALUE
-            || (minVideoFrameRate <= format.frameRate && format.frameRate <= maxVideoFrameRate))
-        && format.bitrate != Format.NO_VALUE
-        && minVideoBitrate <= format.bitrate
-        && format.bitrate <= maxVideoBitrate;
-  }
-
-  @Nullable
-  private static ExoTrackSelection.Definition selectFixedVideoTrack(
-      TrackGroupArray groups, @Capabilities int[][] formatSupport, Parameters params) {
-    int selectedTrackIndex = C.INDEX_UNSET;
-    @Nullable TrackGroup selectedGroup = null;
-    @Nullable VideoTrackScore selectedTrackScore = null;
-    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-      TrackGroup trackGroup = groups.get(groupIndex);
-      List<Integer> viewportFilteredTrackIndices =
-          getViewportFilteredTrackIndices(
-              trackGroup,
-              params.viewportWidth,
-              params.viewportHeight,
-              params.viewportOrientationMayChange);
-      @Capabilities int[] trackFormatSupport = formatSupport[groupIndex];
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-        Format format = trackGroup.getFormat(trackIndex);
-        if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
-          // Ignore trick-play tracks for now.
-          continue;
-        }
-        if (isSupported(
-            trackFormatSupport[trackIndex], params.exceedRendererCapabilitiesIfNecessary)) {
-          VideoTrackScore trackScore =
-              new VideoTrackScore(
-                  format,
-                  params,
-                  trackFormatSupport[trackIndex],
-                  viewportFilteredTrackIndices.contains(trackIndex));
-          if (!trackScore.isWithinMaxConstraints && !params.exceedVideoConstraintsIfNecessary) {
-            // Track should not be selected.
-            continue;
-          }
-          if (selectedTrackScore == null || trackScore.compareTo(selectedTrackScore) > 0) {
-            selectedGroup = trackGroup;
-            selectedTrackIndex = trackIndex;
-            selectedTrackScore = trackScore;
-          }
-        }
-      }
-    }
-
-    return selectedGroup == null
-        ? null
-        : new ExoTrackSelection.Definition(selectedGroup, selectedTrackIndex);
+    return selectTracksForType(
+        C.TRACK_TYPE_VIDEO,
+        mappedTrackInfo,
+        rendererFormatSupports,
+        (rendererIndex, group, support) ->
+            VideoTrackInfo.createForTrackGroup(
+                rendererIndex, group, params, support, mixedMimeTypeSupports[rendererIndex]),
+        VideoTrackInfo::compareSelections);
   }
 
   // Audio track selection implementation.
@@ -2338,25 +2062,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     return 0;
   }
 
-  private static List<Integer> getViewportFilteredTrackIndices(
+  private static int getMaxVideoPixelsToRetainForViewport(
       TrackGroup group, int viewportWidth, int viewportHeight, boolean orientationMayChange) {
-    // Initially include all indices.
-    ArrayList<Integer> selectedTrackIndices = new ArrayList<>(group.length);
-    for (int i = 0; i < group.length; i++) {
-      selectedTrackIndices.add(i);
-    }
-
     if (viewportWidth == Integer.MAX_VALUE || viewportHeight == Integer.MAX_VALUE) {
-      // Viewport dimensions not set. Return the full set of indices.
-      return selectedTrackIndices;
+      return Integer.MAX_VALUE;
     }
-
     int maxVideoPixelsToRetain = Integer.MAX_VALUE;
     for (int i = 0; i < group.length; i++) {
       Format format = group.getFormat(i);
       // Keep track of the number of pixels of the selected format whose resolution is the
       // smallest to exceed the maximum size at which it can be displayed within the viewport.
-      // We'll discard formats of higher resolution.
       if (format.width > 0 && format.height > 0) {
         Point maxVideoSizeInViewport =
             getMaxVideoSizeInViewport(
@@ -2369,21 +2084,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         }
       }
     }
-
-    // Filter out formats that exceed maxVideoPixelsToRetain. These formats have an unnecessarily
-    // high resolution given the size at which the video will be displayed within the viewport. Also
-    // filter out formats with unknown dimensions, since we have some whose dimensions are known.
-    if (maxVideoPixelsToRetain != Integer.MAX_VALUE) {
-      for (int i = selectedTrackIndices.size() - 1; i >= 0; i--) {
-        Format format = group.getFormat(selectedTrackIndices.get(i));
-        int pixelCount = format.getPixelCount();
-        if (pixelCount == Format.NO_VALUE || pixelCount > maxVideoPixelsToRetain) {
-          selectedTrackIndices.remove(i);
-        }
-      }
-    }
-
-    return selectedTrackIndices;
+    return maxVideoPixelsToRetain;
   }
 
   /**
@@ -2450,15 +2151,40 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public abstract boolean isCompatibleForAdaptationWith(TrackInfo otherTrack);
   }
 
-  /** Represents how well a video track matches the selection {@link Parameters}. */
-  protected static final class VideoTrackScore implements Comparable<VideoTrackScore> {
+  private static final class VideoTrackInfo extends TrackInfo {
 
-    /**
-     * Whether the provided format is within the parameter maximum constraints. If {@code false},
-     * the format should not be selected.
-     */
-    public final boolean isWithinMaxConstraints;
+    public static ImmutableList<VideoTrackInfo> createForTrackGroup(
+        int rendererIndex,
+        TrackGroup trackGroup,
+        Parameters params,
+        @Capabilities int[] formatSupport,
+        @AdaptiveSupport int mixedMimeTypeAdaptionSupport) {
+      int maxPixelsToRetainForViewport =
+          getMaxVideoPixelsToRetainForViewport(
+              trackGroup,
+              params.viewportWidth,
+              params.viewportHeight,
+              params.viewportOrientationMayChange);
+      ImmutableList.Builder<VideoTrackInfo> listBuilder = ImmutableList.builder();
+      for (int i = 0; i < trackGroup.length; i++) {
+        int pixelCount = trackGroup.getFormat(i).getPixelCount();
+        boolean isSuitableForViewport =
+            maxPixelsToRetainForViewport == Integer.MAX_VALUE
+                || (pixelCount != Format.NO_VALUE && pixelCount <= maxPixelsToRetainForViewport);
+        listBuilder.add(
+            new VideoTrackInfo(
+                rendererIndex,
+                trackGroup,
+                /* trackIndex= */ i,
+                params,
+                formatSupport[i],
+                mixedMimeTypeAdaptionSupport,
+                isSuitableForViewport));
+      }
+      return listBuilder.build();
+    }
 
+    private final boolean isWithinMaxConstraints;
     private final Parameters parameters;
     private final boolean isWithinMinConstraints;
     private final boolean isWithinRendererCapabilities;
@@ -2467,13 +2193,28 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final int preferredMimeTypeMatchIndex;
     private final int preferredRoleFlagsScore;
     private final boolean hasMainOrNoRoleFlag;
+    private final boolean allowMixedMimeTypes;
+    @SelectionEligibility private final int selectionEligibility;
 
-    public VideoTrackScore(
-        Format format,
+    public VideoTrackInfo(
+        int rendererIndex,
+        TrackGroup trackGroup,
+        int trackIndex,
         Parameters parameters,
         @Capabilities int formatSupport,
+        @AdaptiveSupport int mixedMimeTypeAdaptationSupport,
         boolean isSuitableForViewport) {
+      super(rendererIndex, trackGroup, trackIndex);
       this.parameters = parameters;
+      @SuppressLint("WrongConstant")
+      int requiredAdaptiveSupport =
+          parameters.allowVideoNonSeamlessAdaptiveness
+              ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS
+                  | RendererCapabilities.ADAPTIVE_SEAMLESS)
+              : RendererCapabilities.ADAPTIVE_SEAMLESS;
+      allowMixedMimeTypes =
+          parameters.allowVideoMixedMimeTypeAdaptiveness
+              && (mixedMimeTypeAdaptationSupport & requiredAdaptiveSupport) != 0;
       isWithinMaxConstraints =
           isSuitableForViewport
               && (format.width == Format.NO_VALUE || format.width <= parameters.maxVideoWidth)
@@ -2506,10 +2247,63 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         }
       }
       preferredMimeTypeMatchIndex = bestMimeTypeMatchIndex;
+      selectionEligibility = evaluateSelectionEligibility(formatSupport, requiredAdaptiveSupport);
     }
 
     @Override
-    public int compareTo(VideoTrackScore other) {
+    @SelectionEligibility
+    public int getSelectionEligibility() {
+      return selectionEligibility;
+    }
+
+    @Override
+    public boolean isCompatibleForAdaptationWith(TrackInfo otherTrack) {
+      return allowMixedMimeTypes
+          || Util.areEqual(format.sampleMimeType, otherTrack.format.sampleMimeType);
+    }
+
+    @SelectionEligibility
+    private int evaluateSelectionEligibility(
+        @Capabilities int rendererSupport, @AdaptiveSupport int requiredAdaptiveSupport) {
+      if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
+        // Ignore trick-play tracks for now.
+        return SELECTION_ELIGIBILITY_NO;
+      }
+      if (!isSupported(rendererSupport, parameters.exceedRendererCapabilitiesIfNecessary)) {
+        return SELECTION_ELIGIBILITY_NO;
+      }
+      if (!isWithinMaxConstraints && !parameters.exceedVideoConstraintsIfNecessary) {
+        return SELECTION_ELIGIBILITY_NO;
+      }
+      return isSupported(rendererSupport, /* allowExceedsCapabilities= */ false)
+              && isWithinMinConstraints
+              && isWithinMaxConstraints
+              && format.bitrate != Format.NO_VALUE
+              && !parameters.forceHighestSupportedBitrate
+              && !parameters.forceLowestBitrate
+              && ((rendererSupport & requiredAdaptiveSupport) != 0)
+          ? SELECTION_ELIGIBILITY_ADAPTIVE
+          : SELECTION_ELIGIBILITY_FIXED;
+    }
+
+    private static int compareNonQualityPreferences(VideoTrackInfo info1, VideoTrackInfo info2) {
+      return ComparisonChain.start()
+          .compareFalseFirst(info1.isWithinRendererCapabilities, info2.isWithinRendererCapabilities)
+          // 1. Compare match with specific content preferences set by the parameters.
+          .compare(info1.preferredRoleFlagsScore, info2.preferredRoleFlagsScore)
+          // 2. Compare match with implicit content preferences set by the media.
+          .compareFalseFirst(info1.hasMainOrNoRoleFlag, info2.hasMainOrNoRoleFlag)
+          // 3. Compare match with technical preferences set by the parameters.
+          .compareFalseFirst(info1.isWithinMaxConstraints, info2.isWithinMaxConstraints)
+          .compareFalseFirst(info1.isWithinMinConstraints, info2.isWithinMinConstraints)
+          .compare(
+              info1.preferredMimeTypeMatchIndex,
+              info2.preferredMimeTypeMatchIndex,
+              Ordering.natural().reverse())
+          .result();
+    }
+
+    private static int compareQualityPreferences(VideoTrackInfo info1, VideoTrackInfo info2) {
       // The preferred ordering by video quality depends on the constraints:
       // - Not within renderer capabilities: Prefer lower quality because it's more likely to play.
       // - Within min and max constraints: Prefer higher quality.
@@ -2519,29 +2313,33 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       //   satisfying the violated max constraints.
       // - Outside min and max constraints: Arbitrarily prefer lower quality.
       Ordering<Integer> qualityOrdering =
-          isWithinMaxConstraints && isWithinRendererCapabilities
+          info1.isWithinMaxConstraints && info1.isWithinRendererCapabilities
               ? FORMAT_VALUE_ORDERING
               : FORMAT_VALUE_ORDERING.reverse();
       return ComparisonChain.start()
-          .compareFalseFirst(this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
-          // 1. Compare match with specific content preferences set by the parameters.
-          .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
-          // 2. Compare match with implicit content preferences set by the media.
-          .compareFalseFirst(this.hasMainOrNoRoleFlag, other.hasMainOrNoRoleFlag)
-          // 3. Compare match with technical preferences set by the parameters.
-          .compareFalseFirst(this.isWithinMaxConstraints, other.isWithinMaxConstraints)
-          .compareFalseFirst(this.isWithinMinConstraints, other.isWithinMinConstraints)
           .compare(
-              this.preferredMimeTypeMatchIndex,
-              other.preferredMimeTypeMatchIndex,
-              Ordering.natural().reverse())
-          // 4. Compare technical quality.
+              info1.bitrate,
+              info2.bitrate,
+              info1.parameters.forceLowestBitrate ? FORMAT_VALUE_ORDERING.reverse() : NO_ORDER)
+          .compare(info1.pixelCount, info2.pixelCount, qualityOrdering)
+          .compare(info1.bitrate, info2.bitrate, qualityOrdering)
+          .result();
+    }
+
+    public static int compareSelections(List<VideoTrackInfo> infos1, List<VideoTrackInfo> infos2) {
+      return ComparisonChain.start()
+          // Compare non-quality preferences of the best individual track with each other.
           .compare(
-              this.bitrate,
-              other.bitrate,
-              parameters.forceLowestBitrate ? FORMAT_VALUE_ORDERING.reverse() : NO_ORDER)
-          .compare(this.pixelCount, other.pixelCount, qualityOrdering)
-          .compare(this.bitrate, other.bitrate, qualityOrdering)
+              max(infos1, VideoTrackInfo::compareNonQualityPreferences),
+              max(infos2, VideoTrackInfo::compareNonQualityPreferences),
+              VideoTrackInfo::compareNonQualityPreferences)
+          // Prefer selections with more formats (all non-quality preferences being equal).
+          .compare(infos1.size(), infos2.size())
+          // Prefer selections with the best individual track quality.
+          .compare(
+              max(infos1, VideoTrackInfo::compareQualityPreferences),
+              max(infos2, VideoTrackInfo::compareQualityPreferences),
+              VideoTrackInfo::compareQualityPreferences)
           .result();
     }
   }
