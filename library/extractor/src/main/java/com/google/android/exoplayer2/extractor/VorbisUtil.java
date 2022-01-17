@@ -265,7 +265,7 @@ public final class VorbisUtil {
   }
 
   /**
-   * Builds a metadata instance from Vorbis comments.
+   * Builds a metadata instance from a list of Vorbis Comments.
    *
    * METADATA_BLOCK_PICTURE comments will be transformed into picture frames.
    * All others will be transformed into vorbis comments.

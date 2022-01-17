@@ -249,7 +249,9 @@ public final class FlacStreamMetadata {
     return metadata == null ? other : metadata.copyWithAppendedEntriesFrom(other);
   }
 
-  /** Returns */
+  /**
+   * Returns a new Metadata instance created from {@code vorbisComments} and {@code pictureFrames}
+   */
   @Nullable
   private static Metadata concatenateVorbisMetadata(
       List<String> vorbisComments,
