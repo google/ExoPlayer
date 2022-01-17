@@ -64,9 +64,9 @@ Internally, `DefaultMediaSourceFactory` will wrap the content media source in an
 `AdsLoader.Provider` and use it to insert ads as defined by the media item's ad
 tag.
 
-ExoPlayer's `StyledPlayerView` and `PlayerView` UI components both
-implement `AdViewProvider`. The IMA extension provides an easy to use
-`AdsLoader`, as described below.
+ExoPlayer's `StyledPlayerView` and `PlayerView` UI components both implement
+`AdViewProvider`. The IMA extension provides an easy to use `AdsLoader`, as
+described below.
 
 ### Playlists with ads ###
 
@@ -123,8 +123,8 @@ VAST/VMAP ad tags in the sample list.
 
 #### UI considerations ####
 
-`StyledPlayerView` and `PlayerView` hide controls during playback of ads
-by default, but apps can toggle this behavior by calling
+`StyledPlayerView` and `PlayerView` hide controls during playback of ads by
+default, but apps can toggle this behavior by calling
 `setControllerHideDuringAds`, which is defined on both views. The IMA SDK will
 show additional views on top of the player while an ad is playing (e.g., a 'more
 info' link and a skip button, if applicable).
@@ -139,9 +139,9 @@ The IMA SDK may report whether ads are obscured by application provided views
 rendered on top of the player. Apps that need to overlay views that are
 essential for controlling playback must register them with the IMA SDK so that
 they can be omitted from viewability calculations. When using `StyledPlayerView`
-or `PlayerView` as the `AdViewProvider`, they will automatically register
-their control overlays. Apps that use a custom player UI must register overlay
-views by returning them from `AdViewProvider.getAdOverlayInfos`.
+or `PlayerView` as the `AdViewProvider`, they will automatically register their
+control overlays. Apps that use a custom player UI must register overlay views
+by returning them from `AdViewProvider.getAdOverlayInfos`.
 
 For more information about overlay views, see
 [Open Measurement in the IMA SDK][].

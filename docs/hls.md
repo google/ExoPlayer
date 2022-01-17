@@ -130,6 +130,7 @@ The following guidelines apply specifically for live streams:
 
 [HlsMediaSource]: {{ site.exo_sdk }}/source/hls/HlsMediaSource.html
 [HTTP Live Streaming]: https://tools.ietf.org/html/rfc8216
+[PlayerView]: {{ site.exo_sdk }}/ui/PlayerView.html
 [UI components]: {{ site.baseurl }}/ui-components.html
 [Customization page]: {{ site.baseurl }}/customization.html
 [Medium post about HLS playback in ExoPlayer]: https://medium.com/google-exoplayer/hls-playback-in-exoplayer-a33959a47be7

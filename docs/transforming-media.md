@@ -34,7 +34,7 @@ transformation that removes the audio track from the input:
 Transformer transformer =
    new Transformer.Builder(context)
        .setRemoveAudio(true)
-       .addListener(transformerListener)
+       .setListener(transformerListener)
        .build();
 // Start the transformation.
 transformer.startTransformation(inputMediaItem, outputPath);
@@ -121,7 +121,7 @@ method.
 Transformer transformer =
    new Transformer.Builder(context)
        .setFlattenForSlowMotion(true)
-       .addListener(transformerListener)
+       .setListener(transformerListener)
        .build();
 transformer.startTransformation(inputMediaItem, outputPath);
 ~~~
