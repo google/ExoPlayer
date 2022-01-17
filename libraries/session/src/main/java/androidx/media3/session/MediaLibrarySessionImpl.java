@@ -183,9 +183,7 @@ import java.util.concurrent.Future;
         () -> {
           @Nullable LibraryResult<Void> result = tryGetFutureResult(future);
           if (result == null || result.resultCode != RESULT_SUCCESS) {
-            synchronized (lock) {
-              subscriptions.remove(checkStateNotNull(browser.getControllerCb()));
-            }
+            removeSubscription(controller, parentId);
           }
         },
         MoreExecutors.directExecutor());
@@ -203,11 +201,7 @@ import java.util.concurrent.Future;
             "onUnsubscribe must return non-null future");
 
     future.addListener(
-        () -> {
-          synchronized (lock) {
-            subscriptions.remove(checkStateNotNull(browser.getControllerCb()));
-          }
-        },
+        () -> removeSubscription(checkStateNotNull(browser.getControllerCb()), parentId),
         MoreExecutors.directExecutor());
 
     return future;
@@ -304,6 +298,18 @@ import java.util.concurrent.Future;
                 + items.size()
                 + ", pageSize="
                 + pageSize);
+      }
+    }
+  }
+
+  private void removeSubscription(ControllerCb controllerCb, String parentId) {
+    synchronized (lock) {
+      @Nullable Set<String> subscription = subscriptions.get(controllerCb);
+      if (subscription != null) {
+        subscription.remove(parentId);
+        if (subscription.isEmpty()) {
+          subscriptions.remove(controllerCb);
+        }
       }
     }
   }
