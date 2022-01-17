@@ -45,8 +45,11 @@ import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Superclass to be extended by services hosting {@link MediaSession media sessions}.
@@ -417,28 +420,40 @@ public abstract class MediaSessionService extends Service {
     private final WeakReference<MediaSessionService> serviceReference;
     private final Handler handler;
     private final MediaSessionManager mediaSessionManager;
+    private final Set<IMediaController> pendingControllers;
 
     public MediaSessionServiceStub(MediaSessionService serviceReference) {
       this.serviceReference = new WeakReference<>(serviceReference);
       Context context = serviceReference.getApplicationContext();
       handler = new Handler(context.getMainLooper());
       mediaSessionManager = MediaSessionManager.getSessionManager(context);
+      pendingControllers = Collections.newSetFromMap(new ConcurrentHashMap<>());
     }
 
     @Override
     public void connect(
         @Nullable IMediaController caller, @Nullable Bundle connectionRequestBundle) {
       if (caller == null || connectionRequestBundle == null) {
-        return;
-      }
-      if (serviceReference.get() == null) {
+        // Malformed call from potentially malicious controller.
+        // No need to notify that we're ignoring call.
         return;
       }
       ConnectionRequest request;
       try {
         request = ConnectionRequest.CREATOR.fromBundle(connectionRequestBundle);
       } catch (RuntimeException e) {
+        // Malformed call from potentially malicious controller.
+        // No need to notify that we're ignoring call.
         Log.w(TAG, "Ignoring malformed Bundle for ConnectionRequest", e);
+        return;
+      }
+      if (serviceReference.get() == null) {
+        try {
+          caller.onDisconnected(/* seq= */ 0);
+        } catch (RemoteException e) {
+          // Controller may be died prematurely.
+          // Not an issue because we'll ignore it anyway.
+        }
         return;
       }
       int callingPid = Binder.getCallingPid();
@@ -448,19 +463,17 @@ public abstract class MediaSessionService extends Service {
       MediaSessionManager.RemoteUserInfo remoteUserInfo =
           new MediaSessionManager.RemoteUserInfo(request.packageName, pid, uid);
       boolean isTrusted = mediaSessionManager.isTrustedForMediaControl(remoteUserInfo);
+      pendingControllers.add(caller);
       try {
         handler.post(
             () -> {
+              pendingControllers.remove(caller);
               boolean shouldNotifyDisconnected = true;
               try {
                 @Nullable MediaSessionService service = serviceReference.get();
                 if (service == null) {
                   return;
                 }
-                if (service == null) {
-                  return;
-                }
-
                 ControllerInfo controllerInfo =
                     new ControllerInfo(
                         remoteUserInfo,
@@ -510,6 +523,13 @@ public abstract class MediaSessionService extends Service {
     public void release() {
       serviceReference.clear();
       handler.removeCallbacksAndMessages(null);
+      for (IMediaController controller : pendingControllers) {
+        try {
+          controller.onDisconnected(/* seq= */ 0);
+        } catch (RemoteException e) {
+          // Ignore. We're releasing.
+        }
+      }
     }
   }
 }
