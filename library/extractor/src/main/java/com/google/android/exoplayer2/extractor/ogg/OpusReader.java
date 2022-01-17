@@ -20,9 +20,11 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.extractor.VorbisUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
@@ -34,18 +36,20 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 /** {@link StreamReader} to extract Opus data out of Ogg byte stream. */
 /* package */ final class OpusReader extends StreamReader {
 
-  private static final byte[] OPUS_ID_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
-  private static final byte[] OPUS_TAG_SIGNATURE = {'O', 'p', 'u', 's', 'T', 'a', 'g', 's'};
+  private static final byte[] OPUS_ID_HEADER_SIGNATURE =
+      {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
+  private static final byte[] OPUS_COMMENT_HEADER_SIGNATURE =
+      {'O', 'p', 'u', 's', 'T', 'a', 'g', 's'};
 
   private boolean headerRead;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
-    if (data.bytesLeft() < OPUS_ID_SIGNATURE.length) {
+    if (data.bytesLeft() < OPUS_ID_HEADER_SIGNATURE.length) {
       return false;
     }
-    byte[] header = new byte[OPUS_ID_SIGNATURE.length];
-    data.readBytes(header, 0, OPUS_ID_SIGNATURE.length);
-    return Arrays.equals(header, OPUS_ID_SIGNATURE);
+    byte[] header = new byte[OPUS_ID_HEADER_SIGNATURE.length];
+    data.readBytes(header, 0, OPUS_ID_HEADER_SIGNATURE.length);
+    return Arrays.equals(header, OPUS_ID_HEADER_SIGNATURE);
   }
 
   @Override
@@ -80,38 +84,49 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
       headerRead = true;
       return true;
     } else {
-      checkNotNull(setupData.format); // Has been set when the header was read.
+      checkNotNull(setupData.format); // Has been set when the header was read
 
-      // Handle the comments frame if we are working with one.
-      boolean isComment;
+      int startPosition = packet.getPosition();
 
-      if (packet.bytesLeft() < OPUS_TAG_SIGNATURE.length) {
-        isComment = false;
-      } else {
-        byte[] header = new byte[OPUS_TAG_SIGNATURE.length];
-        packet.readBytes(header, 0, OPUS_TAG_SIGNATURE.length);
-        isComment = Arrays.equals(header, OPUS_TAG_SIGNATURE);
-      }
-
-      if (isComment) {
-        VorbisUtil.CommentHeader commentHeader = VorbisUtil.readVorbisCommentHeader(
-            packet, false, false);
-
-        @Nullable Metadata vorbisMetadata = VorbisUtil.buildMetadata(
-            Arrays.asList(commentHeader.comments)
-        );
-
-        setupData.format = setupData.format
-            .buildUpon()
-            .setMetadata(vorbisMetadata)
-            .build();
-
-        return true;
-      } else {
-        packet.setPosition(0);
+      if (!validateCommentHeaderSignature(packet)) {
+        packet.setPosition(startPosition);
         return false;
       }
+
+      VorbisUtil.CommentHeader commentHeader = VorbisUtil.readVorbisCommentHeader(
+          packet, false, false);
+
+      @Nullable Metadata vorbisMetadata = VorbisUtil.buildMetadata(
+          Arrays.asList(commentHeader.comments)
+      );
+
+      setupData.format = setupData.format
+          .buildUpon()
+          .setMetadata(
+              setupData.format.metadata != null
+                  ? setupData.format.metadata.copyWithAppendedEntriesFrom(vorbisMetadata)
+                  : vorbisMetadata)
+          .build();
+
+      return true;
     }
+  }
+
+  /**
+   * Validates that the given scratch signifies a comment header.
+   *
+   * @param scratch The packet data
+   * @return True if the packet signifies a comment header, false if not
+   */
+  private boolean validateCommentHeaderSignature(ParsableByteArray scratch) {
+    if (scratch.bytesLeft() < OPUS_COMMENT_HEADER_SIGNATURE.length) {
+      return false;
+    }
+
+    byte[] header = new byte[OPUS_COMMENT_HEADER_SIGNATURE.length];
+    scratch.readBytes(header, 0, OPUS_COMMENT_HEADER_SIGNATURE.length);
+
+    return Arrays.equals(header, OPUS_COMMENT_HEADER_SIGNATURE);
   }
 
   /**
