@@ -95,9 +95,8 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
       VorbisUtil.CommentHeader commentHeader = VorbisUtil.readVorbisCommentHeader(
           packet, false, false);
 
-      @Nullable Metadata vorbisMetadata = VorbisUtil.buildMetadata(
-          Arrays.asList(commentHeader.comments)
-      );
+      @Nullable Metadata vorbisMetadata = VorbisUtil.parseVorbisComments(
+          Arrays.asList(commentHeader.comments));
 
       setupData.format = setupData.format
           .buildUpon()

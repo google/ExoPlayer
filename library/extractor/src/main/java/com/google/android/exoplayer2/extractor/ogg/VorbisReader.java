@@ -25,12 +25,12 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.VorbisUtil;
 import com.google.android.exoplayer2.extractor.VorbisUtil.Mode;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
 /** {@link StreamReader} to extract Vorbis data out of Ogg byte stream. */
@@ -41,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
   private boolean seenFirstAudioPacket;
 
   @Nullable private VorbisUtil.VorbisIdHeader vorbisIdHeader;
-  @Nullable private VorbisUtil.CommentHeader commentHeader;
+  @Nullable private VorbisUtil.CommentHeader vorbisCommentHeader;
 
   public static boolean verifyBitstreamType(ParsableByteArray data) {
     try {
@@ -57,7 +57,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     if (headerData) {
       vorbisSetup = null;
       vorbisIdHeader = null;
-      commentHeader = null;
+      vorbisCommentHeader = null;
     }
     previousPacketBlockSize = 0;
     seenFirstAudioPacket = false;
@@ -108,13 +108,14 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     VorbisSetup vorbisSetup = this.vorbisSetup;
 
     VorbisUtil.VorbisIdHeader idHeader = vorbisSetup.idHeader;
+    VorbisUtil.CommentHeader commentHeader = vorbisSetup.commentHeader;
 
     ArrayList<byte[]> codecInitializationData = new ArrayList<>();
     codecInitializationData.add(idHeader.data);
     codecInitializationData.add(vorbisSetup.setupHeaderData);
 
-    @Nullable Metadata vorbisMetadata = VorbisUtil.buildMetadata(
-        Arrays.asList(vorbisSetup.commentHeader.comments));
+    @Nullable Metadata vorbisMetadata = VorbisUtil.parseVorbisComments(
+        Arrays.asList(commentHeader.comments));
 
     setupData.format =
         new Format.Builder()
@@ -139,12 +140,12 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
       return null;
     }
 
-    if (commentHeader == null) {
-      commentHeader = VorbisUtil.readVorbisCommentHeader(scratch);
+    if (vorbisCommentHeader == null) {
+      vorbisCommentHeader = VorbisUtil.readVorbisCommentHeader(scratch);
       return null;
     }
     VorbisUtil.VorbisIdHeader vorbisIdHeader = this.vorbisIdHeader;
-    VorbisUtil.CommentHeader commentHeader = this.commentHeader;
+    VorbisUtil.CommentHeader commentHeader = this.vorbisCommentHeader;
 
     // the third packet contains the setup header
     byte[] setupHeaderData = new byte[scratch.limit()];

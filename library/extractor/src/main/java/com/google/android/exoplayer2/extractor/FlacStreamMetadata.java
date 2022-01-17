@@ -143,7 +143,8 @@ public final class FlacStreamMetadata {
         bitsPerSample,
         totalSamples,
         /* seekTable= */ null,
-        VorbisUtil.buildMetadata(vorbisComments, pictureFrames));
+        new Metadata(pictureFrames)
+          .copyWithAppendedEntriesFrom(VorbisUtil.parseVorbisComments(vorbisComments)));
   }
 
   private FlacStreamMetadata(
@@ -268,8 +269,8 @@ public final class FlacStreamMetadata {
   public FlacStreamMetadata copyWithVorbisComments(List<String> vorbisComments) {
     @Nullable
     Metadata appendedMetadata =
-        getMetadataCopyWithAppendedEntriesFrom(
-            VorbisUtil.buildMetadata(vorbisComments));
+        getMetadataCopyWithAppendedEntriesFrom(VorbisUtil.parseVorbisComments(vorbisComments));
+
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,
@@ -287,8 +288,8 @@ public final class FlacStreamMetadata {
   public FlacStreamMetadata copyWithPictureFrames(List<PictureFrame> pictureFrames) {
     @Nullable
     Metadata appendedMetadata =
-        getMetadataCopyWithAppendedEntriesFrom(
-            VorbisUtil.buildMetadata(Collections.emptyList(), pictureFrames));
+        getMetadataCopyWithAppendedEntriesFrom(new Metadata(pictureFrames));
+
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,

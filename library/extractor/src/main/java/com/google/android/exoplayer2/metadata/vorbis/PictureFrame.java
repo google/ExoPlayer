@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 import java.util.Arrays;
 
-/** A picture parsed from a Vorbis Comment or a FLAC metadata block. */
+/** A picture parsed from a Vorbis Comment or a FLAC picture block. */
 public class PictureFrame implements Metadata.Entry {
 
   /** The type of the picture. */

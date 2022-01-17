@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor;
 
 import android.util.Base64;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.Format;
@@ -270,31 +271,10 @@ public final class VorbisUtil {
    * All others will be transformed into vorbis comments.
    *
    * @param vorbisComments The raw input of comments, as a key-value pair KEY=VAL.
-   * @return A Metadata instance containing the parsed metadata entries. Null if there are no
-   * valid metadata entries that can be parsed.
+   * @return The fully parsed Metadata instance. Null if no vorbis comments could be parsed.
    */
   @Nullable
-  public static Metadata buildMetadata(List<String> vorbisComments) {
-    return buildMetadata(vorbisComments, Collections.emptyList());
-  }
-
-  /**
-   * Builds a metadata instance from Vorbis comments.
-   *
-   * METADATA_BLOCK_PICTURE comments will be transformed into picture frames.
-   * All others will be transformed into vorbis comments.
-   *
-   * @param vorbisComments The raw input of comments, as a key-value pair KEY=VAL.
-   * @param pictureFrames Any picture frames that were parsed beforehand.
-   * @return A Metadata instance containing the parsed metadata entries. Null if there are no
-   * valid metadata entries that can be parsed.
-   */
-  @Nullable
-  public static Metadata buildMetadata(List<String> vorbisComments, List<PictureFrame> pictureFrames) {
-    if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
-      return null;
-    }
-
+  public static Metadata parseVorbisComments(@NonNull List<String> vorbisComments) {
     ArrayList<Metadata.Entry> metadataEntries = new ArrayList<>();
     for (int i = 0; i < vorbisComments.size(); i++) {
       String vorbisComment = vorbisComments.get(i);
@@ -320,7 +300,6 @@ public final class VorbisUtil {
         metadataEntries.add(entry);
       }
     }
-    metadataEntries.addAll(pictureFrames);
 
     return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
   }
