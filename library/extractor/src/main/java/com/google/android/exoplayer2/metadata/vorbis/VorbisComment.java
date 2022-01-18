@@ -24,100 +24,32 @@ import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 
 /** A vorbis comment, extracted from a FLAC or OGG file. */
-public class VorbisComment implements Metadata.Entry {
-
-  /** The key. */
-  public final String key;
-
-  /** The value. */
-  public final String value;
-
+public final class VorbisComment extends com.google.android.exoplayer2.metadata.flac.VorbisComment {
   /**
    * @param key The key.
    * @param value The value.
    */
   public VorbisComment(String key, String value) {
-    this.key = key;
-    this.value = value;
+    super(key, value);
   }
 
   /* package */ VorbisComment(Parcel in) {
-    this.key = castNonNull(in.readString());
-    this.value = castNonNull(in.readString());
-  }
-
-  @Override
-  public void populateMediaMetadata(MediaMetadata.Builder builder) {
-    switch (key) {
-      case "TITLE":
-        builder.setTitle(value);
-        break;
-      case "ARTIST":
-        builder.setArtist(value);
-        break;
-      case "ALBUM":
-        builder.setAlbumTitle(value);
-        break;
-      case "ALBUMARTIST":
-        builder.setAlbumArtist(value);
-        break;
-      case "DESCRIPTION":
-        builder.setDescription(value);
-        break;
-      default:
-        break;
-    }
-  }
-
-  @Override
-  public String toString() {
-    return "VC: " + key + "=" + value;
-  }
-
-  @Override
-  public boolean equals(@Nullable Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    VorbisComment other = (VorbisComment) obj;
-    return key.equals(other.key) && value.equals(other.value);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = 17;
-    result = 31 * result + key.hashCode();
-    result = 31 * result + value.hashCode();
-    return result;
-  }
-
-  // Parcelable implementation.
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(key);
-    dest.writeString(value);
-  }
-
-  @Override
-  public int describeContents() {
-    return 0;
+    // Workaround to get parcel instantiation working while retaining backwards compatibility
+    // with the old type.
+    super(castNonNull(in.readString()), castNonNull(in.readString()));
   }
 
   public static final Parcelable.Creator<VorbisComment> CREATOR =
-      new Parcelable.Creator<VorbisComment>() {
+    new Parcelable.Creator<VorbisComment>() {
 
-        @Override
-        public VorbisComment createFromParcel(Parcel in) {
-          return new VorbisComment(in);
-        }
+      @Override
+      public VorbisComment createFromParcel(Parcel in) {
+        return new VorbisComment(in);
+      }
 
-        @Override
-        public VorbisComment[] newArray(int size) {
-          return new VorbisComment[size];
-        }
-      };
+      @Override
+      public VorbisComment[] newArray(int size) {
+        return new VorbisComment[size];
+      }
+    };
 }
