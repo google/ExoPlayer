@@ -164,7 +164,7 @@ from HTTPS to HTTP and so is a cross-protocol redirect. ExoPlayer will not
 follow this redirect in its default configuration, meaning playback will fail.
 
 If you need to, you can configure ExoPlayer to follow cross-protocol redirects
-when instantiating `DefaultHttpDataSourceFactory` instances used in your
+when instantiating [`DefaultHttpDataSource.Factory`][] instances used in your
 application. Learn about selecting and configuring the network stack
 [here]({{ site.base_url }}/customization.html#configuring-the-network-stack).
 
@@ -326,7 +326,7 @@ is the official way to play YouTube videos on Android.
 [`setFragmentedMp4ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags(int)
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
-[`DefaultHttpDataSourceFactory`]: {{ site.exo_sdk }}/upstream/DefaultHttpDataSourceFactory.html
+[`DefaultHttpDataSource.Factory`]: {{ site.exo_sdk }}/upstream/DefaultHttpDataSource.Factory.html
 [ExoPlayer module]: {{ site.base_url }}/hello-world.html#add-exoplayer-modules
 [issue tracker]: https://github.com/google/ExoPlayer/issues
 [`isCurrentWindowLive`]: {{ site.exo_sdk }}/Player.html#isCurrentWindowLive()
