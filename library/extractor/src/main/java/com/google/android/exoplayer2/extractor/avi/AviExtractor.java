@@ -1,7 +1,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -17,12 +16,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Based on the official MicroSoft spec
@@ -46,8 +43,6 @@ public class AviExtractor implements Extractor {
   static final int AVI_ = AviUtil.toInt(new byte[]{'A','V','I',' '});
   //Stream List
   static final int STRL = 's' | ('t' << 8) | ('r' << 16) | ('l' << 24);
-  //Stream CODEC data
-  static final int STRD = 's' | ('t' << 8) | ('r' << 16) | ('d' << 24);
   //movie data box
   static final int MOVI = 'm' | ('o' << 8) | ('v' << 16) | ('i' << 24);
   //Index
@@ -144,20 +139,20 @@ public class AviExtractor implements Extractor {
     if (inputLen != C.LENGTH_UNSET && inputLen != reportedLen) {
       Log.w(TAG, "Header length doesn't match stream length");
     }
-    int avi = byteBuffer.getInt();
+    final int avi = byteBuffer.getInt();
     if (avi != AviExtractor.AVI_) {
       return null;
     }
-    final ListBox header = ListBox.getInstance(byteBuffer, input, ListBox.class);
-    if (header == null) {
+    final int list = byteBuffer.getInt();
+    if (list != ListBox.LIST) {
       return null;
     }
-    if (header.getListType() != ListBox.TYPE_HDRL) {
-      Log.e(TAG, "Expected " +AviUtil.toString(ListBox.TYPE_HDRL) + ", got: " +
-          AviUtil.toString(header.getType()));
+    final int listSize = byteBuffer.getInt();
+    final ListBox listBox = ListBox.newInstance(listSize, new BoxFactory(), input);
+    if (listBox.getListType() != ListBox.TYPE_HDRL) {
       return null;
     }
-    return header;
+    return listBox;
   }
 
   long getDuration() {
@@ -173,7 +168,7 @@ public class AviExtractor implements Extractor {
     this.output = output;
   }
 
-  private static ResidentBox peekNext(final List<ResidentBox> streams, int i, int type) {
+  private static Box peekNext(final List<Box> streams, int i, int type) {
     if (i + 1 < streams.size() && streams.get(i + 1).getType() == type) {
       return streams.get(i + 1);
     }
@@ -185,8 +180,7 @@ public class AviExtractor implements Extractor {
     if (headerList == null) {
       throw new IOException("AVI Header List not found");
     }
-    final BoxFactory boxFactory = new BoxFactory();
-    final List<ResidentBox> headerChildren = headerList.getBoxList(boxFactory);
+    final List<Box> headerChildren = headerList.getChildren();
     aviHeader = AviUtil.getBox(headerChildren, AviHeaderBox.class);
     if (aviHeader == null) {
       throw new IOException("AviHeader not found");
@@ -198,9 +192,9 @@ public class AviExtractor implements Extractor {
     for (Box box : headerChildren) {
       if (box instanceof ListBox && ((ListBox) box).getListType() == STRL) {
         final ListBox streamList = (ListBox) box;
-        final List<ResidentBox> streamChildren = streamList.getBoxList(boxFactory);
+        final List<Box> streamChildren = streamList.getChildren();
         for (int i=0;i<streamChildren.size();i++) {
-          final ResidentBox residentBox = streamChildren.get(i);
+          final Box residentBox = streamChildren.get(i);
           if (residentBox instanceof StreamHeaderBox) {
             final StreamHeaderBox streamHeader = (StreamHeaderBox) residentBox;
             final StreamFormatBox streamFormat = (StreamFormatBox) peekNext(streamChildren, i, StreamFormatBox.STRF);
@@ -208,10 +202,10 @@ public class AviExtractor implements Extractor {
               i++;
               if (streamHeader.isVideo()) {
                 final VideoFormat videoFormat = streamFormat.getVideoFormat();
-                final ResidentBox codecBox = (ResidentBox) peekNext(streamChildren, i, STRD);
+                final StreamDataBox codecBox = (StreamDataBox) peekNext(streamChildren, i, StreamDataBox.STRD);
                 final List<byte[]> codecData;
                 if (codecBox != null) {
-                  codecData = Collections.singletonList(codecBox.byteBuffer.array());
+                  codecData = Collections.singletonList(codecBox.getData());
                   i++;
                 } else {
                   codecData = null;

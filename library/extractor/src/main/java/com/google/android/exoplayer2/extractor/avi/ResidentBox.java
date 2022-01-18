@@ -10,31 +10,14 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A box that is resident in memory
  */
 public class ResidentBox extends Box {
   private static final String TAG = AviExtractor.TAG;
-  final private static int MAX_RESIDENT = 64*1024;
+  final private static int MAX_RESIDENT = 1024;
   final ByteBuffer byteBuffer;
-
-//  private Class<? extends ResidentBox> getClass(final int type) {
-//    switch (type) {
-//      case AviHeaderBox.AVIH:
-//        return AviHeaderBox.class;
-//      case ListBox.LIST:
-//        return ListBox.class;
-//      case StreamHeaderBox.STRH:
-//        return StreamHeaderBox.class;
-//      case StreamFormatBox.STRF:
-//        return StreamFormatBox.class;
-//      default:
-//        return ResidentBox.class;
-//    }
-//  }
 
   ResidentBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size);
@@ -81,7 +64,6 @@ public class ResidentBox extends Box {
     }
   }
 
-
   /**
    * Returns shallow copy of this ByteBuffer with the position at 0
    * @return
@@ -92,19 +74,5 @@ public class ResidentBox extends Box {
     clone.order(ByteOrder.LITTLE_ENDIAN);
     clone.clear();
     return clone;
-  }
-
-  @NonNull
-  public List<ResidentBox> getBoxList(final BoxFactory boxFactory) {
-    final ByteBuffer temp = getByteBuffer();
-    temp.position(4);
-    final List<ResidentBox> list = new ArrayList<>();
-    while (temp.hasRemaining()) {
-      final int type = temp.getInt();
-      final int size = temp.getInt();
-      final ResidentBox residentBox = boxFactory.createBox(type, size, temp);
-      list.add(residentBox);
-    }
-    return list;
   }
 }
