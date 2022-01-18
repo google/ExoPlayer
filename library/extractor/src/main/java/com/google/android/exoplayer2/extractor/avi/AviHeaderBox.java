@@ -2,13 +2,13 @@ package com.google.android.exoplayer2.extractor.avi;
 
 import java.nio.ByteBuffer;
 
-public class AviHeader extends ResidentBox {
+public class AviHeaderBox extends ResidentBox {
   public static final int AVIF_HASINDEX = 0x10;
   static final int AVIH = 'a' | ('v' << 8) | ('i' << 16) | ('h' << 24);
 
   //AVIMAINHEADER
 
-  AviHeader(int type, int size, ByteBuffer byteBuffer) {
+  AviHeaderBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);
   }
 

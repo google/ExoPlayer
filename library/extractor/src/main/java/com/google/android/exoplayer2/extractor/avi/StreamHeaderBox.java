@@ -4,7 +4,10 @@ import android.util.SparseArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 
-public class StreamHeader extends ResidentBox {
+/**
+ * AVISTREAMHEADER
+ */
+public class StreamHeaderBox extends ResidentBox {
   public static final int STRH = 's' | ('t' << 8) | ('r' << 16) | ('h' << 24);
 
   //Audio Stream
@@ -16,15 +19,23 @@ public class StreamHeader extends ResidentBox {
   private static final SparseArray<String> STREAM_MAP = new SparseArray<>();
 
   static {
-    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.VIDEO_MP4V);
-    STREAM_MAP.put('3' | ('V' << 8) | ('I' << 16) | ('D' << 24), MimeTypes.VIDEO_MP4V);
-    STREAM_MAP.put('x' | ('v' << 8) | ('i' << 16) | ('d' << 24), MimeTypes.VIDEO_MP4V);
-    STREAM_MAP.put('X' | ('V' << 8) | ('I' << 16) | ('D' << 24), MimeTypes.VIDEO_MP4V);
+    //Although other types are technically supported, AVI is almost exclusively MP4V and MJPEG
+    final String mimeType = MimeTypes.VIDEO_MP4V;
+    //final String mimeType = MimeTypes.VIDEO_H263;
+
+    //Doesn't seem to be supported on Android
+    //STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.VIDEO_MP4);
+    STREAM_MAP.put('H' | ('2' << 8) | ('6' << 16) | ('4' << 24), MimeTypes.VIDEO_H264);
+    STREAM_MAP.put('a' | ('v' << 8) | ('c' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
+    STREAM_MAP.put('A' | ('V' << 8) | ('C' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
+    STREAM_MAP.put('3' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
+    STREAM_MAP.put('x' | ('v' << 8) | ('i' << 16) | ('d' << 24), mimeType);
+    STREAM_MAP.put('X' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
 
     STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.IMAGE_JPEG);
   }
 
-  StreamHeader(int type, int size, ByteBuffer byteBuffer) {
+  StreamHeaderBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);
   }
 
@@ -40,7 +51,15 @@ public class StreamHeader extends ResidentBox {
     return getRate() / (float)getScale();
   }
 
-  public String getCodec() {
+  /**
+   * How long each sample covers
+   * @return
+   */
+  public long getUsPerSample() {
+    return getScale() * 1_000_000L / getRate();
+  }
+
+  public String getMimeType() {
     return STREAM_MAP.get(getFourCC());
   }
 
@@ -67,8 +86,15 @@ public class StreamHeader extends ResidentBox {
   public int getRate() {
     return byteBuffer.getInt(24);
   }
-  //28 - dwStart
+  public int getStart() {
+    return byteBuffer.getInt(28);
+  }
   public long getLength() {
     return byteBuffer.getInt(32) & AviUtil.UINT_MASK;
+  }
+  //36 - dwSuggestedBufferSize
+  //40 - dwQuality
+  public int getSampleSize() {
+    return byteBuffer.getInt(44);
   }
 }

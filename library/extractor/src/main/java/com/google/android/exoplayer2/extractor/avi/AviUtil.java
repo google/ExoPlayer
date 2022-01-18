@@ -65,17 +65,4 @@ public class AviUtil {
     }
     return null;
   }
-
-  @Nullable
-  static IAviList getSubList(List<? extends Box> list, int listType) {
-    for (Box box : list) {
-      if (IAviList.class.isInstance(box)) {
-        final IAviList aviList = (IAviList) box;
-        if (aviList.getListType() == listType) {
-          return aviList;
-        }
-      }
-    }
-    return null;
-  }
 }
