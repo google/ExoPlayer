@@ -404,10 +404,15 @@ public class AviExtractor implements Extractor {
       sampleSize = byteBuffer.getInt();
       sampleTrack = idTrackMap.get(id);
       if (sampleTrack == null) {
-        if (id != JUNK) {
-          Log.w(TAG, "Unknown tag=" + AviUtil.toString(id) + " pos=" + (input.getPosition() - 8) + " size=" + sampleSize + " moviEnd=" + moviEnd);
+        if (id == ListBox.LIST) {
+          seekPosition.position = input.getPosition() + 4;
+        } else {
+          seekPosition.position = input.getPosition() + sampleSize;
+          if (id != JUNK) {
+            Log.w(TAG, "Unknown tag=" + AviUtil.toString(id) + " pos=" + (input.getPosition() - 8)
+                + " size=" + sampleSize + " moviEnd=" + moviEnd);
+          }
         }
-        seekPosition.position = input.getPosition() + sampleSize;
         return RESULT_SEEK;
       } else {
         //Log.d(TAG, "Sample pos=" + (input.getPosition() - 8) + " size=" + sampleSize + " video=" + sampleTrack.isVideo());
