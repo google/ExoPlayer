@@ -110,7 +110,10 @@
         ([#9800](https://github.com/google/ExoPlayer/issues/9800)).
 *   Cast extension
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
-        correctly.
+        correctly ([#9792](https://github.com/google/ExoPlayer/issues/9792)).
+    *   Support audio metadata including artwork with
+        `DefaultMediaItemConverter`
+        ([#9663](https://github.com/google/ExoPlayer/issues/9663)).
 *   Remove deprecated symbols:
     *   Remove `MediaSourceFactory#setDrmSessionManager`,
         `MediaSourceFactory#setDrmHttpDataSourceFactory`, and
