@@ -123,7 +123,7 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
   if (picturesValid) {
     std::vector<FlacPicture> pictures = context->parser->getPictures();
     jclass pictureFrameClass = env->FindClass(
-        "com/google/android/exoplayer2/metadata/flac/PictureFrame");
+        "com/google/android/exoplayer2/metadata/vorbis/PictureFrame");
     jmethodID pictureFrameConstructor =
         env->GetMethodID(pictureFrameClass, "<init>",
                          "(ILjava/lang/String;Ljava/lang/String;IIII[B)V");
