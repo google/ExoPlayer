@@ -101,14 +101,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public Codec createForVideoEncoding(Format format) throws TransformationException {
-    checkArgument(format.sampleMimeType != null);
     checkArgument(format.width != Format.NO_VALUE);
     checkArgument(format.height != Format.NO_VALUE);
     // According to interface Javadoc, format.rotationDegrees should be 0. The video should always
     // be in landscape orientation.
     checkArgument(format.height < format.width);
     checkArgument(format.rotationDegrees == 0);
-    // Checking again to silence null checker warning.
     checkNotNull(format.sampleMimeType);
     format = getVideoEncoderSupportedFormat(format);
 
