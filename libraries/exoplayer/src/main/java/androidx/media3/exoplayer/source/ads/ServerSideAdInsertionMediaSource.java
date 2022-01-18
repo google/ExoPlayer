@@ -994,7 +994,6 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     public ServerSideAdInsertionTimeline(
         Timeline contentTimeline, ImmutableMap<Object, AdPlaybackState> adPlaybackStates) {
       super(contentTimeline);
-      checkState(contentTimeline.getPeriodCount() == 1);
       checkState(contentTimeline.getWindowCount() == 1);
       Period period = new Period();
       for (int i = 0; i < contentTimeline.getPeriodCount(); i++) {
@@ -1008,25 +1007,23 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       super.getWindow(windowIndex, window, defaultPositionProjectionUs);
       Object firstPeriodUid =
-          checkNotNull(getPeriod(/* periodIndex= */ 0, new Period(), /* setIds= */ true).uid);
-      AdPlaybackState adPlaybackState = checkNotNull(adPlaybackStates.get(firstPeriodUid));
+          checkNotNull(getPeriod(window.firstPeriodIndex, new Period(), /* setIds= */ true).uid);
+      AdPlaybackState firstAdPlaybackState = checkNotNull(adPlaybackStates.get(firstPeriodUid));
       long positionInPeriodUs =
           getMediaPeriodPositionUsForContent(
               window.positionInFirstPeriodUs,
               /* nextAdGroupIndex= */ C.INDEX_UNSET,
-              adPlaybackState);
+              firstAdPlaybackState);
       if (window.durationUs == C.TIME_UNSET) {
-        if (adPlaybackState.contentDurationUs != C.TIME_UNSET) {
-          window.durationUs = adPlaybackState.contentDurationUs - positionInPeriodUs;
+        if (firstAdPlaybackState.contentDurationUs != C.TIME_UNSET) {
+          window.durationUs = firstAdPlaybackState.contentDurationUs - positionInPeriodUs;
         }
       } else {
-        long actualWindowEndPositionInPeriodUs = window.positionInFirstPeriodUs + window.durationUs;
-        long windowEndPositionInPeriodUs =
-            getMediaPeriodPositionUsForContent(
-                actualWindowEndPositionInPeriodUs,
-                /* nextAdGroupIndex= */ C.INDEX_UNSET,
-                adPlaybackState);
-        window.durationUs = windowEndPositionInPeriodUs - positionInPeriodUs;
+        Period lastPeriod = getPeriod(/* periodIndex= */ window.lastPeriodIndex, new Period());
+        window.durationUs =
+            lastPeriod.durationUs == C.TIME_UNSET
+                ? C.TIME_UNSET
+                : lastPeriod.positionInWindowUs + lastPeriod.durationUs;
       }
       window.positionInFirstPeriodUs = positionInPeriodUs;
       return window;
@@ -1044,11 +1041,26 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
             getMediaPeriodPositionUsForContent(
                 durationUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
       }
-      long positionInWindowUs =
-          -getMediaPeriodPositionUsForContent(
-              -period.getPositionInWindowUs(),
-              /* nextAdGroupIndex= */ C.INDEX_UNSET,
-              adPlaybackState);
+      long positionInWindowUs = 0;
+      Period innerPeriod = new Period();
+      for (int i = 0; i < periodIndex + 1; i++) {
+        timeline.getPeriod(/* periodIndex= */ i, innerPeriod, /* setIds= */ true);
+        AdPlaybackState innerAdPlaybackState = checkNotNull(adPlaybackStates.get(innerPeriod.uid));
+        if (i == 0) {
+          positionInWindowUs =
+              -getMediaPeriodPositionUsForContent(
+                  -innerPeriod.getPositionInWindowUs(),
+                  /* nextAdGroupIndex= */ C.INDEX_UNSET,
+                  innerAdPlaybackState);
+        }
+        if (i != periodIndex) {
+          positionInWindowUs +=
+              getMediaPeriodPositionUsForContent(
+                  innerPeriod.durationUs,
+                  /* nextAdGroupIndex= */ C.INDEX_UNSET,
+                  innerAdPlaybackState);
+        }
+      }
       period.set(
           period.id,
           period.uid,

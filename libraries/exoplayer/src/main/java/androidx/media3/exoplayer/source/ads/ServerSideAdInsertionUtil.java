@@ -75,29 +75,6 @@ public final class ServerSideAdInsertionUtil {
   }
 
   /**
-   * Returns the duration of the underlying server-side inserted ads stream for the current {@link
-   * Timeline.Period} in the {@link Player}.
-   *
-   * @param player The {@link Player}.
-   * @param adPlaybackState The {@link AdPlaybackState} defining the ad groups.
-   * @return The duration of the underlying server-side inserted ads stream, in microseconds, or
-   *     {@link C#TIME_UNSET} if it can't be determined.
-   */
-  public static long getStreamDurationUs(Player player, AdPlaybackState adPlaybackState) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty()) {
-      return C.TIME_UNSET;
-    }
-    Timeline.Period period =
-        timeline.getPeriod(player.getCurrentPeriodIndex(), new Timeline.Period());
-    if (period.durationUs == C.TIME_UNSET) {
-      return C.TIME_UNSET;
-    }
-    return getStreamPositionUsForContent(
-        period.durationUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
-  }
-
-  /**
    * Returns the position in the underlying server-side inserted ads stream for the current playback
    * position in the {@link Player}.
    *
