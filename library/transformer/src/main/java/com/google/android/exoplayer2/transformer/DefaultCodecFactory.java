@@ -105,7 +105,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkArgument(format.height != Format.NO_VALUE);
     // According to interface Javadoc, format.rotationDegrees should be 0. The video should always
     // be in landscape orientation.
-    checkArgument(format.height < format.width);
+    checkArgument(format.height <= format.width);
     checkArgument(format.rotationDegrees == 0);
     checkNotNull(format.sampleMimeType);
     format = getVideoEncoderSupportedFormat(format);
