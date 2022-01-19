@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.analytics;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import android.annotation.SuppressLint;
@@ -115,6 +116,7 @@ public final class MediaMetricsListener
   private final Timeline.Window window;
   private final Timeline.Period period;
 
+  @Nullable private String activeSessionId;
   @Nullable private PlaybackMetrics.Builder metricsBuilder;
   @Player.DiscontinuityReason private int discontinuityReason;
   private int currentPlaybackState;
@@ -169,7 +171,8 @@ public final class MediaMetricsListener
       // Ignore ad sessions.
       return;
     }
-    finishCurrentSession();
+    checkState(activeSessionId == null);
+    activeSessionId = sessionId;
     metricsBuilder =
         new PlaybackMetrics.Builder()
             .setPlayerName(MediaLibraryInfo.TAG)
@@ -184,9 +187,9 @@ public final class MediaMetricsListener
   @Override
   public void onSessionFinished(
       EventTime eventTime, String sessionId, boolean automaticTransitionToNextPlayback) {
-    if (eventTime.mediaPeriodId != null && eventTime.mediaPeriodId.isAd()) {
-      // Ignore ad sessions.
-      return;
+    if ((eventTime.mediaPeriodId != null && eventTime.mediaPeriodId.isAd())
+        || !sessionId.equals(activeSessionId)) {
+      // Ignore ad sessions and other sessions that are finished before becoming active.
     }
     finishCurrentSession();
   }
@@ -590,6 +593,7 @@ public final class MediaMetricsListener
             : PlaybackMetrics.STREAM_SOURCE_UNKNOWN);
     playbackSession.reportPlaybackMetrics(metricsBuilder.build());
     metricsBuilder = null;
+    activeSessionId = null;
   }
 
   private static int getTrackChangeReason(@C.SelectionReason int trackSelectionReason) {
