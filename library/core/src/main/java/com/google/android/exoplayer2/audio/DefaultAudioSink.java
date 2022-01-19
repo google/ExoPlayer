@@ -1240,6 +1240,11 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
+  public AudioAttributes getAudioAttributes() {
+    return audioAttributes;
+  }
+
+  @Override
   public void setAudioSessionId(int audioSessionId) {
     if (this.audioSessionId != audioSessionId) {
       this.audioSessionId = audioSessionId;
