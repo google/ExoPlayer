@@ -594,6 +594,12 @@ public final class MediaMetricsListener
     playbackSession.reportPlaybackMetrics(metricsBuilder.build());
     metricsBuilder = null;
     activeSessionId = null;
+    audioUnderruns = 0;
+    droppedFrames = 0;
+    playedFrames = 0;
+    currentVideoFormat = null;
+    currentAudioFormat = null;
+    currentTextFormat = null;
   }
 
   private static int getTrackChangeReason(@C.SelectionReason int trackSelectionReason) {
