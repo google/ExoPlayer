@@ -65,6 +65,7 @@ import org.robolectric.shadows.ShadowMediaCodec;
 /** Unit test for {@link Transformer}. */
 @RunWith(AndroidJUnit4.class)
 public final class TransformerTest {
+  // TODO(b/214973843): Disable fallback for all tests that aren't specifically testing fallback.
 
   private static final String URI_PREFIX = "asset:///media/";
   private static final String FILE_VIDEO_ONLY = "mp4/sample_18byte_nclx_colr.mp4";

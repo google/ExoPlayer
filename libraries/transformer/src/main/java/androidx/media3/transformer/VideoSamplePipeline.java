@@ -27,8 +27,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
@@ -54,6 +56,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
     decoderInputBuffer =
@@ -63,7 +66,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Scale width and height to desired transformationRequest.outputHeight, preserving aspect
     // ratio.
-    // TODO(internal b/209781577): Think about which edge length should be set for portrait videos.
+    // TODO(b/209781577): Think about which edge length should be set for portrait videos.
     float inputFormatAspectRatio = (float) inputFormat.width / inputFormat.height;
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
@@ -102,17 +105,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // postRotate in a later vertex shader.
     transformationMatrix.postRotate(outputRotationDegrees);
 
-    encoder =
-        encoderFactory.createForVideoEncoding(
-            new Format.Builder()
-                .setWidth(outputWidth)
-                .setHeight(outputHeight)
-                .setRotationDegrees(0)
-                .setSampleMimeType(
-                    transformationRequest.videoMimeType != null
-                        ? transformationRequest.videoMimeType
-                        : inputFormat.sampleMimeType)
-                .build());
+    Format requestedOutputFormat =
+        new Format.Builder()
+            .setWidth(outputWidth)
+            .setHeight(outputHeight)
+            .setRotationDegrees(0)
+            .setSampleMimeType(
+                transformationRequest.videoMimeType != null
+                    ? transformationRequest.videoMimeType
+                    : inputFormat.sampleMimeType)
+            .build();
+    encoder = encoderFactory.createForVideoEncoding(requestedOutputFormat);
+    fallbackListener.onTransformationRequestFinalized(
+        createFallbackRequest(
+            transformationRequest, requestedOutputFormat, encoder.getConfigurationFormat()));
+
     if (inputFormat.height != outputHeight
         || inputFormat.width != outputWidth
         || !transformationMatrix.isIdentity()) {
@@ -260,5 +267,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     decoder.release();
     encoder.release();
+  }
+
+  @Pure
+  private static TransformationRequest createFallbackRequest(
+      TransformationRequest transformationRequest, Format requestedFormat, Format actualFormat) {
+    // TODO(b/210591626): Also update resolution, bitrate etc. once encoder configuration and
+    // fallback are implemented.
+    if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)) {
+      return transformationRequest;
+    }
+    return transformationRequest.buildUpon().setVideoMimeType(actualFormat.sampleMimeType).build();
   }
 }

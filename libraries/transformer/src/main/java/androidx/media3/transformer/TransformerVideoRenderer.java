@@ -48,8 +48,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider) {
-    super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest);
+    super(C.TRACK_TYPE_VIDEO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.context = context;
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
@@ -87,7 +88,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
     }
     if (shouldPassthrough(inputFormat)) {
-      samplePipeline = new PassthroughSamplePipeline(inputFormat);
+      samplePipeline =
+          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
           new VideoSamplePipeline(
@@ -96,6 +98,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               transformationRequest,
               encoderFactory,
               decoderFactory,
+              fallbackListener,
               debugViewProvider);
     }
     if (transformationRequest.flattenForSlowMotion) {

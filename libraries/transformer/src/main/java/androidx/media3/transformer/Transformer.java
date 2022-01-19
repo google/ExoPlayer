@@ -705,6 +705,7 @@ public final class Transformer {
                     transformationRequest,
                     encoderFactory,
                     decoderFactory,
+                    new FallbackListener(mediaItem, listeners, transformationRequest),
                     debugViewProvider))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
@@ -807,6 +808,7 @@ public final class Transformer {
     private final TransformationRequest transformationRequest;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
+    private final FallbackListener fallbackListener;
     private final Transformer.DebugViewProvider debugViewProvider;
 
     public TransformerRenderersFactory(
@@ -817,6 +819,7 @@ public final class Transformer {
         TransformationRequest transformationRequest,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
+        FallbackListener fallbackListener,
         Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
@@ -825,6 +828,7 @@ public final class Transformer {
       this.transformationRequest = transformationRequest;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
+      this.fallbackListener = fallbackListener;
       this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
@@ -842,7 +846,12 @@ public final class Transformer {
       if (!removeAudio) {
         renderers[index] =
             new TransformerAudioRenderer(
-                muxerWrapper, mediaClock, transformationRequest, encoderFactory, decoderFactory);
+                muxerWrapper,
+                mediaClock,
+                transformationRequest,
+                encoderFactory,
+                decoderFactory,
+                fallbackListener);
         index++;
       }
       if (!removeVideo) {
@@ -854,6 +863,7 @@ public final class Transformer {
                 transformationRequest,
                 encoderFactory,
                 decoderFactory,
+                fallbackListener,
                 debugViewProvider);
         index++;
       }
