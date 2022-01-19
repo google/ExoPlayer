@@ -294,7 +294,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           mediaCodecName,
           isDecoder
               ? TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
-              : TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+              : TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
     }
     return TransformationException.createForUnexpected(cause);
   }

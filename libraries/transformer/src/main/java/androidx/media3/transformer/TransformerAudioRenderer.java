@@ -75,7 +75,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
               "The output sample MIME inferred from the input format is not supported by the muxer."
                   + " Sample MIME type: "
                   + sampleMimeType),
-          TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
+          TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
     }
     if (shouldPassthrough(inputFormat)) {
       samplePipeline = new PassthroughSamplePipeline(inputFormat);
