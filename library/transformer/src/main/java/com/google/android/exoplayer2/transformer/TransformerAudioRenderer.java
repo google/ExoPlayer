@@ -41,8 +41,9 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
-      Codec.DecoderFactory decoderFactory) {
-    super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformationRequest);
+      Codec.DecoderFactory decoderFactory,
+      FallbackListener fallbackListener) {
+    super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     decoderInputBuffer =
@@ -78,11 +79,12 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
           TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
     }
     if (shouldPassthrough(inputFormat)) {
-      samplePipeline = new PassthroughSamplePipeline(inputFormat);
+      samplePipeline =
+          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
           new AudioSamplePipeline(
-              inputFormat, transformationRequest, encoderFactory, decoderFactory);
+              inputFormat, transformationRequest, encoderFactory, decoderFactory, fallbackListener);
     }
     return true;
   }
