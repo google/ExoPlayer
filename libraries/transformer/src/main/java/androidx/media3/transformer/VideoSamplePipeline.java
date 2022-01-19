@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import androidx.annotation.Nullable;
@@ -87,18 +88,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? inputFormatAspectRatio
             : 1.0f / inputFormatAspectRatio;
 
+    Matrix transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
     // Scale frames by input aspect ratio, to account for FrameEditor's square normalized device
     // coordinates (-1 to 1) and preserve frame relative dimensions during transformations
     // (ex. rotations). After this scaling, transformationMatrix operations operate on a rectangle
     // for x from -displayAspectRatio to displayAspectRatio, and y from -1 to 1
-    transformationRequest.transformationMatrix.preScale(displayAspectRatio, 1);
-    transformationRequest.transformationMatrix.postScale(1.0f / displayAspectRatio, 1);
+    transformationMatrix.preScale(displayAspectRatio, 1);
+    transformationMatrix.postScale(1.0f / displayAspectRatio, 1);
 
     // The decoder rotates videos to their intended display orientation. The frameEditor rotates
     // them back for improved encoder compatibility.
     // TODO(b/201293185): After fragment shader transformations are implemented, put
     // postRotate in a later vertex shader.
-    transformationRequest.transformationMatrix.postRotate(outputRotationDegrees);
+    transformationMatrix.postRotate(outputRotationDegrees);
 
     encoder =
         encoderFactory.createForVideoEncoding(
@@ -113,17 +115,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 .build());
     if (inputFormat.height != outputHeight
         || inputFormat.width != outputWidth
-        || !transformationRequest.transformationMatrix.isIdentity()) {
+        || !transformationMatrix.isIdentity()) {
       frameEditor =
           FrameEditor.create(
               context,
               outputWidth,
               outputHeight,
               inputFormat.pixelWidthHeightRatio,
-              transformationRequest.transformationMatrix,
+              transformationMatrix,
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
               debugViewProvider);
     }
+
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
