@@ -677,8 +677,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Override
   public long getContentPosition() {
     boolean receivedUpdatedPositionInfo =
-        lastSetPlayWhenReadyCalledTimeMs != C.TIME_UNSET
-            && lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
+        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
     if (!playerInfo.isPlaying || playerInfo.sessionPositionInfo.isPlayingAd) {
       if (receivedUpdatedPositionInfo || lastReturnedContentPositionMs == C.TIME_UNSET) {
         lastReturnedContentPositionMs =
