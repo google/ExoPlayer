@@ -75,6 +75,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.UUID;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -113,6 +114,8 @@ public final class MediaMetricsListener
   private final long startTimeMs;
   private final Timeline.Window window;
   private final Timeline.Period period;
+  private final HashMap<String, Long> bandwidthTimeMs;
+  private final HashMap<String, Long> bandwidthBytes;
 
   @Nullable private String activeSessionId;
   @Nullable private PlaybackMetrics.Builder metricsBuilder;
@@ -131,8 +134,6 @@ public final class MediaMetricsListener
   private boolean hasFatalError;
   private int droppedFrames;
   private int playedFrames;
-  private long bandwidthTimeMs;
-  private long bandwidthBytes;
   private int audioUnderruns;
 
   /**
@@ -146,6 +147,8 @@ public final class MediaMetricsListener
     this.playbackSession = playbackSession;
     window = new Timeline.Window();
     period = new Timeline.Period();
+    bandwidthBytes = new HashMap<>();
+    bandwidthTimeMs = new HashMap<>();
     startTimeMs = SystemClock.elapsedRealtime();
     currentPlaybackState = PlaybackStateEvent.STATE_NOT_STARTED;
     currentNetworkType = NetworkEvent.NETWORK_TYPE_UNKNOWN;
@@ -188,8 +191,11 @@ public final class MediaMetricsListener
     if ((eventTime.mediaPeriodId != null && eventTime.mediaPeriodId.isAd())
         || !sessionId.equals(activeSessionId)) {
       // Ignore ad sessions and other sessions that are finished before becoming active.
+    } else {
+      finishCurrentSession();
     }
-    finishCurrentSession();
+    bandwidthTimeMs.remove(sessionId);
+    bandwidthBytes.remove(sessionId);
   }
 
   // AnalyticsListener implementation.
@@ -216,8 +222,17 @@ public final class MediaMetricsListener
   @Override
   public void onBandwidthEstimate(
       EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {
-    bandwidthTimeMs += totalLoadTimeMs;
-    bandwidthBytes += totalBytesLoaded;
+    if (eventTime.mediaPeriodId != null) {
+      String sessionId =
+          sessionManager.getSessionForMediaPeriodId(
+              eventTime.timeline, checkNotNull(eventTime.mediaPeriodId));
+      @Nullable Long prevBandwidthBytes = bandwidthBytes.get(sessionId);
+      @Nullable Long prevBandwidthTimeMs = bandwidthTimeMs.get(sessionId);
+      bandwidthBytes.put(
+          sessionId, (prevBandwidthBytes == null ? 0 : prevBandwidthBytes) + totalBytesLoaded);
+      bandwidthTimeMs.put(
+          sessionId, (prevBandwidthTimeMs == null ? 0 : prevBandwidthTimeMs) + totalLoadTimeMs);
+    }
   }
 
   @Override
@@ -581,12 +596,14 @@ public final class MediaMetricsListener
     metricsBuilder.setAudioUnderrunCount(audioUnderruns);
     metricsBuilder.setVideoFramesDropped(droppedFrames);
     metricsBuilder.setVideoFramesPlayed(playedFrames);
-    metricsBuilder.setNetworkTransferDurationMillis(bandwidthTimeMs);
+    @Nullable Long networkTimeMs = bandwidthTimeMs.get(activeSessionId);
+    metricsBuilder.setNetworkTransferDurationMillis(networkTimeMs == null ? 0 : networkTimeMs);
     // TODO(b/181121847): Report localBytesRead. This requires additional callbacks or plumbing.
-    metricsBuilder.setNetworkBytesRead(bandwidthBytes);
+    @Nullable Long networkBytes = bandwidthBytes.get(activeSessionId);
+    metricsBuilder.setNetworkBytesRead(networkBytes == null ? 0 : networkBytes);
     // TODO(b/181121847): Detect stream sources mixed and local depending on localBytesRead.
     metricsBuilder.setStreamSource(
-        bandwidthBytes > 0
+        networkBytes != null && networkBytes > 0
             ? PlaybackMetrics.STREAM_SOURCE_NETWORK
             : PlaybackMetrics.STREAM_SOURCE_UNKNOWN);
     playbackSession.reportPlaybackMetrics(metricsBuilder.build());
