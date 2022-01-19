@@ -90,7 +90,7 @@ public class StreamHeaderBox extends ResidentBox {
     return byteBuffer.getInt(28);
   }
   public long getLength() {
-    return byteBuffer.getInt(32) & AviUtil.UINT_MASK;
+    return byteBuffer.getInt(32) & AviExtractor.UINT_MASK;
   }
   //36 - dwSuggestedBufferSize
   //40 - dwQuality

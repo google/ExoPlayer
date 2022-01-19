@@ -13,11 +13,7 @@ public class Box {
   }
 
   public long getSize() {
-    return size & AviUtil.UINT_MASK;
-  }
-
-  public int getSizeInt() {
-    return size;
+    return size & AviExtractor.UINT_MASK;
   }
 
   public int getType() {
@@ -28,8 +24,4 @@ public class Box {
      return getType() == expected;
   }
 
-  boolean assertType() {
-    //Generic box, nothing to assert
-    return true;
-  }
 }

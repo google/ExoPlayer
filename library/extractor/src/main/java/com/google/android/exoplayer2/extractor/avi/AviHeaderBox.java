@@ -12,11 +12,6 @@ public class AviHeaderBox extends ResidentBox {
     super(type, size, byteBuffer);
   }
 
-  @Override
-  boolean assertType() {
-    return simpleAssert(AVIH);
-  }
-
   boolean hasIndex() {
     return (getFlags() & AVIF_HASINDEX) > 0;
   }

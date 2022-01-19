@@ -26,8 +26,23 @@ import java.util.Map;
  * https://docs.microsoft.com/en-us/windows/win32/directshow/avi-riff-file-reference
  */
 public class AviExtractor implements Extractor {
+  static final long UINT_MASK = 0xffffffffL;
+
+  static long getUInt(ByteBuffer byteBuffer) {
+    return byteBuffer.getInt() & UINT_MASK;
+  }
+
+  @NonNull
+  static String toString(int tag) {
+    final StringBuilder sb = new StringBuilder(4);
+    for (int i=0;i<4;i++) {
+      sb.append((char)(tag & 0xff));
+      tag >>=8;
+    }
+    return sb.toString();
+  }
+
   static final String TAG = "AviExtractor";
-  static final int KEY_FRAME_MASK = Integer.MIN_VALUE;
   private static final int PEEK_BYTES = 28;
 
   private static final int STATE_READ_TRACKS = 0;
@@ -39,8 +54,8 @@ public class AviExtractor implements Extractor {
   private static final int AVIIF_KEYFRAME = 16;
 
 
-  static final int RIFF = AviUtil.toInt(new byte[]{'R','I','F','F'});
-  static final int AVI_ = AviUtil.toInt(new byte[]{'A','V','I',' '});
+  static final int RIFF = 'R' | ('I' << 8) | ('F' << 16) | ('F' << 24);
+  static final int AVI_ = 'A' | ('V' << 8) | ('I' << 16) | (' ' << 24);
   //Stream List
   static final int STRL = 's' | ('t' << 8) | ('r' << 16) | ('l' << 24);
   //movie data box
@@ -103,7 +118,7 @@ public class AviExtractor implements Extractor {
     if (riff != AviExtractor.RIFF) {
       return false;
     }
-    long reportedLen = AviUtil.getUInt(byteBuffer) + byteBuffer.position();
+    long reportedLen = getUInt(byteBuffer) + byteBuffer.position();
     final long inputLen = input.getLength();
     if (inputLen != C.LENGTH_UNSET && inputLen != reportedLen) {
       Log.w(TAG, "Header length doesn't match stream length");
@@ -136,7 +151,7 @@ public class AviExtractor implements Extractor {
     if (riff != AviExtractor.RIFF) {
       return null;
     }
-    long reportedLen = AviUtil.getUInt(byteBuffer) + byteBuffer.position();
+    long reportedLen = getUInt(byteBuffer) + byteBuffer.position();
     final long inputLen = input.getLength();
     if (inputLen != C.LENGTH_UNSET && inputLen != reportedLen) {
       Log.w(TAG, "Header length doesn't match stream length");
@@ -177,18 +192,15 @@ public class AviExtractor implements Extractor {
     if (headerList == null) {
       throw new IOException("AVI Header List not found");
     }
-    final List<Box> headerChildren = headerList.getChildren();
-    aviHeader = AviUtil.getBox(headerChildren, AviHeaderBox.class);
+    aviHeader = headerList.getChild(AviHeaderBox.class);
     if (aviHeader == null) {
       throw new IOException("AviHeader not found");
     }
     //This is usually wrong, so it will be overwritten by video if present
     durationUs = aviHeader.getFrames() * (long)aviHeader.getMicroSecPerFrame();
-    headerChildren.remove(aviHeader);
-    //headerChildren should only be Stream Lists now
 
     int streamId = 0;
-    for (Box box : headerChildren) {
+    for (Box box : headerList.getChildren()) {
       if (box instanceof ListBox && ((ListBox) box).getListType() == STRL) {
         final ListBox streamList = (ListBox) box;
         final List<Box> streamChildren = streamList.getChildren();
@@ -238,7 +250,6 @@ public class AviExtractor implements Extractor {
                 builder.setChannelCount(audioFormat.getChannels());
                 builder.setSampleRate(audioFormat.getSamplesPerSecond());
                 if (audioFormat.getFormatTag() == AudioFormat.WAVE_FORMAT_PCM) {
-                  //TODO: Determine if this is LE or BE - Most likely LE
                   final short bps = audioFormat.getBitsPerSample();
                   if (bps == 8) {
                     builder.setPcmEncoding(C.ENCODING_PCM_8BIT);
@@ -268,7 +279,7 @@ public class AviExtractor implements Extractor {
     ByteBuffer byteBuffer = allocate(12);
     input.readFully(byteBuffer.array(), 0,12);
     final int tag = byteBuffer.getInt();
-    final long size = byteBuffer.getInt() & AviUtil.UINT_MASK;
+    final long size = getUInt(byteBuffer);
     final long position = input.getPosition();
     //-4 because we over read for the LIST type
     long nextBox = position + size - 4;
@@ -330,7 +341,7 @@ public class AviExtractor implements Extractor {
         final AviTrack aviTrack = idTrackMap.get(id);
         if (aviTrack == null) {
           if (id != AviExtractor.REC_) {
-            Log.w(TAG, "Unknown Track Type: " + AviUtil.toString(id));
+            Log.w(TAG, "Unknown Track Type: " + toString(id));
           }
           indexByteBuffer.position(indexByteBuffer.position() + 12);
           continue;
@@ -413,7 +424,7 @@ public class AviExtractor implements Extractor {
         } else {
           seekPosition.position = input.getPosition() + sampleSize;
           if (id != JUNK) {
-            Log.w(TAG, "Unknown tag=" + AviUtil.toString(id) + " pos=" + (input.getPosition() - 8)
+            Log.w(TAG, "Unknown tag=" + toString(id) + " pos=" + (input.getPosition() - 8)
                 + " size=" + sampleSize + " moviEnd=" + moviEnd);
           }
         }
@@ -470,7 +481,6 @@ public class AviExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    Log.d("Test", "Seek: pos=" + position + " us=" + timeUs);
     if (position == 0) {
       if (moviOffset != 0) {
         resetFrames();

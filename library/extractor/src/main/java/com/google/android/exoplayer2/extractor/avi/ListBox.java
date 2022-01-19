@@ -1,6 +1,7 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -29,26 +30,20 @@ public class ListBox extends Box {
     return listType;
   }
 
-  @Override
-  boolean assertType() {
-    return simpleAssert(LIST);
-  }
-
   @NonNull
   public List<Box> getChildren() {
     return new ArrayList<>(children);
   }
 
-//  static List<ResidentBox> realizeChildren(final ByteBuffer byteBuffer, final BoxFactory boxFactory) {
-//    final List<ResidentBox> list = new ArrayList<>();
-//    while (byteBuffer.hasRemaining()) {
-//      final int type = byteBuffer.getInt();
-//      final int size = byteBuffer.getInt();
-//      final ResidentBox residentBox = boxFactory.createBox(type, size, byteBuffer);
-//      list.add(residentBox);
-//    }
-//    return list;
-//  }
+  @Nullable
+  public <T extends Box> T getChild(Class<T> c) {
+    for (Box box : children) {
+      if (box.getClass() == c) {
+        return (T)box;
+      }
+    }
+    return null;
+  }
 
   /**
    * Assume the input is pointing to the list type
