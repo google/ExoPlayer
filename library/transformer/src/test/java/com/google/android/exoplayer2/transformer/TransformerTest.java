@@ -359,7 +359,7 @@ public final class TransformerTest {
 
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -403,7 +403,7 @@ public final class TransformerTest {
 
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -434,7 +434,7 @@ public final class TransformerTest {
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception).hasCauseThat().hasMessageThat().contains("audio");
     assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
+        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
   @Test
@@ -453,7 +453,7 @@ public final class TransformerTest {
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception).hasCauseThat().hasMessageThat().contains("video");
     assertThat(exception.errorCode)
-        .isEqualTo(TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
+        .isEqualTo(TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
   }
 
   @Test
