@@ -26,7 +26,10 @@ public class AviHeaderBox extends ResidentBox {
   }
 
   //4 = dwMaxBytesPerSec
-  //8 = dwPaddingGranularity
+  //Always 0, but should be 2
+//  int getPaddingGranularity() {
+//    return byteBuffer.getInt(8);
+//  }
 
   int getFlags() {
     return byteBuffer.getInt(12);

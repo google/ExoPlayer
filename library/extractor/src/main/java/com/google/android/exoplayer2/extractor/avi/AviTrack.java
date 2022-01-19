@@ -55,7 +55,11 @@ public class AviTrack {
     if (allKeyFrames) {
       return true;
     }
-    return keyFrames != null && Arrays.binarySearch(keyFrames, frame) >= 0;
+    if (keyFrames != null) {
+      return Arrays.binarySearch(keyFrames, frame) >= 0;
+    }
+    //Hack: Exo needs at least one frame before it starts playback
+    return frame == 0;
   }
 
   public void setKeyFrames(int[] keyFrames) {

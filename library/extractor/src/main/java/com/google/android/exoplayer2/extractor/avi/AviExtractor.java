@@ -49,14 +49,16 @@ public class AviExtractor implements Extractor {
   static final int IDX1 = 'i' | ('d' << 8) | ('x' << 16) | ('1' << 24);
 
   static final int JUNK = 'J' | ('U' << 8) | ('N' << 16) | ('K' << 24);
+  static final int REC_ = 'r' | ('e' << 8) | ('c' << 16) | (' ' << 24);
 
   static final long SEEK_GAP = 2_000_000L; //Time between seek points in micro seconds
 
   private int state;
   private ExtractorOutput output;
   private AviHeaderBox aviHeader;
+  private long durationUs = C.TIME_UNSET;
   private SparseArray<AviTrack> idTrackMap = new SparseArray<>();
-  //After the movi position
+  //At the start of the movi tag
   private long moviOffset;
   private long moviEnd;
   private AviSeekMap aviSeekMap;
@@ -154,14 +156,9 @@ public class AviExtractor implements Extractor {
     }
     return listBox;
   }
-
   long getDuration() {
-    if (aviHeader == null) {
-      return C.TIME_UNSET;
-    }
-    return aviHeader.getFrames() * (long)aviHeader.getMicroSecPerFrame();
+    return durationUs;
   }
-
   @Override
   public void init(ExtractorOutput output) {
     this.state = STATE_READ_TRACKS;
@@ -185,6 +182,8 @@ public class AviExtractor implements Extractor {
     if (aviHeader == null) {
       throw new IOException("AviHeader not found");
     }
+    //This is usually wrong, so it will be overwritten by video if present
+    durationUs = aviHeader.getFrames() * (long)aviHeader.getMicroSecPerFrame();
     headerChildren.remove(aviHeader);
     //headerChildren should only be Stream Lists now
 
@@ -228,6 +227,7 @@ public class AviExtractor implements Extractor {
                 idTrackMap.put('0' | (('0' + streamId) << 8) | ('d' << 16) | ('c' << 24),
                     new AviTrack(streamId, trackOutput,
                         streamHeader));
+                durationUs = streamHeader.getUsPerSample() * streamHeader.getLength();
               } else if (streamHeader.isAudio()) {
                 final AudioFormat audioFormat = streamFormat.getAudioFormat();
                 final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_AUDIO);
@@ -329,7 +329,9 @@ public class AviExtractor implements Extractor {
         final int id = indexByteBuffer.getInt();
         final AviTrack aviTrack = idTrackMap.get(id);
         if (aviTrack == null) {
-          Log.w(TAG, "Unknown Track Type: " + AviUtil.toString(id));
+          if (id != AviExtractor.REC_) {
+            Log.w(TAG, "Unknown Track Type: " + AviUtil.toString(id));
+          }
           indexByteBuffer.position(indexByteBuffer.position() + 12);
           continue;
         }
@@ -366,14 +368,16 @@ public class AviExtractor implements Extractor {
       entry.getValue().pack();
       idFrameArray.put(entry.getKey(), entry.getValue().array);
       final AviTrack aviTrack = idTrackMap.get(entry.getKey());
-      //Sometimes this value is way off
-      long calcUsPerSample = (getDuration()/aviTrack.frame);
-      float deltaPercent = Math.abs(calcUsPerSample - aviTrack.usPerSample) / (float)aviTrack.usPerSample;
-      if (deltaPercent >.01) {
-        aviTrack.usPerSample = getDuration()/aviTrack.frame;
-        Log.d(TAG, "Frames act=" + getDuration() + " calc=" + (aviTrack.usPerSample * aviTrack.frame));
+      //If the index isn't sparse, double check the audio length
+      if (videoTrack.frame == videoTrack.streamHeaderBox.getLength()) {
+        //Sometimes this value is way off
+        long calcUsPerSample = (getDuration()/aviTrack.frame);
+        float deltaPercent = Math.abs(calcUsPerSample - aviTrack.usPerSample) / (float)aviTrack.usPerSample;
+        if (deltaPercent >.01) {
+          aviTrack.usPerSample = getDuration()/aviTrack.frame;
+          Log.d(TAG, "Frames act=" + getDuration() + " calc=" + (aviTrack.usPerSample * aviTrack.frame));
+        }
       }
-
     }
     final AviSeekMap seekMap = new AviSeekMap(videoTrack, seekFrameRate, videoSeekOffset.array,
         idFrameArray, moviOffset, getDuration());
@@ -415,8 +419,9 @@ public class AviExtractor implements Extractor {
         }
         return RESULT_SEEK;
       } else {
-        //Log.d(TAG, "Sample pos=" + (input.getPosition() - 8) + " size=" + sampleSize + " video=" + sampleTrack.isVideo());
+        //sampleOffset = (int)(input.getPosition() - 8 - moviOffset);
         sampleRemaining = sampleSize - sampleTrack.trackOutput.sampleData(input, sampleSize, false);
+        //Log.d(TAG, "Sample pos=" + (input.getPosition() - 8) + " size=" + sampleSize + " video=" + sampleTrack.isVideo());
       }
     }
     if (sampleRemaining != 0) {
@@ -424,7 +429,7 @@ public class AviExtractor implements Extractor {
     }
     sampleTrack.trackOutput.sampleMetadata(
         sampleTrack.getUs(), sampleTrack.isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0 , sampleSize, 0, null);
-    //Log.d(TAG, "Frame: " + (sampleTrack.isVideo()? 'V' : 'A') + " us=" + sampleTrack.getUs());
+    //Log.d(TAG, "Frame: " + (sampleTrack.isVideo()? 'V' : 'A') + " us=" + sampleTrack.getUs() + " size=" + sampleSize);
     sampleTrack.advance();
     return RESULT_CONTINUE;
   }
