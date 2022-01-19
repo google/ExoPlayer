@@ -54,7 +54,7 @@ public final class TransformationRequest {
     }
 
     private Builder(TransformationRequest transformationRequest) {
-      this.transformationMatrix = transformationRequest.transformationMatrix;
+      this.transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
       this.flattenForSlowMotion = transformationRequest.flattenForSlowMotion;
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
@@ -84,7 +84,7 @@ public final class TransformationRequest {
       // TODO(b/213198690): Consider changing how transformationMatrix is applied, so that
       // dimensions will be from -1 to 1 on both x and y axes, but transformations will be applied
       // in a predictable manner.
-      this.transformationMatrix = transformationMatrix;
+      this.transformationMatrix = new Matrix(transformationMatrix);
       return this;
     }
 
