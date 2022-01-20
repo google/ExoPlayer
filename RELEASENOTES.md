@@ -4,7 +4,7 @@
 
 *   Core library:
     *   Support preferred video role flags in track selection
-        ((#9402)[https://github.com/google/ExoPlayer/issues/9402]).
+        ([#9402](https://github.com/google/ExoPlayer/issues/9402)).
     *   Prefer audio content preferences (for example, "default" audio track or
         track matching system Locale language) over technical track selection
         constraints (for example, preferred MIME type, or maximum channel
@@ -13,33 +13,33 @@
         can always be made distinguishable by setting an `id` in the
         `TrackGroup` constructor. This fixes a crash when resuming playback
         after backgrounding the app with an active track override
-        ((#9718)[https://github.com/google/ExoPlayer/issues/9718]).
+        ([#9718](https://github.com/google/ExoPlayer/issues/9718)).
     *   Sleep and retry when creating a `MediaCodec` instance fails. This works
         around an issue that occurs on some devices when switching a surface
         from a secure codec to another codec
-        ((#8696)[https://github.com/google/ExoPlayer/issues/8696]).
+        ([#8696](https://github.com/google/ExoPlayer/issues/8696)).
     *   Add `MediaCodecAdapter.getMetrics()` to allow users obtain metrics data
         from `MediaCodec`.
         ([#9766](https://github.com/google/ExoPlayer/issues/9766)).
     *   Amend logic in `AdaptiveTrackSelection` to allow a quality increase
         under sufficient network bandwidth even if playback is very close to the
-        live edge ((#9784)[https://github.com/google/ExoPlayer/issues/9784]).
+        live edge ([#9784](https://github.com/google/ExoPlayer/issues/9784)).
     *   Fix Maven dependency resolution
-        ((#8353)[https://github.com/google/ExoPlayer/issues/8353]).
+        ([#8353](https://github.com/google/ExoPlayer/issues/8353)).
     *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC) and Dolby Vision
         to use a compatible base decoder (E-AC3 or H264/H265) if needed.
     *   Disable automatic speed adjustment for live streams that neither have
         low-latency features nor a user request setting the speed
-        ((#9329)[https://github.com/google/ExoPlayer/issues/9329]).
+        ([#9329](https://github.com/google/ExoPlayer/issues/9329)).
     *   Update video track selection logic to take preferred MIME types and role
         flags into account when selecting multiple video tracks for adaptation
-        ((#9519)[https://github.com/google/ExoPlayer/issues/9519]).
+        ([#9519](https://github.com/google/ExoPlayer/issues/9519)).
     *   Update video and audio track selection logic to only choose formats for
         adaptive selections that have the same level of decoder and hardware
-        support ((#9565)[https://github.com/google/ExoPlayer/issues/9565]).
+        support ([#9565](https://github.com/google/ExoPlayer/issues/9565)).
     *   Update video track selection logic to prefer more efficient codecs if
         multiple codecs are supported by primary, hardware-accelerated decoders
-        ((#4835)[https://github.com/google/ExoPlayer/issues/4835]).
+        ([#4835](https://github.com/google/ExoPlayer/issues/4835)).
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
@@ -54,12 +54,12 @@
         `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
-        ((#9719)[https://github.com/google/ExoPlayer/issues/9719]).
+        ([#9719](https://github.com/google/ExoPlayer/issues/9719)).
 *   Text:
     *   Add a `MediaItem.SubtitleConfiguration#id` field which is propagated to
         the `Format#id` field of the subtitle track created from the
         configuration
-        ((#9673)[https://github.com/google/ExoPlayer/issues/9673]).
+        ([#9673](https://github.com/google/ExoPlayer/issues/9673)).
     *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
 *   DRM:
     *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
