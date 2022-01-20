@@ -2539,6 +2539,20 @@ public final class Util {
         .build();
   }
 
+  /**
+   * Returns the sum of all summands of the given array.
+   *
+   * @param summands The summands to calculate the sum from.
+   * @return The sum of all summands.
+   */
+  public static long sum(long... summands) {
+    long sum = 0;
+    for (long summand : summands) {
+      sum += summand;
+    }
+    return sum;
+  }
+
   @Nullable
   private static String getSystemProperty(String name) {
     try {
