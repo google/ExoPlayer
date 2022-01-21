@@ -157,8 +157,6 @@ public final class Codec {
    * DecoderFactory} or output {@link Format} used by the {@link EncoderFactory} for selecting and
    * configuring the underlying {@link MediaCodec}.
    */
-  // TODO(b/214012830): Use this to check whether the Format passed to the factory and actual
-  // configuration format differ to see whether fallback was applied.
   public Format getConfigurationFormat() {
     return configurationFormat;
   }
