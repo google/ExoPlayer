@@ -280,7 +280,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   Uri.parse(pendingSetMediaUriRequest.value), pendingSetMediaUriRequest.extras);
           break;
         default:
-          throw new AssertionError("Unexpected type " + pendingSetMediaUriRequest.type);
+          throw new IllegalStateException("Unexpected type " + pendingSetMediaUriRequest.type);
       }
       pendingSetMediaUriRequest.result.set(new SessionResult(RESULT_SUCCESS));
       pendingSetMediaUriRequest = null;
@@ -345,7 +345,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   Uri.parse(pendingSetMediaUriRequest.value), pendingSetMediaUriRequest.extras);
           break;
         default:
-          throw new AssertionError("Unexpected type " + pendingSetMediaUriRequest.type);
+          throw new IllegalStateException("Unexpected type " + pendingSetMediaUriRequest.type);
       }
       pendingSetMediaUriRequest.result.set(new SessionResult(RESULT_SUCCESS));
       pendingSetMediaUriRequest = null;

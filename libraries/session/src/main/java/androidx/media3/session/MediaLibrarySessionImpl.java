@@ -292,12 +292,7 @@ import java.util.concurrent.Future;
     if (result.resultCode == RESULT_SUCCESS) {
       List<MediaItem> items = checkNotNull(result.value);
       if (items.size() > pageSize) {
-        throw new AssertionError(
-            "The number of items must be less than or equal to the pageSize"
-                + ", size="
-                + items.size()
-                + ", pageSize="
-                + pageSize);
+        throw new IllegalStateException("Invalid size=" + items.size() + ", pageSize=" + pageSize);
       }
     }
   }
