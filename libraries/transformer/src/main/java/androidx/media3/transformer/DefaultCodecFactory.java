@@ -34,13 +34,15 @@ import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import java.io.IOException;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default {@link Codec.DecoderFactory} and {@link Codec.EncoderFactory}. */
 /* package */ final class DefaultCodecFactory
     implements Codec.DecoderFactory, Codec.EncoderFactory {
+  // TODO(b/214973843): Add option to disable fallback.
 
-  // TODO(b/210591626) Fall back adaptively to H265 if possible.
+  // TODO(b/210591626): Fall back adaptively to H265 if possible.
   private static final String DEFAULT_FALLBACK_MIME_TYPE = MimeTypes.VIDEO_H264;
   private static final int DEFAULT_COLOR_FORMAT = CodecCapabilities.COLOR_FormatSurface;
   private static final int DEFAULT_FRAME_RATE = 60;
@@ -85,7 +87,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public Codec createForAudioEncoding(Format format) throws TransformationException {
+  public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+      throws TransformationException {
+    checkArgument(!allowedMimeTypes.isEmpty());
+    if (!allowedMimeTypes.contains(format.sampleMimeType)) {
+      // TODO(b/210591626): Pick fallback MIME type using same strategy as for encoder
+      // capabilities limitations.
+      format = format.buildUpon().setSampleMimeType(allowedMimeTypes.get(0)).build();
+    }
     MediaFormat mediaFormat =
         MediaFormat.createAudioFormat(
             checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
@@ -100,7 +109,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public Codec createForVideoEncoding(Format format) throws TransformationException {
+  public Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+      throws TransformationException {
     checkArgument(format.width != Format.NO_VALUE);
     checkArgument(format.height != Format.NO_VALUE);
     // According to interface Javadoc, format.rotationDegrees should be 0. The video should always
@@ -108,7 +118,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkArgument(format.height <= format.width);
     checkArgument(format.rotationDegrees == 0);
     checkNotNull(format.sampleMimeType);
-    format = getVideoEncoderSupportedFormat(format);
+
+    checkArgument(!allowedMimeTypes.isEmpty());
+
+    format = getVideoEncoderSupportedFormat(format, allowedMimeTypes);
 
     MediaFormat mediaFormat =
         MediaFormat.createVideoFormat(
@@ -191,14 +204,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @RequiresNonNull("#1.sampleMimeType")
-  private static Format getVideoEncoderSupportedFormat(Format requestedFormat)
-      throws TransformationException {
+  private static Format getVideoEncoderSupportedFormat(
+      Format requestedFormat, List<String> allowedMimeTypes) throws TransformationException {
     String mimeType = requestedFormat.sampleMimeType;
     Format.Builder formatBuilder = requestedFormat.buildUpon();
 
     // TODO(b/210591626) Implement encoder filtering.
-    if (EncoderUtil.getSupportedEncoders(mimeType).isEmpty()) {
-      mimeType = DEFAULT_FALLBACK_MIME_TYPE;
+    if (!allowedMimeTypes.contains(mimeType)
+        || EncoderUtil.getSupportedEncoders(mimeType).isEmpty()) {
+      mimeType =
+          allowedMimeTypes.contains(DEFAULT_FALLBACK_MIME_TYPE)
+              ? DEFAULT_FALLBACK_MIME_TYPE
+              : allowedMimeTypes.get(0);
       if (EncoderUtil.getSupportedEncoders(mimeType).isEmpty()) {
         throw createTransformationException(
             new IllegalArgumentException(

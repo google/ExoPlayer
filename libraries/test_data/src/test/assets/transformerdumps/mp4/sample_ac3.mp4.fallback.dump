@@ -1,0 +1,61 @@
+containerMimeType = video/mp4
+format 0:
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 6
+  sampleRate = 48000
+  pcmEncoding = 2
+sample:
+  trackIndex = 0
+  dataHashCode = 1896404418
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 0
+  dataHashCode = -2134951116
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 2667
+sample:
+  trackIndex = 0
+  dataHashCode = 97556101
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 5334
+sample:
+  trackIndex = 0
+  dataHashCode = -1448980924
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 8000
+sample:
+  trackIndex = 0
+  dataHashCode = 1871012467
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 10667
+sample:
+  trackIndex = 0
+  dataHashCode = -1317831364
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 13334
+sample:
+  trackIndex = 0
+  dataHashCode = -1728189539
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 16000
+sample:
+  trackIndex = 0
+  dataHashCode = -1715881661
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 18667
+sample:
+  trackIndex = 0
+  dataHashCode = -1428554542
+  size = 1536
+  isKeyFrame = true
+  presentationTimeUs = 21334
+released = true

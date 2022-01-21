@@ -31,6 +31,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -56,7 +57,7 @@ public final class Codec {
      * @param format The {@link Format} (of the input data) used to determine the underlying {@link
      *     MediaCodec} and its configuration values.
      * @return A configured and started decoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
     Codec createForAudioDecoding(Format format) throws TransformationException;
 
@@ -67,7 +68,7 @@ public final class Codec {
      *     MediaCodec} and its configuration values.
      * @param outputSurface The {@link Surface} to which the decoder output is rendered.
      * @return A configured and started decoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
     Codec createForVideoDecoding(Format format, Surface outputSurface)
         throws TransformationException;
@@ -82,25 +83,39 @@ public final class Codec {
     /**
      * Returns a {@link Codec} for audio encoding.
      *
+     * <p>This method must validate that the {@link Codec} is configured to produce one of the
+     * {@code allowedMimeTypes}. The {@link Format#sampleMimeType sample MIME type} given in {@code
+     * format} is not necessarily allowed.
+     *
      * @param format The {@link Format} (of the output data) used to determine the underlying {@link
      *     MediaCodec} and its configuration values.
+     * @param allowedMimeTypes The non-empty list of allowed output sample {@link MimeTypes MIME
+     *     types}.
      * @return A configured and started encoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
-    Codec createForAudioEncoding(Format format) throws TransformationException;
+    Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException;
 
     /**
      * Returns a {@link Codec} for video encoding.
+     *
+     * <p>This method must validate that the {@link Codec} is configured to produce one of the
+     * {@code allowedMimeTypes}. The {@link Format#sampleMimeType sample MIME type} given in {@code
+     * format} is not necessarily allowed.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying {@link
      *     MediaCodec} and its configuration values. {@link Format#sampleMimeType}, {@link
      *     Format#width} and {@link Format#height} must be set to those of the desired output video
      *     format. {@link Format#rotationDegrees} should be 0. The video should always be in
      *     landscape orientation.
+     * @param allowedMimeTypes The non-empty list of allowed output sample {@link MimeTypes MIME
+     *     types}.
      * @return A configured and started encoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
-    Codec createForVideoEncoding(Format format) throws TransformationException;
+    Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException;
   }
 
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
