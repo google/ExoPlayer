@@ -77,16 +77,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    String sampleMimeType = checkNotNull(inputFormat.sampleMimeType);
-    if (transformationRequest.videoMimeType == null
-        && !muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
-      throw TransformationException.createForMuxer(
-          new IllegalArgumentException(
-              "The output sample MIME inferred from the input format is not supported by the muxer."
-                  + " Sample MIME type: "
-                  + sampleMimeType),
-          TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
-    }
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
           new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
@@ -96,8 +86,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               context,
               inputFormat,
               transformationRequest,
-              encoderFactory,
               decoderFactory,
+              encoderFactory,
+              muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
               fallbackListener,
               debugViewProvider);
     }
@@ -110,6 +101,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean shouldPassthrough(Format inputFormat) {
     if (transformationRequest.videoMimeType != null
         && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
+      return false;
+    }
+    if (transformationRequest.videoMimeType == null
+        && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
       return false;
     }
     if (transformationRequest.outputHeight != C.LENGTH_UNSET

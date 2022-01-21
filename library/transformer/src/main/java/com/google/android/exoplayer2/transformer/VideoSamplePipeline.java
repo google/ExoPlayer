@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -54,8 +55,9 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format inputFormat,
       TransformationRequest transformationRequest,
-      Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      Codec.EncoderFactory encoderFactory,
+      List<String> allowedOutputMimeTypes,
       FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
@@ -115,7 +117,7 @@ import org.checkerframework.dataflow.qual.Pure;
                     ? transformationRequest.videoMimeType
                     : inputFormat.sampleMimeType)
             .build();
-    encoder = encoderFactory.createForVideoEncoding(requestedOutputFormat);
+    encoder = encoderFactory.createForVideoEncoding(requestedOutputFormat, allowedOutputMimeTypes);
     fallbackListener.onTransformationRequestFinalized(
         createFallbackRequest(
             transformationRequest, requestedOutputFormat, encoder.getConfigurationFormat()));

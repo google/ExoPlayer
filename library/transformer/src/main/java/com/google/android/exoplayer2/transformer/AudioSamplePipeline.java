@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
+import java.util.List;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
@@ -63,8 +64,9 @@ import org.checkerframework.dataflow.qual.Pure;
   public AudioSamplePipeline(
       Format inputFormat,
       TransformationRequest transformationRequest,
-      Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      Codec.EncoderFactory encoderFactory,
+      List<String> allowedOutputMimeTypes,
       FallbackListener fallbackListener)
       throws TransformationException {
     decoderInputBuffer =
@@ -110,7 +112,7 @@ import org.checkerframework.dataflow.qual.Pure;
             .setChannelCount(encoderInputAudioFormat.channelCount)
             .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
             .build();
-    encoder = encoderFactory.createForAudioEncoding(requestedOutputFormat);
+    encoder = encoderFactory.createForAudioEncoding(requestedOutputFormat, allowedOutputMimeTypes);
 
     fallbackListener.onTransformationRequestFinalized(
         createFallbackRequest(

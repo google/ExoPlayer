@@ -68,23 +68,18 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    String sampleMimeType = checkNotNull(inputFormat.sampleMimeType);
-    if (transformationRequest.audioMimeType == null
-        && !muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
-      throw TransformationException.createForMuxer(
-          new IllegalArgumentException(
-              "The output sample MIME inferred from the input format is not supported by the muxer."
-                  + " Sample MIME type: "
-                  + sampleMimeType),
-          TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
-    }
     if (shouldPassthrough(inputFormat)) {
       samplePipeline =
           new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
           new AudioSamplePipeline(
-              inputFormat, transformationRequest, encoderFactory, decoderFactory, fallbackListener);
+              inputFormat,
+              transformationRequest,
+              decoderFactory,
+              encoderFactory,
+              muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
+              fallbackListener);
     }
     return true;
   }
@@ -92,6 +87,10 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
   private boolean shouldPassthrough(Format inputFormat) {
     if (transformationRequest.audioMimeType != null
         && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
+      return false;
+    }
+    if (transformationRequest.audioMimeType == null
+        && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
       return false;
     }
     if (transformationRequest.flattenForSlowMotion && isSlowMotion(inputFormat)) {
