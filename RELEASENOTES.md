@@ -110,6 +110,8 @@
         ([#9800](https://github.com/google/ExoPlayer/issues/9800)).
     *   Handle when RTSP track timing is not available
         ([#9775](https://github.com/google/ExoPlayer/issues/9775)).
+    *   Ignores invalid RTP-Info header values
+        ([#9619](https://github.com/google/ExoPlayer/issues/9619)).
 *   Cast extension
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
         correctly ([#9792](https://github.com/google/ExoPlayer/issues/9792)).

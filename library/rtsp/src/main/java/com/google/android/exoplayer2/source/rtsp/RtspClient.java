@@ -619,11 +619,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 startTimingString == null
                     ? RtspSessionTiming.DEFAULT
                     : RtspSessionTiming.parseTiming(startTimingString);
-            @Nullable String rtpInfoString = response.headers.get(RtspHeaders.RTP_INFO);
-            ImmutableList<RtspTrackTiming> trackTimingList =
-                rtpInfoString == null
-                    ? ImmutableList.of()
-                    : RtspTrackTiming.parseTrackTiming(rtpInfoString, uri);
+
+            ImmutableList<RtspTrackTiming> trackTimingList;
+            try {
+              @Nullable String rtpInfoString = response.headers.get(RtspHeaders.RTP_INFO);
+              trackTimingList =
+                  rtpInfoString == null
+                      ? ImmutableList.of()
+                      : RtspTrackTiming.parseTrackTiming(rtpInfoString, uri);
+            } catch (ParserException e) {
+              trackTimingList = ImmutableList.of();
+            }
+
             onPlayResponseReceived(new RtspPlayResponse(response.status, timing, trackTimingList));
             break;
 
