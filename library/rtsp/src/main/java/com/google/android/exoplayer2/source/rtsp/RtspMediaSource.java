@@ -255,12 +255,21 @@ public final class RtspMediaSource extends BaseMediaSource {
         allocator,
         rtpDataChannelFactory,
         uri,
-        /* listener= */ timing -> {
-          timelineDurationUs = Util.msToUs(timing.getDurationMs());
-          timelineIsSeekable = !timing.isLive();
-          timelineIsLive = timing.isLive();
-          timelineIsPlaceholder = false;
-          notifySourceInfoRefreshed();
+        new RtspMediaPeriod.Listener() {
+          @Override
+          public void onSourceInfoRefreshed(RtspSessionTiming timing) {
+            timelineDurationUs = Util.msToUs(timing.getDurationMs());
+            timelineIsSeekable = !timing.isLive();
+            timelineIsLive = timing.isLive();
+            timelineIsPlaceholder = false;
+            notifySourceInfoRefreshed();
+          }
+
+          @Override
+          public void onSeekingUnsupported() {
+            timelineIsSeekable = false;
+            notifySourceInfoRefreshed();
+          }
         },
         userAgent,
         socketFactory,
