@@ -55,6 +55,7 @@ public final class MimeTypes {
   public static final String VIDEO_DOLBY_VISION = BASE_TYPE_VIDEO + "/dolby-vision";
   public static final String VIDEO_OGG = BASE_TYPE_VIDEO + "/ogg";
   public static final String VIDEO_AVI = BASE_TYPE_VIDEO + "/x-msvideo";
+  public static final String VIDEO_JPEG = BASE_TYPE_VIDEO + "/JPEG"; //RFC 3555
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
   // audio/ MIME types

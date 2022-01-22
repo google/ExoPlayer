@@ -24,7 +24,7 @@ public class StreamHeaderBox extends ResidentBox {
     //final String mimeType = MimeTypes.VIDEO_H263;
 
     //Doesn't seem to be supported on Android
-    //STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.VIDEO_MP4);
+    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.VIDEO_AVI);
     STREAM_MAP.put('H' | ('2' << 8) | ('6' << 16) | ('4' << 24), MimeTypes.VIDEO_H264);
     STREAM_MAP.put('a' | ('v' << 8) | ('c' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
     STREAM_MAP.put('A' | ('V' << 8) | ('C' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
@@ -32,7 +32,7 @@ public class StreamHeaderBox extends ResidentBox {
     STREAM_MAP.put('x' | ('v' << 8) | ('i' << 16) | ('d' << 24), mimeType);
     STREAM_MAP.put('X' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
 
-    STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.IMAGE_JPEG);
+    STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.VIDEO_JPEG);
   }
 
   StreamHeaderBox(int type, int size, ByteBuffer byteBuffer) {
@@ -52,8 +52,7 @@ public class StreamHeaderBox extends ResidentBox {
   }
 
   /**
-   * How long each sample covers
-   * @return
+   * @return sample duration in us
    */
   public long getUsPerSample() {
     return getScale() * 1_000_000L / getRate();

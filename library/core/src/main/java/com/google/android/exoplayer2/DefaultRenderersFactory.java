@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.video.BitmapFactoryVideoRenderer;
 import com.google.android.exoplayer2.mediacodec.DefaultMediaCodecAdapterFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -395,6 +396,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
     out.add(videoRenderer);
+    out.add(new BitmapFactoryVideoRenderer(eventHandler, eventListener));
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;
