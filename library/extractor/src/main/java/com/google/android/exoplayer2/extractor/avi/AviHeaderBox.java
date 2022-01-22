@@ -3,7 +3,8 @@ package com.google.android.exoplayer2.extractor.avi;
 import java.nio.ByteBuffer;
 
 public class AviHeaderBox extends ResidentBox {
-  public static final int AVIF_HASINDEX = 0x10;
+  private static final int AVIF_HASINDEX = 0x10;
+  private static int AVIF_MUSTUSEINDEX = 0x20;
   static final int AVIH = 'a' | ('v' << 8) | ('i' << 16) | ('h' << 24);
 
   //AVIMAINHEADER
@@ -12,19 +13,20 @@ public class AviHeaderBox extends ResidentBox {
     super(type, size, byteBuffer);
   }
 
-  boolean hasIndex() {
-    return (getFlags() & AVIF_HASINDEX) > 0;
-  }
-
   int getMicroSecPerFrame() {
     return byteBuffer.getInt(0);
   }
 
   //4 = dwMaxBytesPerSec
-  //Always 0, but should be 2
-//  int getPaddingGranularity() {
-//    return byteBuffer.getInt(8);
-//  }
+  //8 = dwPaddingGranularity - Always 0, but should be 2
+
+  public boolean hasIndex() {
+    return (getFlags() & AVIF_HASINDEX) == AVIF_HASINDEX;
+  }
+
+  public boolean mustUseIndex() {
+    return (getFlags() & AVIF_MUSTUSEINDEX) == AVIF_MUSTUSEINDEX;
+  }
 
   int getFlags() {
     return byteBuffer.getInt(12);

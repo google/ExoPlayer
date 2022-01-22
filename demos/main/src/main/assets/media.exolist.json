@@ -543,9 +543,8 @@
     "name": "Misc",
     "samples": [
       {
-        "name": "AVI",
-        "uri": "https://drive.google.com/u/0/uc?id=1K6oLKCS56WFbhz33TgilTJBqfMYFTeUd&?export=download",
-        "extension": "avi"
+        "name": "User File",
+        "uri": "content://user"
       },
       {
         "name": "Dizzy (MP4)",

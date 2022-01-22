@@ -1,10 +1,12 @@
 package com.google.android.exoplayer2.extractor.avi;
 
-import android.util.SparseIntArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -12,9 +14,6 @@ import java.util.Arrays;
  */
 public class AviTrack {
   final int id;
-
-  @NonNull
-  final TrackOutput trackOutput;
 
   @NonNull
   final StreamHeaderBox streamHeaderBox;
@@ -26,24 +25,26 @@ public class AviTrack {
    */
   boolean allKeyFrames;
 
+  @NonNull
+  TrackOutput trackOutput;
+
   /**
    * Key is frame number value is offset
    */
   @Nullable
   int[] keyFrames;
 
+  transient int chunkSize;
+  transient int chunkRemaining;
+
   /**
    * Current frame in the stream
    * This needs to be updated on seek
    * TODO: Should be offset from StreamHeaderBox.getStart()
    */
-  transient int frame;
+  int frame;
 
-  /**
-   *
-   * @param trackOutput
-   */
-  AviTrack(int id, @NonNull TrackOutput trackOutput, @NonNull StreamHeaderBox streamHeaderBox) {
+  AviTrack(int id, @NonNull StreamHeaderBox streamHeaderBox, @NonNull TrackOutput trackOutput) {
     this.id = id;
     this.trackOutput = trackOutput;
     this.streamHeaderBox = streamHeaderBox;
@@ -67,11 +68,11 @@ public class AviTrack {
   }
 
   public long getUs() {
-    return frame * usPerSample;
+    return getUs(getUsFrame());
   }
 
-  public void advance() {
-    frame++;
+  public long getUs(final int myFrame) {
+    return myFrame * usPerSample;
   }
 
   public boolean isVideo() {
@@ -80,5 +81,46 @@ public class AviTrack {
 
   public boolean isAudio() {
     return streamHeaderBox.isAudio();
+  }
+
+  public void advance() {
+    frame++;
+  }
+
+  /**
+   * Get the frame number used to calculate the timeUs
+   * @return
+   */
+  int getUsFrame() {
+    return frame;
+  }
+
+  public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
+    final int remaining = size - trackOutput.sampleData(input, size, false);
+    if (remaining == 0) {
+      done(size);
+      return true;
+    } else {
+      chunkSize = size;
+      chunkRemaining = remaining;
+      return false;
+    }
+  }
+
+  public boolean resume(ExtractorInput input) throws IOException {
+    chunkRemaining -= trackOutput.sampleData(input, chunkRemaining, false);
+    if (chunkRemaining == 0) {
+      done(chunkSize);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void done(final int size) {
+    trackOutput.sampleMetadata(
+        getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
+    //Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + getUs() + " size=" + size + " frame=" + frame + " usFrame=" + getUsFrame());
+    advance();
   }
 }
