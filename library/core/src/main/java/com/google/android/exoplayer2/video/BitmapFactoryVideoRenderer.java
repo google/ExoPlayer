@@ -152,28 +152,15 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
   }
 
   class RenderRunnable implements Runnable {
-    final DecoderInputBuffer decoderInputBuffer;
-    final long renderUs;
+    private DecoderInputBuffer decoderInputBuffer;
+    private final long renderUs;
 
-    RenderRunnable(final DecoderInputBuffer decoderInputBuffer, long renderUs) {
+    RenderRunnable(@NonNull final DecoderInputBuffer decoderInputBuffer, long renderUs) {
       this.decoderInputBuffer = decoderInputBuffer;
       this.renderUs = renderUs;
     }
 
     public void run() {
-      synchronized (eventDispatcher) {
-        while (currentTimeUs < renderUs) {
-          try {
-            thread = Thread.currentThread();
-            eventDispatcher.wait();
-          } catch (InterruptedException e) {
-            //If we are interrupted, treat as a cancel
-            return;
-          } finally {
-            thread = null;
-          }
-        }
-      }
       @Nullable
       final ByteBuffer byteBuffer = decoderInputBuffer.data;
       @Nullable
@@ -189,6 +176,21 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
         if (bitmap == null) {
           eventDispatcher.videoCodecError(new NullPointerException("Decode bytes failed"));
           return;
+        }
+        decoderInputBuffer = null;
+        //Wait for time to advance to display the Bitmap
+        synchronized (eventDispatcher) {
+          while (currentTimeUs < renderUs) {
+            try {
+              thread = Thread.currentThread();
+              eventDispatcher.wait();
+            } catch (InterruptedException e) {
+              //If we are interrupted, treat as a cancel
+              return;
+            } finally {
+              thread = null;
+            }
+          }
         }
         //Log.d(TAG, "Drawing: " + bitmap.getWidth() + "x" + bitmap.getHeight());
         final Canvas canvas = surface.lockCanvas(null);
