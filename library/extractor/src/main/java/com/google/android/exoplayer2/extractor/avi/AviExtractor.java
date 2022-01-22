@@ -210,13 +210,17 @@ public class AviExtractor implements Extractor {
             if (streamFormat != null) {
               i++;
               if (streamHeader.isVideo()) {
+                final String mimeType = streamHeader.getMimeType();
+                if (mimeType == null) {
+                  Log.w(TAG, "Unknown FourCC: " + toString(streamHeader.getFourCC()));
+                  continue;
+                }
                 final VideoFormat videoFormat = streamFormat.getVideoFormat();
                 final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_VIDEO);
                 final Format.Builder builder = new Format.Builder();
                 builder.setWidth(videoFormat.getWidth());
                 builder.setHeight(videoFormat.getHeight());
                 builder.setFrameRate(streamHeader.getFrameRate());
-                final String mimeType = streamHeader.getMimeType();
                 builder.setSampleMimeType(mimeType);
 //                final StreamDataBox codecBox = (StreamDataBox) peekNext(streamChildren, i, StreamDataBox.STRD);
 //                final List<byte[]> codecData;
