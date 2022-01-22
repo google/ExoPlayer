@@ -71,7 +71,6 @@ public class AvcAviTrack extends AviTrack{
         maxPicCount = 1 << (spsData.picOrderCntLsbLength);
         posHalf = maxPicCount / 2;  //Not sure why pics are 2x
         negHalf = -posHalf;
-        //Not sure if this works after the fact
         if (spsData.pixelWidthHeightRatio != pixelWidthHeightRatio) {
           formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
           trackOutput.format(formatBuilder.build());
@@ -106,7 +105,7 @@ public class AvcAviTrack extends AviTrack{
 
   int getPicOrderCountLsb(byte[] peek) {
     if (peek[3] != 1) {
-      return 0;
+      return -1;
     }
     final ParsableNalUnitBitArray in = new ParsableNalUnitBitArray(peek, 5, peek.length);
     //slide_header()
@@ -126,10 +125,10 @@ public class AvcAviTrack extends AviTrack{
     //We skip IDR in the switch
     if (spsData.picOrderCountType == 0) {
       int picOrderCountLsb = in.readBits(spsData.picOrderCntLsbLength);
-      Log.d("Test", "FrameNum: " + frame + " cnt=" + picOrderCountLsb);
+      //Log.d("Test", "FrameNum: " + frame + " cnt=" + picOrderCountLsb);
       return picOrderCountLsb;
     }
-    return 0;
+    return -1;
   }
 
   @Override
@@ -144,6 +143,10 @@ public class AvcAviTrack extends AviTrack{
       case 3:
       case 4: {
         final int picCount = getPicOrderCountLsb(peek);
+        if (picCount < 0) {
+          Log.d(AviExtractor.TAG, "Error getting PicOrder");
+          seekFrame(frame);
+        }
         int delta = picCount - lastPicCount;
         if (delta < negHalf) {
           delta += maxPicCount;
@@ -166,19 +169,5 @@ public class AvcAviTrack extends AviTrack{
         return true;
     }
     return super.newChunk(tag, size, input);
-  }
-
-  public static String toString(byte[] buffer, int i, final int len) {
-    final StringBuilder sb = new StringBuilder((len - i) * 3);
-    while (i < len) {
-      String hex = Integer.toHexString(buffer[i] & 0xff);
-      if (hex.length() == 1) {
-        sb.append('0');
-      }
-      sb.append(hex);
-      sb.append(' ');
-      i++;
-    }
-    return sb.toString();
   }
 }
