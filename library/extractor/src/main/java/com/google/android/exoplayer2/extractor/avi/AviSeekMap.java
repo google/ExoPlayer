@@ -63,7 +63,7 @@ public class AviSeekMap implements SeekMap {
 
   public void setFrames(final long position, final long timeUs, final SparseArray<AviTrack> idTrackMap) {
     final int seekFrameIndex = getSeekFrameIndex(timeUs);
-    videoTrack.frame = seekFrameIndex * seekIndexFactor;
+    videoTrack.seekFrame(seekFrameIndex * seekIndexFactor);
     for (int i=0;i<audioIdMap.size();i++) {
       final int audioId = audioIdMap.keyAt(i);
       final int[] video2AudioFrameMap = audioIdMap.get(audioId);

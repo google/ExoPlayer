@@ -95,6 +95,10 @@ public class AviTrack {
     return frame;
   }
 
+  void seekFrame(int frame) {
+    this.frame = frame;
+  }
+
   public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
     final int remaining = size - trackOutput.sampleData(input, size, false);
     if (remaining == 0) {

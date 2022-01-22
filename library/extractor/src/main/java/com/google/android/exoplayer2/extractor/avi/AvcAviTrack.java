@@ -21,7 +21,7 @@ public class AvcAviTrack extends AviTrack{
   private NalUnitUtil.SpsData spsData;
   //The frame as a calculated from the picCount
   private int picFrame;
-  private int lastPicFrame;
+  private int lastPicCount;
   //Largest picFrame, used when we hit an I frame
   private int maxPicFrame =-1;
   private int maxPicCount;
@@ -56,7 +56,7 @@ public class AvcAviTrack extends AviTrack{
   }
 
   private void processIdr() {
-    lastPicFrame = 0;
+    lastPicCount = 0;
     picFrame = maxPicFrame + 1;
   }
 
@@ -95,6 +95,13 @@ public class AvcAviTrack extends AviTrack{
   @Override
   int getUsFrame() {
     return picFrame;
+  }
+
+  @Override
+  void seekFrame(int frame) {
+    super.seekFrame(frame);
+    this.picFrame = frame;
+    lastPicCount = 0;
   }
 
   int getPicOrderCountLsb(byte[] peek) {
@@ -136,15 +143,15 @@ public class AvcAviTrack extends AviTrack{
       case 2:
       case 3:
       case 4: {
-        final int myPicCount = getPicOrderCountLsb(peek);
-        int delta = myPicCount - lastPicFrame;
+        final int picCount = getPicOrderCountLsb(peek);
+        int delta = picCount - lastPicCount;
         if (delta < negHalf) {
           delta += maxPicCount;
         } else if (delta > posHalf) {
           delta -= maxPicCount;
         }
         picFrame += delta / 2;
-        lastPicFrame = myPicCount;
+        lastPicCount = picCount;
         if (maxPicFrame < picFrame) {
           maxPicFrame = picFrame;
         }
