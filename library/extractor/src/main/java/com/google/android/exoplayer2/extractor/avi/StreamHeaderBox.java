@@ -11,10 +11,12 @@ public class StreamHeaderBox extends ResidentBox {
   public static final int STRH = 's' | ('t' << 8) | ('r' << 16) | ('h' << 24);
 
   //Audio Stream
-  private static final int AUDS = 'a' | ('u' << 8) | ('d' << 16) | ('s' << 24);
+  static final int AUDS = 'a' | ('u' << 8) | ('d' << 16) | ('s' << 24);
 
   //Videos Stream
-  private static final int VIDS = 'v' | ('i' << 8) | ('d' << 16) | ('s' << 24);
+  static final int VIDS = 'v' | ('i' << 8) | ('d' << 16) | ('s' << 24);
+
+  static final int XVID = 'X' | ('V' << 8) | ('I' << 16) | ('D' << 24);
 
   private static final SparseArray<String> STREAM_MAP = new SparseArray<>();
 
@@ -30,7 +32,7 @@ public class StreamHeaderBox extends ResidentBox {
     STREAM_MAP.put('A' | ('V' << 8) | ('C' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
     STREAM_MAP.put('3' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
     STREAM_MAP.put('x' | ('v' << 8) | ('i' << 16) | ('d' << 24), mimeType);
-    STREAM_MAP.put('X' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
+    STREAM_MAP.put(XVID, mimeType);
     STREAM_MAP.put('D' | ('X' << 8) | ('5' << 16) | ('0' << 24), mimeType);
 
     STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.VIDEO_JPEG);
@@ -86,15 +88,17 @@ public class StreamHeaderBox extends ResidentBox {
   public int getRate() {
     return byteBuffer.getInt(24);
   }
-  public int getStart() {
-    return byteBuffer.getInt(28);
-  }
+  // 28 - dwStart
+//  public int getStart() {
+//    return byteBuffer.getInt(28);
+//  }
   public long getLength() {
     return byteBuffer.getInt(32) & AviExtractor.UINT_MASK;
   }
   //36 - dwSuggestedBufferSize
   //40 - dwQuality
-  public int getSampleSize() {
-    return byteBuffer.getInt(44);
-  }
+  //44 - dwSampleSize
+//  public int getSampleSize() {
+//    return byteBuffer.getInt(44);
+//  }
 }
