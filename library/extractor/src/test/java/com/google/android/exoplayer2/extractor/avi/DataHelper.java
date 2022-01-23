@@ -29,4 +29,18 @@ public class DataHelper {
     byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
     return new StreamHeaderBox(StreamHeaderBox.STRH, buffer.length, byteBuffer);
   }
+
+  public static StreamFormatBox getAudioStreamFormat() throws IOException {
+    final byte[] buffer = getBytes("aac_stream_format.dump");
+    final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+    return new StreamFormatBox(StreamFormatBox.STRF, buffer.length, byteBuffer);
+  }
+
+  public static StreamFormatBox getVideoStreamFormat() throws IOException {
+    final byte[] buffer = getBytes("h264_stream_format.dump");
+    final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+    return new StreamFormatBox(StreamFormatBox.STRF, buffer.length, byteBuffer);
+  }
 }

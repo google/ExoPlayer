@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 
 public class AudioFormat {
   public static final short WAVE_FORMAT_PCM = 1;
+  static final short WAVE_FORMAT_AAC = 0xff;
   private static final short WAVE_FORMAT_MPEGLAYER3 = 0x55;
-  private static final short WAVE_FORMAT_AAC = 0xff;
   private static final short WAVE_FORMAT_DVM = 0x2000; //AC3
   private static final short WAVE_FORMAT_DTS2 = 0x2001; //DTS
   private static final SparseArray<String> FORMAT_MAP = new SparseArray<>();
@@ -40,9 +40,10 @@ public class AudioFormat {
     return byteBuffer.getInt(4);
   }
   // 8 - nAvgBytesPerSec(uint)
-  public int getBlockAlign() {
-    return byteBuffer.getShort(12);
-  }
+  // 12 - nBlockAlign
+//  public int getBlockAlign() {
+//    return byteBuffer.getShort(12);
+//  }
   public short getBitsPerSample() {
     return byteBuffer.getShort(14);
   }
