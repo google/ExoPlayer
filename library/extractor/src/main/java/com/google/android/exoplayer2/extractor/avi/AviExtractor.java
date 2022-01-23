@@ -84,6 +84,14 @@ public class AviExtractor implements Extractor {
   //If partial read
   private transient AviTrack chunkHandler;
 
+  static void alignInput(ExtractorInput input) throws IOException {
+    // This isn't documented anywhere, but most files are aligned to even bytes
+    // and can have gaps of zeros
+    if ((input.getPosition() & 1) == 1) {
+      input.skipFully(1);
+    }
+  }
+
   public AviExtractor() {
     this(0);
   }
@@ -406,11 +414,7 @@ public class AviExtractor implements Extractor {
     } else {
       ByteBuffer byteBuffer = allocate(8);
       final byte[] bytes = byteBuffer.array();
-      // This isn't documented anywhere, but most files are aligned to even bytes
-      // and can have gaps of zeros
-      if ((input.getPosition() & 1) == 1) {
-        input.skipFully(1);
-      }
+      alignInput(input);
       input.readFully(bytes, 0, 1);
       while (bytes[0] == 0) {
         input.readFully(bytes, 0, 1);

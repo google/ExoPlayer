@@ -60,7 +60,7 @@ public class ListBox extends Box {
     byte [] bytes = headerBuffer.array();
     input.readFully(bytes, 0, 4);
     final int listType = headerBuffer.getInt();
-
+    //String listTypeName = AviExtractor.toString(listType);
     long endPos = input.getPosition() + listSize - 4;
     while (input.getPosition() + 8 < endPos) {
       headerBuffer.clear();
@@ -73,7 +73,7 @@ public class ListBox extends Box {
       } else {
         box = boxFactory.createBox(type, size, input);
       }
-
+      AviExtractor.alignInput(input);
       if (box != null) {
         list.add(box);
       }
