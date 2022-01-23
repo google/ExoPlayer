@@ -37,7 +37,7 @@ public class StreamHeaderBox extends ResidentBox {
     STREAM_MAP.put(XVID, mimeType);
     STREAM_MAP.put('D' | ('X' << 8) | ('5' << 16) | ('0' << 24), mimeType);
 
-    STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.VIDEO_JPEG);
+    STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.VIDEO_MJPEG);
   }
 
   StreamHeaderBox(int type, int size, ByteBuffer byteBuffer) {

@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -38,7 +39,7 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
   private Thread thread;
   private long currentTimeUs;
   private long nextFrameUs;
-  private long frameUs;
+  private long frameUs = Long.MIN_VALUE;
   private boolean ended;
   private DecoderCounters decoderCounters;
 
@@ -69,18 +70,11 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
     eventDispatcher.disabled(decoderCounters);
   }
 
-  @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
-      throws ExoPlaybackException {
-    nextFrameUs = startPositionUs;
-    for (final Format format : formats) {
-      @NonNull final FormatHolder formatHolder = getFormatHolder();
-      @Nullable final Format currentFormat = formatHolder.format;
-      if (formatHolder.format == null || !currentFormat.equals(format)) {
-        getFormatHolder().format = format;
-        eventDispatcher.inputFormatChanged(format, null);
-        frameUs = (long)(1_000_000L / format.frameRate);
-      }
+  private void onFormatChanged(@NonNull FormatHolder formatHolder) {
+    @Nullable final Format format = formatHolder.format;
+    if (format != null) {
+      eventDispatcher.inputFormatChanged(format, null);
+      frameUs = (long)(1_000_000L / format.frameRate);
     }
   }
 
@@ -91,6 +85,7 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
       eventDispatcher.notify();
     }
     if (renderExecutor.getActiveCount() > 0) {
+      //Handle decoder overrun
       if (positionUs > nextFrameUs) {
         long us = (positionUs - nextFrameUs) + frameUs;
         long dropped = us / frameUs;
@@ -100,13 +95,20 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
       return;
     }
     final FormatHolder formatHolder = getFormatHolder();
-    final DecoderInputBuffer decoderInputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-    int result = readSource(formatHolder, decoderInputBuffer, 0);
+    final DecoderInputBuffer decoderInputBuffer =
+        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+    final int result = readSource(formatHolder, decoderInputBuffer,
+        frameUs == Long.MIN_VALUE ? SampleStream.FLAG_REQUIRE_FORMAT : 0);
+
     if (result == C.RESULT_BUFFER_READ) {
       renderExecutor.execute(new RenderRunnable(decoderInputBuffer, nextFrameUs));
-      nextFrameUs += frameUs;
-    } else if (result == C.RESULT_END_OF_INPUT) {
-      ended = true;
+      if (decoderInputBuffer.isEndOfStream()) {
+        ended = true;
+      } else {
+        nextFrameUs += frameUs;
+      }
+    } else if (result == C.RESULT_FORMAT_READ) {
+      onFormatChanged(formatHolder);
     }
   }
 
@@ -145,13 +147,14 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
   @Override
   public int supportsFormat(Format format) throws ExoPlaybackException {
     //Technically could support any format BitmapFactory supports
-    if (MimeTypes.VIDEO_JPEG.equals(format.sampleMimeType)) {
+    if (MimeTypes.VIDEO_MJPEG.equals(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_HANDLED);
     }
     return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
   }
 
   class RenderRunnable implements Runnable {
+    @Nullable
     private DecoderInputBuffer decoderInputBuffer;
     private final long renderUs;
 
@@ -160,7 +163,18 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
       this.renderUs = renderUs;
     }
 
+    private boolean maybeDropFrame(long frameUs) {
+      if (Math.abs(frameUs - currentTimeUs) > frameUs) {
+        eventDispatcher.droppedFrames(1, frameUs);
+        return true;
+      }
+      return false;
+    }
+
     public void run() {
+      if (maybeDropFrame(renderUs)) {
+        return;
+      }
       @Nullable
       final ByteBuffer byteBuffer = decoderInputBuffer.data;
       @Nullable
@@ -191,6 +205,9 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
               thread = null;
             }
           }
+        }
+        if (maybeDropFrame(renderUs)) {
+          return;
         }
         //Log.d(TAG, "Drawing: " + bitmap.getWidth() + "x" + bitmap.getHeight());
         final Canvas canvas = surface.lockCanvas(null);
