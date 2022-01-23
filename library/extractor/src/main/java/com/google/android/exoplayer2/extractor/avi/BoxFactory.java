@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class BoxFactory {
-  static int[] types = {AviHeaderBox.AVIH, StreamHeaderBox.STRH, StreamFormatBox.STRF};
+  static int[] types = {AviHeaderBox.AVIH, StreamHeaderBox.STRH, StreamFormatBox.STRF, StreamNameBox.STRN};
   static {
     Arrays.sort(types);
   }
@@ -23,6 +23,8 @@ public class BoxFactory {
         return new StreamHeaderBox(type, size, boxBuffer);
       case StreamFormatBox.STRF:
         return new StreamFormatBox(type, size, boxBuffer);
+      case StreamNameBox.STRN:
+        return new StreamNameBox(type, size, boxBuffer);
       default:
         return null;
     }

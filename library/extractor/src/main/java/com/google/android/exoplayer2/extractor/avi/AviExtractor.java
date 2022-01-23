@@ -92,6 +92,13 @@ public class AviExtractor implements Extractor {
     }
   }
 
+  static long alignPosition(long position) {
+    if ((position & 1) == 1) {
+      position++;
+    }
+    return position;
+  }
+
   public AviExtractor() {
     this(0);
   }
@@ -212,70 +219,73 @@ public class AviExtractor implements Extractor {
     for (Box box : headerList.getChildren()) {
       if (box instanceof ListBox && ((ListBox) box).getListType() == STRL) {
         final ListBox streamList = (ListBox) box;
-        final List<Box> streamChildren = streamList.getChildren();
-        for (int i=0;i<streamChildren.size();i++) {
-          final Box residentBox = streamChildren.get(i);
-          if (residentBox instanceof StreamHeaderBox) {
-            final StreamHeaderBox streamHeader = (StreamHeaderBox) residentBox;
-            final StreamFormatBox streamFormat = (StreamFormatBox) peekNext(streamChildren, i, StreamFormatBox.STRF);
-            if (streamFormat != null) {
-              i++;
-              if (streamHeader.isVideo()) {
-                final String mimeType = streamHeader.getMimeType();
-                if (mimeType == null) {
-                  Log.w(TAG, "Unknown FourCC: " + toString(streamHeader.getFourCC()));
-                  continue;
-                }
-                final VideoFormat videoFormat = streamFormat.getVideoFormat();
-                final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_VIDEO);
-                final Format.Builder builder = new Format.Builder();
-                builder.setWidth(videoFormat.getWidth());
-                builder.setHeight(videoFormat.getHeight());
-                builder.setFrameRate(streamHeader.getFrameRate());
-                builder.setSampleMimeType(mimeType);
-
-                final AviTrack aviTrack;
-                switch (mimeType) {
-                  case MimeTypes.VIDEO_MP4V:
-                    aviTrack = new Mp4vAviTrack(streamId, streamHeader, trackOutput, builder);
-                    break;
-                  case MimeTypes.VIDEO_H264:
-                    aviTrack = new AvcAviTrack(streamId, streamHeader, trackOutput, builder);
-                    break;
-                  default:
-                    aviTrack = new AviTrack(streamId, streamHeader, trackOutput);
-                }
-                trackOutput.format(builder.build());
-                idTrackMap.put('0' | (('0' + streamId) << 8) | ('d' << 16) | ('c' << 24), aviTrack);
-                durationUs = streamHeader.getUsPerSample() * streamHeader.getLength();
-              } else if (streamHeader.isAudio()) {
-                final AudioFormat audioFormat = streamFormat.getAudioFormat();
-                final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_AUDIO);
-                final Format.Builder builder = new Format.Builder();
-                final String mimeType = audioFormat.getMimeType();
-                builder.setSampleMimeType(mimeType);
-                //builder.setCodecs(audioFormat.getCodec());
-                builder.setChannelCount(audioFormat.getChannels());
-                builder.setSampleRate(audioFormat.getSamplesPerSecond());
-                if (audioFormat.getFormatTag() == AudioFormat.WAVE_FORMAT_PCM) {
-                  final short bps = audioFormat.getBitsPerSample();
-                  if (bps == 8) {
-                    builder.setPcmEncoding(C.ENCODING_PCM_8BIT);
-                  } else if (bps == 16){
-                    builder.setPcmEncoding(C.ENCODING_PCM_16BIT);
-                  }
-                }
-                if (MimeTypes.AUDIO_AAC.equals(mimeType) && audioFormat.getCbSize() > 0) {
-                  builder.setInitializationData(Collections.singletonList(audioFormat.getCodecData()));
-                }
-                trackOutput.format(builder.build());
-                idTrackMap.put('0' | (('0' + streamId) << 8) | ('w' << 16) | ('b' << 24),
-                    new AviTrack(streamId, streamHeader, trackOutput));
-              }
-            }
-            streamId++;
-          }
+        final StreamHeaderBox streamHeader = streamList.getChild(StreamHeaderBox.class);
+        final StreamFormatBox streamFormat = streamList.getChild(StreamFormatBox.class);
+        if (streamHeader == null) {
+          Log.w(TAG, "Missing Stream Header");
+          continue;
         }
+        if (streamFormat == null) {
+          Log.w(TAG, "Missing Stream Format");
+          continue;
+        }
+        final Format.Builder builder = new Format.Builder();
+        builder.setId(streamId);
+        final StreamNameBox streamName = streamList.getChild(StreamNameBox.class);
+        if (streamName != null) {
+          builder.setLabel(streamName.getName());
+        }
+        if (streamHeader.isVideo()) {
+          final String mimeType = streamHeader.getMimeType();
+          if (mimeType == null) {
+            Log.w(TAG, "Unknown FourCC: " + toString(streamHeader.getFourCC()));
+            continue;
+          }
+          final VideoFormat videoFormat = streamFormat.getVideoFormat();
+          final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_VIDEO);
+          builder.setWidth(videoFormat.getWidth());
+          builder.setHeight(videoFormat.getHeight());
+          builder.setFrameRate(streamHeader.getFrameRate());
+          builder.setSampleMimeType(mimeType);
+
+          final AviTrack aviTrack;
+          switch (mimeType) {
+            case MimeTypes.VIDEO_MP4V:
+              aviTrack = new Mp4vAviTrack(streamId, streamHeader, trackOutput, builder);
+              break;
+            case MimeTypes.VIDEO_H264:
+              aviTrack = new AvcAviTrack(streamId, streamHeader, trackOutput, builder);
+              break;
+            default:
+              aviTrack = new AviTrack(streamId, streamHeader, trackOutput);
+          }
+          trackOutput.format(builder.build());
+          idTrackMap.put('0' | (('0' + streamId) << 8) | ('d' << 16) | ('c' << 24), aviTrack);
+          durationUs = streamHeader.getUsPerSample() * streamHeader.getLength();
+        } else if (streamHeader.isAudio()) {
+          final AudioFormat audioFormat = streamFormat.getAudioFormat();
+          final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_AUDIO);
+          final String mimeType = audioFormat.getMimeType();
+          builder.setSampleMimeType(mimeType);
+          //builder.setCodecs(audioFormat.getCodec());
+          builder.setChannelCount(audioFormat.getChannels());
+          builder.setSampleRate(audioFormat.getSamplesPerSecond());
+          if (audioFormat.getFormatTag() == AudioFormat.WAVE_FORMAT_PCM) {
+            final short bps = audioFormat.getBitsPerSample();
+            if (bps == 8) {
+              builder.setPcmEncoding(C.ENCODING_PCM_8BIT);
+            } else if (bps == 16){
+              builder.setPcmEncoding(C.ENCODING_PCM_16BIT);
+            }
+          }
+          if (MimeTypes.AUDIO_AAC.equals(mimeType) && audioFormat.getCbSize() > 0) {
+            builder.setInitializationData(Collections.singletonList(audioFormat.getCodecData()));
+          }
+          trackOutput.format(builder.build());
+          idTrackMap.put('0' | (('0' + streamId) << 8) | ('w' << 16) | ('b' << 24),
+              new AviTrack(streamId, streamHeader, trackOutput));
+        }
+        streamId++;
       }
     }
     output.endTracks();
@@ -290,7 +300,7 @@ public class AviExtractor implements Extractor {
     final long size = getUInt(byteBuffer);
     final long position = input.getPosition();
     //-4 because we over read for the LIST type
-    long nextBox = position + size - 4;
+    long nextBox = alignPosition(position + size - 4);
     if (tag == ListBox.LIST) {
       final int listType = byteBuffer.getInt();
       if (listType == MOVI) {
@@ -430,7 +440,7 @@ public class AviExtractor implements Extractor {
         if (id == ListBox.LIST) {
           seekPosition.position = input.getPosition() + 4;
         } else {
-          seekPosition.position = input.getPosition() + size;
+          seekPosition.position = alignPosition(input.getPosition() + size);
           if (id != JUNK) {
             Log.w(TAG, "Unknown tag=" + toString(id) + " pos=" + (input.getPosition() - 8)
                 + " size=" + size + " moviEnd=" + moviEnd);

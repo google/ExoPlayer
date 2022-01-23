@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class DataHelper {
   //Base path "\ExoPlayer\library\extractor\."
@@ -42,5 +43,11 @@ public class DataHelper {
     final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
     byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
     return new StreamFormatBox(StreamFormatBox.STRF, buffer.length, byteBuffer);
+  }
+
+  public static StreamNameBox getStreamNameBox(final String name) {
+    byte[] bytes = name.getBytes();
+    bytes = Arrays.copyOf(bytes, bytes.length + 1);
+    return new StreamNameBox(StreamNameBox.STRN, bytes.length, ByteBuffer.wrap(bytes));
   }
 }
