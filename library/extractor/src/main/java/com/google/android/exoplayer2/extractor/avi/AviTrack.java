@@ -52,6 +52,10 @@ public class AviTrack {
     this.allKeyFrames = streamHeaderBox.isAudio() || (MimeTypes.IMAGE_JPEG.equals(streamHeaderBox.getMimeType()));
   }
 
+  public boolean isAllKeyFrames() {
+    return allKeyFrames;
+  }
+
   public boolean isKeyFrame() {
     if (allKeyFrames) {
       return true;

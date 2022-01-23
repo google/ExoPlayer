@@ -94,7 +94,7 @@ public class AviExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return peakHeaderList(input);
+    return peekHeaderList(input);
   }
 
   static ByteBuffer allocate(int bytes) {
@@ -109,7 +109,7 @@ public class AviExtractor implements Extractor {
     output.seekMap(aviSeekMap);
   }
 
-  boolean peakHeaderList(ExtractorInput input) throws IOException {
+  static boolean peekHeaderList(ExtractorInput input) throws IOException {
     final ByteBuffer byteBuffer = allocate(PEEK_BYTES);
     input.peekFully(byteBuffer.array(), 0, PEEK_BYTES);
     final int riff = byteBuffer.getInt();
@@ -141,6 +141,7 @@ public class AviExtractor implements Extractor {
     }
     return true;
   }
+
   @Nullable
   ListBox readHeaderList(ExtractorInput input) throws IOException {
     final ByteBuffer byteBuffer = allocate(20);
@@ -169,9 +170,11 @@ public class AviExtractor implements Extractor {
     }
     return listBox;
   }
+
   long getDuration() {
     return durationUs;
   }
+
   @Override
   public void init(ExtractorOutput output) {
     this.state = STATE_READ_TRACKS;
@@ -222,17 +225,7 @@ public class AviExtractor implements Extractor {
                 builder.setHeight(videoFormat.getHeight());
                 builder.setFrameRate(streamHeader.getFrameRate());
                 builder.setSampleMimeType(mimeType);
-//                final StreamDataBox codecBox = (StreamDataBox) peekNext(streamChildren, i, StreamDataBox.STRD);
-//                final List<byte[]> codecData;
-//                if (codecBox != null) {
-//                  codecData = Collections.singletonList(codecBox.getData());
-//                  i++;
-//                } else {
-//                  codecData = null;
-//                }
-//                if (codecData != null) {
-//                  builder.setInitializationData(codecData);
-//                }
+
                 final AviTrack aviTrack;
                 switch (mimeType) {
                   case MimeTypes.VIDEO_MP4V:
@@ -358,7 +351,7 @@ public class AviExtractor implements Extractor {
         indexByteBuffer.position(indexByteBuffer.position() + 4);
         //int size = indexByteBuffer.getInt();
         if (aviTrack.isVideo()) {
-          if ((flags & AVIIF_KEYFRAME) == AVIIF_KEYFRAME) {
+          if (!aviTrack.isAllKeyFrames() && (flags & AVIIF_KEYFRAME) == AVIIF_KEYFRAME) {
             keyFrameList.add(aviTrack.frame);
           }
           if (aviTrack.frame % seekFrameRate == 0) {
@@ -377,9 +370,11 @@ public class AviExtractor implements Extractor {
       indexByteBuffer.compact();
     }
     videoSeekOffset.pack();
-    keyFrameList.pack();
-    final int[] keyFrames = keyFrameList.array;
-    videoTrack.setKeyFrames(keyFrames);
+    if (!videoTrack.isAllKeyFrames()) {
+      keyFrameList.pack();
+      final int[] keyFrames = keyFrameList.getArray();
+      videoTrack.setKeyFrames(keyFrames);
+    }
 
     //Correct the timings
     durationUs = videoTrack.usPerSample * videoTrack.frame;
@@ -387,7 +382,7 @@ public class AviExtractor implements Extractor {
     final SparseArray<int[]> idFrameArray = new SparseArray<>();
     for (Map.Entry<Integer, UnboundedIntArray> entry : audioIdFrameMap.entrySet()) {
       entry.getValue().pack();
-      idFrameArray.put(entry.getKey(), entry.getValue().array);
+      idFrameArray.put(entry.getKey(), entry.getValue().getArray());
       final AviTrack aviTrack = idTrackMap.get(entry.getKey());
       //Sometimes this value is way off
       long calcUsPerSample = (getDuration()/aviTrack.frame);
@@ -397,7 +392,7 @@ public class AviExtractor implements Extractor {
         Log.d(TAG, "Frames act=" + getDuration() + " calc=" + (aviTrack.usPerSample * aviTrack.frame));
       }
     }
-    final AviSeekMap seekMap = new AviSeekMap(videoTrack, seekFrameRate, videoSeekOffset.array,
+    final AviSeekMap seekMap = new AviSeekMap(videoTrack, seekFrameRate, videoSeekOffset.getArray(),
         idFrameArray, moviOffset, getDuration());
     setSeekMap(seekMap);
     resetFrames();
@@ -483,7 +478,8 @@ public class AviExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    if (position == 0) {
+    chunkHandler = null;
+    if (position <= 0) {
       if (moviOffset != 0) {
         resetFrames();
         state = STATE_SEEK_START;
@@ -498,12 +494,11 @@ public class AviExtractor implements Extractor {
   void resetFrames() {
     for (int i=0;i<idTrackMap.size();i++) {
       final AviTrack aviTrack = idTrackMap.valueAt(i);
-      aviTrack.frame = 0;
+      aviTrack.seekFrame(0);
     }
   }
 
   @Override
   public void release() {
-
   }
 }
