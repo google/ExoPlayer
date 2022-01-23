@@ -25,5 +25,6 @@ public class StreamHeaderBoxTest {
     Assert.assertEquals(US_SAMPLE24FPS, streamHeaderBox.getUsPerSample());
     Assert.assertEquals(MimeTypes.VIDEO_MP4V, streamHeaderBox.getMimeType());
     Assert.assertEquals(11805L, streamHeaderBox.getLength());
+    Assert.assertEquals(0, streamHeaderBox.getSuggestedBufferSize());
   }
 }

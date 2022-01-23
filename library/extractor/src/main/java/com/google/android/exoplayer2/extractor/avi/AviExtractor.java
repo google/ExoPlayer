@@ -231,6 +231,10 @@ public class AviExtractor implements Extractor {
         }
         final Format.Builder builder = new Format.Builder();
         builder.setId(streamId);
+        final int suggestedBufferSize = streamHeader.getSuggestedBufferSize();
+        if (suggestedBufferSize != 0) {
+          builder.setMaxInputSize(suggestedBufferSize);
+        }
         final StreamNameBox streamName = streamList.getChild(StreamNameBox.class);
         if (streamName != null) {
           builder.setLabel(streamName.getName());
