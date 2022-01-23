@@ -9,7 +9,7 @@ public class UnboundedIntArrayTest {
     final UnboundedIntArray unboundedIntArray = new UnboundedIntArray();
     unboundedIntArray.add(4);
     Assert.assertEquals(1, unboundedIntArray.getSize());
-    Assert.assertEquals(unboundedIntArray.array[0], 4);
+    Assert.assertEquals(unboundedIntArray.getArray()[0], 4);
   }
 
   @Test

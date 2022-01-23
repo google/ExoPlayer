@@ -1,13 +1,15 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import java.util.Arrays;
 
 public class UnboundedIntArray {
   @NonNull
+  @VisibleForTesting
   int[] array;
   //unint
-  int size =0;
+  private int size =0;
 
   public UnboundedIntArray() {
     this(8);
@@ -32,12 +34,19 @@ public class UnboundedIntArray {
   }
 
   public void pack() {
-    array = Arrays.copyOf(array, size);
+    if (size != array.length) {
+      array = Arrays.copyOf(array, size);
+    }
   }
 
   protected void grow() {
     int increase = Math.max(array.length /4, 1);
     array = Arrays.copyOf(array, increase + array.length + size);
+  }
+
+  public int[] getArray() {
+    pack();
+    return array;
   }
 
   /**
