@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer.analytics;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import android.annotation.SuppressLint;
@@ -174,7 +173,7 @@ public final class MediaMetricsListener
       // Ignore ad sessions.
       return;
     }
-    checkState(activeSessionId == null);
+    finishCurrentSession();
     activeSessionId = sessionId;
     metricsBuilder =
         new PlaybackMetrics.Builder()
