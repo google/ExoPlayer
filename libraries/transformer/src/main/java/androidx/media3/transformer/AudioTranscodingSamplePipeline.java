@@ -18,7 +18,6 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.media.MediaCodec.BufferInfo;
@@ -37,9 +36,8 @@ import org.checkerframework.dataflow.qual.Pure;
 /**
  * Pipeline to decode audio samples, apply transformations on the raw samples, and re-encode them.
  */
-/* package */ final class AudioSamplePipeline implements SamplePipeline {
+/* package */ final class AudioTranscodingSamplePipeline implements SamplePipeline {
 
-  private static final String TAG = "AudioSamplePipeline";
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
   private final Codec decoder;
@@ -61,7 +59,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private boolean drainingSonicForSpeedChange;
   private float currentSpeed;
 
-  public AudioSamplePipeline(
+  public AudioTranscodingSamplePipeline(
       Format inputFormat,
       TransformationRequest transformationRequest,
       Codec.DecoderFactory decoderFactory,
@@ -142,40 +140,36 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   @Nullable
   public Format getOutputFormat() throws TransformationException {
-    return encoder != null ? encoder.getOutputFormat() : null;
+    return encoder.getOutputFormat();
   }
 
   @Override
   @Nullable
   public DecoderInputBuffer getOutputBuffer() throws TransformationException {
-    if (encoder != null) {
-      encoderOutputBuffer.data = encoder.getOutputBuffer();
-      if (encoderOutputBuffer.data != null) {
-        encoderOutputBuffer.timeUs = checkNotNull(encoder.getOutputBufferInfo()).presentationTimeUs;
-        encoderOutputBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
-        return encoderOutputBuffer;
-      }
+    encoderOutputBuffer.data = encoder.getOutputBuffer();
+    if (encoderOutputBuffer.data == null) {
+      return null;
     }
-    return null;
+    encoderOutputBuffer.timeUs = checkNotNull(encoder.getOutputBufferInfo()).presentationTimeUs;
+    encoderOutputBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
+    return encoderOutputBuffer;
   }
 
   @Override
   public void releaseOutputBuffer() throws TransformationException {
-    checkStateNotNull(encoder).releaseOutputBuffer();
+    encoder.releaseOutputBuffer();
   }
 
   @Override
   public boolean isEnded() {
-    return encoder != null && encoder.isEnded();
+    return encoder.isEnded();
   }
 
   @Override
   public void release() {
     sonicAudioProcessor.reset();
     decoder.release();
-    if (encoder != null) {
-      encoder.release();
-    }
+    encoder.release();
   }
 
   /**

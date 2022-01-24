@@ -73,7 +73,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
           new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
-          new AudioSamplePipeline(
+          new AudioTranscodingSamplePipeline(
               inputFormat,
               transformationRequest,
               decoderFactory,

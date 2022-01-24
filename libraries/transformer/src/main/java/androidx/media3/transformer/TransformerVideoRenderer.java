@@ -82,7 +82,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
-          new VideoSamplePipeline(
+          new VideoTranscodingSamplePipeline(
               context,
               inputFormat,
               transformationRequest,

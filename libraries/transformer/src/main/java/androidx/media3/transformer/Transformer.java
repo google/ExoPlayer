@@ -919,7 +919,7 @@ public final class Transformer {
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      Throwable cause = error.getCause();
+      @Nullable Throwable cause = error.getCause();
       handleTransformationEnded(
           cause instanceof TransformationException
               ? (TransformationException) cause
