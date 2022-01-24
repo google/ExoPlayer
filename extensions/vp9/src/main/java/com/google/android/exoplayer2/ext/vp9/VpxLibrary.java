@@ -28,7 +28,7 @@ public final class VpxLibrary {
   }
 
   private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxV2JNI");
-  @C.CryptoType private static int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
+  private static @C.CryptoType int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
 
   private VpxLibrary() {}
 
