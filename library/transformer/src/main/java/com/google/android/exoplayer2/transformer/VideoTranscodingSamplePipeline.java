@@ -36,9 +36,7 @@ import org.checkerframework.dataflow.qual.Pure;
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
-/* package */ final class VideoSamplePipeline implements SamplePipeline {
-
-  private static final String TAG = "VideoSamplePipeline";
+/* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
 
   private final int outputRotationDegrees;
   private final DecoderInputBuffer decoderInputBuffer;
@@ -51,7 +49,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private boolean waitingForFrameEditorInput;
 
-  public VideoSamplePipeline(
+  public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
       TransformationRequest transformationRequest,
@@ -233,7 +231,7 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   @Nullable
   public Format getOutputFormat() throws TransformationException {
-    Format format = encoder.getOutputFormat();
+    @Nullable Format format = encoder.getOutputFormat();
     return format == null
         ? null
         : format.buildUpon().setRotationDegrees(outputRotationDegrees).build();

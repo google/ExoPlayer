@@ -73,7 +73,7 @@ import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
           new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
-          new AudioSamplePipeline(
+          new AudioTranscodingSamplePipeline(
               inputFormat,
               transformationRequest,
               decoderFactory,
