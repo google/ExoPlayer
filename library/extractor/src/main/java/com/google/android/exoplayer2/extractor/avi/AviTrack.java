@@ -18,12 +18,18 @@ public class AviTrack {
   @NonNull
   final StreamHeaderBox streamHeaderBox;
 
-  long usPerSample;
+  @NonNull
+  LinearClock clock;
+
+  @Nullable
+  ChunkPeeker chunkPeeker;
 
   /**
    * True indicates all frames are key frames (e.g. Audio, MJPEG)
    */
   boolean allKeyFrames;
+
+  boolean forceKeyFrame;
 
   @NonNull
   TrackOutput trackOutput;
@@ -37,19 +43,24 @@ public class AviTrack {
   transient int chunkSize;
   transient int chunkRemaining;
 
-  /**
-   * Current frame in the stream
-   * This needs to be updated on seek
-   * TODO: Should be offset from StreamHeaderBox.getStart()
-   */
-  int frame;
-
   AviTrack(int id, @NonNull StreamHeaderBox streamHeaderBox, @NonNull TrackOutput trackOutput) {
     this.id = id;
     this.trackOutput = trackOutput;
     this.streamHeaderBox = streamHeaderBox;
-    this.usPerSample = streamHeaderBox.getUsPerSample();
-    this.allKeyFrames = streamHeaderBox.isAudio() || (MimeTypes.IMAGE_JPEG.equals(streamHeaderBox.getMimeType()));
+    clock = new LinearClock(streamHeaderBox.getUsPerSample());
+    this.allKeyFrames = streamHeaderBox.isAudio() || (MimeTypes.VIDEO_MJPEG.equals(streamHeaderBox.getMimeType()));
+  }
+
+  public LinearClock getClock() {
+    return clock;
+  }
+
+  public void setClock(LinearClock clock) {
+    this.clock = clock;
+  }
+
+  public void setChunkPeeker(ChunkPeeker chunkPeeker) {
+    this.chunkPeeker = chunkPeeker;
   }
 
   public boolean isAllKeyFrames() {
@@ -60,23 +71,24 @@ public class AviTrack {
     if (allKeyFrames) {
       return true;
     }
+    if (forceKeyFrame) {
+      forceKeyFrame = false;
+      return true;
+    }
     if (keyFrames != null) {
-      return Arrays.binarySearch(keyFrames, frame) >= 0;
+      return Arrays.binarySearch(keyFrames, clock.getIndex()) >= 0;
     }
     //Hack: Exo needs at least one frame before it starts playback
-    return frame == 0;
+    //return clock.getIndex() == 0;
+    return false;
+  }
+
+  public void setForceKeyFrame(boolean v) {
+    forceKeyFrame = v;
   }
 
   public void setKeyFrames(int[] keyFrames) {
     this.keyFrames = keyFrames;
-  }
-
-  public long getUs() {
-    return getUs(getUsFrame());
-  }
-
-  public long getUs(final int myFrame) {
-    return myFrame * usPerSample;
   }
 
   public boolean isVideo() {
@@ -87,23 +99,10 @@ public class AviTrack {
     return streamHeaderBox.isAudio();
   }
 
-  public void advance() {
-    frame++;
-  }
-
-  /**
-   * Get the frame number used to calculate the timeUs
-   * @return
-   */
-  int getUsFrame() {
-    return frame;
-  }
-
-  void seekFrame(int frame) {
-    this.frame = frame;
-  }
-
   public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
+    if (chunkPeeker != null) {
+      chunkPeeker.peek(input, size);
+    }
     final int remaining = size - trackOutput.sampleData(input, size, false);
     if (remaining == 0) {
       done(size);
@@ -127,8 +126,8 @@ public class AviTrack {
 
   void done(final int size) {
     trackOutput.sampleMetadata(
-        getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
+        clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
     //Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + getUs() + " size=" + size + " frame=" + frame + " usFrame=" + getUsFrame());
-    advance();
+    clock.advance();
   }
 }

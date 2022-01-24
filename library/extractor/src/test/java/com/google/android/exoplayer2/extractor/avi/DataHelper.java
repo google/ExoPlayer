@@ -50,4 +50,12 @@ public class DataHelper {
     bytes = Arrays.copyOf(bytes, bytes.length + 1);
     return new StreamNameBox(StreamNameBox.STRN, bytes.length, ByteBuffer.wrap(bytes));
   }
+
+  public static ByteBuffer appendNal(final ByteBuffer byteBuffer, byte nalType) {
+    byteBuffer.put((byte)0);
+    byteBuffer.put((byte)0);
+    byteBuffer.put((byte) 1);
+    byteBuffer.put(nalType);
+    return byteBuffer;
+  }
 }

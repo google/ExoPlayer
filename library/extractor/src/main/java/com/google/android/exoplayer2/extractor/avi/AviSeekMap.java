@@ -1,33 +1,35 @@
 package com.google.android.exoplayer2.extractor.avi;
 
-import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.Log;
 
 public class AviSeekMap implements SeekMap {
-  final AviTrack videoTrack;
+  final long videoUsPerChunk;
+  final int videoStreamId;
   /**
    * Number of frames per index
    * i.e. videoFrameOffsetMap[1] is frame 1 * seekIndexFactor
    */
   final int seekIndexFactor;
-  //Map from the Video Frame index to the offset
-  final int[] videoFrameOffsetMap;
+  //Seek offsets by streamId, for video, this is the actual offset, for audio, this is the chunkId
+  final int[][] seekOffsets;
   //Holds a map of video frameIds to audioFrameIds for each audioId
-  final SparseArray<int[]> audioIdMap;
+
   final long moviOffset;
   final long duration;
 
-  public AviSeekMap(AviTrack videoTrack, int seekIndexFactor, int[] videoFrameOffsetMap,
-      SparseArray<int[]> audioIdMap, long moviOffset, long duration) {
-    this.videoTrack = videoTrack;
+  public AviSeekMap(AviTrack videoTrack, UnboundedIntArray[] seekOffsets, int seekIndexFactor, long moviOffset, long duration) {
+    videoUsPerChunk = videoTrack.getClock().usPerChunk;
+    videoStreamId = videoTrack.id;
     this.seekIndexFactor = seekIndexFactor;
-    this.videoFrameOffsetMap = videoFrameOffsetMap;
-    this.audioIdMap = audioIdMap;
     this.moviOffset = moviOffset;
     this.duration = duration;
+    this.seekOffsets = new int[seekOffsets.length][];
+    for (int i=0;i<seekOffsets.length;i++) {
+      this.seekOffsets[i] = seekOffsets[i].getArray();
+    }
   }
 
   @Override
@@ -41,10 +43,10 @@ public class AviSeekMap implements SeekMap {
   }
 
   private int getSeekFrameIndex(long timeUs) {
-    final int reqFrame = (int)(timeUs / videoTrack.usPerSample);
+    final int reqFrame = (int)(timeUs / videoUsPerChunk);
     int reqFrameIndex = reqFrame / seekIndexFactor;
-    if (reqFrameIndex >= videoFrameOffsetMap.length) {
-      reqFrameIndex = videoFrameOffsetMap.length - 1;
+    if (reqFrameIndex >= seekOffsets[videoStreamId].length) {
+      reqFrameIndex = seekOffsets[videoStreamId].length - 1;
     }
     return reqFrameIndex;
   }
@@ -53,23 +55,29 @@ public class AviSeekMap implements SeekMap {
   @Override
   public SeekPoints getSeekPoints(long timeUs) {
     final int seekFrameIndex = getSeekFrameIndex(timeUs);
-    int offset = videoFrameOffsetMap[seekFrameIndex];
-    final long outUs = seekFrameIndex * seekIndexFactor * videoTrack.usPerSample;
+    int offset = seekOffsets[videoStreamId][seekFrameIndex];
+    final long outUs = seekFrameIndex * seekIndexFactor * videoUsPerChunk;
     final long position = offset + moviOffset;
     Log.d(AviExtractor.TAG, "SeekPoint: us=" + outUs + " pos=" + position);
 
     return new SeekPoints(new SeekPoint(outUs, position));
   }
 
-  public void setFrames(final long position, final long timeUs, final SparseArray<AviTrack> idTrackMap) {
+  public void setFrames(final long position, final long timeUs, final AviTrack[] aviTracks) {
     final int seekFrameIndex = getSeekFrameIndex(timeUs);
-    videoTrack.seekFrame(seekFrameIndex * seekIndexFactor);
-    for (int i=0;i<audioIdMap.size();i++) {
-      final int audioId = audioIdMap.keyAt(i);
-      final int[] video2AudioFrameMap = audioIdMap.get(audioId);
-      final AviTrack audioTrack = idTrackMap.get(audioId);
-      audioTrack.frame = video2AudioFrameMap[seekFrameIndex];
+    for (int i=0;i<aviTracks.length;i++) {
+      final AviTrack aviTrack = aviTracks[i];
+      if (aviTrack != null) {
+        final LinearClock clock = aviTrack.getClock();
+        if (aviTrack.isVideo()) {
+          //TODO: Although this works, it leads to partial frames being painted
+          aviTrack.setForceKeyFrame(true);
+          clock.setIndex(seekFrameIndex * seekIndexFactor);
+        } else {
+          final int offset = seekOffsets[i][seekFrameIndex];
+          clock.setIndex(offset);
+        }
+      }
     }
   }
-
 }

@@ -98,9 +98,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.ADTS,
         FileTypes.AC3,
         FileTypes.AC4,
+        FileTypes.AVI,
         FileTypes.MP3,
         FileTypes.JPEG,
-        FileTypes.AVI,
       };
 
   private static final FlacExtensionLoader FLAC_EXTENSION_LOADER = new FlacExtensionLoader();

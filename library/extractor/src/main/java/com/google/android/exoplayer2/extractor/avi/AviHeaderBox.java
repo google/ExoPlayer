@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 public class AviHeaderBox extends ResidentBox {
   private static final int AVIF_HASINDEX = 0x10;
-  private static int AVIF_MUSTUSEINDEX = 0x20;
+  private static final int AVIF_MUSTUSEINDEX = 0x20;
   static final int AVIH = 'a' | ('v' << 8) | ('i' << 16) | ('h' << 24);
 
   //AVIMAINHEADER
@@ -32,20 +32,29 @@ public class AviHeaderBox extends ResidentBox {
     return byteBuffer.getInt(12);
   }
 
-  int getFrames() {
+  int getTotalFrames() {
     return byteBuffer.getInt(16);
   }
-  //20 = dwInitialFrames
 
-  int getSuggestedBufferSize() {
+  // 20 - dwInitialFrames
+//  int getInitialFrames() {
+//    return byteBuffer.getInt(20);
+//  }
+
+  int getStreams() {
     return byteBuffer.getInt(24);
   }
 
-  int getWidth() {
-    return byteBuffer.getInt(28);
-  }
-
-  int getHeight() {
-    return byteBuffer.getInt(32);
-  }
+  // 28 - dwSuggestedBufferSize
+//  int getSuggestedBufferSize() {
+//    return byteBuffer.getInt(28);
+//  }
+//
+//  int getWidth() {
+//    return byteBuffer.getInt(32);
+//  }
+//
+//  int getHeight() {
+//    return byteBuffer.getInt(36);
+//  }
 }
