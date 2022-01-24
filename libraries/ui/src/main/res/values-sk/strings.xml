@@ -50,7 +50,6 @@
   <string name="exo_controls_cc_enabled_description">Zakázať titulky</string>
   <string name="exo_controls_cc_disabled_description">Povoliť titulky</string>
   <string name="exo_controls_playback_speed">Rýchlosť</string>
-  <string name="exo_controls_playback_speed_normal">Normálna</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25 ×</item>
     <item>0,5 ×</item>

@@ -50,7 +50,6 @@
   <string name="exo_controls_cc_enabled_description">Onemogočanje podnapisov</string>
   <string name="exo_controls_cc_disabled_description">Omogočanje podnapisov</string>
   <string name="exo_controls_playback_speed">Hitrost</string>
-  <string name="exo_controls_playback_speed_normal">Običajna</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25-kratna</item>
     <item>0,5-kratna</item>

@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">Desgaitu azpitituluak</string>
   <string name="exo_controls_cc_disabled_description">Gaitu azpitituluak</string>
   <string name="exo_controls_playback_speed">Abiadura</string>
-  <string name="exo_controls_playback_speed_normal">Normala</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25x</item>
     <item>0,5x</item>

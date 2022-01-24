@@ -50,7 +50,6 @@
   <string name="exo_controls_cc_enabled_description">Выключить субтитры</string>
   <string name="exo_controls_cc_disabled_description">Включить субтитры</string>
   <string name="exo_controls_playback_speed">Скорость</string>
-  <string name="exo_controls_playback_speed_normal">Стандартная</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25</item>
     <item>0,5</item>

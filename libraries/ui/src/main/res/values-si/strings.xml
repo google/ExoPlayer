@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">උපසිරැසි අබල කරන්න</string>
   <string name="exo_controls_cc_disabled_description">උපසිරැසි සබල කරන්න</string>
   <string name="exo_controls_playback_speed">වේගය</string>
-  <string name="exo_controls_playback_speed_normal">සාමාන්‍ය</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0.25x</item>
     <item>0.5x</item>

@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">Оневозможете ги титловите</string>
   <string name="exo_controls_cc_disabled_description">Овозможете ги титловите</string>
   <string name="exo_controls_playback_speed">Брзина</string>
-  <string name="exo_controls_playback_speed_normal">Нормална</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25 пати</item>
     <item>0,5 пати</item>
