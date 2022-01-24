@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.analytics;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.annotation.SuppressLint;
@@ -172,7 +171,7 @@ public final class MediaMetricsListener
       // Ignore ad sessions.
       return;
     }
-    checkState(activeSessionId == null);
+    finishCurrentSession();
     activeSessionId = sessionId;
     metricsBuilder =
         new PlaybackMetrics.Builder()
