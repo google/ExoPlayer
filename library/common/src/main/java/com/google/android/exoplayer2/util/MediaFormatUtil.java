@@ -220,6 +220,17 @@ public final class MediaFormatUtil {
       case C.ENCODING_PCM_FLOAT:
         mediaFormatPcmEncoding = AudioFormat.ENCODING_PCM_FLOAT;
         break;
+      case C.ENCODING_PCM_24BIT:
+        mediaFormatPcmEncoding = AudioFormat.ENCODING_PCM_24BIT_PACKED;
+        break;
+      case C.ENCODING_PCM_32BIT:
+        mediaFormatPcmEncoding = AudioFormat.ENCODING_PCM_32BIT;
+        break;
+      case C.ENCODING_INVALID:
+        mediaFormatPcmEncoding = AudioFormat.ENCODING_INVALID;
+        break;
+      case Format.NO_VALUE:
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       default:
         // No matching value. Do nothing.
         return;
