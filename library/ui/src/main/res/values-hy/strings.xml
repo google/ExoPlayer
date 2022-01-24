@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">Անջատել ենթագրերը</string>
   <string name="exo_controls_cc_disabled_description">Միացնել ենթագրերը</string>
   <string name="exo_controls_playback_speed">Արագություն</string>
-  <string name="exo_controls_playback_speed_normal">Սովորական</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25x</item>
     <item>0,5x</item>

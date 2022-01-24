@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">Poista tekstitykset käytöstä</string>
   <string name="exo_controls_cc_disabled_description">Ota tekstitykset käyttöön</string>
   <string name="exo_controls_playback_speed">Nopeus</string>
-  <string name="exo_controls_playback_speed_normal">Normaali</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25x</item>
     <item>0,5x</item>

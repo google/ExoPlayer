@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">ಸಬ್‌ಟೈಟಲ್‌ಗಳನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ</string>
   <string name="exo_controls_cc_disabled_description">ಸಬ್‌ಟೈಟಲ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ</string>
   <string name="exo_controls_playback_speed">ವೇಗ</string>
-  <string name="exo_controls_playback_speed_normal">ಸಾಮಾನ್ಯ</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0.25 ಪಟ್ಟು</item>
     <item>0.5 ಪಟ್ಟು</item>

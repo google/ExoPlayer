@@ -50,7 +50,6 @@
   <string name="exo_controls_cc_enabled_description">Išjungti subtitrus</string>
   <string name="exo_controls_cc_disabled_description">Įgalinti subtitrus</string>
   <string name="exo_controls_playback_speed">Sparta</string>
-  <string name="exo_controls_playback_speed_normal">Įprasta</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25 k.</item>
     <item>0,5 k.</item>

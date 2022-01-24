@@ -94,6 +94,8 @@
     *   Fix the color of the numbers in `StyledPlayerView` rewind and
         fastforward buttons when using certain themes
         ([#9765](https://github.com/google/ExoPlayer/issues/9765)).
+    *   Correctly translate playback speed strings
+        ([#9811](https://github.com/google/ExoPlayer/issues/9811)).
 *   Transformer:
     *   Increase required min API version to 21.
     *   `TransformationException` is now used to describe errors that occur

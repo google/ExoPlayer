@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">停用字幕</string>
   <string name="exo_controls_cc_disabled_description">啟用字幕</string>
   <string name="exo_controls_playback_speed">速度</string>
-  <string name="exo_controls_playback_speed_normal">正常</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0.25x</item>
     <item>0.5x</item>

@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">सबटाइटलहरू असक्षम पार्नुहोस्</string>
   <string name="exo_controls_cc_disabled_description">सबटाइटलहरू सक्षम पार्नुहोस्</string>
   <string name="exo_controls_playback_speed">गति</string>
-  <string name="exo_controls_playback_speed_normal">सामान्य</string>
   <string-array name="exo_controls_playback_speeds">
     <item>०.२५ गुणा</item>
     <item>०.५ गुणा</item>

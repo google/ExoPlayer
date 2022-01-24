@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">Lumpuhkan sari kata</string>
   <string name="exo_controls_cc_disabled_description">Dayakan sari kata</string>
   <string name="exo_controls_playback_speed">Kelajuan</string>
-  <string name="exo_controls_playback_speed_normal">Biasa</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0.25x</item>
     <item>0.5x</item>

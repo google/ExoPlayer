@@ -48,7 +48,6 @@
   <string name="exo_controls_cc_enabled_description">Onemogući titlove</string>
   <string name="exo_controls_cc_disabled_description">Omogući titlove</string>
   <string name="exo_controls_playback_speed">Brzina</string>
-  <string name="exo_controls_playback_speed_normal">Obično</string>
   <string-array name="exo_controls_playback_speeds">
     <item>0,25 x</item>
     <item>0,5 x</item>

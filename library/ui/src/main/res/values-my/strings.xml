@@ -46,7 +46,6 @@
   <string name="exo_controls_cc_enabled_description">စာတန်းထိုး ပိတ်ပါ</string>
   <string name="exo_controls_cc_disabled_description">စာတန်းထိုး ဖွင့်ပါ</string>
   <string name="exo_controls_playback_speed">မြန်နှုန်း</string>
-  <string name="exo_controls_playback_speed_normal">ပုံမှန်</string>
   <string-array name="exo_controls_playback_speeds">
     <item>၀.၂၅ ဆ</item>
     <item>၀.၅ ဆ</item>
