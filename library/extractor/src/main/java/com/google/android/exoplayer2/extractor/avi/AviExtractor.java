@@ -431,7 +431,7 @@ public class AviExtractor implements Extractor {
   @Nullable
   private AviTrack getAviTrack(int chunkId) {
     final int streamId = getStreamId(chunkId);
-    if (streamId >= 0) {
+    if (streamId >= 0 && streamId < aviTracks.length) {
       return aviTracks[streamId];
     }
     return null;
