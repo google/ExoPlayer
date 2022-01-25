@@ -223,10 +223,12 @@ import java.util.ArrayList;
     if (currentPlayer != localPlayer || tracksInfo == lastSeenTrackGroupInfo) {
       return;
     }
-    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)) {
+    if (!tracksInfo.isTypeSupportedOrEmpty(
+        C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
     }
-    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)) {
+    if (!tracksInfo.isTypeSupportedOrEmpty(
+        C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
     }
     lastSeenTrackGroupInfo = tracksInfo;
