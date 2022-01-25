@@ -38,6 +38,8 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
         return new RtpAacReader(payloadFormat);
       case MimeTypes.VIDEO_H264:
         return new RtpH264Reader(payloadFormat);
+      case MimeTypes.VIDEO_MP4V:
+        return new RtpMPEG4Reader(payloadFormat);
       default:
         // No supported reader, returning null.
     }

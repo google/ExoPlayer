@@ -25,6 +25,7 @@ import static androidx.media3.extractor.NalUnitUtil.NAL_START_CODE;
 
 import android.net.Uri;
 import android.util.Base64;
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
@@ -44,10 +45,14 @@ import com.google.common.collect.ImmutableMap;
   // Format specific parameter names.
   private static final String PARAMETER_PROFILE_LEVEL_ID = "profile-level-id";
   private static final String PARAMETER_SPROP_PARAMS = "sprop-parameter-sets";
+  private static final String PARAMETER_CONFIG = "config";
+
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
   /** Prefix for the RFC6381 codecs string for AVC formats. */
   private static final String H264_CODECS_PREFIX = "avc1.";
+  /** Prefix for the RFC6416 codecs string for MPEG4V-ES formats. */
+  private static final String MPEG4_CODECS_PREFIX = "mp4v";
 
   private static final String GENERIC_CONTROL_ATTR = "*";
 
@@ -116,6 +121,10 @@ import com.google.common.collect.ImmutableMap;
         checkArgument(!fmtpParameters.isEmpty());
         processAacFmtpAttribute(formatBuilder, fmtpParameters, channelCount, clockRate);
         break;
+      case MimeTypes.VIDEO_MP4V:
+        checkArgument(!fmtpParameters.isEmpty());
+        processMPEG4FmtpAttribute(formatBuilder, fmtpParameters);
+        break;
       case MimeTypes.VIDEO_H264:
         checkArgument(!fmtpParameters.isEmpty());
         processH264FmtpAttribute(formatBuilder, fmtpParameters);
@@ -158,6 +167,24 @@ import com.google.common.collect.ImmutableMap;
         ImmutableList.of(
             // Clock rate equals to sample rate in RTP.
             AacUtil.buildAacLcAudioSpecificConfig(sampleRate, channelCount)));
+  }
+
+  private static void processMPEG4FmtpAttribute(
+      Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
+    @Nullable String configInput = fmtpAttributes.get(PARAMETER_CONFIG);
+    if (configInput != null) {
+      byte[] csd = Util.getBytesFromHexString(configInput);
+      ImmutableList<byte[]> initializationData = ImmutableList.of(csd);
+      formatBuilder.setInitializationData(initializationData);
+      Pair<Integer, Integer> dimensions = CodecSpecificDataUtil.parseMpeg4VideoSpecificConfig(csd);
+      formatBuilder.setWidth(dimensions.first);
+      formatBuilder.setHeight(dimensions.second);
+    }
+    @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
+    if (profileLevel == null) {
+      profileLevel = "1"; // default
+    }
+    formatBuilder.setCodecs(MPEG4_CODECS_PREFIX + profileLevel);
   }
 
   private static void processH264FmtpAttribute(

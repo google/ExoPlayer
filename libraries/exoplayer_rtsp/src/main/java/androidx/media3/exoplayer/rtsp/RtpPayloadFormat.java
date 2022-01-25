@@ -38,6 +38,7 @@ public final class RtpPayloadFormat {
 
   private static final String RTP_MEDIA_AC3 = "AC3";
   private static final String RTP_MEDIA_MPEG4_GENERIC = "MPEG4-GENERIC";
+  private static final String RTP_MEDIA_MPEG4_VIDEO = "MP4V-ES";
   private static final String RTP_MEDIA_H264 = "H264";
 
   /** Returns whether the format of a {@link MediaDescription} is supported. */
@@ -45,6 +46,7 @@ public final class RtpPayloadFormat {
     switch (Ascii.toUpperCase(mediaDescription.rtpMapAttribute.mediaEncoding)) {
       case RTP_MEDIA_AC3:
       case RTP_MEDIA_H264:
+      case RTP_MEDIA_MPEG4_VIDEO:
       case RTP_MEDIA_MPEG4_GENERIC:
         return true;
       default:
@@ -65,6 +67,8 @@ public final class RtpPayloadFormat {
         return MimeTypes.AUDIO_AC3;
       case RTP_MEDIA_H264:
         return MimeTypes.VIDEO_H264;
+      case RTP_MEDIA_MPEG4_VIDEO:
+        return MimeTypes.VIDEO_MP4V;
       case RTP_MEDIA_MPEG4_GENERIC:
         return MimeTypes.AUDIO_AAC;
       default:

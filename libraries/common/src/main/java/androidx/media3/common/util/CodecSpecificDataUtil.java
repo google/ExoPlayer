@@ -31,6 +31,13 @@ public final class CodecSpecificDataUtil {
   private static final String[] HEVC_GENERAL_PROFILE_SPACE_STRINGS =
       new String[] {"", "A", "B", "C"};
 
+  // MP4V-ES
+  private static final int VISUAL_OBJECT_LAYER = 1;
+  private static final int VISUAL_OBJECT_LAYER_START = 0x20;
+  private static final int EXTENDED_PAR = 0x0F;
+  private static final int RECTANGULAR = 0x00;
+  private static final int FINE_GRANULARITY_SCALABLE = 0x12;
+
   /**
    * Parses an ALAC AudioSpecificConfig (i.e. an <a
    * href="https://github.com/macosforge/alac/blob/master/ALACMagicCookieDescription.txt">ALACSpecificConfig</a>).
@@ -70,6 +77,85 @@ public final class CodecSpecificDataUtil {
     return initializationData.size() == 1
         && initializationData.get(0).length == 1
         && initializationData.get(0)[0] == 1;
+  }
+
+  /**
+   * Parses an MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2
+   *
+   * @param videoSpecificConfig A byte array containing the MPEG-4 Visual configuration information
+   *     to parse.
+   * @return A pair consisting of the width and the height.
+   */
+  public static Pair<Integer, Integer> parseMpeg4VideoSpecificConfig(byte[] videoSpecificConfig) {
+    int offset = 0;
+    boolean foundVOL = false;
+    ParsableByteArray scdScratchBytes = new ParsableByteArray(videoSpecificConfig);
+    while (offset + 3 < videoSpecificConfig.length) {
+      if (scdScratchBytes.readUnsignedInt24() != VISUAL_OBJECT_LAYER
+          || (videoSpecificConfig[offset + 3] & 0xf0) != VISUAL_OBJECT_LAYER_START) {
+        scdScratchBytes.setPosition(scdScratchBytes.getPosition() - 2);
+        offset++;
+        continue;
+      }
+      foundVOL = true;
+      break;
+    }
+
+    Assertions.checkArgument(foundVOL);
+
+    ParsableBitArray scdScratchBits = new ParsableBitArray(videoSpecificConfig);
+    scdScratchBits.skipBits((offset + 4) * 8);
+    scdScratchBits.skipBits(1); // random_accessible_vol
+
+    int videoObjectTypeIndication = scdScratchBits.readBits(8);
+    Assertions.checkArgument(videoObjectTypeIndication != FINE_GRANULARITY_SCALABLE);
+
+    if (scdScratchBits.readBit()) { // object_layer_identifier
+      scdScratchBits.skipBits(4); // video_object_layer_verid
+      scdScratchBits.skipBits(3); // video_object_layer_priority
+    }
+
+    int aspectRatioInfo = scdScratchBits.readBits(4);
+    if (aspectRatioInfo == EXTENDED_PAR) {
+      scdScratchBits.skipBits(8); // par_width
+      scdScratchBits.skipBits(8); // par_height
+    }
+
+    if (scdScratchBits.readBit()) { // vol_control_parameters
+      scdScratchBits.skipBits(2); // chroma_format
+      scdScratchBits.skipBits(1); // low_delay
+      if (scdScratchBits.readBit()) { // vbv_parameters
+        scdScratchBits.skipBits(79);
+      }
+    }
+
+    int videoObjectLayerShape = scdScratchBits.readBits(2);
+    Assertions.checkArgument(videoObjectLayerShape == RECTANGULAR);
+
+    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    int vopTimeIncrementResolution = scdScratchBits.readBits(16);
+    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+
+    if (scdScratchBits.readBit()) { // fixed_vop_rate
+      Assertions.checkArgument(vopTimeIncrementResolution > 0);
+      --vopTimeIncrementResolution;
+      int numBits = 0;
+      while (vopTimeIncrementResolution > 0) {
+        ++numBits;
+        vopTimeIncrementResolution >>= 1;
+      }
+      scdScratchBits.skipBits(numBits); // fixed_vop_time_increment
+    }
+
+    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    int videoObjectLayerWidth = scdScratchBits.readBits(13);
+    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    int videoObjectLayerHeight = scdScratchBits.readBits(13);
+    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+
+    scdScratchBits.skipBits(1); // interlaced
+
+    return Pair.create(videoObjectLayerWidth, videoObjectLayerHeight);
   }
 
   /**
