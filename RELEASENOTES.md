@@ -40,6 +40,7 @@
     *   Update video track selection logic to prefer more efficient codecs if
         multiple codecs are supported by primary, hardware-accelerated decoders
         ([#4835](https://github.com/google/ExoPlayer/issues/4835)).
+    *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
@@ -60,7 +61,6 @@
         the `Format#id` field of the subtitle track created from the
         configuration
         ([#9673](https://github.com/google/ExoPlayer/issues/9673)).
-    *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
 *   DRM:
     *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
         When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
