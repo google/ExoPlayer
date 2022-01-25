@@ -13,7 +13,7 @@ public class AudioFormatTest {
 
   @Test
   public void getters_givenAacStreamFormat() throws IOException {
-    final StreamFormatBox streamFormatBox = DataHelper.getAudioStreamFormat();
+    final StreamFormatBox streamFormatBox = DataHelper.getAacStreamFormat();
     final AudioFormat audioFormat = streamFormatBox.getAudioFormat();
     Assert.assertEquals(MimeTypes.AUDIO_AAC, audioFormat.getMimeType());
     Assert.assertEquals(2, audioFormat.getChannels());
@@ -21,5 +21,6 @@ public class AudioFormatTest {
     Assert.assertEquals(48000, audioFormat.getSamplesPerSecond());
     Assert.assertEquals(0, audioFormat.getBitsPerSample()); //Not meaningful for AAC
     Assert.assertArrayEquals(CODEC_PRIVATE, audioFormat.getCodecData());
+    Assert.assertEquals(MimeTypes.AUDIO_AAC, audioFormat.getMimeType());
   }
 }

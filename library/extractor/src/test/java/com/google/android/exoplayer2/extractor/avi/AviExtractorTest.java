@@ -98,4 +98,54 @@ public class AviExtractorTest {
     final int riff = 'R' | ('I' << 8) | ('F' << 16) | ('F' << 24);
     Assert.assertEquals("RIFF", AviExtractor.toString(riff));
   }
+
+  @Test
+  public void alignPosition_givenOddPosition() {
+    Assert.assertEquals(2, AviExtractor.alignPosition(1));
+  }
+
+  @Test
+  public void alignPosition_givenEvenPosition() {
+    Assert.assertEquals(2, AviExtractor.alignPosition(2));
+  }
+
+  @Test
+  public void alignInput_givenOddPosition() throws IOException {
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(new byte[16]).build();
+    fakeExtractorInput.setPosition(1);
+    AviExtractor.alignInput(fakeExtractorInput);
+    Assert.assertEquals(2, fakeExtractorInput.getPosition());
+  }
+  @Test
+
+  public void alignInput_givenEvenPosition() throws IOException {
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(new byte[16]).build();
+    fakeExtractorInput.setPosition(4);
+    AviExtractor.alignInput(fakeExtractorInput);
+    Assert.assertEquals(4, fakeExtractorInput.getPosition());
+  }
+
+  @Test
+  public void setSeekMap_givenStubbedSeekMap() throws IOException {
+    final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
+    final AviExtractor aviExtractor = new AviExtractor();
+    final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+    aviExtractor.init(fakeExtractorOutput);
+    aviExtractor.setSeekMap(aviSeekMap);
+    Assert.assertEquals(aviSeekMap, fakeExtractorOutput.seekMap);
+    Assert.assertEquals(aviSeekMap, aviExtractor.aviSeekMap);
+  }
+
+  @Test
+  public void getStreamId_givenInvalidStreamId() {
+    Assert.assertEquals(-1, AviExtractor.getStreamId(AviExtractor.JUNK));
+  }
+
+  @Test
+  public void getStreamId_givenValidStreamId() {
+    Assert.assertEquals(1, AviExtractor.getStreamId('0' | ('1' << 8) | ('d' << 16) | ('c' << 24)));
+  }
+
 }

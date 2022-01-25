@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -16,23 +15,22 @@ public class AviTrack {
   final int id;
 
   @NonNull
-  final StreamHeaderBox streamHeaderBox;
+  final LinearClock clock;
 
-  @NonNull
-  LinearClock clock;
-
-  @Nullable
-  ChunkPeeker chunkPeeker;
 
   /**
    * True indicates all frames are key frames (e.g. Audio, MJPEG)
    */
-  boolean allKeyFrames;
+  final boolean allKeyFrames;
+  final @C.TrackType int trackType;
+
+  @NonNull
+  final TrackOutput trackOutput;
 
   boolean forceKeyFrame;
 
-  @NonNull
-  TrackOutput trackOutput;
+  @Nullable
+  ChunkPeeker chunkPeeker;
 
   /**
    * Key is frame number value is offset
@@ -43,20 +41,17 @@ public class AviTrack {
   transient int chunkSize;
   transient int chunkRemaining;
 
-  AviTrack(int id, @NonNull StreamHeaderBox streamHeaderBox, @NonNull TrackOutput trackOutput) {
+  AviTrack(int id, @NonNull IStreamFormat streamFormat, @NonNull LinearClock clock,
+      @NonNull TrackOutput trackOutput) {
     this.id = id;
+    this.clock = clock;
+    this.allKeyFrames = streamFormat.isAllKeyFrames();
+    this.trackType = streamFormat.getTrackType();
     this.trackOutput = trackOutput;
-    this.streamHeaderBox = streamHeaderBox;
-    clock = new LinearClock(streamHeaderBox.getUsPerSample());
-    this.allKeyFrames = streamHeaderBox.isAudio() || (MimeTypes.VIDEO_MJPEG.equals(streamHeaderBox.getMimeType()));
   }
 
   public LinearClock getClock() {
     return clock;
-  }
-
-  public void setClock(LinearClock clock) {
-    this.clock = clock;
   }
 
   public void setChunkPeeker(ChunkPeeker chunkPeeker) {
@@ -78,8 +73,6 @@ public class AviTrack {
     if (keyFrames != null) {
       return Arrays.binarySearch(keyFrames, clock.getIndex()) >= 0;
     }
-    //Hack: Exo needs at least one frame before it starts playback
-    //return clock.getIndex() == 0;
     return false;
   }
 
@@ -92,11 +85,11 @@ public class AviTrack {
   }
 
   public boolean isVideo() {
-    return streamHeaderBox.isVideo();
+    return trackType == C.TRACK_TYPE_VIDEO;
   }
 
   public boolean isAudio() {
-    return streamHeaderBox.isAudio();
+    return trackType == C.TRACK_TYPE_AUDIO;
   }
 
   public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
@@ -114,7 +107,13 @@ public class AviTrack {
     }
   }
 
-  public boolean resume(ExtractorInput input) throws IOException {
+  /**
+   * Resume a partial read of a chunk
+   * @param input
+   * @return
+   * @throws IOException
+   */
+  boolean resume(ExtractorInput input) throws IOException {
     chunkRemaining -= trackOutput.sampleData(input, chunkRemaining, false);
     if (chunkRemaining == 0) {
       done(chunkSize);
@@ -124,6 +123,10 @@ public class AviTrack {
     }
   }
 
+  /**
+   * Done reading a chunk
+   * @param size
+   */
   void done(final int size) {
     trackOutput.sampleMetadata(
         clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);

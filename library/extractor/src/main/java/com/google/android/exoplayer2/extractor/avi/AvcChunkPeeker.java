@@ -1,5 +1,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -37,6 +38,12 @@ public class AvcChunkPeeker extends NalChunkPeeker {
     return false;
   }
 
+  /**
+   * Greatly simplified way to calculate the picOrder
+   * Full logic is here
+   * https://chromium.googlesource.com/chromium/src/media/+/refs/heads/main/video/h264_poc.cc
+   * @param nalTypeOffset
+   */
   void updatePicCountClock(final int nalTypeOffset) {
     final ParsableNalUnitBitArray in = new ParsableNalUnitBitArray(buffer, nalTypeOffset + 1, buffer.length);
     //slide_header()
@@ -63,7 +70,8 @@ public class AvcChunkPeeker extends NalChunkPeeker {
     picCountClock.setIndex(picCountClock.getIndex());
   }
 
-  private int readSps(ExtractorInput input, int nalTypeOffset) throws IOException {
+  @VisibleForTesting
+  int readSps(ExtractorInput input, int nalTypeOffset) throws IOException {
     final int spsStart = nalTypeOffset + 1;
     nalTypeOffset = seekNextNal(input, spsStart);
     spsData = NalUnitUtil.parseSpsNalUnitPayload(buffer, spsStart, pos);

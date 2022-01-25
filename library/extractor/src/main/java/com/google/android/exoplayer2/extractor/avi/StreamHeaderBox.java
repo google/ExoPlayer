@@ -1,7 +1,5 @@
 package com.google.android.exoplayer2.extractor.avi;
 
-import android.util.SparseArray;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 
 /**
@@ -15,31 +13,6 @@ public class StreamHeaderBox extends ResidentBox {
 
   //Videos Stream
   static final int VIDS = 'v' | ('i' << 8) | ('d' << 16) | ('s' << 24);
-
-  static final int XVID = 'X' | ('V' << 8) | ('I' << 16) | ('D' << 24);
-
-  private static final SparseArray<String> STREAM_MAP = new SparseArray<>();
-
-  static {
-    //Although other types are technically supported, AVI is almost exclusively MP4V and MJPEG
-    final String mimeType = MimeTypes.VIDEO_MP4V;
-    //final String mimeType = MimeTypes.VIDEO_H263;
-
-    //I've never seen an Android devices that actually supports MP42
-    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.BASE_TYPE_VIDEO+"/mp42");
-    //Samsung seems to support the rare MP43.
-    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('3' << 24), MimeTypes.BASE_TYPE_VIDEO+"/mp43");
-    STREAM_MAP.put('H' | ('2' << 8) | ('6' << 16) | ('4' << 24), MimeTypes.VIDEO_H264);
-    STREAM_MAP.put('a' | ('v' << 8) | ('c' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
-    STREAM_MAP.put('A' | ('V' << 8) | ('C' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
-    STREAM_MAP.put('3' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
-    STREAM_MAP.put('x' | ('v' << 8) | ('i' << 16) | ('d' << 24), mimeType);
-    STREAM_MAP.put(XVID, mimeType);
-    STREAM_MAP.put('D' | ('X' << 8) | ('5' << 16) | ('0' << 24), mimeType);
-    STREAM_MAP.put('d' | ('i' << 8) | ('v' << 16) | ('x' << 24), mimeType);
-
-    STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.VIDEO_MJPEG);
-  }
 
   StreamHeaderBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);
@@ -63,11 +36,6 @@ public class StreamHeaderBox extends ResidentBox {
   public long getUsPerSample() {
     return getScale() * 1_000_000L / getRate();
   }
-
-  public String getMimeType() {
-    return STREAM_MAP.get(getFourCC());
-  }
-
 
   public int getSteamType() {
     return byteBuffer.getInt(0);

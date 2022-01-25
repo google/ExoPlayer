@@ -3,7 +3,6 @@ package com.google.android.exoplayer2.extractor.avi;
 import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
-import com.google.android.exoplayer2.util.Log;
 
 public class AviSeekMap implements SeekMap {
   final long videoUsPerChunk;
@@ -58,7 +57,7 @@ public class AviSeekMap implements SeekMap {
     int offset = seekOffsets[videoStreamId][seekFrameIndex];
     final long outUs = seekFrameIndex * seekIndexFactor * videoUsPerChunk;
     final long position = offset + moviOffset;
-    Log.d(AviExtractor.TAG, "SeekPoint: us=" + outUs + " pos=" + position);
+    //Log.d(AviExtractor.TAG, "SeekPoint: us=" + outUs + " pos=" + position);
 
     return new SeekPoints(new SeekPoint(outUs, position));
   }
