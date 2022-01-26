@@ -924,8 +924,7 @@ public class SessionPlayerConnectorTest {
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
-  // TODO(b/168860979): De-flake and re-enable.
-  @Ignore
+  @Ignore("Internal ref: b/168860979")
   @Test
   @LargeTest
   public void replacePlaylistItem_calledOnlyOnce_notifiesPlaylistChangeOnlyOnce() throws Exception {
