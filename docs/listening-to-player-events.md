@@ -220,7 +220,7 @@ player
           // Do something at the specified playback position.
         })
     .setLooper(Looper.getMainLooper())
-    .setPosition(/* windowIndex= */ 0, /* positionMs= */ 120_000)
+    .setPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 120_000)
     .setPayload(customPayloadData)
     .setDeleteAfterDelivery(false)
     .send();
