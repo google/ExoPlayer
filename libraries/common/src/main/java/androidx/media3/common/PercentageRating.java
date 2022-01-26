@@ -98,7 +98,7 @@ public final class PercentageRating extends Rating {
 
   private static PercentageRating fromBundle(Bundle bundle) {
     checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
             == TYPE);
     float percent = bundle.getFloat(keyForField(FIELD_PERCENT), /* defaultValue= */ RATING_UNSET);
     return percent == RATING_UNSET ? new PercentageRating() : new PercentageRating(percent);

@@ -2407,6 +2407,8 @@ public final class Util {
         return "camera motion";
       case C.TRACK_TYPE_NONE:
         return "none";
+      case C.TRACK_TYPE_UNKNOWN:
+        return "unknown";
       default:
         return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
     }

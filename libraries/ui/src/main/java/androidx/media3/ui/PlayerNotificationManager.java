@@ -1480,6 +1480,7 @@ public class PlayerNotificationManager {
     return actions;
   }
 
+  @SuppressWarnings("UnspecifiedImmutableFlag") // Warning is spurious.
   private static PendingIntent createBroadcastIntent(
       String action, Context context, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());

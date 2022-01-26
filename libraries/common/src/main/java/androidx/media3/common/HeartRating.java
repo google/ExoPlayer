@@ -102,7 +102,7 @@ public final class HeartRating extends Rating {
 
   private static HeartRating fromBundle(Bundle bundle) {
     checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
             == TYPE);
     boolean isRated = bundle.getBoolean(keyForField(FIELD_RATED), /* defaultValue= */ false);
     return isRated

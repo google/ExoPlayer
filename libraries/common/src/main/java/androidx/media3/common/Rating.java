@@ -42,7 +42,7 @@ public abstract class Rating implements Bundleable {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    RATING_TYPE_DEFAULT,
+    RATING_TYPE_UNSET,
     RATING_TYPE_HEART,
     RATING_TYPE_PERCENTAGE,
     RATING_TYPE_STAR,
@@ -50,7 +50,7 @@ public abstract class Rating implements Bundleable {
   })
   /* package */ @interface RatingType {}
 
-  /* package */ static final int RATING_TYPE_DEFAULT = -1;
+  /* package */ static final int RATING_TYPE_UNSET = -1;
   /* package */ static final int RATING_TYPE_HEART = 0;
   /* package */ static final int RATING_TYPE_PERCENTAGE = 1;
   /* package */ static final int RATING_TYPE_STAR = 2;
@@ -69,7 +69,7 @@ public abstract class Rating implements Bundleable {
   private static Rating fromBundle(Bundle bundle) {
     @RatingType
     int ratingType =
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT);
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET);
     switch (ratingType) {
       case RATING_TYPE_HEART:
         return HeartRating.CREATOR.fromBundle(bundle);
@@ -79,8 +79,9 @@ public abstract class Rating implements Bundleable {
         return StarRating.CREATOR.fromBundle(bundle);
       case RATING_TYPE_THUMB:
         return ThumbRating.CREATOR.fromBundle(bundle);
+      case RATING_TYPE_UNSET:
       default:
-        throw new IllegalArgumentException("Encountered unknown rating type: " + ratingType);
+        throw new IllegalArgumentException("Unknown RatingType: " + ratingType);
     }
   }
 

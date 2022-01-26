@@ -251,9 +251,7 @@ public class MediaStyleNotificationHelper {
       if (!tombstone) {
         button.setOnClickPendingIntent(androidx.media.R.id.action0, action.getActionIntent());
       }
-      if (Build.VERSION.SDK_INT >= 15) {
-        Api15Impl.setContentDescription(button, androidx.media.R.id.action0, action.getTitle());
-      }
+      button.setContentDescription(androidx.media.R.id.action0, action.getTitle());
       return button;
     }
 
@@ -471,17 +469,6 @@ public class MediaStyleNotificationHelper {
                       androidx.media.R.color.notification_material_background_media_default_color);
       views.setInt(
           androidx.media.R.id.status_bar_latest_event_content, "setBackgroundColor", color);
-    }
-  }
-
-  @RequiresApi(15)
-  private static class Api15Impl {
-    private Api15Impl() {}
-
-    @DoNotInline
-    public static void setContentDescription(
-        RemoteViews remoteViews, int viewId, @Nullable CharSequence contentDescription) {
-      remoteViews.setContentDescription(viewId, contentDescription);
     }
   }
 

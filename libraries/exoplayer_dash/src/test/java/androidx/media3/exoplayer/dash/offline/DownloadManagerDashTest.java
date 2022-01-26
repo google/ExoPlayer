@@ -109,8 +109,7 @@ public class DownloadManagerDashTest {
     testThread.release();
   }
 
-  // Disabled due to flakiness.
-  @Ignore
+  @Ignore("Disabled due to flakiness")
   @Test
   public void saveAndLoadActionFile() throws Throwable {
     // Configure fakeDataSet to block until interrupted when TEST_MPD is read.
