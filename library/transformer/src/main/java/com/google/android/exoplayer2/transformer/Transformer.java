@@ -774,6 +774,7 @@ public final class Transformer {
    */
   private void releaseResources(boolean forCancellation) throws TransformationException {
     verifyApplicationThread();
+    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
     if (player != null) {
       player.release();
       player = null;
@@ -787,7 +788,6 @@ public final class Transformer {
       }
       muxerWrapper = null;
     }
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
   private void verifyApplicationThread() {
