@@ -1921,9 +1921,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
       MediaPeriodId oldPeriodId,
       long positionForTargetOffsetOverrideUs) {
     if (!shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
-      // Live playback speed control is unused for the current period, reset speed if adjusted.
-      if (!mediaClock.getPlaybackParameters().equals(playbackInfo.playbackParameters)) {
-        mediaClock.setPlaybackParameters(playbackInfo.playbackParameters);
+      // Live playback speed control is unused for the current period, reset speed to user-defined
+      // playback parameters or 1.0 for ad playback.
+      PlaybackParameters targetPlaybackParameters =
+          newPeriodId.isAd() ? PlaybackParameters.DEFAULT : playbackInfo.playbackParameters;
+      if (!mediaClock.getPlaybackParameters().equals(targetPlaybackParameters)) {
+        mediaClock.setPlaybackParameters(targetPlaybackParameters);
       }
       return;
     }
