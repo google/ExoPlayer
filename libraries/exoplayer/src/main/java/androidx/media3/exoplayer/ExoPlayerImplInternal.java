@@ -1234,7 +1234,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 /* forceBufferingState= */ playbackInfo.playbackState == Player.STATE_ENDED);
         seekPositionAdjusted |= periodPositionUs != newPeriodPositionUs;
         periodPositionUs = newPeriodPositionUs;
-        updateLivePlaybackSpeedControl(
+        updatePlaybackSpeedSettingsForNewPeriod(
             /* newTimeline= */ playbackInfo.timeline,
             /* newPeriodId= */ periodId,
             /* oldTimeline= */ playbackInfo.timeline,
@@ -1874,7 +1874,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         newPositionUs = seekToPeriodPosition(newPeriodId, newPositionUs, forceBufferingState);
       }
     } finally {
-      updateLivePlaybackSpeedControl(
+      updatePlaybackSpeedSettingsForNewPeriod(
           /* newTimeline= */ timeline,
           newPeriodId,
           /* oldTimeline= */ playbackInfo.timeline,
@@ -1914,15 +1914,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  private void updateLivePlaybackSpeedControl(
+  private void updatePlaybackSpeedSettingsForNewPeriod(
       Timeline newTimeline,
       MediaPeriodId newPeriodId,
       Timeline oldTimeline,
       MediaPeriodId oldPeriodId,
       long positionForTargetOffsetOverrideUs) {
-    if (newTimeline.isEmpty() || !shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
+    if (!shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
       // Live playback speed control is unused for the current period, reset speed if adjusted.
-      if (mediaClock.getPlaybackParameters().speed != playbackInfo.playbackParameters.speed) {
+      if (!mediaClock.getPlaybackParameters().equals(playbackInfo.playbackParameters)) {
         mediaClock.setPlaybackParameters(playbackInfo.playbackParameters);
       }
       return;
@@ -2054,9 +2054,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
 
+    MediaPeriodHolder oldReadingPeriodHolder = readingPeriodHolder;
     TrackSelectorResult oldTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
     readingPeriodHolder = queue.advanceReadingPeriod();
     TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
+
+    updatePlaybackSpeedSettingsForNewPeriod(
+        /* newTimeline= */ playbackInfo.timeline,
+        /* newPeriodId= */ readingPeriodHolder.info.id,
+        /* oldTimeline= */ playbackInfo.timeline,
+        /* oldPeriodId= */ oldReadingPeriodHolder.info.id,
+        /* positionForTargetOffsetOverrideUs= */ C.TIME_UNSET);
 
     if (readingPeriodHolder.prepared
         && readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET) {
@@ -2142,7 +2150,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // If we advance more than one period at a time, notify listeners after each update.
         maybeNotifyPlaybackInfoChanged();
       }
-      MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
       MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
       playbackInfo =
           handlePositionDiscontinuity(
@@ -2152,12 +2159,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
               /* discontinuityStartPositionUs= */ newPlayingPeriodHolder.info.startPositionUs,
               /* reportDiscontinuity= */ true,
               Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
-      updateLivePlaybackSpeedControl(
-          /* newTimeline= */ playbackInfo.timeline,
-          /* newPeriodId= */ newPlayingPeriodHolder.info.id,
-          /* oldTimeline= */ playbackInfo.timeline,
-          /* oldPeriodId= */ oldPlayingPeriodHolder.info.id,
-          /* positionForTargetOffsetOverrideUs= */ C.TIME_UNSET);
       resetPendingPauseAtEndOfPeriod();
       updatePlaybackPositions();
       advancedPlayingPeriod = true;
