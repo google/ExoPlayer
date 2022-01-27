@@ -29,6 +29,8 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TracksInfo;
+import androidx.media3.common.util.Clock;
+import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.MediaSource.MediaSourceCaller;
@@ -42,6 +44,7 @@ import androidx.media3.test.utils.FakeMediaSource;
 import androidx.media3.test.utils.FakeShuffleOrder;
 import androidx.media3.test.utils.FakeTimeline;
 import androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
@@ -80,12 +83,16 @@ public final class MediaPeriodQueueTest {
 
   @Before
   public void setUp() {
+    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    analyticsCollector.setPlayer(
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+        Looper.getMainLooper());
     mediaPeriodQueue =
-        new MediaPeriodQueue(/* analyticsCollector= */ null, new Handler(Looper.getMainLooper()));
+        new MediaPeriodQueue(analyticsCollector, new Handler(Looper.getMainLooper()));
     mediaSourceList =
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
-            /* analyticsCollector= */ null,
+            analyticsCollector,
             new Handler(Looper.getMainLooper()),
             PlayerId.UNSET);
     rendererCapabilities = new RendererCapabilities[0];

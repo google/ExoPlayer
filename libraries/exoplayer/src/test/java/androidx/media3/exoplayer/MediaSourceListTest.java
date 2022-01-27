@@ -25,15 +25,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.os.Looper;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ShuffleOrder;
 import androidx.media3.test.utils.FakeMediaSource;
 import androidx.media3.test.utils.FakeShuffleOrder;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,10 +58,14 @@ public class MediaSourceListTest {
 
   @Before
   public void setUp() {
+    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    analyticsCollector.setPlayer(
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+        Looper.getMainLooper());
     mediaSourceList =
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
-            /* analyticsCollector= */ null,
+            analyticsCollector,
             Util.createHandlerForCurrentOrMainLooper(),
             PlayerId.UNSET);
   }
