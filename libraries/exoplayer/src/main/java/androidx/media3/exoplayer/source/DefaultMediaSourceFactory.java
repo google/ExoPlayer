@@ -380,15 +380,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                   };
           mediaSources[i + 1] =
               new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
+                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
                   .createMediaSource(
                       MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
         } else {
-          SingleSampleMediaSource.Factory singleSampleSourceFactory =
-              new SingleSampleMediaSource.Factory(dataSourceFactory)
-                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
           mediaSources[i + 1] =
-              singleSampleSourceFactory.createMediaSource(
-                  subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
+              new SingleSampleMediaSource.Factory(dataSourceFactory)
+                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
+                  .createMediaSource(subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
         }
       }
 
