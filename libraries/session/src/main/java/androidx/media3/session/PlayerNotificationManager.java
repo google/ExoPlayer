@@ -398,10 +398,6 @@ public class PlayerNotificationManager {
       "androidx.media3.session.notificaiton.EXTRA_INSTANCE_ID";
   private static final String INTENT_SCHEME = "media3";
 
-  private static final int PENDING_INTENT_FLAGS =
-      (Util.SDK_INT >= 23)
-          ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-          : PendingIntent.FLAG_UPDATE_CURRENT;
   private static final String TAG = "NotificationManager";
 
   // Internal messages.
@@ -1033,19 +1029,25 @@ public class PlayerNotificationManager {
             .appendPath(button.sessionCommand == null ? "null" : button.sessionCommand.customAction)
             .build();
     intent.setData(intentUri);
-    return PendingIntent.getBroadcast(context, instanceId, intent, PENDING_INTENT_FLAGS);
+    return PendingIntent.getBroadcast(context, instanceId, intent, getPendingIntentFlags());
   }
 
   private static PendingIntent createBroadcastIntent(
       Context context, String action, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
     intent.putExtra(INTENT_EXTRA_INSTANCE_ID, instanceId);
-    return PendingIntent.getBroadcast(context, instanceId, intent, PENDING_INTENT_FLAGS);
+    return PendingIntent.getBroadcast(context, instanceId, intent, getPendingIntentFlags());
   }
 
   @SuppressWarnings("nullness:argument")
   private static void setLargeIcon(NotificationCompat.Builder builder, @Nullable Bitmap largeIcon) {
     builder.setLargeIcon(largeIcon);
+  }
+
+  private static int getPendingIntentFlags() {
+    return Util.SDK_INT >= 23
+        ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        : PendingIntent.FLAG_UPDATE_CURRENT;
   }
 
   private class PlayerListener implements Player.Listener {

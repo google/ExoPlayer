@@ -1132,6 +1132,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Converts {@link AudioAttributesCompat} into {@link AudioAttributes}. */
+  /*
+   * @AudioAttributesCompat.AttributeUsage and @C.AudioUsage both use the same constant values,
+   * defined by AudioAttributes in the platform.
+   */
+  @SuppressLint("WrongConstant")
   public static AudioAttributes convertToAudioAttributes(
       @Nullable AudioAttributesCompat audioAttributesCompat) {
     if (audioAttributesCompat == null) {

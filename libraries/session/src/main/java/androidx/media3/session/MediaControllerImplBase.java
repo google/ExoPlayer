@@ -2157,6 +2157,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private boolean requestConnectToService() {
+    int flags =
+        Util.SDK_INT >= 29
+            ? Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES
+            : Context.BIND_AUTO_CREATE;
+
     // Service. Needs to get fresh binder whenever connection is needed.
     Intent intent = new Intent(MediaSessionService.SERVICE_INTERFACE);
     intent.setClassName(token.getPackageName(), token.getServiceName());
@@ -2175,11 +2180,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     //    If a service wants to keep running, it should be either foreground service or
     //    bound service. But there had been request for the feature for system apps
     //    and using bindService() will be better fit with it.
-    boolean result =
-        context.bindService(
-            intent,
-            serviceConnection,
-            Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES);
+    boolean result = context.bindService(intent, serviceConnection, flags);
     if (!result) {
       Log.w(TAG, "bind to " + token + " failed");
       return false;
