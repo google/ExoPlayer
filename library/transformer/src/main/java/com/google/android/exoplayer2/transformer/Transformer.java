@@ -933,26 +933,24 @@ public final class Transformer {
       } catch (RuntimeException e) {
         resourceReleaseException = TransformationException.createForUnexpected(e);
       }
-
-      if (exception == null && resourceReleaseException == null) {
-        // TODO(b/213341814): Add event flags for Transformer events.
-        listeners.queueEvent(
-            /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationCompleted(mediaItem));
-        listeners.flushEvents();
-        return;
+      if (exception == null) {
+        // We only report the exception caused by releasing the resources if there is no other
+        // exception. It is more intuitive to call the error callback only once and reporting the
+        // exception caused by releasing the resources can be confusing if it is a consequence of
+        // the first exception.
+        exception = resourceReleaseException;
       }
 
       if (exception != null) {
+        TransformationException finalException = exception;
+        // TODO(b/213341814): Add event flags for Transformer events.
         listeners.queueEvent(
             /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationError(mediaItem, exception));
-      }
-      if (resourceReleaseException != null) {
-        TransformationException finalResourceReleaseException = resourceReleaseException;
+            listener -> listener.onTransformationError(mediaItem, finalException));
+      } else {
         listeners.queueEvent(
             /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationError(mediaItem, finalResourceReleaseException));
+            listener -> listener.onTransformationCompleted(mediaItem));
       }
       listeners.flushEvents();
     }
