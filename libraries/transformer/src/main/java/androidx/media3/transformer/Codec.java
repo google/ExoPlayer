@@ -263,7 +263,7 @@ public final class Codec {
   @Nullable
   public Format getOutputFormat() throws TransformationException {
     // The format is updated when dequeueing a 'special' buffer index, so attempt to dequeue now.
-    maybeDequeueOutputBuffer();
+    maybeDequeueOutputBuffer(/* setOutputBuffer= */ false);
     return outputFormat;
   }
 
@@ -274,7 +274,7 @@ public final class Codec {
    */
   @Nullable
   public ByteBuffer getOutputBuffer() throws TransformationException {
-    return maybeDequeueAndSetOutputBuffer() ? outputBuffer : null;
+    return maybeDequeueOutputBuffer(/* setOutputBuffer= */ true) ? outputBuffer : null;
   }
 
   /**
@@ -284,7 +284,7 @@ public final class Codec {
    */
   @Nullable
   public BufferInfo getOutputBufferInfo() throws TransformationException {
-    return maybeDequeueOutputBuffer() ? outputBufferInfo : null;
+    return maybeDequeueOutputBuffer(/* setOutputBuffer= */ false) ? outputBufferInfo : null;
   }
 
   /**
@@ -336,33 +336,15 @@ public final class Codec {
   }
 
   /**
-   * Tries obtaining an output buffer and sets {@link #outputBuffer} to the obtained output buffer.
+   * Attempts to dequeue an output buffer if there is no output buffer pending. Does nothing
+   * otherwise.
    *
-   * @return {@code true} if a buffer is successfully obtained, {@code false} otherwise.
+   * @param setOutputBuffer Whether to read the bytes of the dequeued output buffer and copy them
+   *     into {@link #outputBuffer}.
+   * @return Whether there is an output buffer available.
    * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
-  private boolean maybeDequeueAndSetOutputBuffer() throws TransformationException {
-    if (!maybeDequeueOutputBuffer()) {
-      return false;
-    }
-
-    try {
-      outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
-    } catch (RuntimeException e) {
-      throw createTransformationException(e);
-    }
-    outputBuffer.position(outputBufferInfo.offset);
-    outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
-    return true;
-  }
-
-  /**
-   * Returns true if there is already an output buffer pending. Otherwise attempts to dequeue an
-   * output buffer and returns whether there is a new output buffer.
-   *
-   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
-   */
-  private boolean maybeDequeueOutputBuffer() throws TransformationException {
+  private boolean maybeDequeueOutputBuffer(boolean setOutputBuffer) throws TransformationException {
     if (outputBufferIndex >= 0) {
       return true;
     }
@@ -392,6 +374,16 @@ public final class Codec {
       // Encountered a CSD buffer, skip it.
       releaseOutputBuffer();
       return false;
+    }
+
+    if (setOutputBuffer) {
+      try {
+        outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
+      } catch (RuntimeException e) {
+        throw createTransformationException(e);
+      }
+      outputBuffer.position(outputBufferInfo.offset);
+      outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
     }
     return true;
   }
