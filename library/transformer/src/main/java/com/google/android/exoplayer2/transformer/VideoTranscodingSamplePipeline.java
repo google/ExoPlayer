@@ -76,9 +76,10 @@ import org.checkerframework.dataflow.qual.Pure;
       outputHeight = transformationRequest.outputHeight;
     }
 
-    if (inputFormat.height > inputFormat.width) {
-      // The encoder may not support encoding in portrait orientation, so the decoded video is
-      // rotated to landscape orientation and a rotation is added back later to the output format.
+    // The encoder may not support encoding in portrait orientation, so the decoded video is
+    // rotated to landscape orientation and a rotation is added back later to the output format.
+    boolean swapEncodingDimensions = inputFormat.height > inputFormat.width;
+    if (swapEncodingDimensions) {
       outputRotationDegrees = (inputFormat.rotationDegrees + 90) % 360;
       int temp = outputWidth;
       outputWidth = outputHeight;
@@ -116,18 +117,22 @@ import org.checkerframework.dataflow.qual.Pure;
                     : inputFormat.sampleMimeType)
             .build();
     encoder = encoderFactory.createForVideoEncoding(requestedOutputFormat, allowedOutputMimeTypes);
+    Format actualOutputFormat = encoder.getConfigurationFormat();
     fallbackListener.onTransformationRequestFinalized(
-        createFallbackRequest(
-            transformationRequest, requestedOutputFormat, encoder.getConfigurationFormat()));
+        createFallbackTransformationRequest(
+            transformationRequest,
+            !swapEncodingDimensions,
+            requestedOutputFormat,
+            actualOutputFormat));
 
-    if (inputFormat.height != outputHeight
-        || inputFormat.width != outputWidth
+    if (inputFormat.height != actualOutputFormat.height
+        || inputFormat.width != actualOutputFormat.width
         || !transformationMatrix.isIdentity()) {
       frameEditor =
           FrameEditor.create(
               context,
-              outputWidth,
-              outputHeight,
+              actualOutputFormat.width,
+              actualOutputFormat.height,
               inputFormat.pixelWidthHeightRatio,
               transformationMatrix,
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
@@ -270,13 +275,22 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Pure
-  private static TransformationRequest createFallbackRequest(
-      TransformationRequest transformationRequest, Format requestedFormat, Format actualFormat) {
-    // TODO(b/210591626): Also update resolution, bitrate etc. once encoder configuration and
-    // fallback are implemented.
-    if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)) {
+  private static TransformationRequest createFallbackTransformationRequest(
+      TransformationRequest transformationRequest,
+      boolean resolutionIsHeight,
+      Format requestedFormat,
+      Format actualFormat) {
+    // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
+    // implemented.
+    if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)
+        && ((!resolutionIsHeight && requestedFormat.width == actualFormat.width)
+            || (resolutionIsHeight && requestedFormat.height == actualFormat.height))) {
       return transformationRequest;
     }
-    return transformationRequest.buildUpon().setVideoMimeType(actualFormat.sampleMimeType).build();
+    return transformationRequest
+        .buildUpon()
+        .setVideoMimeType(actualFormat.sampleMimeType)
+        .setResolution(resolutionIsHeight ? requestedFormat.height : requestedFormat.width)
+        .build();
   }
 }

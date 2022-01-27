@@ -113,7 +113,7 @@ import org.checkerframework.dataflow.qual.Pure;
     encoder = encoderFactory.createForAudioEncoding(requestedOutputFormat, allowedOutputMimeTypes);
 
     fallbackListener.onTransformationRequestFinalized(
-        createFallbackRequest(
+        createFallbackTransformationRequest(
             transformationRequest, requestedOutputFormat, encoder.getConfigurationFormat()));
   }
 
@@ -329,7 +329,7 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Pure
-  private static TransformationRequest createFallbackRequest(
+  private static TransformationRequest createFallbackTransformationRequest(
       TransformationRequest transformationRequest, Format requestedFormat, Format actualFormat) {
     // TODO(b/210591626): Also update bitrate and other params once encoder configuration and
     // fallback are implemented.
