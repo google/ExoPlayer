@@ -70,10 +70,12 @@
         When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
         the `playbackLooper` needs to be passed to `DrmSessionManager.setPlayer`
         instead.
-*   IMA:
+*   Ad playback / IMA:
     *   Add a method to `AdPlaybackState` to allow resetting an ad group so that
         it can be played again
         ([#9615](https://github.com/google/ExoPlayer/issues/9615)).
+    *   Enforce playback speed of 1.0 during ad playback
+        ([#9018](https://github.com/google/ExoPlayer/issues/9018)).
 *   DASH:
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
