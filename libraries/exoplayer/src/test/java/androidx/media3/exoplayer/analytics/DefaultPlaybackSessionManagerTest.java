@@ -788,18 +788,16 @@ public final class DefaultPlaybackSessionManagerTest {
     inOrder
         .verify(mockListener)
         .onSessionCreated(eq(eventTimeFirstTimelineWindowOnly2), thirdId.capture());
+    // The sessions may finish at the same time, so the order of these two callbacks is undefined.
+    ArgumentCaptor<String> finishedSessions = ArgumentCaptor.forClass(String.class);
     inOrder
-        .verify(mockListener)
+        .verify(mockListener, times(2))
         .onSessionFinished(
-            eventTimeSecondTimeline,
-            firstId.getValue(),
-            /* automaticTransitionToNextPlayback= */ false);
-    inOrder
-        .verify(mockListener)
-        .onSessionFinished(
-            eventTimeSecondTimeline,
-            thirdId.getValue(),
-            /* automaticTransitionToNextPlayback= */ false);
+            eq(eventTimeSecondTimeline),
+            finishedSessions.capture(),
+            /* automaticTransitionToNextPlayback= */ eq(false));
+    assertThat(finishedSessions.getAllValues())
+        .containsExactly(firstId.getValue(), thirdId.getValue());
     inOrder.verify(mockListener).onSessionActive(eventTimeSecondTimeline, secondId.getValue());
     inOrder.verifyNoMoreInteractions();
   }
