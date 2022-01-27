@@ -25,12 +25,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.os.Looper;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,10 +55,14 @@ public class MediaSourceListTest {
 
   @Before
   public void setUp() {
+    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    analyticsCollector.setPlayer(
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+        Looper.getMainLooper());
     mediaSourceList =
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
-            /* analyticsCollector= */ null,
+            analyticsCollector,
             Util.createHandlerForCurrentOrMainLooper(),
             PlayerId.UNSET);
   }

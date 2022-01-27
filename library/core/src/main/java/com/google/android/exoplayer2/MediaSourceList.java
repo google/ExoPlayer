@@ -91,15 +91,15 @@ import java.util.Set;
    *
    * @param listener The {@link MediaSourceListInfoRefreshListener} to be informed of timeline
    *     changes.
-   * @param analyticsCollector An optional {@link AnalyticsCollector} to be registered for media
-   *     source events.
+   * @param analyticsCollector An {@link AnalyticsCollector} to be registered for media source
+   *     events.
    * @param analyticsCollectorHandler The {@link Handler} to call {@link AnalyticsCollector} methods
    *     on.
    * @param playerId The {@link PlayerId} of the player using this list.
    */
   public MediaSourceList(
       MediaSourceListInfoRefreshListener listener,
-      @Nullable AnalyticsCollector analyticsCollector,
+      AnalyticsCollector analyticsCollector,
       Handler analyticsCollectorHandler,
       PlayerId playerId) {
     this.playerId = playerId;
@@ -112,10 +112,8 @@ import java.util.Set;
     drmEventDispatcher = new DrmSessionEventListener.EventDispatcher();
     childSources = new HashMap<>();
     enabledMediaSourceHolders = new HashSet<>();
-    if (analyticsCollector != null) {
-      mediaSourceEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
-      drmEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
-    }
+    mediaSourceEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
+    drmEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
   }
 
   /**

@@ -230,7 +230,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       BandwidthMeter bandwidthMeter,
       @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
-      @Nullable AnalyticsCollector analyticsCollector,
+      AnalyticsCollector analyticsCollector,
       SeekParameters seekParameters,
       LivePlaybackSpeedControl livePlaybackSpeedControl,
       long releaseTimeoutMs,

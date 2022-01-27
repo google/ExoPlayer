@@ -22,7 +22,9 @@ import static org.robolectric.Shadows.shadowOf;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
@@ -37,6 +39,7 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,12 +77,16 @@ public final class MediaPeriodQueueTest {
 
   @Before
   public void setUp() {
+    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    analyticsCollector.setPlayer(
+        new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
+        Looper.getMainLooper());
     mediaPeriodQueue =
-        new MediaPeriodQueue(/* analyticsCollector= */ null, new Handler(Looper.getMainLooper()));
+        new MediaPeriodQueue(analyticsCollector, new Handler(Looper.getMainLooper()));
     mediaSourceList =
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
-            /* analyticsCollector= */ null,
+            analyticsCollector,
             new Handler(Looper.getMainLooper()),
             PlayerId.UNSET);
     rendererCapabilities = new RendererCapabilities[0];
