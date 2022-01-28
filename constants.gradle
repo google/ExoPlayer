@@ -37,6 +37,7 @@ project.ext {
     androidxAnnotationExperimentalVersion = '1.2.0'
     androidxAppCompatVersion = '1.3.1'
     androidxCollectionVersion = '1.1.0'
+    androidxConstraintLayoutVersion = '2.0.4'
     androidxCoreVersion = '1.7.0'
     androidxFuturesVersion = '1.1.0'
     androidxMediaVersion = '1.4.3'
