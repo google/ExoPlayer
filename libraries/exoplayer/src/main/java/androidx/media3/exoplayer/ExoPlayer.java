@@ -1548,20 +1548,6 @@ public interface ExoPlayer extends Player {
   void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager);
 
   /**
-   * Sets whether the player should throw an {@link IllegalStateException} when methods are called
-   * from a thread other than the one associated with {@link #getApplicationLooper()}.
-   *
-   * <p>The default is {@code true} and this method will be removed in the future.
-   *
-   * @param throwsWhenUsingWrongThread Whether to throw when methods are called from a wrong thread.
-   * @deprecated Disabling the enforcement can result in hard-to-detect bugs. Do not use this method
-   *     except to ease the transition while wrong thread access problems are fixed.
-   */
-  @UnstableApi
-  @Deprecated
-  void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread);
-
-  /**
    * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will run as
    * rarely as possible when playing an audio stream using audio offload.
    *

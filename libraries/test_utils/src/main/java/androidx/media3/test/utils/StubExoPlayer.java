@@ -359,12 +359,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
     throw new UnsupportedOperationException();
   }
 
-  @Deprecated
-  @Override
-  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     throw new UnsupportedOperationException();
