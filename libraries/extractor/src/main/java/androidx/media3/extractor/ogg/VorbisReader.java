@@ -21,11 +21,13 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.extractor.VorbisUtil;
 import androidx.media3.extractor.VorbisUtil.Mode;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,6 +113,10 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
     codecInitializationData.add(idHeader.data);
     codecInitializationData.add(vorbisSetup.setupHeaderData);
 
+    @Nullable
+    Metadata metadata =
+        VorbisUtil.parseVorbisComments(ImmutableList.copyOf(vorbisSetup.commentHeader.comments));
+
     setupData.format =
         new Format.Builder()
             .setSampleMimeType(MimeTypes.AUDIO_VORBIS)
@@ -119,6 +125,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
             .setChannelCount(idHeader.channels)
             .setSampleRate(idHeader.sampleRate)
             .setInitializationData(codecInitializationData)
+            .setMetadata(metadata)
             .build();
     return true;
   }

@@ -15,17 +15,17 @@
  */
 package androidx.media3.extractor;
 
+import static androidx.media3.extractor.VorbisUtil.parseVorbisComments;
+
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableBitArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.extractor.metadata.flac.PictureFrame;
-import androidx.media3.extractor.metadata.flac.VorbisComment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,8 +62,6 @@ public final class FlacStreamMetadata {
 
   /** Indicates that a value is not in the corresponding lookup table. */
   public static final int NOT_IN_LOOKUP_TABLE = -1;
-  /** Separator between the field name of a Vorbis comment and the corresponding value. */
-  private static final String SEPARATOR = "=";
 
   /** Minimum number of samples per block. */
   public final int minBlockSizeSamples;
@@ -151,7 +149,7 @@ public final class FlacStreamMetadata {
         bitsPerSample,
         totalSamples,
         /* seekTable= */ null,
-        buildMetadata(vorbisComments, pictureFrames));
+        concatenateVorbisMetadata(vorbisComments, pictureFrames));
   }
 
   private FlacStreamMetadata(
@@ -276,8 +274,7 @@ public final class FlacStreamMetadata {
   public FlacStreamMetadata copyWithVorbisComments(List<String> vorbisComments) {
     @Nullable
     Metadata appendedMetadata =
-        getMetadataCopyWithAppendedEntriesFrom(
-            buildMetadata(vorbisComments, Collections.emptyList()));
+        getMetadataCopyWithAppendedEntriesFrom(parseVorbisComments(vorbisComments));
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,
@@ -294,9 +291,7 @@ public final class FlacStreamMetadata {
   /** Returns a copy of {@code this} with the given picture frames added to the metadata. */
   public FlacStreamMetadata copyWithPictureFrames(List<PictureFrame> pictureFrames) {
     @Nullable
-    Metadata appendedMetadata =
-        getMetadataCopyWithAppendedEntriesFrom(
-            buildMetadata(Collections.emptyList(), pictureFrames));
+    Metadata appendedMetadata = getMetadataCopyWithAppendedEntriesFrom(new Metadata(pictureFrames));
     return new FlacStreamMetadata(
         minBlockSizeSamples,
         maxBlockSizeSamples,
@@ -308,6 +303,20 @@ public final class FlacStreamMetadata {
         totalSamples,
         seekTable,
         appendedMetadata);
+  }
+
+  /**
+   * Returns a new {@link Metadata} instance created from {@code vorbisComments} and {@code
+   * pictureFrames}.
+   */
+  @Nullable
+  private static Metadata concatenateVorbisMetadata(
+      List<String> vorbisComments, List<PictureFrame> pictureFrames) {
+    @Nullable Metadata parsedVorbisComments = parseVorbisComments(vorbisComments);
+    if (parsedVorbisComments == null && pictureFrames.isEmpty()) {
+      return null;
+    }
+    return new Metadata(pictureFrames).copyWithAppendedEntriesFrom(parsedVorbisComments);
   }
 
   private static int getSampleRateLookupKey(int sampleRate) {
@@ -354,28 +363,5 @@ public final class FlacStreamMetadata {
       default:
         return NOT_IN_LOOKUP_TABLE;
     }
-  }
-
-  @Nullable
-  private static Metadata buildMetadata(
-      List<String> vorbisComments, List<PictureFrame> pictureFrames) {
-    if (vorbisComments.isEmpty() && pictureFrames.isEmpty()) {
-      return null;
-    }
-
-    ArrayList<Metadata.Entry> metadataEntries = new ArrayList<>();
-    for (int i = 0; i < vorbisComments.size(); i++) {
-      String vorbisComment = vorbisComments.get(i);
-      String[] keyAndValue = Util.splitAtFirst(vorbisComment, SEPARATOR);
-      if (keyAndValue.length != 2) {
-        Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
-      } else {
-        VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
-        metadataEntries.add(entry);
-      }
-    }
-    metadataEntries.addAll(pictureFrames);
-
-    return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
   }
 }

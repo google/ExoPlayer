@@ -24,9 +24,10 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.UnstableApi;
 
-/** A vorbis comment. */
+/** @deprecated Use {@link androidx.media3.extractor.metadata.vorbis.VorbisComment} instead. */
+@Deprecated
 @UnstableApi
-public final class VorbisComment implements Metadata.Entry {
+public class VorbisComment implements Metadata.Entry {
 
   /** The key. */
   public final String key;
@@ -43,7 +44,7 @@ public final class VorbisComment implements Metadata.Entry {
     this.value = value;
   }
 
-  /* package */ VorbisComment(Parcel in) {
+  protected VorbisComment(Parcel in) {
     this.key = castNonNull(in.readString());
     this.value = castNonNull(in.readString());
   }
