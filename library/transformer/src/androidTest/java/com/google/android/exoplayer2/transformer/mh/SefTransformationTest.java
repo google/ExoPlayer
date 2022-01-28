@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.SEF_ASSET_URI_STRING;
-import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.runTransformer;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.SEF_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;

@@ -15,13 +15,14 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.runTransformer;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.graphics.Matrix;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.util.Assertions;

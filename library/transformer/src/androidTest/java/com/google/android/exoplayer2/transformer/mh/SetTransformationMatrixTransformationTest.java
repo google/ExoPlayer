@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING;
-import static com.google.android.exoplayer2.transformer.mh.AndroidTestUtil.runTransformer;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import android.graphics.Matrix;
