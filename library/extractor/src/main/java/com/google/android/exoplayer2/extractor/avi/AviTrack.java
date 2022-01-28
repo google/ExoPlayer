@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Log;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -12,42 +13,68 @@ import java.util.Arrays;
  * Collection of info about a track
  */
 public class AviTrack {
+  public static final int[] ALL_KEY_FRAMES = new int[0];
+
   final int id;
+
+  final @C.TrackType int trackType;
 
   @NonNull
   final LinearClock clock;
 
-
-  /**
-   * True indicates all frames are key frames (e.g. Audio, MJPEG)
-   */
-  final boolean allKeyFrames;
-  final @C.TrackType int trackType;
-
   @NonNull
   final TrackOutput trackOutput;
 
-  boolean forceKeyFrame;
+  final int chunkId;
+  final int chunkIdAlt;
 
   @Nullable
   ChunkPeeker chunkPeeker;
 
+  int chunks;
+  int size;
+
   /**
-   * Key is frame number value is offset
+   * Ordered list of key frame chunk indexes
    */
-  @Nullable
-  int[] keyFrames;
+  int[] keyFrames = new int[0];
 
   transient int chunkSize;
   transient int chunkRemaining;
 
-  AviTrack(int id, @NonNull IStreamFormat streamFormat, @NonNull LinearClock clock,
+  private static int getChunkIdLower(int id) {
+    int tens = id / 10;
+    int ones = id % 10;
+    return  ('0' + tens) | (('0' + ones) << 8);
+  }
+
+  public static int getVideoChunkId(int id) {
+    return getChunkIdLower(id) | ('d' << 16) | ('c' << 24);
+  }
+
+  public static int getAudioChunkId(int id) {
+    return getChunkIdLower(id) | ('w' << 16) | ('b' << 24);
+  }
+
+  AviTrack(int id, final @C.TrackType int trackType, @NonNull LinearClock clock,
       @NonNull TrackOutput trackOutput) {
     this.id = id;
     this.clock = clock;
-    this.allKeyFrames = streamFormat.isAllKeyFrames();
-    this.trackType = streamFormat.getTrackType();
+    this.trackType = trackType;
     this.trackOutput = trackOutput;
+    if (isVideo()) {
+      chunkId = getVideoChunkId(id);
+      chunkIdAlt = getChunkIdLower(id) | ('d' << 16) | ('b' << 24);
+    } else if (isAudio()) {
+      chunkId = getAudioChunkId(id);
+      chunkIdAlt = 0xffff;
+    } else {
+      throw new IllegalArgumentException("Unknown Track Type: " + trackType);
+    }
+  }
+
+  public boolean handlesChunkId(int chunkId) {
+    return this.chunkId == chunkId || chunkIdAlt == chunkId;
   }
 
   public LinearClock getClock() {
@@ -58,30 +85,16 @@ public class AviTrack {
     this.chunkPeeker = chunkPeeker;
   }
 
-  public boolean isAllKeyFrames() {
-    return allKeyFrames;
+  /**
+   *
+   * @param keyFrames null means all key frames
+   */
+  void setKeyFrames(@NonNull final int[] keyFrames) {
+    this.keyFrames = keyFrames;
   }
 
   public boolean isKeyFrame() {
-    if (allKeyFrames) {
-      return true;
-    }
-    if (forceKeyFrame) {
-      forceKeyFrame = false;
-      return true;
-    }
-    if (keyFrames != null) {
-      return Arrays.binarySearch(keyFrames, clock.getIndex()) >= 0;
-    }
-    return false;
-  }
-
-  public void setForceKeyFrame(boolean v) {
-    forceKeyFrame = v;
-  }
-
-  public void setKeyFrames(int[] keyFrames) {
-    this.keyFrames = keyFrames;
+    return keyFrames == ALL_KEY_FRAMES || Arrays.binarySearch(keyFrames, clock.getIndex()) >= 0;
   }
 
   public boolean isVideo() {
@@ -130,7 +143,8 @@ public class AviTrack {
   void done(final int size) {
     trackOutput.sampleMetadata(
         clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
-    //Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + getUs() + " size=" + size + " frame=" + frame + " usFrame=" + getUsFrame());
+    final LinearClock clock = getClock();
+//    Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " size=" + size + " frame=" + clock.getIndex() + " key=" + isKeyFrame());
     clock.advance();
   }
 }

@@ -1,11 +1,10 @@
 package com.google.android.exoplayer2.extractor.avi;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-public class VideoFormat implements IStreamFormat {
+public class VideoFormat {
 
   static final int XVID = 'X' | ('V' << 8) | ('I' << 16) | ('D' << 24);
 
@@ -55,15 +54,5 @@ public class VideoFormat implements IStreamFormat {
 
   public String getMimeType() {
     return STREAM_MAP.get(getCompression());
-  }
-
-  @Override
-  public boolean isAllKeyFrames() {
-    return MimeTypes.VIDEO_MJPEG.equals(getMimeType());
-  }
-
-  @Override
-  public int getTrackType() {
-    return C.TRACK_TYPE_VIDEO;
   }
 }

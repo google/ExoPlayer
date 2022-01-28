@@ -1,5 +1,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import java.io.IOException;
@@ -148,4 +149,100 @@ public class AviExtractorTest {
     Assert.assertEquals(1, AviExtractor.getStreamId('0' | ('1' << 8) | ('d' << 16) | ('c' << 24)));
   }
 
+  private void assertIdx1(AviSeekMap aviSeekMap, AviTrack videoTrack, int keyFrames, int keyFrameRate) {
+    Assert.assertEquals(keyFrames, videoTrack.keyFrames.length);
+
+    final int framesPerKeyFrame = 24 * 3;
+    //This indirectly verifies the number of video chunks
+    Assert.assertEquals(9 * DataHelper.FPS, videoTrack.chunks);
+
+    Assert.assertEquals(2 * framesPerKeyFrame, videoTrack.keyFrames[2]);
+
+    Assert.assertEquals(2 * keyFrameRate * DataHelper.AUDIO_PER_VIDEO,
+        aviSeekMap.seekIndexes[DataHelper.AUDIO_ID][2]);
+    Assert.assertEquals(4L + 2 * keyFrameRate * DataHelper.VIDEO_SIZE +
+            2 * keyFrameRate * DataHelper.AUDIO_SIZE * DataHelper.AUDIO_PER_VIDEO,
+        aviSeekMap.keyFrameOffsetsDiv2[2] * 2L);
+
+  }
+
+  @Test
+  public void readIdx1_given9secsAv() throws IOException {
+    final AviExtractor aviExtractor = new AviExtractor();
+    final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+    aviExtractor.init(fakeExtractorOutput);
+    final int secs = 9;
+    final int keyFrameRate = 3 * DataHelper.FPS; // Keyframe every 3 seconds
+    final int keyFrames = secs * DataHelper.FPS / keyFrameRate;
+    final ByteBuffer idx1 = DataHelper.getIndex(secs, keyFrameRate);
+    final AviTrack videoTrack = DataHelper.getVideoAviTrack(secs);
+    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
+    aviExtractor.setAviTracks(new AviTrack[]{videoTrack, audioTrack});
+
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().setData(idx1.array()).build();
+    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+    final AviSeekMap aviSeekMap = aviExtractor.aviSeekMap;
+    assertIdx1(aviSeekMap, videoTrack, keyFrames, keyFrameRate);
+  }
+  @Test
+  public void readIdx1_givenNoVideo() throws IOException {
+    final AviExtractor aviExtractor = new AviExtractor();
+    final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+    aviExtractor.init(fakeExtractorOutput);
+    final int secs = 9;
+    final int keyFrameRate = 3 * DataHelper.FPS; // Keyframe every 3 seconds
+    final ByteBuffer idx1 = DataHelper.getIndex(secs, keyFrameRate);
+    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
+    aviExtractor.setAviTracks(new AviTrack[]{audioTrack});
+
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().setData(idx1.array()).build();
+    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+    Assert.assertTrue(fakeExtractorOutput.seekMap instanceof SeekMap.Unseekable);
+  }
+
+  @Test
+  public void readIdx1_givenJunkInIndex() throws IOException {
+    final AviExtractor aviExtractor = new AviExtractor();
+    final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+    aviExtractor.init(fakeExtractorOutput);
+    final int secs = 9;
+    final int keyFrameRate = 3 * DataHelper.FPS; // Keyframe every 3 seconds
+    final int keyFrames = secs * DataHelper.FPS / keyFrameRate;
+    final ByteBuffer idx1 = DataHelper.getIndex(9, keyFrameRate);
+    final ByteBuffer junk = AviExtractor.allocate(idx1.capacity() + 16);
+    junk.putInt(AviExtractor.JUNK);
+    junk.putInt(0);
+    junk.putInt(0);
+    junk.putInt(0);
+    idx1.flip();
+    junk.put(idx1);
+    final AviTrack videoTrack = DataHelper.getVideoAviTrack(secs);
+    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
+    aviExtractor.setAviTracks(new AviTrack[]{videoTrack, audioTrack});
+
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(junk.array()).build();
+    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+
+    assertIdx1(aviExtractor.aviSeekMap, videoTrack, keyFrames, keyFrameRate);
+  }
+
+  @Test
+  public void readIdx1_givenAllKeyFrames() throws IOException {
+    final AviExtractor aviExtractor = new AviExtractor();
+    final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+    aviExtractor.init(fakeExtractorOutput);
+    final int secs = 4;
+    final ByteBuffer idx1 = DataHelper.getIndex(secs, 1);
+    final AviTrack videoTrack = DataHelper.getVideoAviTrack(secs);
+    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
+    aviExtractor.setAviTracks(new AviTrack[]{videoTrack, audioTrack});
+
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(idx1.array()).build();
+    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+
+    //We should be throttled to 2 key frame per second
+    Assert.assertSame(AviTrack.ALL_KEY_FRAMES, videoTrack.keyFrames);
+  }
 }

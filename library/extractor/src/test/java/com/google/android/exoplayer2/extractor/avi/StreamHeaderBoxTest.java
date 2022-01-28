@@ -22,7 +22,6 @@ public class StreamHeaderBoxTest {
     Assert.assertEquals(VideoFormat.XVID, streamHeaderBox.getFourCC());
     Assert.assertEquals(0, streamHeaderBox.getInitialFrames());
     Assert.assertEquals(FPS24, streamHeaderBox.getFrameRate(), 0.1);
-    Assert.assertEquals(US_SAMPLE24FPS, streamHeaderBox.getUsPerSample());
     Assert.assertEquals(11805L, streamHeaderBox.getLength());
     Assert.assertEquals(0, streamHeaderBox.getSuggestedBufferSize());
   }

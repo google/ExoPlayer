@@ -1,5 +1,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import java.io.File;
@@ -11,6 +12,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DataHelper {
+  static final int FPS = 24;
+  static final long VIDEO_US = 1_000_000L / FPS;
+  static final int AUDIO_PER_VIDEO = 4;
+  static final int VIDEO_SIZE = 4096;
+  static final int AUDIO_SIZE = 256;
+  static final int AUDIO_ID = 1;
+  private static final long AUDIO_US = VIDEO_US / AUDIO_PER_VIDEO;
+
   //Base path "\ExoPlayer\library\extractor\."
   private static final File RELATIVE_PATH = new File("../../testdata/src/test/assets/extractordumps/avi/");
   public static FakeExtractorInput getInput(final String fileName) throws IOException {
@@ -87,18 +96,62 @@ public class DataHelper {
     byteBuffer.put(nalType);
     return byteBuffer;
   }
-  public static AviSeekMap getAviSeekMap() throws IOException {
 
-    final FakeTrackOutput output = new FakeTrackOutput(false);
-    final AviTrack videoTrack = new AviTrack(0,
-        DataHelper.getVideoStreamFormat().getVideoFormat(), new LinearClock(100), output);
+  public static AviTrack getVideoAviTrack(int sec) {
+    final FakeTrackOutput fakeTrackOutput = new FakeTrackOutput(false);
+    return new AviTrack(0, C.TRACK_TYPE_VIDEO,
+        new LinearClock(sec * 1_000_000L, sec * FPS),
+        fakeTrackOutput);
+  }
+
+  public static AviTrack getAudioAviTrack(int sec) {
+    final FakeTrackOutput fakeTrackOutput = new FakeTrackOutput(false);
+    return new AviTrack(AUDIO_ID, C.TRACK_TYPE_AUDIO,
+        new LinearClock(sec * 1_000_000L, sec * FPS * AUDIO_PER_VIDEO),
+        fakeTrackOutput);
+  }
+
+  public static AviSeekMap getAviSeekMap() {
+    final int[] keyFrameOffsetsDiv2= {4, 1024};
     final UnboundedIntArray videoArray = new UnboundedIntArray();
     videoArray.add(0);
-    videoArray.add(1024);
+    videoArray.add(4);
     final UnboundedIntArray audioArray = new UnboundedIntArray();
     audioArray.add(0);
     audioArray.add(128);
-    return new AviSeekMap(videoTrack,
-        new UnboundedIntArray[]{videoArray, audioArray}, 24, 0L, 0L);
+    return new AviSeekMap(0, 100L, 8, keyFrameOffsetsDiv2,
+        new UnboundedIntArray[]{videoArray, audioArray}, 4096);
+  }
+
+  private static void putIndex(final ByteBuffer byteBuffer, int chunkId, int flags, int offset,
+      int size) {
+    byteBuffer.putInt(chunkId);
+    byteBuffer.putInt(flags);
+    byteBuffer.putInt(offset);
+    byteBuffer.putInt(size);
+  }
+
+  /**
+   *
+   * @param secs Number of seconds
+   * @param keyFrameRate Key frame rate 1= every frame, 2=every other, ...
+   */
+  public static ByteBuffer getIndex(final int secs, final int keyFrameRate) {
+    final int videoFrames = secs * FPS;
+    final int videoChunkId = AviTrack.getVideoChunkId(0);
+    final int audioChunkId = AviTrack.getAudioChunkId(1);
+    int offset = 4;
+    final ByteBuffer byteBuffer = AviExtractor.allocate((videoFrames + videoFrames*AUDIO_PER_VIDEO) * 16);
+
+    for (int v=0;v<videoFrames;v++) {
+      putIndex(byteBuffer, videoChunkId, (v % keyFrameRate == 0) ? AviExtractor.AVIIF_KEYFRAME : 0,
+          offset, VIDEO_SIZE);
+      offset += VIDEO_SIZE;
+      for (int a=0;a<AUDIO_PER_VIDEO;a++) {
+        putIndex(byteBuffer, audioChunkId,AviExtractor.AVIIF_KEYFRAME, offset, AUDIO_SIZE);
+        offset += AUDIO_SIZE;
+      }
+    }
+    return byteBuffer;
   }
 }

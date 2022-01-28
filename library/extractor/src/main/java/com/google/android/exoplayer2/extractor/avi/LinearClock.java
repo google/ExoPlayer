@@ -1,12 +1,22 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 public class LinearClock {
-  long usPerChunk;
+  long durationUs;
+  int length;
 
   int index;
 
-  public LinearClock(long usPerChunk) {
-    this.usPerChunk = usPerChunk;
+  public LinearClock(long durationUs, int length) {
+    this.durationUs = durationUs;
+    this.length = length;
+  }
+
+  public void setDuration(long durationUs) {
+    this.durationUs = durationUs;
+  }
+
+  public void setLength(int length) {
+    this.length = length;
   }
 
   public int getIndex() {
@@ -22,6 +32,11 @@ public class LinearClock {
   }
 
   public long getUs() {
-    return index * usPerChunk;
+    return getUs(index);
+  }
+
+  long getUs(int index) {
+    //Doing this the hard way lessens round errors
+    return durationUs * index / length;
   }
 }

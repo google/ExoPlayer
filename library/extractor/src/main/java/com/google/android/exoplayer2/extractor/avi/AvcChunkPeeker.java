@@ -8,6 +8,10 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
 import java.io.IOException;
 
+/**
+ * Corrects the time and PAR for H264 streams
+ * H264 is very rare in AVI due to the rise of mp4
+ */
 public class AvcChunkPeeker extends NalChunkPeeker {
   private static final int NAL_TYPE_MASK = 0x1f;
   private static final int NAL_TYPE_IRD = 5;
@@ -22,11 +26,12 @@ public class AvcChunkPeeker extends NalChunkPeeker {
   private float pixelWidthHeightRatio = 1f;
   private NalUnitUtil.SpsData spsData;
 
-  public AvcChunkPeeker(Format.Builder formatBuilder, TrackOutput trackOutput, long usPerChunk) {
+  public AvcChunkPeeker(Format.Builder formatBuilder, TrackOutput trackOutput, long durationUs,
+      int length) {
     super(16);
     this.formatBuilder = formatBuilder;
     this.trackOutput = trackOutput;
-    picCountClock = new PicCountClock(usPerChunk);
+    picCountClock = new PicCountClock(durationUs, length);
   }
 
   public PicCountClock getPicCountClock() {

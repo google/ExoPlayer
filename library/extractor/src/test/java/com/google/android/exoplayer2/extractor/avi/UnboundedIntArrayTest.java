@@ -51,4 +51,23 @@ public class UnboundedIntArrayTest {
       //Intentionally blank
     }
   }
+
+  @Test
+  public void get_givenValidIndex() {
+    final UnboundedIntArray unboundedIntArray = new UnboundedIntArray(4);
+    unboundedIntArray.add(1);
+    unboundedIntArray.add(2);
+    Assert.assertEquals(1, unboundedIntArray.get(0));
+  }
+
+  @Test
+  public void get_givenOutOfBounds() {
+    final UnboundedIntArray unboundedIntArray = new UnboundedIntArray(4);
+    try {
+      unboundedIntArray.get(0);
+      Assert.fail();
+    } catch (ArrayIndexOutOfBoundsException e) {
+      //Intentionally blank
+    }
+  }
 }

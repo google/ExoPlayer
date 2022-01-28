@@ -1,11 +1,10 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import android.util.SparseArray;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 
-public class AudioFormat implements IStreamFormat {
+public class AudioFormat {
   public static final short WAVE_FORMAT_PCM = 1;
   static final short WAVE_FORMAT_AAC = 0xff;
   private static final short WAVE_FORMAT_MPEGLAYER3 = 0x55;
@@ -60,16 +59,6 @@ public class AudioFormat implements IStreamFormat {
     final byte[] data = new byte[size];
     temp.get(data);
     return data;
-  }
-
-  @Override
-  public boolean isAllKeyFrames() {
-    return true;
-  }
-
-  @Override
-  public @C.TrackType int getTrackType() {
-    return C.TRACK_TYPE_AUDIO;
   }
 
   //TODO: Deal with  WAVEFORMATEXTENSIBLE

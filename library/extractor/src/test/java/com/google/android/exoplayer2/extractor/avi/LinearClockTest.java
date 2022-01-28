@@ -9,7 +9,7 @@ import org.junit.Test;
 public class LinearClockTest {
   @Test
   public void advance() {
-    final LinearClock linearClock = new LinearClock(100L);
+    final LinearClock linearClock = new LinearClock(1_000L, 10);
     linearClock.setIndex(2);
     Assert.assertEquals(200, linearClock.getUs());
     linearClock.advance();

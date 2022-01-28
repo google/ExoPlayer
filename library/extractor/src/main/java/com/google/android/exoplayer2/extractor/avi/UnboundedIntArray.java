@@ -29,6 +29,13 @@ public class UnboundedIntArray {
     array[size++] = v;
   }
 
+  public int get(final int index) {
+    if (index >= size) {
+      throw new ArrayIndexOutOfBoundsException(index + ">=" + size);
+    }
+    return array[index];
+  }
+
   public int getSize() {
     return size;
   }

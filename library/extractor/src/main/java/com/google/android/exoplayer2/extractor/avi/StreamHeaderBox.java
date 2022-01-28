@@ -30,11 +30,8 @@ public class StreamHeaderBox extends ResidentBox {
     return getRate() / (float)getScale();
   }
 
-  /**
-   * @return sample duration in us
-   */
-  public long getUsPerSample() {
-    return getScale() * 1_000_000L / getRate();
+  public long getDurationUs() {
+    return getScale() * getLength() * 1_000_000L / getRate();
   }
 
   public int getSteamType() {
@@ -59,12 +56,12 @@ public class StreamHeaderBox extends ResidentBox {
   public int getRate() {
     return byteBuffer.getInt(24);
   }
-  // 28 - dwStart
+  //28 - dwStart - doesn't seem to ever be set
 //  public int getStart() {
 //    return byteBuffer.getInt(28);
 //  }
-  public long getLength() {
-    return byteBuffer.getInt(32) & AviExtractor.UINT_MASK;
+  public int getLength() {
+    return byteBuffer.getInt(32);
   }
 
   public int getSuggestedBufferSize() {
@@ -74,5 +71,9 @@ public class StreamHeaderBox extends ResidentBox {
   //44 - dwSampleSize
 //  public int getSampleSize() {
 //    return byteBuffer.getInt(44);
+//  }
+
+//  public String toString() {
+//    return "scale=" + getScale() + " rate=" + getRate() + " length=" + getLength() + " us=" + getDurationUs();
 //  }
 }

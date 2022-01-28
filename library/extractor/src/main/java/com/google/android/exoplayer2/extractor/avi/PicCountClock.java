@@ -15,8 +15,8 @@ public class PicCountClock extends LinearClock {
   private int posHalf;
   private int negHalf;
 
-  public PicCountClock(long usPerFrame) {
-    super(usPerFrame);
+  public PicCountClock(long durationUs, int length) {
+    super(durationUs, length);
   }
 
   public void setMaxPicCount(int maxPicCount) {
@@ -59,6 +59,6 @@ public class PicCountClock extends LinearClock {
 
   @Override
   public long getUs() {
-    return picIndex * usPerChunk;
+    return getUs(picIndex);
   }
 }
