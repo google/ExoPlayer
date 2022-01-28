@@ -15,8 +15,8 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.transformer.mh.AndroidTestUtil.SEF_ASSET_URI_STRING;
-import static androidx.media3.transformer.mh.AndroidTestUtil.runTransformer;
+import static androidx.media3.transformer.AndroidTestUtil.SEF_ASSET_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import androidx.media3.transformer.TransformationRequest;

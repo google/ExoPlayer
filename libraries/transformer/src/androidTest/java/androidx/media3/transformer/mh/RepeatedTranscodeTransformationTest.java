@@ -15,13 +15,14 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.transformer.mh.AndroidTestUtil.runTransformer;
+import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.graphics.Matrix;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.test.core.app.ApplicationProvider;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.transformer.mh;
+package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -24,8 +24,6 @@ import android.net.Uri;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
-import androidx.media3.transformer.TransformationException;
-import androidx.media3.transformer.Transformer;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.FileWriter;
@@ -35,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Utilities for instrumentation tests. */
-/* package */ final class AndroidTestUtil {
+public final class AndroidTestUtil {
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final String SEF_ASSET_URI_STRING = "asset:///media/mp4/sample_sef_slow_motion.mp4";
   public static final String REMOTE_MP4_10_SECONDS_URI_STRING =

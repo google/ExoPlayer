@@ -15,8 +15,8 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.transformer.mh.AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING;
-import static androidx.media3.transformer.mh.AndroidTestUtil.runTransformer;
+import static androidx.media3.transformer.AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import android.graphics.Matrix;
