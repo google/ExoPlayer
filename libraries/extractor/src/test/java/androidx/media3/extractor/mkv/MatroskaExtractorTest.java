@@ -68,6 +68,20 @@ public final class MatroskaExtractorTest {
   }
 
   @Test
+  public void mkvSample_withVttSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/sample_with_vtt_subtitles.mkv", simulationConfig);
+  }
+
+  @Test
+  public void mkvSample_withNullTerminatedVttSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new,
+        "media/mkv/sample_with_null_terminated_vtt_subtitles.mkv",
+        simulationConfig);
+  }
+
+  @Test
   public void mkvSample_withVorbisAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
         MatroskaExtractor::new, "media/mkv/sample_with_vorbis_audio.mkv", simulationConfig);
