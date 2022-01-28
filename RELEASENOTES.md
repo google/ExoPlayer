@@ -114,6 +114,7 @@
     *   Fix Transformer being stuck when the codec output is partially read.
     *   Fix potential NPE in `Transformer.getProgress` when releasing the muxer
         throws.
+    *   Add a demo app for applying transformations.
 *   MediaSession extension:
     *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
         opt-out flag for apps that don't want to clear the playlist on stop.
