@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -193,6 +194,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final EGLSurface eglSurface;
   private final int textureId;
   private final AtomicInteger pendingInputFrameCount;
+  private final AtomicInteger availableInputFrameCount;
   private final SurfaceTexture inputSurfaceTexture;
   private final Surface inputSurface;
   private final GlUtil.Program glProgram;
@@ -201,6 +203,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   @Nullable private final EGLSurface debugPreviewEglSurface;
   private final int debugPreviewWidth;
   private final int debugPreviewHeight;
+
+  private boolean inputStreamEnded;
 
   private FrameEditor(
       EGLDisplay eglDisplay,
@@ -219,6 +223,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.textureId = textureId;
     this.glProgram = glProgram;
     this.pendingInputFrameCount = new AtomicInteger();
+    this.availableInputFrameCount = new AtomicInteger();
     this.outputWidth = outputWidth;
     this.outputHeight = outputHeight;
     this.debugPreviewEglSurface = debugPreviewEglSurface;
@@ -227,7 +232,10 @@ import java.util.concurrent.atomic.AtomicInteger;
     textureTransformMatrix = new float[16];
     inputSurfaceTexture = new SurfaceTexture(textureId);
     inputSurfaceTexture.setOnFrameAvailableListener(
-        surfaceTexture -> pendingInputFrameCount.incrementAndGet());
+        surfaceTexture -> {
+          checkState(pendingInputFrameCount.getAndDecrement() > 0);
+          availableInputFrameCount.incrementAndGet();
+        });
     inputSurface = new Surface(inputSurfaceTexture);
   }
 
@@ -237,19 +245,34 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /**
-   * Returns whether there is pending input data that can be processed by calling {@link
-   * #processData()}.
+   * Informs the frame editor that a frame will be queued to its input surface.
+   *
+   * <p>Should be called before rendering a frame to the frame editor's input surface.
+   *
+   * @throws IllegalStateException If called after {@link #signalEndOfInputStream()}.
    */
-  public boolean hasInputData() {
-    return pendingInputFrameCount.get() > 0;
+  public void registerInputFrame() {
+    checkState(!inputStreamEnded);
+    pendingInputFrameCount.incrementAndGet();
   }
 
   /**
-   * Processes pending input frame.
+   * Returns whether there is available input data that can be processed by calling {@link
+   * #processData()}.
+   */
+  public boolean canProcessData() {
+    return availableInputFrameCount.get() > 0;
+  }
+
+  /**
+   * Processes an input frame.
    *
    * @throws TransformationException If an OpenGL error occurs while processing the data.
+   * @throws IllegalStateException If there is no input data to process. Use {@link
+   *     #canProcessData()} to check whether input data is available.
    */
   public void processData() throws TransformationException {
+    checkState(canProcessData());
     try {
       inputSurfaceTexture.updateTexImage();
       inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
@@ -260,7 +283,6 @@ import java.util.concurrent.atomic.AtomicInteger;
       long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
       EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
       EGL14.eglSwapBuffers(eglDisplay, eglSurface);
-      pendingInputFrameCount.decrementAndGet();
 
       if (debugPreviewEglSurface != null) {
         focusAndDrawQuad(debugPreviewEglSurface, debugPreviewWidth, debugPreviewHeight);
@@ -270,6 +292,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       throw TransformationException.createForFrameEditor(
           e, TransformationException.ERROR_CODE_GL_PROCESSING_FAILED);
     }
+    availableInputFrameCount.decrementAndGet();
   }
 
   /** Releases all resources. */
@@ -286,5 +309,17 @@ import java.util.concurrent.atomic.AtomicInteger;
     GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, width, height);
     // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+  }
+
+  /** Returns whether all data has been processed. */
+  public boolean isEnded() {
+    return inputStreamEnded
+        && pendingInputFrameCount.get() == 0
+        && availableInputFrameCount.get() == 0;
+  }
+
+  /** Informs the {@code FrameEditor} that no further input data should be accepted. */
+  public void signalEndOfInputStream() {
+    inputStreamEnded = true;
   }
 }
