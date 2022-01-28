@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -288,6 +289,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public int getRendererType(int index) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Renderer getRenderer(int index) {
     throw new UnsupportedOperationException();
   }
 

@@ -41,6 +41,8 @@
         multiple codecs are supported by primary, hardware-accelerated decoders
         ([#4835](https://github.com/google/ExoPlayer/issues/4835)).
     *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
+    *   Make `SimpleExoPlayer.renderers` private. Renderers can be accessed via
+        `ExoPlayer.getRenderer`.
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier

@@ -1088,6 +1088,14 @@ public interface ExoPlayer extends Player {
   int getRendererType(int index);
 
   /**
+   * Returns the renderer at the given index.
+   *
+   * @param index The index of the renderer.
+   * @return The renderer at this index.
+   */
+  Renderer getRenderer(int index);
+
+  /**
    * Returns the track selector that this player uses, or null if track selection is not supported.
    */
   @Nullable

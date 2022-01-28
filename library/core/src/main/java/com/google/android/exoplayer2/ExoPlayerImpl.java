@@ -944,6 +944,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return renderers[index].getTrackType();
   }
 
+  public Renderer getRenderer(int index) {
+    return renderers[index];
+  }
+
   public TrackSelector getTrackSelector() {
     return trackSelector;
   }

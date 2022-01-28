@@ -347,8 +347,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   private static final String TAG = "SimpleExoPlayer";
 
-  protected final Renderer[] renderers;
-
+  private final Renderer[] renderers;
   private final ConditionVariable constructorFinished;
   private final Context applicationContext;
   private final ExoPlayerImpl player;
@@ -1347,6 +1346,12 @@ public class SimpleExoPlayer extends BasePlayer
   public @C.TrackType int getRendererType(int index) {
     verifyApplicationThread();
     return player.getRendererType(index);
+  }
+
+  @Override
+  public Renderer getRenderer(int index) {
+    verifyApplicationThread();
+    return player.getRenderer(index);
   }
 
   @Override
