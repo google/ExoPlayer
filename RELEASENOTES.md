@@ -148,6 +148,8 @@
         `MediaItem.LiveConfiguration.Builder#setTargetOffsetMs` to override the
         manifest, or `DashMediaSource#setFallbackTargetLiveOffsetMs` to provide
         a fallback value.
+    *   Remove `(Simple)ExoPlayer.setThrowsWhenUsingWrongThread`. Opting out of
+        the thread enforcement is no longer possible.
 
 ### 2.16.1 (2021-11-18)
 

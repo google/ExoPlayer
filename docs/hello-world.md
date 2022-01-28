@@ -119,11 +119,7 @@ which the player must be accessed can be queried using
 If you see `IllegalStateException` being thrown with the message "Player is
 accessed on the wrong thread", then some code in your app is accessing an
 `ExoPlayer` instance on the wrong thread (the exception's stack trace shows you
-where). You can temporarily opt out from these exceptions being thrown by
-calling `ExoPlayer.setThrowsWhenUsingWrongThread(false)`, in which case the
-issue will be logged as a warning instead. Using this opt out is not safe and
-may result in unexpected or obscure errors. It will be removed in ExoPlayer
-2.16.
+where).
 {:.info}
 
 For more information about ExoPlayer's threading model, see the
