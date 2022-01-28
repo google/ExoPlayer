@@ -51,7 +51,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @UnstableApi
 public class RemoteMediaControllerCompat {
-  static final String TAG = "RemoteMediaControllerCompat";
+  static final String TAG = "RMediaControllerCompat";
 
   final String controllerId;
   final Context context;
