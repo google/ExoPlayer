@@ -56,6 +56,8 @@
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ([#9719](https://github.com/google/ExoPlayer/issues/9719)).
+    *   Parse Vorbis Comments (including `METADATA_BLOCK_PICTURE`) in Ogg Opus
+        and Vorbis files.
 *   Text:
     *   Add a `MediaItem.SubtitleConfiguration#id` field which is propagated to
         the `Format#id` field of the subtitle track created from the

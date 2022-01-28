@@ -23,8 +23,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 
-/** A vorbis comment. */
-public final class VorbisComment implements Metadata.Entry {
+/** @deprecated Use {@link com.google.android.exoplayer2.metadata.vorbis.VorbisComment} instead. */
+@Deprecated
+public class VorbisComment implements Metadata.Entry {
 
   /** The key. */
   public final String key;
@@ -41,7 +42,7 @@ public final class VorbisComment implements Metadata.Entry {
     this.value = value;
   }
 
-  /* package */ VorbisComment(Parcel in) {
+  protected VorbisComment(Parcel in) {
     this.key = castNonNull(in.readString());
     this.value = castNonNull(in.readString());
   }
