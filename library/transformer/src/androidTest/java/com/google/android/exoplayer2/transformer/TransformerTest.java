@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -32,11 +33,9 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class TransformerTest {
-  // TODO(b/208986865): Also test this for API < 29. Currently the target emulator uses API 30.
-  // VideoTranscodingSamplePipeline#processData works differently for API < 29, so both versions
-  // should be tested.
 
   private static final String VP9_VIDEO_URI_STRING = "asset:///media/vp9/bear-vp9.webm";
+  private static final String AVC_VIDEO_URI_STRING = "asset:///media/mp4/sample.mp4";
 
   @Test
   public void videoTranscoding_completesWithConsistentFrameCount() throws Exception {
@@ -58,6 +57,37 @@ public class TransformerTest {
         /* testId= */ "videoTranscoding_completesWithConsistentFrameCount",
         transformer,
         VP9_VIDEO_URI_STRING,
+        /* timeoutSeconds= */ 120);
+
+    FrameCountingMuxer frameCountingMuxer =
+        checkNotNull(muxerFactory.getLastFrameCountingMuxerCreated());
+    assertThat(frameCountingMuxer.getFrameCount()).isEqualTo(expectedFrameCount);
+  }
+
+  @Test
+  public void videoEditing_completesWithConsistentFrameCount() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    Matrix transformationMatrix = new Matrix();
+    transformationMatrix.postTranslate(/* dx= */ .2f, /* dy= */ .1f);
+    FrameCountingMuxer.Factory muxerFactory =
+        new FrameCountingMuxer.Factory(new FrameworkMuxer.Factory());
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setTransformationRequest(
+                new TransformationRequest.Builder()
+                    .setTransformationMatrix(transformationMatrix)
+                    .build())
+            .setMuxerFactory(muxerFactory)
+            .build();
+    // Result of the following command:
+    // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
+    int expectedFrameCount = 30;
+
+    runTransformer(
+        context,
+        /* testId= */ "videoEditing_completesWithConsistentFrameCount",
+        transformer,
+        AVC_VIDEO_URI_STRING,
         /* timeoutSeconds= */ 120);
 
     FrameCountingMuxer frameCountingMuxer =

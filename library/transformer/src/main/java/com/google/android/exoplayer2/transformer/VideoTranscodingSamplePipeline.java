@@ -160,7 +160,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean processData() throws TransformationException {
-    if (decoder.isEnded()) {
+    if (hasProcessedAllInputData()) {
       return false;
     }
 
@@ -187,31 +187,30 @@ import org.checkerframework.dataflow.qual.Pure;
   @RequiresApi(29)
   private boolean processDataV29() throws TransformationException {
     if (frameEditor != null) {
-      while (frameEditor.hasInputData()) {
-        // Processes as much frames in one invocation: FrameEditor's output surface will block
-        // FrameEditor when it's full. There will be no frame drop, or FrameEditor's output surface
-        // growing out of bound.
+      // Processes as many frames as possible. FrameEditor's output surface will block when it's
+      // full, so there will be no frame drop and the surface will not grow out of bound.
+      while (frameEditor.canProcessData()) {
         frameEditor.processData();
       }
     }
 
     while (decoder.getOutputBufferInfo() != null) {
+      if (frameEditor != null) {
+        frameEditor.registerInputFrame();
+      }
       decoder.releaseOutputBuffer(/* render= */ true);
     }
-
     if (decoder.isEnded()) {
-      // TODO(b/208986865): Handle possible last frame drop.
-      encoder.signalEndOfInputStream();
-      return false;
+      signalEndOfInputStream();
     }
 
-    return frameEditor != null && frameEditor.hasInputData();
+    return frameEditor != null && frameEditor.canProcessData();
   }
 
   /** Processes input data. */
   private boolean processDataDefault() throws TransformationException {
     if (frameEditor != null) {
-      if (frameEditor.hasInputData()) {
+      if (frameEditor.canProcessData()) {
         waitingForFrameEditorInput = false;
         frameEditor.processData();
         return true;
@@ -223,11 +222,14 @@ import org.checkerframework.dataflow.qual.Pure;
 
     boolean decoderHasOutputBuffer = decoder.getOutputBufferInfo() != null;
     if (decoderHasOutputBuffer) {
+      if (frameEditor != null) {
+        frameEditor.registerInputFrame();
+        waitingForFrameEditorInput = true;
+      }
       decoder.releaseOutputBuffer(/* render= */ true);
-      waitingForFrameEditorInput = frameEditor != null;
     }
     if (decoder.isEnded()) {
-      encoder.signalEndOfInputStream();
+      signalEndOfInputStream();
       return false;
     }
     return decoderHasOutputBuffer && !waitingForFrameEditorInput;
@@ -292,5 +294,18 @@ import org.checkerframework.dataflow.qual.Pure;
         .setVideoMimeType(actualFormat.sampleMimeType)
         .setResolution(resolutionIsHeight ? requestedFormat.height : requestedFormat.width)
         .build();
+  }
+
+  private boolean hasProcessedAllInputData() {
+    return decoder.isEnded() && (frameEditor == null || frameEditor.isEnded());
+  }
+
+  private void signalEndOfInputStream() throws TransformationException {
+    if (frameEditor != null) {
+      frameEditor.signalEndOfInputStream();
+    }
+    if (frameEditor == null || frameEditor.isEnded()) {
+      encoder.signalEndOfInputStream();
+    }
   }
 }

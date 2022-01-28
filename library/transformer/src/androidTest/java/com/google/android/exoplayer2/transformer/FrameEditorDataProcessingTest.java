@@ -117,7 +117,7 @@ public final class FrameEditorDataProcessingTest {
     Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
     Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
 
-    // TODO(internal b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -134,7 +134,7 @@ public final class FrameEditorDataProcessingTest {
     Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
     Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
 
-    // TODO(internal b/207848601): switch to using proper tooling for testing against golden
+    // TODO(b/207848601): switch to using proper tooling for testing against golden
     // data.simple
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
@@ -152,7 +152,7 @@ public final class FrameEditorDataProcessingTest {
     Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
     Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
 
-    // TODO(internal b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -160,7 +160,7 @@ public final class FrameEditorDataProcessingTest {
 
   @Test
   public void processData_rotate90_producesExpectedOutput() throws Exception {
-    // TODO(internal b/213190310): After creating a Presentation class, move VideoSamplePipeline
+    // TODO(b/213190310): After creating a Presentation class, move VideoSamplePipeline
     //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
     //  test that rotation doesn't distort the image.
     Matrix rotate90Matrix = new Matrix();
@@ -172,7 +172,7 @@ public final class FrameEditorDataProcessingTest {
     Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
     Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
 
-    // TODO(internal b/207848601): switch to using proper tooling for testing against golden data.
+    // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
@@ -206,6 +206,7 @@ public final class FrameEditorDataProcessingTest {
               transformationMatrix,
               frameEditorOutputImageReader.getSurface(),
               Transformer.DebugViewProvider.NONE);
+      frameEditor.registerInputFrame();
 
       // Queue the first video frame from the extractor.
       String mimeType = checkNotNull(mediaFormat.getString(MediaFormat.KEY_MIME));
@@ -246,7 +247,7 @@ public final class FrameEditorDataProcessingTest {
 
       // Sleep to give time for the surface texture to be populated.
       Thread.sleep(SURFACE_WAIT_MS);
-      assertThat(frameEditor.hasInputData()).isTrue();
+      assertThat(frameEditor.canProcessData()).isTrue();
     } finally {
       mediaExtractor.release();
       if (mediaCodec != null) {
