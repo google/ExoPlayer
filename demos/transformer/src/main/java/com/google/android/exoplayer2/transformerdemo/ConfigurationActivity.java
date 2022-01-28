@@ -196,25 +196,25 @@ public final class ConfigurationActivity extends AppCompatActivity {
     }
     String selectedResolutionHeight = String.valueOf(resolutionHeightSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedResolutionHeight)) {
-      bundle.putInt(RESOLUTION_HEIGHT, Integer.valueOf(selectedResolutionHeight));
+      bundle.putInt(RESOLUTION_HEIGHT, Integer.parseInt(selectedResolutionHeight));
     }
     String selectedTranslate = String.valueOf(translateSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedTranslate)) {
       List<String> translateXY = Arrays.asList(selectedTranslate.split(", "));
       checkState(translateXY.size() == 2);
-      bundle.putFloat(TRANSLATE_X, Float.valueOf(translateXY.get(0)));
-      bundle.putFloat(TRANSLATE_Y, Float.valueOf(translateXY.get(1)));
+      bundle.putFloat(TRANSLATE_X, Float.parseFloat(translateXY.get(0)));
+      bundle.putFloat(TRANSLATE_Y, Float.parseFloat(translateXY.get(1)));
     }
     String selectedScale = String.valueOf(scaleSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedScale)) {
       List<String> scaleXY = Arrays.asList(selectedScale.split(", "));
       checkState(scaleXY.size() == 2);
-      bundle.putFloat(SCALE_X, Float.valueOf(scaleXY.get(0)));
-      bundle.putFloat(SCALE_Y, Float.valueOf(scaleXY.get(1)));
+      bundle.putFloat(SCALE_X, Float.parseFloat(scaleXY.get(0)));
+      bundle.putFloat(SCALE_Y, Float.parseFloat(scaleXY.get(1)));
     }
     String selectedRotate = String.valueOf(rotateSpinner.getSelectedItem());
     if (!SAME_AS_INPUT_OPTION.equals(selectedRotate)) {
-      bundle.putFloat(ROTATE_DEGREES, Float.valueOf(selectedRotate));
+      bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
     transformerIntent.putExtras(bundle);
 
