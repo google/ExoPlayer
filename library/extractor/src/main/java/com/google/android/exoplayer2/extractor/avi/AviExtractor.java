@@ -57,6 +57,34 @@ public class AviExtractor implements Extractor {
     }
   }
 
+  static int checkAlign(final ExtractorInput input, PositionHolder seekPosition) {
+    final long position = input.getPosition();
+    if ((position & 1) ==1) {
+      seekPosition.position = position + 1;
+      return RESULT_SEEK;
+    }
+    return RESULT_CONTINUE;
+  }
+
+  static ByteBuffer allocate(int bytes) {
+    final byte[] buffer = new byte[bytes];
+    final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+    return byteBuffer;
+  }
+
+  @VisibleForTesting
+  static int getStreamId(int chunkId) {
+    final int upperChar = chunkId & 0xff;
+    if (Character.isDigit(upperChar)) {
+      final int lowerChar = (chunkId >> 8) & 0xff;
+      if (Character.isDigit(upperChar)) {
+        return (lowerChar & 0xf) + ((upperChar & 0xf) * 10);
+      }
+    }
+    return -1;
+  }
+
   static final String TAG = "AviExtractor";
   @VisibleForTesting
   static final int PEEK_BYTES = 28;
@@ -87,8 +115,6 @@ public class AviExtractor implements Extractor {
   static final int JUNK = 'J' | ('U' << 8) | ('N' << 16) | ('K' << 24);
   static final int REC_ = 'r' | ('e' << 8) | ('c' << 16) | (' ' << 24);
 
-  static final long SEEK_GAP = 2_000_000L; //Time between seek points in micro seconds
-
   @VisibleForTesting
   int state;
   @VisibleForTesting
@@ -112,7 +138,6 @@ public class AviExtractor implements Extractor {
 
   /**
    *
-   * @param input
    * @param bytes Must be at least 20
    */
   @Nullable
@@ -143,7 +168,7 @@ public class AviExtractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException {
+  public boolean sniff(@NonNull ExtractorInput input) throws IOException {
     final ByteBuffer byteBuffer = getAviBuffer(input, PEEK_BYTES);
     if (byteBuffer == null) {
       return false;
@@ -155,29 +180,7 @@ public class AviExtractor implements Extractor {
       return false;
     }
     final int avih = byteBuffer.getInt();
-    if (avih != AviHeaderBox.AVIH) {
-      return false;
-    }
-    return true;
-  }
-
-  static ByteBuffer allocate(int bytes) {
-    final byte[] buffer = new byte[bytes];
-    final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-    return byteBuffer;
-  }
-
-  @VisibleForTesting
-  static int getStreamId(int chunkId) {
-    final int upperChar = chunkId & 0xff;
-    if (Character.isDigit(upperChar)) {
-      final int lowerChar = (chunkId >> 8) & 0xff;
-      if (Character.isDigit(upperChar)) {
-        return (lowerChar & 0xf) + ((upperChar & 0xf) * 10);
-      }
-    }
-    return -1;
+    return avih == AviHeaderBox.AVIH;
   }
 
   @VisibleForTesting
@@ -206,7 +209,7 @@ public class AviExtractor implements Extractor {
   }
 
   @Override
-  public void init(ExtractorOutput output) {
+  public void init(@NonNull ExtractorOutput output) {
     this.state = STATE_READ_TRACKS;
     this.output = output;
   }
@@ -379,9 +382,6 @@ public class AviExtractor implements Extractor {
 
   /**
    * Reads the index and sets the keyFrames and creates the SeekMap
-   * @param input
-   * @param remaining
-   * @throws IOException
    */
   void readIdx1(ExtractorInput input, int remaining) throws IOException {
     final AviTrack videoTrack = getVideoTrack();
@@ -476,15 +476,6 @@ public class AviExtractor implements Extractor {
       }
     }
     return null;
-  }
-
-  int checkAlign(final ExtractorInput input, PositionHolder seekPosition) {
-    final long position = input.getPosition();
-    if ((position & 1) ==1) {
-      seekPosition.position = position +1;
-      return RESULT_SEEK;
-    }
-    return RESULT_CONTINUE;
   }
 
   int readSamples(ExtractorInput input, PositionHolder seekPosition) throws IOException {

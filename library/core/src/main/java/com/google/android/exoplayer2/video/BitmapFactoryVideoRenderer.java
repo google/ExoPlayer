@@ -148,7 +148,10 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
       return null;
     }
 
-    private void renderBitmap(final Bitmap bitmap, @NonNull final Surface surface) {
+    private void renderBitmap(final Bitmap bitmap, @Nullable final Surface surface) {
+      if (surface == null) {
+        return;
+      }
       //Log.d(TAG, "Drawing: " + bitmap.getWidth() + "x" + bitmap.getHeight());
       final Canvas canvas = surface.lockCanvas(null);
 
@@ -243,13 +246,8 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
             if (sleep()) {
               continue main;
             }
-            if (!running) {
-              break main;
-            }
           }
-          @Nullable
-          final Surface surface = BitmapFactoryVideoRenderer.this.surface;
-          if (surface != null) {
+          if (running) {
             renderBitmap(bitmap, surface);
           }
         } else if (result == C.RESULT_FORMAT_READ) {
