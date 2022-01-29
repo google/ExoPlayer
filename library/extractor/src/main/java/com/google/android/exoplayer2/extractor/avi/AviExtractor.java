@@ -351,7 +351,8 @@ public class AviExtractor implements Extractor {
     return RESULT_SEEK;
   }
 
-  private AviTrack getVideoTrack() {
+  @VisibleForTesting
+  AviTrack getVideoTrack() {
     for (@Nullable AviTrack aviTrack : aviTracks) {
       if (aviTrack != null && aviTrack.isVideo()) {
         return aviTrack;
@@ -510,7 +511,7 @@ public class AviExtractor implements Extractor {
       final AviTrack aviTrack = getAviTrack(chunkId);
       if (aviTrack == null) {
         seekPosition.position = alignPosition(input.getPosition() + size);
-        Log.w(TAG, "Unknown tag=" + toString(chunkId) + " pos=" + (input.getPosition() - 8)
+        w("Unknown tag=" + toString(chunkId) + " pos=" + (input.getPosition() - 8)
             + " size=" + size + " moviEnd=" + moviEnd);
         return RESULT_SEEK;
       }
@@ -588,6 +589,27 @@ public class AviExtractor implements Extractor {
   @VisibleForTesting
   void setAviTracks(AviTrack[] aviTracks) {
     this.aviTracks = aviTracks;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  void setAviHeader(final AviHeaderBox aviHeaderBox) {
+    aviHeader = aviHeaderBox;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  void setMovi(final int offset, final int end) {
+    moviOffset = offset;
+    moviEnd = end;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  AviTrack getChunkHandler() {
+    return chunkHandler;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  void setChunkHandler(final AviTrack aviTrack) {
+    chunkHandler = aviTrack;
   }
 
   private static void w(String message) {

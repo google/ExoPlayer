@@ -18,6 +18,7 @@ public class DataHelper {
   static final int VIDEO_SIZE = 4096;
   static final int AUDIO_SIZE = 256;
   static final int AUDIO_ID = 1;
+  static final int MOVI_OFFSET = 4096;
   private static final long AUDIO_US = VIDEO_US / AUDIO_PER_VIDEO;
 
   //Base path "\ExoPlayer\library\extractor\."
@@ -124,7 +125,7 @@ public class DataHelper {
     audioArray.add(0);
     audioArray.add(128);
     return new AviSeekMap(0, 100L, 8, keyFrameOffsetsDiv2,
-        new UnboundedIntArray[]{videoArray, audioArray}, 4096);
+        new UnboundedIntArray[]{videoArray, audioArray}, MOVI_OFFSET);
   }
 
   private static void putIndex(final ByteBuffer byteBuffer, int chunkId, int flags, int offset,
@@ -185,5 +186,10 @@ public class DataHelper {
     byteBuffer.putInt(24, 2); // Number of streams
     byteBuffer.clear();
     return byteBuffer;
+  }
+
+  public static AviHeaderBox createAviHeaderBox() {
+    final ByteBuffer byteBuffer = createAviHeader();
+    return new AviHeaderBox(AviHeaderBox.AVIH, byteBuffer.capacity(), byteBuffer);
   }
 }

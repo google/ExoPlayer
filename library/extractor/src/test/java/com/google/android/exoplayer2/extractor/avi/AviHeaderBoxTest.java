@@ -8,9 +8,7 @@ public class AviHeaderBoxTest {
 
   @Test
   public void getters() {
-    final ByteBuffer byteBuffer = DataHelper.createAviHeader();
-    final AviHeaderBox aviHeaderBox = new AviHeaderBox(AviHeaderBox.AVIH,
-        byteBuffer.capacity(), byteBuffer);
+    final AviHeaderBox aviHeaderBox = DataHelper.createAviHeaderBox();
     Assert.assertEquals(DataHelper.VIDEO_US, aviHeaderBox.getMicroSecPerFrame());
     Assert.assertTrue(aviHeaderBox.hasIndex());
     Assert.assertFalse(aviHeaderBox.mustUseIndex());

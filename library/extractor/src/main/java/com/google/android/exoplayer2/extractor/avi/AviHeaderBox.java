@@ -1,5 +1,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import androidx.annotation.VisibleForTesting;
 import java.nio.ByteBuffer;
 
 public class AviHeaderBox extends ResidentBox {
@@ -49,4 +50,9 @@ public class AviHeaderBox extends ResidentBox {
   // 28 - dwSuggestedBufferSize
   // 32 - dwWidth
   // 36 - dwHeight
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  void setFlags(int flags) {
+    byteBuffer.putInt(12, flags);
+  }
 }
