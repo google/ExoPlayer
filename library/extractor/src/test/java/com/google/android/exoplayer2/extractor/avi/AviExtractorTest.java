@@ -86,7 +86,7 @@ public class AviExtractorTest {
 
   @Test
   public void peek_givenOnlyRiffAvi_ListHdrlAvih() {
-    final ByteBuffer byteBuffer = DataHelper.getAviHeader(AviExtractor.PEEK_BYTES, 128);
+    final ByteBuffer byteBuffer = DataHelper.getRiffHeader(AviExtractor.PEEK_BYTES, 128);
     Assert.assertTrue(sniff(byteBuffer));
   }
 
@@ -277,7 +277,7 @@ public class AviExtractorTest {
 
   @Test
   public void readHeaderList_givenNoHeaderList() throws IOException {
-    final ByteBuffer byteBuffer = DataHelper.getAviHeader(88, 0x44);
+    final ByteBuffer byteBuffer = DataHelper.getRiffHeader(88, 0x44);
     byteBuffer.putInt(0x14, AviExtractor.STRL); //Overwrite header list with stream list
     final FakeExtractorInput input = new FakeExtractorInput.Builder().
         setData(byteBuffer.array()).build();
@@ -286,9 +286,9 @@ public class AviExtractorTest {
 
   @Test
   public void readHeaderList_givenEmptyHeaderList() throws IOException {
-    final ByteBuffer byteBuffer = DataHelper.getAviHeader(88, 0x44);
+    final ByteBuffer byteBuffer = DataHelper.getRiffHeader(88, 0x44);
     byteBuffer.putInt(AviHeaderBox.LEN);
-    byteBuffer.put(DataHelper.createHeader());
+    byteBuffer.put(DataHelper.createAviHeader());
     final FakeExtractorInput input = new FakeExtractorInput.Builder().
         setData(byteBuffer.array()).build();
     final ListBox listBox = AviExtractor.readHeaderList(input);

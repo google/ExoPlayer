@@ -164,7 +164,7 @@ public class DataHelper {
    * @param bufferSize
    * @return
    */
-  public static ByteBuffer getAviHeader(int bufferSize, int headerListSize) {
+  public static ByteBuffer getRiffHeader(int bufferSize, int headerListSize) {
     ByteBuffer byteBuffer = AviExtractor.allocate(bufferSize);
     byteBuffer.putInt(AviExtractor.RIFF);
     byteBuffer.putInt(128);
@@ -176,7 +176,7 @@ public class DataHelper {
     return byteBuffer;
   }
 
-  public static ByteBuffer createHeader() {
+  public static ByteBuffer createAviHeader() {
     final ByteBuffer byteBuffer = ByteBuffer.allocate(AviHeaderBox.LEN);
     byteBuffer.putInt((int)VIDEO_US);
     byteBuffer.putLong(0); //skip 4+4

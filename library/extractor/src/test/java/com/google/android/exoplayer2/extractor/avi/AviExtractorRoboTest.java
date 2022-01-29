@@ -46,7 +46,7 @@ public class AviExtractorRoboTest {
   }
 
   @Test
-  public void parseStream_givenNoStreamFormat() throws IOException {
+  public void parseStream_givenNoStreamFormat() {
     final AviExtractor aviExtractor = new AviExtractor();
     final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
     aviExtractor.init(fakeExtractorOutput);
