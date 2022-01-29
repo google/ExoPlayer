@@ -28,7 +28,7 @@ public class AviExtractor implements Extractor {
   static final long MIN_KEY_FRAME_RATE_US = 2_000_000L;
   static final long UINT_MASK = 0xffffffffL;
 
-  static long getUInt(ByteBuffer byteBuffer) {
+  static long getUInt(@NonNull ByteBuffer byteBuffer) {
     return byteBuffer.getInt() & UINT_MASK;
   }
 
@@ -49,7 +49,7 @@ public class AviExtractor implements Extractor {
     return position;
   }
 
-  static void alignInput(ExtractorInput input) throws IOException {
+  static void alignInput(@NonNull ExtractorInput input) throws IOException {
     // This isn't documented anywhere, but most files are aligned to even bytes
     // and can have gaps of zeros
     if ((input.getPosition() & 1) == 1) {
@@ -57,15 +57,16 @@ public class AviExtractor implements Extractor {
     }
   }
 
-  static int checkAlign(final ExtractorInput input, PositionHolder seekPosition) {
+  static int alignPositionHolder(@NonNull ExtractorInput input, @NonNull PositionHolder seekPosition) {
     final long position = input.getPosition();
-    if ((position & 1) ==1) {
+    if ((position & 1) == 1) {
       seekPosition.position = position + 1;
       return RESULT_SEEK;
     }
     return RESULT_CONTINUE;
   }
 
+  @NonNull
   static ByteBuffer allocate(int bytes) {
     final byte[] buffer = new byte[bytes];
     final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
@@ -141,7 +142,7 @@ public class AviExtractor implements Extractor {
    * @param bytes Must be at least 20
    */
   @Nullable
-  private ByteBuffer getAviBuffer(ExtractorInput input, int bytes) throws IOException {
+  static private ByteBuffer getAviBuffer(@NonNull ExtractorInput input, int bytes) throws IOException {
     if (input.getLength() < bytes) {
       return null;
     }
@@ -190,7 +191,7 @@ public class AviExtractor implements Extractor {
   }
 
   @Nullable
-  ListBox readHeaderList(ExtractorInput input) throws IOException {
+  static ListBox readHeaderList(ExtractorInput input) throws IOException {
     final ByteBuffer byteBuffer = getAviBuffer(input, 20);
     if (byteBuffer == null) {
       return null;
@@ -245,7 +246,7 @@ public class AviExtractor implements Extractor {
       final VideoFormat videoFormat = streamFormat.getVideoFormat();
       final String mimeType = videoFormat.getMimeType();
       if (mimeType == null) {
-        Log.w(TAG, "Unknown FourCC: " + toString(streamHeader.getFourCC()));
+        Log.w(TAG, "Unknown FourCC: " + toString(videoFormat.getCompression()));
         return null;
       }
       final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_VIDEO);
@@ -478,11 +479,11 @@ public class AviExtractor implements Extractor {
     return null;
   }
 
-  int readSamples(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+  int readSamples(@NonNull ExtractorInput input, @NonNull PositionHolder seekPosition) throws IOException {
     if (chunkHandler != null) {
       if (chunkHandler.resume(input)) {
         chunkHandler = null;
-        return checkAlign(input, seekPosition);
+        return alignPositionHolder(input, seekPosition);
       }
     } else {
       ByteBuffer byteBuffer = allocate(8);
@@ -514,7 +515,7 @@ public class AviExtractor implements Extractor {
         return RESULT_SEEK;
       }
       if (aviTrack.newChunk(chunkId, size, input)) {
-        return checkAlign(input, seekPosition);
+        return alignPositionHolder(input, seekPosition);
       } else {
         chunkHandler = aviTrack;
       }

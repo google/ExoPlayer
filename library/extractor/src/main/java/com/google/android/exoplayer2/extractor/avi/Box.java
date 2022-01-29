@@ -19,9 +19,4 @@ public class Box {
   public int getType() {
     return type;
   }
-
-  boolean simpleAssert(final int expected) {
-     return getType() == expected;
-  }
-
 }

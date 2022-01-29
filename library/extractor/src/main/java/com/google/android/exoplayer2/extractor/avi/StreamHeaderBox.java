@@ -37,13 +37,7 @@ public class StreamHeaderBox extends ResidentBox {
   public int getSteamType() {
     return byteBuffer.getInt(0);
   }
-  /**
-   * Only meaningful for video
-   * @return FourCC
-   */
-  public int getFourCC() {
-    return byteBuffer.getInt(4);
-  }
+  //4 - fourCC
   //8 - dwFlags
   //12 - wPriority
   //14 - wLanguage

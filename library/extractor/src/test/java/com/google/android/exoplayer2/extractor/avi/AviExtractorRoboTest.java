@@ -6,6 +6,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
+import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,25 @@ public class AviExtractorRoboTest {
     aviExtractor.parseStream(streamList, 0);
     FakeTrackOutput trackOutput = fakeExtractorOutput.track(0, C.TRACK_TYPE_VIDEO);
     Assert.assertEquals(MimeTypes.AUDIO_AAC, trackOutput.lastFormat.sampleMimeType);
+  }
+
+  @Test
+  public void parseStream_givenNoStreamHeader() {
+      final AviExtractor aviExtractor = new AviExtractor();
+      final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+      aviExtractor.init(fakeExtractorOutput);
+      final ListBox streamList = new ListBox(128, AviExtractor.STRL, Collections.EMPTY_LIST);
+      Assert.assertNull(aviExtractor.parseStream(streamList, 0));
+  }
+
+  @Test
+  public void parseStream_givenNoStreamFormat() throws IOException {
+    final AviExtractor aviExtractor = new AviExtractor();
+    final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
+    aviExtractor.init(fakeExtractorOutput);
+    final ListBox streamList = new ListBox(128, AviExtractor.STRL,
+        Collections.singletonList(DataHelper.getVidsStreamHeader()));
+    Assert.assertNull(aviExtractor.parseStream(streamList, 0));
   }
 
 }

@@ -1,5 +1,7 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class AviExtractorTest {
+
   @Test
   public void init_givenFakeExtractorOutput() {
     AviExtractor aviExtractor = new AviExtractor();
@@ -83,14 +86,7 @@ public class AviExtractorTest {
 
   @Test
   public void peek_givenOnlyRiffAvi_ListHdrlAvih() {
-    ByteBuffer byteBuffer = AviExtractor.allocate(AviExtractor.PEEK_BYTES);
-    byteBuffer.putInt(AviExtractor.RIFF);
-    byteBuffer.putInt(128);
-    byteBuffer.putInt(AviExtractor.AVI_);
-    byteBuffer.putInt(ListBox.LIST);
-    byteBuffer.putInt(64);
-    byteBuffer.putInt(ListBox.TYPE_HDRL);
-    byteBuffer.putInt(AviHeaderBox.AVIH);
+    final ByteBuffer byteBuffer = DataHelper.getAviHeader(AviExtractor.PEEK_BYTES, 128);
     Assert.assertTrue(sniff(byteBuffer));
   }
 
@@ -118,6 +114,7 @@ public class AviExtractorTest {
     AviExtractor.alignInput(fakeExtractorInput);
     Assert.assertEquals(2, fakeExtractorInput.getPosition());
   }
+
   @Test
 
   public void alignInput_givenEvenPosition() throws IOException {
@@ -149,7 +146,8 @@ public class AviExtractorTest {
     Assert.assertEquals(1, AviExtractor.getStreamId('0' | ('1' << 8) | ('d' << 16) | ('c' << 24)));
   }
 
-  private void assertIdx1(AviSeekMap aviSeekMap, AviTrack videoTrack, int keyFrames, int keyFrameRate) {
+  private void assertIdx1(AviSeekMap aviSeekMap, AviTrack videoTrack, int keyFrames,
+      int keyFrameRate) {
     Assert.assertEquals(keyFrames, videoTrack.keyFrames.length);
 
     final int framesPerKeyFrame = 24 * 3;
@@ -179,11 +177,13 @@ public class AviExtractorTest {
     final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
     aviExtractor.setAviTracks(new AviTrack[]{videoTrack, audioTrack});
 
-    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().setData(idx1.array()).build();
-    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder()
+        .setData(idx1.array()).build();
+    aviExtractor.readIdx1(fakeExtractorInput, (int) fakeExtractorInput.getLength());
     final AviSeekMap aviSeekMap = aviExtractor.aviSeekMap;
     assertIdx1(aviSeekMap, videoTrack, keyFrames, keyFrameRate);
   }
+
   @Test
   public void readIdx1_givenNoVideo() throws IOException {
     final AviExtractor aviExtractor = new AviExtractor();
@@ -195,8 +195,9 @@ public class AviExtractorTest {
     final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
     aviExtractor.setAviTracks(new AviTrack[]{audioTrack});
 
-    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().setData(idx1.array()).build();
-    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder()
+        .setData(idx1.array()).build();
+    aviExtractor.readIdx1(fakeExtractorInput, (int) fakeExtractorInput.getLength());
     Assert.assertTrue(fakeExtractorOutput.seekMap instanceof SeekMap.Unseekable);
   }
 
@@ -222,7 +223,7 @@ public class AviExtractorTest {
 
     final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
         setData(junk.array()).build();
-    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+    aviExtractor.readIdx1(fakeExtractorInput, (int) fakeExtractorInput.getLength());
 
     assertIdx1(aviExtractor.aviSeekMap, videoTrack, keyFrames, keyFrameRate);
   }
@@ -240,9 +241,59 @@ public class AviExtractorTest {
 
     final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
         setData(idx1.array()).build();
-    aviExtractor.readIdx1(fakeExtractorInput, (int)fakeExtractorInput.getLength());
+    aviExtractor.readIdx1(fakeExtractorInput, (int) fakeExtractorInput.getLength());
 
     //We should be throttled to 2 key frame per second
     Assert.assertSame(AviTrack.ALL_KEY_FRAMES, videoTrack.keyFrames);
+  }
+
+  @Test
+  public void alignPositionHolder_givenOddPosition() {
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(new byte[4]).build();
+    fakeExtractorInput.setPosition(1);
+    final PositionHolder positionHolder = new PositionHolder();
+    final int result = AviExtractor.alignPositionHolder(fakeExtractorInput, positionHolder);
+    Assert.assertEquals(Extractor.RESULT_SEEK, result);
+    Assert.assertEquals(2, positionHolder.position);
+  }
+
+  @Test
+  public void alignPositionHolder_givenEvenPosition() {
+
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(new byte[4]).build();
+    fakeExtractorInput.setPosition(2);
+    final PositionHolder positionHolder = new PositionHolder();
+    final int result = AviExtractor.alignPositionHolder(fakeExtractorInput, positionHolder);
+    Assert.assertEquals(Extractor.RESULT_CONTINUE, result);
+  }
+
+  @Test
+  public void readHeaderList_givenBadHeader() throws IOException {
+    final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(new byte[32]).build();
+    Assert.assertNull(AviExtractor.readHeaderList(input));
+  }
+
+  @Test
+  public void readHeaderList_givenNoHeaderList() throws IOException {
+    final ByteBuffer byteBuffer = DataHelper.getAviHeader(88, 0x44);
+    byteBuffer.putInt(0x14, AviExtractor.STRL); //Overwrite header list with stream list
+    final FakeExtractorInput input = new FakeExtractorInput.Builder().
+        setData(byteBuffer.array()).build();
+    Assert.assertNull(AviExtractor.readHeaderList(input));
+  }
+
+  @Test
+  public void readHeaderList_givenEmptyHeaderList() throws IOException {
+    final ByteBuffer byteBuffer = DataHelper.getAviHeader(88, 0x44);
+    byteBuffer.putInt(AviHeaderBox.LEN);
+    byteBuffer.put(DataHelper.createHeader());
+    final FakeExtractorInput input = new FakeExtractorInput.Builder().
+        setData(byteBuffer.array()).build();
+    final ListBox listBox = AviExtractor.readHeaderList(input);
+    Assert.assertEquals(1, listBox.getChildren().size());
+
+    Assert.assertTrue(listBox.getChildren().get(0) instanceof AviHeaderBox);
   }
 }

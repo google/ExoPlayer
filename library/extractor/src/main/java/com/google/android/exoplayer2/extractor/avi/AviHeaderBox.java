@@ -3,7 +3,8 @@ package com.google.android.exoplayer2.extractor.avi;
 import java.nio.ByteBuffer;
 
 public class AviHeaderBox extends ResidentBox {
-  private static final int AVIF_HASINDEX = 0x10;
+  static final int LEN = 0x38;
+  static final int AVIF_HASINDEX = 0x10;
   private static final int AVIF_MUSTUSEINDEX = 0x20;
   static final int AVIH = 'a' | ('v' << 8) | ('i' << 16) | ('h' << 24);
 
@@ -46,15 +47,6 @@ public class AviHeaderBox extends ResidentBox {
   }
 
   // 28 - dwSuggestedBufferSize
-//  int getSuggestedBufferSize() {
-//    return byteBuffer.getInt(28);
-//  }
-//
-//  int getWidth() {
-//    return byteBuffer.getInt(32);
-//  }
-//
-//  int getHeight() {
-//    return byteBuffer.getInt(36);
-//  }
+  // 32 - dwWidth
+  // 36 - dwHeight
 }

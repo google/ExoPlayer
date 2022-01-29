@@ -35,18 +35,22 @@ public class DataHelper {
     }
   }
 
-  public static StreamHeaderBox getVidsStreamHeader() throws IOException {
-    final byte[] buffer = getBytes("vids_stream_header.dump");
-    final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-    return new StreamHeaderBox(StreamHeaderBox.STRH, buffer.length, byteBuffer);
+  public static StreamHeaderBox getStreamHeader(int type, int scale, int rate, int length) {
+    final ByteBuffer byteBuffer = AviExtractor.allocate(0x40);
+    byteBuffer.putInt(type);
+    byteBuffer.putInt(20, scale);
+    byteBuffer.putInt(24, rate);
+    byteBuffer.putInt(32, length);
+    byteBuffer.putInt(36, (type == StreamHeaderBox.VIDS ? 128 : 16) * 1024); //Suggested buffer size
+    return new StreamHeaderBox(StreamHeaderBox.STRH, 0x40, byteBuffer);
   }
 
-  public static StreamHeaderBox getAudioStreamHeader() throws IOException {
-    final byte[] buffer = getBytes("auds_stream_header.dump");
-    final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-    return new StreamHeaderBox(StreamHeaderBox.STRH, buffer.length, byteBuffer);
+  public static StreamHeaderBox getVidsStreamHeader() {
+    return getStreamHeader(StreamHeaderBox.VIDS, 1001, 24000, 9 * FPS);
+  }
+
+  public static StreamHeaderBox getAudioStreamHeader() {
+    return getStreamHeader(StreamHeaderBox.AUDS, 1, 44100, 9 * FPS);
   }
 
   public static StreamFormatBox getAacStreamFormat() throws IOException {
@@ -152,6 +156,34 @@ public class DataHelper {
         offset += AUDIO_SIZE;
       }
     }
+    return byteBuffer;
+  }
+
+  /**
+   * Get the RIFF header up to AVI Header
+   * @param bufferSize
+   * @return
+   */
+  public static ByteBuffer getAviHeader(int bufferSize, int headerListSize) {
+    ByteBuffer byteBuffer = AviExtractor.allocate(bufferSize);
+    byteBuffer.putInt(AviExtractor.RIFF);
+    byteBuffer.putInt(128);
+    byteBuffer.putInt(AviExtractor.AVI_);
+    byteBuffer.putInt(ListBox.LIST);
+    byteBuffer.putInt(headerListSize);
+    byteBuffer.putInt(ListBox.TYPE_HDRL);
+    byteBuffer.putInt(AviHeaderBox.AVIH);
+    return byteBuffer;
+  }
+
+  public static ByteBuffer createHeader() {
+    final ByteBuffer byteBuffer = ByteBuffer.allocate(AviHeaderBox.LEN);
+    byteBuffer.putInt((int)VIDEO_US);
+    byteBuffer.putLong(0); //skip 4+4
+    byteBuffer.putInt(AviHeaderBox.AVIF_HASINDEX);
+    byteBuffer.putInt(FPS * 5); //5 seconds
+    byteBuffer.putInt(24, 2); // Number of streams
+    byteBuffer.clear();
     return byteBuffer;
   }
 }

@@ -19,10 +19,9 @@ public class StreamHeaderBoxTest {
     Assert.assertTrue(streamHeaderBox.isVideo());
     Assert.assertFalse(streamHeaderBox.isAudio());
     Assert.assertEquals(StreamHeaderBox.VIDS, streamHeaderBox.getSteamType());
-    Assert.assertEquals(VideoFormat.XVID, streamHeaderBox.getFourCC());
     Assert.assertEquals(0, streamHeaderBox.getInitialFrames());
     Assert.assertEquals(FPS24, streamHeaderBox.getFrameRate(), 0.1);
-    Assert.assertEquals(11805L, streamHeaderBox.getLength());
-    Assert.assertEquals(0, streamHeaderBox.getSuggestedBufferSize());
+    Assert.assertEquals(9 * DataHelper.FPS, streamHeaderBox.getLength());
+    Assert.assertEquals(128 * 1024, streamHeaderBox.getSuggestedBufferSize());
   }
 }
