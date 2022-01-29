@@ -1,0 +1,20 @@
+name: PullRequest
+
+on: [ pull_request ]
+
+jobs:
+  buildTest:
+    name: Build SDK for Android
+    runs-on: macos-10.15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.2
+        with:
+          fetch-depth: 0
+      - name: Install JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 11
+      - name: Build ExoPlayer
+        run: ./gradlew assembleDebug
