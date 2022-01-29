@@ -16,10 +16,10 @@ project.ext {
     releaseVersion = '2.16.1'
     releaseVersionCode = 2016001
     minSdkVersion = 16
-    appTargetSdkVersion = 29
+    appTargetSdkVersion = 31
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
     // additional robolectric config.
-    targetSdkVersion = 30
+    targetSdkVersion = 31
     compileSdkVersion = 31
     dexmakerVersion = '2.28.1'
     junitVersion = '4.13.2'
