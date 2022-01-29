@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,27 +21,21 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class BitmapFactoryVideoRenderer extends BaseRenderer {
   private static final String TAG = "BitmapFactoryRenderer";
   final VideoRendererEventListener.EventDispatcher eventDispatcher;
   @Nullable
-  Surface surface;
-  private boolean firstFrameRendered;
+  volatile Surface surface;
   private final Rect rect = new Rect();
   private final Point lastSurface = new Point();
+  private final RenderRunnable renderRunnable = new RenderRunnable();
+  private final Thread thread = new Thread(renderRunnable, "BitmapFactoryVideoRenderer");
   private VideoSize lastVideoSize = VideoSize.UNKNOWN;
-  @Nullable
-  private ThreadPoolExecutor renderExecutor;
-  @Nullable
-  private Thread thread;
   private long currentTimeUs;
-  private long nextFrameUs;
-  private long frameUs = Long.MIN_VALUE;
-  private boolean ended;
+  private long frameUs;
+  boolean ended;
+  @Nullable
   private DecoderCounters decoderCounters;
 
   public BitmapFactoryVideoRenderer(@Nullable Handler eventHandler,
@@ -58,68 +53,43 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
   @Override
   protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
       throws ExoPlaybackException {
-    firstFrameRendered = ended = false;
-    renderExecutor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(3));
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
+    thread.start();
   }
 
   @Override
   protected void onDisabled() {
-    renderExecutor.shutdownNow();
-    eventDispatcher.disabled(decoderCounters);
+    renderRunnable.running = false;
+    thread.interrupt();
+
+    @Nullable
+    final DecoderCounters decoderCounters = this.decoderCounters;
+    if (decoderCounters != null) {
+      eventDispatcher.disabled(decoderCounters);
+    }
   }
 
   private void onFormatChanged(@NonNull FormatHolder formatHolder) {
     @Nullable final Format format = formatHolder.format;
     if (format != null) {
-      eventDispatcher.inputFormatChanged(format, null);
       frameUs = (long)(1_000_000L / format.frameRate);
+      eventDispatcher.inputFormatChanged(format, null);
     }
   }
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    //Log.d(TAG, "Render: us=" + positionUs);
     synchronized (eventDispatcher) {
       currentTimeUs = positionUs;
       eventDispatcher.notify();
-    }
-    if (renderExecutor.getActiveCount() > 0) {
-      //Handle decoder overrun
-      if (positionUs > nextFrameUs) {
-        long us = (positionUs - nextFrameUs) + frameUs;
-        long dropped = us / frameUs;
-        eventDispatcher.droppedFrames((int)dropped, us);
-        nextFrameUs += frameUs * dropped;
-      }
-      return;
-    }
-    final FormatHolder formatHolder = getFormatHolder();
-    final DecoderInputBuffer decoderInputBuffer =
-        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-    final int result = readSource(formatHolder, decoderInputBuffer,
-        frameUs == Long.MIN_VALUE ? SampleStream.FLAG_REQUIRE_FORMAT : 0);
-
-    if (result == C.RESULT_BUFFER_READ) {
-      renderExecutor.execute(new RenderRunnable(decoderInputBuffer, nextFrameUs));
-      if (decoderInputBuffer.isEndOfStream()) {
-        ended = true;
-      } else {
-        nextFrameUs += frameUs;
-      }
-    } else if (result == C.RESULT_FORMAT_READ) {
-      onFormatChanged(formatHolder);
     }
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    nextFrameUs = positionUs;
-    @Nullable
-    final Thread thread = this.thread;
-    if (thread != null) {
-      thread.interrupt();
-    }
+    thread.interrupt();
   }
 
   @Override
@@ -141,7 +111,7 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
 
   @Override
   public boolean isEnded() {
-    return ended && renderExecutor.getActiveCount() == 0;
+    return renderRunnable.ended;
   }
 
   @Override
@@ -154,96 +124,139 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
   }
 
   class RenderRunnable implements Runnable {
-    @Nullable
-    private DecoderInputBuffer decoderInputBuffer;
-    private final long renderUs;
+    private volatile boolean ended;
+    private boolean firstFrameRendered;
+    private volatile boolean running = true;
 
-    RenderRunnable(@NonNull final DecoderInputBuffer decoderInputBuffer, long renderUs) {
-      this.decoderInputBuffer = decoderInputBuffer;
-      this.renderUs = renderUs;
+    @Nullable
+    private Bitmap decodeInputBuffer(final DecoderInputBuffer decoderInputBuffer) {
+      @Nullable final ByteBuffer byteBuffer = decoderInputBuffer.data;
+      if (byteBuffer != null) {
+        final Bitmap bitmap;
+        try {
+          bitmap = BitmapFactory.decodeByteArray(byteBuffer.array(), byteBuffer.arrayOffset(),
+              byteBuffer.arrayOffset() + byteBuffer.position());
+          if (bitmap == null) {
+            eventDispatcher.videoCodecError(new NullPointerException("Decode bytes failed"));
+          } else {
+            return bitmap;
+          }
+        } catch (Exception e) {
+          eventDispatcher.videoCodecError(e);
+        }
+      }
+      return null;
     }
 
-    private boolean maybeDropFrame(long frameUs) {
-      if (Math.abs(frameUs - currentTimeUs) > frameUs) {
-        eventDispatcher.droppedFrames(1, frameUs);
-        return true;
+    private void renderBitmap(final Bitmap bitmap, @NonNull final Surface surface) {
+      //Log.d(TAG, "Drawing: " + bitmap.getWidth() + "x" + bitmap.getHeight());
+      final Canvas canvas = surface.lockCanvas(null);
+
+      final Rect clipBounds = canvas.getClipBounds();
+      final VideoSize videoSize = new VideoSize(bitmap.getWidth(), bitmap.getHeight());
+      final boolean videoSizeChanged;
+      if (videoSize.equals(lastVideoSize)) {
+        videoSizeChanged = false;
+      } else {
+        lastVideoSize = videoSize;
+        eventDispatcher.videoSizeChanged(videoSize);
+        videoSizeChanged = true;
       }
-      return false;
+      if (lastSurface.x != clipBounds.width() || lastSurface.y != clipBounds.height() ||
+          videoSizeChanged) {
+        lastSurface.x = clipBounds.width();
+        lastSurface.y = clipBounds.height();
+        final float scaleX = lastSurface.x / (float)videoSize.width;
+        final float scaleY = lastSurface.y / (float)videoSize.height;
+        final float scale = Math.min(scaleX, scaleY);
+        final float width = videoSize.width * scale;
+        final float height = videoSize.height * scale;
+        final int x = (int)(lastSurface.x - width) / 2;
+        final int y = (int)(lastSurface.y - height) / 2;
+        rect.set(x, y, x + (int)width, y + (int) height);
+      }
+      canvas.drawBitmap(bitmap, null, rect, null);
+
+      surface.unlockCanvasAndPost(canvas);
+      @Nullable
+      final DecoderCounters decoderCounters = BitmapFactoryVideoRenderer.this.decoderCounters;
+      if (decoderCounters != null) {
+        decoderCounters.renderedOutputBufferCount++;
+      }
+      if (!firstFrameRendered) {
+        firstFrameRendered = true;
+        eventDispatcher.renderedFirstFrame(surface);
+      }
+    }
+
+    /**
+     *
+     * @return true if interrupted
+     */
+    private boolean sleep() {
+      synchronized (eventDispatcher) {
+        try {
+          eventDispatcher.wait();
+          return false;
+        } catch (InterruptedException e) {
+          //If we are interrupted, treat as a cancel
+          return true;
+        }
+      }
     }
 
     public void run() {
-      if (maybeDropFrame(renderUs)) {
-        return;
-      }
-      @Nullable
-      final ByteBuffer byteBuffer = decoderInputBuffer.data;
-      @Nullable
-      final Surface surface = BitmapFactoryVideoRenderer.this.surface;
-      if (byteBuffer != null && surface != null) {
-        final Bitmap bitmap;
-        try {
-          bitmap = BitmapFactory.decodeByteArray(byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.arrayOffset() + byteBuffer.position());
-        } catch (Exception e) {
-          eventDispatcher.videoCodecError(e);
-          return;
-        }
-        if (bitmap == null) {
-          eventDispatcher.videoCodecError(new NullPointerException("Decode bytes failed"));
-          return;
-        }
-        decoderInputBuffer = null;
-        //Wait for time to advance to display the Bitmap
-        synchronized (eventDispatcher) {
-          while (currentTimeUs < renderUs) {
-            try {
-              thread = Thread.currentThread();
-              eventDispatcher.wait();
-            } catch (InterruptedException e) {
-              //If we are interrupted, treat as a cancel
-              return;
-            } finally {
-              thread = null;
+      final FormatHolder formatHolder = getFormatHolder();
+      @NonNull
+      final DecoderInputBuffer decoderInputBuffer =
+          new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+      long start = SystemClock.uptimeMillis();
+      main:
+      while (running) {
+        decoderInputBuffer.clear();
+        final int result = readSource(formatHolder, decoderInputBuffer,
+            formatHolder.format == null ? SampleStream.FLAG_REQUIRE_FORMAT : 0);
+        if (result == C.RESULT_BUFFER_READ) {
+          if (decoderInputBuffer.isEndOfStream()) {
+            ended = true;
+            if (!sleep()) {
+              ended = false;
+            }
+            continue;
+          }
+          final long leadUs = decoderInputBuffer.timeUs - currentTimeUs;
+          //If we are more than 1/2 a frame behind, skip the next frame
+          if (leadUs < -frameUs / 2) {
+            eventDispatcher.droppedFrames(1, SystemClock.uptimeMillis() - start);
+            start = SystemClock.uptimeMillis();
+            continue;
+          }
+          start = SystemClock.uptimeMillis();
+
+          @Nullable
+          final Bitmap bitmap = decodeInputBuffer(decoderInputBuffer);
+          if (bitmap == null) {
+            continue;
+          }
+          while (currentTimeUs < decoderInputBuffer.timeUs) {
+            //Log.d(TAG, "Sleep: us=" + currentTimeUs);
+            if (sleep()) {
+              continue main;
+            }
+            if (!running) {
+              break main;
             }
           }
-        }
-        if (maybeDropFrame(renderUs)) {
-          return;
-        }
-        //Log.d(TAG, "Drawing: " + bitmap.getWidth() + "x" + bitmap.getHeight());
-        final Canvas canvas = surface.lockCanvas(null);
-
-        final Rect clipBounds = canvas.getClipBounds();
-        final VideoSize videoSize = new VideoSize(bitmap.getWidth(), bitmap.getHeight());
-        final boolean videoSizeChanged;
-        if (videoSize.equals(lastVideoSize)) {
-          videoSizeChanged = false;
-        } else {
-          lastVideoSize = videoSize;
-          eventDispatcher.videoSizeChanged(videoSize);
-          videoSizeChanged = true;
-        }
-        if (lastSurface.x != clipBounds.width() || lastSurface.y != clipBounds.height() ||
-            videoSizeChanged) {
-          lastSurface.x = clipBounds.width();
-          lastSurface.y = clipBounds.height();
-          final float scaleX = lastSurface.x / (float)videoSize.width;
-          final float scaleY = lastSurface.y / (float)videoSize.height;
-          final float scale = Math.min(scaleX, scaleY);
-          final float width = videoSize.width * scale;
-          final float height = videoSize.height * scale;
-          final int x = (int)(lastSurface.x - width) / 2;
-          final int y = (int)(lastSurface.y - height) / 2;
-          rect.set(x, y, x + (int)width, y + (int) height);
-        }
-        canvas.drawBitmap(bitmap, null, rect, null);
-
-        surface.unlockCanvasAndPost(canvas);
-        decoderCounters.renderedOutputBufferCount++;
-        if (!firstFrameRendered) {
-          firstFrameRendered = true;
-          eventDispatcher.renderedFirstFrame(surface);
+          @Nullable
+          final Surface surface = BitmapFactoryVideoRenderer.this.surface;
+          if (surface != null) {
+            renderBitmap(bitmap, surface);
+          }
+        } else if (result == C.RESULT_FORMAT_READ) {
+          onFormatChanged(formatHolder);
         }
       }
+      ended = true;
     }
   }
 }
