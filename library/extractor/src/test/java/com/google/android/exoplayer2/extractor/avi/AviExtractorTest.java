@@ -464,4 +464,11 @@ public class AviExtractorTest {
     Assert.assertEquals(aviSeekMap.seekIndexes[aviTrack.id][1], aviTrack.getClock().getIndex());
   }
 
+  @Test
+  public void getAviTrack_givenListWithNull() {
+    final AviExtractor aviExtractor = new AviExtractor();
+    final AviTrack aviTrack = DataHelper.getAudioAviTrack(9);
+    aviExtractor.setAviTracks(new AviTrack[]{null, aviTrack});
+    Assert.assertSame(aviTrack, aviExtractor.getAviTrack(aviTrack.chunkId));
+  }
 }

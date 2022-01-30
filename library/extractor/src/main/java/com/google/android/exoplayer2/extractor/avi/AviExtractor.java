@@ -471,9 +471,10 @@ public class AviExtractor implements Extractor {
   }
 
   @Nullable
-  private AviTrack getAviTrack(int chunkId) {
+  @VisibleForTesting
+  AviTrack getAviTrack(int chunkId) {
     for (AviTrack aviTrack : aviTracks) {
-      if (aviTrack.handlesChunkId(chunkId)) {
+      if (aviTrack != null && aviTrack.handlesChunkId(chunkId)) {
         return aviTrack;
       }
     }
