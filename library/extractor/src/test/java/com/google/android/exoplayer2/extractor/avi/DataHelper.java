@@ -1,10 +1,10 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
-import java.io.File;
-import java.io.FileInputStream;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -19,22 +19,6 @@ public class DataHelper {
   static final int AUDIO_SIZE = 256;
   static final int AUDIO_ID = 1;
   static final int MOVI_OFFSET = 4096;
-  private static final long AUDIO_US = VIDEO_US / AUDIO_PER_VIDEO;
-
-  //Base path "\ExoPlayer\library\extractor\."
-  private static final File RELATIVE_PATH = new File("../../testdata/src/test/assets/extractordumps/avi/");
-  public static FakeExtractorInput getInput(final String fileName) throws IOException {
-    return new FakeExtractorInput.Builder().setData(getBytes(fileName)).build();
-  }
-
-  public static byte[] getBytes(final String fileName) throws IOException {
-    final File file = new File(RELATIVE_PATH, fileName);
-    try (FileInputStream in = new FileInputStream(file)) {
-      final byte[] buffer = new byte[in.available()];
-      in.read(buffer);
-      return buffer;
-    }
-  }
 
   public static StreamHeaderBox getStreamHeader(int type, int scale, int rate, int length) {
     final ByteBuffer byteBuffer = AviExtractor.allocate(0x40);
@@ -55,20 +39,23 @@ public class DataHelper {
   }
 
   public static StreamFormatBox getAacStreamFormat() throws IOException {
-    final byte[] buffer = getBytes("aac_stream_format.dump");
+    final Context context = ApplicationProvider.getApplicationContext();
+    final byte[] buffer = TestUtil.getByteArray(context,"extractordumps/avi/aac_stream_format.dump");
     final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
     byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
     return new StreamFormatBox(StreamFormatBox.STRF, buffer.length, byteBuffer);
   }
 
-  public static StreamFormatBox getVideoStreamFormat() throws IOException {
-    final byte[] buffer = getBytes("h264_stream_format.dump");
-    final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-    return new StreamFormatBox(StreamFormatBox.STRF, buffer.length, byteBuffer);
+  public static StreamFormatBox getVideoStreamFormat() {
+    final ByteBuffer byteBuffer = AviExtractor.allocate(40);
+    final VideoFormat videoFormat = new VideoFormat(byteBuffer);
+    videoFormat.setWidth(720);
+    videoFormat.setHeight(480);
+    videoFormat.setCompression(VideoFormat.XVID);
+    return new StreamFormatBox(StreamFormatBox.STRF, byteBuffer.capacity(), byteBuffer);
   }
 
-  public static ListBox getVideoStreamList() throws IOException {
+  public static ListBox getVideoStreamList() {
     final StreamHeaderBox streamHeaderBox = getVidsStreamHeader();
     final StreamFormatBox streamFormatBox = getVideoStreamFormat();
     final ArrayList<Box> list = new ArrayList<>(2);
@@ -162,8 +149,6 @@ public class DataHelper {
 
   /**
    * Get the RIFF header up to AVI Header
-   * @param bufferSize
-   * @return
    */
   public static ByteBuffer getRiffHeader(int bufferSize, int headerListSize) {
     ByteBuffer byteBuffer = AviExtractor.allocate(bufferSize);

@@ -1,13 +1,19 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 public class Mp4vChunkPeekerTest {
 
   private ByteBuffer makeSequence() {
@@ -30,8 +36,10 @@ public class Mp4vChunkPeekerTest {
   public void peek_givenAspectRatio() throws IOException {
     final FakeTrackOutput fakeTrackOutput = new FakeTrackOutput(false);
     final Format.Builder formatBuilder = new Format.Builder();
+    final Context context = ApplicationProvider.getApplicationContext();
+    final byte[] bytes = TestUtil.getByteArray(context, "extractordumps/avi/mp4v_sequence.dump");
+    final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(bytes).build();
     final Mp4vChunkPeeker mp4vChunkPeeker = new Mp4vChunkPeeker(formatBuilder, fakeTrackOutput);
-    final FakeExtractorInput input = DataHelper.getInput("mp4v_sequence.dump");
 
     mp4vChunkPeeker.peek(input, (int) input.getLength());
     Assert.assertEquals(1.2121212, mp4vChunkPeeker.pixelWidthHeightRatio, 0.01);

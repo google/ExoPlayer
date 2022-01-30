@@ -1,5 +1,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -55,4 +56,20 @@ public class VideoFormat {
   public String getMimeType() {
     return STREAM_MAP.get(getCompression());
   }
+
+  @VisibleForTesting
+  public void setWidth(final int width) {
+    byteBuffer.putInt(4, width);
+  }
+
+  @VisibleForTesting
+  public void setHeight(final int height) {
+    byteBuffer.putInt(8, height);
+  }
+
+  @VisibleForTesting
+  public void setCompression(final int compression) {
+    byteBuffer.putInt(16, compression);
+  }
+
 }

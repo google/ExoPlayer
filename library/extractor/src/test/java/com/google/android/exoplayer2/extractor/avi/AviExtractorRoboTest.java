@@ -20,14 +20,14 @@ import org.junit.runner.RunWith;
 public class AviExtractorRoboTest {
 
   @Test
-  public void parseStream_givenH264StreamList() throws IOException {
+  public void parseStream_givenXvidStreamList() throws IOException {
     final AviExtractor aviExtractor = new AviExtractor();
     final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
     aviExtractor.init(fakeExtractorOutput);
     final ListBox streamList = DataHelper.getVideoStreamList();
     aviExtractor.parseStream(streamList, 0);
     FakeTrackOutput trackOutput = fakeExtractorOutput.track(0, C.TRACK_TYPE_VIDEO);
-    Assert.assertEquals(MimeTypes.VIDEO_H264, trackOutput.lastFormat.sampleMimeType);
+    Assert.assertEquals(MimeTypes.VIDEO_MP4V, trackOutput.lastFormat.sampleMimeType);
   }
 
   @Test
