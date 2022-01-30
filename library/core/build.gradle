@@ -21,7 +21,11 @@ android {
         testInstrumentationRunnerArguments clearPackageData: 'true'
         multiDexEnabled true
     }
-
+    testOptions{
+        unitTests.all {
+            jvmArgs '-noverify'
+        }
+    }
     buildTypes {
         debug {
             testCoverageEnabled = true

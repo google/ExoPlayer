@@ -3,13 +3,15 @@ package com.google.android.exoplayer2.video;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
+import androidx.arch.core.util.Function;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -23,11 +25,16 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 
 public class BitmapFactoryVideoRenderer extends BaseRenderer {
-  private static final String TAG = "BitmapFactoryRenderer";
+  static final String TAG = "BitmapFactoryRenderer";
+
+  //Sleep Reasons
+  static final String STREAM_END = "Stream End";
+  static final String STREAM_EMPTY = "Stream Empty";
+  static final String RENDER_WAIT = "Render Wait";
+
   private static int threadId;
 
   private final Rect rect = new Rect();
-  private final Point lastSurface = new Point();
   private final RenderRunnable renderRunnable = new RenderRunnable();
 
   final VideoRendererEventListener.EventDispatcher eventDispatcher;
@@ -60,7 +67,16 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
       throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
-    thread.start();
+    if (mayRenderStartOfStream) {
+      thread.start();
+    }
+  }
+
+  @Override
+  protected void onStarted() throws ExoPlaybackException {
+    if (thread.getState() == Thread.State.NEW) {
+      thread.start();
+    }
   }
 
   @Override
@@ -74,20 +90,12 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
     }
   }
 
-  private void onFormatChanged(@NonNull FormatHolder formatHolder) {
-    @Nullable final Format format = formatHolder.format;
-    if (format != null) {
-      frameUs = (long)(1_000_000L / format.frameRate);
-      eventDispatcher.inputFormatChanged(format, null);
-    }
-  }
-
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     //Log.d(TAG, "Render: us=" + positionUs);
-    synchronized (eventDispatcher) {
+    synchronized (renderRunnable) {
       currentTimeUs = positionUs;
-      eventDispatcher.notify();
+      renderRunnable.notify();
     }
   }
 
@@ -127,7 +135,17 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
     return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
   }
 
-  void renderBitmap(final Bitmap bitmap) {
+  @WorkerThread
+  private void onFormatChanged(@NonNull FormatHolder formatHolder) {
+    @Nullable final Format format = formatHolder.format;
+    if (format != null) {
+      frameUs = (long)(1_000_000L / format.frameRate);
+      eventDispatcher.inputFormatChanged(format, null);
+    }
+  }
+
+  @WorkerThread
+  void renderBitmap(@NonNull final Bitmap bitmap) {
     @Nullable
     final Surface surface = this.surface;
     if (surface == null) {
@@ -136,30 +154,7 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
     //Log.d(TAG, "Drawing: " + bitmap.getWidth() + "x" + bitmap.getHeight());
     final Canvas canvas = surface.lockCanvas(null);
 
-    final Rect clipBounds = canvas.getClipBounds();
-    final VideoSize videoSize = new VideoSize(bitmap.getWidth(), bitmap.getHeight());
-    final boolean videoSizeChanged;
-    if (videoSize.equals(lastVideoSize)) {
-      videoSizeChanged = false;
-    } else {
-      lastVideoSize = videoSize;
-      eventDispatcher.videoSizeChanged(videoSize);
-      videoSizeChanged = true;
-    }
-    if (lastSurface.x != clipBounds.width() || lastSurface.y != clipBounds.height() ||
-        videoSizeChanged) {
-      lastSurface.x = clipBounds.width();
-      lastSurface.y = clipBounds.height();
-      final float scaleX = lastSurface.x / (float)videoSize.width;
-      final float scaleY = lastSurface.y / (float)videoSize.height;
-      final float scale = Math.min(scaleX, scaleY);
-      final float width = videoSize.width * scale;
-      final float height = videoSize.height * scale;
-      final int x = (int)(lastSurface.x - width) / 2;
-      final int y = (int)(lastSurface.y - height) / 2;
-      rect.set(x, y, x + (int)width, y + (int) height);
-    }
-    canvas.drawBitmap(bitmap, null, rect, null);
+    renderBitmap(bitmap, canvas);
 
     surface.unlockCanvasAndPost(canvas);
     @Nullable
@@ -173,11 +168,26 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
     }
   }
 
-  class RenderRunnable implements Runnable {
+  @WorkerThread
+  @VisibleForTesting
+  void renderBitmap(Bitmap bitmap, Canvas canvas) {
+    final VideoSize videoSize = new VideoSize(bitmap.getWidth(), bitmap.getHeight());
+    if (!videoSize.equals(lastVideoSize)) {
+      lastVideoSize = videoSize;
+      eventDispatcher.videoSizeChanged(videoSize);
+    }
+    rect.set(0,0,canvas.getWidth(), canvas.getHeight());
+    canvas.drawBitmap(bitmap, null, rect, null);
+  }
+
+  class RenderRunnable implements Runnable, Function<String, Boolean> {
     final DecoderInputBuffer decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
 
     private volatile boolean running = true;
+
+    @VisibleForTesting
+    Function<String, Boolean> sleepFunction = this;
 
     void stop() {
       running = false;
@@ -197,7 +207,7 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
           bitmap = BitmapFactory.decodeByteArray(byteBuffer.array(), byteBuffer.arrayOffset(),
               byteBuffer.arrayOffset() + byteBuffer.position());
           if (bitmap == null) {
-            eventDispatcher.videoCodecError(new NullPointerException("Decode bytes failed"));
+            throw new NullPointerException("Decode bytes failed");
           } else {
             return bitmap;
           }
@@ -212,18 +222,21 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
      *
      * @return true if interrupted
      */
-    private boolean sleep() {
-      synchronized (eventDispatcher) {
-        try {
-          eventDispatcher.wait();
-          return false;
-        } catch (InterruptedException e) {
-          //If we are interrupted, treat as a cancel
-          return true;
-        }
+    public synchronized Boolean apply(String why) {
+      try {
+        wait();
+        return false;
+      } catch (InterruptedException e) {
+        //If we are interrupted, treat as a cancel
+        return true;
       }
     }
 
+    private boolean sleep(String why) {
+      return sleepFunction.apply(why);
+    }
+
+    @WorkerThread
     public void run() {
       final FormatHolder formatHolder = getFormatHolder();
       long start = SystemClock.uptimeMillis();
@@ -232,40 +245,73 @@ public class BitmapFactoryVideoRenderer extends BaseRenderer {
         decoderInputBuffer.clear();
         final int result = readSource(formatHolder, decoderInputBuffer,
             formatHolder.format == null ? SampleStream.FLAG_REQUIRE_FORMAT : 0);
-        if (result == C.RESULT_BUFFER_READ) {
-          if (decoderInputBuffer.isEndOfStream()) {
-            //Wait for shutdown or stream to be changed
-            sleep();
-            continue;
-          }
-          final long leadUs = decoderInputBuffer.timeUs - currentTimeUs;
-          //If we are more than 1/2 a frame behind, skip the next frame
-          if (leadUs < -frameUs / 2) {
-            eventDispatcher.droppedFrames(1, SystemClock.uptimeMillis() - start);
+        switch (result) {
+          case C.RESULT_BUFFER_READ: {
+            if (decoderInputBuffer.isEndOfStream()) {
+              //Wait for shutdown or stream to be changed
+              sleep(STREAM_END);
+              continue;
+            }
+            final long leadUs = decoderInputBuffer.timeUs - currentTimeUs;
+            //If we are more than 1/2 a frame behind, skip the next frame
+            if (leadUs < -frameUs / 2) {
+              eventDispatcher.droppedFrames(1, SystemClock.uptimeMillis() - start);
+              start = SystemClock.uptimeMillis();
+              continue;
+            }
             start = SystemClock.uptimeMillis();
-            continue;
-          }
-          start = SystemClock.uptimeMillis();
 
-          @Nullable
-          final Bitmap bitmap = decodeInputBuffer(decoderInputBuffer);
-          if (bitmap == null) {
-            continue;
-          }
-          while (currentTimeUs < decoderInputBuffer.timeUs) {
-            //Log.d(TAG, "Sleep: us=" + currentTimeUs);
-            if (sleep()) {
-              //Sleep was interrupted, discard Bitmap
-              continue main;
+            @Nullable
+            final Bitmap bitmap = decodeInputBuffer(decoderInputBuffer);
+            if (bitmap == null) {
+              continue;
+            }
+            while (currentTimeUs < decoderInputBuffer.timeUs) {
+              //Log.d(TAG, "Sleep: us=" + currentTimeUs);
+              if (sleep(RENDER_WAIT)) {
+                //Sleep was interrupted, discard Bitmap
+                continue main;
+              }
+            }
+            if (running) {
+              renderBitmap(bitmap);
             }
           }
-          if (running) {
-            renderBitmap(bitmap);
-          }
-        } else if (result == C.RESULT_FORMAT_READ) {
+          break;
+        case C.RESULT_FORMAT_READ:
           onFormatChanged(formatHolder);
+          break;
+        case C.RESULT_NOTHING_READ:
+          sleep(STREAM_EMPTY);
+          break;
         }
       }
     }
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  Rect getRect() {
+    return rect;
+  }
+
+  @Nullable
+  @VisibleForTesting
+  DecoderCounters getDecoderCounters() {
+    return decoderCounters;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  Thread getThread() {
+    return thread;
+  }
+
+  @Nullable
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  Surface getSurface() {
+    return surface;
+  }
+
+  RenderRunnable getRenderRunnable() {
+    return renderRunnable;
   }
 }

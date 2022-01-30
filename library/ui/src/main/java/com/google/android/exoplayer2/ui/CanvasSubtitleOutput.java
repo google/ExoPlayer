@@ -32,7 +32,8 @@ import java.util.List;
  * A {@link SubtitleView.Output} that uses Android's native layout framework via {@link
  * SubtitlePainter}.
  */
-/* package */ final class CanvasSubtitleOutput extends View implements SubtitleView.Output {
+/* package */ final class
+CanvasSubtitleOutput extends View implements SubtitleView.Output {
 
   private final List<SubtitlePainter> painters;
 
