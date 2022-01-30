@@ -12,8 +12,8 @@ public class Box {
     this.size = size;
   }
 
-  public long getSize() {
-    return size & AviExtractor.UINT_MASK;
+  public int getSize() {
+    return size;
   }
 
   public int getType() {
