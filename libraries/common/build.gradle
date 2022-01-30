@@ -17,9 +17,9 @@ apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 // the Gradle properties of each library are populated and we can automatically
 // check if a 'releaseArtifactId' exists.
 rootProject.allprojects.forEach {
-    if ((it.name.contains('lib-') || it.name.contains('test-'))
+    if ((it.name.startsWith(modulePrefix.replace(':', '') + 'lib-') || it.name.startsWith(modulePrefix.replace(':', '') + 'test-'))
             && !it.name.endsWith('-common')) {
-        evaluationDependsOn(modulePrefix + it.name)
+        evaluationDependsOn(':' + it.name)
     }
 }
 // copybara:media3-only
@@ -36,8 +36,8 @@ dependencies {
         // List all released targets as constraints. This ensures they are all
         // resolved to the same version.
         rootProject.allprojects.forEach {
-            if (it.hasProperty('releaseArtifactId')) {
-                implementation project(modulePrefix + it.name)
+            if (it.hasProperty('releaseArtifactId') && it.releaseArtifactId.startsWith('media3-')) {
+                implementation project(':' + it.name)
             }
         }
     }
