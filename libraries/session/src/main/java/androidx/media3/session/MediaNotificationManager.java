@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,10 +52,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Class to provide default media notification for {@link MediaSessionService}, and set the service
- * as foreground/background according to the player state.
+ * Provides default media notifications for {@link MediaSessionService} and sets the service as
+ * foreground/background according to the player state.
  */
-/* package */ class MediaNotificationHandler {
+/* package */ final class MediaNotificationManager {
 
   private static final int NOTIFICATION_ID = 1001;
   private static final String NOTIFICATION_CHANNEL_ID = "default_channel_id";
@@ -73,7 +73,7 @@ import java.util.concurrent.TimeoutException;
 
   private final Map<MediaSession, ListenableFuture<MediaController>> controllerMap;
 
-  public MediaNotificationHandler(MediaSessionService service) {
+  public MediaNotificationManager(MediaSessionService service) {
     this.service = service;
     Handler mainHandler = new Handler(Looper.getMainLooper());
     mainExecutor = (runnable) -> Util.postOrRun(mainHandler, runnable);

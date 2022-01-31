@@ -145,7 +145,7 @@ public abstract class MediaSessionService extends Service {
 
   @GuardedBy("lock")
   @Nullable
-  private MediaNotificationHandler notificationHandler;
+  private MediaNotificationManager notificationHandler;
 
   /** Creates a service. */
   public MediaSessionService() {
@@ -165,7 +165,7 @@ public abstract class MediaSessionService extends Service {
     super.onCreate();
     synchronized (lock) {
       stub = new MediaSessionServiceStub(this);
-      notificationHandler = new MediaNotificationHandler(this);
+      notificationHandler = new MediaNotificationManager(this);
     }
   }
 
@@ -227,7 +227,7 @@ public abstract class MediaSessionService extends Service {
     if (old == null) {
       // Session has returned for the first time. Register callbacks.
       // TODO(b/191644474): Check whether the session is registered to multiple services.
-      MediaNotificationHandler handler;
+      MediaNotificationManager handler;
       synchronized (lock) {
         handler = checkStateNotNull(notificationHandler);
       }
@@ -245,7 +245,7 @@ public abstract class MediaSessionService extends Service {
    */
   public final void removeSession(MediaSession session) {
     checkNotNull(session, "session must not be null");
-    MediaNotificationHandler handler;
+    MediaNotificationManager handler;
     synchronized (lock) {
       sessions.remove(session.getId());
       handler = checkStateNotNull(notificationHandler);
@@ -273,7 +273,7 @@ public abstract class MediaSessionService extends Service {
   @Nullable
   public MediaNotification onUpdateNotification(MediaSession session) {
     checkNotNull(session, "session must not be null");
-    MediaNotificationHandler handler;
+    MediaNotificationManager handler;
     synchronized (lock) {
       handler = checkStateNotNull(notificationHandler, "Service hasn't created");
     }
