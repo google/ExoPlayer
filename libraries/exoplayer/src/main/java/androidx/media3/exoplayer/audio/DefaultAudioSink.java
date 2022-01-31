@@ -79,6 +79,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public final class DefaultAudioSink implements AudioSink {
 
   /**
+   * If an attempt to instantiate an AudioTrack with a buffer size larger than this value fails, a
+   * second attempt is made using this buffer size.
+   */
+  private static final int AUDIO_TRACK_SMALLER_BUFFER_RETRY_SIZE = 1_000_000;
+
+  /**
    * Thrown when the audio track has provided a spurious timestamp, if {@link
    * #failOnSpuriousAudioTimestamp} is set.
    */
@@ -833,7 +839,7 @@ public final class DefaultAudioSink implements AudioSink {
     // initialization of the audio track to fail.
     releasingConditionVariable.block();
 
-    audioTrack = buildAudioTrack();
+    audioTrack = buildAudioTrackWithRetry();
     if (isOffloadedPlayback(audioTrack)) {
       registerStreamEventCallbackV29(audioTrack);
       if (offloadMode != OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED) {
@@ -1027,12 +1033,31 @@ public final class DefaultAudioSink implements AudioSink {
     return false;
   }
 
-  private AudioTrack buildAudioTrack() throws InitializationException {
+  private AudioTrack buildAudioTrackWithRetry() throws InitializationException {
     try {
-      return checkNotNull(configuration)
-          .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
-    } catch (InitializationException e) {
+      return buildAudioTrack(checkNotNull(configuration));
+    } catch (InitializationException initialFailure) {
+      // Retry with a smaller buffer size.
+      if (configuration.bufferSize > AUDIO_TRACK_SMALLER_BUFFER_RETRY_SIZE) {
+        Configuration retryConfiguration =
+            configuration.copyWithBufferSize(AUDIO_TRACK_SMALLER_BUFFER_RETRY_SIZE);
+        try {
+          AudioTrack audioTrack = buildAudioTrack(retryConfiguration);
+          configuration = retryConfiguration;
+          return audioTrack;
+        } catch (InitializationException retryFailure) {
+          initialFailure.addSuppressed(retryFailure);
+        }
+      }
       maybeDisableOffload();
+      throw initialFailure;
+    }
+  }
+
+  private AudioTrack buildAudioTrack(Configuration configuration) throws InitializationException {
+    try {
+      return configuration.buildAudioTrack(tunneling, audioAttributes, audioSessionId);
+    } catch (InitializationException e) {
       if (listener != null) {
         listener.onAudioSinkError(e);
       }
@@ -2136,6 +2161,19 @@ public final class DefaultAudioSink implements AudioSink {
       this.outputEncoding = outputEncoding;
       this.bufferSize = bufferSize;
       this.availableAudioProcessors = availableAudioProcessors;
+    }
+
+    public Configuration copyWithBufferSize(int bufferSize) {
+      return new Configuration(
+          inputFormat,
+          inputPcmFrameSize,
+          outputMode,
+          outputPcmFrameSize,
+          outputSampleRate,
+          outputChannelConfig,
+          outputEncoding,
+          bufferSize,
+          availableAudioProcessors);
     }
 
     /** Returns if the configurations are sufficiently compatible to reuse the audio track. */
