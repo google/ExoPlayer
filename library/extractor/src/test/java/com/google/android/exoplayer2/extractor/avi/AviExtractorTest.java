@@ -266,6 +266,29 @@ public class AviExtractorTest {
   }
 
   @Test
+  public void readIdx1_givenBufferToShort() throws IOException {
+    final AviExtractor aviExtractor = setupVideoAviExtractor();
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(new byte[12]).build();
+
+    aviExtractor.readIdx1(fakeExtractorInput, 12);
+    final FakeExtractorOutput fakeExtractorOutput = (FakeExtractorOutput) aviExtractor.output;
+    Assert.assertTrue(fakeExtractorOutput.seekMap instanceof SeekMap.Unseekable);
+  }
+
+  @Test
+  public void readIdx1_givenBadOffset() throws IOException {
+    final AviExtractor aviExtractor = setupVideoAviExtractor();
+    final int secs = 4;
+    final ByteBuffer idx1 = DataHelper.getIndex(secs, 1, (int)aviExtractor.getMoviOffset() + 4);
+
+    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
+        setData(idx1.array()).build();
+    aviExtractor.readIdx1(fakeExtractorInput, (int) fakeExtractorInput.getLength());
+    Assert.assertEquals(0, aviExtractor.aviSeekMap.seekOffset);
+  }
+
+  @Test
   public void alignPositionHolder_givenOddPosition() {
     final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
         setData(new byte[4]).build();
@@ -470,5 +493,13 @@ public class AviExtractorTest {
     final AviTrack aviTrack = DataHelper.getAudioAviTrack(9);
     aviExtractor.setAviTracks(new AviTrack[]{null, aviTrack});
     Assert.assertSame(aviTrack, aviExtractor.getAviTrack(aviTrack.chunkId));
+  }
+
+  @Test
+  public void release() {
+    //Shameless way to get 100% method coverage
+    final AviExtractor aviExtractor = new AviExtractor();
+    aviExtractor.release();
+    //Nothing to assert on a method that does nothing
   }
 }

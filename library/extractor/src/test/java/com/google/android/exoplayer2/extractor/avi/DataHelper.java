@@ -129,10 +129,17 @@ public class DataHelper {
    * @param keyFrameRate Key frame rate 1= every frame, 2=every other, ...
    */
   public static ByteBuffer getIndex(final int secs, final int keyFrameRate) {
+    return getIndex(secs, keyFrameRate, 4);
+  }
+    /**
+     *
+     * @param secs Number of seconds
+     * @param keyFrameRate Key frame rate 1= every frame, 2=every other, ...
+     */
+  public static ByteBuffer getIndex(final int secs, final int keyFrameRate, int offset) {
     final int videoFrames = secs * FPS;
     final int videoChunkId = AviTrack.getVideoChunkId(0);
     final int audioChunkId = AviTrack.getAudioChunkId(1);
-    int offset = 4;
     final ByteBuffer byteBuffer = AviExtractor.allocate((videoFrames + videoFrames*AUDIO_PER_VIDEO) * 16);
 
     for (int v=0;v<videoFrames;v++) {

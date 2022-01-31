@@ -629,6 +629,11 @@ public class AviExtractor implements Extractor {
     chunkHandler = aviTrack;
   }
 
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  long getMoviOffset() {
+    return moviOffset;
+  }
+
   private static void w(String message) {
     try {
       Log.w(TAG, message);
