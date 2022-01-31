@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
  * robolectric.
  */
 @RunWith(AndroidJUnit4.class)
-public class TransformerTest {
+public class TransformerEndToEndTest {
 
   private static final String VP9_VIDEO_URI_STRING = "asset:///media/vp9/bear-vp9.webm";
   private static final String AVC_VIDEO_URI_STRING = "asset:///media/mp4/sample.mp4";
