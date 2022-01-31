@@ -83,6 +83,9 @@
         ([#9615](https://github.com/google/ExoPlayer/issues/9615)).
     *   Enforce playback speed of 1.0 during ad playback
         ([#9018](https://github.com/google/ExoPlayer/issues/9018)).
+    *   Add support for
+        [IMA Dynamic Ad Insertion (DAI)](https://support.google.com/admanager/answer/6147120)
+        ([#8213](https://github.com/google/ExoPlayer/issues/8213)).
 *   DASH:
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
