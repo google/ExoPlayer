@@ -63,9 +63,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowMediaCodec;
 
-/** Unit test for {@link Transformer}. */
+/** End-to-end test for {@link Transformer}. */
 @RunWith(AndroidJUnit4.class)
-public final class TransformerTest {
+public final class TransformerEndToEndTest {
   // TODO(b/214973843): Disable fallback for all tests that aren't specifically testing fallback.
 
   private static final String URI_PREFIX = "asset:///media/";
