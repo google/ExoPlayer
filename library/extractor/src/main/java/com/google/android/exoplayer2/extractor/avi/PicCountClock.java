@@ -4,14 +4,13 @@ package com.google.android.exoplayer2.extractor.avi;
  * Properly calculates the frame time for H264 frames using PicCount
  */
 public class PicCountClock extends LinearClock {
-  //I believe this is 2 because there is a bottom pic order and a top pic order
-  private static final int STEP = 2;
   //The frame as a calculated from the picCount
   private int picIndex;
   private int lastPicCount;
   //Largest picFrame, used when we hit an I frame
   private int maxPicIndex =-1;
   private int maxPicCount;
+  private int step = 2;
   private int posHalf;
   private int negHalf;
 
@@ -19,15 +18,15 @@ public class PicCountClock extends LinearClock {
     super(durationUs, length);
   }
 
-  public void setMaxPicCount(int maxPicCount) {
+  public void setMaxPicCount(int maxPicCount, int step) {
     this.maxPicCount = maxPicCount;
-    posHalf = maxPicCount / STEP;
+    this.step = step;
+    posHalf = maxPicCount / step;
     negHalf = -posHalf;
   }
 
   /**
-   * Done on seek.  May cause sync issues if frame picCount != 0 (I frames are always 0)
-   * @param index
+   * Used primarily on seek.  May cause issues if not a key frame
    */
   @Override
   public void setIndex(int index) {
@@ -42,7 +41,7 @@ public class PicCountClock extends LinearClock {
     } else if (delta > posHalf) {
       delta -= maxPicCount;
     }
-    picIndex += delta / STEP;
+    picIndex += delta / step;
     lastPicCount = picCount;
     if (maxPicIndex < picIndex) {
       maxPicIndex = picIndex;

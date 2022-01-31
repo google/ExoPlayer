@@ -255,15 +255,14 @@ public class AviExtractor implements Extractor {
       builder.setFrameRate(streamHeader.getFrameRate());
       builder.setSampleMimeType(mimeType);
 
+      final LinearClock clock = new LinearClock(durationUs, length);
+      aviTrack = new AviTrack(streamId, C.TRACK_TYPE_VIDEO, clock, trackOutput);
+
       if (MimeTypes.VIDEO_H264.equals(mimeType)) {
-        final AvcChunkPeeker avcChunkPeeker = new AvcChunkPeeker(builder, trackOutput, durationUs,
-            length);
-        aviTrack = new AviTrack(streamId, C.TRACK_TYPE_VIDEO, avcChunkPeeker.getPicCountClock(),
-            trackOutput);
+        final AvcChunkPeeker avcChunkPeeker = new AvcChunkPeeker(builder, trackOutput, clock);
+        aviTrack.setClock(avcChunkPeeker.getClock());
         aviTrack.setChunkPeeker(avcChunkPeeker);
       } else {
-        aviTrack = new AviTrack(streamId, C.TRACK_TYPE_VIDEO,
-            new LinearClock(durationUs, length), trackOutput);
         if (MimeTypes.VIDEO_MP4V.equals(mimeType)) {
           aviTrack.setChunkPeeker(new Mp4vChunkPeeker(builder, trackOutput));
         }
@@ -361,23 +360,31 @@ public class AviExtractor implements Extractor {
     return null;
   }
 
-  void updateAudioTiming(final int[] keyFrameCounts, final long videoDuration) {
+  void fixTimings(final int[] keyFrameCounts, final long videoDuration) {
     for (final AviTrack aviTrack : aviTracks) {
-      if (aviTrack != null && aviTrack.isAudio()) {
-        final long durationUs = aviTrack.getClock().durationUs;
-        i("Audio #" + aviTrack.id + " chunks: " + aviTrack.chunks + " us=" + durationUs +
-            " size=" + aviTrack.size);
-        final LinearClock linearClock = aviTrack.getClock();
-        //If the audio track duration is off from the video by >5 % recalc using video
-        if ((durationUs - videoDuration) / (float)videoDuration > .05f) {
-          w("Audio #" + aviTrack.id + " duration is off using videoDuration");
-          linearClock.setDuration(videoDuration);
-        }
-        linearClock.setLength(aviTrack.chunks);
-        if (aviTrack.chunks != keyFrameCounts[aviTrack.id]) {
-          w("Audio is not all key frames chunks=" + aviTrack.chunks + " keyFrames=" +
-              keyFrameCounts[aviTrack.id]);
-        }
+      if (aviTrack != null) {
+        if (aviTrack.isAudio()) {
+          final long durationUs = aviTrack.getClock().durationUs;
+          i("Audio #" + aviTrack.id + " chunks: " + aviTrack.chunks + " us=" + durationUs +
+              " size=" + aviTrack.size);
+          final LinearClock linearClock = aviTrack.getClock();
+          //If the audio track duration is off from the video by >5 % recalc using video
+          if ((durationUs - videoDuration) / (float)videoDuration > .05f) {
+            w("Audio #" + aviTrack.id + " duration is off using videoDuration");
+            linearClock.setDuration(videoDuration);
+          }
+          linearClock.setLength(aviTrack.chunks);
+          if (aviTrack.chunks != keyFrameCounts[aviTrack.id]) {
+            w("Audio is not all key frames chunks=" + aviTrack.chunks + " keyFrames=" +
+                keyFrameCounts[aviTrack.id]);
+          }
+        } /* else if (aviTrack.isVideo()) {
+          final LinearClock clock = aviTrack.getClock();
+          if (clock.length != aviTrack.chunks) {
+            w("Video #" + aviTrack.id + " chunks != length changing FPS");
+            clock.setLength(aviTrack.chunks);
+          }
+        }*/
       }
     }
   }
@@ -464,8 +471,7 @@ public class AviExtractor implements Extractor {
 
     i("Video chunks=" + videoTrack.chunks + " us=" + seekMap.getDurationUs());
 
-    //Needs to be called after the duration is updated
-    updateAudioTiming(keyFrameCounts, durationUs);
+    fixTimings(keyFrameCounts, durationUs);
 
     setSeekMap(seekMap);
   }

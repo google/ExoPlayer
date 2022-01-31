@@ -20,7 +20,7 @@ public class AviTrack {
   final @C.TrackType int trackType;
 
   @NonNull
-  final LinearClock clock;
+  LinearClock clock;
 
   @NonNull
   final TrackOutput trackOutput;
@@ -56,7 +56,7 @@ public class AviTrack {
     return getChunkIdLower(id) | ('w' << 16) | ('b' << 24);
   }
 
-  AviTrack(int id, final @C.TrackType int trackType, @NonNull LinearClock clock,
+  AviTrack(int id, @C.TrackType int trackType, @NonNull LinearClock clock,
       @NonNull TrackOutput trackOutput) {
     this.id = id;
     this.clock = clock;
@@ -77,8 +77,13 @@ public class AviTrack {
     return this.chunkId == chunkId || chunkIdAlt == chunkId;
   }
 
+  @NonNull
   public LinearClock getClock() {
     return clock;
+  }
+
+  public void setClock(@NonNull LinearClock clock) {
+    this.clock = clock;
   }
 
   public void setChunkPeeker(ChunkPeeker chunkPeeker) {
@@ -144,7 +149,7 @@ public class AviTrack {
     trackOutput.sampleMetadata(
         clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
     final LinearClock clock = getClock();
-//    Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " size=" + size + " frame=" + clock.getIndex() + " key=" + isKeyFrame());
+    Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " size=" + size + " frame=" + clock.getIndex() + " key=" + isKeyFrame());
     clock.advance();
   }
 }

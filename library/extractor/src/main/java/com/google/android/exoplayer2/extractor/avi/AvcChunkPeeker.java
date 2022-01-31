@@ -18,6 +18,7 @@ public class AvcChunkPeeker extends NalChunkPeeker {
   private static final int NAL_TYPE_SEI = 6;
   private static final int NAL_TYPE_SPS = 7;
   private static final int NAL_TYPE_PPS = 8;
+  private static final int NAL_TYPE_AUD = 9;
 
   private final PicCountClock picCountClock;
   private final Format.Builder formatBuilder;
@@ -26,15 +27,14 @@ public class AvcChunkPeeker extends NalChunkPeeker {
   private float pixelWidthHeightRatio = 1f;
   private NalUnitUtil.SpsData spsData;
 
-  public AvcChunkPeeker(Format.Builder formatBuilder, TrackOutput trackOutput, long durationUs,
-      int length) {
+  public AvcChunkPeeker(Format.Builder formatBuilder, TrackOutput trackOutput, LinearClock clock) {
     super(16);
     this.formatBuilder = formatBuilder;
     this.trackOutput = trackOutput;
-    picCountClock = new PicCountClock(durationUs, length);
+    picCountClock = new PicCountClock(clock.durationUs, clock.length);
   }
 
-  public PicCountClock getPicCountClock() {
+  public LinearClock getClock() {
     return picCountClock;
   }
 
@@ -58,7 +58,7 @@ public class AvcChunkPeeker extends NalChunkPeeker {
     if (spsData.separateColorPlaneFlag) {
       in.skipBits(2); //colour_plane_id
     }
-    in.readBits(spsData.frameNumLength); //frame_num
+    final int frameNum = in.readBits(spsData.frameNumLength); //frame_num
     if (!spsData.frameMbsOnlyFlag) {
       boolean field_pic_flag = in.readBit(); // field_pic_flag
       if (field_pic_flag) {
@@ -71,6 +71,9 @@ public class AvcChunkPeeker extends NalChunkPeeker {
       //Log.d("Test", "FrameNum: " + frame + " cnt=" + picOrderCountLsb);
       picCountClock.setPicCount(picOrderCountLsb);
       return;
+    } else if (spsData.picOrderCountType == 2) {
+      picCountClock.setPicCount(frameNum);
+      return;
     }
     picCountClock.setIndex(picCountClock.getIndex());
   }
@@ -80,7 +83,12 @@ public class AvcChunkPeeker extends NalChunkPeeker {
     final int spsStart = nalTypeOffset + 1;
     nalTypeOffset = seekNextNal(input, spsStart);
     spsData = NalUnitUtil.parseSpsNalUnitPayload(buffer, spsStart, pos);
-    picCountClock.setMaxPicCount(1 << (spsData.picOrderCntLsbLength));
+    if (spsData.picOrderCountType == 0) {
+      picCountClock.setMaxPicCount(1 << spsData.picOrderCntLsbLength, 2);
+    } else if (spsData.picOrderCountType == 2) {
+      //Plus one because we double the frame number
+      picCountClock.setMaxPicCount(1 << spsData.frameNumLength, 1);
+    }
     if (spsData.pixelWidthHeightRatio != pixelWidthHeightRatio) {
       pixelWidthHeightRatio = spsData.pixelWidthHeightRatio;
       formatBuilder.setPixelWidthHeightRatio(pixelWidthHeightRatio);
@@ -103,6 +111,7 @@ public class AvcChunkPeeker extends NalChunkPeeker {
         case NAL_TYPE_IRD:
           picCountClock.syncIndexes();
           return;
+        case NAL_TYPE_AUD:
         case NAL_TYPE_SEI:
         case NAL_TYPE_PPS: {
           nalTypeOffset = seekNextNal(input, nalTypeOffset);
