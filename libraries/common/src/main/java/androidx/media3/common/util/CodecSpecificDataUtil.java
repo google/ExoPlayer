@@ -36,7 +36,6 @@ public final class CodecSpecificDataUtil {
   private static final int VISUAL_OBJECT_LAYER_START = 0x20;
   private static final int EXTENDED_PAR = 0x0F;
   private static final int RECTANGULAR = 0x00;
-  private static final int FINE_GRANULARITY_SCALABLE = 0x12;
 
   /**
    * Parses an ALAC AudioSpecificConfig (i.e. an <a
@@ -101,14 +100,12 @@ public final class CodecSpecificDataUtil {
       break;
     }
 
-    Assertions.checkArgument(foundVOL);
+    Assertions.checkArgument(foundVOL, "Invalid input. VOL not found");
 
     ParsableBitArray scdScratchBits = new ParsableBitArray(videoSpecificConfig);
     scdScratchBits.skipBits((offset + 4) * 8);
     scdScratchBits.skipBits(1); // random_accessible_vol
-
-    int videoObjectTypeIndication = scdScratchBits.readBits(8);
-    Assertions.checkArgument(videoObjectTypeIndication != FINE_GRANULARITY_SCALABLE);
+    scdScratchBits.skipBits(8); // video_object_type_indication
 
     if (scdScratchBits.readBit()) { // object_layer_identifier
       scdScratchBits.skipBits(4); // video_object_layer_verid
@@ -130,14 +127,14 @@ public final class CodecSpecificDataUtil {
     }
 
     int videoObjectLayerShape = scdScratchBits.readBits(2);
-    Assertions.checkArgument(videoObjectLayerShape == RECTANGULAR);
+    Assertions.checkArgument(videoObjectLayerShape == RECTANGULAR, "Unsupported feature");
 
-    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
     int vopTimeIncrementResolution = scdScratchBits.readBits(16);
-    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
 
     if (scdScratchBits.readBit()) { // fixed_vop_rate
-      Assertions.checkArgument(vopTimeIncrementResolution > 0);
+      Assertions.checkArgument(vopTimeIncrementResolution > 0, "Invalid input");
       --vopTimeIncrementResolution;
       int numBits = 0;
       while (vopTimeIncrementResolution > 0) {
@@ -147,11 +144,11 @@ public final class CodecSpecificDataUtil {
       scdScratchBits.skipBits(numBits); // fixed_vop_time_increment
     }
 
-    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
     int videoObjectLayerWidth = scdScratchBits.readBits(13);
-    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
     int videoObjectLayerHeight = scdScratchBits.readBits(13);
-    Assertions.checkArgument(scdScratchBits.readBit()); // marker_bit
+    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
 
     scdScratchBits.skipBits(1); // interlaced
 

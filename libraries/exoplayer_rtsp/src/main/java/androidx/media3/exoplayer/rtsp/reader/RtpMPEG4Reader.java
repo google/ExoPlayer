@@ -27,9 +27,6 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.TrackOutput;
 import com.google.common.primitives.Bytes;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -59,22 +56,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private int sampleLength;
 
-  File output = null;
-
-  FileOutputStream outputStream = null;
-
   /** Creates an instance. */
   public RtpMPEG4Reader(RtpPayloadFormat payloadFormat) {
     this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
     previousSequenceNumber = C.INDEX_UNSET;
     sampleLength = 0;
-    try {
-      output = new File("/data/local/tmp/" + "mpeg4v_es.out");
-      outputStream = new FileOutputStream(output);
-    } catch (IOException e) {
-      //do nothing;
-    }
   }
 
   private static long toSampleUs(
@@ -109,15 +96,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     trackOutput.sampleData(data, limit);
     sampleLength += limit;
     parseVopType(data);
-
-    // Write the video sample
-    if (outputStream != null) {
-      try {
-        outputStream.write(data.getData());
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
 
     // Marker (M) bit: The marker bit is set to 1 to indicate the last RTP
     // packet(or only RTP packet) of a VOP. When multiple VOPs are carried
