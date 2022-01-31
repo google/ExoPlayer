@@ -1,5 +1,7 @@
 package com.google.android.exoplayer2.extractor.avi;
 
+import androidx.annotation.VisibleForTesting;
+
 /**
  * Properly calculates the frame time for H264 frames using PicCount
  */
@@ -59,5 +61,15 @@ public class PicCountClock extends LinearClock {
   @Override
   public long getUs() {
     return getUs(picIndex);
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  int getMaxPicCount() {
+    return maxPicCount;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  int getLastPicCount() {
+    return lastPicCount;
   }
 }

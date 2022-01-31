@@ -34,7 +34,7 @@ public class AvcChunkPeeker extends NalChunkPeeker {
     picCountClock = new PicCountClock(clock.durationUs, clock.length);
   }
 
-  public LinearClock getClock() {
+  public PicCountClock getClock() {
     return picCountClock;
   }
 
@@ -130,5 +130,10 @@ public class AvcChunkPeeker extends NalChunkPeeker {
       }
       compact();
     }
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  public NalUnitUtil.SpsData getSpsData() {
+    return spsData;
   }
 }

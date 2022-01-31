@@ -30,6 +30,19 @@ public class BitBuffer {
     work |= (value & 0xffffffffL);
   }
 
+  public void pushExpGolomb(final int i) {
+    if (i == 0) {
+      push(true);
+    }
+    int v = i + 1;
+    int zeroBits = 0;
+    while ((v >>>=1) > 1) {
+      zeroBits++;
+    }
+    final int bits = zeroBits * 2 + 1;
+    push(bits, i + 1);
+  }
+
   public byte[] getBytes() {
     //Byte align
     grow(8 - bits % 8);
