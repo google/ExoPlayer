@@ -31,7 +31,7 @@ public class StreamHeaderBox extends ResidentBox {
   }
 
   public long getDurationUs() {
-    return getScale() * getLength() * 1_000_000L / getRate();
+    return 1_000_000L * getScale() * getLength() / getRate();
   }
 
   public int getSteamType() {
