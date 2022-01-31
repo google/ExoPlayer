@@ -146,8 +146,10 @@ public class AviTrack {
    * @param size
    */
   void done(final int size) {
-    trackOutput.sampleMetadata(
-        clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
+    if (size > 0) {
+      trackOutput.sampleMetadata(
+          clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
+    }
     final LinearClock clock = getClock();
     //Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " size=" + size + " frame=" + clock.getIndex() + " key=" + isKeyFrame());
     clock.advance();
