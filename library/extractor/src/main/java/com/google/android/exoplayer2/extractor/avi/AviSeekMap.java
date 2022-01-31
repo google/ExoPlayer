@@ -14,10 +14,13 @@ public class AviSeekMap implements SeekMap {
   final int[] keyFrameOffsetsDiv2;
   //Seek chunk indexes by streamId
   final int[][] seekIndexes;
-  final long moviOffset;
+  /**
+   * Usually the same as moviOffset, but sometimes 0 (muxer bug)
+   */
+  final long seekOffset;
 
   public AviSeekMap(int videoId, long usDuration, int videoChunks, int[] keyFrameOffsetsDiv2,
-      UnboundedIntArray[] seekIndexes, long moviOffset) {
+      UnboundedIntArray[] seekIndexes, long seekOffset) {
     this.videoId = videoId;
     this.videoUsPerChunk = usDuration / videoChunks;
     this.duration = usDuration;
@@ -26,7 +29,7 @@ public class AviSeekMap implements SeekMap {
     for (int i=0;i<seekIndexes.length;i++) {
       this.seekIndexes[i] = seekIndexes[i].getArray();
     }
-    this.moviOffset = moviOffset;
+    this.seekOffset = seekOffset;
   }
 
   @Override
@@ -56,7 +59,7 @@ public class AviSeekMap implements SeekMap {
   private SeekPoint getSeekPoint(int index) {
     long offset = keyFrameOffsetsDiv2[index] * 2L;
     final long outUs = seekIndexes[videoId][index] * videoUsPerChunk;
-    final long position = offset + moviOffset;
+    final long position = offset + seekOffset;
     return new SeekPoint(outUs, position);
   }
 
@@ -78,7 +81,7 @@ public class AviSeekMap implements SeekMap {
   }
 
   public void setFrames(final long position, final long timeUs, final AviTrack[] aviTracks) {
-    final int index = Arrays.binarySearch(keyFrameOffsetsDiv2, (int)((position - moviOffset) / 2));
+    final int index = Arrays.binarySearch(keyFrameOffsetsDiv2, (int)((position - seekOffset) / 2));
 
     if (index < 0) {
       throw new IllegalArgumentException("Position: " + position);

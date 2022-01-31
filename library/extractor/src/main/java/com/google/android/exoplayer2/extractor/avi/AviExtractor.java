@@ -399,6 +399,14 @@ public class AviExtractor implements Extractor {
       w("No video track found");
       return;
     }
+    if (remaining < 16) {
+      output.seekMap(new SeekMap.Unseekable(getDuration()));
+      w("Index too short");
+      return;
+    }
+    final ByteBuffer firstEntry = AviExtractor.allocate(16);
+    input.peekFully(firstEntry.array(), 0, 16);
+
     final int videoId = videoTrack.id;
     final ByteBuffer indexByteBuffer = allocate(Math.min(remaining, 64 * 1024));
     final byte[] bytes = indexByteBuffer.array();
@@ -466,8 +474,10 @@ public class AviExtractor implements Extractor {
       videoTrack.setKeyFrames(seekIndexes[videoId].getArray());
     }
 
+    //Work-around a bug where the offset is from the start of the file, not "movi"
+    final long seekOffset = firstEntry.getInt(8) > moviOffset ? 0L : moviOffset;
     final AviSeekMap seekMap = new AviSeekMap(videoId, videoTrack.clock.durationUs, videoTrack.chunks,
-        keyFrameOffsetsDiv2.getArray(), seekIndexes, moviOffset);
+        keyFrameOffsetsDiv2.getArray(), seekIndexes, seekOffset);
 
     i("Video chunks=" + videoTrack.chunks + " us=" + seekMap.getDurationUs());
 

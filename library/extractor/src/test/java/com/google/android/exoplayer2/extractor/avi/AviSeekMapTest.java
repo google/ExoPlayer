@@ -9,7 +9,7 @@ public class AviSeekMapTest {
   @Test
   public void setFrames_givenExactSeekPointMatch() {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
-    final long position = aviSeekMap.keyFrameOffsetsDiv2[1] * 2L + aviSeekMap.moviOffset;
+    final long position = aviSeekMap.keyFrameOffsetsDiv2[1] * 2L + aviSeekMap.seekOffset;
     final int secs = 4;
     final AviTrack[] aviTracks = new AviTrack[]{DataHelper.getVideoAviTrack(secs),
         DataHelper.getAudioAviTrack(secs)};
