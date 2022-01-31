@@ -74,8 +74,8 @@ def addMissingAarTypeToXml(xml) {
                     boolean hasJar =
                         jar_only_dependencies.contains(dependencyName)
                     boolean hasAar =
-                        isProjectLibrary
-                            || aar_dependencies.contains(dependencyName)
+                        (isProjectLibrary
+                            || aar_dependencies.contains(dependencyName))
                     if (!hasJar && !hasAar) {
                         throw new IllegalStateException(
                             dependencyName + " is not on the JAR or AAR list in missing_aar_type_workaround.gradle")

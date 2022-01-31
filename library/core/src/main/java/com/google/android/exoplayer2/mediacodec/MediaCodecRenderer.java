@@ -565,6 +565,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Returns whether the renderer needs to re-initialize the codec, possibly as a result of a change
+   * in device capabilities.
+   */
+  protected boolean shouldReinitCodec() {
+    return false;
+  }
+
+  /**
    * Returns whether the codec needs the renderer to propagate the end-of-stream signal directly,
    * rather than by using an end-of-stream buffer queued to the codec.
    */
@@ -1118,7 +1126,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     decoderCounters.decoderInitCount++;
     long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
-    onCodecInitialized(codecName, codecInitializedTimestamp, elapsed);
+    onCodecInitialized(codecName, configuration, codecInitializedTimestamp, elapsed);
   }
 
   private boolean shouldContinueRendering(long renderStartTimeMs) {
@@ -1157,6 +1165,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean feedInputBuffer() throws ExoPlaybackException {
     if (codec == null || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM || inputStreamEnded) {
       return false;
+    }
+    if (codecDrainState == DRAIN_STATE_NONE && shouldReinitCodec()) {
+      drainAndReinitializeCodec();
     }
 
     if (inputIndex < 0) {
@@ -1352,12 +1363,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>The default implementation is a no-op.
    *
    * @param name The name of the codec that was initialized.
+   * @param configuration The {@link MediaCodecAdapter.Configuration} used to configure the codec.
    * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
    *     finished.
    * @param initializationDurationMs The time taken to initialize the codec in milliseconds.
    */
   protected void onCodecInitialized(
-      String name, long initializedTimestampMs, long initializationDurationMs) {
+      String name,
+      MediaCodecAdapter.Configuration configuration,
+      long initializedTimestampMs,
+      long initializationDurationMs) {
     // Do nothing.
   }
 

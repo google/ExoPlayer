@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">자막 사용 중지</string>
   <string name="exo_controls_cc_disabled_description">자막 사용 설정</string>
   <string name="exo_controls_playback_speed">속도</string>
-  <string name="exo_controls_playback_speed_normal">일반</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25배속</item>
+    <item>0.5배속</item>
+    <item>0.75배속</item>
+    <item>보통</item>
+    <item>1.25배속</item>
+    <item>1.5배속</item>
+    <item>2배속</item>
+  </string-array>
   <string name="exo_track_selection_title_video">동영상</string>
   <string name="exo_track_selection_title_audio">오디오</string>
   <string name="exo_track_selection_title_text">텍스트</string>

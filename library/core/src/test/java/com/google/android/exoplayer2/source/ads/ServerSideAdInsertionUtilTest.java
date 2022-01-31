@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil
 import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getStreamPositionUsForAd;
 import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getStreamPositionUsForContent;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Arrays.stream;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -46,8 +47,8 @@ public final class ServerSideAdInsertionUtilTest {
         addAdGroupToAdPlaybackState(
             state,
             /* fromPositionUs= */ 4300,
-            /* toPositionUs= */ 4500,
-            /* contentResumeOffsetUs= */ 400);
+            /* contentResumeOffsetUs= */ 400,
+            /* adDurationsUs...= */ 200);
 
     assertThat(state)
         .isEqualTo(
@@ -64,8 +65,8 @@ public final class ServerSideAdInsertionUtilTest {
         addAdGroupToAdPlaybackState(
             state,
             /* fromPositionUs= */ 2100,
-            /* toPositionUs= */ 2400,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 300);
 
     assertThat(state)
         .isEqualTo(
@@ -86,8 +87,8 @@ public final class ServerSideAdInsertionUtilTest {
         addAdGroupToAdPlaybackState(
             state,
             /* fromPositionUs= */ 0,
-            /* toPositionUs= */ 100,
-            /* contentResumeOffsetUs= */ 50);
+            /* contentResumeOffsetUs= */ 50,
+            /* adDurationsUs...= */ 100);
 
     assertThat(state)
         .isEqualTo(
@@ -112,8 +113,8 @@ public final class ServerSideAdInsertionUtilTest {
         addAdGroupToAdPlaybackState(
             state,
             /* fromPositionUs= */ 5000,
-            /* toPositionUs= */ 6000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 1000);
 
     assertThat(state)
         .isEqualTo(
@@ -141,6 +142,33 @@ public final class ServerSideAdInsertionUtilTest {
                 .withAdDurationsUs(/* adGroupIndex= */ 3, /* adDurationsUs...= */ 300)
                 .withAdDurationsUs(/* adGroupIndex= */ 4, /* adDurationsUs...= */ 200)
                 .withAdDurationsUs(/* adGroupIndex= */ 5, /* adDurationsUs...= */ 1000));
+  }
+
+  @Test
+  public void addAdGroupToAdPlaybackState_emptyLeadingAds_markedAsSkipped() {
+    AdPlaybackState state = new AdPlaybackState(ADS_ID);
+
+    state =
+        addAdGroupToAdPlaybackState(
+            state,
+            /* fromPositionUs= */ 0,
+            /* contentResumeOffsetUs= */ 50_000,
+            /* adDurationsUs...= */ 0,
+            0,
+            10_000,
+            40_000,
+            0);
+
+    AdPlaybackState.AdGroup adGroup = state.getAdGroup(/* adGroupIndex= */ 0);
+    assertThat(adGroup.durationsUs[0]).isEqualTo(0);
+    assertThat(adGroup.states[0]).isEqualTo(AdPlaybackState.AD_STATE_SKIPPED);
+    assertThat(adGroup.durationsUs[1]).isEqualTo(0);
+    assertThat(adGroup.states[1]).isEqualTo(AdPlaybackState.AD_STATE_SKIPPED);
+    assertThat(adGroup.durationsUs[2]).isEqualTo(10_000);
+    assertThat(adGroup.states[2]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+    assertThat(adGroup.durationsUs[4]).isEqualTo(0);
+    assertThat(adGroup.states[4]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+    assertThat(stream(adGroup.durationsUs).sum()).isEqualTo(50_000);
   }
 
   @Test

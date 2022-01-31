@@ -2405,6 +2405,8 @@ public final class Util {
         return "camera motion";
       case C.TRACK_TYPE_NONE:
         return "none";
+      case C.TRACK_TYPE_UNKNOWN:
+        return "unknown";
       default:
         return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
     }
@@ -2535,6 +2537,20 @@ public final class Util {
         .addIf(COMMAND_SEEK_BACK, isCurrentMediaItemSeekable && !isPlayingAd)
         .addIf(COMMAND_SEEK_FORWARD, isCurrentMediaItemSeekable && !isPlayingAd)
         .build();
+  }
+
+  /**
+   * Returns the sum of all summands of the given array.
+   *
+   * @param summands The summands to calculate the sum from.
+   * @return The sum of all summands.
+   */
+  public static long sum(long... summands) {
+    long sum = 0;
+    for (long summand : summands) {
+      sum += summand;
+    }
+    return sum;
   }
 
   @Nullable

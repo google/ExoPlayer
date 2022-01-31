@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -54,7 +55,7 @@ public final class Codec {
      * @param format The {@link Format} (of the input data) used to determine the underlying {@link
      *     MediaCodec} and its configuration values.
      * @return A configured and started decoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
     Codec createForAudioDecoding(Format format) throws TransformationException;
 
@@ -65,7 +66,7 @@ public final class Codec {
      *     MediaCodec} and its configuration values.
      * @param outputSurface The {@link Surface} to which the decoder output is rendered.
      * @return A configured and started decoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
     Codec createForVideoDecoding(Format format, Surface outputSurface)
         throws TransformationException;
@@ -80,25 +81,39 @@ public final class Codec {
     /**
      * Returns a {@link Codec} for audio encoding.
      *
+     * <p>This method must validate that the {@link Codec} is configured to produce one of the
+     * {@code allowedMimeTypes}. The {@link Format#sampleMimeType sample MIME type} given in {@code
+     * format} is not necessarily allowed.
+     *
      * @param format The {@link Format} (of the output data) used to determine the underlying {@link
      *     MediaCodec} and its configuration values.
+     * @param allowedMimeTypes The non-empty list of allowed output sample {@link MimeTypes MIME
+     *     types}.
      * @return A configured and started encoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
-    Codec createForAudioEncoding(Format format) throws TransformationException;
+    Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException;
 
     /**
      * Returns a {@link Codec} for video encoding.
+     *
+     * <p>This method must validate that the {@link Codec} is configured to produce one of the
+     * {@code allowedMimeTypes}. The {@link Format#sampleMimeType sample MIME type} given in {@code
+     * format} is not necessarily allowed.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying {@link
      *     MediaCodec} and its configuration values. {@link Format#sampleMimeType}, {@link
      *     Format#width} and {@link Format#height} must be set to those of the desired output video
      *     format. {@link Format#rotationDegrees} should be 0. The video should always be in
      *     landscape orientation.
+     * @param allowedMimeTypes The non-empty list of allowed output sample {@link MimeTypes MIME
+     *     types}.
      * @return A configured and started encoder wrapper.
-     * @throws TransformationException If the underlying codec cannot be created.
+     * @throws TransformationException If no suitable codec can be created.
      */
-    Codec createForVideoEncoding(Format format) throws TransformationException;
+    Codec createForVideoEncoding(Format format, List<String> allowedMimeTypes)
+        throws TransformationException;
   }
 
   // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
@@ -142,8 +157,6 @@ public final class Codec {
    * DecoderFactory} or output {@link Format} used by the {@link EncoderFactory} for selecting and
    * configuring the underlying {@link MediaCodec}.
    */
-  // TODO(b/214012830): Use this to check whether the Format passed to the factory and actual
-  // configuration format differ to see whether fallback was applied.
   public Format getConfigurationFormat() {
     return configurationFormat;
   }
@@ -248,7 +261,7 @@ public final class Codec {
   @Nullable
   public Format getOutputFormat() throws TransformationException {
     // The format is updated when dequeueing a 'special' buffer index, so attempt to dequeue now.
-    maybeDequeueOutputBuffer();
+    maybeDequeueOutputBuffer(/* setOutputBuffer= */ false);
     return outputFormat;
   }
 
@@ -259,7 +272,7 @@ public final class Codec {
    */
   @Nullable
   public ByteBuffer getOutputBuffer() throws TransformationException {
-    return maybeDequeueAndSetOutputBuffer() ? outputBuffer : null;
+    return maybeDequeueOutputBuffer(/* setOutputBuffer= */ true) ? outputBuffer : null;
   }
 
   /**
@@ -269,7 +282,7 @@ public final class Codec {
    */
   @Nullable
   public BufferInfo getOutputBufferInfo() throws TransformationException {
-    return maybeDequeueOutputBuffer() ? outputBufferInfo : null;
+    return maybeDequeueOutputBuffer(/* setOutputBuffer= */ false) ? outputBufferInfo : null;
   }
 
   /**
@@ -321,33 +334,15 @@ public final class Codec {
   }
 
   /**
-   * Tries obtaining an output buffer and sets {@link #outputBuffer} to the obtained output buffer.
+   * Attempts to dequeue an output buffer if there is no output buffer pending. Does nothing
+   * otherwise.
    *
-   * @return {@code true} if a buffer is successfully obtained, {@code false} otherwise.
+   * @param setOutputBuffer Whether to read the bytes of the dequeued output buffer and copy them
+   *     into {@link #outputBuffer}.
+   * @return Whether there is an output buffer available.
    * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
    */
-  private boolean maybeDequeueAndSetOutputBuffer() throws TransformationException {
-    if (!maybeDequeueOutputBuffer()) {
-      return false;
-    }
-
-    try {
-      outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
-    } catch (RuntimeException e) {
-      throw createTransformationException(e);
-    }
-    outputBuffer.position(outputBufferInfo.offset);
-    outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
-    return true;
-  }
-
-  /**
-   * Returns true if there is already an output buffer pending. Otherwise attempts to dequeue an
-   * output buffer and returns whether there is a new output buffer.
-   *
-   * @throws TransformationException If the underlying {@link MediaCodec} encounters a problem.
-   */
-  private boolean maybeDequeueOutputBuffer() throws TransformationException {
+  private boolean maybeDequeueOutputBuffer(boolean setOutputBuffer) throws TransformationException {
     if (outputBufferIndex >= 0) {
       return true;
     }
@@ -377,6 +372,16 @@ public final class Codec {
       // Encountered a CSD buffer, skip it.
       releaseOutputBuffer();
       return false;
+    }
+
+    if (setOutputBuffer) {
+      try {
+        outputBuffer = checkNotNull(mediaCodec.getOutputBuffer(outputBufferIndex));
+      } catch (RuntimeException e) {
+        throw createTransformationException(e);
+      }
+      outputBuffer.position(outputBufferInfo.offset);
+      outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
     }
     return true;
   }

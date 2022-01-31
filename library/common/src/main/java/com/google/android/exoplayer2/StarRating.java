@@ -125,7 +125,7 @@ public final class StarRating extends Rating {
 
   private static StarRating fromBundle(Bundle bundle) {
     checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
             == TYPE);
     int maxStars =
         bundle.getInt(keyForField(FIELD_MAX_STARS), /* defaultValue= */ MAX_STARS_DEFAULT);

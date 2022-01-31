@@ -9325,6 +9325,85 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void setPlaybackSpeed_withAdPlayback_onlyAppliesToContent() throws Exception {
+    // Create renderer with media clock to listen to playback parameter changes.
+    ArrayList<PlaybackParameters> playbackParameters = new ArrayList<>();
+    FakeMediaClockRenderer audioRenderer =
+        new FakeMediaClockRenderer(C.TRACK_TYPE_AUDIO) {
+          private long positionUs;
+
+          @Override
+          protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
+            this.positionUs = offsetUs;
+          }
+
+          @Override
+          public long getPositionUs() {
+            // Continuously increase position to let playback progress.
+            positionUs += 10_000;
+            return positionUs;
+          }
+
+          @Override
+          public void setPlaybackParameters(PlaybackParameters parameters) {
+            playbackParameters.add(parameters);
+          }
+
+          @Override
+          public PlaybackParameters getPlaybackParameters() {
+            return playbackParameters.isEmpty()
+                ? PlaybackParameters.DEFAULT
+                : Iterables.getLast(playbackParameters);
+          }
+        };
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(audioRenderer).build();
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1,
+            /* adGroupTimesUs...= */ 0,
+            7 * C.MICROS_PER_SECOND,
+            C.TIME_END_OF_SOURCE);
+    TimelineWindowDefinition adTimelineDefinition =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ 10 * C.MICROS_PER_SECOND,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            adPlaybackState);
+    player.setMediaSource(
+        new FakeMediaSource(
+            new FakeTimeline(adTimelineDefinition), ExoPlayerTestRunner.AUDIO_FORMAT));
+    Player.Listener mockListener = mock(Player.Listener.class);
+    player.addListener(mockListener);
+
+    player.setPlaybackSpeed(5f);
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    // Assert that the renderer received the playback speed updates at each ad/content boundary.
+    assertThat(playbackParameters)
+        .containsExactly(
+            /* preroll ad */ new PlaybackParameters(1f),
+            /* content after preroll */ new PlaybackParameters(5f),
+            /* midroll ad */ new PlaybackParameters(1f),
+            /* content after midroll */ new PlaybackParameters(5f),
+            /* postroll ad */ new PlaybackParameters(1f),
+            /* content after postroll */ new PlaybackParameters(5f))
+        .inOrder();
+
+    // Assert that user-set speed was reported, but none of the ad overrides.
+    verify(mockListener).onPlaybackParametersChanged(any());
+    verify(mockListener).onPlaybackParametersChanged(new PlaybackParameters(5.0f));
+  }
+
+  @Test
   public void targetLiveOffsetInMedia_withSetPlaybackParameters_usesPlaybackParameterSpeed()
       throws Exception {
     long windowStartUnixTimeMs = 987_654_321_000L;

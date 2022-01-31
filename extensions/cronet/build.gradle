@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    api "com.google.android.gms:play-services-cronet:17.0.1"
+    api "com.google.android.gms:play-services-cronet:18.0.1"
     implementation project(modulePrefix + 'library-common')
     implementation project(modulePrefix + 'library-datasource')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion

@@ -97,7 +97,7 @@ public final class ThumbRating extends Rating {
 
   private static ThumbRating fromBundle(Bundle bundle) {
     checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
             == TYPE);
     boolean rated = bundle.getBoolean(keyForField(FIELD_RATED), /* defaultValue= */ false);
     return rated

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 
@@ -29,7 +30,9 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -57,8 +60,10 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Decodes and renders audio using {@link MediaCodec} and an {@link AudioSink}.
@@ -94,6 +99,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private final Context context;
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
+  private final SpatializationHelper spatializationHelper;
 
   private int codecMaxInputSize;
   private boolean codecNeedsDiscardChannelsWorkaround;
@@ -249,9 +255,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         mediaCodecSelector,
         enableDecoderFallback,
         /* assumedMinimumCodecOperatingRate= */ 44100);
-    this.context = context.getApplicationContext();
+    context = context.getApplicationContext();
+    this.context = context;
     this.audioSink = audioSink;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    spatializationHelper = new SpatializationHelper(context, audioSink.getAudioAttributes());
     audioSink.setListener(new AudioSinkListener());
   }
 
@@ -411,6 +419,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  protected boolean shouldReinitCodec() {
+    return spatializationHelper.shouldReinitCodec();
+  }
+
+  @Override
   protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
       Format format,
@@ -470,7 +483,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onCodecInitialized(
-      String name, long initializedTimestampMs, long initializationDurationMs) {
+      String name,
+      MediaCodecAdapter.Configuration configuration,
+      long initializedTimestampMs,
+      long initializationDurationMs) {
+    spatializationHelper.onCodecInitialized(configuration);
     eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
   }
 
@@ -561,6 +578,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       audioSink.disableTunneling();
     }
     audioSink.setPlayerId(getPlayerId());
+    spatializationHelper.enable();
   }
 
   @Override
@@ -613,6 +631,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         audioSinkNeedsReset = false;
         audioSink.reset();
       }
+      spatializationHelper.reset();
     }
   }
 
@@ -737,6 +756,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case MSG_SET_AUDIO_ATTRIBUTES:
         AudioAttributes audioAttributes = (AudioAttributes) message;
         audioSink.setAudioAttributes(audioAttributes);
+        spatializationHelper.setAudioAttributes(audioSink.getAudioAttributes());
         break;
       case MSG_SET_AUX_EFFECT_INFO:
         AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
@@ -848,14 +868,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             == AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY) {
       mediaFormat.setInteger(MediaFormat.KEY_PCM_ENCODING, AudioFormat.ENCODING_PCM_FLOAT);
     }
+    spatializationHelper.configureForSpatialization(mediaFormat, format);
 
-    if (Util.SDK_INT >= 32) {
-      // Disable down-mixing in the decoder (for decoders that read the max-output-channel-count
-      // key).
-      // TODO[b/190759307]: Update key to use MediaFormat.KEY_MAX_OUTPUT_CHANNEL_COUNT once the
-      //  compile SDK target is set to 32.
-      mediaFormat.setInteger("max-output-channel-count", 99);
-    }
     return mediaFormat;
   }
 
@@ -937,6 +951,165 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     public void onAudioSinkError(Exception audioSinkError) {
       Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
+    }
+  }
+
+  /**
+   * A helper class that signals whether the codec needs to be re-initialized because spatialization
+   * properties changed.
+   */
+  private static final class SpatializationHelper implements SpatializerDelegate.Listener {
+    // TODO[b/190759307] Remove and use MediaFormat.KEY_MAX_OUTPUT_CHANNEL_COUNT once the
+    //  compile SDK target is set to 32.
+    private static final String KEY_MAX_OUTPUT_CHANNEL_COUNT = "max-output-channel-count";
+    private static final int SPATIALIZATION_CHANNEL_COUNT = 99;
+
+    @Nullable private final SpatializerDelegate spatializerDelegate;
+
+    private @MonotonicNonNull Handler handler;
+    @Nullable private AudioAttributes audioAttributes;
+    @Nullable private Format inputFormat;
+    private boolean codecConfiguredForSpatialization;
+    private boolean codecNeedsReinit;
+    private boolean listenerAdded;
+
+    /** Creates a new instance. */
+    public SpatializationHelper(Context context, @Nullable AudioAttributes audioAttributes) {
+      this.spatializerDelegate = maybeCreateSpatializer(context);
+      this.audioAttributes = audioAttributes;
+    }
+
+    /** Enables this helper. Call this method when the renderer is enabled. */
+    public void enable() {
+      maybeAddSpatalizationListener();
+    }
+
+    /** Resets the helper and releases any resources. Call this method when renderer is reset. */
+    public void reset() {
+      maybeRemoveSpatalizationListener();
+    }
+
+    /** Sets the audio attributes set by the player. */
+    public void setAudioAttributes(@Nullable AudioAttributes audioAttributes) {
+      if (Util.areEqual(this.audioAttributes, audioAttributes)) {
+        return;
+      }
+
+      this.audioAttributes = audioAttributes;
+      updateCodecNeedsReinit();
+    }
+
+    /**
+     * Sets keys for audio spatialization on the {@code mediaFormat} if the platform can apply
+     * spatialization to this {@code format}.
+     */
+    public void configureForSpatialization(MediaFormat mediaFormat, Format format) {
+      if (canBeSpatialized(format)) {
+        mediaFormat.setInteger(KEY_MAX_OUTPUT_CHANNEL_COUNT, SPATIALIZATION_CHANNEL_COUNT);
+      }
+    }
+
+    /** Informs the helper that a codec was initialized. */
+    public void onCodecInitialized(MediaCodecAdapter.Configuration configuration) {
+      codecNeedsReinit = false;
+      inputFormat = configuration.format;
+      codecConfiguredForSpatialization =
+          configuration.mediaFormat.containsKey(KEY_MAX_OUTPUT_CHANNEL_COUNT)
+              && configuration.mediaFormat.getInteger(KEY_MAX_OUTPUT_CHANNEL_COUNT)
+                  == SPATIALIZATION_CHANNEL_COUNT;
+    }
+
+    /**
+     * Returns whether the codec should be re-initialized, caused by a change in the spatialization
+     * properties.
+     */
+    public boolean shouldReinitCodec() {
+      return codecNeedsReinit;
+    }
+
+    // SpatializerDelegate.Listener
+
+    @Override
+    public void onSpatializerEnabledChanged(SpatializerDelegate spatializer, boolean enabled) {
+      updateCodecNeedsReinit();
+    }
+
+    @Override
+    public void onSpatializerAvailableChanged(SpatializerDelegate spatializer, boolean available) {
+      updateCodecNeedsReinit();
+    }
+
+    // Other internal methods
+
+    /** Returns whether this format can be spatialized by the platform. */
+    private boolean canBeSpatialized(@Nullable Format format) {
+      if (Util.SDK_INT < 32
+          || format == null
+          || audioAttributes == null
+          || spatializerDelegate == null
+          || spatializerDelegate.getImmersiveAudioLevel()
+              != SpatializerDelegate.SPATIALIZER_IMMERSIVE_LEVEL_MULTICHANNEL
+          || !spatializerDelegate.isAvailable()
+          || !spatializerDelegate.isEnabled()) {
+        return false;
+      }
+      AudioFormat.Builder audioFormatBuilder =
+          new AudioFormat.Builder()
+              .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+              .setChannelMask(Util.getAudioTrackChannelConfig(format.channelCount));
+      if (format.sampleRate != Format.NO_VALUE) {
+        audioFormatBuilder.setSampleRate(format.sampleRate);
+      }
+      return spatializerDelegate.canBeSpatialized(
+          audioAttributes.getAudioAttributesV21(), audioFormatBuilder.build());
+    }
+
+    private void maybeAddSpatalizationListener() {
+      if (!listenerAdded && spatializerDelegate != null && Util.SDK_INT >= 32) {
+        if (handler == null) {
+          // Route callbacks to the playback thread.
+          handler = Util.createHandlerForCurrentLooper();
+        }
+        spatializerDelegate.addOnSpatializerStateChangedListener(handler::post, this);
+        listenerAdded = true;
+      }
+    }
+
+    private void maybeRemoveSpatalizationListener() {
+      if (listenerAdded && spatializerDelegate != null && Util.SDK_INT >= 32) {
+        spatializerDelegate.removeOnSpatializerStateChangedListener(this);
+        checkStateNotNull(handler).removeCallbacksAndMessages(null);
+      }
+    }
+
+    private void updateCodecNeedsReinit() {
+      codecNeedsReinit = codecConfiguredForSpatialization != canBeSpatialized(inputFormat);
+    }
+
+    @Nullable
+    private static SpatializerDelegate maybeCreateSpatializer(Context context) {
+      if (Util.SDK_INT >= 32) {
+        return Api32.createSpatializer(context);
+      }
+      return null;
+    }
+  }
+
+  @RequiresApi(32)
+  private static final class Api32 {
+    private Api32() {}
+
+    @DoNotInline
+    @Nullable
+    public static SpatializerDelegate createSpatializer(Context context) {
+      try {
+        return new SpatializerDelegate(context);
+      } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+        // Do nothing for these cases.
+      } catch (InvocationTargetException e) {
+        Log.w(TAG, "Failed to load Spatializer with reflection", e);
+      }
+      return null;
     }
   }
 }

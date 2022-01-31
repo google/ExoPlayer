@@ -52,8 +52,6 @@ public class TransformerBuilderTest {
         () -> new Transformer.Builder(context).setRemoveAudio(true).setRemoveVideo(true).build());
   }
 
-  // TODO(b/209469847): Move this test to TransformationRequestBuilderTest once deprecated
-  // Transformer.Builder#setOuputMimeType(String) has been removed.
   @Test
   public void build_withUnsupportedAudioMimeType_throws() {
     Context context = ApplicationProvider.getApplicationContext();
@@ -68,8 +66,6 @@ public class TransformerBuilderTest {
                 .build());
   }
 
-  // TODO(b/209469847): Move this test to TransformationRequestBuilderTest once deprecated
-  // Transformer.Builder#setOuputMimeType(String) has been removed.
   @Test
   public void build_withUnsupportedVideoMimeType_throws() {
     Context context = ApplicationProvider.getApplicationContext();

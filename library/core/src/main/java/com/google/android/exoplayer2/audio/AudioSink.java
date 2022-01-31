@@ -404,6 +404,13 @@ public interface AudioSink {
    */
   void setAudioAttributes(AudioAttributes audioAttributes);
 
+  /**
+   * Returns the audio attributes used for audio playback, or {@code null} if the sink does not use
+   * audio attributes.
+   */
+  @Nullable
+  AudioAttributes getAudioAttributes();
+
   /** Sets the audio session id. */
   void setAudioSessionId(int audioSessionId);
 

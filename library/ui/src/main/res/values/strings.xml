@@ -72,8 +72,7 @@
   <string name="exo_controls_cc_disabled_description">Enable subtitles</string>
   <!-- The title of a playback speed selection option. It is shown with the current playback speed. If a user clicks it, the list of possible playback speeds will be shown. [CHAR_LIMIT=32] -->
   <string name="exo_controls_playback_speed">Speed</string>
-  <!-- Shown to indicate that the current playback speed is normal (i.e., 1.0x). [CHAR_LIMIT=16] -->
-  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <!-- LINT.IfChange(playback_speeds) -->
   <!-- Different media playback speeds from one quarter normal speed ("0.25x") to double normal speed ("2x"). The fourth item ("Normal") corresponds to normal playback speed. [CHAR_LIMIT=16] -->
   <string-array name="exo_controls_playback_speeds">
     <item>0.25x</item>
@@ -84,6 +83,7 @@
     <item>1.5x</item>
     <item>2x</item>
   </string-array>
+  <!-- LINT.ThenChange(../../java/com/google/android/exoplayer2/ui/StyledPlayerControlView.java:playback_speeds) -->
   <!-- Shown to indicate a custom playback speed. [CHAR_LIMIT=16] -->
   <string translatable="false" name="exo_controls_custom_playback_speed"><xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x</string>
   <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->

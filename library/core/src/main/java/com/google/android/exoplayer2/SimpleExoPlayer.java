@@ -1541,9 +1541,7 @@ public class SimpleExoPlayer extends BasePlayer
     streamVolumeManager.setMuted(muted);
   }
 
-  @Deprecated
-  @Override
-  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
+  /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
     this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
   }
 

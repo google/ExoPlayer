@@ -28,10 +28,14 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
   private boolean hasPendingBuffer;
 
-  public PassthroughSamplePipeline(Format format) {
+  public PassthroughSamplePipeline(
+      Format format,
+      TransformationRequest transformationRequest,
+      FallbackListener fallbackListener) {
     this.format = format;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     hasPendingBuffer = false;
+    fallbackListener.onTransformationRequestFinalized(transformationRequest);
   }
 
   @Override

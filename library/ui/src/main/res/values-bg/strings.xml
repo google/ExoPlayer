@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">Деактивиране на субтитрите</string>
   <string name="exo_controls_cc_disabled_description">Активиране на субтитрите</string>
   <string name="exo_controls_playback_speed">Скорост</string>
-  <string name="exo_controls_playback_speed_normal">Нормално</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Нормално</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Видеозапис</string>
   <string name="exo_track_selection_title_audio">Аудиозапис</string>
   <string name="exo_track_selection_title_text">Текст</string>

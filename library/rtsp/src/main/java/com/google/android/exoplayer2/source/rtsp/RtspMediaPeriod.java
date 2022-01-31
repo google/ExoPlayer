@@ -67,6 +67,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Called when the {@link RtspSessionTiming} is available. */
     void onSourceInfoRefreshed(RtspSessionTiming timing);
+
+    /** Called when the RTSP server does not support seeking. */
+    default void onSeekingUnsupported() {}
   }
 
   /** The maximum times to retry if the underlying data channel failed to bind. */
@@ -90,6 +93,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long pendingSeekPositionUs;
   private long pendingSeekPositionUsForTcpRetry;
   private boolean loadingFinished;
+  private boolean notifyDiscontinuity;
   private boolean released;
   private boolean prepared;
   private boolean trackSelected;
@@ -243,6 +247,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public long readDiscontinuity() {
+    // Discontinuity only happens in RTSP when seeking an unexpectedly un-seekable RTSP server (a
+    // server that doesn't include the required RTP-Info header in its PLAY responses). This only
+    // applies to seeks made before receiving the first RTSP PLAY response. The playback can only
+    // start from time zero in this case.
+    if (notifyDiscontinuity) {
+      notifyDiscontinuity = false;
+      return 0;
+    }
     return C.TIME_UNSET;
   }
 
@@ -355,7 +367,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // SampleStream methods.
 
   /* package */ boolean isReady(int trackGroupIndex) {
-    return rtspLoaderWrappers.get(trackGroupIndex).isSampleQueueReady();
+    return !suppressRead() && rtspLoaderWrappers.get(trackGroupIndex).isSampleQueueReady();
   }
 
   @ReadDataResult
@@ -364,7 +376,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       @ReadFlags int readFlags) {
+    if (suppressRead()) {
+      return C.RESULT_NOTHING_READ;
+    }
     return rtspLoaderWrappers.get(sampleQueueIndex).read(formatHolder, buffer, readFlags);
+  }
+
+  /* package */ int skipData(int sampleQueueIndex, long positionUs) {
+    if (suppressRead()) {
+      return C.RESULT_NOTHING_READ;
+    }
+    return rtspLoaderWrappers.get(sampleQueueIndex).skipData(positionUs);
+  }
+
+  private boolean suppressRead() {
+    return notifyDiscontinuity;
   }
 
   // Internal methods.
@@ -549,7 +575,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public void onPlaybackStarted(
         long startPositionUs, ImmutableList<RtspTrackTiming> trackTimingList) {
-      // Validate that the trackTimingList contains timings for the selected tracks.
+
+      // Validate that the trackTimingList contains timings for the selected tracks, and notify the
+      // listener.
       ArrayList<String> trackUrisWithTiming = new ArrayList<>(trackTimingList.size());
       for (int i = 0; i < trackTimingList.size(); i++) {
         trackUrisWithTiming.add(checkNotNull(trackTimingList.get(i).uri.getPath()));
@@ -557,10 +585,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       for (int i = 0; i < selectedLoadInfos.size(); i++) {
         RtpLoadInfo loadInfo = selectedLoadInfos.get(i);
         if (!trackUrisWithTiming.contains(loadInfo.getTrackUri().getPath())) {
-          playbackException =
-              new RtspPlaybackException(
-                  "Server did not provide timing for track " + loadInfo.getTrackUri());
-          return;
+          listener.onSeekingUnsupported();
+          if (isSeekPending()) {
+            notifyDiscontinuity = true;
+            pendingSeekPositionUs = C.TIME_UNSET;
+            requestedSeekPositionUs = C.TIME_UNSET;
+            pendingSeekPositionUsForTcpRetry = C.TIME_UNSET;
+          }
         }
       }
 
@@ -697,7 +728,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public int skipData(long positionUs) {
-      return 0;
+      return RtspMediaPeriod.this.skipData(track, positionUs);
     }
   }
 
@@ -746,6 +777,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public int read(
         FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       return sampleQueue.read(formatHolder, buffer, readFlags, /* loadingFinished= */ canceled);
+    }
+
+    public int skipData(long positionUs) {
+      int skipCount = sampleQueue.getSkipCount(positionUs, /* allowEndOfQueue= */ canceled);
+      sampleQueue.skip(skipCount);
+      return skipCount;
     }
 
     /** Cancels loading. */

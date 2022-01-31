@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">सबटाइटल बंद करें</string>
   <string name="exo_controls_cc_disabled_description">सबटाइटल चालू करें</string>
   <string name="exo_controls_playback_speed">रफ़्तार</string>
-  <string name="exo_controls_playback_speed_normal">सामान्य</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>सामान्य</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">वीडियो</string>
   <string name="exo_track_selection_title_audio">ऑडियो</string>
   <string name="exo_track_selection_title_text">लेख</string>

@@ -39,6 +39,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected final MuxerWrapper muxerWrapper;
   protected final TransformerMediaClock mediaClock;
   protected final TransformationRequest transformationRequest;
+  protected final FallbackListener fallbackListener;
 
   protected boolean isRendererStarted;
   protected boolean muxerWrapperTrackAdded;
@@ -50,11 +51,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       int trackType,
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
-      TransformationRequest transformationRequest) {
+      TransformationRequest transformationRequest,
+      FallbackListener fallbackListener) {
     super(trackType);
     this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
     this.transformationRequest = transformationRequest;
+    this.fallbackListener = fallbackListener;
   }
 
   /**
@@ -112,6 +115,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   protected final void onEnabled(boolean joining, boolean mayRenderStartOfStream) {
     muxerWrapper.registerTrack();
+    fallbackListener.registerTrack();
     mediaClock.updateTimeForTrackType(getTrackType(), 0L);
   }
 

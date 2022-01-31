@@ -50,7 +50,15 @@
   <string name="exo_controls_cc_enabled_description">Vypnout titulky</string>
   <string name="exo_controls_cc_disabled_description">Zapnout titulky</string>
   <string name="exo_controls_playback_speed">Rychlost</string>
-  <string name="exo_controls_playback_speed_normal">Normální</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0,25×</item>
+    <item>0,5×</item>
+    <item>0,75×</item>
+    <item>Normální</item>
+    <item>1,25×</item>
+    <item>1,5×</item>
+    <item>2×</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Videa</string>
   <string name="exo_track_selection_title_audio">Zvuk</string>
   <string name="exo_track_selection_title_text">Text</string>

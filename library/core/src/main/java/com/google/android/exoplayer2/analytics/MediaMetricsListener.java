@@ -40,6 +40,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
@@ -65,7 +66,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NetworkTypeObserver;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -74,6 +74,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.UUID;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -112,7 +113,10 @@ public final class MediaMetricsListener
   private final long startTimeMs;
   private final Timeline.Window window;
   private final Timeline.Period period;
+  private final HashMap<String, Long> bandwidthTimeMs;
+  private final HashMap<String, Long> bandwidthBytes;
 
+  @Nullable private String activeSessionId;
   @Nullable private PlaybackMetrics.Builder metricsBuilder;
   @Player.DiscontinuityReason private int discontinuityReason;
   private int currentPlaybackState;
@@ -129,8 +133,6 @@ public final class MediaMetricsListener
   private boolean hasFatalError;
   private int droppedFrames;
   private int playedFrames;
-  private long bandwidthTimeMs;
-  private long bandwidthBytes;
   private int audioUnderruns;
 
   /**
@@ -144,6 +146,8 @@ public final class MediaMetricsListener
     this.playbackSession = playbackSession;
     window = new Timeline.Window();
     period = new Timeline.Period();
+    bandwidthBytes = new HashMap<>();
+    bandwidthTimeMs = new HashMap<>();
     startTimeMs = SystemClock.elapsedRealtime();
     currentPlaybackState = PlaybackStateEvent.STATE_NOT_STARTED;
     currentNetworkType = NetworkEvent.NETWORK_TYPE_UNKNOWN;
@@ -168,6 +172,7 @@ public final class MediaMetricsListener
       return;
     }
     finishCurrentSession();
+    activeSessionId = sessionId;
     metricsBuilder =
         new PlaybackMetrics.Builder()
             .setPlayerName(ExoPlayerLibraryInfo.TAG)
@@ -182,11 +187,14 @@ public final class MediaMetricsListener
   @Override
   public void onSessionFinished(
       EventTime eventTime, String sessionId, boolean automaticTransitionToNextPlayback) {
-    if (eventTime.mediaPeriodId != null && eventTime.mediaPeriodId.isAd()) {
-      // Ignore ad sessions.
-      return;
+    if ((eventTime.mediaPeriodId != null && eventTime.mediaPeriodId.isAd())
+        || !sessionId.equals(activeSessionId)) {
+      // Ignore ad sessions and other sessions that are finished before becoming active.
+    } else {
+      finishCurrentSession();
     }
-    finishCurrentSession();
+    bandwidthTimeMs.remove(sessionId);
+    bandwidthBytes.remove(sessionId);
   }
 
   // AnalyticsListener implementation.
@@ -213,8 +221,17 @@ public final class MediaMetricsListener
   @Override
   public void onBandwidthEstimate(
       EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {
-    bandwidthTimeMs += totalLoadTimeMs;
-    bandwidthBytes += totalBytesLoaded;
+    if (eventTime.mediaPeriodId != null) {
+      String sessionId =
+          sessionManager.getSessionForMediaPeriodId(
+              eventTime.timeline, checkNotNull(eventTime.mediaPeriodId));
+      @Nullable Long prevBandwidthBytes = bandwidthBytes.get(sessionId);
+      @Nullable Long prevBandwidthTimeMs = bandwidthTimeMs.get(sessionId);
+      bandwidthBytes.put(
+          sessionId, (prevBandwidthBytes == null ? 0 : prevBandwidthBytes) + totalBytesLoaded);
+      bandwidthTimeMs.put(
+          sessionId, (prevBandwidthTimeMs == null ? 0 : prevBandwidthTimeMs) + totalLoadTimeMs);
+    }
   }
 
   @Override
@@ -578,16 +595,25 @@ public final class MediaMetricsListener
     metricsBuilder.setAudioUnderrunCount(audioUnderruns);
     metricsBuilder.setVideoFramesDropped(droppedFrames);
     metricsBuilder.setVideoFramesPlayed(playedFrames);
-    metricsBuilder.setNetworkTransferDurationMillis(bandwidthTimeMs);
+    @Nullable Long networkTimeMs = bandwidthTimeMs.get(activeSessionId);
+    metricsBuilder.setNetworkTransferDurationMillis(networkTimeMs == null ? 0 : networkTimeMs);
     // TODO(b/181121847): Report localBytesRead. This requires additional callbacks or plumbing.
-    metricsBuilder.setNetworkBytesRead(bandwidthBytes);
+    @Nullable Long networkBytes = bandwidthBytes.get(activeSessionId);
+    metricsBuilder.setNetworkBytesRead(networkBytes == null ? 0 : networkBytes);
     // TODO(b/181121847): Detect stream sources mixed and local depending on localBytesRead.
     metricsBuilder.setStreamSource(
-        bandwidthBytes > 0
+        networkBytes != null && networkBytes > 0
             ? PlaybackMetrics.STREAM_SOURCE_NETWORK
             : PlaybackMetrics.STREAM_SOURCE_UNKNOWN);
     playbackSession.reportPlaybackMetrics(metricsBuilder.build());
     metricsBuilder = null;
+    activeSessionId = null;
+    audioUnderruns = 0;
+    droppedFrames = 0;
+    playedFrames = 0;
+    currentVideoFormat = null;
+    currentAudioFormat = null;
+    currentTextFormat = null;
   }
 
   private static int getTrackChangeReason(@C.SelectionReason int trackSelectionReason) {
@@ -636,19 +662,23 @@ public final class MediaMetricsListener
   }
 
   private static int getStreamType(MediaItem mediaItem) {
-    if (mediaItem.localConfiguration == null || mediaItem.localConfiguration.mimeType == null) {
+    if (mediaItem.localConfiguration == null) {
       return PlaybackMetrics.STREAM_TYPE_UNKNOWN;
     }
-    String mimeType = mediaItem.localConfiguration.mimeType;
-    switch (mimeType) {
-      case MimeTypes.APPLICATION_M3U8:
+    @ContentType
+    int contentType =
+        Util.inferContentTypeForUriAndMimeType(
+            mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
+    switch (contentType) {
+      case C.TYPE_HLS:
         return PlaybackMetrics.STREAM_TYPE_HLS;
-      case MimeTypes.APPLICATION_MPD:
+      case C.TYPE_DASH:
         return PlaybackMetrics.STREAM_TYPE_DASH;
-      case MimeTypes.APPLICATION_SS:
+      case C.TYPE_SS:
         return PlaybackMetrics.STREAM_TYPE_SS;
+      case C.TYPE_RTSP:
       default:
-        return PlaybackMetrics.STREAM_TYPE_PROGRESSIVE;
+        return PlaybackMetrics.STREAM_TYPE_OTHER;
     }
   }
 

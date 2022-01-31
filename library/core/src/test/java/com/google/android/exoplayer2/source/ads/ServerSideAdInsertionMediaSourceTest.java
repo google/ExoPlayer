@@ -182,20 +182,20 @@ public final class ServerSideAdInsertionMediaSourceTest {
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 0,
-            /* toPositionUs= */ 200_000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 200_000);
     adPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 400_000,
-            /* toPositionUs= */ 700_000,
-            /* contentResumeOffsetUs= */ 1_000_000);
+            /* contentResumeOffsetUs= */ 1_000_000,
+            /* adDurationsUs...= */ 300_000);
     AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 900_000,
-            /* toPositionUs= */ 1_000_000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 100_000);
 
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
@@ -252,8 +252,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
         addAdGroupToAdPlaybackState(
             new AdPlaybackState(/* adsId= */ new Object()),
             /* fromPositionUs= */ 900_000,
-            /* toPositionUs= */ 1_000_000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 100_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
@@ -280,8 +280,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
         addAdGroupToAdPlaybackState(
             firstAdPlaybackState,
             /* fromPositionUs= */ 0,
-            /* toPositionUs= */ 500_000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 500_000);
     mediaSourceRef
         .get()
         .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
@@ -323,8 +323,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
         addAdGroupToAdPlaybackState(
             new AdPlaybackState(/* adsId= */ new Object()),
             /* fromPositionUs= */ 0,
-            /* toPositionUs= */ 500_000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 500_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
@@ -391,20 +391,20 @@ public final class ServerSideAdInsertionMediaSourceTest {
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 0,
-            /* toPositionUs= */ 100_000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 100_000);
     adPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 600_000,
-            /* toPositionUs= */ 700_000,
-            /* contentResumeOffsetUs= */ 1_000_000);
+            /* contentResumeOffsetUs= */ 1_000_000,
+            /* adDurationsUs...= */ 100_000);
     AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
             adPlaybackState,
             /* fromPositionUs= */ 900_000,
-            /* toPositionUs= */ 1_000_000,
-            /* contentResumeOffsetUs= */ 0);
+            /* contentResumeOffsetUs= */ 0,
+            /* adDurationsUs...= */ 100_000);
 
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
     mediaSourceRef.set(
@@ -427,7 +427,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.setMediaSource(mediaSourceRef.get());
     player.prepare();
     // Play to the first content part, then seek past the midroll.
-    playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 100);
+    playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 100);
     player.seekTo(/* positionMs= */ 1_600);
     runUntilPendingCommandsAreFullyHandled(player);
     long positionAfterSeekMs = player.getCurrentPosition();

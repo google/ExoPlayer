@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">सबटायटल बंद करा</string>
   <string name="exo_controls_cc_disabled_description">सबटायटल सुरू करा</string>
   <string name="exo_controls_playback_speed">वेग</string>
-  <string name="exo_controls_playback_speed_normal">सामान्य</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>०.२५x</item>
+    <item>०.५x</item>
+    <item>०.७५x</item>
+    <item>सामान्य</item>
+    <item>१.२५x</item>
+    <item>१.५x</item>
+    <item>२x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">व्हिडिओ</string>
   <string name="exo_track_selection_title_audio">ऑडिओ</string>
   <string name="exo_track_selection_title_text">मजकूर</string>

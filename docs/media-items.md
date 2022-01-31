@@ -153,4 +153,4 @@ the player also needs to have its `DefaultMediaSourceFactory`
 [configured accordingly]({{ site.baseurl }}/ad-insertion.html#declarative-ad-support).
 
 [playlist API]: {{ site.baseurl }}/playlists.html
-[`MediaItem.Builder` Javadoc]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/MediaItem.Builder.html
+[`MediaItem.Builder` Javadoc]: {{ site.exo_sdk }}/MediaItem.Builder.html

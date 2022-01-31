@@ -99,10 +99,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
-    lastResetPositionUs = positionUs;
     onEnabled(joining, mayRenderStartOfStream);
     replaceStream(formats, stream, startPositionUs, offsetUs);
-    onPositionReset(positionUs, joining);
+    resetPosition(positionUs, joining);
   }
 
   @Override
@@ -159,10 +158,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
+    resetPosition(positionUs, /* joining= */ false);
+  }
+
+  private void resetPosition(long positionUs, boolean joining) throws ExoPlaybackException {
     streamIsFinal = false;
     lastResetPositionUs = positionUs;
     readingPositionUs = positionUs;
-    onPositionReset(positionUs, false);
+    onPositionReset(positionUs, joining);
   }
 
   @Override

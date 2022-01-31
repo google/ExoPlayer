@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.ads;
 
+import static com.google.android.exoplayer2.util.Util.sum;
 import static java.lang.Math.max;
 
 import androidx.annotation.CheckResult;
@@ -33,23 +34,25 @@ public final class ServerSideAdInsertionUtil {
   /**
    * Adds a new server-side inserted ad group to an {@link AdPlaybackState}.
    *
+   * <p>If the first ad with a non-zero duration is not the first ad in the group, all ads before
+   * that ad are marked as skipped.
+   *
    * @param adPlaybackState The existing {@link AdPlaybackState}.
    * @param fromPositionUs The position in the underlying server-side inserted ads stream at which
    *     the ad group starts, in microseconds.
-   * @param toPositionUs The position in the underlying server-side inserted ads stream at which the
-   *     ad group ends, in microseconds.
    * @param contentResumeOffsetUs The timestamp offset which should be added to the content stream
    *     when resuming playback after the ad group. An offset of 0 collapses the ad group to a
    *     single insertion point, an offset of {@code toPositionUs-fromPositionUs} keeps the original
    *     stream timestamps after the ad group.
+   * @param adDurationsUs The durations of the ads to be added to the group, in microseconds.
    * @return The updated {@link AdPlaybackState}.
    */
   @CheckResult
   public static AdPlaybackState addAdGroupToAdPlaybackState(
       AdPlaybackState adPlaybackState,
       long fromPositionUs,
-      long toPositionUs,
-      long contentResumeOffsetUs) {
+      long contentResumeOffsetUs,
+      long... adDurationsUs) {
     long adGroupInsertionPositionUs =
         getMediaPeriodPositionUsForContent(
             fromPositionUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
@@ -59,39 +62,21 @@ public final class ServerSideAdInsertionUtil {
         && adPlaybackState.getAdGroup(insertionIndex).timeUs <= adGroupInsertionPositionUs) {
       insertionIndex++;
     }
-    long adDurationUs = toPositionUs - fromPositionUs;
     adPlaybackState =
         adPlaybackState
             .withNewAdGroup(insertionIndex, adGroupInsertionPositionUs)
             .withIsServerSideInserted(insertionIndex, /* isServerSideInserted= */ true)
-            .withAdCount(insertionIndex, /* adCount= */ 1)
-            .withAdDurationsUs(insertionIndex, adDurationUs)
+            .withAdCount(insertionIndex, /* adCount= */ adDurationsUs.length)
+            .withAdDurationsUs(insertionIndex, adDurationsUs)
             .withContentResumeOffsetUs(insertionIndex, contentResumeOffsetUs);
+    // Mark all ads as skipped that are before the first ad with a non-zero duration.
+    int adIndex = 0;
+    while (adIndex < adDurationsUs.length && adDurationsUs[adIndex] == 0) {
+      adPlaybackState =
+          adPlaybackState.withSkippedAd(insertionIndex, /* adIndexInAdGroup= */ adIndex++);
+    }
     return correctFollowingAdGroupTimes(
-        adPlaybackState, insertionIndex, adDurationUs, contentResumeOffsetUs);
-  }
-
-  /**
-   * Returns the duration of the underlying server-side inserted ads stream for the current {@link
-   * Timeline.Period} in the {@link Player}.
-   *
-   * @param player The {@link Player}.
-   * @param adPlaybackState The {@link AdPlaybackState} defining the ad groups.
-   * @return The duration of the underlying server-side inserted ads stream, in microseconds, or
-   *     {@link C#TIME_UNSET} if it can't be determined.
-   */
-  public static long getStreamDurationUs(Player player, AdPlaybackState adPlaybackState) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty()) {
-      return C.TIME_UNSET;
-    }
-    Timeline.Period period =
-        timeline.getPeriod(player.getCurrentPeriodIndex(), new Timeline.Period());
-    if (period.durationUs == C.TIME_UNSET) {
-      return C.TIME_UNSET;
-    }
-    return getStreamPositionUsForContent(
-        period.durationUs, /* nextAdGroupIndex= */ C.INDEX_UNSET, adPlaybackState);
+        adPlaybackState, insertionIndex, sum(adDurationsUs), contentResumeOffsetUs);
   }
 
   /**

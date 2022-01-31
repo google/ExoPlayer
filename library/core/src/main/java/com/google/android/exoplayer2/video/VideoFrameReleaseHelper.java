@@ -149,18 +149,14 @@ public final class VideoFrameReleaseHelper {
     updateSurfacePlaybackFrameRate(/* forceUpdate= */ true);
   }
 
-  /** Called when the renderer is enabled. */
-  public void onEnabled() {
-    if (displayHelper != null) {
-      checkNotNull(vsyncSampler).addObserver();
-      displayHelper.register(this::updateDefaultDisplayRefreshRateParams);
-    }
-  }
-
   /** Called when the renderer is started. */
   public void onStarted() {
     started = true;
     resetAdjustment();
+    if (displayHelper != null) {
+      checkNotNull(vsyncSampler).addObserver();
+      displayHelper.register(this::updateDefaultDisplayRefreshRateParams);
+    }
     updateSurfacePlaybackFrameRate(/* forceUpdate= */ false);
   }
 
@@ -227,15 +223,11 @@ public final class VideoFrameReleaseHelper {
   /** Called when the renderer is stopped. */
   public void onStopped() {
     started = false;
-    clearSurfaceFrameRate();
-  }
-
-  /** Called when the renderer is disabled. */
-  public void onDisabled() {
     if (displayHelper != null) {
       displayHelper.unregister();
       checkNotNull(vsyncSampler).removeObserver();
     }
+    clearSurfaceFrameRate();
   }
 
   // Frame release time adjustment.

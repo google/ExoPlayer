@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import androidx.annotation.Nullable;
@@ -27,14 +28,15 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Util;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * Pipeline to decode video samples, apply transformations on the raw samples, and re-encode them.
  */
-/* package */ final class VideoSamplePipeline implements SamplePipeline {
-
-  private static final String TAG = "VideoSamplePipeline";
+/* package */ final class VideoTranscodingSamplePipeline implements SamplePipeline {
 
   private final int outputRotationDegrees;
   private final DecoderInputBuffer decoderInputBuffer;
@@ -47,12 +49,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private boolean waitingForFrameEditorInput;
 
-  public VideoSamplePipeline(
+  public VideoTranscodingSamplePipeline(
       Context context,
       Format inputFormat,
       TransformationRequest transformationRequest,
-      Codec.EncoderFactory encoderFactory,
       Codec.DecoderFactory decoderFactory,
+      Codec.EncoderFactory encoderFactory,
+      List<String> allowedOutputMimeTypes,
+      FallbackListener fallbackListener,
       Transformer.DebugViewProvider debugViewProvider)
       throws TransformationException {
     decoderInputBuffer =
@@ -62,7 +66,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Scale width and height to desired transformationRequest.outputHeight, preserving aspect
     // ratio.
-    // TODO(internal b/209781577): Think about which edge length should be set for portrait videos.
+    // TODO(b/209781577): Think about which edge length should be set for portrait videos.
     float inputFormatAspectRatio = (float) inputFormat.width / inputFormat.height;
     int outputWidth = inputFormat.width;
     int outputHeight = inputFormat.height;
@@ -72,9 +76,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       outputHeight = transformationRequest.outputHeight;
     }
 
-    if (inputFormat.height > inputFormat.width) {
-      // The encoder may not support encoding in portrait orientation, so the decoded video is
-      // rotated to landscape orientation and a rotation is added back later to the output format.
+    // The encoder may not support encoding in portrait orientation, so the decoded video is
+    // rotated to landscape orientation and a rotation is added back later to the output format.
+    boolean swapEncodingDimensions = inputFormat.height > inputFormat.width;
+    if (swapEncodingDimensions) {
       outputRotationDegrees = (inputFormat.rotationDegrees + 90) % 360;
       int temp = outputWidth;
       outputWidth = outputHeight;
@@ -87,43 +92,53 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? inputFormatAspectRatio
             : 1.0f / inputFormatAspectRatio;
 
+    Matrix transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
     // Scale frames by input aspect ratio, to account for FrameEditor's square normalized device
     // coordinates (-1 to 1) and preserve frame relative dimensions during transformations
     // (ex. rotations). After this scaling, transformationMatrix operations operate on a rectangle
     // for x from -displayAspectRatio to displayAspectRatio, and y from -1 to 1
-    transformationRequest.transformationMatrix.preScale(displayAspectRatio, 1);
-    transformationRequest.transformationMatrix.postScale(1.0f / displayAspectRatio, 1);
+    transformationMatrix.preScale(displayAspectRatio, 1);
+    transformationMatrix.postScale(1.0f / displayAspectRatio, 1);
 
     // The decoder rotates videos to their intended display orientation. The frameEditor rotates
     // them back for improved encoder compatibility.
     // TODO(b/201293185): After fragment shader transformations are implemented, put
     // postRotate in a later vertex shader.
-    transformationRequest.transformationMatrix.postRotate(outputRotationDegrees);
+    transformationMatrix.postRotate(outputRotationDegrees);
 
-    encoder =
-        encoderFactory.createForVideoEncoding(
-            new Format.Builder()
-                .setWidth(outputWidth)
-                .setHeight(outputHeight)
-                .setRotationDegrees(0)
-                .setSampleMimeType(
-                    transformationRequest.videoMimeType != null
-                        ? transformationRequest.videoMimeType
-                        : inputFormat.sampleMimeType)
-                .build());
-    if (inputFormat.height != outputHeight
-        || inputFormat.width != outputWidth
-        || !transformationRequest.transformationMatrix.isIdentity()) {
+    Format requestedOutputFormat =
+        new Format.Builder()
+            .setWidth(outputWidth)
+            .setHeight(outputHeight)
+            .setRotationDegrees(0)
+            .setSampleMimeType(
+                transformationRequest.videoMimeType != null
+                    ? transformationRequest.videoMimeType
+                    : inputFormat.sampleMimeType)
+            .build();
+    encoder = encoderFactory.createForVideoEncoding(requestedOutputFormat, allowedOutputMimeTypes);
+    Format actualOutputFormat = encoder.getConfigurationFormat();
+    fallbackListener.onTransformationRequestFinalized(
+        createFallbackTransformationRequest(
+            transformationRequest,
+            !swapEncodingDimensions,
+            requestedOutputFormat,
+            actualOutputFormat));
+
+    if (inputFormat.height != actualOutputFormat.height
+        || inputFormat.width != actualOutputFormat.width
+        || !transformationMatrix.isIdentity()) {
       frameEditor =
           FrameEditor.create(
               context,
-              outputWidth,
-              outputHeight,
+              actualOutputFormat.width,
+              actualOutputFormat.height,
               inputFormat.pixelWidthHeightRatio,
-              transformationRequest.transformationMatrix,
+              transformationMatrix,
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
               debugViewProvider);
     }
+
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
@@ -221,7 +236,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   @Nullable
   public Format getOutputFormat() throws TransformationException {
-    Format format = encoder.getOutputFormat();
+    @Nullable Format format = encoder.getOutputFormat();
     return format == null
         ? null
         : format.buildUpon().setRotationDegrees(outputRotationDegrees).build();
@@ -257,5 +272,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     decoder.release();
     encoder.release();
+  }
+
+  @Pure
+  private static TransformationRequest createFallbackTransformationRequest(
+      TransformationRequest transformationRequest,
+      boolean resolutionIsHeight,
+      Format requestedFormat,
+      Format actualFormat) {
+    // TODO(b/210591626): Also update bitrate etc. once encoder configuration and fallback are
+    // implemented.
+    if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)
+        && ((!resolutionIsHeight && requestedFormat.width == actualFormat.width)
+            || (resolutionIsHeight && requestedFormat.height == actualFormat.height))) {
+      return transformationRequest;
+    }
+    return transformationRequest
+        .buildUpon()
+        .setVideoMimeType(actualFormat.sampleMimeType)
+        .setResolution(resolutionIsHeight ? requestedFormat.height : requestedFormat.width)
+        .build();
   }
 }

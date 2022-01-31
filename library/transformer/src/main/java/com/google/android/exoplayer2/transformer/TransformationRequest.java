@@ -16,6 +16,8 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.graphics.Matrix;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -23,12 +25,16 @@ import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableSet;
 
 /** A media transformation request. */
 public final class TransformationRequest {
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
+
+    private static final ImmutableSet<Integer> SUPPORTED_OUTPUT_HEIGHTS =
+        ImmutableSet.of(144, 240, 360, 480, 720, 1080, 1440, 2160);
 
     private Matrix transformationMatrix;
     private boolean flattenForSlowMotion;
@@ -48,7 +54,7 @@ public final class TransformationRequest {
     }
 
     private Builder(TransformationRequest transformationRequest) {
-      this.transformationMatrix = transformationRequest.transformationMatrix;
+      this.transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
       this.flattenForSlowMotion = transformationRequest.flattenForSlowMotion;
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
@@ -78,7 +84,7 @@ public final class TransformationRequest {
       // TODO(b/213198690): Consider changing how transformationMatrix is applied, so that
       // dimensions will be from -1 to 1 on both x and y axes, but transformations will be applied
       // in a predictable manner.
-      this.transformationMatrix = transformationMatrix;
+      this.transformationMatrix = new Matrix(transformationMatrix);
       return this;
     }
 
@@ -113,8 +119,9 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the output resolution using the output height. The default value is the same height as
-     * the input. Output width will scale to preserve the input video's aspect ratio.
+     * Sets the output resolution using the output height. The default value {@link C#LENGTH_UNSET}
+     * corresponds to using the same height as the input. Output width will scale to preserve the
+     * input video's aspect ratio.
      *
      * <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
      * supported, to ensure compatibility on different devices.
@@ -123,29 +130,24 @@ public final class TransformationRequest {
      *
      * @param outputHeight The output height in pixels.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code outputHeight} is not supported.
      */
     public Builder setResolution(int outputHeight) {
+      // TODO(b/209781577): Define outputHeight in the javadoc as height can be ambiguous for videos
+      // where rotationDegrees is set in the Format.
       // TODO(b/201293185): Restructure to input a Presentation class.
       // TODO(b/201293185): Check encoder codec capabilities in order to allow arbitrary
       // resolutions and reasonable fallbacks.
-      if (outputHeight != 144
-          && outputHeight != 240
-          && outputHeight != 360
-          && outputHeight != 480
-          && outputHeight != 720
-          && outputHeight != 1080
-          && outputHeight != 1440
-          && outputHeight != 2160) {
-        throw new IllegalArgumentException(
-            "Please use a height of 144, 240, 360, 480, 720, 1080, 1440, or 2160.");
-      }
+      checkArgument(
+          outputHeight == C.LENGTH_UNSET || SUPPORTED_OUTPUT_HEIGHTS.contains(outputHeight),
+          "Unsupported outputHeight: " + outputHeight);
       this.outputHeight = outputHeight;
       return this;
     }
 
     /**
-     * Sets the video MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
+     * Sets the video MIME type of the output. The default value is {@code null} which corresponds
+     * to using the same MIME type as the input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_H263}
@@ -156,17 +158,20 @@ public final class TransformationRequest {
      *
      * @param videoMimeType The MIME type of the video samples in the output.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code videoMimeType} is non-null but not a video
+     *     {@link MimeTypes MIME type}.
      */
-    public Builder setVideoMimeType(String videoMimeType) {
-      // TODO(b/209469847): Validate videoMimeType here once deprecated
-      // Transformer.Builder#setOuputMimeType(String) has been removed.
+    public Builder setVideoMimeType(@Nullable String videoMimeType) {
+      checkArgument(
+          videoMimeType == null || MimeTypes.isVideo(videoMimeType),
+          "Not a video MIME type: " + videoMimeType);
       this.videoMimeType = videoMimeType;
       return this;
     }
 
     /**
-     * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
+     * Sets the audio MIME type of the output. The default value is {@code null} which corresponds
+     * to using the same MIME type as the input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#AUDIO_AAC}
@@ -176,10 +181,13 @@ public final class TransformationRequest {
      *
      * @param audioMimeType The MIME type of the audio samples in the output.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code audioMimeType} is non-null but not an audio
+     *     {@link MimeTypes MIME type}.
      */
-    public Builder setAudioMimeType(String audioMimeType) {
-      // TODO(b/209469847): Validate audioMimeType here once deprecated
-      // Transformer.Builder#setOuputMimeType(String) has been removed.
+    public Builder setAudioMimeType(@Nullable String audioMimeType) {
+      checkArgument(
+          audioMimeType == null || MimeTypes.isAudio(audioMimeType),
+          "Not an audio MIME type: " + audioMimeType);
       this.audioMimeType = audioMimeType;
       return this;
     }
@@ -191,10 +199,37 @@ public final class TransformationRequest {
     }
   }
 
+  /**
+   * A {@link Matrix transformation matrix} to apply to video frames.
+   *
+   * @see Builder#setTransformationMatrix(Matrix)
+   */
   public final Matrix transformationMatrix;
+  /**
+   * Whether the input should be flattened for media containing slow motion markers.
+   *
+   * @see Builder#setFlattenForSlowMotion(boolean)
+   */
   public final boolean flattenForSlowMotion;
+  /**
+   * The requested height of the output video, or {@link C#LENGTH_UNSET} if inferred from the input.
+   *
+   * @see Builder#setResolution(int)
+   */
   public final int outputHeight;
+  /**
+   * The requested output audio sample {@link MimeTypes MIME type}, or {@code null} if inferred from
+   * the input.
+   *
+   * @see Builder#setAudioMimeType(String)
+   */
   @Nullable public final String audioMimeType;
+  /**
+   * The requested output video sample {@link MimeTypes MIME type}, or {@code null} if inferred from
+   * the input.
+   *
+   * @see Builder#setVideoMimeType(String)
+   */
   @Nullable public final String videoMimeType;
 
   private TransformationRequest(

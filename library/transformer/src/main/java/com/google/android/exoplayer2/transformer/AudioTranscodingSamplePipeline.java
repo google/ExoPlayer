@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.media.MediaCodec.BufferInfo;
@@ -29,23 +28,24 @@ import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
+import java.util.List;
+import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * Pipeline to decode audio samples, apply transformations on the raw samples, and re-encode them.
  */
-/* package */ final class AudioSamplePipeline implements SamplePipeline {
+/* package */ final class AudioTranscodingSamplePipeline implements SamplePipeline {
 
-  private static final String TAG = "AudioSamplePipeline";
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
-
-  private final TransformationRequest transformationRequest;
 
   private final Codec decoder;
   private final DecoderInputBuffer decoderInputBuffer;
 
   private final SonicAudioProcessor sonicAudioProcessor;
   private final SpeedProvider speedProvider;
+  private final boolean flattenForSlowMotion;
 
   private final Codec encoder;
   private final AudioFormat encoderInputAudioFormat;
@@ -59,13 +59,14 @@ import java.nio.ByteBuffer;
   private boolean drainingSonicForSpeedChange;
   private float currentSpeed;
 
-  public AudioSamplePipeline(
+  public AudioTranscodingSamplePipeline(
       Format inputFormat,
       TransformationRequest transformationRequest,
+      Codec.DecoderFactory decoderFactory,
       Codec.EncoderFactory encoderFactory,
-      Codec.DecoderFactory decoderFactory)
+      List<String> allowedOutputMimeTypes,
+      FallbackListener fallbackListener)
       throws TransformationException {
-    this.transformationRequest = transformationRequest;
     decoderInputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderInputBuffer =
@@ -75,6 +76,7 @@ import java.nio.ByteBuffer;
 
     this.decoder = decoderFactory.createForAudioDecoding(inputFormat);
 
+    this.flattenForSlowMotion = transformationRequest.flattenForSlowMotion;
     sonicAudioProcessor = new SonicAudioProcessor();
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
     speedProvider = new SegmentSpeedProvider(inputFormat);
@@ -86,7 +88,7 @@ import java.nio.ByteBuffer;
             // The decoder uses ENCODING_PCM_16BIT by default.
             // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
             C.ENCODING_PCM_16BIT);
-    if (transformationRequest.flattenForSlowMotion) {
+    if (flattenForSlowMotion) {
       try {
         encoderInputAudioFormat = sonicAudioProcessor.configure(encoderInputAudioFormat);
       } catch (AudioProcessor.UnhandledAudioFormatException impossible) {
@@ -96,19 +98,23 @@ import java.nio.ByteBuffer;
       sonicAudioProcessor.setPitch(currentSpeed);
       sonicAudioProcessor.flush();
     }
-
-    encoder =
-        encoderFactory.createForAudioEncoding(
-            new Format.Builder()
-                .setSampleMimeType(
-                    transformationRequest.audioMimeType == null
-                        ? inputFormat.sampleMimeType
-                        : transformationRequest.audioMimeType)
-                .setSampleRate(encoderInputAudioFormat.sampleRate)
-                .setChannelCount(encoderInputAudioFormat.channelCount)
-                .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
-                .build());
     this.encoderInputAudioFormat = encoderInputAudioFormat;
+
+    Format requestedOutputFormat =
+        new Format.Builder()
+            .setSampleMimeType(
+                transformationRequest.audioMimeType == null
+                    ? inputFormat.sampleMimeType
+                    : transformationRequest.audioMimeType)
+            .setSampleRate(encoderInputAudioFormat.sampleRate)
+            .setChannelCount(encoderInputAudioFormat.channelCount)
+            .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
+            .build();
+    encoder = encoderFactory.createForAudioEncoding(requestedOutputFormat, allowedOutputMimeTypes);
+
+    fallbackListener.onTransformationRequestFinalized(
+        createFallbackTransformationRequest(
+            transformationRequest, requestedOutputFormat, encoder.getConfigurationFormat()));
   }
 
   @Override
@@ -134,40 +140,36 @@ import java.nio.ByteBuffer;
   @Override
   @Nullable
   public Format getOutputFormat() throws TransformationException {
-    return encoder != null ? encoder.getOutputFormat() : null;
+    return encoder.getOutputFormat();
   }
 
   @Override
   @Nullable
   public DecoderInputBuffer getOutputBuffer() throws TransformationException {
-    if (encoder != null) {
-      encoderOutputBuffer.data = encoder.getOutputBuffer();
-      if (encoderOutputBuffer.data != null) {
-        encoderOutputBuffer.timeUs = checkNotNull(encoder.getOutputBufferInfo()).presentationTimeUs;
-        encoderOutputBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
-        return encoderOutputBuffer;
-      }
+    encoderOutputBuffer.data = encoder.getOutputBuffer();
+    if (encoderOutputBuffer.data == null) {
+      return null;
     }
-    return null;
+    encoderOutputBuffer.timeUs = checkNotNull(encoder.getOutputBufferInfo()).presentationTimeUs;
+    encoderOutputBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
+    return encoderOutputBuffer;
   }
 
   @Override
   public void releaseOutputBuffer() throws TransformationException {
-    checkStateNotNull(encoder).releaseOutputBuffer();
+    encoder.releaseOutputBuffer();
   }
 
   @Override
   public boolean isEnded() {
-    return encoder != null && encoder.isEnded();
+    return encoder.isEnded();
   }
 
   @Override
   public void release() {
     sonicAudioProcessor.reset();
     decoder.release();
-    if (encoder != null) {
-      encoder.release();
-    }
+    encoder.release();
   }
 
   /**
@@ -293,7 +295,7 @@ import java.nio.ByteBuffer;
   }
 
   private boolean isSpeedChanging(BufferInfo bufferInfo) {
-    if (!transformationRequest.flattenForSlowMotion) {
+    if (!flattenForSlowMotion) {
       return false;
     }
     float newSpeed = speedProvider.getSpeed(bufferInfo.presentationTimeUs);
@@ -324,5 +326,16 @@ import java.nio.ByteBuffer;
       encoderBufferDurationRemainder -= denominator;
     }
     nextEncoderInputBufferTimeUs += bufferDurationUs;
+  }
+
+  @Pure
+  private static TransformationRequest createFallbackTransformationRequest(
+      TransformationRequest transformationRequest, Format requestedFormat, Format actualFormat) {
+    // TODO(b/210591626): Also update bitrate and other params once encoder configuration and
+    // fallback are implemented.
+    if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)) {
+      return transformationRequest;
+    }
+    return transformationRequest.buildUpon().setAudioMimeType(actualFormat.sampleMimeType).build();
   }
 }

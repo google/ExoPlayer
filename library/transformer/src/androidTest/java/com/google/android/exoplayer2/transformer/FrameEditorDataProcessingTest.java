@@ -24,6 +24,7 @@ import static java.lang.Math.max;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.media.Image;
@@ -34,11 +35,11 @@ import android.media.MediaFormat;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,12 +48,34 @@ import org.junit.runner.RunWith;
  * from emulators, so tests on physical devices may fail. To test on physical devices, please modify
  * the MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE.
  */
+// TODO(b/214510265): Fix these tests on Pixel 4 emulators.
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorDataProcessingTest {
 
+  // Input MP4 file to transform.
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
+
+  /* Expected first frames after transformation.
+   * To generate new "expected" assets:
+   * 1. Insert this code into a test, to download some editedBitmap.
+   *  + try (FileOutputStream fileOutputStream = new FileOutputStream("/sdcard/tmp.png")) {
+   *  +    // quality is ignored
+   *  +   editedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+   *  + }
+   * 2. Run the test on a "Nexus 6P API 23" emulator. Emulators are preferred as the automated
+   *    presubmit that will run this test will also be an emulator. API versions 29+ have storage
+   *    restrictions that complicate file generation.
+   * 3. Open the "Device File Explorer", find "/sdcard/tmp.png", and "Save As..." the file.
+   */
   private static final String NO_EDITS_EXPECTED_OUTPUT_PNG_ASSET_STRING =
       "media/bitmap/sample_mp4_first_frame.png";
+  private static final String TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_translate_right.png";
+  private static final String SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_scale_narrow.png";
+  private static final String ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING =
+      "media/bitmap/sample_mp4_first_frame_rotate90.png";
+
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images for the
    * test to pass. The value is chosen so that differences in decoder behavior across emulator
@@ -77,8 +100,85 @@ public final class FrameEditorDataProcessingTest {
   private @MonotonicNonNull ImageReader frameEditorOutputImageReader;
   private @MonotonicNonNull MediaFormat mediaFormat;
 
-  @Before
-  public void setUp() throws Exception {
+  @After
+  public void release() {
+    if (frameEditor != null) {
+      frameEditor.release();
+    }
+  }
+
+  @Test
+  public void processData_noEdits_producesExpectedOutput() throws Exception {
+    Matrix identityMatrix = new Matrix();
+    setUpAndPrepareFirstFrame(identityMatrix);
+
+    Bitmap expectedBitmap = getBitmap(NO_EDITS_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    checkNotNull(frameEditor).processData();
+    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
+
+    // TODO(internal b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_translateRight_producesExpectedOutput() throws Exception {
+    Matrix translateRightMatrix = new Matrix();
+    translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
+    setUpAndPrepareFirstFrame(translateRightMatrix);
+
+    Bitmap expectedBitmap = getBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    checkNotNull(frameEditor).processData();
+    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
+
+    // TODO(internal b/207848601): switch to using proper tooling for testing against golden
+    // data.simple
+    float averagePixelAbsoluteDifference =
+        getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_scaleNarrow_producesExpectedOutput() throws Exception {
+    Matrix scaleNarrowMatrix = new Matrix();
+    scaleNarrowMatrix.postScale(.5f, 1.2f);
+    setUpAndPrepareFirstFrame(scaleNarrowMatrix);
+    Bitmap expectedBitmap = getBitmap(SCALE_NARROW_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+
+    checkNotNull(frameEditor).processData();
+    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
+
+    // TODO(internal b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void processData_rotate90_producesExpectedOutput() throws Exception {
+    // TODO(internal b/213190310): After creating a Presentation class, move VideoSamplePipeline
+    //  resolution-based adjustments (ex. in cl/419619743) to that Presentation class, so we can
+    //  test that rotation doesn't distort the image.
+    Matrix rotate90Matrix = new Matrix();
+    rotate90Matrix.postRotate(/* degrees= */ 90);
+    setUpAndPrepareFirstFrame(rotate90Matrix);
+
+    Bitmap expectedBitmap = getBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+    checkNotNull(frameEditor).processData();
+    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
+    Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
+
+    // TODO(internal b/207848601): switch to using proper tooling for testing against golden data.
+    float averagePixelAbsoluteDifference =
+        getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  private void setUpAndPrepareFirstFrame(Matrix transformationMatrix) throws Exception {
     // Set up the extractor to read the first video frame and get its format.
     MediaExtractor mediaExtractor = new MediaExtractor();
     @Nullable MediaCodec mediaCodec = null;
@@ -97,14 +197,13 @@ public final class FrameEditorDataProcessingTest {
       int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
       frameEditorOutputImageReader =
           ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
-      Matrix identityMatrix = new Matrix();
       frameEditor =
           FrameEditor.create(
               getApplicationContext(),
               width,
               height,
               PIXEL_WIDTH_HEIGHT_RATIO,
-              identityMatrix,
+              transformationMatrix,
               frameEditorOutputImageReader.getSurface(),
               Transformer.DebugViewProvider.NONE);
 
@@ -156,29 +255,12 @@ public final class FrameEditorDataProcessingTest {
     }
   }
 
-  @After
-  public void tearDown() {
-    if (frameEditor != null) {
-      frameEditor.release();
+  private Bitmap getBitmap(String expectedAssetString) throws IOException {
+    Bitmap bitmap;
+    try (InputStream inputStream = getApplicationContext().getAssets().open(expectedAssetString)) {
+      bitmap = BitmapFactory.decodeStream(inputStream);
     }
-  }
-
-  @Test
-  public void processData_noEdits_producesExpectedOutput() throws Exception {
-    Bitmap expectedBitmap;
-    try (InputStream inputStream =
-        getApplicationContext().getAssets().open(NO_EDITS_EXPECTED_OUTPUT_PNG_ASSET_STRING)) {
-      expectedBitmap = BitmapFactory.decodeStream(inputStream);
-    }
-
-    checkNotNull(frameEditor).processData();
-    Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
-    Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
-
-    // TODO(internal b/207848601): switch to using proper tooling for testing against golden data.
-    float averagePixelAbsoluteDifference =
-        getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+    return bitmap;
   }
 
   /**
@@ -219,25 +301,27 @@ public final class FrameEditorDataProcessingTest {
     assertThat(height).isEqualTo(expected.getHeight());
     assertThat(actual.getConfig()).isEqualTo(Bitmap.Config.ARGB_8888);
     long sumMaximumAbsoluteDifferences = 0;
+    // Debug-only image diff without alpha. To use, set a breakpoint right before the method return
+    // to view the difference between the expected and actual bitmaps. A passing test should show
+    // an image that is completely black (color == 0).
+    Bitmap debugDiff = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        int color = actual.getPixel(x, y);
+        int actualColor = actual.getPixel(x, y);
         int expectedColor = expected.getPixel(x, y);
+
+        int alphaDifference = abs(Color.alpha(actualColor) - Color.alpha(expectedColor));
+        int redDifference = abs(Color.red(actualColor) - Color.red(expectedColor));
+        int blueDifference = abs(Color.blue(actualColor) - Color.blue(expectedColor));
+        int greenDifference = abs(Color.green(actualColor) - Color.green(expectedColor));
+        debugDiff.setPixel(x, y, Color.rgb(redDifference, blueDifference, greenDifference));
+
         int maximumAbsoluteDifference = 0;
-        maximumAbsoluteDifference =
-            max(
-                maximumAbsoluteDifference,
-                abs(((color >> 24) & 0xFF) - ((expectedColor >> 24) & 0xFF)));
-        maximumAbsoluteDifference =
-            max(
-                maximumAbsoluteDifference,
-                abs(((color >> 16) & 0xFF) - ((expectedColor >> 16) & 0xFF)));
-        maximumAbsoluteDifference =
-            max(
-                maximumAbsoluteDifference,
-                abs(((color >> 8) & 0xFF) - ((expectedColor >> 8) & 0xFF)));
-        maximumAbsoluteDifference =
-            max(maximumAbsoluteDifference, abs((color & 0xFF) - (expectedColor & 0xFF)));
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, alphaDifference);
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, redDifference);
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, blueDifference);
+        maximumAbsoluteDifference = max(maximumAbsoluteDifference, greenDifference);
+
         sumMaximumAbsoluteDifferences += maximumAbsoluteDifference;
       }
     }

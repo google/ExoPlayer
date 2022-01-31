@@ -12,7 +12,7 @@ events is easy:
 // Add a listener to receive events from the player.
 player.addListener(listener);
 ~~~
-{: .language-java}
+{: .language-java }
 
 `Player.Listener` has empty default methods, so you only need to implement
 the methods you're interested in. See the [Javadoc][] for a full description of
@@ -195,7 +195,7 @@ additional logging with a single line.
 ```
 player.addAnalyticsListener(new EventLogger(trackSelector));
 ```
-{: .language-java}
+{: .language-java }
 
 Passing the `trackSelector` enables additional logging, but is optional and so
 `null` can be passed instead. See the [debug logging page][] for more details.
@@ -220,7 +220,7 @@ player
           // Do something at the specified playback position.
         })
     .setLooper(Looper.getMainLooper())
-    .setPosition(/* windowIndex= */ 0, /* positionMs= */ 120_000)
+    .setPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 120_000)
     .setPayload(customPayloadData)
     .setDeleteAfterDelivery(false)
     .send();

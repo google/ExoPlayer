@@ -142,7 +142,7 @@ public final class MediaCodecUtil {
     return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
   }
 
-  /*
+  /**
    * Returns all {@link MediaCodecInfo}s for the given mime type, in the order given by {@link
    * MediaCodecList}.
    *

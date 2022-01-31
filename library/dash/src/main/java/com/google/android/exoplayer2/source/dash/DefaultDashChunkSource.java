@@ -217,7 +217,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
               periodDurationUs,
               representation,
               selectedBaseUrl != null ? selectedBaseUrl : representation.baseUrls.get(0),
-              BundledChunkExtractor.FACTORY.createProgressiveMediaExtractor(
+              chunkExtractorFactory.createProgressiveMediaExtractor(
                   trackType,
                   representation.format,
                   enableEventMessageTrack,

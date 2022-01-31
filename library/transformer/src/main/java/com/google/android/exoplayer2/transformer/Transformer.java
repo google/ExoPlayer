@@ -462,6 +462,20 @@ public final class Transformer {
      */
     default void onTransformationError(
         MediaItem inputMediaItem, TransformationException exception) {}
+
+    /**
+     * Called when fallback to an alternative {@link TransformationRequest} is necessary to comply
+     * with muxer or device constraints.
+     *
+     * @param inputMediaItem The {@link MediaItem} for which the transformation is requested.
+     * @param originalTransformationRequest The unsupported {@link TransformationRequest} used when
+     *     building {@link Transformer}.
+     * @param fallbackTransformationRequest The alternative {@link TransformationRequest}.
+     */
+    default void onFallbackApplied(
+        MediaItem inputMediaItem,
+        TransformationRequest originalTransformationRequest,
+        TransformationRequest fallbackTransformationRequest) {}
   }
 
   /** Provider for views to show diagnostic information during transformation, for debugging. */
@@ -689,6 +703,7 @@ public final class Transformer {
                     transformationRequest,
                     encoderFactory,
                     decoderFactory,
+                    new FallbackListener(mediaItem, listeners, transformationRequest),
                     debugViewProvider))
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
@@ -759,6 +774,7 @@ public final class Transformer {
    */
   private void releaseResources(boolean forCancellation) throws TransformationException {
     verifyApplicationThread();
+    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
     if (player != null) {
       player.release();
       player = null;
@@ -772,7 +788,6 @@ public final class Transformer {
       }
       muxerWrapper = null;
     }
-    progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
 
   private void verifyApplicationThread() {
@@ -791,6 +806,7 @@ public final class Transformer {
     private final TransformationRequest transformationRequest;
     private final Codec.EncoderFactory encoderFactory;
     private final Codec.DecoderFactory decoderFactory;
+    private final FallbackListener fallbackListener;
     private final Transformer.DebugViewProvider debugViewProvider;
 
     public TransformerRenderersFactory(
@@ -801,6 +817,7 @@ public final class Transformer {
         TransformationRequest transformationRequest,
         Codec.EncoderFactory encoderFactory,
         Codec.DecoderFactory decoderFactory,
+        FallbackListener fallbackListener,
         Transformer.DebugViewProvider debugViewProvider) {
       this.context = context;
       this.muxerWrapper = muxerWrapper;
@@ -809,6 +826,7 @@ public final class Transformer {
       this.transformationRequest = transformationRequest;
       this.encoderFactory = encoderFactory;
       this.decoderFactory = decoderFactory;
+      this.fallbackListener = fallbackListener;
       this.debugViewProvider = debugViewProvider;
       mediaClock = new TransformerMediaClock();
     }
@@ -826,7 +844,12 @@ public final class Transformer {
       if (!removeAudio) {
         renderers[index] =
             new TransformerAudioRenderer(
-                muxerWrapper, mediaClock, transformationRequest, encoderFactory, decoderFactory);
+                muxerWrapper,
+                mediaClock,
+                transformationRequest,
+                encoderFactory,
+                decoderFactory,
+                fallbackListener);
         index++;
       }
       if (!removeVideo) {
@@ -838,6 +861,7 @@ public final class Transformer {
                 transformationRequest,
                 encoderFactory,
                 decoderFactory,
+                fallbackListener,
                 debugViewProvider);
         index++;
       }
@@ -893,7 +917,7 @@ public final class Transformer {
 
     @Override
     public void onPlayerError(PlaybackException error) {
-      Throwable cause = error.getCause();
+      @Nullable Throwable cause = error.getCause();
       handleTransformationEnded(
           cause instanceof TransformationException
               ? (TransformationException) cause
@@ -909,26 +933,24 @@ public final class Transformer {
       } catch (RuntimeException e) {
         resourceReleaseException = TransformationException.createForUnexpected(e);
       }
-
-      if (exception == null && resourceReleaseException == null) {
-        // TODO(b/213341814): Add event flags for Transformer events.
-        listeners.queueEvent(
-            /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationCompleted(mediaItem));
-        listeners.flushEvents();
-        return;
+      if (exception == null) {
+        // We only report the exception caused by releasing the resources if there is no other
+        // exception. It is more intuitive to call the error callback only once and reporting the
+        // exception caused by releasing the resources can be confusing if it is a consequence of
+        // the first exception.
+        exception = resourceReleaseException;
       }
 
       if (exception != null) {
+        TransformationException finalException = exception;
+        // TODO(b/213341814): Add event flags for Transformer events.
         listeners.queueEvent(
             /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationError(mediaItem, exception));
-      }
-      if (resourceReleaseException != null) {
-        TransformationException finalResourceReleaseException = resourceReleaseException;
+            listener -> listener.onTransformationError(mediaItem, finalException));
+      } else {
         listeners.queueEvent(
             /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationError(mediaItem, finalResourceReleaseException));
+            listener -> listener.onTransformationCompleted(mediaItem));
       }
       listeners.flushEvents();
     }

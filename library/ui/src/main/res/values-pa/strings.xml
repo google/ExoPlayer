@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਬੰਦ ਕਰੋ</string>
   <string name="exo_controls_cc_disabled_description">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਚਾਲੂ ਕਰੋ</string>
   <string name="exo_controls_playback_speed">ਗਤੀ</string>
-  <string name="exo_controls_playback_speed_normal">ਸਧਾਰਨ</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>ਸਧਾਰਨ</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">ਵੀਡੀਓ</string>
   <string name="exo_track_selection_title_audio">ਆਡੀਓ</string>
   <string name="exo_track_selection_title_text">ਲਿਖਤ</string>

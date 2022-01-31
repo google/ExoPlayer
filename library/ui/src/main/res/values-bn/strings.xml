@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">সাবটাইটেল বন্ধ করুন</string>
   <string name="exo_controls_cc_disabled_description">সাবটাইটেল চালু করুন</string>
   <string name="exo_controls_playback_speed">স্পিড</string>
-  <string name="exo_controls_playback_speed_normal">সাধারণ</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>০.২৫x</item>
+    <item>০.৫x</item>
+    <item>০.৭৫x</item>
+    <item>স্বাভাবিক</item>
+    <item>১.২৫x</item>
+    <item>১.৫x</item>
+    <item>২x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">ভিডিও</string>
   <string name="exo_track_selection_title_audio">অডিও</string>
   <string name="exo_track_selection_title_text">টেক্সট</string>

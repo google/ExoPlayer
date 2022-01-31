@@ -744,6 +744,126 @@ public final class DefaultPlaybackSessionManagerTest {
   }
 
   @Test
+  public void timelineUpdate_toNewMediaWithWindowIndexOnly_finishesOtherSessions() {
+    Timeline firstTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 1000),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 2000),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 3000));
+    EventTime eventTimeFirstTimelineWithPeriodId =
+        createEventTime(
+            firstTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                firstTimeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
+    EventTime eventTimeFirstTimelineWindowOnly1 =
+        createEventTime(firstTimeline, /* windowIndex= */ 1, /* mediaPeriodId= */ null);
+    EventTime eventTimeFirstTimelineWindowOnly2 =
+        createEventTime(firstTimeline, /* windowIndex= */ 2, /* mediaPeriodId= */ null);
+    Timeline secondTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 2000),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 4000));
+    EventTime eventTimeSecondTimeline =
+        createEventTime(secondTimeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
+    sessionManager.updateSessionsWithTimelineChange(eventTimeFirstTimelineWithPeriodId);
+    sessionManager.updateSessions(eventTimeFirstTimelineWindowOnly1);
+    sessionManager.updateSessions(eventTimeFirstTimelineWindowOnly2);
+
+    sessionManager.updateSessionsWithTimelineChange(eventTimeSecondTimeline);
+
+    InOrder inOrder = inOrder(mockListener);
+    ArgumentCaptor<String> firstId = ArgumentCaptor.forClass(String.class);
+    inOrder
+        .verify(mockListener)
+        .onSessionCreated(eq(eventTimeFirstTimelineWithPeriodId), firstId.capture());
+    inOrder
+        .verify(mockListener)
+        .onSessionActive(eventTimeFirstTimelineWithPeriodId, firstId.getValue());
+    ArgumentCaptor<String> secondId = ArgumentCaptor.forClass(String.class);
+    inOrder
+        .verify(mockListener)
+        .onSessionCreated(eq(eventTimeFirstTimelineWindowOnly1), secondId.capture());
+    ArgumentCaptor<String> thirdId = ArgumentCaptor.forClass(String.class);
+    inOrder
+        .verify(mockListener)
+        .onSessionCreated(eq(eventTimeFirstTimelineWindowOnly2), thirdId.capture());
+    // The sessions may finish at the same time, so the order of these two callbacks is undefined.
+    ArgumentCaptor<String> finishedSessions = ArgumentCaptor.forClass(String.class);
+    inOrder
+        .verify(mockListener, times(2))
+        .onSessionFinished(
+            eq(eventTimeSecondTimeline),
+            finishedSessions.capture(),
+            /* automaticTransitionToNextPlayback= */ eq(false));
+    assertThat(finishedSessions.getAllValues())
+        .containsExactly(firstId.getValue(), thirdId.getValue());
+    inOrder.verify(mockListener).onSessionActive(eventTimeSecondTimeline, secondId.getValue());
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  public void timelineUpdate_toNewMediaWithMediaPeriodId_finishesOtherSessions() {
+    Timeline firstTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 1000),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 2000),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 3000));
+    EventTime eventTimeFirstTimeline1 =
+        createEventTime(
+            firstTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                firstTimeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
+    EventTime eventTimeFirstTimeline2 =
+        createEventTime(
+            firstTimeline,
+            /* windowIndex= */ 1,
+            new MediaPeriodId(
+                firstTimeline.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 1));
+    EventTime eventTimeFirstTimeline3 =
+        createEventTime(
+            firstTimeline,
+            /* windowIndex= */ 2,
+            new MediaPeriodId(
+                firstTimeline.getUidOfPeriod(/* periodIndex= */ 2), /* windowSequenceNumber= */ 2));
+    Timeline secondTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 2000),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 1000),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 3000));
+    EventTime eventTimeSecondTimeline =
+        createEventTime(
+            secondTimeline,
+            /* windowIndex= */ 0,
+            new MediaPeriodId(
+                secondTimeline.getUidOfPeriod(/* periodIndex= */ 0),
+                /* windowSequenceNumber= */ 1));
+    sessionManager.updateSessionsWithTimelineChange(eventTimeFirstTimeline1);
+    sessionManager.updateSessions(eventTimeFirstTimeline2);
+    sessionManager.updateSessions(eventTimeFirstTimeline3);
+
+    sessionManager.updateSessionsWithTimelineChange(eventTimeSecondTimeline);
+
+    InOrder inOrder = inOrder(mockListener);
+    ArgumentCaptor<String> firstId = ArgumentCaptor.forClass(String.class);
+    inOrder.verify(mockListener).onSessionCreated(eq(eventTimeFirstTimeline1), firstId.capture());
+    inOrder.verify(mockListener).onSessionActive(eventTimeFirstTimeline1, firstId.getValue());
+    ArgumentCaptor<String> secondId = ArgumentCaptor.forClass(String.class);
+    inOrder.verify(mockListener).onSessionCreated(eq(eventTimeFirstTimeline2), secondId.capture());
+    ArgumentCaptor<String> thirdId = ArgumentCaptor.forClass(String.class);
+    inOrder.verify(mockListener).onSessionCreated(eq(eventTimeFirstTimeline3), thirdId.capture());
+    inOrder
+        .verify(mockListener)
+        .onSessionFinished(
+            eventTimeSecondTimeline,
+            firstId.getValue(),
+            /* automaticTransitionToNextPlayback= */ false);
+    inOrder.verify(mockListener).onSessionActive(eventTimeSecondTimeline, secondId.getValue());
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
   public void positionDiscontinuity_withinWindow_doesNotFinishSession() {
     Timeline timeline =
         new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ 100));

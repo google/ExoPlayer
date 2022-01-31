@@ -26,6 +26,8 @@ include modulePrefix + 'demo-gl'
 project(modulePrefix + 'demo-gl').projectDir = new File(rootDir, 'demos/gl')
 include modulePrefix + 'demo-surface'
 project(modulePrefix + 'demo-surface').projectDir = new File(rootDir, 'demos/surface')
+include modulePrefix + 'demo-transformer'
+project(modulePrefix + 'demo-transformer').projectDir = new File(rootDir, 'demos/transformer')
 
 include modulePrefix + 'playbacktests'
 project(modulePrefix + 'playbacktests').projectDir = new File(rootDir, 'playbacktests')

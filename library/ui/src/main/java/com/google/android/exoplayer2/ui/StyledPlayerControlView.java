@@ -360,6 +360,9 @@ public class StyledPlayerControlView extends FrameLayout {
   public static final int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR = 100;
   /** The maximum interval between time bar position updates. */
   private static final int MAX_UPDATE_INTERVAL_MS = 1_000;
+  // LINT.IfChange(playback_speeds)
+  private static final float[] PLAYBACK_SPEEDS =
+      new float[] {0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f};
 
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
@@ -686,8 +689,7 @@ public class StyledPlayerControlView extends FrameLayout {
     audioTrackSelectionAdapter = new AudioTrackSelectionAdapter();
     playbackSpeedAdapter =
         new PlaybackSpeedAdapter(
-            resources.getStringArray(R.array.exo_playback_speeds),
-            resources.getIntArray(R.array.exo_speed_multiplied_by_100));
+            resources.getStringArray(R.array.exo_controls_playback_speeds), PLAYBACK_SPEEDS);
 
     fullScreenExitDrawable = resources.getDrawable(R.drawable.exo_styled_controls_fullscreen_exit);
     fullScreenEnterDrawable =
@@ -1877,20 +1879,19 @@ public class StyledPlayerControlView extends FrameLayout {
   private final class PlaybackSpeedAdapter extends RecyclerView.Adapter<SubSettingViewHolder> {
 
     private final String[] playbackSpeedTexts;
-    private final int[] playbackSpeedsMultBy100;
+    private final float[] playbackSpeeds;
     private int selectedIndex;
 
-    public PlaybackSpeedAdapter(String[] playbackSpeedTexts, int[] playbackSpeedsMultBy100) {
+    public PlaybackSpeedAdapter(String[] playbackSpeedTexts, float[] playbackSpeeds) {
       this.playbackSpeedTexts = playbackSpeedTexts;
-      this.playbackSpeedsMultBy100 = playbackSpeedsMultBy100;
+      this.playbackSpeeds = playbackSpeeds;
     }
 
     public void updateSelectedIndex(float playbackSpeed) {
-      int currentSpeedMultBy100 = Math.round(playbackSpeed * 100);
       int closestMatchIndex = 0;
-      int closestMatchDifference = Integer.MAX_VALUE;
-      for (int i = 0; i < playbackSpeedsMultBy100.length; i++) {
-        int difference = Math.abs(currentSpeedMultBy100 - playbackSpeedsMultBy100[i]);
+      float closestMatchDifference = Float.MAX_VALUE;
+      for (int i = 0; i < playbackSpeeds.length; i++) {
+        float difference = Math.abs(playbackSpeed - playbackSpeeds[i]);
         if (difference < closestMatchDifference) {
           closestMatchIndex = i;
           closestMatchDifference = difference;
@@ -1921,8 +1922,7 @@ public class StyledPlayerControlView extends FrameLayout {
       holder.itemView.setOnClickListener(
           v -> {
             if (position != selectedIndex) {
-              float speed = playbackSpeedsMultBy100[position] / 100.0f;
-              setPlaybackSpeed(speed);
+              setPlaybackSpeed(playbackSpeeds[position]);
             }
             settingsWindow.dismiss();
           });

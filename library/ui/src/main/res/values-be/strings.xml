@@ -50,7 +50,15 @@
   <string name="exo_controls_cc_enabled_description">Выключыць субцітры</string>
   <string name="exo_controls_cc_disabled_description">Уключыць субцітры</string>
   <string name="exo_controls_playback_speed">Хуткасць</string>
-  <string name="exo_controls_playback_speed_normal">Звычайная</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Звычайная</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2х</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Відэа</string>
   <string name="exo_track_selection_title_audio">Аўдыя</string>
   <string name="exo_track_selection_title_text">Тэкст</string>

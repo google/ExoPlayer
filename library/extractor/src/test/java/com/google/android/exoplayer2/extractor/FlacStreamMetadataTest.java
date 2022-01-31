@@ -21,7 +21,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.flac.FlacConstants;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.flac.VorbisComment;
+import com.google.android.exoplayer2.metadata.vorbis.VorbisComment;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.util.ArrayList;

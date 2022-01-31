@@ -66,7 +66,7 @@ import com.google.common.collect.ImmutableList;
 
   private final Timeline.Period period;
   private final Timeline.Window window;
-  @Nullable private final AnalyticsCollector analyticsCollector;
+  private final AnalyticsCollector analyticsCollector;
   private final Handler analyticsCollectorHandler;
 
   private long nextWindowSequenceNumber;
@@ -82,13 +82,12 @@ import com.google.common.collect.ImmutableList;
   /**
    * Creates a new media period queue.
    *
-   * @param analyticsCollector An optional {@link AnalyticsCollector} to be informed of queue
-   *     changes.
+   * @param analyticsCollector An {@link AnalyticsCollector} to be informed of queue changes.
    * @param analyticsCollectorHandler The {@link Handler} to call {@link AnalyticsCollector} methods
    *     on.
    */
   public MediaPeriodQueue(
-      @Nullable AnalyticsCollector analyticsCollector, Handler analyticsCollectorHandler) {
+      AnalyticsCollector analyticsCollector, Handler analyticsCollectorHandler) {
     this.analyticsCollector = analyticsCollector;
     this.analyticsCollectorHandler = analyticsCollectorHandler;
     period = new Timeline.Period();
@@ -451,17 +450,15 @@ import com.google.common.collect.ImmutableList;
   // Internal methods.
 
   private void notifyQueueUpdate() {
-    if (analyticsCollector != null) {
-      ImmutableList.Builder<MediaPeriodId> builder = ImmutableList.builder();
-      @Nullable MediaPeriodHolder period = playing;
-      while (period != null) {
-        builder.add(period.info.id);
-        period = period.getNext();
-      }
-      @Nullable MediaPeriodId readingPeriodId = reading == null ? null : reading.info.id;
-      analyticsCollectorHandler.post(
-          () -> analyticsCollector.updateMediaPeriodQueueInfo(builder.build(), readingPeriodId));
+    ImmutableList.Builder<MediaPeriodId> builder = ImmutableList.builder();
+    @Nullable MediaPeriodHolder period = playing;
+    while (period != null) {
+      builder.add(period.info.id);
+      period = period.getNext();
     }
+    @Nullable MediaPeriodId readingPeriodId = reading == null ? null : reading.info.id;
+    analyticsCollectorHandler.post(
+        () -> analyticsCollector.updateMediaPeriodQueueInfo(builder.build(), readingPeriodId));
   }
 
   /**

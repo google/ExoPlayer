@@ -71,14 +71,15 @@ import java.util.Set;
  * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
  * {@link #release()}.
  *
- * <p>See https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
- * information on compatible ad tag formats. Pass the ad tag URI when setting media item playback
- * properties (if using the media item API) or as a {@link DataSpec} when constructing the {@link
- * AdsMediaSource} (if using media sources directly). For the latter case, please note that this
- * implementation delegates loading of the data spec to the IMA SDK, so range and headers
- * specifications will be ignored in ad tag URIs. Literal ads responses can be encoded as data
- * scheme data specs, for example, by constructing the data spec using a URI generated via {@link
- * Util#getDataUriForString(String, String)}.
+ * <p>See <a
+ * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility">IMA's
+ * Support and compatibility page</a> for information on compatible ad tag formats. Pass the ad tag
+ * URI when setting media item playback properties (if using the media item API) or as a {@link
+ * DataSpec} when constructing the {@link AdsMediaSource} (if using media sources directly). For the
+ * latter case, please note that this implementation delegates loading of the data spec to the IMA
+ * SDK, so range and headers specifications will be ignored in ad tag URIs. Literal ads responses
+ * can be encoded as data scheme data specs, for example, by constructing the data spec using a URI
+ * generated via {@link Util#getDataUriForString(String, String)}.
  *
  * <p>The IMA SDK can report obstructions to the ad view for accurate viewability measurement. This
  * means that any overlay views that obstruct the ad overlay but are essential for playback need to

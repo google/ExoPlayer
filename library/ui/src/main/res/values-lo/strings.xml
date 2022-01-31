@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">ປິດການນຳໃຊ້ຄຳແປ</string>
   <string name="exo_controls_cc_disabled_description">ເປີດການນຳໃຊ້ຄຳແປ</string>
   <string name="exo_controls_playback_speed">ຄວາມໄວ</string>
-  <string name="exo_controls_playback_speed_normal">ທົ່ວໄປ</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>ປົກກະຕິ</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">ວິດີໂອ</string>
   <string name="exo_track_selection_title_audio">ສຽງ</string>
   <string name="exo_track_selection_title_text">ຂໍ້ຄວາມ</string>

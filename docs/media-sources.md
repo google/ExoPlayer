@@ -44,7 +44,7 @@ ExoPlayer player = new ExoPlayer.Builder(context)
 {: .language-java}
 
 The
-[`DefaultMediaSourceFactory` JavaDoc]({{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/source/DefaultMediaSourceFactory.html)
+[`DefaultMediaSourceFactory` JavaDoc]({{ site.exo_sdk }}/source/DefaultMediaSourceFactory.html)
 describes the available options in more detail.
 
 It's also possible to inject a custom `MediaSource.Factory` implementation, for
@@ -79,4 +79,4 @@ exoPlayer.play();
 [HLS]: {{ site.baseurl }}/hls.html
 [RTSP]: {{ site.baseurl }}/rtsp.html
 [regular media files]: {{ site.baseurl }}/progressive.html
-[`ExoPlayer`]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/ExoPlayer.html
+[`ExoPlayer`]: {{ site.exo_sdk }}/ExoPlayer.html

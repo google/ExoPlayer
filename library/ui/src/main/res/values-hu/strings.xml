@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">Feliratok kikapcsolása</string>
   <string name="exo_controls_cc_disabled_description">Feliratok bekapcsolása</string>
   <string name="exo_controls_playback_speed">Sebesség</string>
-  <string name="exo_controls_playback_speed_normal">Normál</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0,25×</item>
+    <item>0,5×</item>
+    <item>0,75×</item>
+    <item>Normál</item>
+    <item>1,25×</item>
+    <item>1,5×</item>
+    <item>2×</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Videó</string>
   <string name="exo_track_selection_title_audio">Hang</string>
   <string name="exo_track_selection_title_text">Szöveg</string>
