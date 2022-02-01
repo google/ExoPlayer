@@ -42,7 +42,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.microedition.khronos.egl.EGL10;
 
-/** OpenGL ES 2.0 utilities. */
+/** OpenGL ES utilities. */
+@SuppressWarnings("InlinedApi") // GLES constants are used safely based on the API version.
 public final class GlUtil {
 
   /** Thrown when an OpenGL error occurs and {@link #glAssertionsEnabled} is {@code true}. */
@@ -207,8 +208,43 @@ public final class GlUtil {
 
   private static final String TAG = "GlUtil";
 
+  // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_protected_content.txt
   private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
+  // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
   private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
+
+  // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt
+  private static final int GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT = 0x8BE7;
+  // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
+  private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
+  // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
+  private static final int EGL_GL_COLORSPACE_BT2020_PQ_EXT = 0x3340;
+
+  private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
+  private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ =
+      new int[] {EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_PQ_EXT, EGL14.EGL_NONE};
+  private static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_8888 =
+      new int[] {
+        EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+        EGL14.EGL_RED_SIZE, /* redSize= */ 8,
+        EGL14.EGL_GREEN_SIZE, /* greenSize= */ 8,
+        EGL14.EGL_BLUE_SIZE, /* blueSize= */ 8,
+        EGL14.EGL_ALPHA_SIZE, /* alphaSize= */ 8,
+        EGL14.EGL_DEPTH_SIZE, /* depthSize= */ 0,
+        EGL14.EGL_STENCIL_SIZE, /* stencilSize= */ 0,
+        EGL14.EGL_NONE
+      };
+  private static final int[] EGL_CONFIG_ATTRIBUTES_RGBA_1010102 =
+      new int[] {
+        EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+        EGL14.EGL_RED_SIZE, /* redSize= */ 10,
+        EGL14.EGL_GREEN_SIZE, /* greenSize= */ 10,
+        EGL14.EGL_BLUE_SIZE, /* blueSize= */ 10,
+        EGL14.EGL_ALPHA_SIZE, /* alphaSize= */ 2,
+        EGL14.EGL_DEPTH_SIZE, /* depthSize= */ 0,
+        EGL14.EGL_STENCIL_SIZE, /* stencilSize= */ 0,
+        EGL14.EGL_NONE
+      };
 
   /** Class only contains static methods. */
   private GlUtil() {}
@@ -282,7 +318,16 @@ public final class GlUtil {
   /** Returns a new {@link EGLContext} for the specified {@link EGLDisplay}. */
   @RequiresApi(17)
   public static EGLContext createEglContext(EGLDisplay eglDisplay) {
-    return Api17.createEglContext(eglDisplay);
+    return Api17.createEglContext(eglDisplay, /* version= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
+  }
+
+  /**
+   * Returns a new {@link EGLContext} for the specified {@link EGLDisplay}, requesting ES 3 and an
+   * RGBA 1010102 config.
+   */
+  @RequiresApi(17)
+  public static EGLContext createEglContextEs3Rgba1010102(EGLDisplay eglDisplay) {
+    return Api17.createEglContext(eglDisplay, /* version= */ 3, EGL_CONFIG_ATTRIBUTES_RGBA_1010102);
   }
 
   /**
@@ -293,7 +338,24 @@ public final class GlUtil {
    */
   @RequiresApi(17)
   public static EGLSurface getEglSurface(EGLDisplay eglDisplay, Object surface) {
-    return Api17.getEglSurface(eglDisplay, surface);
+    return Api17.getEglSurface(
+        eglDisplay, surface, EGL_CONFIG_ATTRIBUTES_RGBA_8888, EGL_WINDOW_SURFACE_ATTRIBUTES_NONE);
+  }
+
+  /**
+   * Returns a new {@link EGLSurface} wrapping the specified {@code surface}, for HDR rendering with
+   * Rec. 2020 color primaries and using the PQ transfer function.
+   *
+   * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
+   * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
+   */
+  @RequiresApi(17)
+  public static EGLSurface getEglSurfaceBt2020Pq(EGLDisplay eglDisplay, Object surface) {
+    return Api17.getEglSurface(
+        eglDisplay,
+        surface,
+        EGL_CONFIG_ATTRIBUTES_RGBA_1010102,
+        EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ);
   }
 
   /**
@@ -601,6 +663,13 @@ public final class GlUtil {
         return;
       }
 
+      if (type == GLES20.GL_FLOAT_MAT3) {
+        GLES20.glUniformMatrix3fv(
+            location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
+        checkGlError();
+        return;
+      }
+
       if (type == GLES20.GL_FLOAT_MAT4) {
         GLES20.glUniformMatrix4fv(
             location, /* count= */ 1, /* transpose= */ false, value, /* offset= */ 0);
@@ -612,7 +681,7 @@ public final class GlUtil {
         throw new IllegalStateException("No call to setSamplerTexId() before bind.");
       }
       GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
-      if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES) {
+      if (type == GLES11Ext.GL_SAMPLER_EXTERNAL_OES || type == GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT) {
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId);
       } else if (type == GLES20.GL_SAMPLER_2D) {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId);
@@ -651,12 +720,13 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    public static EGLContext createEglContext(EGLDisplay eglDisplay) {
-      int[] contextAttributes = {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
+    public static EGLContext createEglContext(
+        EGLDisplay eglDisplay, int version, int[] configAttributes) {
+      int[] contextAttributes = {EGL14.EGL_CONTEXT_CLIENT_VERSION, version, EGL14.EGL_NONE};
       EGLContext eglContext =
           EGL14.eglCreateContext(
               eglDisplay,
-              getEglConfig(eglDisplay),
+              getEglConfig(eglDisplay, configAttributes),
               EGL14.EGL_NO_CONTEXT,
               contextAttributes,
               /* offset= */ 0);
@@ -664,19 +734,24 @@ public final class GlUtil {
         EGL14.eglTerminate(eglDisplay);
         throwGlException(
             "eglCreateContext() failed to create a valid context. The device may not support EGL"
-                + " version 2");
+                + " version "
+                + version);
       }
       checkGlError();
       return eglContext;
     }
 
     @DoNotInline
-    public static EGLSurface getEglSurface(EGLDisplay eglDisplay, Object surface) {
+    public static EGLSurface getEglSurface(
+        EGLDisplay eglDisplay,
+        Object surface,
+        int[] configAttributes,
+        int[] windowSurfaceAttributes) {
       return EGL14.eglCreateWindowSurface(
           eglDisplay,
-          getEglConfig(eglDisplay),
+          getEglConfig(eglDisplay, configAttributes),
           surface,
-          new int[] {EGL14.EGL_NONE},
+          windowSurfaceAttributes,
           /* offset= */ 0);
     }
 
@@ -717,22 +792,11 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    private static EGLConfig getEglConfig(EGLDisplay eglDisplay) {
-      int[] defaultConfiguration =
-          new int[] {
-            EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-            EGL14.EGL_RED_SIZE, /* redSize= */ 8,
-            EGL14.EGL_GREEN_SIZE, /* greenSize= */ 8,
-            EGL14.EGL_BLUE_SIZE, /* blueSize= */ 8,
-            EGL14.EGL_ALPHA_SIZE, /* alphaSize= */ 8,
-            EGL14.EGL_DEPTH_SIZE, /* depthSize= */ 0,
-            EGL14.EGL_STENCIL_SIZE, /* stencilSize= */ 0,
-            EGL14.EGL_NONE
-          };
+    private static EGLConfig getEglConfig(EGLDisplay eglDisplay, int[] attributes) {
       EGLConfig[] eglConfigs = new EGLConfig[1];
       if (!EGL14.eglChooseConfig(
           eglDisplay,
-          defaultConfiguration,
+          attributes,
           /* attrib_listOffset= */ 0,
           eglConfigs,
           /* configsOffset= */ 0,

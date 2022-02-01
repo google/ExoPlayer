@@ -205,6 +205,7 @@ public final class FrameEditorDataProcessingTest {
               PIXEL_WIDTH_HEIGHT_RATIO,
               transformationMatrix,
               frameEditorOutputImageReader.getSurface(),
+              /* enableExperimentalHdrEditing= */ false,
               Transformer.DebugViewProvider.NONE);
       frameEditor.registerInputFrame();
 

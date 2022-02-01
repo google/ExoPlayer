@@ -125,7 +125,8 @@ import org.checkerframework.dataflow.qual.Pure;
             requestedOutputFormat,
             actualOutputFormat));
 
-    if (inputFormat.height != actualOutputFormat.height
+    if (transformationRequest.enableHdrEditing
+        || inputFormat.height != actualOutputFormat.height
         || inputFormat.width != actualOutputFormat.width
         || !transformationMatrix.isIdentity()) {
       frameEditor =
@@ -136,6 +137,7 @@ import org.checkerframework.dataflow.qual.Pure;
               inputFormat.pixelWidthHeightRatio,
               transformationMatrix,
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
+              transformationRequest.enableHdrEditing,
               debugViewProvider);
     }
 
