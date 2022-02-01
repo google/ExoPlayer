@@ -164,6 +164,16 @@
         android:layout_gravity="right|center_vertical"
         android:gravity="right" />
     </TableRow>
+    <TableRow
+      android:layout_weight="1"
+      android:gravity="center_vertical" >
+      <TextView
+        android:id="@+id/hdr_editing"
+        android:text="@string/hdr_editing" />
+      <CheckBox
+        android:id="@+id/hdr_editing_checkbox"
+        android:layout_gravity="right" />
+    </TableRow>
   </TableLayout>
   <Button
     android:id="@+id/transform_button"

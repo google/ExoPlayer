@@ -43,6 +43,7 @@ public final class TransformationRequest {
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
+    private boolean enableHdrEditing;
 
     /**
      * Creates a new instance with default values.
@@ -61,6 +62,7 @@ public final class TransformationRequest {
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
       this.videoMimeType = transformationRequest.videoMimeType;
+      this.enableHdrEditing = transformationRequest.enableHdrEditing;
     }
 
     /**
@@ -194,10 +196,32 @@ public final class TransformationRequest {
       return this;
     }
 
+    /**
+     * Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
+     * signal.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
+     * editing feature is under development and is intended for developing/testing HDR processing
+     * and encoding support.
+     *
+     * @param enableHdrEditing Whether to attempt to process any input video stream as a high
+     *     dynamic range (HDR) signal.
+     * @return This builder.
+     */
+    public Builder experimental_setEnableHdrEditing(boolean enableHdrEditing) {
+      this.enableHdrEditing = enableHdrEditing;
+      return this;
+    }
+
     /** Builds a {@link TransformationRequest} instance. */
     public TransformationRequest build() {
       return new TransformationRequest(
-          transformationMatrix, flattenForSlowMotion, outputHeight, audioMimeType, videoMimeType);
+          transformationMatrix,
+          flattenForSlowMotion,
+          outputHeight,
+          audioMimeType,
+          videoMimeType,
+          enableHdrEditing);
     }
   }
 
@@ -233,18 +257,26 @@ public final class TransformationRequest {
    * @see Builder#setVideoMimeType(String)
    */
   @Nullable public final String videoMimeType;
+  /**
+   * Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.
+   *
+   * @see Builder#experimental_setEnableHdrEditing(boolean)
+   */
+  public final boolean enableHdrEditing;
 
   private TransformationRequest(
       Matrix transformationMatrix,
       boolean flattenForSlowMotion,
       int outputHeight,
       @Nullable String audioMimeType,
-      @Nullable String videoMimeType) {
+      @Nullable String videoMimeType,
+      boolean enableHdrEditing) {
     this.transformationMatrix = transformationMatrix;
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
+    this.enableHdrEditing = enableHdrEditing;
   }
 
   @Override
@@ -260,7 +292,8 @@ public final class TransformationRequest {
         && flattenForSlowMotion == that.flattenForSlowMotion
         && outputHeight == that.outputHeight
         && Util.areEqual(audioMimeType, that.audioMimeType)
-        && Util.areEqual(videoMimeType, that.videoMimeType);
+        && Util.areEqual(videoMimeType, that.videoMimeType)
+        && enableHdrEditing == that.enableHdrEditing;
   }
 
   @Override
@@ -270,6 +303,7 @@ public final class TransformationRequest {
     result = 31 * result + outputHeight;
     result = 31 * result + (audioMimeType != null ? audioMimeType.hashCode() : 0);
     result = 31 * result + (videoMimeType != null ? videoMimeType.hashCode() : 0);
+    result = 31 * result + (enableHdrEditing ? 1 : 0);
     return result;
   }
 

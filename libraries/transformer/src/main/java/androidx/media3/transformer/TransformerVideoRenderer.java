@@ -99,6 +99,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean shouldPassthrough(Format inputFormat) {
+    if (transformationRequest.enableHdrEditing) {
+      return false;
+    }
     if (transformationRequest.videoMimeType != null
         && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
       return false;
