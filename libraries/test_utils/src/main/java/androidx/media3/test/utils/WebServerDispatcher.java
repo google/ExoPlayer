@@ -406,7 +406,7 @@ public class WebServerDispatcher extends Dispatcher {
       @Nullable String qvalue = matcher.group(2);
       parsedEncodings.put(contentCoding, qvalue == null ? -1f : Float.parseFloat(qvalue));
     }
-    return parsedEncodings.build();
+    return parsedEncodings.buildOrThrow();
   }
 
   /**
@@ -432,7 +432,7 @@ public class WebServerDispatcher extends Dispatcher {
           ImmutableMap.<String, Float>builder()
               .putAll(acceptEncodingHeader)
               .put("identity", -1f)
-              .build();
+              .buildOrThrow();
     }
     float asteriskQvalue = acceptEncodingHeader.getOrDefault("*", 0f);
     @Nullable String preferredContentCoding = null;

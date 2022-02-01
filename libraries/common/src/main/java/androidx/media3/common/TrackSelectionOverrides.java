@@ -300,7 +300,7 @@ public final class TrackSelectionOverrides implements Bundleable {
           TrackSelectionOverride trackSelectionOverride = trackSelectionOverrides.get(i);
           builder.put(trackSelectionOverride.trackGroup, trackSelectionOverride);
         }
-        return new TrackSelectionOverrides(builder.build());
+        return new TrackSelectionOverrides(builder.buildOrThrow());
       };
 
   private static String keyForField(@FieldNumber int field) {
