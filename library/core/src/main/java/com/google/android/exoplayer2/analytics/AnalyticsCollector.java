@@ -1120,7 +1120,7 @@ public class AnalyticsCollector
           addTimelineForMediaPeriodId(builder, currentPlayerMediaPeriod, preferredTimeline);
         }
       }
-      mediaPeriodTimelines = builder.build();
+      mediaPeriodTimelines = builder.buildOrThrow();
     }
 
     private void addTimelineForMediaPeriodId(
