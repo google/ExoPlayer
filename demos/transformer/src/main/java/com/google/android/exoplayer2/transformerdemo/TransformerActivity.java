@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.transformerdemo;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.app.Activity;
@@ -134,7 +133,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "progressViewGroup",
   })
   private void startTransformation() {
-    requestTransformerPermissions();
+    requestTransformerPermission();
 
     Intent intent = getIntent();
     Uri uri = checkNotNull(intent.getData());
@@ -316,14 +315,12 @@ public final class TransformerActivity extends AppCompatActivity {
     }
   }
 
-  private void requestTransformerPermissions() {
+  private void requestTransformerPermission() {
     if (Util.SDK_INT < 23) {
       return;
     }
-    if (checkSelfPermission(READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        || checkSelfPermission(WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-      requestPermissions(
-          new String[] {READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}, /* requestCode= */ 0);
+    if (checkSelfPermission(READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+      requestPermissions(new String[] {READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
     }
   }
 
