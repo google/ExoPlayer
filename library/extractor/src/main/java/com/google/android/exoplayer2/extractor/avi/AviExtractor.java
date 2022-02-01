@@ -106,8 +106,6 @@ public class AviExtractor implements Extractor {
 
   static final int RIFF = 'R' | ('I' << 8) | ('F' << 16) | ('F' << 24);
   static final int AVI_ = 'A' | ('V' << 8) | ('I' << 16) | (' ' << 24);
-  //Stream List
-  static final int STRL = 's' | ('t' << 8) | ('r' << 16) | ('l' << 24);
   //movie data box
   static final int MOVI = 'm' | ('o' << 8) | ('v' << 16) | ('i' << 24);
   //Index
@@ -191,7 +189,7 @@ public class AviExtractor implements Extractor {
   }
 
   @Nullable
-  static ListBox readHeaderList(ExtractorInput input) throws IOException {
+  public static ListBox readHeaderList(ExtractorInput input) throws IOException {
     final ByteBuffer byteBuffer = getAviBuffer(input, 20);
     if (byteBuffer == null) {
       return null;
@@ -313,7 +311,7 @@ public class AviExtractor implements Extractor {
 
     int streamId = 0;
     for (Box box : headerList.getChildren()) {
-      if (box instanceof ListBox && ((ListBox) box).getListType() == STRL) {
+      if (box instanceof ListBox && ((ListBox) box).getListType() == ListBox.TYPE_STRL) {
         final ListBox streamList = (ListBox) box;
         aviTracks[streamId] = parseStream(streamList, streamId);
         streamId++;

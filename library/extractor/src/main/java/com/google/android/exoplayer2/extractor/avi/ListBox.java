@@ -15,6 +15,8 @@ public class ListBox extends Box {
   public static final int LIST = 'L' | ('I' << 8) | ('S' << 16) | ('T' << 24);
   //Header List
   public static final int TYPE_HDRL = 'h' | ('d' << 8) | ('r' << 16) | ('l' << 24);
+  //Stream List
+  public static final int TYPE_STRL = 's' | ('t' << 8) | ('r' << 16) | ('l' << 24);
 
   private final int listType;
 
@@ -47,9 +49,6 @@ public class ListBox extends Box {
 
   /**
    * Assume the input is pointing to the list type
-   * @param boxFactory
-   * @param input
-   * @return
    * @throws IOException
    */
   public static ListBox newInstance(final int listSize, BoxFactory boxFactory,

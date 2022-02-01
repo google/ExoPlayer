@@ -319,7 +319,7 @@ public class AviExtractorTest {
   @Test
   public void readHeaderList_givenNoHeaderList() throws IOException {
     final ByteBuffer byteBuffer = DataHelper.getRiffHeader(88, 0x44);
-    byteBuffer.putInt(0x14, AviExtractor.STRL); //Overwrite header list with stream list
+    byteBuffer.putInt(0x14, ListBox.TYPE_STRL); //Overwrite header list with stream list
     final FakeExtractorInput input = new FakeExtractorInput.Builder().
         setData(byteBuffer.array()).build();
     Assert.assertNull(AviExtractor.readHeaderList(input));

@@ -62,7 +62,7 @@ public class DataHelper {
     list.add(streamHeaderBox);
     list.add(streamFormatBox);
     return new ListBox((int)(streamHeaderBox.getSize() + streamFormatBox.getSize()),
-        AviExtractor.STRL, list);
+        ListBox.TYPE_STRL, list);
   }
 
   public static ListBox getAacStreamList() throws IOException {
@@ -72,7 +72,7 @@ public class DataHelper {
     list.add(streamHeaderBox);
     list.add(streamFormatBox);
     return new ListBox((int)(streamHeaderBox.getSize() + streamFormatBox.getSize()),
-        AviExtractor.STRL, list);
+        ListBox.TYPE_STRL, list);
   }
 
   public static StreamNameBox getStreamNameBox(final String name) {

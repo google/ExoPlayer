@@ -10,7 +10,7 @@ public class StreamNameBoxTest {
   @Test
   public void createStreamName_givenList() throws IOException {
     final String name = "Test";
-    final ListBuilder listBuilder = new ListBuilder(AviExtractor.STRL);
+    final ListBuilder listBuilder = new ListBuilder(ListBox.TYPE_STRL);
     listBuilder.addBox(DataHelper.getStreamNameBox(name));
     final ByteBuffer listBuffer = listBuilder.build();
     final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().setData(listBuffer.array()).build();

@@ -46,7 +46,7 @@ public class AviExtractorRoboTest {
       final AviExtractor aviExtractor = new AviExtractor();
       final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
       aviExtractor.init(fakeExtractorOutput);
-      final ListBox streamList = new ListBox(128, AviExtractor.STRL, Collections.EMPTY_LIST);
+      final ListBox streamList = new ListBox(128, ListBox.TYPE_STRL, Collections.EMPTY_LIST);
       Assert.assertNull(aviExtractor.parseStream(streamList, 0));
   }
 
@@ -55,7 +55,7 @@ public class AviExtractorRoboTest {
     final AviExtractor aviExtractor = new AviExtractor();
     final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
     aviExtractor.init(fakeExtractorOutput);
-    final ListBox streamList = new ListBox(128, AviExtractor.STRL,
+    final ListBox streamList = new ListBox(128, ListBox.TYPE_STRL,
         Collections.singletonList(DataHelper.getVidsStreamHeader()));
     Assert.assertNull(aviExtractor.parseStream(streamList, 0));
   }
@@ -73,7 +73,7 @@ public class AviExtractorRoboTest {
     byteBuffer.put(aviHeader);
     byteBuffer.putInt(ListBox.LIST);
     byteBuffer.putInt(byteBuffer.remaining() - 4);
-    byteBuffer.putInt(AviExtractor.STRL);
+    byteBuffer.putInt(ListBox.TYPE_STRL);
 
     final StreamHeaderBox streamHeaderBox = DataHelper.getVidsStreamHeader();
     byteBuffer.putInt(StreamHeaderBox.STRH);
