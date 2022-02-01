@@ -54,6 +54,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SCALE_X = "scale_x";
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
+  public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
   private static final String[] INPUT_URIS = {
     "https://html5demos.com/assets/dizzy.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
@@ -69,6 +70,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private static final String SAME_AS_INPUT_OPTION = "same as input";
 
   private @MonotonicNonNull Button chooseFileButton;
+  private @MonotonicNonNull TextView chosenFileTextView;
   private @MonotonicNonNull CheckBox removeAudioCheckbox;
   private @MonotonicNonNull CheckBox removeVideoCheckbox;
   private @MonotonicNonNull CheckBox flattenForSlowMotionCheckbox;
@@ -78,7 +80,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner translateSpinner;
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
-  private @MonotonicNonNull TextView chosenFileTextView;
+  private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private int inputUriPosition;
 
   @Override
@@ -151,6 +153,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateSpinner = findViewById(R.id.rotate_spinner);
     rotateSpinner.setAdapter(rotateAdapter);
     rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "90", "180");
+
+    enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
   }
 
   @Override
@@ -178,7 +182,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "translateSpinner",
     "scaleSpinner",
-    "rotateSpinner"
+    "rotateSpinner",
+    "enableHdrEditingCheckBox"
   })
   private void startTransformation(View view) {
     Intent transformerIntent = new Intent(this, TransformerActivity.class);
@@ -216,6 +221,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     if (!SAME_AS_INPUT_OPTION.equals(selectedRotate)) {
       bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
+    bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     transformerIntent.putExtras(bundle);
 
     @Nullable Uri intentUri = getIntent().getData();
@@ -247,7 +253,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "translateSpinner",
     "scaleSpinner",
-    "rotateSpinner"
+    "rotateSpinner",
+    "enableHdrEditingCheckBox"
   })
   private void onRemoveAudio(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -265,7 +272,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "translateSpinner",
     "scaleSpinner",
-    "rotateSpinner"
+    "rotateSpinner",
+    "enableHdrEditingCheckBox"
   })
   private void onRemoveVideo(View view) {
     if (((CheckBox) view).isChecked()) {
@@ -282,7 +290,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "resolutionHeightSpinner",
     "translateSpinner",
     "scaleSpinner",
-    "rotateSpinner"
+    "rotateSpinner",
+    "enableHdrEditingCheckBox"
   })
   private void enableTrackSpecificOptions(boolean isAudioEnabled, boolean isVideoEnabled) {
     audioMimeSpinner.setEnabled(isAudioEnabled);
@@ -291,6 +300,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     translateSpinner.setEnabled(isVideoEnabled);
     scaleSpinner.setEnabled(isVideoEnabled);
     rotateSpinner.setEnabled(isVideoEnabled);
+    enableHdrEditingCheckBox.setEnabled(isVideoEnabled);
 
     findViewById(R.id.audio_mime_text_view).setEnabled(isAudioEnabled);
     findViewById(R.id.video_mime_text_view).setEnabled(isVideoEnabled);
@@ -298,5 +308,6 @@ public final class ConfigurationActivity extends AppCompatActivity {
     findViewById(R.id.translate).setEnabled(isVideoEnabled);
     findViewById(R.id.scale).setEnabled(isVideoEnabled);
     findViewById(R.id.rotate).setEnabled(isVideoEnabled);
+    findViewById(R.id.hdr_editing).setEnabled(isVideoEnabled);
   }
 }

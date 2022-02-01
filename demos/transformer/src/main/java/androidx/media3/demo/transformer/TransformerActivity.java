@@ -213,6 +213,8 @@ public final class TransformerActivity extends AppCompatActivity {
       if (!transformationMatrix.isIdentity()) {
         requestBuilder.setTransformationMatrix(transformationMatrix);
       }
+      requestBuilder.experimental_setEnableHdrEditing(
+          bundle.getBoolean(ConfigurationActivity.ENABLE_HDR_EDITING));
       transformerBuilder
           .setTransformationRequest(requestBuilder.build())
           .setRemoveAudio(bundle.getBoolean(ConfigurationActivity.SHOULD_REMOVE_AUDIO))
