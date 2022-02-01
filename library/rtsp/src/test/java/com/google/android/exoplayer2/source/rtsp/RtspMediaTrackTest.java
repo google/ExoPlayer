@@ -161,7 +161,7 @@ public class RtspMediaTrackTest {
                 .put("indexlength", "3")
                 .put("indexdeltalength", "3")
                 .put("config", "1208")
-                .build());
+                .buildOrThrow());
 
     assertThat(format).isEqualTo(expectedFormat);
   }

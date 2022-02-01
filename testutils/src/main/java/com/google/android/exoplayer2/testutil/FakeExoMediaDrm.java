@@ -552,7 +552,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
         optionalParameters.put(optionalParameterKeys.get(i), optionalParameterValues.get(i));
       }
 
-      this.optionalParameters = optionalParameters.build();
+      this.optionalParameters = optionalParameters.buildOrThrow();
     }
 
     public byte[] toByteArray() {
