@@ -136,6 +136,7 @@ public final class MediaMetricsListener
   private int droppedFrames;
   private int playedFrames;
   private int audioUnderruns;
+  private boolean reportedEventsForCurrentSession;
 
   /**
    * Creates the listener.
@@ -361,6 +362,7 @@ public final class MediaMetricsListener
             .setSubErrorCode(errorInfo.subErrorCode)
             .setException(error)
             .build());
+    reportedEventsForCurrentSession = true;
     pendingPlayerError = null;
   }
 
@@ -431,6 +433,7 @@ public final class MediaMetricsListener
     int newPlaybackState = resolveNewPlaybackState(player);
     if (currentPlaybackState != newPlaybackState) {
       currentPlaybackState = newPlaybackState;
+      reportedEventsForCurrentSession = true;
       playbackSession.reportPlaybackStateEvent(
           new PlaybackStateEvent.Builder()
               .setState(currentPlaybackState)
@@ -563,6 +566,7 @@ public final class MediaMetricsListener
     } else {
       builder.setTrackState(TrackChangeEvent.TRACK_STATE_OFF);
     }
+    reportedEventsForCurrentSession = true;
     playbackSession.reportTrackChangeEvent(builder.build());
   }
 
@@ -588,26 +592,26 @@ public final class MediaMetricsListener
     }
     metricsBuilder.setPlaybackType(
         window.isLive() ? PlaybackMetrics.PLAYBACK_TYPE_LIVE : PlaybackMetrics.PLAYBACK_TYPE_VOD);
+    reportedEventsForCurrentSession = true;
   }
 
   private void finishCurrentSession() {
-    if (metricsBuilder == null) {
-      return;
+    if (metricsBuilder != null && reportedEventsForCurrentSession) {
+      metricsBuilder.setAudioUnderrunCount(audioUnderruns);
+      metricsBuilder.setVideoFramesDropped(droppedFrames);
+      metricsBuilder.setVideoFramesPlayed(playedFrames);
+      @Nullable Long networkTimeMs = bandwidthTimeMs.get(activeSessionId);
+      metricsBuilder.setNetworkTransferDurationMillis(networkTimeMs == null ? 0 : networkTimeMs);
+      // TODO(b/181121847): Report localBytesRead. This requires additional callbacks or plumbing.
+      @Nullable Long networkBytes = bandwidthBytes.get(activeSessionId);
+      metricsBuilder.setNetworkBytesRead(networkBytes == null ? 0 : networkBytes);
+      // TODO(b/181121847): Detect stream sources mixed and local depending on localBytesRead.
+      metricsBuilder.setStreamSource(
+          networkBytes != null && networkBytes > 0
+              ? PlaybackMetrics.STREAM_SOURCE_NETWORK
+              : PlaybackMetrics.STREAM_SOURCE_UNKNOWN);
+      playbackSession.reportPlaybackMetrics(metricsBuilder.build());
     }
-    metricsBuilder.setAudioUnderrunCount(audioUnderruns);
-    metricsBuilder.setVideoFramesDropped(droppedFrames);
-    metricsBuilder.setVideoFramesPlayed(playedFrames);
-    @Nullable Long networkTimeMs = bandwidthTimeMs.get(activeSessionId);
-    metricsBuilder.setNetworkTransferDurationMillis(networkTimeMs == null ? 0 : networkTimeMs);
-    // TODO(b/181121847): Report localBytesRead. This requires additional callbacks or plumbing.
-    @Nullable Long networkBytes = bandwidthBytes.get(activeSessionId);
-    metricsBuilder.setNetworkBytesRead(networkBytes == null ? 0 : networkBytes);
-    // TODO(b/181121847): Detect stream sources mixed and local depending on localBytesRead.
-    metricsBuilder.setStreamSource(
-        networkBytes != null && networkBytes > 0
-            ? PlaybackMetrics.STREAM_SOURCE_NETWORK
-            : PlaybackMetrics.STREAM_SOURCE_UNKNOWN);
-    playbackSession.reportPlaybackMetrics(metricsBuilder.build());
     metricsBuilder = null;
     activeSessionId = null;
     audioUnderruns = 0;
@@ -616,6 +620,7 @@ public final class MediaMetricsListener
     currentVideoFormat = null;
     currentAudioFormat = null;
     currentTextFormat = null;
+    reportedEventsForCurrentSession = false;
   }
 
   private static int getTrackChangeReason(@C.SelectionReason int trackSelectionReason) {
