@@ -22,8 +22,12 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.util.Pair;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -130,6 +134,42 @@ public final class EncoderUtil {
         .clamp(bitrate);
   }
 
+  /** Checks if a {@link MediaCodecInfo codec} is hardware-accelerated. */
+  public static boolean isHardwareAccelerated(MediaCodecInfo encoderInfo, String mimeType) {
+    // TODO(b/214964116): Merge into MediaCodecUtil.
+    if (Util.SDK_INT >= 29) {
+      return Api29.isHardwareAccelerated(encoderInfo);
+    }
+    // codecInfo.isHardwareAccelerated() == !codecInfo.isSoftwareOnly() is not necessarily true.
+    // However, we assume this to be true as an approximation.
+    return !isSoftwareOnly(encoderInfo, mimeType);
+  }
+
+  private static boolean isSoftwareOnly(MediaCodecInfo encoderInfo, String mimeType) {
+    if (Util.SDK_INT >= 29) {
+      return Api29.isSoftwareOnly(encoderInfo);
+    }
+
+    if (MimeTypes.isAudio(mimeType)) {
+      // Assume audio decoders are software only.
+      return true;
+    }
+    String codecName = Ascii.toLowerCase(encoderInfo.getName());
+    if (codecName.startsWith("arc.")) {
+      // App Runtime for Chrome (ARC) codecs
+      return false;
+    }
+
+    // Estimate whether a codec is software-only, to emulate isSoftwareOnly on API < 29.
+    return codecName.startsWith("omx.google.")
+        || codecName.startsWith("omx.ffmpeg.")
+        || (codecName.startsWith("omx.sec.") && codecName.contains(".sw."))
+        || codecName.equals("omx.qcom.video.decoder.hevcswvdec")
+        || codecName.startsWith("c2.android.")
+        || codecName.startsWith("c2.google.")
+        || (!codecName.startsWith("omx.") && !codecName.startsWith("c2."));
+  }
+
   /**
    * Align to the closest resolution that respects the encoder's supported alignment.
    *
@@ -151,6 +191,19 @@ public final class EncoderUtil {
         }
         encoders.add(mediaCodecInfo);
       }
+    }
+  }
+
+  @RequiresApi(29)
+  private static final class Api29 {
+    @DoNotInline
+    public static boolean isHardwareAccelerated(MediaCodecInfo encoderInfo) {
+      return encoderInfo.isHardwareAccelerated();
+    }
+
+    @DoNotInline
+    public static boolean isSoftwareOnly(MediaCodecInfo encoderInfo) {
+      return encoderInfo.isSoftwareOnly();
     }
   }
 

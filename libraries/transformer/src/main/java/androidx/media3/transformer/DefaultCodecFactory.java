@@ -18,7 +18,9 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
+import static java.lang.Math.abs;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
@@ -33,7 +35,9 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -48,6 +52,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final int DEFAULT_FRAME_RATE = 60;
   private static final int DEFAULT_I_FRAME_INTERVAL_SECS = 1;
 
+  @Nullable private final EncoderSelector videoEncoderSelector;
+
+  /** Creates a new instance. */
+  public DefaultCodecFactory(@Nullable EncoderSelector videoEncoderSelector) {
+    this.videoEncoderSelector = videoEncoderSelector;
+  }
+
   @Override
   public Codec createForAudioDecoding(Format format) throws TransformationException {
     MediaFormat mediaFormat =
@@ -60,6 +71,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return createCodec(
         format,
         mediaFormat,
+        /* mediaCodecName= */ null,
         /* isVideo= */ false,
         /* isDecoder= */ true,
         /* outputSurface= */ null);
@@ -83,12 +95,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     return createCodec(
-        format, mediaFormat, /* isVideo= */ true, /* isDecoder= */ true, outputSurface);
+        format,
+        mediaFormat,
+        /* mediaCodecName= */ null,
+        /* isVideo= */ true,
+        /* isDecoder= */ true,
+        outputSurface);
   }
 
   @Override
   public Codec createForAudioEncoding(Format format, List<String> allowedMimeTypes)
       throws TransformationException {
+    // TODO(b/210591626) Add encoder selection for audio.
     checkArgument(!allowedMimeTypes.isEmpty());
     if (!allowedMimeTypes.contains(format.sampleMimeType)) {
       // TODO(b/210591626): Pick fallback MIME type using same strategy as for encoder
@@ -103,6 +121,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return createCodec(
         format,
         mediaFormat,
+        /* mediaCodecName= */ null,
         /* isVideo= */ false,
         /* isDecoder= */ false,
         /* outputSurface= */ null);
@@ -118,11 +137,23 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkArgument(format.height <= format.width);
     checkArgument(format.rotationDegrees == 0);
     checkNotNull(format.sampleMimeType);
-
     checkArgument(!allowedMimeTypes.isEmpty());
+    checkStateNotNull(videoEncoderSelector);
 
-    format = getVideoEncoderSupportedFormat(format, allowedMimeTypes);
+    @Nullable
+    EncoderAndSupportedFormat encoderAndSupportedFormat =
+        findEncoderWithClosestFormatSupport(format, videoEncoderSelector, allowedMimeTypes);
+    if (encoderAndSupportedFormat == null) {
+      throw createTransformationException(
+          new IllegalArgumentException(
+              "No encoder available that supports the requested output format."),
+          format,
+          /* isVideo= */ true,
+          /* isDecoder= */ false,
+          /* mediaCodecName= */ null);
+    }
 
+    format = encoderAndSupportedFormat.supportedFormat;
     MediaFormat mediaFormat =
         MediaFormat.createVideoFormat(
             checkNotNull(format.sampleMimeType), format.width, format.height);
@@ -144,6 +175,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return createCodec(
         format,
         mediaFormat,
+        encoderAndSupportedFormat.encoderInfo.getName(),
         /* isVideo= */ true,
         /* isDecoder= */ false,
         /* outputSurface= */ null);
@@ -153,6 +185,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static Codec createCodec(
       Format format,
       MediaFormat mediaFormat,
+      @Nullable String mediaCodecName,
       boolean isVideo,
       boolean isDecoder,
       @Nullable Surface outputSurface)
@@ -161,9 +194,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     @Nullable Surface inputSurface = null;
     try {
       mediaCodec =
-          isDecoder
-              ? MediaCodec.createDecoderByType(format.sampleMimeType)
-              : MediaCodec.createEncoderByType(format.sampleMimeType);
+          mediaCodecName != null
+              ? MediaCodec.createByCodecName(mediaCodecName)
+              : isDecoder
+                  ? MediaCodec.createDecoderByType(format.sampleMimeType)
+                  : MediaCodec.createEncoderByType(format.sampleMimeType);
       configureCodec(mediaCodec, mediaFormat, isDecoder, outputSurface);
       if (isVideo && !isDecoder) {
         inputSurface = mediaCodec.createInputSurface();
@@ -173,7 +208,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (inputSurface != null) {
         inputSurface.release();
       }
-      @Nullable String mediaCodecName = null;
       if (mediaCodec != null) {
         mediaCodecName = mediaCodec.getName();
         mediaCodec.release();
@@ -203,80 +237,144 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     TraceUtil.endSection();
   }
 
+  /**
+   * Finds the {@link EncoderAndSupportedFormat} whose {@link EncoderAndSupportedFormat#encoderInfo
+   * encoder} supports the {@code requestedFormat} most closely; {@code null} if none is found.
+   */
   @RequiresNonNull("#1.sampleMimeType")
-  private static Format getVideoEncoderSupportedFormat(
-      Format requestedFormat, List<String> allowedMimeTypes) throws TransformationException {
+  @Nullable
+  private static EncoderAndSupportedFormat findEncoderWithClosestFormatSupport(
+      Format requestedFormat, EncoderSelector encoderSelector, List<String> allowedMimeTypes) {
     String mimeType = requestedFormat.sampleMimeType;
-    Format.Builder formatBuilder = requestedFormat.buildUpon();
 
-    // TODO(b/210591626) Implement encoder filtering.
-    if (!allowedMimeTypes.contains(mimeType)
-        || EncoderUtil.getSupportedEncoders(mimeType).isEmpty()) {
+    // TODO(b/210591626) Improve MIME type selection.
+    List<MediaCodecInfo> encodersForMimeType = encoderSelector.selectEncoderInfos(mimeType);
+    if (!allowedMimeTypes.contains(mimeType) || encodersForMimeType.isEmpty()) {
       mimeType =
           allowedMimeTypes.contains(DEFAULT_FALLBACK_MIME_TYPE)
               ? DEFAULT_FALLBACK_MIME_TYPE
               : allowedMimeTypes.get(0);
-      if (EncoderUtil.getSupportedEncoders(mimeType).isEmpty()) {
-        throw createTransformationException(
-            new IllegalArgumentException(
-                "No encoder is found for requested MIME type " + requestedFormat.sampleMimeType),
-            requestedFormat,
-            /* isVideo= */ true,
-            /* isDecoder= */ false,
-            /* mediaCodecName= */ null);
+      encodersForMimeType = encoderSelector.selectEncoderInfos(mimeType);
+      if (encodersForMimeType.isEmpty()) {
+        return null;
       }
     }
 
-    formatBuilder.setSampleMimeType(mimeType);
-    MediaCodecInfo encoderInfo = EncoderUtil.getSupportedEncoders(mimeType).get(0);
-
-    int width = requestedFormat.width;
-    int height = requestedFormat.height;
-    @Nullable
-    Pair<Integer, Integer> encoderSupportedResolution =
-        EncoderUtil.getClosestSupportedResolution(encoderInfo, mimeType, width, height);
-    if (encoderSupportedResolution == null) {
-      throw createTransformationException(
-          new IllegalArgumentException(
-              "Cannot find fallback resolution for resolution " + width + " x " + height),
-          requestedFormat,
-          /* isVideo= */ true,
-          /* isDecoder= */ false,
-          /* mediaCodecName= */ null);
+    String finalMimeType = mimeType;
+    ImmutableList<MediaCodecInfo> filteredEncoders =
+        filterEncoders(
+            encodersForMimeType,
+            /* cost= */ (encoderInfo) -> {
+              @Nullable
+              Pair<Integer, Integer> closestSupportedResolution =
+                  EncoderUtil.getClosestSupportedResolution(
+                      encoderInfo, finalMimeType, requestedFormat.width, requestedFormat.height);
+              if (closestSupportedResolution == null) {
+                // Drops encoder.
+                return Integer.MAX_VALUE;
+              }
+              return abs(
+                  requestedFormat.width * requestedFormat.height
+                      - closestSupportedResolution.first * closestSupportedResolution.second);
+            });
+    if (filteredEncoders.isEmpty()) {
+      return null;
     }
-    width = encoderSupportedResolution.first;
-    height = encoderSupportedResolution.second;
-    formatBuilder.setWidth(width).setHeight(height);
+    // The supported resolution is the same for all remaining encoders.
+    Pair<Integer, Integer> finalResolution =
+        checkNotNull(
+            EncoderUtil.getClosestSupportedResolution(
+                filteredEncoders.get(0),
+                finalMimeType,
+                requestedFormat.width,
+                requestedFormat.height));
 
-    // The frameRate does not affect the resulting frame rate. It affects the encoder's rate control
-    // algorithm. Setting it too high may lead to video quality degradation.
-    float frameRate =
-        requestedFormat.frameRate != Format.NO_VALUE
-            ? requestedFormat.frameRate
-            : DEFAULT_FRAME_RATE;
-    int bitrate =
-        EncoderUtil.getClosestSupportedBitrate(
-            encoderInfo,
-            mimeType,
-            /* bitrate= */ requestedFormat.averageBitrate != Format.NO_VALUE
-                ? requestedFormat.averageBitrate
-                : getSuggestedBitrate(width, height, frameRate));
-    formatBuilder.setFrameRate(frameRate).setAverageBitrate(bitrate);
+    int requestedBitrate =
+        requestedFormat.averageBitrate == Format.NO_VALUE
+            ? getSuggestedBitrate(
+                /* width= */ finalResolution.first,
+                /* height= */ finalResolution.second,
+                requestedFormat.frameRate == Format.NO_VALUE
+                    ? DEFAULT_FRAME_RATE
+                    : requestedFormat.frameRate)
+            : requestedFormat.averageBitrate;
+    filteredEncoders =
+        filterEncoders(
+            filteredEncoders,
+            /* cost= */ (encoderInfo) -> {
+              int achievableBitrate =
+                  EncoderUtil.getClosestSupportedBitrate(
+                      encoderInfo, finalMimeType, requestedBitrate);
+              return abs(achievableBitrate - requestedBitrate);
+            });
+    if (filteredEncoders.isEmpty()) {
+      return null;
+    }
 
+    MediaCodecInfo pickedEncoder = filteredEncoders.get(0);
     @Nullable
     Pair<Integer, Integer> profileLevel = MediaCodecUtil.getCodecProfileAndLevel(requestedFormat);
-    if (profileLevel == null
-        // Transcoding to another MIME type.
-        || !requestedFormat.sampleMimeType.equals(mimeType)
-        || !EncoderUtil.isProfileLevelSupported(
-            encoderInfo,
-            mimeType,
+    @Nullable String codecs = null;
+    if (profileLevel != null
+        && requestedFormat.sampleMimeType.equals(finalMimeType)
+        && EncoderUtil.isProfileLevelSupported(
+            pickedEncoder,
+            finalMimeType,
             /* profile= */ profileLevel.first,
             /* level= */ profileLevel.second)) {
-      formatBuilder.setCodecs(null);
+      codecs = requestedFormat.codecs;
     }
 
-    return formatBuilder.build();
+    Format encoderSupportedFormat =
+        requestedFormat
+            .buildUpon()
+            .setSampleMimeType(finalMimeType)
+            .setCodecs(codecs)
+            .setWidth(finalResolution.first)
+            .setHeight(finalResolution.second)
+            .setFrameRate(
+                requestedFormat.frameRate != Format.NO_VALUE
+                    ? requestedFormat.frameRate
+                    : DEFAULT_FRAME_RATE)
+            .setAverageBitrate(
+                EncoderUtil.getClosestSupportedBitrate(
+                    pickedEncoder, finalMimeType, requestedBitrate))
+            .build();
+    return new EncoderAndSupportedFormat(pickedEncoder, encoderSupportedFormat);
+  }
+
+  private interface EncoderFallbackCost {
+    /**
+     * Returns a cost that represents the gap between the requested encoding parameter(s) and the
+     * {@link MediaCodecInfo encoder}'s support for them.
+     *
+     * <p>The method must return {@link Integer#MAX_VALUE} when the {@link MediaCodecInfo encoder}
+     * does not support the encoding parameters.
+     */
+    int getParameterSupportGap(MediaCodecInfo encoderInfo);
+  }
+
+  private static ImmutableList<MediaCodecInfo> filterEncoders(
+      List<MediaCodecInfo> encoders, EncoderFallbackCost cost) {
+    List<MediaCodecInfo> filteredEncoders = new ArrayList<>(encoders.size());
+
+    int minGap = Integer.MAX_VALUE;
+    for (int i = 0; i < encoders.size(); i++) {
+      MediaCodecInfo encoderInfo = encoders.get(i);
+      int gap = cost.getParameterSupportGap(encoderInfo);
+      if (gap == Integer.MAX_VALUE) {
+        continue;
+      }
+
+      if (gap < minGap) {
+        minGap = gap;
+        filteredEncoders.clear();
+        filteredEncoders.add(encoderInfo);
+      } else if (gap == minGap) {
+        filteredEncoders.add(encoderInfo);
+      }
+    }
+    return ImmutableList.copyOf(filteredEncoders);
   }
 
   /** Computes the video bit rate using the Kush Gauge. */
@@ -314,5 +412,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               : TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
     }
     return TransformationException.createForUnexpected(cause);
+  }
+
+  /**
+   * A class wrapping a selected {@link MediaCodecInfo encoder} and its supported {@link Format}.
+   */
+  private static class EncoderAndSupportedFormat {
+    /** The {@link MediaCodecInfo} that describes the encoder. */
+    public final MediaCodecInfo encoderInfo;
+    /** The {@link Format} that this encoder supports. */
+    public final Format supportedFormat;
+
+    /** Creates a new instance. */
+    public EncoderAndSupportedFormat(MediaCodecInfo encoderInfo, Format supportedFormat) {
+      this.encoderInfo = encoderInfo;
+      this.supportedFormat = supportedFormat;
+    }
   }
 }
