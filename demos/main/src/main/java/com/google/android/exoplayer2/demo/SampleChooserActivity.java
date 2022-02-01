@@ -238,7 +238,7 @@ public class SampleChooserActivity extends AppCompatActivity
     if (!mediaItems.isEmpty()) {
       final MediaItem mediaItem = mediaItems.get(0);
       if (mediaItem.localConfiguration != null && USER_CONTENT.equals(mediaItem.localConfiguration.uri)) {
-        openDocumentLauncher.launch(new String[]{"video/*"});
+        openDocumentLauncher.launch(new String[]{"video/*","audio/*"});
         return true;
       }
     }
