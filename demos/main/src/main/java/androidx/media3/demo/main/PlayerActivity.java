@@ -276,7 +276,7 @@ public class PlayerActivity extends AppCompatActivity
               .build();
       player.setTrackSelectionParameters(trackSelectionParameters);
       player.addListener(new PlayerEventListener());
-      player.addAnalyticsListener(new EventLogger(trackSelector));
+      player.addAnalyticsListener(new EventLogger());
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
