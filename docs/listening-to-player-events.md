@@ -193,12 +193,11 @@ logging purposes. It can be added to an `ExoPlayer` to enable useful
 additional logging with a single line.
 
 ```
-player.addAnalyticsListener(new EventLogger(trackSelector));
+player.addAnalyticsListener(new EventLogger());
 ```
 {: .language-java }
 
-Passing the `trackSelector` enables additional logging, but is optional and so
-`null` can be passed instead. See the [debug logging page][] for more details.
+See the [debug logging page][] for more details.
 
 ## Firing events at specified playback positions ##
 

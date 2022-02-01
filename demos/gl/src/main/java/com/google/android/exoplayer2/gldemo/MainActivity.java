@@ -181,7 +181,7 @@ public final class MainActivity extends Activity {
         Assertions.checkNotNull(this.videoProcessingGLSurfaceView);
     videoProcessingGLSurfaceView.setPlayer(player);
     Assertions.checkNotNull(playerView).setPlayer(player);
-    player.addAnalyticsListener(new EventLogger(/* trackSelector= */ null));
+    player.addAnalyticsListener(new EventLogger());
     this.player = player;
   }
 
