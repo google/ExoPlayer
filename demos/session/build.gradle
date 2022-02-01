@@ -61,9 +61,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation 'com.google.android.material:material:' + androidxMaterialVersion
-    implementation project(modulePrefix + ':lib-exoplayer')
-    implementation project(modulePrefix + ':lib-exoplayer-dash')
-    implementation project(modulePrefix + ':lib-exoplayer-hls')
-    implementation project(modulePrefix + ':lib-ui')
-    implementation project(modulePrefix + ':lib-session')
+    implementation project(modulePrefix + 'lib-exoplayer')
+    implementation project(modulePrefix + 'lib-exoplayer-dash')
+    implementation project(modulePrefix + 'lib-exoplayer-hls')
+    implementation project(modulePrefix + 'lib-ui')
+    implementation project(modulePrefix + 'lib-session')
 }
