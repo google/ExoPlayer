@@ -22,5 +22,6 @@ public class AudioFormatTest {
     Assert.assertEquals(0, audioFormat.getBitsPerSample()); //Not meaningful for AAC
     Assert.assertArrayEquals(CODEC_PRIVATE, audioFormat.getCodecData());
     Assert.assertEquals(MimeTypes.AUDIO_AAC, audioFormat.getMimeType());
+    Assert.assertEquals(20034, audioFormat.getAvgBytesPerSec());
   }
 }

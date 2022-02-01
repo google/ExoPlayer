@@ -39,7 +39,9 @@ public class AudioFormat {
   public int getSamplesPerSecond() {
     return byteBuffer.getInt(4);
   }
-  // 8 - nAvgBytesPerSec(uint)
+  public int getAvgBytesPerSec() {
+    return byteBuffer.getInt(8);
+  }
   // 12 - nBlockAlign
 //  public int getBlockAlign() {
 //    return byteBuffer.getShort(12);

@@ -272,10 +272,13 @@ public class AviExtractor implements Extractor {
       final TrackOutput trackOutput = output.track(streamId, C.TRACK_TYPE_AUDIO);
       final String mimeType = audioFormat.getMimeType();
       builder.setSampleMimeType(mimeType);
-      //builder.setCodecs(audioFormat.getCodec());
       builder.setChannelCount(audioFormat.getChannels());
       builder.setSampleRate(audioFormat.getSamplesPerSecond());
-      if (audioFormat.getFormatTag() == AudioFormat.WAVE_FORMAT_PCM) {
+      final int bytesPerSecond = audioFormat.getAvgBytesPerSec();
+      if (bytesPerSecond != 0) {
+        builder.setAverageBitrate(bytesPerSecond * 8);
+      }
+      if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
         final short bps = audioFormat.getBitsPerSample();
         if (bps == 8) {
           builder.setPcmEncoding(C.ENCODING_PCM_8BIT);
