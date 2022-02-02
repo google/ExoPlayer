@@ -11,6 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// Fragment shader that samples from an external texture with uTexSampler,
+// copying from this texture to the current output.
+
 #extension GL_OES_EGL_image_external : require
 precision mediump float;
 uniform samplerExternalOES uTexSampler;
