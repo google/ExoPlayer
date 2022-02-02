@@ -327,7 +327,10 @@ public final class Cea708Decoder extends CeaDecoder {
     // 8.10.4 for more details.
     boolean cuesNeedUpdate = false;
 
-    while (serviceBlockPacket.bitsLeft() > 0) {
+    // Check we are protocol and buffer boundaries (buffer boundaries should never exceed
+    // protocol defined boundaries, but check to avoid crashes in case block is bad encoded)
+    int endBlockPosition = serviceBlockPacket.getPosition() + (blockSize * 8);
+    while (serviceBlockPacket.bitsLeft() > 0 && serviceBlockPacket.getPosition() < endBlockPosition) {
       int command = serviceBlockPacket.readBits(8);
       if (command != COMMAND_EXT1) {
         if (command <= GROUP_C0_END) {
