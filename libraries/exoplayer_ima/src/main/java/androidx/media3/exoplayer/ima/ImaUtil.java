@@ -23,6 +23,7 @@ import static java.lang.Math.max;
 
 import android.content.Context;
 import android.os.Looper;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.CheckResult;
@@ -355,14 +356,13 @@ import java.util.Set;
 
   /**
    * Splits an {@link AdPlaybackState} into a separate {@link AdPlaybackState} for each period of a
-   * content timeline. Ad group times are expected to not take previous ad duration into account and
-   * needs to be translated to the actual position in the {@code contentTimeline} by adding prior ad
-   * durations.
+   * content timeline.
    *
-   * <p>If a period is enclosed by an ad group, the period is considered an ad period and gets an ad
-   * playback state assigned with a single ad in a single ad group. The duration of the ad is set to
-   * the duration of the period. All other periods are considered content periods with an empty ad
-   * playback state without any ads.
+   * <p>If a period is enclosed by an ad group, the period is considered an ad period. Splitting
+   * results in a separate {@link AdPlaybackState ad playback state} for each period that has either
+   * no ads or a single ad. In the latter case, the duration of the single ad is set to the duration
+   * of the period consuming the entire duration of the period. Accordingly an ad period does not
+   * contribute to the duration of the containing window.
    *
    * @param adPlaybackState The ad playback state to be split.
    * @param contentTimeline The content timeline for each period of which to create an {@link
@@ -398,15 +398,19 @@ import java.util.Set;
       long elapsedAdGroupAdDurationUs = 0;
       for (int j = periodIndex; j < contentTimeline.getPeriodCount(); j++) {
         contentTimeline.getPeriod(j, period, /* setIds= */ true);
-        if (totalElapsedContentDurationUs < adGroup.timeUs) {
+        // TODO(b/192231683) Remove subtracted US from ad group time when we can upgrade the SDK.
+        // Subtract one microsecond to work around rounding errors with adGroup.timeUs.
+        if (totalElapsedContentDurationUs < adGroup.timeUs - 1) {
           // Period starts before the ad group, so it is a content period.
           adPlaybackStates.put(checkNotNull(period.uid), contentOnlyAdPlaybackState);
           totalElapsedContentDurationUs += period.durationUs;
         } else {
           long periodStartUs = totalElapsedContentDurationUs + elapsedAdGroupAdDurationUs;
-          if (periodStartUs + period.durationUs <= adGroup.timeUs + adGroupDurationUs) {
-            // The period ends before the end of the ad group, so it is an ad period (Note: An ad
-            // reported by the IMA SDK may span multiple periods).
+          // TODO(b/192231683) Remove additional US when we can upgrade the SDK.
+          // Add one microsecond to work around rounding errors with adGroup.timeUs.
+          if (periodStartUs + period.durationUs <= adGroup.timeUs + adGroupDurationUs + 1) {
+            // The period ends before the end of the ad group, so it is an ad period (Note: A VOD ad
+            // reported by the IMA SDK spans multiple periods before the LOADED event arrives).
             adPlaybackStates.put(
                 checkNotNull(period.uid),
                 splitAdGroupForPeriod(adsId, adGroup, periodStartUs, period.durationUs));
@@ -430,7 +434,6 @@ import java.util.Set;
 
   private static AdPlaybackState splitAdGroupForPeriod(
       Object adsId, AdPlaybackState.AdGroup adGroup, long periodStartUs, long periodDurationUs) {
-    checkState(adGroup.timeUs <= periodStartUs);
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs...= */ 0)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -463,6 +466,55 @@ import java.util.Set;
       }
     }
     return adPlaybackState;
+  }
+
+  /**
+   * Returns the {@code adGroupIndex} and the {@code adIndexInAdGroup} for the given period index of
+   * an ad period.
+   *
+   * @param adPeriodIndex The period index of the ad period.
+   * @param adPlaybackState The ad playback state that holds the ad group and ad information.
+   * @param timeline The timeline that contains the ad period.
+   * @return A pair with the ad group index (first) and the ad index in that ad group (second).
+   */
+  public static Pair<Integer, Integer> getAdGroupAndIndexInMultiPeriodWindow(
+      int adPeriodIndex, AdPlaybackState adPlaybackState, Timeline timeline) {
+    Timeline.Period period = new Timeline.Period();
+    int periodIndex = 0;
+    long totalElapsedContentDurationUs = 0;
+    for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
+      int adIndexInAdGroup = 0;
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
+      long adGroupDurationUs = sum(adGroup.durationsUs);
+      long elapsedAdGroupAdDurationUs = 0;
+      for (int j = periodIndex; j < timeline.getPeriodCount(); j++) {
+        timeline.getPeriod(j, period, /* setIds= */ true);
+        // TODO(b/192231683) Remove subtracted US from ad group time when we can upgrade the SDK.
+        // Subtract one microsecond to work around rounding errors with adGroup.timeUs.
+        if (totalElapsedContentDurationUs < adGroup.timeUs - 1) {
+          // Period starts before the ad group, so it is a content period.
+          totalElapsedContentDurationUs += period.durationUs;
+        } else {
+          long periodStartUs = totalElapsedContentDurationUs + elapsedAdGroupAdDurationUs;
+          // TODO(b/192231683) Remove additional US when we can upgrade the SDK.
+          // Add one microsecond to work around rounding errors with adGroup.timeUs.
+          if (periodStartUs + period.durationUs <= adGroup.timeUs + adGroupDurationUs + 1) {
+            // The period ends before the end of the ad group, so it is an ad period.
+            if (j == adPeriodIndex) {
+              return new Pair<>(/* adGroupIndex= */ i, adIndexInAdGroup);
+            }
+            elapsedAdGroupAdDurationUs += period.durationUs;
+            adIndexInAdGroup++;
+          } else {
+            // Period is after the current ad group. Continue with next ad group.
+            break;
+          }
+        }
+        // Increment the period index to the next unclassified period.
+        periodIndex++;
+      }
+    }
+    throw new IllegalStateException();
   }
 
   private ImaUtil() {}
