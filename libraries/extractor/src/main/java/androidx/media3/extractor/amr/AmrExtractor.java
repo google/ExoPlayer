@@ -319,7 +319,7 @@ public final class AmrExtractor implements Extractor {
         C.BUFFER_FLAG_KEY_FRAME,
         currentSampleSize,
         /* offset= */ 0,
-        /* encryptionData= */ null);
+        /* cryptoData= */ null);
     currentSampleTimeUs += SAMPLE_TIME_PER_FRAME_US;
     return RESULT_CONTINUE;
   }

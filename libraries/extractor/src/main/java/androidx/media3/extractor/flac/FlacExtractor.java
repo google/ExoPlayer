@@ -416,6 +416,6 @@ public final class FlacExtractor implements Extractor {
             C.BUFFER_FLAG_KEY_FRAME,
             currentFrameBytesWritten,
             /* offset= */ 0,
-            /* encryptionData= */ null);
+            /* cryptoData= */ null);
   }
 }

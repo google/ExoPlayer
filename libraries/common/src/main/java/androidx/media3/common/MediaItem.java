@@ -1839,7 +1839,7 @@ public final class MediaItem implements Bundleable {
     return new MediaItem(
         mediaId,
         clippingConfiguration,
-        /* playbackProperties= */ null,
+        /* localConfiguration= */ null,
         liveConfiguration,
         mediaMetadata);
   }

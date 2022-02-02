@@ -369,7 +369,7 @@ public final class WavExtractor implements Extractor {
         int size = pendingFrames * bytesPerFrame;
         int offset = pendingOutputBytes - size;
         trackOutput.sampleMetadata(
-            timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* encryptionData= */ null);
+            timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* cryptoData= */ null);
         outputFrameCount += pendingFrames;
         pendingOutputBytes = offset;
       }
@@ -548,7 +548,7 @@ public final class WavExtractor implements Extractor {
       int size = numOutputFramesToBytes(sampleFrames);
       int offset = pendingOutputBytes - size;
       trackOutput.sampleMetadata(
-          timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* encryptionData= */ null);
+          timeUs, C.BUFFER_FLAG_KEY_FRAME, size, offset, /* cryptoData= */ null);
       outputFrameCount += sampleFrames;
       pendingOutputBytes -= size;
     }
