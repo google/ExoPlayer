@@ -1,15 +1,31 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.VisibleForTesting;
 import java.nio.ByteBuffer;
 
+/**
+ * Wrapper around the AVIMAINHEADER structure
+ */
 public class AviHeaderBox extends ResidentBox {
   static final int LEN = 0x38;
   static final int AVIF_HASINDEX = 0x10;
   private static final int AVIF_MUSTUSEINDEX = 0x20;
   static final int AVIH = 'a' | ('v' << 8) | ('i' << 16) | ('h' << 24);
-
-  //AVIMAINHEADER
 
   AviHeaderBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);
@@ -39,9 +55,6 @@ public class AviHeaderBox extends ResidentBox {
   }
 
   // 20 - dwInitialFrames
-//  int getInitialFrames() {
-//    return byteBuffer.getInt(20);
-//  }
 
   int getStreams() {
     return byteBuffer.getInt(24);

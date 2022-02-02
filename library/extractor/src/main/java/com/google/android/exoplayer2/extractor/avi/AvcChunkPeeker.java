@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.VisibleForTesting;
@@ -10,11 +25,11 @@ import java.io.IOException;
 
 /**
  * Corrects the time and PAR for H264 streams
- * H264 is very rare in AVI due to the rise of mp4
+ * AVC is very rare in AVI due to the rise of the mp4 container
  */
 public class AvcChunkPeeker extends NalChunkPeeker {
   private static final int NAL_TYPE_MASK = 0x1f;
-  private static final int NAL_TYPE_IRD = 5;
+  private static final int NAL_TYPE_IDR = 5; //I Frame
   private static final int NAL_TYPE_SEI = 6;
   private static final int NAL_TYPE_SPS = 7;
   private static final int NAL_TYPE_PPS = 8;
@@ -108,7 +123,7 @@ public class AvcChunkPeeker extends NalChunkPeeker {
         case 4:
           updatePicCountClock(nalTypeOffset);
           return;
-        case NAL_TYPE_IRD:
+        case NAL_TYPE_IDR:
           picCountClock.syncIndexes();
           return;
         case NAL_TYPE_AUD:

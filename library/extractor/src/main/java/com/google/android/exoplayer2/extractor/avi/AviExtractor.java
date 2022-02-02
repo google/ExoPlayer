@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
@@ -20,11 +35,11 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * Based on the official MicroSoft spec
+ * Extractor based on the official MicroSoft spec
  * https://docs.microsoft.com/en-us/windows/win32/directshow/avi-riff-file-reference
  */
 public class AviExtractor implements Extractor {
-  //Minimum time between keyframes in the SeekMap
+  //Minimum time between keyframes in the AviSeekMap
   static final long MIN_KEY_FRAME_RATE_US = 2_000_000L;
   static final long UINT_MASK = 0xffffffffL;
 
@@ -130,9 +145,7 @@ public class AviExtractor implements Extractor {
   @VisibleForTesting
   AviSeekMap aviSeekMap;
 
-//  private long indexOffset; //Usually chunkStart
-
-  //If partial read
+  //Set if a chunk is only partially read
   private transient AviTrack chunkHandler;
 
   /**
@@ -379,13 +392,7 @@ public class AviExtractor implements Extractor {
             w("Audio is not all key frames chunks=" + aviTrack.chunks + " keyFrames=" +
                 keyFrameCounts[aviTrack.id]);
           }
-        } /* else if (aviTrack.isVideo()) {
-          final LinearClock clock = aviTrack.getClock();
-          if (clock.length != aviTrack.chunks) {
-            w("Video #" + aviTrack.id + " chunks != length changing FPS");
-            clock.setLength(aviTrack.chunks);
-          }
-        }*/
+        }
       }
     }
   }
@@ -447,8 +454,6 @@ public class AviExtractor implements Extractor {
         }
         final int flags = indexByteBuffer.getInt();
         final int offset = indexByteBuffer.getInt();
-        //Skip size
-        //indexByteBuffer.position(indexByteBuffer.position() + 4);
         final int size = indexByteBuffer.getInt();
         if ((flags & AVIIF_KEYFRAME) == AVIIF_KEYFRAME) {
           if (aviTrack.isVideo()) {

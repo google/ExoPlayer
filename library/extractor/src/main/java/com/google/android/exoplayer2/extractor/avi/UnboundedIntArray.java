@@ -1,15 +1,34 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import java.util.Arrays;
 
+/**
+ * Optimized unbounded array of ints.
+ * Used primarily to create Index (SeekMap) data.
+ */
 public class UnboundedIntArray {
   @NonNull
   @VisibleForTesting
   int[] array;
-  //unint
-  private int size =0;
+  //uint
+  private int size = 0;
 
   public UnboundedIntArray() {
     this(8);
@@ -58,8 +77,6 @@ public class UnboundedIntArray {
 
   /**
    * Only works if values are in sequential order
-   * @param v
-   * @return
    */
   public int indexOf(int v) {
     return Arrays.binarySearch(array, v);

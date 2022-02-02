@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.extractor.avi;
 
 import java.nio.ByteBuffer;
 
 /**
- * AVISTREAMHEADER
+ * Wrapper around the AVISTREAMHEADER structure
  */
 public class StreamHeaderBox extends ResidentBox {
   public static final int STRH = 's' | ('t' << 8) | ('r' << 16) | ('h' << 24);
@@ -51,9 +66,6 @@ public class StreamHeaderBox extends ResidentBox {
     return byteBuffer.getInt(24);
   }
   //28 - dwStart - doesn't seem to ever be set
-//  public int getStart() {
-//    return byteBuffer.getInt(28);
-//  }
   public int getLength() {
     return byteBuffer.getInt(32);
   }
@@ -63,11 +75,8 @@ public class StreamHeaderBox extends ResidentBox {
   }
   //40 - dwQuality
   //44 - dwSampleSize
-//  public int getSampleSize() {
-//    return byteBuffer.getInt(44);
-//  }
 
-//  public String toString() {
-//    return "scale=" + getScale() + " rate=" + getRate() + " length=" + getLength() + " us=" + getDurationUs();
-//  }
+  public String toString() {
+    return "scale=" + getScale() + " rate=" + getRate() + " length=" + getLength() + " us=" + getDurationUs();
+  }
 }
