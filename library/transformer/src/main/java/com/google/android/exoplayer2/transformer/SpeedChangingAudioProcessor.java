@@ -68,9 +68,8 @@ import java.nio.ByteBuffer;
       if (isUsingSonic()) {
         sonicAudioProcessor.setSpeed(newSpeed);
         sonicAudioProcessor.setPitch(newSpeed);
-        sonicAudioProcessor.flush();
-        endOfStreamQueuedToSonic = false;
       }
+      flush();
     }
 
     int inputBufferLimit = inputBuffer.limit();
