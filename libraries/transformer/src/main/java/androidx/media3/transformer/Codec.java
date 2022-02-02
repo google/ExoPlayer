@@ -49,7 +49,7 @@ public final class Codec {
   public interface DecoderFactory {
 
     /** A default {@code DecoderFactory} implementation. */
-    DecoderFactory DEFAULT = new DefaultCodecFactory(/* videoEncoderSelector= */ null);
+    DecoderFactory DEFAULT = new DefaultDecoderFactory();
 
     /**
      * Returns a {@link Codec} for audio decoding.
@@ -78,7 +78,7 @@ public final class Codec {
   public interface EncoderFactory {
 
     /** A default {@code EncoderFactory} implementation. */
-    EncoderFactory DEFAULT = new DefaultCodecFactory(EncoderSelector.DEFAULT);
+    EncoderFactory DEFAULT = new DefaultEncoderFactory();
 
     /**
      * Returns a {@link Codec} for audio encoding.
