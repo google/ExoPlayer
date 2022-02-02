@@ -138,7 +138,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
             /* size= */ frameSize,
             /* offset= */ 0,
-            /* encryptionData= */ null);
+            /* cryptoData= */ null);
   }
 
   private void processMultiFramePacket(ParsableByteArray data, int numOfFrames, long sampleTimeUs) {
@@ -157,7 +157,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
               /* size= */ frameInfo.frameSize,
               /* offset= */ 0,
-              /* encryptionData= */ null);
+              /* cryptoData= */ null);
 
       sampleTimeUs += (frameInfo.sampleCount / frameInfo.sampleRate) * C.MICROS_PER_SECOND;
       // Advance the position by the number of bytes read.
@@ -203,7 +203,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
             /* size= */ numBytesPendingMetadataOutput,
             /* offset= */ 0,
-            /* encryptionData= */ null);
+            /* cryptoData= */ null);
     numBytesPendingMetadataOutput = 0;
   }
 
