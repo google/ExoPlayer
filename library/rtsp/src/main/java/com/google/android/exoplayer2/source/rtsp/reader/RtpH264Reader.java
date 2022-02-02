@@ -117,11 +117,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
       long timeUs = toSampleUs(startTimeOffsetUs, timestamp, firstReceivedTimestamp);
       trackOutput.sampleMetadata(
-          timeUs,
-          bufferFlags,
-          fragmentedSampleSizeBytes,
-          /* offset= */ 0,
-          /* encryptionData= */ null);
+          timeUs, bufferFlags, fragmentedSampleSizeBytes, /* offset= */ 0, /* cryptoData= */ null);
       fragmentedSampleSizeBytes = 0;
     }
 

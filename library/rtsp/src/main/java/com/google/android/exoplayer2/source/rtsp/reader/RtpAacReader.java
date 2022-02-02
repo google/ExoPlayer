@@ -151,7 +151,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static void outputSampleMetadata(TrackOutput trackOutput, long sampleTimeUs, int size) {
     trackOutput.sampleMetadata(
-        sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset= */ 0, /* encryptionData= */ null);
+        sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset= */ 0, /* cryptoData= */ null);
   }
 
   /** Returns the correct sample time from RTP timestamp, accounting for the AAC sampling rate. */

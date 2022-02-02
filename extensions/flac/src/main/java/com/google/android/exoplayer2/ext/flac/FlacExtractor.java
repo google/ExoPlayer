@@ -286,7 +286,7 @@ public final class FlacExtractor implements Extractor {
     sampleData.setPosition(0);
     output.sampleData(sampleData, size);
     output.sampleMetadata(
-        timeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset= */ 0, /* encryptionData= */ null);
+        timeUs, C.BUFFER_FLAG_KEY_FRAME, size, /* offset= */ 0, /* cryptoData= */ null);
   }
 
   /** A {@link SeekMap} implementation using a SeekTable within the Flac stream. */
