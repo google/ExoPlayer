@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-/** Muxer implementation that uses a {@link MediaMuxer}. */
+/** {@link Muxer} implementation that uses a {@link MediaMuxer}. */
 /* package */ final class FrameworkMuxer implements Muxer {
 
   // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
@@ -66,6 +66,7 @@ import java.nio.ByteBuffer;
               MimeTypes.VIDEO_WEBM,
               ImmutableList.of(MimeTypes.AUDIO_VORBIS));
 
+  /** {@link Muxer.Factory} for {@link FrameworkMuxer}. */
   public static final class Factory implements Muxer.Factory {
     @Override
     public FrameworkMuxer create(String path, String outputMimeType) throws IOException {
