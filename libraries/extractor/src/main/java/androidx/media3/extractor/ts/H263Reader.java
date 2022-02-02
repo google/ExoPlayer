@@ -475,7 +475,7 @@ public final class H263Reader implements ElementaryStreamReader {
         int size = (int) (position - samplePosition);
         @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
         output.sampleMetadata(
-            sampleTimeUs, flags, size, bytesWrittenPastPosition, /* encryptionData= */ null);
+            sampleTimeUs, flags, size, bytesWrittenPastPosition, /* cryptoData= */ null);
       }
       // Start a new sample, unless this is a 'group of video object plane' in which case we
       // include the data at the start of a 'video object plane' coming next.
