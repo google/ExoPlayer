@@ -72,15 +72,6 @@ public class AviExtractor implements Extractor {
     }
   }
 
-  static int alignPositionHolder(@NonNull ExtractorInput input, @NonNull PositionHolder seekPosition) {
-    final long position = input.getPosition();
-    if ((position & 1) == 1) {
-      seekPosition.position = position + 1;
-      return RESULT_SEEK;
-    }
-    return RESULT_CONTINUE;
-  }
-
   @NonNull
   static ByteBuffer allocate(int bytes) {
     final byte[] buffer = new byte[bytes];
@@ -503,46 +494,55 @@ public class AviExtractor implements Extractor {
     return null;
   }
 
-  int readSamples(@NonNull ExtractorInput input, @NonNull PositionHolder seekPosition) throws IOException {
+  int readSamples(@NonNull ExtractorInput input) throws IOException {
     if (chunkHandler != null) {
       if (chunkHandler.resume(input)) {
         chunkHandler = null;
-        return alignPositionHolder(input, seekPosition);
+        alignInput(input);
       }
     } else {
-      ByteBuffer byteBuffer = allocate(8);
+      final int toRead = 8;
+      ByteBuffer byteBuffer = allocate(toRead);
       final byte[] bytes = byteBuffer.array();
       alignInput(input);
-      input.readFully(bytes, 0, 1);
+      input.readFully(bytes, 0, toRead);
+      //This is super inefficient, but should be rare
       while (bytes[0] == 0) {
-        input.readFully(bytes, 0, 1);
+        for (int i=1;i<toRead;i++) {
+          bytes[i - 1] = bytes[i];
+        }
+        int read = input.read(bytes, toRead - 1, 1);
+        if (read == C.RESULT_END_OF_INPUT) {
+          return RESULT_END_OF_INPUT;
+        }
       }
-      if (input.getPosition() >= moviEnd) {
-        return RESULT_END_OF_INPUT;
-      }
-      input.readFully(bytes, 1, 7);
       final int chunkId = byteBuffer.getInt();
       if (chunkId == ListBox.LIST) {
-        seekPosition.position = input.getPosition() + 8;
-        return RESULT_SEEK;
+        input.skipFully(8);
+        return RESULT_CONTINUE;
       }
       final int size = byteBuffer.getInt();
       if (chunkId == JUNK) {
-        seekPosition.position = alignPosition(input.getPosition() + size);
-        return RESULT_SEEK;
+        input.skipFully(size);
+        alignInput(input);
+        return RESULT_CONTINUE;
       }
       final AviTrack aviTrack = getAviTrack(chunkId);
       if (aviTrack == null) {
-        seekPosition.position = alignPosition(input.getPosition() + size);
+        input.skipFully(size);
+        alignInput(input);
         w("Unknown tag=" + toString(chunkId) + " pos=" + (input.getPosition() - 8)
             + " size=" + size + " moviEnd=" + moviEnd);
-        return RESULT_SEEK;
+        return RESULT_CONTINUE;
       }
       if (aviTrack.newChunk(chunkId, size, input)) {
-        return alignPositionHolder(input, seekPosition);
+        alignInput(input);
       } else {
         chunkHandler = aviTrack;
       }
+    }
+    if (input.getPosition() == input.getLength()) {
+      return C.RESULT_END_OF_INPUT;
     }
     return RESULT_CONTINUE;
   }
@@ -551,7 +551,7 @@ public class AviExtractor implements Extractor {
   public int read(@NonNull ExtractorInput input, @NonNull PositionHolder seekPosition) throws IOException {
     switch (state) {
       case STATE_READ_SAMPLES:
-        return readSamples(input, seekPosition);
+        return readSamples(input);
       case STATE_SEEK_START:
         state = STATE_READ_SAMPLES;
         seekPosition.position = moviOffset + 4;

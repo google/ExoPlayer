@@ -304,28 +304,6 @@ public class AviExtractorTest {
   }
 
   @Test
-  public void alignPositionHolder_givenOddPosition() {
-    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
-        setData(new byte[4]).build();
-    fakeExtractorInput.setPosition(1);
-    final PositionHolder positionHolder = new PositionHolder();
-    final int result = AviExtractor.alignPositionHolder(fakeExtractorInput, positionHolder);
-    Assert.assertEquals(Extractor.RESULT_SEEK, result);
-    Assert.assertEquals(2, positionHolder.position);
-  }
-
-  @Test
-  public void alignPositionHolder_givenEvenPosition() {
-
-    final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
-        setData(new byte[4]).build();
-    fakeExtractorInput.setPosition(2);
-    final PositionHolder positionHolder = new PositionHolder();
-    final int result = AviExtractor.alignPositionHolder(fakeExtractorInput, positionHolder);
-    Assert.assertEquals(Extractor.RESULT_CONTINUE, result);
-  }
-
-  @Test
   public void readHeaderList_givenBadHeader() throws IOException {
     final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(new byte[32]).build();
     Assert.assertNull(AviExtractor.readHeaderList(input));
@@ -405,7 +383,7 @@ public class AviExtractorTest {
     Assert.assertEquals(64 * 1024 + 8, positionHolder.position);
   }
 
-  private AviExtractor setupVideoAviExtractor() {
+  static AviExtractor setupVideoAviExtractor() {
     final AviExtractor aviExtractor = new AviExtractor();
     aviExtractor.setAviHeader(DataHelper.createAviHeaderBox());
     final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
@@ -444,31 +422,27 @@ public class AviExtractorTest {
 
     final ExtractorInput input = new FakeExtractorInput.Builder().setData(byteBuffer.array())
         .build();
-    Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(input, new PositionHolder()));
+    Assert.assertEquals(Extractor.RESULT_END_OF_INPUT, aviExtractor.read(input, new PositionHolder()));
 
     final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) aviTrack.trackOutput;
     Assert.assertEquals(24, fakeTrackOutput.getSampleData(0).length);
   }
 
   @Test
-  public void readSamples_fragmentedChunk() throws IOException {
+  public void readSamples_givenLeadingZeros() throws IOException {
     AviExtractor aviExtractor = setupVideoAviExtractor();
     final AviTrack aviTrack = aviExtractor.getVideoTrack();
-    final int size = 24 + 16;
-    final ByteBuffer byteBuffer = AviExtractor.allocate(32);
+    final ByteBuffer byteBuffer = AviExtractor.allocate(48);
+    byteBuffer.position(16);
     byteBuffer.putInt(aviTrack.chunkId);
-    byteBuffer.putInt(size);
+    byteBuffer.putInt(24);
 
-    final ExtractorInput chunk0 = new FakeExtractorInput.Builder().setData(byteBuffer.array())
+    final ExtractorInput input = new FakeExtractorInput.Builder().setData(byteBuffer.array())
         .build();
-    Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(chunk0, new PositionHolder()));
-
-    final ExtractorInput chunk1 = new FakeExtractorInput.Builder().setData(new byte[16])
-        .build();
-    Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(chunk1, new PositionHolder()));
+    Assert.assertEquals(Extractor.RESULT_END_OF_INPUT, aviExtractor.read(input, new PositionHolder()));
 
     final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) aviTrack.trackOutput;
-    Assert.assertEquals(size, fakeTrackOutput.getSampleData(0).length);
+    Assert.assertEquals(24, fakeTrackOutput.getSampleData(0).length);
   }
 
   @Test

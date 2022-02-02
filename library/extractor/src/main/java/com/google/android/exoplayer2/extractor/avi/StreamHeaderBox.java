@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.avi;
 
+import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 
 /**
@@ -46,7 +47,7 @@ public class StreamHeaderBox extends ResidentBox {
   }
 
   public long getDurationUs() {
-    return 1_000_000L * getScale() * getLength() / getRate();
+    return C.MICROS_PER_SECOND * getScale() * getLength() / getRate();
   }
 
   public int getSteamType() {
