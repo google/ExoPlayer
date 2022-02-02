@@ -12,6 +12,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// ES 3 vertex shader that applies the 4 * 4 transformation matrix
+// uTransformationMatrix.
+
 in vec4 aFramePosition;
 in vec4 aTexCoords;
 uniform mat4 uTexTransform;
