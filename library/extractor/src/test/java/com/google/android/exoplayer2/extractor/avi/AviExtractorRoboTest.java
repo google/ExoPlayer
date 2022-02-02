@@ -112,4 +112,22 @@ public class AviExtractorRoboTest {
     Assert.assertEquals(aviTrack.getClock().durationUs, streamHeaderBox.getDurationUs());
   }
 
+  @Test
+  public void readSamples_fragmentedChunk() throws IOException {
+    AviExtractor aviExtractor = AviExtractorTest.setupVideoAviExtractor();
+    final AviTrack aviTrack = aviExtractor.getVideoTrack();
+    final int size = 24 + 16;
+    final ByteBuffer byteBuffer = AviExtractor.allocate(size + 8);
+    byteBuffer.putInt(aviTrack.chunkId);
+    byteBuffer.putInt(size);
+
+    final ExtractorInput chunk = new FakeExtractorInput.Builder().setData(byteBuffer.array()).
+        setSimulatePartialReads(true).build();
+    Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(chunk, new PositionHolder()));
+
+    Assert.assertEquals(Extractor.RESULT_END_OF_INPUT, aviExtractor.read(chunk, new PositionHolder()));
+
+    final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) aviTrack.trackOutput;
+    Assert.assertEquals(size, fakeTrackOutput.getSampleData(0).length);
+  }
 }

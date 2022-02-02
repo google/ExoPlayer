@@ -38,5 +38,6 @@ public class StreamHeaderBoxTest {
     Assert.assertEquals(FPS24, streamHeaderBox.getFrameRate(), 0.1);
     Assert.assertEquals(9 * DataHelper.FPS, streamHeaderBox.getLength());
     Assert.assertEquals(128 * 1024, streamHeaderBox.getSuggestedBufferSize());
+    Assert.assertTrue(streamHeaderBox.toString().startsWith("scale=" + streamHeaderBox.getScale()));
   }
 }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.avi;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class AviSeekMapTest {
     final AviTrack[] aviTracks = new AviTrack[]{DataHelper.getVideoAviTrack(secs),
         DataHelper.getAudioAviTrack(secs)};
 
-    aviSeekMap.setFrames(position, 1_000_000L, aviTracks);
+    aviSeekMap.setFrames(position, C.MICROS_PER_SECOND, aviTracks);
     for (int i=0;i<aviTracks.length;i++) {
       Assert.assertEquals(aviSeekMap.seekIndexes[i][1], aviTracks[i].getClock().getIndex());
     }
@@ -41,7 +42,7 @@ public class AviSeekMapTest {
     final AviTrack[] aviTracks = new AviTrack[2];
 
     try {
-      aviSeekMap.setFrames(1L, 1_000_000L, aviTracks);
+      aviSeekMap.setFrames(1L, C.MICROS_PER_SECOND, aviTracks);
       Assert.fail();
     } catch (IllegalArgumentException e) {
       //Intentionally blank
