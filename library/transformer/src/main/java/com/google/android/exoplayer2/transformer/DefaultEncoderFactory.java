@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.transformer.CodecFactoryUtil.createC
 import static com.google.android.exoplayer2.transformer.CodecFactoryUtil.createTransformationException;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static java.lang.Math.abs;
@@ -39,8 +40,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /** A default implementation of {@link Codec.EncoderFactory}. */
 public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   // TODO(b/214973843): Add option to disable fallback.
-  // TODO(b/210591626): Fall back adaptively to H265 if possible.
-  private static final String DEFAULT_FALLBACK_MIME_TYPE = MimeTypes.VIDEO_H264;
   private static final int DEFAULT_COLOR_FORMAT =
       MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
   private static final int DEFAULT_FRAME_RATE = 60;
@@ -145,22 +144,15 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   @Nullable
   private static Pair<MediaCodecInfo, Format> findEncoderWithClosestFormatSupport(
       Format requestedFormat, EncoderSelector encoderSelector, List<String> allowedMimeTypes) {
-    String mimeType = requestedFormat.sampleMimeType;
-
-    // TODO(b/210591626) Improve MIME type selection.
-    List<MediaCodecInfo> encodersForMimeType = encoderSelector.selectEncoderInfos(mimeType);
-    if (!allowedMimeTypes.contains(mimeType) || encodersForMimeType.isEmpty()) {
-      mimeType =
-          allowedMimeTypes.contains(DEFAULT_FALLBACK_MIME_TYPE)
-              ? DEFAULT_FALLBACK_MIME_TYPE
-              : allowedMimeTypes.get(0);
-      encodersForMimeType = encoderSelector.selectEncoderInfos(mimeType);
-      if (encodersForMimeType.isEmpty()) {
-        return null;
-      }
+    @Nullable
+    String mimeType =
+        findFallbackMimeType(encoderSelector, requestedFormat.sampleMimeType, allowedMimeTypes);
+    if (mimeType == null) {
+      return null;
     }
 
-    String finalMimeType = mimeType;
+    List<MediaCodecInfo> encodersForMimeType = encoderSelector.selectEncoderInfos(mimeType);
+    checkState(!encodersForMimeType.isEmpty());
     ImmutableList<MediaCodecInfo> filteredEncoders =
         filterEncoders(
             encodersForMimeType,
@@ -168,7 +160,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
               @Nullable
               Pair<Integer, Integer> closestSupportedResolution =
                   EncoderUtil.getClosestSupportedResolution(
-                      encoderInfo, finalMimeType, requestedFormat.width, requestedFormat.height);
+                      encoderInfo, mimeType, requestedFormat.width, requestedFormat.height);
               if (closestSupportedResolution == null) {
                 // Drops encoder.
                 return Integer.MAX_VALUE;
@@ -184,10 +176,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     Pair<Integer, Integer> finalResolution =
         checkNotNull(
             EncoderUtil.getClosestSupportedResolution(
-                filteredEncoders.get(0),
-                finalMimeType,
-                requestedFormat.width,
-                requestedFormat.height));
+                filteredEncoders.get(0), mimeType, requestedFormat.width, requestedFormat.height));
 
     int requestedBitrate =
         requestedFormat.averageBitrate == Format.NO_VALUE
@@ -203,8 +192,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             filteredEncoders,
             /* cost= */ (encoderInfo) -> {
               int achievableBitrate =
-                  EncoderUtil.getClosestSupportedBitrate(
-                      encoderInfo, finalMimeType, requestedBitrate);
+                  EncoderUtil.getClosestSupportedBitrate(encoderInfo, mimeType, requestedBitrate);
               return abs(achievableBitrate - requestedBitrate);
             });
     if (filteredEncoders.isEmpty()) {
@@ -216,10 +204,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     Pair<Integer, Integer> profileLevel = MediaCodecUtil.getCodecProfileAndLevel(requestedFormat);
     @Nullable String codecs = null;
     if (profileLevel != null
-        && requestedFormat.sampleMimeType.equals(finalMimeType)
+        && requestedFormat.sampleMimeType.equals(mimeType)
         && EncoderUtil.isProfileLevelSupported(
             pickedEncoder,
-            finalMimeType,
+            mimeType,
             /* profile= */ profileLevel.first,
             /* level= */ profileLevel.second)) {
       codecs = requestedFormat.codecs;
@@ -228,7 +216,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     Format encoderSupportedFormat =
         requestedFormat
             .buildUpon()
-            .setSampleMimeType(finalMimeType)
+            .setSampleMimeType(mimeType)
             .setCodecs(codecs)
             .setWidth(finalResolution.first)
             .setHeight(finalResolution.second)
@@ -237,8 +225,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
                     ? requestedFormat.frameRate
                     : DEFAULT_FRAME_RATE)
             .setAverageBitrate(
-                EncoderUtil.getClosestSupportedBitrate(
-                    pickedEncoder, finalMimeType, requestedBitrate))
+                EncoderUtil.getClosestSupportedBitrate(pickedEncoder, mimeType, requestedBitrate))
             .build();
     return Pair.create(pickedEncoder, encoderSupportedFormat);
   }
@@ -275,6 +262,32 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       }
     }
     return ImmutableList.copyOf(filteredEncoders);
+  }
+
+  @Nullable
+  private static String findFallbackMimeType(
+      EncoderSelector encoderSelector, String requestedMimeType, List<String> allowedMimeTypes) {
+    if (mimeTypeIsSupported(encoderSelector, requestedMimeType, allowedMimeTypes)) {
+      return requestedMimeType;
+    } else if (mimeTypeIsSupported(encoderSelector, MimeTypes.VIDEO_H265, allowedMimeTypes)) {
+      return MimeTypes.VIDEO_H265;
+    } else if (mimeTypeIsSupported(encoderSelector, MimeTypes.VIDEO_H264, allowedMimeTypes)) {
+      return MimeTypes.VIDEO_H264;
+    } else {
+      for (int i = 0; i < allowedMimeTypes.size(); i++) {
+        String allowedMimeType = allowedMimeTypes.get(i);
+        if (mimeTypeIsSupported(encoderSelector, allowedMimeType, allowedMimeTypes)) {
+          return allowedMimeType;
+        }
+      }
+    }
+    return null;
+  }
+
+  private static boolean mimeTypeIsSupported(
+      EncoderSelector encoderSelector, String mimeType, List<String> allowedMimeTypes) {
+    return !encoderSelector.selectEncoderInfos(mimeType).isEmpty()
+        && allowedMimeTypes.contains(mimeType);
   }
 
   /** Computes the video bit rate using the Kush Gauge. */
