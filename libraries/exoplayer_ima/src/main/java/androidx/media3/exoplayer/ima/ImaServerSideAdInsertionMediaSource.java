@@ -17,10 +17,12 @@ package androidx.media3.exoplayer.ima;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.common.util.Util.secToUs;
 import static androidx.media3.common.util.Util.sum;
 import static androidx.media3.common.util.Util.usToMs;
 import static androidx.media3.exoplayer.ima.ImaUtil.expandAdGroupPlaceholder;
+import static androidx.media3.exoplayer.ima.ImaUtil.getAdGroupAndIndexInMultiPeriodWindow;
 import static androidx.media3.exoplayer.ima.ImaUtil.splitAdPlaybackStateForPeriods;
 import static androidx.media3.exoplayer.ima.ImaUtil.updateAdDurationAndPropagate;
 import static androidx.media3.exoplayer.ima.ImaUtil.updateAdDurationInAdGroup;
@@ -30,6 +32,7 @@ import static java.lang.Math.min;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.Pair;
 import android.view.ViewGroup;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
@@ -620,18 +623,26 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         return;
       }
 
-      if (oldPosition.adGroupIndex != C.INDEX_UNSET && newPosition.adGroupIndex == C.INDEX_UNSET) {
-        AdPlaybackState newAdPlaybackState = adPlaybackState;
-        for (int i = 0; i <= oldPosition.adIndexInAdGroup; i++) {
-          int state = newAdPlaybackState.getAdGroup(oldPosition.adGroupIndex).states[i];
-          if (state != AdPlaybackState.AD_STATE_SKIPPED
-              && state != AdPlaybackState.AD_STATE_ERROR) {
-            newAdPlaybackState =
-                newAdPlaybackState.withPlayedAd(
-                    oldPosition.adGroupIndex, /* adIndexInAdGroup= */ i);
-          }
+      if (oldPosition.adGroupIndex != C.INDEX_UNSET) {
+        int adGroupIndex = oldPosition.adGroupIndex;
+        int adIndexInAdGroup = oldPosition.adIndexInAdGroup;
+        Timeline timeline = player.getCurrentTimeline();
+        Timeline.Window window =
+            timeline.getWindow(oldPosition.mediaItemIndex, new Timeline.Window());
+        if (window.lastPeriodIndex > window.firstPeriodIndex) {
+          // Map adGroupIndex and adIndexInAdGroup to multi-period window.
+          Pair<Integer, Integer> adGroupIndexAndAdIndexInAdGroup =
+              getAdGroupAndIndexInMultiPeriodWindow(
+                  oldPosition.periodIndex, adPlaybackState, timeline);
+          adGroupIndex = adGroupIndexAndAdIndexInAdGroup.first;
+          adIndexInAdGroup = adGroupIndexAndAdIndexInAdGroup.second;
         }
-        setAdPlaybackState(newAdPlaybackState);
+        int adState = adPlaybackState.getAdGroup(adGroupIndex).states[adIndexInAdGroup];
+        if (adState == AdPlaybackState.AD_STATE_AVAILABLE
+            || adState == AdPlaybackState.AD_STATE_UNAVAILABLE) {
+          setAdPlaybackState(
+              adPlaybackState.withPlayedAd(adGroupIndex, /* adIndexInAdGroup= */ adIndexInAdGroup));
+        }
       }
     }
 
@@ -700,8 +711,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
             long positionInWindowUs =
                 timeline.getPeriod(player.getCurrentPeriodIndex(), new Timeline.Period())
                     .positionInWindowUs;
-            long currentPeriodPosition =
-                Util.msToUs(player.getCurrentPosition()) - positionInWindowUs;
+            long currentPeriodPosition = msToUs(player.getCurrentPosition()) - positionInWindowUs;
             newAdPlaybackState =
                 addLiveAdBreak(
                     event.getAd(),
