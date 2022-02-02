@@ -50,7 +50,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
   /** Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}. */
   public DefaultEncoderFactory() {
-    this.videoEncoderSelector = EncoderSelector.DEFAULT;
+    this(EncoderSelector.DEFAULT);
   }
 
   /** Creates a new instance. */
