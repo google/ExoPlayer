@@ -104,7 +104,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private final DataSource.Factory dataSourceFactory;
   private final DelegateFactoryLoader delegateFactoryLoader;
 
-  @Nullable private final MediaSource.Factory serverSideDaiMediaSourceFactory;
+  @Nullable private MediaSource.Factory imaServerSideAdInsertionMediaSourceFactory;
   @Nullable private AdsLoader.Provider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -132,10 +132,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     its container.
    */
   public DefaultMediaSourceFactory(Context context, ExtractorsFactory extractorsFactory) {
-    this(
-        new DefaultDataSource.Factory(context),
-        extractorsFactory,
-        /* serverSideDaiMediaSourceFactory= */ null);
+    this(new DefaultDataSource.Factory(context), extractorsFactory);
   }
 
   /**
@@ -145,10 +142,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     for requesting media data.
    */
   public DefaultMediaSourceFactory(DataSource.Factory dataSourceFactory) {
-    this(
-        dataSourceFactory,
-        new DefaultExtractorsFactory(),
-        /* serverSideDaiMediaSourceFactory= */ null);
+    this(dataSourceFactory, new DefaultExtractorsFactory());
   }
 
   /**
@@ -158,17 +152,10 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     for requesting media data.
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
    *     its container.
-   * @param serverSideDaiMediaSourceFactory A {@link MediaSource.Factory} for creating server side
-   *     inserted ad media sources.
    */
   public DefaultMediaSourceFactory(
-      DataSource.Factory dataSourceFactory,
-      ExtractorsFactory extractorsFactory,
-      @Nullable MediaSource.Factory serverSideDaiMediaSourceFactory) {
+      DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    // Temporary until factory registration is agreed upon.
-    this.serverSideDaiMediaSourceFactory = serverSideDaiMediaSourceFactory;
-
     delegateFactoryLoader = new DelegateFactoryLoader(dataSourceFactory, extractorsFactory);
     liveTargetOffsetMs = C.TIME_UNSET;
     liveMinOffsetMs = C.TIME_UNSET;
@@ -215,6 +202,25 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public DefaultMediaSourceFactory setAdViewProvider(@Nullable AdViewProvider adViewProvider) {
     this.adViewProvider = adViewProvider;
+    return this;
+  }
+
+  /**
+   * Sets the {@link MediaSource.Factory} used to handle {@link MediaItem} instances containing <a
+   * href="https://support.google.com/admanager/answer/6147120">IMA Dynamic Ad Insertion URIs</a>.
+   *
+   * <p>In most cases this will be an {@code ImaServerSideAdInsertionMediaSource.Factory} from the
+   * IMA extension.
+   *
+   * <p>IMA DAI URIs are those with a scheme of {@code "imadai"}.
+   *
+   * @param imaServerSideAdInsertionMediaSourceFactory The {@link MediaSource.Factory} for IMA DAI
+   *     content, or {@code null} to remove a previously set {@link MediaSource.Factory}.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setImaServerSideAdInsertionMediaSourceFactory(
+      @Nullable MediaSource.Factory imaServerSideAdInsertionMediaSourceFactory) {
+    this.imaServerSideAdInsertionMediaSourceFactory = imaServerSideAdInsertionMediaSourceFactory;
     return this;
   }
 
@@ -303,7 +309,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     Assertions.checkNotNull(mediaItem.localConfiguration);
     @Nullable String scheme = mediaItem.localConfiguration.uri.getScheme();
     if (scheme != null && scheme.equals("imadai")) {
-      return checkNotNull(serverSideDaiMediaSourceFactory).createMediaSource(mediaItem);
+      return checkNotNull(imaServerSideAdInsertionMediaSourceFactory).createMediaSource(mediaItem);
     }
     @C.ContentType
     int type =
