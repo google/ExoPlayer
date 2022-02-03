@@ -389,6 +389,7 @@ public interface ExoPlayer extends Player {
     /* package */ long releaseTimeoutMs;
     /* package */ long detachSurfaceTimeoutMs;
     /* package */ boolean pauseAtEndOfMediaItems;
+    /* package */ boolean usePlatformDiagnostics;
     /* package */ boolean buildCalled;
 
     /**
@@ -429,6 +430,7 @@ public interface ExoPlayer extends Player {
      *   <li>{@code releaseTimeoutMs}: {@link #DEFAULT_RELEASE_TIMEOUT_MS}
      *   <li>{@code detachSurfaceTimeoutMs}: {@link #DEFAULT_DETACH_SURFACE_TIMEOUT_MS}
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
+     *   <li>{@code usePlatformDiagnostics}: {@code true}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
@@ -577,6 +579,7 @@ public interface ExoPlayer extends Player {
       clock = Clock.DEFAULT;
       releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
       detachSurfaceTimeoutMs = DEFAULT_DETACH_SURFACE_TIMEOUT_MS;
+      usePlatformDiagnostics = true;
     }
 
     /**
@@ -934,6 +937,27 @@ public interface ExoPlayer extends Player {
     public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
       checkState(!buildCalled);
       this.livePlaybackSpeedControl = livePlaybackSpeedControl;
+      return this;
+    }
+
+    /**
+     * Sets whether the player reports diagnostics data to the Android platform.
+     *
+     * <p>If enabled, the player will use the {@link android.media.metrics.MediaMetricsManager} to
+     * create a {@link android.media.metrics.PlaybackSession} and forward playback events and
+     * performance data to this session. This helps to provide system performance and debugging
+     * information for media playback on the device. This data may also be collected by Google <a
+     * href="https://support.google.com/accounts/answer/6078260">if sharing usage and diagnostics
+     * data is enabled</a> by the user of the device.
+     *
+     * @param usePlatformDiagnostics Whether the player reports diagnostics data to the Android
+     *     platform.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setUsePlatformDiagnostics(boolean usePlatformDiagnostics) {
+      checkState(!buildCalled);
+      this.usePlatformDiagnostics = usePlatformDiagnostics;
       return this;
     }
 
