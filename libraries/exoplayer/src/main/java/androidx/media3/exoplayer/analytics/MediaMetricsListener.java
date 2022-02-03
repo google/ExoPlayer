@@ -239,6 +239,11 @@ public final class MediaMetricsListener
 
   @Override
   public void onDownstreamFormatChanged(EventTime eventTime, MediaLoadData mediaLoadData) {
+    if (eventTime.mediaPeriodId == null) {
+      // This event arrived after the media has been removed from the playlist or a custom
+      // MediaSource forgot to set the right id. Ignore the track change in these cases.
+      return;
+    }
     PendingFormatUpdate update =
         new PendingFormatUpdate(
             checkNotNull(mediaLoadData.trackFormat),
