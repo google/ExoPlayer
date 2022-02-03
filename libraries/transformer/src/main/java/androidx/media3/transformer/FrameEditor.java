@@ -31,6 +31,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +87,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     EGLContext eglContext;
     EGLSurface eglSurface;
     int textureId;
-    GlUtil.Program glProgram;
+    GlProgram glProgram;
     @Nullable EGLSurface debugPreviewEglSurface = null;
     try {
       eglDisplay = GlUtil.createEglDisplay();
@@ -141,7 +142,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         debugPreviewHeight);
   }
 
-  private static GlUtil.Program configureGlProgram(
+  private static GlProgram configureGlProgram(
       Context context,
       Matrix transformationMatrix,
       int textureId,
@@ -157,8 +158,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         enableExperimentalHdrEditing
             ? FRAGMENT_SHADER_COPY_EXTERNAL_YUV_ES3_PATH
             : FRAGMENT_SHADER_COPY_EXTERNAL_PATH;
-    GlUtil.Program glProgram =
-        new GlUtil.Program(context, vertexShaderFilePath, fragmentShaderFilePath);
+    GlProgram glProgram = new GlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
 
     // Draw the frame on the entire normalized device coordinate space, from -1 to 1, for x and y.
     glProgram.setBufferAttribute(
@@ -242,7 +242,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final AtomicInteger availableInputFrameCount;
   private final SurfaceTexture inputSurfaceTexture;
   private final Surface inputSurface;
-  private final GlUtil.Program glProgram;
+  private final GlProgram glProgram;
   private final int outputWidth;
   private final int outputHeight;
   @Nullable private final EGLSurface debugPreviewEglSurface;
@@ -256,7 +256,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       EGLContext eglContext,
       EGLSurface eglSurface,
       int textureId,
-      GlUtil.Program glProgram,
+      GlProgram glProgram,
       int outputWidth,
       int outputHeight,
       @Nullable EGLSurface debugPreviewEglSurface,

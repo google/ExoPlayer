@@ -23,6 +23,7 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.VideoDecoderOutputBuffer;
@@ -146,7 +147,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     // glDrawArrays uses it.
     private final FloatBuffer[] textureCoords;
 
-    private GlUtil.@MonotonicNonNull Program program;
+    private @MonotonicNonNull GlProgram program;
     private int colorMatrixLocation;
 
     // Accessed only from the GL thread.
@@ -167,7 +168,7 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-      program = new GlUtil.Program(VERTEX_SHADER, FRAGMENT_SHADER);
+      program = new GlProgram(VERTEX_SHADER, FRAGMENT_SHADER);
       int posLocation = program.getAttributeArrayLocationAndEnable("in_pos");
       GLES20.glVertexAttribPointer(
           posLocation,
