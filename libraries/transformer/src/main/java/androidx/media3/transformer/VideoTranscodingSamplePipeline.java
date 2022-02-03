@@ -30,7 +30,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
@@ -42,10 +41,10 @@ import org.checkerframework.dataflow.qual.Pure;
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
 
+  @Nullable private final FrameEditor frameEditor;
+
   private final Codec encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
-
-  private @MonotonicNonNull FrameEditor frameEditor;
 
   private boolean waitingForFrameEditorInput;
 
@@ -139,6 +138,8 @@ import org.checkerframework.dataflow.qual.Pure;
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
               transformationRequest.enableHdrEditing,
               debugViewProvider);
+    } else {
+      frameEditor = null;
     }
 
     decoder =
