@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -29,7 +30,6 @@ import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -46,7 +46,7 @@ public final class SessionCommand implements Bundleable {
   /** Command codes of session commands. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef({
     COMMAND_CODE_CUSTOM,
     COMMAND_CODE_SESSION_SET_MEDIA_URI,

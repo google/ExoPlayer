@@ -16,10 +16,6 @@
 package androidx.media3.exoplayer.audio;
 
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -52,7 +48,7 @@ import java.util.concurrent.Executor;
   /** Level of support for audio spatialization. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef({
     SPATIALIZER_IMMERSIVE_LEVEL_MULTICHANNEL,
     SPATIALIZER_IMMERSIVE_LEVEL_NONE,
