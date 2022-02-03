@@ -89,8 +89,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A view for controlling {@link Player} instances.
  *
  * <p>A StyledPlayerControlView can be customized by setting attributes (or calling corresponding
- * methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
- * layout file.
+ * methods), or overriding drawables.
  *
  * <h2>Attributes</h2>
  *
@@ -188,123 +187,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li><b>{@code exo_styled_controls_shuffle_on}</b> - The shuffle icon when shuffling is enabled.
  *   <li><b>{@code exo_styled_controls_vr}</b> - The VR icon.
  * </ul>
- *
- * <h2>Overriding the layout file</h2>
- *
- * To customize the layout of StyledPlayerControlView throughout your app, or just for certain
- * configurations, you can define {@code exo_styled_player_control_view.xml} layout files in your
- * application {@code res/layout*} directories. But, in this case, you need to be careful since the
- * default animation implementation expects certain relative positions between children. See also <a
- * href="CustomLayout">Specifying a custom layout file</a>.
- *
- * <p>The layout files in your {@code res/layout*} will override the one provided by the library,
- * and will be inflated for use by StyledPlayerControlView. The view identifies and binds its
- * children by looking for the following ids:
- *
- * <ul>
- *   <li><b>{@code exo_play_pause}</b> - The play and pause button.
- *       <ul>
- *         <li>Type: {@link ImageView}
- *       </ul>
- *   <li><b>{@code exo_rew}</b> - The rewind button.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_rew_with_amount}</b> - The rewind button with rewind amount.
- *       <ul>
- *         <li>Type: {@link TextView}
- *         <li>Note: StyledPlayerControlView will programmatically set the text with the rewind
- *             amount in seconds. Ignored if an {@code exo_rew} exists. Otherwise, it works as the
- *             rewind button.
- *       </ul>
- *   <li><b>{@code exo_ffwd}</b> - The fast forward button.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_ffwd_with_amount}</b> - The fast forward button with fast forward amount.
- *       <ul>
- *         <li>Type: {@link TextView}
- *         <li>Note: StyledPlayerControlView will programmatically set the text with the fast
- *             forward amount in seconds. Ignored if an {@code exo_ffwd} exists. Otherwise, it works
- *             as the fast forward button.
- *       </ul>
- *   <li><b>{@code exo_prev}</b> - The previous button.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_next}</b> - The next button.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_repeat_toggle}</b> - The repeat toggle button.
- *       <ul>
- *         <li>Type: {@link ImageView}
- *         <li>Note: StyledPlayerControlView will programmatically set the drawable on the repeat
- *             toggle button according to the player's current repeat mode. The drawables used are
- *             {@code exo_styled_controls_repeat_off}, {@code exo_styled_controls_repeat_one} and
- *             {@code exo_styled_controls_repeat_all}. See the section above for information on
- *             overriding these drawables.
- *       </ul>
- *   <li><b>{@code exo_shuffle}</b> - The shuffle button.
- *       <ul>
- *         <li>Type: {@link ImageView}
- *         <li>Note: StyledPlayerControlView will programmatically set the drawable on the shuffle
- *             button according to the player's current repeat mode. The drawables used are {@code
- *             exo_styled_controls_shuffle_off} and {@code exo_styled_controls_shuffle_on}. See the
- *             section above for information on overriding these drawables.
- *       </ul>
- *   <li><b>{@code exo_vr}</b> - The VR mode button.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_subtitle}</b> - The subtitle button.
- *       <ul>
- *         <li>Type: {@link ImageView}
- *       </ul>
- *   <li><b>{@code exo_fullscreen}</b> - The fullscreen button.
- *       <ul>
- *         <li>Type: {@link ImageView}
- *       </ul>
- *   <li><b>{@code exo_minimal_fullscreen}</b> - The fullscreen button in minimal mode.
- *       <ul>
- *         <li>Type: {@link ImageView}
- *       </ul>
- *   <li><b>{@code exo_position}</b> - Text view displaying the current playback position.
- *       <ul>
- *         <li>Type: {@link TextView}
- *       </ul>
- *   <li><b>{@code exo_duration}</b> - Text view displaying the current media duration.
- *       <ul>
- *         <li>Type: {@link TextView}
- *       </ul>
- *   <li><b>{@code exo_progress_placeholder}</b> - A placeholder that's replaced with the inflated
- *       {@link DefaultTimeBar}. Ignored if an {@code exo_progress} view exists.
- *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_progress}</b> - Time bar that's updated during playback and allows seeking.
- *       {@link DefaultTimeBar} attributes set on the StyledPlayerControlView will not be
- *       automatically propagated through to this instance. If a view exists with this id, any
- *       {@code exo_progress_placeholder} view will be ignored.
- *       <ul>
- *         <li>Type: {@link TimeBar}
- *       </ul>
- * </ul>
- *
- * <p>All child views are optional and so can be omitted if not required, however where defined they
- * must be of the expected type.
- *
- * <h2 id="CustomLayout">Specifying a custom layout file</h2>
- *
- * Defining your own {@code exo_styled_player_control_view.xml} is useful to customize the layout of
- * StyledPlayerControlView throughout your application. It's also possible to customize the layout
- * for a single instance in a layout file. This is achieved by setting the {@code
- * controller_layout_id} attribute on a StyledPlayerControlView. This will cause the specified
- * layout to be inflated instead of {@code exo_styled_player_control_view.xml} for only the instance
- * on which the attribute is set.
- *
- * <p>You need to be careful when you set the {@code controller_layout_id}, because the default
- * animation implementation expects certain relative positions between children.
  */
 public class StyledPlayerControlView extends FrameLayout {
 
