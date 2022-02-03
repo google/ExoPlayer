@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
@@ -42,10 +41,10 @@ import org.checkerframework.dataflow.qual.Pure;
   private final DecoderInputBuffer decoderInputBuffer;
   private final Codec decoder;
 
+  @Nullable private final FrameEditor frameEditor;
+
   private final Codec encoder;
   private final DecoderInputBuffer encoderOutputBuffer;
-
-  private @MonotonicNonNull FrameEditor frameEditor;
 
   private boolean waitingForFrameEditorInput;
 
@@ -139,6 +138,8 @@ import org.checkerframework.dataflow.qual.Pure;
               /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
               transformationRequest.enableHdrEditing,
               debugViewProvider);
+    } else {
+      frameEditor = null;
     }
 
     decoder =

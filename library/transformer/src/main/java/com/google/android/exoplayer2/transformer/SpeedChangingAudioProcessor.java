@@ -28,6 +28,8 @@ import java.nio.ByteBuffer;
 /**
  * An {@link AudioProcessor} that changes the speed of audio samples depending on their timestamp.
  */
+// TODO(b/198772621): Consider making the processor inactive and skipping it in the processor chain
+//  when speed is 1.
 /* package */ final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
 
   /** The speed provider that provides the speed for each timestamp. */
