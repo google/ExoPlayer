@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.hls;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.os.Looper;
@@ -57,7 +58,6 @@ import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.extractor.Extractor;
 import java.io.IOException;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.List;
@@ -85,7 +85,7 @@ public final class HlsMediaSource extends BaseMediaSource
    */
   @Documented
   @Retention(SOURCE)
-  @Target({ElementType.TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef({METADATA_TYPE_ID3, METADATA_TYPE_EMSG})
   public @interface MetadataType {}
 

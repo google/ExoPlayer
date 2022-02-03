@@ -15,10 +15,11 @@
  */
 package androidx.media3.common;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -38,7 +39,7 @@ public interface TrackSelection {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {TYPE_UNSET})
