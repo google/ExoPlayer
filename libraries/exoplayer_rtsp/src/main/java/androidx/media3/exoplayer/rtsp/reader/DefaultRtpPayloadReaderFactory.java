@@ -36,6 +36,9 @@ import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
         return new RtpAc3Reader(payloadFormat);
       case MimeTypes.AUDIO_AAC:
         return new RtpAacReader(payloadFormat);
+      case MimeTypes.AUDIO_AMR_NB:
+      case MimeTypes.AUDIO_AMR_WB:
+        return new RtpAmrReader(payloadFormat);
       case MimeTypes.VIDEO_H264:
         return new RtpH264Reader(payloadFormat);
       case MimeTypes.VIDEO_H265:
