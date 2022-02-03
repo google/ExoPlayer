@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.analytics;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
@@ -25,7 +26,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -172,7 +172,7 @@ public final class PlaybackStats {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef({
     PLAYBACK_STATE_NOT_STARTED,
     PLAYBACK_STATE_JOINING_BACKGROUND,

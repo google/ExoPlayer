@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.media.MediaCodec;
@@ -49,7 +45,7 @@ public final class TransformationException extends Exception {
   // TODO(b/209469847): Update the javadoc once the underlying values are fixed.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {

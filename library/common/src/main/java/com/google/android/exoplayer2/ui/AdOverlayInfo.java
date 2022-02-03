@@ -36,6 +36,8 @@ public final class AdOverlayInfo {
    * The purpose of the overlay. One of {@link #PURPOSE_CONTROLS}, {@link #PURPOSE_CLOSE_AD}, {@link
    * #PURPOSE_OTHER} or {@link #PURPOSE_NOT_VISIBLE}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
