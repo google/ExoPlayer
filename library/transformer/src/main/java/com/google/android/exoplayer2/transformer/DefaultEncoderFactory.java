@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.transformer.CodecFactoryUtil.createC
 import static com.google.android.exoplayer2.transformer.CodecFactoryUtil.createTransformationException;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static java.lang.Math.abs;
@@ -39,22 +38,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A default implementation of {@link Codec.EncoderFactory}. */
 public final class DefaultEncoderFactory implements Codec.EncoderFactory {
-  // TODO(b/214973843): Add option to disable fallback.
   private static final int DEFAULT_COLOR_FORMAT =
       MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
   private static final int DEFAULT_FRAME_RATE = 60;
   private static final int DEFAULT_I_FRAME_INTERVAL_SECS = 1;
 
   @Nullable private final EncoderSelector videoEncoderSelector;
+  private final boolean disableFallback;
 
-  /** Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}. */
+  /**
+   * Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}, and
+   * format fallback enabled.
+   *
+   * <p>With format fallback enabled, and when the requested {@link Format} is not supported, {@code
+   * DefaultEncoderFactory} finds a format that is supported by the device and configures the {@link
+   * Codec} with it. The fallback process may change the requested {@link Format#sampleMimeType MIME
+   * type}, resolution, {@link Format#bitrate bitrate}, {@link Format#codecs profile/level}, etc.
+   */
   public DefaultEncoderFactory() {
-    this(EncoderSelector.DEFAULT);
+    this(EncoderSelector.DEFAULT, /* disableFallback= */ false);
   }
 
   /** Creates a new instance. */
-  public DefaultEncoderFactory(EncoderSelector videoEncoderSelector) {
+  public DefaultEncoderFactory(
+      @Nullable EncoderSelector videoEncoderSelector, boolean disableFallback) {
     this.videoEncoderSelector = videoEncoderSelector;
+    this.disableFallback = disableFallback;
   }
 
   @Override
@@ -96,7 +105,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     @Nullable
     Pair<MediaCodecInfo, Format> encoderAndClosestFormatSupport =
-        findEncoderWithClosestFormatSupport(format, videoEncoderSelector, allowedMimeTypes);
+        findEncoderWithClosestFormatSupport(
+            format, videoEncoderSelector, allowedMimeTypes, disableFallback);
     if (encoderAndClosestFormatSupport == null) {
       throw createTransformationException(
           new IllegalArgumentException(
@@ -143,16 +153,24 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   @RequiresNonNull("#1.sampleMimeType")
   @Nullable
   private static Pair<MediaCodecInfo, Format> findEncoderWithClosestFormatSupport(
-      Format requestedFormat, EncoderSelector encoderSelector, List<String> allowedMimeTypes) {
+      Format requestedFormat,
+      EncoderSelector encoderSelector,
+      List<String> allowedMimeTypes,
+      boolean disableFallback) {
+    String requestedMimeType = requestedFormat.sampleMimeType;
     @Nullable
-    String mimeType =
-        findFallbackMimeType(encoderSelector, requestedFormat.sampleMimeType, allowedMimeTypes);
-    if (mimeType == null) {
+    String mimeType = findFallbackMimeType(encoderSelector, requestedMimeType, allowedMimeTypes);
+    if (mimeType == null || (disableFallback && !requestedMimeType.equals(mimeType))) {
       return null;
     }
 
     List<MediaCodecInfo> encodersForMimeType = encoderSelector.selectEncoderInfos(mimeType);
-    checkState(!encodersForMimeType.isEmpty());
+    if (encodersForMimeType.isEmpty()) {
+      return null;
+    }
+    if (disableFallback) {
+      return Pair.create(encodersForMimeType.get(0), requestedFormat);
+    }
     ImmutableList<MediaCodecInfo> filteredEncoders =
         filterEncoders(
             encodersForMimeType,
