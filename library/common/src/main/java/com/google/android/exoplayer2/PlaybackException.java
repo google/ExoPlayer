@@ -45,6 +45,8 @@ public class PlaybackException extends Exception implements Bundleable {
    * <p>This list of errors may be extended in future versions, and {@link Player} implementations
    * may define custom error codes.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
