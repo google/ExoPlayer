@@ -27,6 +27,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import java.io.IOException;
 import java.util.Locale;
@@ -50,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Bitmap logoBitmap;
   private final Canvas overlayCanvas;
 
-  private GlUtil.@MonotonicNonNull Program program;
+  private @MonotonicNonNull GlProgram program;
 
   private float bitmapScaleX;
   private float bitmapScaleY;
@@ -78,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void initialize() {
     try {
       program =
-          new GlUtil.Program(
+          new GlProgram(
               context,
               /* vertexShaderFilePath= */ "bitmap_overlay_video_processor_vertex.glsl",
               /* fragmentShaderFilePath= */ "bitmap_overlay_video_processor_fragment.glsl");
@@ -117,7 +118,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     GlUtil.checkGlError();
 
     // Run the shader program.
-    GlUtil.Program program = checkNotNull(this.program);
+    GlProgram program = checkNotNull(this.program);
     program.setSamplerTexIdUniform("uTexSampler0", frameTexture, /* unit= */ 0);
     program.setSamplerTexIdUniform("uTexSampler1", textures[0], /* unit= */ 1);
     program.setFloatUniform("uScaleX", bitmapScaleX);
