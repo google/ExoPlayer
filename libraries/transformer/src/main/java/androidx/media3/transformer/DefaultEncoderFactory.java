@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -119,19 +120,55 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           /* mediaCodecName= */ null);
     }
 
+    MediaCodecInfo encoderInfo = encoderAndClosestFormatSupport.first;
     format = encoderAndClosestFormatSupport.second;
-    MediaFormat mediaFormat =
-        MediaFormat.createVideoFormat(
-            checkNotNull(format.sampleMimeType), format.width, format.height);
+    String mimeType = checkNotNull(format.sampleMimeType);
+    MediaFormat mediaFormat = MediaFormat.createVideoFormat(mimeType, format.width, format.height);
     mediaFormat.setFloat(MediaFormat.KEY_FRAME_RATE, format.frameRate);
     mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.averageBitrate);
 
     @Nullable
     Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
     if (codecProfileAndLevel != null) {
+      // The codecProfileAndLevel is supported by the encoder.
       mediaFormat.setInteger(MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
       if (SDK_INT >= 23) {
         mediaFormat.setInteger(MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
+      }
+    }
+
+    // TODO(b/210593256): Remove overriding profile/level (before API 29) after switching to in-app
+    // muxing.
+    if (mimeType.equals(MimeTypes.VIDEO_H264)) {
+      // Applying suggested profile/level settings from
+      // https://developer.android.com/guide/topics/media/sharing-video#b-frames_and_encoding_profiles
+      if (Util.SDK_INT >= 29) {
+        if (EncoderUtil.isProfileLevelSupported(
+            encoderInfo,
+            mimeType,
+            MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
+            EncoderUtil.LEVEL_UNSET)) {
+          // Use the highest supported profile and use B-frames.
+          mediaFormat.setInteger(
+              MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
+          mediaFormat.setInteger(MediaFormat.KEY_MAX_B_FRAMES, 1);
+        }
+      } else if (Util.SDK_INT >= 26) {
+        if (EncoderUtil.isProfileLevelSupported(
+            encoderInfo,
+            mimeType,
+            MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
+            EncoderUtil.LEVEL_UNSET)) {
+          // Use the highest-supported profile, but disable the generation of B-frames. This
+          // accommodates some limitations in the MediaMuxer in these system versions.
+          mediaFormat.setInteger(
+              MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
+          mediaFormat.setInteger(MediaFormat.KEY_LATENCY, 1);
+        }
+      } else {
+        // Use the baseline profile for safest results.
+        mediaFormat.setInteger(
+            MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
       }
     }
 
@@ -141,7 +178,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     return createCodec(
         format,
         mediaFormat,
-        encoderAndClosestFormatSupport.first.getName(),
+        encoderInfo.getName(),
         /* isVideo= */ true,
         /* isDecoder= */ false,
         /* outputSurface= */ null);

@@ -25,6 +25,7 @@ import android.util.Pair;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -36,6 +37,9 @@ import java.util.List;
 /** Utility methods for {@link MediaCodec} encoders. */
 @UnstableApi
 public final class EncoderUtil {
+
+  /** A value to indicate the encoding level is not set. */
+  public static final int LEVEL_UNSET = Format.NO_VALUE;
 
   private static final List<MediaCodecInfo> encoders = new ArrayList<>();
 
@@ -108,14 +112,25 @@ public final class EncoderUtil {
         : null;
   }
 
-  /** Returns whether the {@link MediaCodecInfo encoder} supports the given profile and level. */
+  /**
+   * Checks whether the {@link MediaCodecInfo encoder} supports the given profile and level.
+   *
+   * @param encoderInfo The {@link MediaCodecInfo encoderInfo}.
+   * @param mimeType The {@link MimeTypes MIME type}.
+   * @param profile The encoding profile.
+   * @param level The encoding level, specify {@link #LEVEL_UNSET} if checking whether the encoder
+   *     supports a specific profile.
+   * @return Whether the profile and level (if set) is supported by the encoder.
+   */
   public static boolean isProfileLevelSupported(
       MediaCodecInfo encoderInfo, String mimeType, int profile, int level) {
+    // TODO(b/214964116): Merge into MediaCodecUtil.
     MediaCodecInfo.CodecProfileLevel[] profileLevels =
         encoderInfo.getCapabilitiesForType(mimeType).profileLevels;
 
     for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
-      if (profileLevel.profile == profile && profileLevel.level == level) {
+      if (profileLevel.profile == profile
+          && (level == LEVEL_UNSET || profileLevel.level == level)) {
         return true;
       }
     }
