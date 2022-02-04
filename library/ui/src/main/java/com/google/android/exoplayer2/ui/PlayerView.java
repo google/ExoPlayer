@@ -249,7 +249,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * a layout file. This is achieved by setting the {@code player_layout_id} attribute on a
  * PlayerView. This will cause the specified layout to be inflated instead of {@code
  * exo_player_view.xml} for only the instance on which the attribute is set.
+ *
+ * @deprecated Use {@link StyledPlayerView} instead.
  */
+@Deprecated
 public class PlayerView extends FrameLayout implements AdViewProvider {
 
   /**
