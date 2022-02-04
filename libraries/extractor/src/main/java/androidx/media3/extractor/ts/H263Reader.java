@@ -18,6 +18,7 @@ package androidx.media3.extractor.ts;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -32,8 +33,10 @@ import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.NalUnitUtil;
 import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.Collections;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -313,7 +316,9 @@ public final class H263Reader implements ElementaryStreamReader {
 
     private static final byte[] START_CODE = new byte[] {0, 0, 1};
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       STATE_SKIP_TO_VISUAL_OBJECT_SEQUENCE_START,
       STATE_EXPECT_VISUAL_OBJECT_START,

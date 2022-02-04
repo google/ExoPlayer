@@ -172,6 +172,7 @@ public final class SessionCommand implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_COMMAND_CODE, FIELD_CUSTOM_ACTION, FIELD_CUSTOM_EXTRAS})
   private @interface FieldNumber {}
 

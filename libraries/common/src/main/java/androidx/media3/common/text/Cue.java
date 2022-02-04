@@ -968,6 +968,7 @@ public final class Cue implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_TEXT,
     FIELD_TEXT_ALIGNMENT,

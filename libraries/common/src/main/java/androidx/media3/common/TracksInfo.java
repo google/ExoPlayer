@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.BundleableUtil.fromBundleNullableList;
 import static androidx.media3.common.util.BundleableUtil.fromNullableBundle;
 import static androidx.media3.common.util.BundleableUtil.toBundleArrayList;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
@@ -31,6 +32,7 @@ import com.google.common.primitives.Booleans;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 
@@ -195,6 +197,7 @@ public final class TracksInfo implements Bundleable {
     // Bundleable implementation.
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_TRACK_GROUP,
       FIELD_TRACK_SUPPORT,
@@ -330,6 +333,7 @@ public final class TracksInfo implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_TRACK_GROUP_INFOS,
   })

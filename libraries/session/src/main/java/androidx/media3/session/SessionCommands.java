@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.session.SessionCommand.COMMAND_CODE_CUSTOM;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
@@ -31,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -227,6 +229,7 @@ public final class SessionCommands implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_SESSION_COMMANDS})
   private @interface FieldNumber {}
 

@@ -424,6 +424,7 @@ public final class SessionToken implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_IMPL_TYPE, FIELD_IMPL})
   private @interface FieldNumber {}
 
@@ -433,6 +434,7 @@ public final class SessionToken implements Bundleable {
   /** Types of {@link SessionTokenImpl} */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({IMPL_TYPE_BASE, IMPL_TYPE_LEGACY})
   private @interface SessionTokenImplType {}
 

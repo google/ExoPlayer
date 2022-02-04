@@ -21,6 +21,7 @@ import static androidx.media3.test.utils.WebServerDispatcher.Resource.GZIP_SUPPO
 import static androidx.media3.test.utils.WebServerDispatcher.Resource.GZIP_SUPPORT_FORCED;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import androidx.annotation.IntDef;
@@ -34,6 +35,7 @@ import com.google.common.collect.Maps;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -68,6 +70,7 @@ public class WebServerDispatcher extends Dispatcher {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({GZIP_SUPPORT_DISABLED, GZIP_SUPPORT_ENABLED, GZIP_SUPPORT_FORCED})
     private @interface GzipSupport {}
 

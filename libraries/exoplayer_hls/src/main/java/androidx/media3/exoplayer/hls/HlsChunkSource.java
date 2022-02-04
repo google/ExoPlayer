@@ -17,6 +17,7 @@ package androidx.media3.exoplayer.hls;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -50,8 +51,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,6 +92,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Chunk publication state. One of {@link #CHUNK_PUBLICATION_STATE_PRELOAD}, {@link
    * #CHUNK_PUBLICATION_STATE_PUBLISHED}, {@link #CHUNK_PUBLICATION_STATE_REMOVED}.
    */
+  @Documented
+  @Target(TYPE_USE)
   @IntDef({
     CHUNK_PUBLICATION_STATE_PRELOAD,
     CHUNK_PUBLICATION_STATE_PUBLISHED,

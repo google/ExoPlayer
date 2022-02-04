@@ -21,6 +21,7 @@ import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -97,6 +98,7 @@ public abstract class DecoderAudioRenderer<
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @java.lang.annotation.Target(TYPE_USE)
   @IntDef({
     REINITIALIZATION_STATE_NONE,
     REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,

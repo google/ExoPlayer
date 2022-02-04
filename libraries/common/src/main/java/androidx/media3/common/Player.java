@@ -598,6 +598,7 @@ public interface Player {
     // Bundleable implementation.
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_MEDIA_ITEM_INDEX,
       FIELD_MEDIA_ITEM,
@@ -895,6 +896,7 @@ public interface Player {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({FIELD_COMMANDS})
     private @interface FieldNumber {}
 

@@ -22,6 +22,7 @@ import static androidx.media3.session.SessionToken.TYPE_BROWSER_SERVICE_LEGACY;
 import static androidx.media3.session.SessionToken.TYPE_LIBRARY_SERVICE;
 import static androidx.media3.session.SessionToken.TYPE_SESSION;
 import static androidx.media3.session.SessionToken.TYPE_SESSION_LEGACY;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /* package */ final class SessionTokenImplLegacy implements SessionTokenImpl {
 
@@ -169,6 +171,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_LEGACY_TOKEN,
     FIELD_UID,

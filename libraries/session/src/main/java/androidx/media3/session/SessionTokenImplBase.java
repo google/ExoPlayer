@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotEmpty;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /* package */ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
 
@@ -184,6 +186,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_UID,
     FIELD_TYPE,

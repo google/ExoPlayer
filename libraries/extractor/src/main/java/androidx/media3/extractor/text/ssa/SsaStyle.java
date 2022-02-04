@@ -18,6 +18,7 @@ package androidx.media3.extractor.text.ssa;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.extractor.text.ssa.SsaDecoder.STYLE_LINE_PREFIX;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
@@ -35,6 +36,7 @@ import com.google.common.base.Ascii;
 import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +63,7 @@ import java.util.regex.Pattern;
    *   <li>{@link #SSA_ALIGNMENT_TOP_RIGHT}
    * </ul>
    */
+  @Target(TYPE_USE)
   @IntDef({
     SSA_ALIGNMENT_UNKNOWN,
     SSA_ALIGNMENT_BOTTOM_LEFT,
