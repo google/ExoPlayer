@@ -43,12 +43,12 @@ public class ForwardingPlayer implements Player {
     this.player = player;
   }
 
-  @Deprecated
+  @Override
   public Looper getApplicationLooper() {
     return player.getApplicationLooper();
   }
 
-  @Deprecated
+  @Override
   public void addListener(Listener listener) {
     player.addListener(new ForwardingListener(this, listener));
   }
@@ -259,12 +259,14 @@ public class ForwardingPlayer implements Player {
     player.seekForward();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public boolean hasPrevious() {
     return player.hasPrevious();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public boolean hasPreviousWindow() {
@@ -276,12 +278,14 @@ public class ForwardingPlayer implements Player {
     return player.hasPreviousMediaItem();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public void previous() {
     player.previous();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public void seekToPreviousWindow() {
@@ -303,12 +307,14 @@ public class ForwardingPlayer implements Player {
     return player.getMaxSeekToPreviousPosition();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public boolean hasNext() {
     return player.hasNext();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public boolean hasNextWindow() {
@@ -320,12 +326,14 @@ public class ForwardingPlayer implements Player {
     return player.hasNextMediaItem();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public void next() {
     player.next();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public void seekToNextWindow() {
@@ -362,6 +370,7 @@ public class ForwardingPlayer implements Player {
     player.stop();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public void stop(boolean reset) {
@@ -373,11 +382,15 @@ public class ForwardingPlayer implements Player {
     player.release();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
+  @Deprecated
   @Override
   public TrackGroupArray getCurrentTrackGroups() {
     return player.getCurrentTrackGroups();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
+  @Deprecated
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
     return player.getCurrentTrackSelections();
@@ -429,6 +442,7 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentPeriodIndex();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public int getCurrentWindowIndex() {
@@ -440,6 +454,7 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentMediaItemIndex();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public int getNextWindowIndex() {
@@ -451,6 +466,7 @@ public class ForwardingPlayer implements Player {
     return player.getNextMediaItemIndex();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public int getPreviousWindowIndex() {
@@ -503,6 +519,7 @@ public class ForwardingPlayer implements Player {
     return player.getTotalBufferedDuration();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public boolean isCurrentWindowDynamic() {
@@ -514,6 +531,7 @@ public class ForwardingPlayer implements Player {
     return player.isCurrentMediaItemDynamic();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public boolean isCurrentWindowLive() {
@@ -530,6 +548,7 @@ public class ForwardingPlayer implements Player {
     return player.getCurrentLiveOffset();
   }
 
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method
   @Deprecated
   @Override
   public boolean isCurrentWindowSeekable() {
