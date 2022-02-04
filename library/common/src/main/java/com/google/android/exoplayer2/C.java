@@ -29,6 +29,7 @@ import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.net.Uri;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
@@ -124,6 +125,9 @@ public final class C {
 
   /** The name of the sans-serif font family. */
   public static final String SANS_SERIF_NAME = "sans-serif";
+
+  /** The {@link Uri#getScheme() URI scheme} used for content with server side ad insertion. */
+  public static final String SSAI_SCHEME = "ssai";
 
   /**
    * Types of crypto implementation. May be one of {@link #CRYPTO_TYPE_NONE}, {@link

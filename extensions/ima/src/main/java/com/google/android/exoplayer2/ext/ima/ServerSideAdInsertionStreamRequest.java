@@ -246,7 +246,7 @@ import java.util.Map;
     }
   }
 
-  private static final String SCHEME = "imadai";
+  private static final String IMA_AUTHORITY = "dai.google.com";
   private static final String ADS_ID = "adsId";
   private static final String ASSET_KEY = "assetKey";
   private static final String API_KEY = "apiKey";
@@ -341,7 +341,8 @@ import java.util.Map;
   /** Returns a corresponding {@link Uri}. */
   public Uri toUri() {
     Uri.Builder dataUriBuilder = new Uri.Builder();
-    dataUriBuilder.scheme(SCHEME);
+    dataUriBuilder.scheme(C.SSAI_SCHEME);
+    dataUriBuilder.authority(IMA_AUTHORITY);
     dataUriBuilder.appendQueryParameter(ADS_ID, adsId);
     if (loadVideoTimeoutMs != DEFAULT_LOAD_VIDEO_TIMEOUT_MS) {
       dataUriBuilder.appendQueryParameter(
@@ -433,8 +434,8 @@ import java.util.Map;
   public static ServerSideAdInsertionStreamRequest fromUri(Uri uri) {
     ServerSideAdInsertionStreamRequest.Builder request =
         new ServerSideAdInsertionStreamRequest.Builder();
-    if (!SCHEME.equals(uri.getScheme())) {
-      throw new IllegalArgumentException("Invalid scheme.");
+    if (!C.SSAI_SCHEME.equals(uri.getScheme()) || !IMA_AUTHORITY.equals(uri.getAuthority())) {
+      throw new IllegalArgumentException("Invalid URI scheme or authority.");
     }
     request.setAdsId(checkNotNull(uri.getQueryParameter(ADS_ID)));
     request.setAssetKey(uri.getQueryParameter(ASSET_KEY));
