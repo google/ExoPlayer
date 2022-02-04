@@ -34,7 +34,19 @@ import java.nio.ByteBuffer;
 /** Vpx decoder. */
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 public final class VpxDecoder
-    extends SimpleDecoder<DecoderInputBuffer, VideoDecoderOutputBuffer, VpxDecoderException> {
+    extends SimpleDecoder<DecoderInputBuffer, VideoDecoderOutputBuffer, VpxDecoderException> 
+    /**
+     * This is an attempt to workaround the issues with the R8
+     * We are using multiple class loaders for delivering this code
+     * and because of the bug in the R8 the lambda ::releaseBuffers leaks into the main apk.
+     * In order to work around this we had to implement the Owner.
+     *
+     * We tried inner and external classes but R8 generates the code that passes null instead of
+     * the proper pointer to the VpxDecoder.
+     *
+     * For details see: https://partnerissuetracker.corp.google.com/issues/181185126
+     */
+    implements VideoDecoderOutputBuffer.Owner<VideoDecoderOutputBuffer> {
 
   // These constants should match the codes returned from vpxDecode and vpxSecureDecode functions in
   // https://github.com/google/ExoPlayer/blob/release-v2/extensions/vp9/src/main/jni/vpx_jni.cc.
@@ -95,11 +107,11 @@ public final class VpxDecoder
 
   @Override
   protected VideoDecoderOutputBuffer createOutputBuffer() {
-    return new VideoDecoderOutputBuffer(this::releaseOutputBuffer);
+    return new VideoDecoderOutputBuffer(this);
   }
 
   @Override
-  protected void releaseOutputBuffer(VideoDecoderOutputBuffer buffer) {
+  public void releaseOutputBuffer(VideoDecoderOutputBuffer buffer) {
     // Decode only frames do not acquire a reference on the internal decoder buffer and thus do not
     // require a call to vpxReleaseFrame.
     if (outputMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !buffer.isDecodeOnly()) {
