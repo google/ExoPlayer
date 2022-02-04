@@ -18,6 +18,7 @@ package androidx.media3.exoplayer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotEmpty;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -27,6 +28,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * The result of an evaluation to determine whether a decoder can be reused for a new input format.
@@ -37,6 +39,7 @@ public final class DecoderReuseEvaluation {
   /** Possible outcomes of the evaluation. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     REUSE_RESULT_NO,
     REUSE_RESULT_YES_WITH_FLUSH,
@@ -59,6 +62,7 @@ public final class DecoderReuseEvaluation {
   /** Possible reasons why reuse is not possible. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {

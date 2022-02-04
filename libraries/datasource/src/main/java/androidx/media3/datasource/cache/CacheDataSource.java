@@ -18,6 +18,7 @@ package androidx.media3.datasource.cache;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import androidx.annotation.IntDef;
@@ -42,6 +43,7 @@ import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -330,6 +332,7 @@ public final class CacheDataSource implements DataSource {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {

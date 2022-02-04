@@ -15,6 +15,8 @@
  */
 package androidx.media3.datasource;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -25,6 +27,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -234,6 +237,7 @@ public final class DataSpec {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -276,6 +280,7 @@ public final class DataSpec {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({HTTP_METHOD_GET, HTTP_METHOD_POST, HTTP_METHOD_HEAD})
   public @interface HttpMethod {}
   /** HTTP GET method. */

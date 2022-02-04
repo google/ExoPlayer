@@ -16,6 +16,7 @@
  */
 package androidx.media3.ui;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
@@ -36,6 +37,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -113,6 +115,7 @@ public final class SubtitleView extends FrameLayout implements Player.Listener {
    */
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({VIEW_TYPE_CANVAS, VIEW_TYPE_WEB})
   public @interface ViewType {}
 

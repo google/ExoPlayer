@@ -16,6 +16,7 @@
 package androidx.media3.common;
 
 import static androidx.media3.common.MimeTypes.normalizeMimeType;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import androidx.annotation.IntDef;
@@ -25,6 +26,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,7 @@ public final class FileTypes {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG
   })

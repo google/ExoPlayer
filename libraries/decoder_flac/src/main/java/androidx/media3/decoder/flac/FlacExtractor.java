@@ -16,6 +16,7 @@
 package androidx.media3.decoder.flac;
 
 import static androidx.media3.common.util.Util.getPcmEncoding;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -63,6 +65,7 @@ public final class FlacExtractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {FLAG_DISABLE_ID3_METADATA})

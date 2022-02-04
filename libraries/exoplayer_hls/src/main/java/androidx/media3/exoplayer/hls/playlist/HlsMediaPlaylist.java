@@ -17,6 +17,7 @@ package androidx.media3.exoplayer.hls.playlist;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import androidx.annotation.IntDef;
@@ -31,6 +32,7 @@ import com.google.common.collect.Iterables;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -387,6 +389,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({PLAYLIST_TYPE_UNKNOWN, PLAYLIST_TYPE_VOD, PLAYLIST_TYPE_EVENT})
   public @interface PlaylistType {}
 

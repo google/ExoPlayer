@@ -15,6 +15,8 @@
  */
 package androidx.media3.extractor;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Extracts media data from a container format. */
 @UnstableApi
@@ -51,6 +54,7 @@ public interface Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(value = {RESULT_CONTINUE, RESULT_SEEK, RESULT_END_OF_INPUT})
   @interface ReadResult {}
 

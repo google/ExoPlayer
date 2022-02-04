@@ -410,6 +410,7 @@ public class PlaybackException extends Exception implements Bundleable {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {

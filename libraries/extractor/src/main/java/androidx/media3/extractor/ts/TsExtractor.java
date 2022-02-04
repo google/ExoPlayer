@@ -16,6 +16,7 @@
 package androidx.media3.extractor.ts;
 
 import static androidx.media3.extractor.ts.TsPayloadReader.FLAG_PAYLOAD_UNIT_START_INDICATOR;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -45,6 +46,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +67,7 @@ public final class TsExtractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
   public @interface Mode {}
 

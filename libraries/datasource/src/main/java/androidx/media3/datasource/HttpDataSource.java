@@ -15,6 +15,8 @@
  */
 package androidx.media3.datasource;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -28,6 +30,7 @@ import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -190,6 +193,7 @@ public interface HttpDataSource extends DataSource {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({TYPE_OPEN, TYPE_READ, TYPE_CLOSE})
     public @interface Type {}
 
