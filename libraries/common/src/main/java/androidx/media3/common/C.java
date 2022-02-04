@@ -745,6 +745,7 @@ public final class C {
   @UnstableApi
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
