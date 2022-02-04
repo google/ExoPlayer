@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static com.google.android.exoplayer2.util.MimeTypes.normalizeMimeType;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import androidx.annotation.IntDef;
@@ -24,6 +25,7 @@ import androidx.annotation.VisibleForTesting;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +39,7 @@ public final class FileTypes {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG
   })
