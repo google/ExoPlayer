@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import android.content.Context;
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AdViewProvider;
 import androidx.media3.common.C;
@@ -106,7 +107,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private final DataSource.Factory dataSourceFactory;
   private final DelegateFactoryLoader delegateFactoryLoader;
 
-  @Nullable private MediaSource.Factory imaServerSideAdInsertionMediaSourceFactory;
+  @Nullable private MediaSource.Factory serverSideAdInsertionMediaSourceFactory;
   @Nullable private AdsLoader.Provider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -212,22 +213,19 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   /**
-   * Sets the {@link MediaSource.Factory} used to handle {@link MediaItem} instances containing <a
-   * href="https://support.google.com/admanager/answer/6147120">IMA Dynamic Ad Insertion URIs</a>.
+   * Sets the {@link MediaSource.Factory} used to handle {@link MediaItem} instances containing a
+   * {@link Uri} identified as resolving to content with server side ad insertion (SSAI).
    *
-   * <p>In most cases this will be an {@code ImaServerSideAdInsertionMediaSource.Factory} from the
-   * IMA extension.
+   * <p>SSAI URIs are those with a {@link Uri#getScheme() scheme} of {@link C#SSAI_SCHEME}.
    *
-   * <p>IMA DAI URIs are those with a scheme of {@code "imadai"}.
-   *
-   * @param imaServerSideAdInsertionMediaSourceFactory The {@link MediaSource.Factory} for IMA DAI
+   * @param serverSideAdInsertionMediaSourceFactory The {@link MediaSource.Factory} for SSAI
    *     content, or {@code null} to remove a previously set {@link MediaSource.Factory}.
    * @return This factory, for convenience.
    */
   @UnstableApi
-  public DefaultMediaSourceFactory setImaServerSideAdInsertionMediaSourceFactory(
-      @Nullable MediaSource.Factory imaServerSideAdInsertionMediaSourceFactory) {
-    this.imaServerSideAdInsertionMediaSourceFactory = imaServerSideAdInsertionMediaSourceFactory;
+  public DefaultMediaSourceFactory setServerSideAdInsertionMediaSourceFactory(
+      @Nullable MediaSource.Factory serverSideAdInsertionMediaSourceFactory) {
+    this.serverSideAdInsertionMediaSourceFactory = serverSideAdInsertionMediaSourceFactory;
     return this;
   }
 
@@ -324,8 +322,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public MediaSource createMediaSource(MediaItem mediaItem) {
     Assertions.checkNotNull(mediaItem.localConfiguration);
     @Nullable String scheme = mediaItem.localConfiguration.uri.getScheme();
-    if (scheme != null && scheme.equals("imadai")) {
-      return checkNotNull(imaServerSideAdInsertionMediaSourceFactory).createMediaSource(mediaItem);
+    if (scheme != null && scheme.equals(C.SSAI_SCHEME)) {
+      return checkNotNull(serverSideAdInsertionMediaSourceFactory).createMediaSource(mediaItem);
     }
     @C.ContentType
     int type =
