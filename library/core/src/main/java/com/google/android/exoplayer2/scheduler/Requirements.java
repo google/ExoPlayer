@@ -15,6 +15,12 @@
  */
 package com.google.android.exoplayer2.scheduler;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -33,6 +39,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Defines a set of device state requirements. */
 public final class Requirements implements Parcelable {
@@ -41,8 +48,11 @@ public final class Requirements implements Parcelable {
    * Requirement flags. Possible flag values are {@link #NETWORK}, {@link #NETWORK_UNMETERED},
    * {@link #DEVICE_IDLE}, {@link #DEVICE_CHARGING} and {@link #DEVICE_STORAGE_NOT_LOW}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {NETWORK, NETWORK_UNMETERED, DEVICE_IDLE, DEVICE_CHARGING, DEVICE_STORAGE_NOT_LOW})
