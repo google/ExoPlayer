@@ -472,34 +472,6 @@ public final class C {
   public static final int ALLOW_CAPTURE_BY_SYSTEM = AudioAttributes.ALLOW_CAPTURE_BY_SYSTEM;
 
   /**
-   * Audio focus types. One of {@link #AUDIOFOCUS_NONE}, {@link #AUDIOFOCUS_GAIN}, {@link
-   * #AUDIOFOCUS_GAIN_TRANSIENT}, {@link #AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} or {@link
-   * #AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    AUDIOFOCUS_NONE,
-    AUDIOFOCUS_GAIN,
-    AUDIOFOCUS_GAIN_TRANSIENT,
-    AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
-    AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
-  })
-  public @interface AudioFocusGain {}
-  /** @see AudioManager#AUDIOFOCUS_NONE */
-  public static final int AUDIOFOCUS_NONE = AudioManager.AUDIOFOCUS_NONE;
-  /** @see AudioManager#AUDIOFOCUS_GAIN */
-  public static final int AUDIOFOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT */
-  public static final int AUDIOFOCUS_GAIN_TRANSIENT = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK */
-  public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK =
-      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE */
-  public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE =
-      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
-
-  /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
    * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_LAST_SAMPLE},
    * {@link #BUFFER_FLAG_ENCRYPTED} and {@link #BUFFER_FLAG_DECODE_ONLY}.
