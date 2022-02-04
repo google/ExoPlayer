@@ -17,6 +17,11 @@ package com.google.android.exoplayer2.trackselection;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import androidx.annotation.IntDef;
@@ -41,6 +46,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -59,8 +65,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * {@link #RENDERER_SUPPORT_NO_TRACKS}, {@link #RENDERER_SUPPORT_UNSUPPORTED_TRACKS}, {@link
      * #RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS} or {@link #RENDERER_SUPPORT_PLAYABLE_TRACKS}.
      */
+    // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+    // with Kotlin usages from before TYPE_USE was added.
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
     @IntDef({
       RENDERER_SUPPORT_NO_TRACKS,
       RENDERER_SUPPORT_UNSUPPORTED_TRACKS,
