@@ -125,6 +125,7 @@ public interface ExoTrackSelection extends TrackSelection {
   int getSelectedIndex();
 
   /** Returns the reason for the current track selection. */
+  @C.SelectionReason
   int getSelectionReason();
 
   /** Returns optional data associated with the current track selection. */
