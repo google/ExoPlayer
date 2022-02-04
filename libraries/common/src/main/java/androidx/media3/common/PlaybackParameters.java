@@ -15,6 +15,8 @@
  */
 package androidx.media3.common;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
@@ -26,6 +28,7 @@ import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Parameters that apply to playback, including speed setting. */
 public final class PlaybackParameters implements Bundleable {
@@ -121,6 +124,7 @@ public final class PlaybackParameters implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_SPEED, FIELD_PITCH})
   private @interface FieldNumber {}
 

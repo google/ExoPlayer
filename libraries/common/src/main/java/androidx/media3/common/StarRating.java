@@ -16,6 +16,7 @@
 package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.FloatRange;
@@ -27,6 +28,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** A rating expressed as a fractional number of stars. */
 public final class StarRating extends Rating {
@@ -106,6 +108,7 @@ public final class StarRating extends Rating {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_RATING_TYPE, FIELD_MAX_STARS, FIELD_STAR_RATING})
   private @interface FieldNumber {}
 

@@ -833,6 +833,7 @@ public final class MediaMetadata implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_TITLE,
     FIELD_ARTIST,

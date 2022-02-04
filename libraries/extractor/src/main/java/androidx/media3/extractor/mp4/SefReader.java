@@ -16,6 +16,7 @@
 package androidx.media3.extractor.mp4;
 
 import static androidx.media3.extractor.Extractor.RESULT_SEEK;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +46,7 @@ import java.util.List;
   /** Reader states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_SHOULD_CHECK_FOR_SEF,
     STATE_CHECKING_FOR_SEF,
@@ -60,6 +63,7 @@ import java.util.List;
   /** Supported data types. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TYPE_SLOW_MOTION_DATA,
     TYPE_SUPER_SLOW_MOTION_DATA,

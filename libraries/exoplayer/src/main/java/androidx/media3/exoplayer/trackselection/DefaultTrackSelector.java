@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.trackselection;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.util.Collections.max;
 
 import android.annotation.SuppressLint;
@@ -58,6 +59,7 @@ import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -1118,6 +1120,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_EXCEED_VIDEO_CONSTRAINTS_IF_NECESSARY,
       FIELD_ALLOW_VIDEO_MIXED_MIME_TYPE_ADAPTIVENESS,
@@ -1379,6 +1382,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_GROUP_INDEX,
       FIELD_TRACKS,

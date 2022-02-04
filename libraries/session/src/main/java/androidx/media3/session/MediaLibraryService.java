@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotEmpty;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -41,6 +42,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Superclass to be extended by services hosting {@link MediaLibrarySession media library sessions}.
@@ -650,6 +652,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_EXTRAS,
       FIELD_RECENT,

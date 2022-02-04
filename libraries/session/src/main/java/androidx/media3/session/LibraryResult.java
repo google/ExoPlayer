@@ -250,6 +250,7 @@ public final class LibraryResult<V> implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_RESULT_CODE,
     FIELD_COMPLETION_TIME_MS,

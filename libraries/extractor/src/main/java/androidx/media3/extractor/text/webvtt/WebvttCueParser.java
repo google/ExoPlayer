@@ -16,6 +16,7 @@
 package androidx.media3.extractor.text.webvtt;
 
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
@@ -47,6 +48,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,6 +78,7 @@ public final class WebvttCueParser {
    */
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TEXT_ALIGNMENT_START,
     TEXT_ALIGNMENT_CENTER,

@@ -18,6 +18,7 @@ package androidx.media3.extractor.flac;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -42,6 +43,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -79,6 +81,7 @@ public final class FlacExtractor implements Extractor {
   /** Parser state. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_READ_ID3_METADATA,
     STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES,

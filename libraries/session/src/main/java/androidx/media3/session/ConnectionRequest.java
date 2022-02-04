@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.IntDef;
@@ -26,6 +27,7 @@ import androidx.media3.common.MediaLibraryInfo;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Created by {@link MediaController} to send its state to the {@link MediaSession} to request to
@@ -56,6 +58,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_VERSION, FIELD_PACKAGE_NAME, FIELD_PID, FIELD_CONNECTION_HINTS})
   private @interface FieldNumber {}
 

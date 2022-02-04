@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer.video.spherical;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.C.StereoMode;
@@ -22,6 +24,7 @@ import androidx.media3.common.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** The projection mesh used with 360/VR videos. */
 /* package */ final class Projection {
@@ -29,6 +32,7 @@ import java.lang.annotation.RetentionPolicy;
   /** Enforces allowed (sub) mesh draw modes. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({DRAW_MODE_TRIANGLES, DRAW_MODE_TRIANGLES_STRIP, DRAW_MODE_TRIANGLES_FAN})
   public @interface DrawMode {}
   /** Triangle draw mode. */

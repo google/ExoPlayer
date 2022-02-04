@@ -15,6 +15,8 @@
  */
 package androidx.media3.common;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -25,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 
 /** An immutable array of {@link TrackGroup}s. */
@@ -105,6 +108,7 @@ public final class TrackGroupArray implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_TRACK_GROUPS,
   })

@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.text;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -32,8 +33,10 @@ import androidx.media3.extractor.text.SubtitleDecoderException;
 import androidx.media3.extractor.text.SubtitleInputBuffer;
 import androidx.media3.extractor.text.SubtitleOutputBuffer;
 import com.google.common.collect.ImmutableList;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -44,6 +47,8 @@ import java.util.List;
  */
 @UnstableApi
 public final class ExoplayerCuesDecoder implements SubtitleDecoder {
+  @Documented
+  @Target(TYPE_USE)
   @IntDef(value = {INPUT_BUFFER_AVAILABLE, INPUT_BUFFER_DEQUEUED, INPUT_BUFFER_QUEUED})
   @Retention(RetentionPolicy.SOURCE)
   private @interface InputBufferState {}

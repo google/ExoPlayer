@@ -15,6 +15,8 @@
  */
 package androidx.media3.common;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -25,6 +27,7 @@ import com.google.common.base.Joiner;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1417,6 +1420,7 @@ public final class Format implements Bundleable {
   // Bundleable implementation.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_ID,
     FIELD_LABEL,

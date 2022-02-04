@@ -20,6 +20,7 @@ import static androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT;
 import static androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_NONE;
 import static androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
 import static androidx.media3.common.Player.STATE_IDLE;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -48,6 +49,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 
 /**
@@ -649,6 +651,7 @@ import java.util.List;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_PLAYBACK_PARAMETERS,
     FIELD_REPEAT_MODE,

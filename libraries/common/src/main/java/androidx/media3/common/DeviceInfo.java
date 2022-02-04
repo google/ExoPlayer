@@ -89,6 +89,7 @@ public final class DeviceInfo implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_PLAYBACK_TYPE, FIELD_MIN_VOLUME, FIELD_MAX_VOLUME})
   private @interface FieldNumber {}
 
