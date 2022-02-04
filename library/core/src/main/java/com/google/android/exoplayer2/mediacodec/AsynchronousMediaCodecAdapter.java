@@ -16,6 +16,8 @@
 
 package com.google.android.exoplayer2.mediacodec;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
@@ -36,6 +38,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 
 /**
@@ -124,6 +127,7 @@ import java.nio.ByteBuffer;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({STATE_CREATED, STATE_INITIALIZED, STATE_SHUT_DOWN})
   private @interface State {}
 

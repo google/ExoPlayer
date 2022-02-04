@@ -16,11 +16,14 @@
 
 package com.google.android.exoplayer2.source.rtsp;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.Uri;
 import androidx.annotation.IntDef;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Represents an RTSP request. */
 /* package */ final class RtspRequest {
@@ -47,6 +50,7 @@ import java.lang.annotation.RetentionPolicy;
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       value = {
         METHOD_UNSET,

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.database;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -25,6 +27,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Utility methods for accessing versions of media library database components. This allows them to
@@ -73,6 +76,7 @@ public final class VersionTable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FEATURE_OFFLINE,
     FEATURE_CACHE_CONTENT_METADATA,

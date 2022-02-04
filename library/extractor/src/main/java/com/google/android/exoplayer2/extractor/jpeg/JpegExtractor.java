@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.jpeg;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Extracts JPEG image using the Exif format. */
@@ -44,6 +46,7 @@ public final class JpegExtractor implements Extractor {
   /** Parser states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_READING_MARKER,
     STATE_READING_SEGMENT_LENGTH,

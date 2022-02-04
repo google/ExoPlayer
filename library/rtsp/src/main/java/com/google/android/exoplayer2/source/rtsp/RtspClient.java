@@ -35,6 +35,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -61,6 +62,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -78,6 +80,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({RTSP_STATE_UNINITIALIZED, RTSP_STATE_INIT, RTSP_STATE_READY, RTSP_STATE_PLAYING})
   public @interface RtspState {}
   /** RTSP uninitialized state, the state before sending any SETUP request. */

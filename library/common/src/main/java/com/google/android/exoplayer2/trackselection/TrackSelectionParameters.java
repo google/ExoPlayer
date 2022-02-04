@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.BundleableUtil.fromNullableBundle;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -36,6 +37,7 @@ import com.google.common.primitives.Ints;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Locale;
 import java.util.Set;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
@@ -978,6 +980,7 @@ public class TrackSelectionParameters implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_PREFERRED_AUDIO_LANGUAGES,
     FIELD_PREFERRED_AUDIO_ROLE_FLAGS,

@@ -15,14 +15,18 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.MediaCodec;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * The default {@link MediaCodecAdapter.Factory}.
@@ -35,7 +39,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.Factory {
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({MODE_DEFAULT, MODE_ENABLED, MODE_DISABLED})
   private @interface Mode {}
 

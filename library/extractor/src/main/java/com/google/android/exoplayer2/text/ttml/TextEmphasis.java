@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -41,6 +43,7 @@ import java.util.regex.Pattern;
 
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TextEmphasisSpan.MARK_SHAPE_NONE,
     TextEmphasisSpan.MARK_SHAPE_CIRCLE,
@@ -58,6 +61,7 @@ import java.util.regex.Pattern;
 
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     TextAnnotation.POSITION_UNKNOWN,
     TextAnnotation.POSITION_BEFORE,
