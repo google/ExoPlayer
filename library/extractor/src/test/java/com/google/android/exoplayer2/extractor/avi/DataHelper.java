@@ -76,7 +76,7 @@ public class DataHelper {
     final ArrayList<Box> list = new ArrayList<>(2);
     list.add(streamHeaderBox);
     list.add(streamFormatBox);
-    return new ListBox((int)(streamHeaderBox.getSize() + streamFormatBox.getSize()),
+    return new ListBox(streamHeaderBox.getSize() + streamFormatBox.getSize(),
         ListBox.TYPE_STRL, list);
   }
 
@@ -106,14 +106,14 @@ public class DataHelper {
 
   public static AviTrack getVideoAviTrack(int sec) {
     final FakeTrackOutput fakeTrackOutput = new FakeTrackOutput(false);
-    return new AviTrack(0, C.TRACK_TYPE_VIDEO,
+    return new AviTrack(0, AviTrack.CHUNK_TYPE_VIDEO,
         new LinearClock(sec * 1_000_000L, sec * FPS),
         fakeTrackOutput);
   }
 
   public static AviTrack getAudioAviTrack(int sec) {
     final FakeTrackOutput fakeTrackOutput = new FakeTrackOutput(false);
-    return new AviTrack(AUDIO_ID, C.TRACK_TYPE_AUDIO,
+    return new AviTrack(AUDIO_ID, AviTrack.CHUNK_TYPE_AUDIO,
         new LinearClock(sec * 1_000_000L, sec * FPS * AUDIO_PER_VIDEO),
         fakeTrackOutput);
   }
@@ -153,8 +153,8 @@ public class DataHelper {
      */
   public static ByteBuffer getIndex(final int secs, final int keyFrameRate, int offset) {
     final int videoFrames = secs * FPS;
-    final int videoChunkId = AviTrack.getVideoChunkId(0);
-    final int audioChunkId = AviTrack.getAudioChunkId(1);
+    final int videoChunkId = AviTrack.CHUNK_TYPE_VIDEO | AviTrack.getChunkIdLower(0);
+    final int audioChunkId = AviTrack.CHUNK_TYPE_AUDIO | AviTrack.getChunkIdLower(1);
     final ByteBuffer byteBuffer = AviExtractor.allocate((videoFrames + videoFrames*AUDIO_PER_VIDEO) * 16);
 
     for (int v=0;v<videoFrames;v++) {

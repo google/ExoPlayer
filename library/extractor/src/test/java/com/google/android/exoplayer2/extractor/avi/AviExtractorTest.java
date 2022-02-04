@@ -473,7 +473,7 @@ public class AviExtractorTest {
     final AviTrack aviTrack = aviExtractor.getVideoTrack();
     final long position = DataHelper.MOVI_OFFSET + aviSeekMap.keyFrameOffsetsDiv2[1] * 2L;
     aviExtractor.seek(position, 0L);
-    Assert.assertEquals(aviSeekMap.seekIndexes[aviTrack.id][1], aviTrack.getClock().getIndex());
+    Assert.assertEquals(aviSeekMap.seekIndexes[aviTrack.getId()][1], aviTrack.getClock().getIndex());
   }
 
   @Test

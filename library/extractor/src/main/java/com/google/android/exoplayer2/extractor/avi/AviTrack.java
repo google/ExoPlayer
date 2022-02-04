@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -29,10 +30,8 @@ import java.util.Arrays;
  */
 public class AviTrack {
   public static final int[] ALL_KEY_FRAMES = new int[0];
-
-  final int id;
-
-  final @C.TrackType int trackType;
+  public static int CHUNK_TYPE_VIDEO = ('d' << 16) | ('c' << 24);
+  public static int CHUNK_TYPE_AUDIO = ('w' << 16) | ('b' << 24);
 
   @NonNull
   LinearClock clock;
@@ -57,34 +56,22 @@ public class AviTrack {
   transient int chunkSize;
   transient int chunkRemaining;
 
-  private static int getChunkIdLower(int id) {
+  @VisibleForTesting
+  static int getChunkIdLower(int id) {
     int tens = id / 10;
     int ones = id % 10;
     return  ('0' + tens) | (('0' + ones) << 8);
   }
 
-  public static int getVideoChunkId(int id) {
-    return getChunkIdLower(id) | ('d' << 16) | ('c' << 24);
-  }
-
-  public static int getAudioChunkId(int id) {
-    return getChunkIdLower(id) | ('w' << 16) | ('b' << 24);
-  }
-
-  AviTrack(int id, @C.TrackType int trackType, @NonNull LinearClock clock,
+  AviTrack(int id, int chunkType, @NonNull LinearClock clock,
       @NonNull TrackOutput trackOutput) {
-    this.id = id;
+    this.chunkId = getChunkIdLower(id) | chunkType;
     this.clock = clock;
-    this.trackType = trackType;
     this.trackOutput = trackOutput;
     if (isVideo()) {
-      chunkId = getVideoChunkId(id);
       chunkIdAlt = getChunkIdLower(id) | ('d' << 16) | ('b' << 24);
-    } else if (isAudio()) {
-      chunkId = getAudioChunkId(id);
-      chunkIdAlt = 0xffff;
     } else {
-      throw new IllegalArgumentException("Unknown Track Type: " + trackType);
+      chunkIdAlt = -1;
     }
   }
 
@@ -118,11 +105,11 @@ public class AviTrack {
   }
 
   public boolean isVideo() {
-    return trackType == C.TRACK_TYPE_VIDEO;
+    return (chunkId & CHUNK_TYPE_VIDEO) == CHUNK_TYPE_VIDEO;
   }
 
   public boolean isAudio() {
-    return trackType == C.TRACK_TYPE_AUDIO;
+    return (chunkId & CHUNK_TYPE_AUDIO) == CHUNK_TYPE_AUDIO;
   }
 
   public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
@@ -168,5 +155,9 @@ public class AviTrack {
     final LinearClock clock = getClock();
     //Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " size=" + size + " frame=" + clock.getIndex() + " key=" + isKeyFrame());
     clock.advance();
+  }
+
+  public int getId() {
+    return ((chunkId >> 8) & 0xf) + ( chunkId & 0xf) * 10;
   }
 }

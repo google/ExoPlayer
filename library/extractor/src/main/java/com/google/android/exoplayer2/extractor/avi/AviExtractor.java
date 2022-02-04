@@ -258,7 +258,7 @@ public class AviExtractor implements Extractor {
       builder.setSampleMimeType(mimeType);
 
       final LinearClock clock = new LinearClock(durationUs, length);
-      aviTrack = new AviTrack(streamId, C.TRACK_TYPE_VIDEO, clock, trackOutput);
+      aviTrack = new AviTrack(streamId, AviTrack.CHUNK_TYPE_VIDEO, clock, trackOutput);
 
       if (MimeTypes.VIDEO_H264.equals(mimeType)) {
         final AvcChunkPeeker avcChunkPeeker = new AvcChunkPeeker(builder, trackOutput, clock);
@@ -294,7 +294,7 @@ public class AviExtractor implements Extractor {
         builder.setInitializationData(Collections.singletonList(audioFormat.getCodecData()));
       }
       trackOutput.format(builder.build());
-      aviTrack = new AviTrack(streamId, C.TRACK_TYPE_AUDIO,
+      aviTrack = new AviTrack(streamId, AviTrack.CHUNK_TYPE_AUDIO,
           new LinearClock(durationUs, length), trackOutput);
       aviTrack.setKeyFrames(AviTrack.ALL_KEY_FRAMES);
     }else {
@@ -370,18 +370,18 @@ public class AviExtractor implements Extractor {
       if (aviTrack != null) {
         if (aviTrack.isAudio()) {
           final long durationUs = aviTrack.getClock().durationUs;
-          i("Audio #" + aviTrack.id + " chunks: " + aviTrack.chunks + " us=" + durationUs +
+          i("Audio #" + aviTrack.getId() + " chunks: " + aviTrack.chunks + " us=" + durationUs +
               " size=" + aviTrack.size);
           final LinearClock linearClock = aviTrack.getClock();
           //If the audio track duration is off from the video by >5 % recalc using video
           if ((durationUs - videoDuration) / (float)videoDuration > .05f) {
-            w("Audio #" + aviTrack.id + " duration is off using videoDuration");
+            w("Audio #" + aviTrack.getId() + " duration is off using videoDuration");
             linearClock.setDuration(videoDuration);
           }
           linearClock.setLength(aviTrack.chunks);
-          if (aviTrack.chunks != keyFrameCounts[aviTrack.id]) {
+          if (aviTrack.chunks != keyFrameCounts[aviTrack.getId()]) {
             w("Audio is not all key frames chunks=" + aviTrack.chunks + " keyFrames=" +
-                keyFrameCounts[aviTrack.id]);
+                keyFrameCounts[aviTrack.getId()]);
           }
         }
       }
@@ -406,7 +406,7 @@ public class AviExtractor implements Extractor {
     final ByteBuffer firstEntry = AviExtractor.allocate(16);
     input.peekFully(firstEntry.array(), 0, 16);
 
-    final int videoId = videoTrack.id;
+    final int videoId = videoTrack.getId();
     final ByteBuffer indexByteBuffer = allocate(Math.min(remaining, 64 * 1024));
     final byte[] bytes = indexByteBuffer.array();
 
@@ -453,19 +453,19 @@ public class AviExtractor implements Extractor {
               keyFrameOffsetsDiv2.add(offset / 2);
               for (AviTrack seekTrack : aviTracks) {
                 if (seekTrack != null) {
-                  seekIndexes[seekTrack.id].add(seekTrack.chunks);
+                  seekIndexes[seekTrack.getId()].add(seekTrack.chunks);
                 }
               }
             }
           }
-          keyFrameCounts[aviTrack.id]++;
+          keyFrameCounts[aviTrack.getId()]++;
         }
         aviTrack.chunks++;
         aviTrack.size+=size;
       }
       indexByteBuffer.compact();
     }
-    if (videoTrack.chunks == keyFrameCounts[videoTrack.id]) {
+    if (videoTrack.chunks == keyFrameCounts[videoTrack.getId()]) {
       videoTrack.setKeyFrames(AviTrack.ALL_KEY_FRAMES);
     } else {
       videoTrack.setKeyFrames(seekIndexes[videoId].getArray());
