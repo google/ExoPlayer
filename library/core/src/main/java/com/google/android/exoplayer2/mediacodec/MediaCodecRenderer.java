@@ -29,6 +29,7 @@ import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FOR
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
@@ -77,6 +78,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -210,6 +212,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     RECONFIGURATION_STATE_NONE,
     RECONFIGURATION_STATE_WRITE_PENDING,
@@ -228,6 +231,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({DRAIN_STATE_NONE, DRAIN_STATE_SIGNAL_END_OF_STREAM, DRAIN_STATE_WAIT_END_OF_STREAM})
   private @interface DrainState {}
   /** The codec is not being drained. */
@@ -239,6 +243,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     DRAIN_ACTION_NONE,
     DRAIN_ACTION_FLUSH,
@@ -257,6 +262,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     ADAPTATION_WORKAROUND_MODE_NEVER,
     ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION,

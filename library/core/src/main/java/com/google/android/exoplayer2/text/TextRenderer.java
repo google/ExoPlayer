@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -36,6 +37,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,6 +54,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     REPLACEMENT_STATE_NONE,
     REPLACEMENT_STATE_SIGNAL_END_OF_STREAM,

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import androidx.annotation.ColorInt;
@@ -25,6 +27,7 @@ import com.google.common.base.Ascii;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -71,6 +74,7 @@ public final class WebvttCssStyle {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({UNSPECIFIED, OFF, ON})
   private @interface OptionalBoolean {}
 

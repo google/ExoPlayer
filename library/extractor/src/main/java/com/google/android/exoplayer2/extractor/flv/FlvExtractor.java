@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.flv;
 
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -44,6 +46,7 @@ public final class FlvExtractor implements Extractor {
   /** Extractor states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_READING_FLV_HEADER,
     STATE_SKIPPING_TO_TAG_HEADER,

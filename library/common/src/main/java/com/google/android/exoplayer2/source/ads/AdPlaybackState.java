@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.ads;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -344,6 +346,7 @@ public final class AdPlaybackState implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_TIME_US,
       FIELD_COUNT,
@@ -914,6 +917,7 @@ public final class AdPlaybackState implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_AD_GROUPS,
     FIELD_AD_RESUME_POSITION_US,
