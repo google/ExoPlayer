@@ -313,7 +313,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
   private float playbackSpeed;
   private int selectedIndex;
-  private int reason;
+  private @C.SelectionReason int reason;
   private long lastBufferEvaluationMs;
   @Nullable private MediaChunk lastBufferEvaluationMediaChunk;
 
@@ -446,7 +446,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     }
 
     int previousSelectedIndex = selectedIndex;
-    int previousReason = reason;
+    @C.SelectionReason int previousReason = reason;
     int formatIndexOfPreviousChunk =
         queue.isEmpty() ? C.INDEX_UNSET : indexOf(Iterables.getLast(queue).trackFormat);
     if (formatIndexOfPreviousChunk != C.INDEX_UNSET) {
@@ -484,7 +484,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public int getSelectionReason() {
+  public @C.SelectionReason int getSelectionReason() {
     return reason;
   }
 

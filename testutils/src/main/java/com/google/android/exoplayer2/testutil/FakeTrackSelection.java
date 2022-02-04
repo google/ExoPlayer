@@ -114,7 +114,7 @@ public final class FakeTrackSelection implements ExoTrackSelection {
   }
 
   @Override
-  public int getSelectionReason() {
+  public @C.SelectionReason int getSelectionReason() {
     return C.SELECTION_REASON_UNKNOWN;
   }
 
