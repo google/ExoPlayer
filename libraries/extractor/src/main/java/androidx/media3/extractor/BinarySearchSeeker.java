@@ -15,6 +15,8 @@
  */
 package androidx.media3.extractor;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * A seeker that supports seeking within a stream by searching for the target frame using binary
@@ -407,6 +410,7 @@ public abstract class BinarySearchSeeker {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       TYPE_TARGET_TIMESTAMP_FOUND,
       TYPE_POSITION_OVERESTIMATED,

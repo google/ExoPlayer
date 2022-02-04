@@ -23,6 +23,7 @@ import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_BUFFER_FOR_PL
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS;
 import static androidx.media3.exoplayer.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -63,6 +64,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -503,6 +505,7 @@ public final class Transformer {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     PROGRESS_STATE_WAITING_FOR_AVAILABILITY,
     PROGRESS_STATE_AVAILABLE,

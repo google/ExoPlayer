@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.media.ResourceBusyException;
@@ -49,6 +50,7 @@ import com.google.common.collect.Sets;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -263,6 +265,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({MODE_PLAYBACK, MODE_QUERY, MODE_DOWNLOAD, MODE_RELEASE})
   public @interface Mode {}
   /**

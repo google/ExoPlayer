@@ -64,6 +64,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     PLAYER_COMMAND_DO_NOT_PLAY,
     PLAYER_COMMAND_WAIT_FOR_CALLBACK,

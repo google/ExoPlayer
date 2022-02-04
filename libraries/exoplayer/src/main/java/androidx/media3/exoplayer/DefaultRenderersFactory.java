@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.PlaybackParams;
@@ -43,6 +45,7 @@ import androidx.media3.exoplayer.video.spherical.CameraMotionRenderer;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
@@ -62,6 +65,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({EXTENSION_RENDERER_MODE_OFF, EXTENSION_RENDERER_MODE_ON, EXTENSION_RENDERER_MODE_PREFER})
   public @interface ExtensionRendererMode {}
   /** Do not allow use of extension renderers. */

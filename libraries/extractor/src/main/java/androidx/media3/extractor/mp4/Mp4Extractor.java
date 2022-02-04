@@ -76,6 +76,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {

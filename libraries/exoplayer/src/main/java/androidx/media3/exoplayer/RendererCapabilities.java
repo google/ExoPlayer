@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
@@ -23,6 +25,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Defines the capabilities of a {@link Renderer}. */
 @UnstableApi
@@ -32,6 +35,7 @@ public interface RendererCapabilities {
   @SuppressWarnings("deprecation")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FORMAT_HANDLED,
     FORMAT_EXCEEDS_CAPABILITIES,
@@ -60,6 +64,7 @@ public interface RendererCapabilities {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({ADAPTIVE_SEAMLESS, ADAPTIVE_NOT_SEAMLESS, ADAPTIVE_NOT_SUPPORTED})
   @interface AdaptiveSupport {}
 
@@ -81,6 +86,7 @@ public interface RendererCapabilities {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({TUNNELING_SUPPORTED, TUNNELING_NOT_SUPPORTED})
   @interface TunnelingSupport {}
 
@@ -99,6 +105,7 @@ public interface RendererCapabilities {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     HARDWARE_ACCELERATION_SUPPORTED,
     HARDWARE_ACCELERATION_NOT_SUPPORTED,
@@ -119,6 +126,7 @@ public interface RendererCapabilities {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     DECODER_SUPPORT_PRIMARY,
     DECODER_SUPPORT_FALLBACK,
@@ -167,6 +175,7 @@ public interface RendererCapabilities {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   // Intentionally empty to prevent assignment or comparison with individual flags without masking.
+  @Target(TYPE_USE)
   @IntDef({})
   @interface Capabilities {}
 

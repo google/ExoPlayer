@@ -18,6 +18,7 @@ package androidx.media3.ui;
 import static androidx.media3.common.Player.COMMAND_GET_TEXT;
 import static androidx.media3.common.Player.COMMAND_SET_VIDEO_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -68,6 +69,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
@@ -187,6 +189,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
   /** The buffering view is never shown. */

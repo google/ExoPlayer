@@ -15,6 +15,8 @@
  */
 package androidx.media3.extractor.mkv;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.UnstableApi;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Defines EBML element IDs/types and processes events. */
 @UnstableApi
@@ -35,6 +38,7 @@ public interface EbmlProcessor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     ELEMENT_TYPE_UNKNOWN,
     ELEMENT_TYPE_MASTER,

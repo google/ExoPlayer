@@ -67,6 +67,7 @@ public final class FlacExtractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {FLAG_DISABLE_ID3_METADATA})

@@ -21,6 +21,7 @@ import static androidx.media3.exoplayer.audio.AudioCapabilities.DEFAULT_AUDIO_CA
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.media.AudioFormat;
@@ -58,6 +59,7 @@ import com.google.errorprone.annotations.InlineMeValidationDisabled;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -391,6 +393,7 @@ public final class DefaultAudioSink implements AudioSink {
   /** Audio offload mode configuration. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     OFFLOAD_MODE_DISABLED,
     OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED,
@@ -428,6 +431,7 @@ public final class DefaultAudioSink implements AudioSink {
   /** Output mode of the audio sink. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({OUTPUT_MODE_PCM, OUTPUT_MODE_OFFLOAD, OUTPUT_MODE_PASSTHROUGH})
   public @interface OutputMode {}
 

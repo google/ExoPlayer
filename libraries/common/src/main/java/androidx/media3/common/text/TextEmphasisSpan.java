@@ -15,12 +15,14 @@
  */
 package androidx.media3.common.text;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * A styling span for text emphasis marks.
@@ -50,6 +52,7 @@ public final class TextEmphasisSpan implements LanguageFeatureSpan {
    */
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({MARK_SHAPE_NONE, MARK_SHAPE_CIRCLE, MARK_SHAPE_DOT, MARK_SHAPE_SESAME})
   public @interface MarkShape {}
 
@@ -71,6 +74,7 @@ public final class TextEmphasisSpan implements LanguageFeatureSpan {
    */
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({MARK_FILL_UNKNOWN, MARK_FILL_FILLED, MARK_FILL_OPEN})
   public @interface MarkFill {}
 

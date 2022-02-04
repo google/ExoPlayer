@@ -15,6 +15,8 @@
  */
 package androidx.media3.ui;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -25,6 +27,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** A {@link FrameLayout} that resizes itself to match a specified aspect ratio. */
 @UnstableApi
@@ -53,6 +56,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     RESIZE_MODE_FIT,
     RESIZE_MODE_FIXED_WIDTH,
