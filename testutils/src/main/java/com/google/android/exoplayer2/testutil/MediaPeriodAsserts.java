@@ -238,7 +238,7 @@ public final class MediaPeriodAsserts {
     }
 
     @Override
-    public int getSelectionReason() {
+    public @C.SelectionReason int getSelectionReason() {
       return C.SELECTION_REASON_UNKNOWN;
     }
 

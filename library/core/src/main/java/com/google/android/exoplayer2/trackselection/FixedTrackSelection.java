@@ -25,7 +25,7 @@ import java.util.List;
 /** A {@link TrackSelection} consisting of a single track. */
 public final class FixedTrackSelection extends BaseTrackSelection {
 
-  private final int reason;
+  private final @C.SelectionReason int reason;
   @Nullable private final Object data;
 
   /**
@@ -53,7 +53,11 @@ public final class FixedTrackSelection extends BaseTrackSelection {
    * @param data Optional data associated with the track selection.
    */
   public FixedTrackSelection(
-      TrackGroup group, int track, @Type int type, int reason, @Nullable Object data) {
+      TrackGroup group,
+      int track,
+      @Type int type,
+      @C.SelectionReason int reason,
+      @Nullable Object data) {
     super(group, /* tracks= */ new int[] {track}, type);
     this.reason = reason;
     this.data = data;
@@ -75,7 +79,7 @@ public final class FixedTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public int getSelectionReason() {
+  public @C.SelectionReason int getSelectionReason() {
     return reason;
   }
 

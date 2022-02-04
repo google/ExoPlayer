@@ -546,7 +546,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public int getSelectionReason() {
+    public @C.SelectionReason int getSelectionReason() {
       return trackSelection.getSelectionReason();
     }
 
