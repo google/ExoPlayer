@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.text.span;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /** Properties of a text annotation (i.e. ruby, text emphasis marks). */
 public final class TextAnnotation {
@@ -55,6 +57,7 @@ public final class TextAnnotation {
    */
   @Documented
   @Retention(SOURCE)
+  @Target(TYPE_USE)
   @IntDef({POSITION_UNKNOWN, POSITION_BEFORE, POSITION_AFTER})
   public @interface Position {}
 

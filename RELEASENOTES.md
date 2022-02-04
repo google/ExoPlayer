@@ -163,7 +163,81 @@
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
     the compilation of usages in Kotlin, which can be fixed by moving the
     annotation to annotate the type (`Int`).
+    *   `@AacAudioObjectType`
+    *   `@Ac3Util.SyncFrameInfo.StreamType`
+    *   `@AdLoadException.Type`
+    *   `@AdtsExtractor.Flags`
+    *   `@AmrExtractor.Flags`
+    *   `@AspectRatioFrameLayout.ResizeMode`
+    *   `@AudioFocusManager.PlayerCommand`
+    *   `@AudioSink.SinkFormatSupport`
+    *   `@BinarySearchSeeker.TimestampSearchResult.Type`
+    *   `@BufferReplacementMode`
+    *   `@C.BufferFlags`
+    *   `@C.ColorRange`
+    *   `@C.ColorSpace`
+    *   `@C.ColorTransfer`
+    *   `@C.CryptoMode`
+    *   `@C.Encoding`
+    *   `@C.PcmEncoding`
+    *   `@C.Projection`
     *   `@C.SelectionReason`
+    *   `@C.StereoMode`
+    *   `@C.VideoOutputMode`
+    *   `@CacheDataSource.Flags`
+    *   `@CaptionStyleCompat.EdgeType`
+    *   `@DataSpec.Flags`
+    *   `@DataSpec.HttpMethods`
+    *   `@DecoderDiscardReasons`
+    *   `@DecoderReuseResult`
+    *   `@DefaultAudioSink.OutputMode`
+    *   `@DefaultDrmSessionManager.Mode`
+    *   `@DefaultTrackSelector.SelectionEligibility`
+    *   `@DefaultTsPayloadReaderFactory.Flags`
+    *   `@EGLSurfaceTexture.SecureMode`
+    *   `@EbmlProcessor.ElementType`
+    *   `@ExoMediaDrm.KeyRequest.RequestType`
+    *   `@ExtensionRendererMode`
+    *   `@Extractor.ReadResult`
+    *   `@FileTypes.Type`
+    *   `@FlacExtractor.Flags` (in `com.google.android.exoplayer2.ext.flac`
+        package)
+    *   `@FlacExtractor.Flags` (in
+        `com.google.android.exoplayer2.extractor.flac` package)
+    *   `@FragmentedMp4Extractor.Flags`
+    *   `@HlsMediaPlaylist.PlaylistType`
+    *   `@HttpDataSourceException.Type`
+    *   `@IllegalClippingException.Reason`
+    *   `@IllegalMergeException.Reason`
+    *   `@LoadErrorHandlingPolicy.FallbackType`
+    *   `@MatroskaExtractor.Flags`
+    *   `@Mp3Extractor.Flags`
+    *   `@Mp4Extractor.Flags`
+    *   `@NotificationUtil.Importance`
+    *   `@PlaybackException.FieldNumber`
+    *   `@PlayerNotificationManager.Priority`
+    *   `@PlayerNotificationManager.Visibility`
+    *   `@PlayerView.ShowBuffering`
+    *   `@Renderer.State`
+    *   `@RendererCapabilities.AdaptiveSupport`
+    *   `@RendererCapabilities.Capabilities`
+    *   `@RendererCapabilities.DecoderSupport`
+    *   `@RendererCapabilities.FormatSupport`
+    *   `@RendererCapabilities.HardwareAccelerationSupport`
+    *   `@RendererCapabilities.TunnelingSupport`
+    *   `@SampleStream.ReadDataResult`
+    *   `@SampleStream.ReadFlags`
+    *   `@StyledPlayerView.ShowBuffering`
+    *   `@SubtitleView.ViewType`
+    *   `@TextAnnotation.Position`
+    *   `@TextEmphasisSpan.MarkFill`
+    *   `@TextEmphasisSpan.MarkShape`
+    *   `@Track.Transformation`
+    *   `@TrackOutput.SampleDataPart`
+    *   `@Transformer.ProgressState`
+    *   `@TsExtractor.Mode`
+    *   `@TsPayloadReader.Flags`
+    *   `@WebvttCssStyle.FontSizeUnit`
 
 ### 2.16.1 (2021-11-18)
 

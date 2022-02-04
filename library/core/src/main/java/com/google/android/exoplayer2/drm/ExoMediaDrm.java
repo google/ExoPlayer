@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
@@ -32,6 +34,7 @@ import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -226,6 +229,7 @@ public interface ExoMediaDrm {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       REQUEST_TYPE_UNKNOWN,
       REQUEST_TYPE_INITIAL,

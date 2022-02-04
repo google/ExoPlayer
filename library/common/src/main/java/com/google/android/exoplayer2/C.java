@@ -163,6 +163,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
   public @interface CryptoMode {}
   /** @see MediaCodec#CRYPTO_MODE_UNENCRYPTED */
@@ -188,6 +189,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     ENCODING_INVALID,
@@ -222,6 +224,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     ENCODING_INVALID,
@@ -478,6 +481,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {
@@ -508,6 +512,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(value = {VIDEO_OUTPUT_MODE_NONE, VIDEO_OUTPUT_MODE_YUV, VIDEO_OUTPUT_MODE_SURFACE_YUV})
   public @interface VideoOutputMode {}
   /** Video decoder output mode is not set. */
@@ -636,6 +641,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
@@ -828,6 +834,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     STEREO_MODE_MONO,
@@ -854,6 +861,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
   /** @see MediaFormat#COLOR_STANDARD_BT709 */
@@ -869,6 +877,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
   public @interface ColorTransfer {}
   /** @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO */
@@ -884,6 +893,7 @@ public final class C {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
   public @interface ColorRange {}
   /** @see MediaFormat#COLOR_RANGE_LIMITED */
@@ -894,6 +904,7 @@ public final class C {
   /** Video projection types. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     Format.NO_VALUE,
     PROJECTION_RECTANGULAR,

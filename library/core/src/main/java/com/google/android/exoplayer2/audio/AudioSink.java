@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.AudioTrack;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -28,6 +30,7 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 
 /**
@@ -256,6 +259,7 @@ public interface AudioSink {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     SINK_FORMAT_SUPPORTED_DIRECTLY,
     SINK_FORMAT_SUPPORTED_WITH_TRANSCODING,

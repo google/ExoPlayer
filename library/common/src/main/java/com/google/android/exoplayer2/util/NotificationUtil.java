@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -29,6 +30,7 @@ import androidx.annotation.StringRes;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Utility methods for displaying {@link Notification Notifications}. */
 @SuppressLint("InlinedApi")
@@ -41,6 +43,7 @@ public final class NotificationUtil {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     IMPORTANCE_UNSPECIFIED,
     IMPORTANCE_NONE,

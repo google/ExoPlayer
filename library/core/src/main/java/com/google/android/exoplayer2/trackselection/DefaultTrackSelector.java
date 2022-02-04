@@ -1420,6 +1420,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({SELECTION_ELIGIBILITY_NO, SELECTION_ELIGIBILITY_FIXED, SELECTION_ELIGIBILITY_ADAPTIVE})
   protected @interface SelectionEligibility {}
 
