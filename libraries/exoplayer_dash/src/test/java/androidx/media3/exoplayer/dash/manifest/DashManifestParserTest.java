@@ -46,6 +46,10 @@ import org.xmlpull.v1.XmlPullParserFactory;
 public class DashManifestParserTest {
 
   private static final String SAMPLE_MPD_LIVE = "media/mpd/sample_mpd_live";
+  private static final String SAMPLE_MPD_LIVE_LOCATION_REDIRECT_RELATIVE =
+      "media/mpd/sample_mpd_live_location_redirect_relative";
+  private static final String SAMPLE_MPD_LIVE_LOCATION_REDIRECT_ABSOLUTE =
+      "media/mpd/sample_mpd_live_location_redirect_absolute";
   private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE =
       "media/mpd/sample_mpd_unknown_mime_type";
   private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "media/mpd/sample_mpd_segment_template";
@@ -199,6 +203,32 @@ public class DashManifestParserTest {
         new ProgramInformation(
             "MediaTitle", "MediaSource", "MediaCopyright", "www.example.com", "enUs");
     assertThat(manifest.programInformation).isEqualTo(expectedProgramInformation);
+  }
+
+  @Test
+  public void parseMediaPresentationDescription_locationRedirectRelative() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/a/b/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_LIVE_LOCATION_REDIRECT_RELATIVE));
+    Uri expectedLocation = Uri.parse("https://example.com/a/relative/redirect.mpd");
+    assertThat(manifest.location).isEqualTo(expectedLocation);
+  }
+
+  @Test
+  public void parseMediaPresentationDescription_locationRedirectAbsolute() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/a/b/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_LIVE_LOCATION_REDIRECT_ABSOLUTE));
+    Uri expectedLocation = Uri.parse("https://example2.com/absolute/redirect.mpd");
+    assertThat(manifest.location).isEqualTo(expectedLocation);
   }
 
   @Test
