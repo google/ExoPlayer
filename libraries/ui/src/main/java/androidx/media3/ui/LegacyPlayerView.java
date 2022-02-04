@@ -252,7 +252,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * single instance in a layout file. This is achieved by setting the {@code player_layout_id}
  * attribute on a LegacyPlayerView. This will cause the specified layout to be inflated instead of
  * {@code exo_legacy_player_view.xml} for only the instance on which the attribute is set.
+ *
+ * @deprecated Use {@link PlayerView} instead.
  */
+@Deprecated
 @UnstableApi
 public class LegacyPlayerView extends FrameLayout implements AdViewProvider {
 
