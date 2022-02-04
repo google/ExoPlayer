@@ -73,9 +73,18 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     // TODO(b/210591626) Add encoder selection for audio.
     checkArgument(!allowedMimeTypes.isEmpty());
     if (!allowedMimeTypes.contains(format.sampleMimeType)) {
-      // TODO(b/210591626): Pick fallback MIME type using same strategy as for encoder
-      // capabilities limitations.
-      format = format.buildUpon().setSampleMimeType(allowedMimeTypes.get(0)).build();
+      if (!disableFallback) {
+        // TODO(b/210591626): Pick fallback MIME type using same strategy as for encoder
+        // capabilities limitations.
+        format = format.buildUpon().setSampleMimeType(allowedMimeTypes.get(0)).build();
+      } else {
+        throw createTransformationException(
+            new IllegalArgumentException("The requested output format is not supported."),
+            format,
+            /* isVideo= */ false,
+            /* isDecoder= */ false,
+            /* mediaCodecName= */ null);
+      }
     }
     MediaFormat mediaFormat =
         MediaFormat.createAudioFormat(
@@ -110,8 +119,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             format, videoEncoderSelector, allowedMimeTypes, disableFallback);
     if (encoderAndClosestFormatSupport == null) {
       throw createTransformationException(
-          new IllegalArgumentException(
-              "No encoder available that supports the requested output format."),
+          new IllegalArgumentException("The requested output format is not supported."),
           format,
           /* isVideo= */ true,
           /* isDecoder= */ false,
