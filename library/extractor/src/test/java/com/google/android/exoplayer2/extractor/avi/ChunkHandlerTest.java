@@ -15,12 +15,16 @@
  */
 package com.google.android.exoplayer2.extractor.avi;
 
-import com.google.android.exoplayer2.extractor.ExtractorInput;
-import java.io.IOException;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * Peeks for import data in the chunk stream.
- */
-public interface ChunkPeeker {
-  void peek(ExtractorInput input, final int size) throws IOException;
+public class ChunkHandlerTest {
+  @Test
+  public void setClock_givenLinearClock() {
+    final ChunkClock linearClock = new ChunkClock(1_000_000L, 30);
+    final ChunkHandler chunkHandler = DataHelper.getVideoChunkHandler(1);
+    chunkHandler.setClock(linearClock);
+
+    Assert.assertSame(linearClock, chunkHandler.getClock());
+  }
 }

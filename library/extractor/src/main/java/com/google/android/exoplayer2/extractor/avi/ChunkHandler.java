@@ -16,11 +16,11 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Log;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -28,22 +28,19 @@ import java.util.Arrays;
  * Collection of info about a track.
  * This acts a bridge between AVI and ExoPlayer structures
  */
-public class AviTrack {
+public class ChunkHandler {
   public static final int[] ALL_KEY_FRAMES = new int[0];
-  public static int CHUNK_TYPE_VIDEO = ('d' << 16) | ('c' << 24);
-  public static int CHUNK_TYPE_AUDIO = ('w' << 16) | ('b' << 24);
+  public static int TYPE_VIDEO = ('d' << 16) | ('c' << 24);
+  public static int TYPE_AUDIO = ('w' << 16) | ('b' << 24);
 
   @NonNull
-  LinearClock clock;
+  ChunkClock clock;
 
   @NonNull
   final TrackOutput trackOutput;
 
   final int chunkId;
   final int chunkIdAlt;
-
-  @Nullable
-  ChunkPeeker chunkPeeker;
 
   int chunks;
   int size;
@@ -63,8 +60,7 @@ public class AviTrack {
     return  ('0' + tens) | (('0' + ones) << 8);
   }
 
-  AviTrack(int id, int chunkType, @NonNull LinearClock clock,
-      @NonNull TrackOutput trackOutput) {
+  ChunkHandler(int id, int chunkType, @NonNull TrackOutput trackOutput, @NonNull ChunkClock clock) {
     this.chunkId = getChunkIdLower(id) | chunkType;
     this.clock = clock;
     this.trackOutput = trackOutput;
@@ -80,16 +76,12 @@ public class AviTrack {
   }
 
   @NonNull
-  public LinearClock getClock() {
+  public ChunkClock getClock() {
     return clock;
   }
 
-  public void setClock(@NonNull LinearClock clock) {
+  public void setClock(@NonNull ChunkClock clock) {
     this.clock = clock;
-  }
-
-  public void setChunkPeeker(ChunkPeeker chunkPeeker) {
-    this.chunkPeeker = chunkPeeker;
   }
 
   /**
@@ -105,17 +97,14 @@ public class AviTrack {
   }
 
   public boolean isVideo() {
-    return (chunkId & CHUNK_TYPE_VIDEO) == CHUNK_TYPE_VIDEO;
+    return (chunkId & TYPE_VIDEO) == TYPE_VIDEO;
   }
 
   public boolean isAudio() {
-    return (chunkId & CHUNK_TYPE_AUDIO) == CHUNK_TYPE_AUDIO;
+    return (chunkId & TYPE_AUDIO) == TYPE_AUDIO;
   }
 
   public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
-    if (chunkPeeker != null) {
-      chunkPeeker.peek(input, size);
-    }
     final int remaining = size - trackOutput.sampleData(input, size, false);
     if (remaining == 0) {
       done(size);
@@ -152,12 +141,19 @@ public class AviTrack {
       trackOutput.sampleMetadata(
           clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
     }
-    final LinearClock clock = getClock();
+    final ChunkClock clock = getClock();
     //Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " size=" + size + " frame=" + clock.getIndex() + " key=" + isKeyFrame());
     clock.advance();
   }
 
   public int getId() {
     return ((chunkId >> 8) & 0xf) + ( chunkId & 0xf) * 10;
+  }
+
+  /**
+   * A seek occurred
+   */
+  public void setIndex(int index) {
+    getClock().setIndex(index);
   }
 }

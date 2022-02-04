@@ -27,22 +27,22 @@ public class AviSeekMapTest {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
     final long position = aviSeekMap.keyFrameOffsetsDiv2[1] * 2L + aviSeekMap.seekOffset;
     final int secs = 4;
-    final AviTrack[] aviTracks = new AviTrack[]{DataHelper.getVideoAviTrack(secs),
-        DataHelper.getAudioAviTrack(secs)};
+    final ChunkHandler[] chunkHandlers = new ChunkHandler[]{DataHelper.getVideoChunkHandler(secs),
+        DataHelper.getAudioChunkHandler(secs)};
 
-    aviSeekMap.setFrames(position, C.MICROS_PER_SECOND, aviTracks);
-    for (int i=0;i<aviTracks.length;i++) {
-      Assert.assertEquals(aviSeekMap.seekIndexes[i][1], aviTracks[i].getClock().getIndex());
+    aviSeekMap.setFrames(position, C.MICROS_PER_SECOND, chunkHandlers);
+    for (int i=0;i<chunkHandlers.length;i++) {
+      Assert.assertEquals(aviSeekMap.seekIndexes[i][1], chunkHandlers[i].getClock().getIndex());
     }
   }
 
   @Test
   public void setFrames_givenBadPosition() {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
-    final AviTrack[] aviTracks = new AviTrack[2];
+    final ChunkHandler[] chunkHandlers = new ChunkHandler[2];
 
     try {
-      aviSeekMap.setFrames(1L, C.MICROS_PER_SECOND, aviTracks);
+      aviSeekMap.setFrames(1L, C.MICROS_PER_SECOND, chunkHandlers);
       Assert.fail();
     } catch (IllegalArgumentException e) {
       //Intentionally blank

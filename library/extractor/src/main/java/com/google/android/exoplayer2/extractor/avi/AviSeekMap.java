@@ -99,17 +99,18 @@ public class AviSeekMap implements SeekMap {
     //Log.d(AviExtractor.TAG, "SeekPoint: us=" + outUs + " pos=" + position);
   }
 
-  public void setFrames(final long position, final long timeUs, final AviTrack[] aviTracks) {
+  public void setFrames(final long position, final long timeUs, final ChunkHandler[] chunkHandlers) {
     final int index = Arrays.binarySearch(keyFrameOffsetsDiv2, (int)((position - seekOffset) / 2));
 
     if (index < 0) {
       throw new IllegalArgumentException("Position: " + position);
     }
-    for (int i=0;i<aviTracks.length;i++) {
-      final AviTrack aviTrack = aviTracks[i];
-      final LinearClock clock = aviTrack.getClock();
-      clock.setIndex(seekIndexes[i][index]);
-//      Log.d(AviExtractor.TAG, "Frame: " + (aviTrack.isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " frame=" + clock.getIndex() + " key=" + aviTrack.isKeyFrame());
+    for (int i=0;i<chunkHandlers.length;i++) {
+      final ChunkHandler chunkHandler = chunkHandlers[i];
+      if (chunkHandler != null) {
+//      Log.d(AviExtractor.TAG, "Frame: " + (chunkHandler.isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " frame=" + clock.getIndex() + " key=" + chunkHandler.isKeyFrame());
+        chunkHandler.setIndex(seekIndexes[i][index]);
+      }
     }
   }
 }

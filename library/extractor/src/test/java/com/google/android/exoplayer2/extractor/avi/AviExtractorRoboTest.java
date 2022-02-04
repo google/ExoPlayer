@@ -108,26 +108,26 @@ public class AviExtractorRoboTest {
 
     Assert.assertEquals(AviExtractor.STATE_FIND_MOVI, aviExtractor.state);
 
-    final AviTrack aviTrack = aviExtractor.getVideoTrack();
-    Assert.assertEquals(aviTrack.getClock().durationUs, streamHeaderBox.getDurationUs());
+    final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
+    Assert.assertEquals(chunkHandler.getClock().durationUs, streamHeaderBox.getDurationUs());
   }
 
   @Test
   public void readSamples_fragmentedChunk() throws IOException {
     AviExtractor aviExtractor = AviExtractorTest.setupVideoAviExtractor();
-    final AviTrack aviTrack = aviExtractor.getVideoTrack();
+    final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
     final int size = 24 + 16;
     final ByteBuffer byteBuffer = AviExtractor.allocate(size + 8);
-    byteBuffer.putInt(aviTrack.chunkId);
+    byteBuffer.putInt(chunkHandler.chunkId);
     byteBuffer.putInt(size);
 
     final ExtractorInput chunk = new FakeExtractorInput.Builder().setData(byteBuffer.array()).
         setSimulatePartialReads(true).build();
     Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(chunk, new PositionHolder()));
 
-    Assert.assertEquals(Extractor.RESULT_END_OF_INPUT, aviExtractor.read(chunk, new PositionHolder()));
+    Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(chunk, new PositionHolder()));
 
-    final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) aviTrack.trackOutput;
+    final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) chunkHandler.trackOutput;
     Assert.assertEquals(size, fakeTrackOutput.getSampleData(0).length);
   }
 }

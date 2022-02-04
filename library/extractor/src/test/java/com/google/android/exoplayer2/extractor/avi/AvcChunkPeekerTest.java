@@ -39,13 +39,13 @@ public class AvcChunkPeekerTest {
       (byte)0xFE,(byte)0x9E,0x10,00,00};
 
   private FakeTrackOutput fakeTrackOutput;
-  private AvcChunkPeeker avcChunkPeeker;
+  private AvcChunkHandler avcChunkPeeker;
 
   @Before
   public void before() {
     fakeTrackOutput = new FakeTrackOutput(false);
-    avcChunkPeeker = new AvcChunkPeeker(FORMAT_BUILDER_AVC, fakeTrackOutput,
-        new LinearClock(10_000_000L, 24 * 10));
+    avcChunkPeeker = new AvcChunkHandler(0, fakeTrackOutput,
+        new ChunkClock(10_000_000L, 24 * 10), FORMAT_BUILDER_AVC);
   }
 
   private void peekStreamHeader() throws IOException {

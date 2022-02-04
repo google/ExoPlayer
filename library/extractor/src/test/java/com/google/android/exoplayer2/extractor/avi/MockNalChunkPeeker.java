@@ -16,12 +16,13 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import java.io.IOException;
 
 public class MockNalChunkPeeker extends NalChunkPeeker {
   private boolean skip;
   public MockNalChunkPeeker(int peakSize, boolean skip) {
-    super(peakSize);
+    super(0, new FakeTrackOutput(false), new ChunkClock(1_000_000L, 24), peakSize);
     this.skip = skip;
   }
 

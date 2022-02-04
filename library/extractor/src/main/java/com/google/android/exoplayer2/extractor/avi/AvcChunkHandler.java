@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.avi;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -27,7 +28,7 @@ import java.io.IOException;
  * Corrects the time and PAR for H264 streams
  * AVC is very rare in AVI due to the rise of the mp4 container
  */
-public class AvcChunkPeeker extends NalChunkPeeker {
+public class AvcChunkHandler extends NalChunkPeeker {
   private static final int NAL_TYPE_MASK = 0x1f;
   private static final int NAL_TYPE_IDR = 5; //I Frame
   private static final int NAL_TYPE_SEI = 6;
@@ -35,22 +36,21 @@ public class AvcChunkPeeker extends NalChunkPeeker {
   private static final int NAL_TYPE_PPS = 8;
   private static final int NAL_TYPE_AUD = 9;
 
-  private final PicCountClock picCountClock;
   private final Format.Builder formatBuilder;
-  private final TrackOutput trackOutput;
 
   private float pixelWidthHeightRatio = 1f;
   private NalUnitUtil.SpsData spsData;
 
-  public AvcChunkPeeker(Format.Builder formatBuilder, TrackOutput trackOutput, LinearClock clock) {
-    super(16);
+  public AvcChunkHandler(int id, @NonNull TrackOutput trackOutput,
+      @NonNull ChunkClock clock, Format.Builder formatBuilder) {
+    super(id, trackOutput, new PicCountClock(clock.durationUs, clock.chunks), 16);
     this.formatBuilder = formatBuilder;
-    this.trackOutput = trackOutput;
-    picCountClock = new PicCountClock(clock.durationUs, clock.length);
   }
 
+  @NonNull
+  @Override
   public PicCountClock getClock() {
-    return picCountClock;
+    return (PicCountClock) clock;
   }
 
   @Override
@@ -84,13 +84,13 @@ public class AvcChunkPeeker extends NalChunkPeeker {
     if (spsData.picOrderCountType == 0) {
       int picOrderCountLsb = in.readBits(spsData.picOrderCntLsbLength);
       //Log.d("Test", "FrameNum: " + frame + " cnt=" + picOrderCountLsb);
-      picCountClock.setPicCount(picOrderCountLsb);
+      getClock().setPicCount(picOrderCountLsb);
       return;
     } else if (spsData.picOrderCountType == 2) {
-      picCountClock.setPicCount(frameNum);
+      getClock().setPicCount(frameNum);
       return;
     }
-    picCountClock.setIndex(picCountClock.getIndex());
+    clock.setIndex(clock.getIndex());
   }
 
   @VisibleForTesting
@@ -99,10 +99,10 @@ public class AvcChunkPeeker extends NalChunkPeeker {
     nalTypeOffset = seekNextNal(input, spsStart);
     spsData = NalUnitUtil.parseSpsNalUnitPayload(buffer, spsStart, pos);
     if (spsData.picOrderCountType == 0) {
-      picCountClock.setMaxPicCount(1 << spsData.picOrderCntLsbLength, 2);
+      getClock().setMaxPicCount(1 << spsData.picOrderCntLsbLength, 2);
     } else if (spsData.picOrderCountType == 2) {
       //Plus one because we double the frame number
-      picCountClock.setMaxPicCount(1 << spsData.frameNumLength, 1);
+      getClock().setMaxPicCount(1 << spsData.frameNumLength, 1);
     }
     if (spsData.pixelWidthHeightRatio != pixelWidthHeightRatio) {
       pixelWidthHeightRatio = spsData.pixelWidthHeightRatio;
@@ -124,7 +124,7 @@ public class AvcChunkPeeker extends NalChunkPeeker {
           updatePicCountClock(nalTypeOffset);
           return;
         case NAL_TYPE_IDR:
-          picCountClock.syncIndexes();
+          getClock().syncIndexes();
           return;
         case NAL_TYPE_AUD:
         case NAL_TYPE_SEI:

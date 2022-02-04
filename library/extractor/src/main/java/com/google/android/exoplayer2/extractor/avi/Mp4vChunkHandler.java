@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Peeks an MP4V stream looking for pixelWidthHeightRatio data
  */
-public class Mp4vChunkPeeker extends NalChunkPeeker {
+public class Mp4vChunkHandler extends NalChunkPeeker {
   @VisibleForTesting
   static final byte SEQUENCE_START_CODE = (byte)0xb0;
   @VisibleForTesting
@@ -36,15 +36,14 @@ public class Mp4vChunkPeeker extends NalChunkPeeker {
   static final int Extended_PAR = 0xf;
 
   private final Format.Builder formatBuilder;
-  private final TrackOutput trackOutput;
 
   @VisibleForTesting()
   float pixelWidthHeightRatio = 1f;
 
-  public Mp4vChunkPeeker(@NonNull Format.Builder formatBuilder, @NonNull TrackOutput trackOutput) {
-    super(5);
+  public Mp4vChunkHandler(int id, @NonNull TrackOutput trackOutput,
+      @NonNull ChunkClock clock, @NonNull Format.Builder formatBuilder) {
+    super(id, trackOutput, clock, 5);
     this.formatBuilder = formatBuilder;
-    this.trackOutput = trackOutput;
   }
 
   @Override

@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.avi;
 
+import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.TrackOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -23,13 +25,22 @@ import java.util.Arrays;
  * Generic base class for NAL (0x00 0x00 0x01) chunk headers
  * Theses are used by AVC and MP4V (XVID)
  */
-public abstract class NalChunkPeeker implements ChunkPeeker {
+public abstract class NalChunkPeeker extends ChunkHandler {
   private static final int SEEK_PEEK_SIZE = 256;
   private final int peekSize;
 
   private transient int remaining;
   transient byte[] buffer;
   transient int pos;
+
+  NalChunkPeeker(int id, @NonNull TrackOutput trackOutput,
+      @NonNull ChunkClock clock, int peakSize) {
+    super(id, TYPE_VIDEO, trackOutput, clock);
+    if (peakSize < 5) {
+      throw new IllegalArgumentException("Peak size must at least be 5");
+    }
+    this.peekSize = peakSize;
+  }
 
   abstract void processChunk(ExtractorInput input, int nalTypeOffset) throws IOException;
 
@@ -100,14 +111,12 @@ public abstract class NalChunkPeeker implements ChunkPeeker {
     return -1;
   }
 
-  public NalChunkPeeker(int peakSize) {
-    if (peakSize < 5) {
-      throw new IllegalArgumentException("Peak size must at least be 5");
-    }
-    this.peekSize = peakSize;
-  }
-
   abstract boolean skip(byte nalType);
+
+  public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
+    peek(input, size);
+    return super.newChunk(tag, size, input);
+  }
 
   public void peek(ExtractorInput input, final int size) throws IOException {
     buffer = new byte[peekSize];
