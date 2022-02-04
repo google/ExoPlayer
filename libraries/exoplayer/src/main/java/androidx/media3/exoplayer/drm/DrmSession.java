@@ -15,6 +15,12 @@
  */
 package androidx.media3.exoplayer.drm;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.media.MediaDrm;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -25,6 +31,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.UUID;
 
@@ -70,8 +77,11 @@ public interface DrmSession {
    * The state of the DRM session. One of {@link #STATE_RELEASED}, {@link #STATE_ERROR}, {@link
    * #STATE_OPENING}, {@link #STATE_OPENED} or {@link #STATE_OPENED_WITH_KEYS}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({STATE_RELEASED, STATE_ERROR, STATE_OPENING, STATE_OPENED, STATE_OPENED_WITH_KEYS})
   @interface State {}
   /** The session has been released. This is a terminal state. */
