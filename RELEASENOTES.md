@@ -103,6 +103,8 @@
         priority in manifests that do not declare the dvb namespace. This
         prevents the exclusion logic to exclude base URL when they actually
         should be used as a fallback base URL.
+    *   Support relative `MPD.Location` URLs
+        ([#9939](https://github.com/google/ExoPlayer/issues/9939)).
 *   HLS:
     *   Use chunkless preparation by default to improve start up time. If your
         renditions contain muxed closed-caption tracks that are *not* declared
