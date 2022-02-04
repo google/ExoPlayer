@@ -1815,13 +1815,13 @@ public final class DefaultAudioSink implements AudioSink {
     AudioFormat audioFormat = getAudioFormat(format.sampleRate, channelConfig, encoding);
 
     switch (getOffloadedPlaybackSupport(audioFormat, audioAttributes.getAudioAttributesV21())) {
-      case C.PLAYBACK_OFFLOAD_NOT_SUPPORTED:
+      case AudioManager.PLAYBACK_OFFLOAD_NOT_SUPPORTED:
         return false;
-      case C.PLAYBACK_OFFLOAD_SUPPORTED:
+      case AudioManager.PLAYBACK_OFFLOAD_SUPPORTED:
         boolean isGapless = format.encoderDelay != 0 || format.encoderPadding != 0;
         boolean gaplessSupportRequired = offloadMode == OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED;
         return !isGapless || !gaplessSupportRequired;
-      case C.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED:
+      case AudioManager.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED:
         return true;
       default:
         throw new IllegalStateException();
@@ -1829,22 +1829,20 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @RequiresApi(29)
-  // Return values of AudioManager.getPlaybackOffloadSupport are equal to C.AudioManagerOffloadMode.
-  @SuppressLint("WrongConstant")
-  @C.AudioManagerOffloadMode
+  @SuppressLint("InlinedApi")
   private int getOffloadedPlaybackSupport(
       AudioFormat audioFormat, android.media.AudioAttributes audioAttributes) {
     if (Util.SDK_INT >= 31) {
       return AudioManager.getPlaybackOffloadSupport(audioFormat, audioAttributes);
     }
     if (!AudioManager.isOffloadedPlaybackSupported(audioFormat, audioAttributes)) {
-      return C.PLAYBACK_OFFLOAD_NOT_SUPPORTED;
+      return AudioManager.PLAYBACK_OFFLOAD_NOT_SUPPORTED;
     }
     // Manual testing has shown that Pixels on Android 11 support gapless offload.
     if (Util.SDK_INT == 30 && Util.MODEL.startsWith("Pixel")) {
-      return C.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
+      return AudioManager.PLAYBACK_OFFLOAD_GAPLESS_SUPPORTED;
     }
-    return C.PLAYBACK_OFFLOAD_SUPPORTED;
+    return AudioManager.PLAYBACK_OFFLOAD_SUPPORTED;
   }
 
   private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
