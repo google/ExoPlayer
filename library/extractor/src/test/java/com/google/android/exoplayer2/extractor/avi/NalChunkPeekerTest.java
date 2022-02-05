@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.junit.Assert;
@@ -26,7 +25,7 @@ public class NalChunkPeekerTest {
   @Test
   public void construct_givenTooSmallPeekSize() {
     try {
-      new MockNalChunkPeeker(4, false);
+      new MockNalChunkHandler(4, false);
       Assert.fail();
     } catch (IllegalArgumentException e) {
       //Intentionally blank
@@ -36,7 +35,7 @@ public class NalChunkPeekerTest {
   @Test
   public void peek_givenNoData() {
     final FakeExtractorInput input = new FakeExtractorInput.Builder().build();
-    final MockNalChunkPeeker peeker = new MockNalChunkPeeker(5, false);
+    final MockNalChunkHandler peeker = new MockNalChunkHandler(5, false);
     try {
       peeker.peek(input, 10);
     } catch (IOException e) {
@@ -46,7 +45,7 @@ public class NalChunkPeekerTest {
   @Test
   public void peek_givenNoNal() {
     final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(new byte[10]).build();
-    final MockNalChunkPeeker peeker = new MockNalChunkPeeker(5, false);
+    final MockNalChunkHandler peeker = new MockNalChunkHandler(5, false);
     try {
       peeker.peek(input, 10);
     } catch (IOException e) {
@@ -59,7 +58,7 @@ public class NalChunkPeekerTest {
     DataHelper.appendNal(byteBuffer, (byte)32);
 
     final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(byteBuffer.array()).build();
-    final MockNalChunkPeeker peeker = new MockNalChunkPeeker(5, true);
+    final MockNalChunkHandler peeker = new MockNalChunkHandler(5, true);
     try {
       peeker.peek(input, 10);
       Assert.assertEquals(0, input.getPeekPosition());

@@ -16,11 +16,23 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import java.io.IOException;
 
-/**
- * Peeks for import data in the chunk stream.
- */
-public interface ChunkPeeker {
-  void peek(ExtractorInput input, final int size) throws IOException;
+public class MockNalChunkHandler extends NalChunkHandler {
+  private boolean skip;
+  public MockNalChunkHandler(int peakSize, boolean skip) {
+    super(0, new FakeTrackOutput(false), new ChunkClock(1_000_000L, 24), peakSize);
+    this.skip = skip;
+  }
+
+  @Override
+  void processChunk(ExtractorInput input, int nalTypeOffset) throws IOException {
+
+  }
+
+  @Override
+  boolean skip(byte nalType) {
+    return skip;
+  }
 }

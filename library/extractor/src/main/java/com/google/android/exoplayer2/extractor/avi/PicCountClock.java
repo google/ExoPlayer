@@ -20,7 +20,7 @@ import androidx.annotation.VisibleForTesting;
 /**
  * Properly calculates the frame time for H264 frames using PicCount
  */
-public class PicCountClock extends LinearClock {
+public class PicCountClock extends ChunkClock {
   //The frame as a calculated from the picCount
   private int picIndex;
   private int lastPicCount;

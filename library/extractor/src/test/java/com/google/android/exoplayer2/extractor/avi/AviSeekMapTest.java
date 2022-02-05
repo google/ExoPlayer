@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.avi;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,26 +22,25 @@ import org.junit.Test;
 public class AviSeekMapTest {
 
   @Test
-  public void setFrames_givenExactSeekPointMatch() {
+  public void getFrames_givenExactSeekPointMatch() {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
     final long position = aviSeekMap.keyFrameOffsetsDiv2[1] * 2L + aviSeekMap.seekOffset;
     final int secs = 4;
-    final AviTrack[] aviTracks = new AviTrack[]{DataHelper.getVideoAviTrack(secs),
-        DataHelper.getAudioAviTrack(secs)};
+    final ChunkHandler[] chunkHandlers = new ChunkHandler[]{DataHelper.getVideoChunkHandler(secs),
+        DataHelper.getAudioChunkHandler(secs)};
 
-    aviSeekMap.setFrames(position, C.MICROS_PER_SECOND, aviTracks);
-    for (int i=0;i<aviTracks.length;i++) {
-      Assert.assertEquals(aviSeekMap.seekIndexes[i][1], aviTracks[i].getClock().getIndex());
+    int[] indexes = aviSeekMap.getIndexes(position);
+    for (int i=0;i<chunkHandlers.length;i++) {
+      Assert.assertEquals(aviSeekMap.seekIndexes[i][1], indexes[i]);
     }
   }
 
   @Test
   public void setFrames_givenBadPosition() {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
-    final AviTrack[] aviTracks = new AviTrack[2];
 
     try {
-      aviSeekMap.setFrames(1L, C.MICROS_PER_SECOND, aviTracks);
+      aviSeekMap.getIndexes(1L);
       Assert.fail();
     } catch (IllegalArgumentException e) {
       //Intentionally blank

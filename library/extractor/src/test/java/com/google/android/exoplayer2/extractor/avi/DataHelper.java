@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.extractor.avi;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
@@ -76,7 +75,7 @@ public class DataHelper {
     final ArrayList<Box> list = new ArrayList<>(2);
     list.add(streamHeaderBox);
     list.add(streamFormatBox);
-    return new ListBox((int)(streamHeaderBox.getSize() + streamFormatBox.getSize()),
+    return new ListBox(streamHeaderBox.getSize() + streamFormatBox.getSize(),
         ListBox.TYPE_STRL, list);
   }
 
@@ -104,18 +103,16 @@ public class DataHelper {
     return byteBuffer;
   }
 
-  public static AviTrack getVideoAviTrack(int sec) {
+  public static ChunkHandler getVideoChunkHandler(int sec) {
     final FakeTrackOutput fakeTrackOutput = new FakeTrackOutput(false);
-    return new AviTrack(0, C.TRACK_TYPE_VIDEO,
-        new LinearClock(sec * 1_000_000L, sec * FPS),
-        fakeTrackOutput);
+    return new ChunkHandler(0, ChunkHandler.TYPE_VIDEO, fakeTrackOutput,
+        new ChunkClock(sec * 1_000_000L, sec * FPS));
   }
 
-  public static AviTrack getAudioAviTrack(int sec) {
+  public static ChunkHandler getAudioChunkHandler(int sec) {
     final FakeTrackOutput fakeTrackOutput = new FakeTrackOutput(false);
-    return new AviTrack(AUDIO_ID, C.TRACK_TYPE_AUDIO,
-        new LinearClock(sec * 1_000_000L, sec * FPS * AUDIO_PER_VIDEO),
-        fakeTrackOutput);
+    return new ChunkHandler(AUDIO_ID, ChunkHandler.TYPE_AUDIO, fakeTrackOutput,
+        new ChunkClock(sec * 1_000_000L, sec * FPS * AUDIO_PER_VIDEO));
   }
 
   public static AviSeekMap getAviSeekMap() {
@@ -153,8 +150,8 @@ public class DataHelper {
      */
   public static ByteBuffer getIndex(final int secs, final int keyFrameRate, int offset) {
     final int videoFrames = secs * FPS;
-    final int videoChunkId = AviTrack.getVideoChunkId(0);
-    final int audioChunkId = AviTrack.getAudioChunkId(1);
+    final int videoChunkId = ChunkHandler.TYPE_VIDEO | ChunkHandler.getChunkIdLower(0);
+    final int audioChunkId = ChunkHandler.TYPE_AUDIO | ChunkHandler.getChunkIdLower(1);
     final ByteBuffer byteBuffer = AviExtractor.allocate((videoFrames + videoFrames*AUDIO_PER_VIDEO) * 16);
 
     for (int v=0;v<videoFrames;v++) {

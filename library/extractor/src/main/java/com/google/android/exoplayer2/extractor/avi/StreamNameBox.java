@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.extractor.avi;
 import java.nio.ByteBuffer;
 
 /**
- * Human readable stream name
+ * Box containing a human readable stream name
  */
 public class StreamNameBox extends ResidentBox {
   public static final int STRN = 's' | ('t' << 8) | ('r' << 16) | ('n' << 24);

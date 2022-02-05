@@ -165,7 +165,7 @@ public class AviExtractorTest {
     Assert.assertEquals(1, AviExtractor.getStreamId('0' | ('1' << 8) | ('d' << 16) | ('c' << 24)));
   }
 
-  private void assertIdx1(AviSeekMap aviSeekMap, AviTrack videoTrack, int keyFrames,
+  private void assertIdx1(AviSeekMap aviSeekMap, ChunkHandler videoTrack, int keyFrames,
       int keyFrameRate) {
     Assert.assertEquals(keyFrames, videoTrack.keyFrames.length);
 
@@ -192,9 +192,9 @@ public class AviExtractorTest {
     final int keyFrameRate = 3 * DataHelper.FPS; // Keyframe every 3 seconds
     final int keyFrames = secs * DataHelper.FPS / keyFrameRate;
     final ByteBuffer idx1 = DataHelper.getIndex(secs, keyFrameRate);
-    final AviTrack videoTrack = DataHelper.getVideoAviTrack(secs);
-    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
-    aviExtractor.setAviTracks(new AviTrack[]{videoTrack, audioTrack});
+    final ChunkHandler videoTrack = DataHelper.getVideoChunkHandler(secs);
+    final ChunkHandler audioTrack = DataHelper.getAudioChunkHandler(secs);
+    aviExtractor.setChunkHandlers(new ChunkHandler[]{videoTrack, audioTrack});
     aviExtractor.setAviHeader(DataHelper.createAviHeaderBox());
     aviExtractor.state = AviExtractor.STATE_READ_IDX1;
     aviExtractor.setMovi(DataHelper.MOVI_OFFSET, 128*1024);
@@ -213,7 +213,7 @@ public class AviExtractorTest {
     final AviSeekMap aviSeekMap = aviExtractor.aviSeekMap;
     assertIdx1(aviSeekMap, videoTrack, keyFrames, keyFrameRate);
 
-    Assert.assertEquals(AviExtractor.STATE_READ_SAMPLES, aviExtractor.state);
+    Assert.assertEquals(AviExtractor.STATE_READ_CHUNKS, aviExtractor.state);
     Assert.assertEquals(DataHelper.MOVI_OFFSET + 4, positionHolder.position);
   }
 
@@ -225,8 +225,8 @@ public class AviExtractorTest {
     final int secs = 9;
     final int keyFrameRate = 3 * DataHelper.FPS; // Keyframe every 3 seconds
     final ByteBuffer idx1 = DataHelper.getIndex(secs, keyFrameRate);
-    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
-    aviExtractor.setAviTracks(new AviTrack[]{audioTrack});
+    final ChunkHandler audioTrack = DataHelper.getAudioChunkHandler(secs);
+    aviExtractor.setChunkHandlers(new ChunkHandler[]{audioTrack});
 
     final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder()
         .setData(idx1.array()).build();
@@ -250,9 +250,9 @@ public class AviExtractorTest {
     junk.putInt(0);
     idx1.flip();
     junk.put(idx1);
-    final AviTrack videoTrack = DataHelper.getVideoAviTrack(secs);
-    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
-    aviExtractor.setAviTracks(new AviTrack[]{videoTrack, audioTrack});
+    final ChunkHandler videoTrack = DataHelper.getVideoChunkHandler(secs);
+    final ChunkHandler audioTrack = DataHelper.getAudioChunkHandler(secs);
+    aviExtractor.setChunkHandlers(new ChunkHandler[]{videoTrack, audioTrack});
 
     final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
         setData(junk.array()).build();
@@ -268,16 +268,16 @@ public class AviExtractorTest {
     aviExtractor.init(fakeExtractorOutput);
     final int secs = 4;
     final ByteBuffer idx1 = DataHelper.getIndex(secs, 1);
-    final AviTrack videoTrack = DataHelper.getVideoAviTrack(secs);
-    final AviTrack audioTrack = DataHelper.getAudioAviTrack(secs);
-    aviExtractor.setAviTracks(new AviTrack[]{videoTrack, audioTrack});
+    final ChunkHandler videoTrack = DataHelper.getVideoChunkHandler(secs);
+    final ChunkHandler audioTrack = DataHelper.getAudioChunkHandler(secs);
+    aviExtractor.setChunkHandlers(new ChunkHandler[]{videoTrack, audioTrack});
 
     final FakeExtractorInput fakeExtractorInput = new FakeExtractorInput.Builder().
         setData(idx1.array()).build();
     aviExtractor.readIdx1(fakeExtractorInput, (int) fakeExtractorInput.getLength());
 
     //We should be throttled to 2 key frame per second
-    Assert.assertSame(AviTrack.ALL_KEY_FRAMES, videoTrack.keyFrames);
+    Assert.assertSame(ChunkHandler.ALL_KEY_FRAMES, videoTrack.keyFrames);
   }
 
   @Test
@@ -389,12 +389,12 @@ public class AviExtractorTest {
     final FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
     aviExtractor.init(fakeExtractorOutput);
 
-    final AviTrack aviTrack = DataHelper.getVideoAviTrack(9);
-    aviExtractor.setAviTracks(new AviTrack[]{aviTrack});
+    final ChunkHandler chunkHandler = DataHelper.getVideoChunkHandler(9);
+    aviExtractor.setChunkHandlers(new ChunkHandler[]{chunkHandler});
     final Format format = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_MP4V).build();
-    aviTrack.trackOutput.format(format);
+    chunkHandler.trackOutput.format(format);
 
-    aviExtractor.state = AviExtractor.STATE_READ_SAMPLES;
+    aviExtractor.state = AviExtractor.STATE_READ_CHUNKS;
     aviExtractor.setMovi(DataHelper.MOVI_OFFSET, 128*1024);
     return aviExtractor;
   }
@@ -403,9 +403,9 @@ public class AviExtractorTest {
   public void readSamples_givenAtEndOfInput() throws IOException {
     AviExtractor aviExtractor = setupVideoAviExtractor();
     aviExtractor.setMovi(0, 0);
-    final AviTrack aviTrack = aviExtractor.getVideoTrack();
+    final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
     final ByteBuffer byteBuffer = AviExtractor.allocate(32);
-    byteBuffer.putInt(aviTrack.chunkId);
+    byteBuffer.putInt(chunkHandler.chunkId);
     byteBuffer.putInt(24);
 
     final ExtractorInput input = new FakeExtractorInput.Builder().setData(byteBuffer.array()).build();
@@ -415,47 +415,47 @@ public class AviExtractorTest {
   @Test
   public void readSamples_completeChunk() throws IOException {
     AviExtractor aviExtractor = setupVideoAviExtractor();
-    final AviTrack aviTrack = aviExtractor.getVideoTrack();
+    final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
     final ByteBuffer byteBuffer = AviExtractor.allocate(32);
-    byteBuffer.putInt(aviTrack.chunkId);
+    byteBuffer.putInt(chunkHandler.chunkId);
     byteBuffer.putInt(24);
 
     final ExtractorInput input = new FakeExtractorInput.Builder().setData(byteBuffer.array())
         .build();
-    Assert.assertEquals(Extractor.RESULT_END_OF_INPUT, aviExtractor.read(input, new PositionHolder()));
+    Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(input, new PositionHolder()));
 
-    final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) aviTrack.trackOutput;
+    final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) chunkHandler.trackOutput;
     Assert.assertEquals(24, fakeTrackOutput.getSampleData(0).length);
   }
 
   @Test
   public void readSamples_givenLeadingZeros() throws IOException {
     AviExtractor aviExtractor = setupVideoAviExtractor();
-    final AviTrack aviTrack = aviExtractor.getVideoTrack();
+    final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
     final ByteBuffer byteBuffer = AviExtractor.allocate(48);
     byteBuffer.position(16);
-    byteBuffer.putInt(aviTrack.chunkId);
+    byteBuffer.putInt(chunkHandler.chunkId);
     byteBuffer.putInt(24);
 
     final ExtractorInput input = new FakeExtractorInput.Builder().setData(byteBuffer.array())
         .build();
-    Assert.assertEquals(Extractor.RESULT_END_OF_INPUT, aviExtractor.read(input, new PositionHolder()));
+    Assert.assertEquals(Extractor.RESULT_CONTINUE, aviExtractor.read(input, new PositionHolder()));
 
-    final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) aviTrack.trackOutput;
+    final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) chunkHandler.trackOutput;
     Assert.assertEquals(24, fakeTrackOutput.getSampleData(0).length);
   }
 
   @Test
   public void seek_givenPosition0() throws IOException {
     final AviExtractor aviExtractor = setupVideoAviExtractor();
-    final AviTrack aviTrack = aviExtractor.getVideoTrack();
-    aviExtractor.setChunkHandler(aviTrack);
-    aviTrack.getClock().setIndex(10);
+    final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
+    aviExtractor.setChunkHandler(chunkHandler);
+    chunkHandler.getClock().setIndex(10);
 
     aviExtractor.seek(0L, 0L);
 
     Assert.assertNull(aviExtractor.getChunkHandler());
-    Assert.assertEquals(0, aviTrack.getClock().getIndex());
+    Assert.assertEquals(0, chunkHandler.getClock().getIndex());
     Assert.assertEquals(aviExtractor.state, AviExtractor.STATE_SEEK_START);
 
 
@@ -470,18 +470,18 @@ public class AviExtractorTest {
     final AviExtractor aviExtractor = setupVideoAviExtractor();
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
     aviExtractor.aviSeekMap = aviSeekMap;
-    final AviTrack aviTrack = aviExtractor.getVideoTrack();
+    final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
     final long position = DataHelper.MOVI_OFFSET + aviSeekMap.keyFrameOffsetsDiv2[1] * 2L;
     aviExtractor.seek(position, 0L);
-    Assert.assertEquals(aviSeekMap.seekIndexes[aviTrack.id][1], aviTrack.getClock().getIndex());
+    Assert.assertEquals(aviSeekMap.seekIndexes[chunkHandler.getId()][1], chunkHandler.getClock().getIndex());
   }
 
   @Test
-  public void getAviTrack_givenListWithNull() {
+  public void getChunkHandler_givenListWithNull() {
     final AviExtractor aviExtractor = new AviExtractor();
-    final AviTrack aviTrack = DataHelper.getAudioAviTrack(9);
-    aviExtractor.setAviTracks(new AviTrack[]{null, aviTrack});
-    Assert.assertSame(aviTrack, aviExtractor.getAviTrack(aviTrack.chunkId));
+    final ChunkHandler chunkHandler = DataHelper.getAudioChunkHandler(9);
+    aviExtractor.setChunkHandlers(new ChunkHandler[]{null, chunkHandler});
+    Assert.assertSame(chunkHandler, aviExtractor.getChunkHandler(chunkHandler.chunkId));
   }
 
   @Test

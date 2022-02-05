@@ -18,23 +18,23 @@ package com.google.android.exoplayer2.extractor.avi;
 /**
  * A clock that is linearly derived from the current chunk index of a given stream
  */
-public class LinearClock {
+public class ChunkClock {
   long durationUs;
-  int length;
+  int chunks;
 
   int index;
 
-  public LinearClock(long durationUs, int length) {
+  public ChunkClock(long durationUs, int chunks) {
     this.durationUs = durationUs;
-    this.length = length;
+    this.chunks = chunks;
   }
 
   public void setDuration(long durationUs) {
     this.durationUs = durationUs;
   }
 
-  public void setLength(int length) {
-    this.length = length;
+  public void setChunks(int length) {
+    this.chunks = length;
   }
 
   public int getIndex() {
@@ -55,6 +55,6 @@ public class LinearClock {
 
   long getUs(int index) {
     //Doing this the hard way lessens round errors
-    return durationUs * index / length;
+    return durationUs * index / chunks;
   }
 }

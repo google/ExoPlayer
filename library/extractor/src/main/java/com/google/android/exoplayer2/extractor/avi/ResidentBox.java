@@ -16,13 +16,6 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.util.Log;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -39,7 +32,6 @@ public class ResidentBox extends Box {
 
   /**
    * Returns shallow copy of this ByteBuffer with the position at 0
-   * @return
    */
   @NonNull
   public ByteBuffer getByteBuffer() {

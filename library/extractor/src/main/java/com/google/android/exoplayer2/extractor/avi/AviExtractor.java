@@ -103,7 +103,7 @@ public class AviExtractor implements Extractor {
   @VisibleForTesting
   static final int STATE_READ_IDX1 = 2;
   @VisibleForTesting
-  static final int STATE_READ_SAMPLES = 3;
+  static final int STATE_READ_CHUNKS = 3;
   @VisibleForTesting
   static final int STATE_SEEK_START = 4;
 
@@ -127,9 +127,9 @@ public class AviExtractor implements Extractor {
   private AviHeaderBox aviHeader;
   private long durationUs = C.TIME_UNSET;
   /**
-   * AviTracks by StreamId
+   * ChunkHandlers by StreamId
    */
-  private AviTrack[] aviTracks = new AviTrack[0];
+  private ChunkHandler[] chunkHandlers = new ChunkHandler[0];
   //At the start of the movi tag
   private long moviOffset;
   private long moviEnd;
@@ -137,7 +137,7 @@ public class AviExtractor implements Extractor {
   AviSeekMap aviSeekMap;
 
   //Set if a chunk is only partially read
-  private transient AviTrack chunkHandler;
+  private transient ChunkHandler chunkHandler;
 
   /**
    *
@@ -218,7 +218,7 @@ public class AviExtractor implements Extractor {
   }
 
   @VisibleForTesting
-  AviTrack parseStream(final ListBox streamList, int streamId) {
+  ChunkHandler parseStream(final ListBox streamList, int streamId) {
     final StreamHeaderBox streamHeader = streamList.getChild(StreamHeaderBox.class);
     final StreamFormatBox streamFormat = streamList.getChild(StreamFormatBox.class);
     if (streamHeader == null) {
@@ -243,7 +243,8 @@ public class AviExtractor implements Extractor {
     if (streamName != null) {
       builder.setLabel(streamName.getName());
     }
-    final AviTrack aviTrack;
+    final ChunkClock clock = new ChunkClock(durationUs, length);
+    final ChunkHandler chunkHandler;
     if (streamHeader.isVideo()) {
       final VideoFormat videoFormat = streamFormat.getVideoFormat();
       final String mimeType = videoFormat.getMimeType();
@@ -257,17 +258,12 @@ public class AviExtractor implements Extractor {
       builder.setFrameRate(streamHeader.getFrameRate());
       builder.setSampleMimeType(mimeType);
 
-      final LinearClock clock = new LinearClock(durationUs, length);
-      aviTrack = new AviTrack(streamId, C.TRACK_TYPE_VIDEO, clock, trackOutput);
-
       if (MimeTypes.VIDEO_H264.equals(mimeType)) {
-        final AvcChunkPeeker avcChunkPeeker = new AvcChunkPeeker(builder, trackOutput, clock);
-        aviTrack.setClock(avcChunkPeeker.getClock());
-        aviTrack.setChunkPeeker(avcChunkPeeker);
+        chunkHandler = new AvcChunkHandler(streamId, trackOutput, clock, builder);
+      } else if (MimeTypes.VIDEO_MP4V.equals(mimeType)) {
+        chunkHandler = new Mp4vChunkHandler(streamId, trackOutput, clock, builder);
       } else {
-        if (MimeTypes.VIDEO_MP4V.equals(mimeType)) {
-          aviTrack.setChunkPeeker(new Mp4vChunkPeeker(builder, trackOutput));
-        }
+        chunkHandler = new ChunkHandler(streamId, ChunkHandler.TYPE_VIDEO, trackOutput, clock);
       }
       trackOutput.format(builder.build());
       this.durationUs = durationUs;
@@ -294,13 +290,18 @@ public class AviExtractor implements Extractor {
         builder.setInitializationData(Collections.singletonList(audioFormat.getCodecData()));
       }
       trackOutput.format(builder.build());
-      aviTrack = new AviTrack(streamId, C.TRACK_TYPE_AUDIO,
-          new LinearClock(durationUs, length), trackOutput);
-      aviTrack.setKeyFrames(AviTrack.ALL_KEY_FRAMES);
+      if (MimeTypes.AUDIO_MPEG.equals(mimeType)) {
+        chunkHandler = new MpegAudioChunkHandler(streamId, trackOutput, clock,
+            audioFormat.getSamplesPerSecond());
+      } else {
+        chunkHandler = new ChunkHandler(streamId, ChunkHandler.TYPE_AUDIO,
+            trackOutput, clock);
+      }
+      chunkHandler.setKeyFrames(ChunkHandler.ALL_KEY_FRAMES);
     }else {
-      aviTrack = null;
+      chunkHandler = null;
     }
-    return aviTrack;
+    return chunkHandler;
   }
 
   private int readTracks(ExtractorInput input) throws IOException {
@@ -312,7 +313,7 @@ public class AviExtractor implements Extractor {
     if (aviHeader == null) {
       throw new IOException("AviHeader not found");
     }
-    aviTracks = new AviTrack[aviHeader.getStreams()];
+    chunkHandlers = new ChunkHandler[aviHeader.getStreams()];
     //This is usually wrong, so it will be overwritten by video if present
     durationUs = aviHeader.getTotalFrames() * (long)aviHeader.getMicroSecPerFrame();
 
@@ -320,7 +321,7 @@ public class AviExtractor implements Extractor {
     for (Box box : headerList.getChildren()) {
       if (box instanceof ListBox && ((ListBox) box).getListType() == ListBox.TYPE_STRL) {
         final ListBox streamList = (ListBox) box;
-        aviTracks[streamId] = parseStream(streamList, streamId);
+        chunkHandlers[streamId] = parseStream(streamList, streamId);
         streamId++;
       }
     }
@@ -356,32 +357,32 @@ public class AviExtractor implements Extractor {
   }
 
   @VisibleForTesting
-  AviTrack getVideoTrack() {
-    for (@Nullable AviTrack aviTrack : aviTracks) {
-      if (aviTrack != null && aviTrack.isVideo()) {
-        return aviTrack;
+  ChunkHandler getVideoTrack() {
+    for (@Nullable ChunkHandler chunkHandler : chunkHandlers) {
+      if (chunkHandler != null && chunkHandler.isVideo()) {
+        return chunkHandler;
       }
     }
     return null;
   }
 
   void fixTimings(final int[] keyFrameCounts, final long videoDuration) {
-    for (final AviTrack aviTrack : aviTracks) {
-      if (aviTrack != null) {
-        if (aviTrack.isAudio()) {
-          final long durationUs = aviTrack.getClock().durationUs;
-          i("Audio #" + aviTrack.id + " chunks: " + aviTrack.chunks + " us=" + durationUs +
-              " size=" + aviTrack.size);
-          final LinearClock linearClock = aviTrack.getClock();
+    for (@Nullable final ChunkHandler chunkHandler : chunkHandlers) {
+      if (chunkHandler != null) {
+        if (chunkHandler.isAudio()) {
+          final long durationUs = chunkHandler.getClock().durationUs;
+          i("Audio #" + chunkHandler.getId() + " chunks: " + chunkHandler.chunks + " us=" + durationUs +
+              " size=" + chunkHandler.size);
+          final ChunkClock linearClock = chunkHandler.getClock();
           //If the audio track duration is off from the video by >5 % recalc using video
           if ((durationUs - videoDuration) / (float)videoDuration > .05f) {
-            w("Audio #" + aviTrack.id + " duration is off using videoDuration");
+            w("Audio #" + chunkHandler.getId() + " duration is off using videoDuration");
             linearClock.setDuration(videoDuration);
           }
-          linearClock.setLength(aviTrack.chunks);
-          if (aviTrack.chunks != keyFrameCounts[aviTrack.id]) {
-            w("Audio is not all key frames chunks=" + aviTrack.chunks + " keyFrames=" +
-                keyFrameCounts[aviTrack.id]);
+          linearClock.setChunks(chunkHandler.chunks);
+          if (chunkHandler.chunks != keyFrameCounts[chunkHandler.getId()]) {
+            w("Audio is not all key frames chunks=" + chunkHandler.chunks + " keyFrames=" +
+                keyFrameCounts[chunkHandler.getId()]);
           }
         }
       }
@@ -392,7 +393,7 @@ public class AviExtractor implements Extractor {
    * Reads the index and sets the keyFrames and creates the SeekMap
    */
   void readIdx1(ExtractorInput input, int remaining) throws IOException {
-    final AviTrack videoTrack = getVideoTrack();
+    final ChunkHandler videoTrack = getVideoTrack();
     if (videoTrack == null) {
       output.seekMap(new SeekMap.Unseekable(getDuration()));
       w("No video track found");
@@ -406,14 +407,14 @@ public class AviExtractor implements Extractor {
     final ByteBuffer firstEntry = AviExtractor.allocate(16);
     input.peekFully(firstEntry.array(), 0, 16);
 
-    final int videoId = videoTrack.id;
+    final int videoId = videoTrack.getId();
     final ByteBuffer indexByteBuffer = allocate(Math.min(remaining, 64 * 1024));
     final byte[] bytes = indexByteBuffer.array();
 
     //These are ints/2
     final UnboundedIntArray keyFrameOffsetsDiv2 = new UnboundedIntArray();
-    final int[] keyFrameCounts = new int[aviTracks.length];
-    final UnboundedIntArray[] seekIndexes = new UnboundedIntArray[aviTracks.length];
+    final int[] keyFrameCounts = new int[chunkHandlers.length];
+    final UnboundedIntArray[] seekIndexes = new UnboundedIntArray[chunkHandlers.length];
     for (int i=0;i<seekIndexes.length;i++) {
       seekIndexes[i] = new UnboundedIntArray();
     }
@@ -435,8 +436,8 @@ public class AviExtractor implements Extractor {
           count += 1;
         }
         tagMap.put(chunkId, count);
-        final AviTrack aviTrack = getAviTrack(chunkId);
-        if (aviTrack == null) {
+        final ChunkHandler chunkHandler = getChunkHandler(chunkId);
+        if (chunkHandler == null) {
           if (chunkId != AviExtractor.REC_) {
             w("Unknown Track Type: " + toString(chunkId));
           }
@@ -447,26 +448,26 @@ public class AviExtractor implements Extractor {
         final int offset = indexByteBuffer.getInt();
         final int size = indexByteBuffer.getInt();
         if ((flags & AVIIF_KEYFRAME) == AVIIF_KEYFRAME) {
-          if (aviTrack.isVideo()) {
+          if (chunkHandler.isVideo()) {
             int indexSize = seekIndexes[videoId].getSize();
-            if (indexSize == 0 || aviTrack.chunks - seekIndexes[videoId].get(indexSize - 1) >= chunksPerKeyFrame) {
+            if (indexSize == 0 || chunkHandler.chunks - seekIndexes[videoId].get(indexSize - 1) >= chunksPerKeyFrame) {
               keyFrameOffsetsDiv2.add(offset / 2);
-              for (AviTrack seekTrack : aviTracks) {
+              for (@Nullable ChunkHandler seekTrack : chunkHandlers) {
                 if (seekTrack != null) {
-                  seekIndexes[seekTrack.id].add(seekTrack.chunks);
+                  seekIndexes[seekTrack.getId()].add(seekTrack.chunks);
                 }
               }
             }
           }
-          keyFrameCounts[aviTrack.id]++;
+          keyFrameCounts[chunkHandler.getId()]++;
         }
-        aviTrack.chunks++;
-        aviTrack.size+=size;
+        chunkHandler.chunks++;
+        chunkHandler.size+=size;
       }
       indexByteBuffer.compact();
     }
-    if (videoTrack.chunks == keyFrameCounts[videoTrack.id]) {
-      videoTrack.setKeyFrames(AviTrack.ALL_KEY_FRAMES);
+    if (videoTrack.chunks == keyFrameCounts[videoTrack.getId()]) {
+      videoTrack.setKeyFrames(ChunkHandler.ALL_KEY_FRAMES);
     } else {
       videoTrack.setKeyFrames(seekIndexes[videoId].getArray());
     }
@@ -485,16 +486,16 @@ public class AviExtractor implements Extractor {
 
   @Nullable
   @VisibleForTesting
-  AviTrack getAviTrack(int chunkId) {
-    for (AviTrack aviTrack : aviTracks) {
-      if (aviTrack != null && aviTrack.handlesChunkId(chunkId)) {
-        return aviTrack;
+  ChunkHandler getChunkHandler(int chunkId) {
+    for (@Nullable ChunkHandler chunkHandler : chunkHandlers) {
+      if (chunkHandler != null && chunkHandler.handlesChunkId(chunkId)) {
+        return chunkHandler;
       }
     }
     return null;
   }
 
-  int readSamples(@NonNull ExtractorInput input) throws IOException {
+  int readChunks(@NonNull ExtractorInput input) throws IOException {
     if (chunkHandler != null) {
       if (chunkHandler.resume(input)) {
         chunkHandler = null;
@@ -527,21 +528,21 @@ public class AviExtractor implements Extractor {
         alignInput(input);
         return RESULT_CONTINUE;
       }
-      final AviTrack aviTrack = getAviTrack(chunkId);
-      if (aviTrack == null) {
+      final ChunkHandler chunkHandler = getChunkHandler(chunkId);
+      if (chunkHandler == null) {
         input.skipFully(size);
         alignInput(input);
         w("Unknown tag=" + toString(chunkId) + " pos=" + (input.getPosition() - 8)
             + " size=" + size + " moviEnd=" + moviEnd);
         return RESULT_CONTINUE;
       }
-      if (aviTrack.newChunk(chunkId, size, input)) {
+      if (chunkHandler.newChunk(size, input)) {
         alignInput(input);
       } else {
-        chunkHandler = aviTrack;
+        this.chunkHandler = chunkHandler;
       }
     }
-    if (input.getPosition() == input.getLength()) {
+    if (input.getPosition() >= moviEnd) {
       return C.RESULT_END_OF_INPUT;
     }
     return RESULT_CONTINUE;
@@ -550,10 +551,10 @@ public class AviExtractor implements Extractor {
   @Override
   public int read(@NonNull ExtractorInput input, @NonNull PositionHolder seekPosition) throws IOException {
     switch (state) {
-      case STATE_READ_SAMPLES:
-        return readSamples(input);
+      case STATE_READ_CHUNKS:
+        return readChunks(input);
       case STATE_SEEK_START:
-        state = STATE_READ_SAMPLES;
+        state = STATE_READ_CHUNKS;
         seekPosition.position = moviOffset + 4;
         return RESULT_SEEK;
       case STATE_READ_TRACKS:
@@ -573,7 +574,7 @@ public class AviExtractor implements Extractor {
           output.seekMap(new SeekMap.Unseekable(getDuration()));
         }
         seekPosition.position = moviOffset + 4;
-        state = STATE_READ_SAMPLES;
+        state = STATE_READ_CHUNKS;
         return RESULT_SEEK;
       }
     }
@@ -586,20 +587,20 @@ public class AviExtractor implements Extractor {
     chunkHandler = null;
     if (position <= 0) {
       if (moviOffset != 0) {
-        resetClocks();
+        setIndexes(new int[chunkHandlers.length]);
         state = STATE_SEEK_START;
       }
     } else {
       if (aviSeekMap != null) {
-        aviSeekMap.setFrames(position, timeUs, aviTracks);
+        setIndexes(aviSeekMap.getIndexes(position));
       }
     }
   }
 
-  void resetClocks() {
-    for (@Nullable AviTrack aviTrack : aviTracks) {
-      if (aviTrack != null) {
-        aviTrack.getClock().setIndex(0);
+  private void setIndexes(@NonNull int[] indexes) {
+    for (@Nullable ChunkHandler chunkHandler : chunkHandlers) {
+      if (chunkHandler != null) {
+        chunkHandler.setIndex(indexes[chunkHandler.getId()]);
       }
     }
   }
@@ -610,8 +611,8 @@ public class AviExtractor implements Extractor {
   }
 
   @VisibleForTesting
-  void setAviTracks(AviTrack[] aviTracks) {
-    this.aviTracks = aviTracks;
+  void setChunkHandlers(ChunkHandler[] chunkHandlers) {
+    this.chunkHandlers = chunkHandlers;
   }
 
   @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -626,13 +627,13 @@ public class AviExtractor implements Extractor {
   }
 
   @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-  AviTrack getChunkHandler() {
+  ChunkHandler getChunkHandler() {
     return chunkHandler;
   }
 
   @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-  void setChunkHandler(final AviTrack aviTrack) {
-    chunkHandler = aviTrack;
+  void setChunkHandler(final ChunkHandler chunkHandler) {
+    this.chunkHandler = chunkHandler;
   }
 
   @VisibleForTesting(otherwise = VisibleForTesting.NONE)
