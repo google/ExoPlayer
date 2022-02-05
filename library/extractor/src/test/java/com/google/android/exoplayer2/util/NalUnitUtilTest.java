@@ -134,6 +134,7 @@ public final class NalUnitUtilTest {
     assertThat(data.pixelWidthHeightRatio).isEqualTo(1.0f);
     assertThat(data.picOrderCountType).isEqualTo(0);
     assertThat(data.separateColorPlaneFlag).isFalse();
+    assertThat(data.maxNumRefFrames).isEqualTo(4);
   }
 
   @Test
