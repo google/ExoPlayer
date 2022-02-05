@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
@@ -104,7 +105,9 @@ public class MpegAudioChunkHandler extends ChunkHandler {
         }
         scratch.skipBytes(-3);
       }
-      toRead = Math.min(chunkRemaining, 128);
+      // 16 is small, but if we end up reading multiple frames into scratch, things get complicated.
+      // We should only loop on seek, so this is the lesser of the evils.
+      toRead = Math.min(chunkRemaining, 16);
     }
     return false;
   }
@@ -140,11 +143,17 @@ public class MpegAudioChunkHandler extends ChunkHandler {
   public void setIndex(int index) {
     super.setIndex(index);
     syncTime();
+    if (frameRemaining != 0) {
+      // We have a partial frame in the output, no way to clear it, so just send it as is.
+      // Next frame should be key frame, so the codec should recover.
+      trackOutput.sampleMetadata(timeUs, 0, header.frameSize - frameRemaining,
+          0, null);
+      frameRemaining = 0;
+    }
   }
 
   private void syncTime() {
     timeUs = clock.getUs();
-    frameRemaining = 0;
   }
 
   @VisibleForTesting(otherwise = VisibleForTesting.NONE)
