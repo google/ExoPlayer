@@ -35,8 +35,8 @@ public class AvcChunkPeekerTest {
       setSampleMimeType(MimeTypes.VIDEO_H264).
       setWidth(1280).setHeight(720).setFrameRate(24000f/1001f);
 
-  private static final byte[] P_SLICE = {00,00,00,01,0x41,(byte)0x9A,0x13,0x36,0x21,0x3A,0x5F,
-      (byte)0xFE,(byte)0x9E,0x10,00,00};
+  private static final byte[] P_SLICE = {0,0,0,1,0x41,(byte)0x9A,0x13,0x36,0x21,0x3A,0x5F,
+      (byte)0xFE,(byte)0x9E,0x10,0,0};
 
   private FakeTrackOutput fakeTrackOutput;
   private AvcChunkHandler avcChunkPeeker;
@@ -61,19 +61,20 @@ public class AvcChunkPeekerTest {
   @Test
   public void peek_givenStreamHeader() throws IOException {
     peekStreamHeader();
-    final PicCountClock picCountClock = avcChunkPeeker.getClock();
+    final PicCountClock picCountClock = avcChunkPeeker.getPicCountClock();
+    Assert.assertNotNull(picCountClock);
     Assert.assertEquals(64, picCountClock.getMaxPicCount());
     Assert.assertEquals(0, avcChunkPeeker.getSpsData().picOrderCountType);
     Assert.assertEquals(1.18f, fakeTrackOutput.lastFormat.pixelWidthHeightRatio, 0.01f);
   }
 
   @Test
-  public void peek_givenStreamHeaderAndPSlice() throws IOException {
+  public void newChunk_givenStreamHeaderAndPSlice() throws IOException {
     peekStreamHeader();
-    final PicCountClock picCountClock = avcChunkPeeker.getClock();
+    final PicCountClock picCountClock = avcChunkPeeker.getPicCountClock();
     final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(P_SLICE).build();
 
-    avcChunkPeeker.peek(input, P_SLICE.length);
+    avcChunkPeeker.newChunk(0, P_SLICE.length, input);
 
     Assert.assertEquals(12, picCountClock.getLastPicCount());
   }
