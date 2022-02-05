@@ -25,7 +25,7 @@ import java.util.Arrays;
  * Generic base class for NAL (0x00 0x00 0x01) chunk headers
  * Theses are used by AVC and MP4V (XVID)
  */
-public abstract class NalChunkPeeker extends ChunkHandler {
+public abstract class NalChunkHandler extends ChunkHandler {
   private static final int SEEK_PEEK_SIZE = 256;
   private final int peekSize;
 
@@ -33,7 +33,7 @@ public abstract class NalChunkPeeker extends ChunkHandler {
   transient byte[] buffer;
   transient int pos;
 
-  NalChunkPeeker(int id, @NonNull TrackOutput trackOutput,
+  NalChunkHandler(int id, @NonNull TrackOutput trackOutput,
       @NonNull ChunkClock clock, int peakSize) {
     super(id, TYPE_VIDEO, trackOutput, clock);
     if (peakSize < 5) {
@@ -113,9 +113,9 @@ public abstract class NalChunkPeeker extends ChunkHandler {
 
   abstract boolean skip(byte nalType);
 
-  public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
+  public boolean newChunk(int size, ExtractorInput input) throws IOException {
     peek(input, size);
-    return super.newChunk(tag, size, input);
+    return super.newChunk(size, input);
   }
 
   public void peek(ExtractorInput input, final int size) throws IOException {

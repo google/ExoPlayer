@@ -25,11 +25,16 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * Collection of info about a track.
- * This acts a bridge between AVI and ExoPlayer structures
+ * Handles chunk data from a given stream.
+ * This acts a bridge between AVI and ExoPlayer
  */
 public class ChunkHandler {
+
+  /**
+   * Constant meaning all frames are considered key frames
+   */
   public static final int[] ALL_KEY_FRAMES = new int[0];
+
   public static int TYPE_VIDEO = ('d' << 16) | ('c' << 24);
   public static int TYPE_AUDIO = ('w' << 16) | ('b' << 24);
 
@@ -39,10 +44,24 @@ public class ChunkHandler {
   @NonNull
   final TrackOutput trackOutput;
 
+  /**
+   * The chunk id as it appears in the index and the movi
+   */
   final int chunkId;
+
+  /**
+   * Secondary chunk id.  Bad muxers sometimes use uncompressed for key frames
+   */
   final int chunkIdAlt;
 
+  /**
+   * Number of chunks as calculated by the index
+   */
   int chunks;
+
+  /**
+   * Size total size of the stream in bytes calculated by the index
+   */
   int size;
 
   /**
@@ -50,9 +69,18 @@ public class ChunkHandler {
    */
   int[] keyFrames = new int[0];
 
+  /**
+   * Size of the current chunk in bytes
+   */
   transient int chunkSize;
+  /**
+   * Bytes remaining in the chunk to be processed
+   */
   transient int chunkRemaining;
 
+  /**
+   * Get stream id in ASCII
+   */
   @VisibleForTesting
   static int getChunkIdLower(int id) {
     int tens = id / 10;
@@ -71,6 +99,10 @@ public class ChunkHandler {
     }
   }
 
+  /**
+   *
+   * @return true if this can handle the chunkId
+   */
   public boolean handlesChunkId(int chunkId) {
     return this.chunkId == chunkId || chunkIdAlt == chunkId;
   }
@@ -80,13 +112,9 @@ public class ChunkHandler {
     return clock;
   }
 
-  public void setClock(@NonNull ChunkClock clock) {
-    this.clock = clock;
-  }
-
   /**
-   *
-   * @param keyFrames null means all key frames
+   * Sets the list of key frames
+   * @param keyFrames list of frame indexes or {@link #ALL_KEY_FRAMES}
    */
   void setKeyFrames(@NonNull final int[] keyFrames) {
     this.keyFrames = keyFrames;
@@ -104,23 +132,27 @@ public class ChunkHandler {
     return (chunkId & TYPE_AUDIO) == TYPE_AUDIO;
   }
 
-  public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
-    final int remaining = size - trackOutput.sampleData(input, size, false);
-    if (remaining == 0) {
+  /**
+   * Process a new chunk
+   * @param size total size of the chunk
+   * @return True if the chunk has been completely processed.  False implies {@link #resume}
+   *         will be called
+   */
+  public boolean newChunk(int size, @NonNull ExtractorInput input) throws IOException {
+    final int sampled = trackOutput.sampleData(input, size, false);
+    if (sampled == size) {
       done(size);
       return true;
     } else {
       chunkSize = size;
-      chunkRemaining = remaining;
+      chunkRemaining = size - sampled;
       return false;
     }
   }
 
   /**
    * Resume a partial read of a chunk
-   * @param input
-   * @return
-   * @throws IOException
+   * May be called multiple times
    */
   boolean resume(ExtractorInput input) throws IOException {
     chunkRemaining -= trackOutput.sampleData(input, chunkRemaining, false);
@@ -133,25 +165,29 @@ public class ChunkHandler {
   }
 
   /**
-   * Done reading a chunk
-   * @param size
+   * Done reading a chunk.  Send the timing info and advance the clock
+   * @param size the amount of data passed to the trackOutput
    */
   void done(final int size) {
     if (size > 0) {
       trackOutput.sampleMetadata(
           clock.getUs(), (isKeyFrame() ? C.BUFFER_FLAG_KEY_FRAME : 0), size, 0, null);
     }
-    final ChunkClock clock = getClock();
     //Log.d(AviExtractor.TAG, "Frame: " + (isVideo()? 'V' : 'A') + " us=" + clock.getUs() + " size=" + size + " frame=" + clock.getIndex() + " key=" + isKeyFrame());
     clock.advance();
   }
 
+  /**
+   * Gets the streamId.
+   * @return The unique stream id for this file
+   */
   public int getId() {
-    return ((chunkId >> 8) & 0xf) + ( chunkId & 0xf) * 10;
+    return ((chunkId >> 8) & 0xf) + (chunkId & 0xf) * 10;
   }
 
   /**
    * A seek occurred
+   * @param index of the chunk
    */
   public void setIndex(int index) {
     getClock().setIndex(index);

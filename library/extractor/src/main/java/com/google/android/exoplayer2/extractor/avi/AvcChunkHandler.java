@@ -29,7 +29,7 @@ import java.io.IOException;
  * Corrects the time and PAR for H264 streams
  * AVC is very rare in AVI due to the rise of the mp4 container
  */
-public class AvcChunkHandler extends NalChunkPeeker {
+public class AvcChunkHandler extends NalChunkHandler {
   private static final int NAL_TYPE_MASK = 0x1f;
   private static final int NAL_TYPE_IDR = 5; //I Frame
   private static final int NAL_TYPE_SEI = 6;
@@ -63,7 +63,7 @@ public class AvcChunkHandler extends NalChunkPeeker {
     if (clock instanceof PicCountClock) {
       return false;
     } else {
-      //If the clock is regular clock, skip "normal" frames
+      //If the clock is ChunkClock, skip "normal" frames
       return nalType >= 0 && nalType <= NAL_TYPE_IDR;
     }
   }
@@ -107,10 +107,12 @@ public class AvcChunkHandler extends NalChunkPeeker {
     final int spsStart = nalTypeOffset + 1;
     nalTypeOffset = seekNextNal(input, spsStart);
     spsData = NalUnitUtil.parseSpsNalUnitPayload(buffer, spsStart, pos);
-    //If we have B Frames, upgrade to PicCountClock
+    //If we can have B Frames, upgrade to PicCountClock
     final PicCountClock picCountClock;
     if (spsData.maxNumRefFrames > 1 && !(clock instanceof PicCountClock)) {
-      clock = picCountClock = new PicCountClock(clock.durationUs, clock.chunks);
+      picCountClock = new PicCountClock(clock.durationUs, clock.chunks);
+      picCountClock.setIndex(clock.getIndex());
+      clock = picCountClock;
     } else {
       picCountClock = getPicCountClock();
     }

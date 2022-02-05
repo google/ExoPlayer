@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Peeks an MP4V stream looking for pixelWidthHeightRatio data
  */
-public class Mp4vChunkHandler extends NalChunkPeeker {
+public class Mp4vChunkHandler extends NalChunkHandler {
   @VisibleForTesting
   static final byte SEQUENCE_START_CODE = (byte)0xb0;
   @VisibleForTesting

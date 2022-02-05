@@ -39,12 +39,12 @@ public class AvcChunkPeekerTest {
       (byte)0xFE,(byte)0x9E,0x10,0,0};
 
   private FakeTrackOutput fakeTrackOutput;
-  private AvcChunkHandler avcChunkPeeker;
+  private AvcChunkHandler avcChunkHandler;
 
   @Before
   public void before() {
     fakeTrackOutput = new FakeTrackOutput(false);
-    avcChunkPeeker = new AvcChunkHandler(0, fakeTrackOutput,
+    avcChunkHandler = new AvcChunkHandler(0, fakeTrackOutput,
         new ChunkClock(10_000_000L, 24 * 10), FORMAT_BUILDER_AVC);
   }
 
@@ -55,26 +55,26 @@ public class AvcChunkPeekerTest {
 
     final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(bytes).build();
 
-    avcChunkPeeker.peek(input, bytes.length);
+    avcChunkHandler.peek(input, bytes.length);
   }
 
   @Test
   public void peek_givenStreamHeader() throws IOException {
     peekStreamHeader();
-    final PicCountClock picCountClock = avcChunkPeeker.getPicCountClock();
+    final PicCountClock picCountClock = avcChunkHandler.getPicCountClock();
     Assert.assertNotNull(picCountClock);
     Assert.assertEquals(64, picCountClock.getMaxPicCount());
-    Assert.assertEquals(0, avcChunkPeeker.getSpsData().picOrderCountType);
+    Assert.assertEquals(0, avcChunkHandler.getSpsData().picOrderCountType);
     Assert.assertEquals(1.18f, fakeTrackOutput.lastFormat.pixelWidthHeightRatio, 0.01f);
   }
 
   @Test
   public void newChunk_givenStreamHeaderAndPSlice() throws IOException {
     peekStreamHeader();
-    final PicCountClock picCountClock = avcChunkPeeker.getPicCountClock();
+    final PicCountClock picCountClock = avcChunkHandler.getPicCountClock();
     final FakeExtractorInput input = new FakeExtractorInput.Builder().setData(P_SLICE).build();
 
-    avcChunkPeeker.newChunk(0, P_SLICE.length, input);
+    avcChunkHandler.newChunk(P_SLICE.length, input);
 
     Assert.assertEquals(12, picCountClock.getLastPicCount());
   }

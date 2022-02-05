@@ -16,37 +16,45 @@
 package com.google.android.exoplayer2.extractor.avi;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
-public class Mp3ChunkHandler extends ChunkHandler {
+/**
+ * Resolves several issues with Mpeg Audio
+ * 1. That muxers don't always mux MPEG audio on the frame boundary
+ * 2. That some codecs can't handle multiple or partial frames (Pixels)
+ */
+public class MpegAudioChunkHandler extends ChunkHandler {
   private final MpegAudioUtil.Header header = new MpegAudioUtil.Header();
-  private final ParsableByteArray scratch = new ParsableByteArray(0);
-  private final int fps;
+  private final ParsableByteArray scratch = new ParsableByteArray(8);
+  private final int samplesPerSecond;
+  //Bytes remaining in the Mpeg Audio frame
   private int frameRemaining;
-  private long us = 0L;
+  private long timeUs = 0L;
 
-  Mp3ChunkHandler(int id, @NonNull TrackOutput trackOutput, @NonNull ChunkClock clock, int fps) {
+  MpegAudioChunkHandler(int id, @NonNull TrackOutput trackOutput, @NonNull ChunkClock clock,
+      int samplesPerSecond) {
     super(id, TYPE_AUDIO, trackOutput, clock);
-    this.fps = fps;
+    this.samplesPerSecond = samplesPerSecond;
   }
 
   @Override
-  public boolean newChunk(int tag, int size, ExtractorInput input) throws IOException {
+  public boolean newChunk(int size, @NonNull ExtractorInput input) throws IOException {
     if (size == 0) {
+      //Empty frame, advance the clock and sync
       clock.advance();
-      syncUs();
-      //Log.d(AviExtractor.TAG, "Blank Frame: us=" + us);
+      syncTime();
       return true;
     }
     chunkRemaining = size;
     if (process(input)) {
-      //If we scratch is the entire buffer, we didn't find a MP3 header, so just dump the chunk
+      // Fail Over: If the scratch is the entire chunk, we didn't find a MP3 header.
+      // Dump the chunk as is and hope the decoder can handle it.
       if (scratch.limit() == size) {
         scratch.setPosition(0);
         trackOutput.sampleData(scratch, size);
@@ -59,7 +67,7 @@ public class Mp3ChunkHandler extends ChunkHandler {
   }
 
   @Override
-  boolean resume(ExtractorInput input) throws IOException {
+  boolean resume(@NonNull ExtractorInput input) throws IOException {
     if (process(input)) {
       clock.advance();
       return true;
@@ -67,6 +75,11 @@ public class Mp3ChunkHandler extends ChunkHandler {
     return false;
   }
 
+  /**
+   * Read from input to scratch
+   * @param bytes to attempt to read
+   * @return {@link C#RESULT_END_OF_INPUT} or number of bytes read.
+   */
   int readScratch(ExtractorInput input, int bytes) throws IOException {
     final int toRead = Math.min(bytes, chunkRemaining);
     final int read = input.read(scratch.getData(), scratch.limit(), toRead);
@@ -78,7 +91,12 @@ public class Mp3ChunkHandler extends ChunkHandler {
     return read;
   }
 
-  private boolean findFrame(ExtractorInput input) throws IOException {
+  /**
+   * Attempt to find a frame header in the input
+   * @return true if a frame header was found
+   */
+  @VisibleForTesting
+  boolean findFrame(ExtractorInput input) throws IOException {
     scratch.reset(0);
     scratch.ensureCapacity(scratch.limit() + chunkRemaining);
     int toRead = 4;
@@ -96,8 +114,14 @@ public class Mp3ChunkHandler extends ChunkHandler {
     return false;
   }
 
-  private boolean process(ExtractorInput input) throws IOException {
+  /**
+   * Process the chunk by breaking it in Mpeg audio frames
+   * @return true if the chunk has been completely processed
+   */
+  @VisibleForTesting
+  boolean process(ExtractorInput input) throws IOException {
     if (frameRemaining == 0) {
+      //Find the next frame
       if (findFrame(input)) {
         final int scratchBytes = scratch.bytesLeft();
         trackOutput.sampleData(scratch, scratchBytes);
@@ -107,14 +131,11 @@ public class Mp3ChunkHandler extends ChunkHandler {
       }
     }
     final int bytes = trackOutput.sampleData(input, Math.min(frameRemaining, chunkRemaining), false);
-    if (bytes == C.RESULT_END_OF_INPUT) {
-      return true;
-    }
     frameRemaining -= bytes;
     if (frameRemaining == 0) {
-      trackOutput.sampleMetadata(us, C.BUFFER_FLAG_KEY_FRAME, header.frameSize, 0, null);
+      trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, header.frameSize, 0, null);
       //Log.d(AviExtractor.TAG, "MP3: us=" + us);
-      us += header.samplesPerFrame * C.MICROS_PER_SECOND / fps;
+      timeUs += header.samplesPerFrame * C.MICROS_PER_SECOND / samplesPerSecond;
     }
     chunkRemaining -= bytes;
     return chunkRemaining == 0;
@@ -123,11 +144,11 @@ public class Mp3ChunkHandler extends ChunkHandler {
   @Override
   public void setIndex(int index) {
     super.setIndex(index);
-    syncUs();
+    syncTime();
   }
 
-  private void syncUs() {
-    us = clock.getUs();
+  private void syncTime() {
+    timeUs = clock.getUs();
     frameRemaining = 0;
   }
 }
