@@ -51,7 +51,12 @@ public class MpegAudioChunkHandler extends ChunkHandler {
       syncTime();
       return true;
     }
-    chunkRemaining = size;
+    this.size = chunkRemaining = size;
+    return resume(input);
+  }
+
+  @Override
+  boolean resume(@NonNull ExtractorInput input) throws IOException {
     if (process(input)) {
       // Fail Over: If the scratch is the entire chunk, we didn't find a MP3 header.
       // Dump the chunk as is and hope the decoder can handle it.
@@ -59,17 +64,8 @@ public class MpegAudioChunkHandler extends ChunkHandler {
         scratch.setPosition(0);
         trackOutput.sampleData(scratch, size);
         scratch.reset(0);
+        done(size);
       }
-      clock.advance();
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  boolean resume(@NonNull ExtractorInput input) throws IOException {
-    if (process(input)) {
-      clock.advance();
       return true;
     }
     return false;
@@ -101,7 +97,6 @@ public class MpegAudioChunkHandler extends ChunkHandler {
     scratch.ensureCapacity(scratch.limit() + chunkRemaining);
     int toRead = 4;
     while (chunkRemaining > 0 && readScratch(input, toRead) != C.RESULT_END_OF_INPUT) {
-      readScratch(input, toRead);
       while (scratch.bytesLeft() >= 4) {
         if (header.setForHeaderData(scratch.readInt())) {
           scratch.skipBytes(-4);
@@ -127,7 +122,7 @@ public class MpegAudioChunkHandler extends ChunkHandler {
         trackOutput.sampleData(scratch, scratchBytes);
         frameRemaining = header.frameSize - scratchBytes;
       } else {
-        return chunkRemaining == 0;
+        return true;
       }
     }
     final int bytes = trackOutput.sampleData(input, Math.min(frameRemaining, chunkRemaining), false);
@@ -150,5 +145,15 @@ public class MpegAudioChunkHandler extends ChunkHandler {
   private void syncTime() {
     timeUs = clock.getUs();
     frameRemaining = 0;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  long getTimeUs() {
+    return timeUs;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  int getFrameRemaining() {
+    return frameRemaining;
   }
 }
