@@ -42,11 +42,12 @@ public class VideoFormat {
     STREAM_MAP.put('a' | ('v' << 8) | ('c' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
     STREAM_MAP.put('A' | ('V' << 8) | ('C' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
     STREAM_MAP.put('3' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
+    STREAM_MAP.put('d' | ('i' << 8) | ('v' << 16) | ('x' << 24), mimeType);
+    STREAM_MAP.put('D' | ('I' << 8) | ('V' << 16) | ('X' << 24), mimeType);
+    STREAM_MAP.put('D' | ('X' << 8) | ('5' << 16) | ('0' << 24), mimeType);
+    STREAM_MAP.put('F' | ('M' << 8) | ('P' << 16) | ('4' << 24), mimeType);
     STREAM_MAP.put('x' | ('v' << 8) | ('i' << 16) | ('d' << 24), mimeType);
     STREAM_MAP.put(XVID, mimeType);
-    STREAM_MAP.put('D' | ('X' << 8) | ('5' << 16) | ('0' << 24), mimeType);
-    STREAM_MAP.put('d' | ('i' << 8) | ('v' << 16) | ('x' << 24), mimeType);
-    STREAM_MAP.put('F' | ('M' << 8) | ('P' << 16) | ('4' << 24), mimeType);
     STREAM_MAP.put('M' | ('J' << 8) | ('P' << 16) | ('G' << 24), MimeTypes.VIDEO_MJPEG);
     STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.VIDEO_MJPEG);
   }
