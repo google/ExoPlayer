@@ -565,22 +565,4 @@ public final class ParsableByteArray {
     position += length;
     return value;
   }
-
-  /**
-   * The data from the end of the buffer is copied to the front
-   * The limit() because the bytesLeft() and position is zero
-   */
-  public void compact() {
-    if (bytesLeft() == 0) {
-      limit = 0;
-    } else {
-      final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-      byteBuffer.limit(limit);
-      byteBuffer.position(position);
-      byteBuffer.compact();
-      byteBuffer.flip();
-      limit = byteBuffer.limit();
-    }
-    position = 0;
-  }
 }

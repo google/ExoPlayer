@@ -143,13 +143,7 @@ public class MpegAudioChunkHandler extends ChunkHandler {
   public void setIndex(int index) {
     super.setIndex(index);
     syncTime();
-    if (frameRemaining != 0) {
-      // We have a partial frame in the output, no way to clear it, so just send it as is.
-      // Next frame should be key frame, so the codec should recover.
-      trackOutput.sampleMetadata(timeUs, 0, header.frameSize - frameRemaining,
-          0, null);
-      frameRemaining = 0;
-    }
+    frameRemaining = 0;
   }
 
   private void syncTime() {
