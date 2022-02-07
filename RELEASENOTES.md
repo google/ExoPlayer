@@ -160,6 +160,9 @@
         a fallback value.
     *   Remove `(Simple)ExoPlayer.setThrowsWhenUsingWrongThread`. Opting out of
         the thread enforcement is no longer possible.
+    *   Remove `ActionFile` and `ActionFileUpgradeUtil`. Use ExoPlayer 2.16.1 or
+        before to use `ActionFileUpgradeUtil` to merge legacy action files into
+        `DefaultDownloadIndex`.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
     the compilation of usages in Kotlin, which can be fixed by moving the
     annotation to annotate the type (`Int`).
