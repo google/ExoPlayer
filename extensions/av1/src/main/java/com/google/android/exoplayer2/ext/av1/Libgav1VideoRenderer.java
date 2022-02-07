@@ -126,7 +126,8 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
-  public final @Capabilities int supportsFormat(Format format) {
+  @Capabilities
+  public final int supportsFormat(Format format) {
     if (!MimeTypes.VIDEO_AV1.equalsIgnoreCase(format.sampleMimeType)
         || !Gav1Library.isAvailable()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);

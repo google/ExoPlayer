@@ -45,7 +45,7 @@ public final class TracksInfo implements Bundleable {
    */
   public static final class TrackGroupInfo implements Bundleable {
     private final TrackGroup trackGroup;
-    private final @C.FormatSupport int[] trackSupport;
+    @C.FormatSupport private final int[] trackSupport;
     private final @C.TrackType int trackType;
     private final boolean[] trackSelected;
 
@@ -81,7 +81,8 @@ public final class TracksInfo implements Bundleable {
      * @param trackIndex The index of the track in the {@link TrackGroup}.
      * @return The {@link C.FormatSupport} of the track.
      */
-    public @C.FormatSupport int getTrackSupport(int trackIndex) {
+    @C.FormatSupport
+    public int getTrackSupport(int trackIndex) {
       return trackSupport[trackIndex];
     }
 
@@ -225,7 +226,8 @@ public final class TracksInfo implements Bundleable {
               fromNullableBundle(
                   TrackGroup.CREATOR, bundle.getBundle(keyForField(FIELD_TRACK_GROUP)));
           checkNotNull(trackGroup); // Can't create a trackGroup info without a trackGroup
-          final @C.FormatSupport int[] trackSupport =
+          @C.FormatSupport
+          final int[] trackSupport =
               MoreObjects.firstNonNull(
                   bundle.getIntArray(keyForField(FIELD_TRACK_SUPPORT)), new int[trackGroup.length]);
           @C.TrackType

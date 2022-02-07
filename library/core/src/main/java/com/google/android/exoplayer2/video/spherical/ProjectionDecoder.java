@@ -58,8 +58,7 @@ import java.util.zip.Inflater;
    * @param stereoMode A {@link C.StereoMode} value.
    * @return The projection or null if the data can't be decoded.
    */
-  @Nullable
-  public static Projection decode(byte[] projectionData, @C.StereoMode int stereoMode) {
+  public static @Nullable Projection decode(byte[] projectionData, @C.StereoMode int stereoMode) {
     ParsableByteArray input = new ParsableByteArray(projectionData);
     // MP4 containers include the proj box but webm containers do not.
     // Both containers use mshp.
@@ -92,8 +91,7 @@ import java.util.zip.Inflater;
     return type == TYPE_PROJ;
   }
 
-  @Nullable
-  private static ArrayList<Mesh> parseProj(ParsableByteArray input) {
+  private static @Nullable ArrayList<Mesh> parseProj(ParsableByteArray input) {
     input.skipBytes(8); // size and type.
     int position = input.getPosition();
     int limit = input.limit();
@@ -114,8 +112,7 @@ import java.util.zip.Inflater;
     return null;
   }
 
-  @Nullable
-  private static ArrayList<Mesh> parseMshp(ParsableByteArray input) {
+  private static @Nullable ArrayList<Mesh> parseMshp(ParsableByteArray input) {
     int version = input.readUnsignedByte();
     if (version != 0) {
       return null;
@@ -140,8 +137,7 @@ import java.util.zip.Inflater;
   }
 
   /** Parses MSHP data after the encoding_four_cc field. */
-  @Nullable
-  private static ArrayList<Mesh> parseRawMshpData(ParsableByteArray input) {
+  private static @Nullable ArrayList<Mesh> parseRawMshpData(ParsableByteArray input) {
     ArrayList<Mesh> meshes = new ArrayList<>();
     int position = input.getPosition();
     int limit = input.limit();
@@ -164,8 +160,7 @@ import java.util.zip.Inflater;
     return meshes;
   }
 
-  @Nullable
-  private static Mesh parseMesh(ParsableByteArray input) {
+  private static @Nullable Mesh parseMesh(ParsableByteArray input) {
     // Read the coordinates.
     int coordinateCount = input.readInt();
     if (coordinateCount > MAX_COORDINATE_COUNT) {

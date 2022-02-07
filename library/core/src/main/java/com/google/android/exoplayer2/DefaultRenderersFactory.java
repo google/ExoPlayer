@@ -93,7 +93,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
   private final Context context;
   private final DefaultMediaCodecAdapterFactory codecAdapterFactory;
-  private @ExtensionRendererMode int extensionRendererMode;
+  @ExtensionRendererMode private int extensionRendererMode;
   private long allowedVideoJoiningTimeMs;
   private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;

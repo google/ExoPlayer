@@ -128,7 +128,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Nullable private Surface surface;
   @Nullable private DummySurface dummySurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
-  private @C.VideoScalingMode int scalingMode;
+  @C.VideoScalingMode private int scalingMode;
   private boolean renderedFirstFrameAfterReset;
   private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
   private boolean renderedFirstFrameAfterEnable;
@@ -339,7 +339,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected @Capabilities int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+  @Capabilities
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isVideo(mimeType)) {

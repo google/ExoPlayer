@@ -203,12 +203,12 @@ import java.util.concurrent.TimeoutException;
   private final WifiLockManager wifiLockManager;
   private final long detachSurfaceTimeoutMs;
 
-  private @RepeatMode int repeatMode;
+  @RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
   private int pendingOperationAcks;
-  private @DiscontinuityReason int pendingDiscontinuityReason;
+  @DiscontinuityReason private int pendingDiscontinuityReason;
   private boolean pendingDiscontinuity;
-  private @PlayWhenReadyChangeReason int pendingPlayWhenReadyChangeReason;
+  @PlayWhenReadyChangeReason private int pendingPlayWhenReadyChangeReason;
   private boolean foregroundMode;
   private SeekParameters seekParameters;
   private ShuffleOrder shuffleOrder;
@@ -225,8 +225,8 @@ import java.util.concurrent.TimeoutException;
   @Nullable private SphericalGLSurfaceView sphericalGLSurfaceView;
   private boolean surfaceHolderSurfaceIsVideoOutput;
   @Nullable private TextureView textureView;
-  private @C.VideoScalingMode int videoScalingMode;
-  private @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy;
+  @C.VideoScalingMode private int videoScalingMode;
+  @C.VideoChangeFrameRateStrategy private int videoChangeFrameRateStrategy;
   private int surfaceWidth;
   private int surfaceHeight;
   @Nullable private DecoderCounters videoDecoderCounters;
@@ -498,12 +498,14 @@ import java.util.concurrent.TimeoutException;
     return availableCommands;
   }
 
-  public @State int getPlaybackState() {
+  @State
+  public int getPlaybackState() {
     verifyApplicationThread();
     return playbackInfo.playbackState;
   }
 
-  public @PlaybackSuppressionReason int getPlaybackSuppressionReason() {
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
     verifyApplicationThread();
     return playbackInfo.playbackSuppressionReason;
   }
@@ -795,7 +797,8 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
-  public @RepeatMode int getRepeatMode() {
+  @RepeatMode
+  public int getRepeatMode() {
     verifyApplicationThread();
     return repeatMode;
   }
@@ -1251,7 +1254,8 @@ import java.util.concurrent.TimeoutException;
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_SCALING_MODE, videoScalingMode);
   }
 
-  public @C.VideoScalingMode int getVideoScalingMode() {
+  @C.VideoScalingMode
+  public int getVideoScalingMode() {
     return videoScalingMode;
   }
 
@@ -1266,7 +1270,8 @@ import java.util.concurrent.TimeoutException;
         TRACK_TYPE_VIDEO, MSG_SET_CHANGE_FRAME_RATE_STRATEGY, videoChangeFrameRateStrategy);
   }
 
-  public @C.VideoChangeFrameRateStrategy int getVideoChangeFrameRateStrategy() {
+  @C.VideoChangeFrameRateStrategy
+  public int getVideoChangeFrameRateStrategy() {
     return videoChangeFrameRateStrategy;
   }
 
@@ -2946,13 +2951,15 @@ import java.util.concurrent.TimeoutException;
   private static final class FrameMetadataListener
       implements VideoFrameMetadataListener, CameraMotionListener, PlayerMessage.Target {
 
-    public static final @MessageType int MSG_SET_VIDEO_FRAME_METADATA_LISTENER =
+    @MessageType
+    public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER =
         Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER;
 
-    public static final @MessageType int MSG_SET_CAMERA_MOTION_LISTENER =
+    @MessageType
+    public static final int MSG_SET_CAMERA_MOTION_LISTENER =
         Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
 
-    public static final @MessageType int MSG_SET_SPHERICAL_SURFACE_VIEW = Renderer.MSG_CUSTOM_BASE;
+    @MessageType public static final int MSG_SET_SPHERICAL_SURFACE_VIEW = Renderer.MSG_CUSTOM_BASE;
 
     @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
     @Nullable private CameraMotionListener cameraMotionListener;

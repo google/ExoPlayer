@@ -102,7 +102,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
 
   private static final int DESCRIPTOR_TAG_CAPTION_SERVICE = 0x86;
 
-  private final @Flags int flags;
+  @Flags private final int flags;
   private final List<Format> closedCaptionFormats;
 
   public DefaultTsPayloadReaderFactory() {

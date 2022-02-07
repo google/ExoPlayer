@@ -84,7 +84,7 @@ public class SubtitleExtractor implements Extractor {
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @MonotonicNonNull TrackOutput trackOutput;
   private int bytesRead;
-  private @State int state;
+  @State private int state;
   private long seekTimeUs;
 
   /**

@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull SeekMap seekMap;
   private long durationUs;
   private boolean isLive;
-  private @DataType int dataType;
+  @DataType private int dataType;
 
   private boolean seenFirstTrackSelection;
   private boolean notifyDiscontinuity;

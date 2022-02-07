@@ -109,7 +109,7 @@ public final class VideoFrameReleaseHelper {
   private float surfacePlaybackFrameRate;
 
   private float playbackSpeed;
-  private @C.VideoChangeFrameRateStrategy int changeFrameRateStrategy;
+  @C.VideoChangeFrameRateStrategy private int changeFrameRateStrategy;
 
   private long vsyncDurationNs;
   private long vsyncOffsetNs;

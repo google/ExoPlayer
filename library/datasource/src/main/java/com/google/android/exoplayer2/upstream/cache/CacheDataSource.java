@@ -70,7 +70,7 @@ public final class CacheDataSource implements DataSource {
     @Nullable private DataSource.Factory upstreamDataSourceFactory;
     @Nullable private PriorityTaskManager upstreamPriorityTaskManager;
     private int upstreamPriority;
-    private @CacheDataSource.Flags int flags;
+    @CacheDataSource.Flags private int flags;
     @Nullable private CacheDataSource.EventListener eventListener;
 
     public Factory() {

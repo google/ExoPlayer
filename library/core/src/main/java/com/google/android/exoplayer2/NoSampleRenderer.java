@@ -166,12 +166,14 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // RendererCapabilities implementation.
 
   @Override
-  public @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
+  @Capabilities
+  public int supportsFormat(Format format) throws ExoPlaybackException {
     return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
-  public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  @AdaptiveSupport
+  public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 

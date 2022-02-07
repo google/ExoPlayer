@@ -102,7 +102,7 @@ public final class StarRating extends Rating {
 
   // Bundleable implementation.
 
-  private static final @RatingType int TYPE = RATING_TYPE_STAR;
+  @RatingType private static final int TYPE = RATING_TYPE_STAR;
   private static final int MAX_STARS_DEFAULT = 5;
 
   @Documented

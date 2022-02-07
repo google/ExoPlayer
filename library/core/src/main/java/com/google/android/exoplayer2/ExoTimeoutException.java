@@ -59,7 +59,7 @@ public final class ExoTimeoutException extends RuntimeException {
   public static final int TIMEOUT_OPERATION_DETACH_SURFACE = 3;
 
   /** The operation on the ExoPlayer playback thread that timed out. */
-  public final @TimeoutOperation int timeoutOperation;
+  @TimeoutOperation public final int timeoutOperation;
 
   /**
    * Creates the timeout exception.

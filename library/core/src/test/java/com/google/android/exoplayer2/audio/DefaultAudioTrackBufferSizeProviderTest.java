@@ -44,7 +44,8 @@ public class DefaultAudioTrackBufferSizeProviderTest {
   public static class PcmTest {
 
     @Parameterized.Parameter(0)
-    public @C.PcmEncoding int encoding;
+    @C.PcmEncoding
+    public int encoding;
 
     @Parameterized.Parameter(1)
     public int channelCount;
@@ -215,7 +216,8 @@ public class DefaultAudioTrackBufferSizeProviderTest {
   public static class EncodedTest {
 
     @Parameterized.Parameter(0)
-    public @C.Encoding int encoding;
+    @C.Encoding
+    public int encoding;
 
     @Parameterized.Parameters(name = "{index}: encoding={0}")
     public static ImmutableList<Integer> data() {

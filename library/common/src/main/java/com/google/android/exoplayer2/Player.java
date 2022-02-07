@@ -686,7 +686,8 @@ public interface Player {
     /** A builder for {@link Commands} instances. */
     public static final class Builder {
 
-      private static final @Command int[] SUPPORTED_COMMANDS = {
+      @Command
+      private static final int[] SUPPORTED_COMMANDS = {
         COMMAND_PLAY_PAUSE,
         COMMAND_PREPARE,
         COMMAND_STOP,

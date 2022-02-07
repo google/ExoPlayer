@@ -339,7 +339,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public @C.CryptoType int getCryptoType() {
+  @C.CryptoType
+  public int getCryptoType() {
     return C.CRYPTO_TYPE_FRAMEWORK;
   }
 

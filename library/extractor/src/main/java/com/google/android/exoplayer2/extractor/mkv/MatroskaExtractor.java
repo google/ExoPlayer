@@ -429,7 +429,7 @@ public class MatroskaExtractor implements Extractor {
   private int[] blockSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
-  private @C.BufferFlags int blockFlags;
+  @C.BufferFlags private int blockFlags;
   private int blockAdditionalId;
   private boolean blockHasReferenceBlock;
 
@@ -529,7 +529,8 @@ public class MatroskaExtractor implements Extractor {
    * @see EbmlProcessor#getElementType(int)
    */
   @CallSuper
-  protected @EbmlProcessor.ElementType int getElementType(int id) {
+  @EbmlProcessor.ElementType
+  protected int getElementType(int id) {
     switch (id) {
       case ID_EBML:
       case ID_SEGMENT:
@@ -1905,7 +1906,8 @@ public class MatroskaExtractor implements Extractor {
   private final class InnerEbmlProcessor implements EbmlProcessor {
 
     @Override
-    public @ElementType int getElementType(int id) {
+    @ElementType
+    public int getElementType(int id) {
       return MatroskaExtractor.this.getElementType(id);
     }
 
@@ -1977,16 +1979,16 @@ public class MatroskaExtractor implements Extractor {
     public int displayWidth = Format.NO_VALUE;
     public int displayHeight = Format.NO_VALUE;
     public int displayUnit = DISPLAY_UNIT_PIXELS;
-    public @C.Projection int projectionType = Format.NO_VALUE;
+    @C.Projection public int projectionType = Format.NO_VALUE;
     public float projectionPoseYaw = 0f;
     public float projectionPosePitch = 0f;
     public float projectionPoseRoll = 0f;
     public byte @MonotonicNonNull [] projectionData = null;
-    public @C.StereoMode int stereoMode = Format.NO_VALUE;
+    @C.StereoMode public int stereoMode = Format.NO_VALUE;
     public boolean hasColorInfo = false;
-    public @C.ColorSpace int colorSpace = Format.NO_VALUE;
-    public @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
-    public @C.ColorRange int colorRange = Format.NO_VALUE;
+    @C.ColorSpace public int colorSpace = Format.NO_VALUE;
+    @C.ColorTransfer public int colorTransfer = Format.NO_VALUE;
+    @C.ColorRange public int colorRange = Format.NO_VALUE;
     public int maxContentLuminance = DEFAULT_MAX_CLL;
     public int maxFrameAverageLuminance = DEFAULT_MAX_FALL;
     public float primaryRChromaticityX = Format.NO_VALUE;

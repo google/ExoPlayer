@@ -407,7 +407,8 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     }
   }
 
-  private static @Cue.AnchorType int toLineAnchor(@SsaStyle.SsaAlignment int alignment) {
+  @Cue.AnchorType
+  private static int toLineAnchor(@SsaStyle.SsaAlignment int alignment) {
     switch (alignment) {
       case SsaStyle.SSA_ALIGNMENT_BOTTOM_LEFT:
       case SsaStyle.SSA_ALIGNMENT_BOTTOM_CENTER:
@@ -429,7 +430,8 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     }
   }
 
-  private static @Cue.AnchorType int toPositionAnchor(@SsaStyle.SsaAlignment int alignment) {
+  @Cue.AnchorType
+  private static int toPositionAnchor(@SsaStyle.SsaAlignment int alignment) {
     switch (alignment) {
       case SsaStyle.SSA_ALIGNMENT_BOTTOM_LEFT:
       case SsaStyle.SSA_ALIGNMENT_MIDDLE_LEFT:

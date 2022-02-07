@@ -60,7 +60,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
 
-  private @State int state;
+  @State private int state;
   private int bytesRead;
 
   // Used to find the header.

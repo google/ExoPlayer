@@ -404,7 +404,8 @@ public final class WebvttCueParser {
     }
   }
 
-  private static @Cue.AnchorType int parseLineAnchor(String s) {
+  @Cue.AnchorType
+  private static int parseLineAnchor(String s) {
     switch (s) {
       case "start":
         return Cue.ANCHOR_TYPE_START;
@@ -428,7 +429,8 @@ public final class WebvttCueParser {
     builder.position = WebvttParserUtil.parsePercentage(s);
   }
 
-  private static @Cue.AnchorType int parsePositionAnchor(String s) {
+  @Cue.AnchorType
+  private static int parsePositionAnchor(String s) {
     switch (s) {
       case "line-left":
       case "start":
@@ -445,7 +447,8 @@ public final class WebvttCueParser {
     }
   }
 
-  private static @Cue.VerticalType int parseVerticalAttribute(String s) {
+  @Cue.VerticalType
+  private static int parseVerticalAttribute(String s) {
     switch (s) {
       case "rl":
         return Cue.VERTICAL_TYPE_RL;
@@ -457,7 +460,8 @@ public final class WebvttCueParser {
     }
   }
 
-  private static @TextAlignment int parseTextAlignment(String s) {
+  @TextAlignment
+  private static int parseTextAlignment(String s) {
     switch (s) {
       case "start":
         return TEXT_ALIGNMENT_START;
@@ -605,7 +609,8 @@ public final class WebvttCueParser {
     }
   }
 
-  private static @TextAnnotation.Position int getRubyPosition(
+  @TextAnnotation.Position
+  private static int getRubyPosition(
       List<WebvttCssStyle> styles, @Nullable String cueId, StartTag startTag) {
     List<StyleMatch> styleMatches = getApplicableStyles(styles, cueId, startTag);
     for (int i = 0; i < styleMatches.size(); i++) {
@@ -617,7 +622,8 @@ public final class WebvttCueParser {
     return TextAnnotation.POSITION_UNKNOWN;
   }
 
-  private static @TextAnnotation.Position int firstKnownRubyPosition(
+  @TextAnnotation.Position
+  private static int firstKnownRubyPosition(
       @TextAnnotation.Position int position1,
       @TextAnnotation.Position int position2,
       @TextAnnotation.Position int position3) {
@@ -762,16 +768,16 @@ public final class WebvttCueParser {
     public long startTimeUs;
     public long endTimeUs;
     public @MonotonicNonNull CharSequence text;
-    public @TextAlignment int textAlignment;
+    @TextAlignment public int textAlignment;
     public float line;
     // Equivalent to WebVTT's snap-to-lines flag:
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-snap-to-lines-flag
-    public @Cue.LineType int lineType;
-    public @Cue.AnchorType int lineAnchor;
+    @Cue.LineType public int lineType;
+    @Cue.AnchorType public int lineAnchor;
     public float position;
-    public @Cue.AnchorType int positionAnchor;
+    @Cue.AnchorType public int positionAnchor;
     public float size;
-    public @Cue.VerticalType int verticalType;
+    @Cue.VerticalType public int verticalType;
 
     public WebvttCueInfoBuilder() {
       startTimeUs = 0;
@@ -853,7 +859,8 @@ public final class WebvttCueParser {
     }
 
     // https://www.w3.org/TR/webvtt1/#webvtt-cue-position-alignment
-    private static @Cue.AnchorType int derivePositionAnchor(@TextAlignment int textAlignment) {
+    @Cue.AnchorType
+    private static int derivePositionAnchor(@TextAlignment int textAlignment) {
       switch (textAlignment) {
         case TEXT_ALIGNMENT_LEFT:
         case TEXT_ALIGNMENT_START:

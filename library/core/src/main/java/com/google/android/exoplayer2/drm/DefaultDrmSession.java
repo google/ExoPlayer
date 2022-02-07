@@ -254,7 +254,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // DrmSession implementation.
 
   @Override
-  public final @DrmSession.State int getState() {
+  @DrmSession.State
+  public final int getState() {
     return state;
   }
 

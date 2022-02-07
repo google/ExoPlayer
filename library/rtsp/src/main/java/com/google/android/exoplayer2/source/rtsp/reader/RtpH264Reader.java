@@ -58,7 +58,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final RtpPayloadFormat payloadFormat;
 
   private @MonotonicNonNull TrackOutput trackOutput;
-  private @C.BufferFlags int bufferFlags;
+  @C.BufferFlags private int bufferFlags;
 
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
@@ -296,7 +296,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 
-  private static @C.BufferFlags int getBufferFlagsFromNalType(int nalType) {
+  @C.BufferFlags
+  private static int getBufferFlagsFromNalType(int nalType) {
     return nalType == NAL_UNIT_TYPE_IDR ? C.BUFFER_FLAG_KEY_FRAME : 0;
   }
 }
