@@ -424,7 +424,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     if (customController != null) {
       this.controller = customController;
     } else if (controllerPlaceholder != null) {
-      // Propagate attrs as playbackAttrs so that StyledPlayerControlView's custom attributes are
+      // Propagate attrs as playbackAttrs so that PlayerControlView's custom attributes are
       // transferred, but standard attributes (e.g. background) are not.
       this.controller = new PlayerControlView(context, null, 0, attrs);
       controller.setId(R.id.exo_controller);
@@ -1522,7 +1522,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       toggleControllerVisibility();
     }
 
-    // StyledPlayerControlView.VisibilityListener implementation
+    // PlayerControlView.VisibilityListener implementation
 
     @Override
     public void onVisibilityChange(int visibility) {
