@@ -69,6 +69,9 @@ public final class C {
   /** Represents an unset or unknown rate. */
   public static final float RATE_UNSET = -Float.MAX_VALUE;
 
+  /** Represents an unset or unknown integer rate. */
+  @UnstableApi public static final int RATE_UNSET_INT = Integer.MIN_VALUE + 1;
+
   /** Represents an unset or unknown length. */
   public static final int LENGTH_UNSET = -1;
 
