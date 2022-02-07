@@ -105,15 +105,15 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
   private boolean constantBitrateSeekingEnabled;
   private boolean constantBitrateSeekingAlwaysEnabled;
-  @AdtsExtractor.Flags private int adtsFlags;
-  @AmrExtractor.Flags private int amrFlags;
-  @FlacExtractor.Flags private int flacFlags;
-  @MatroskaExtractor.Flags private int matroskaFlags;
-  @Mp4Extractor.Flags private int mp4Flags;
-  @FragmentedMp4Extractor.Flags private int fragmentedMp4Flags;
-  @Mp3Extractor.Flags private int mp3Flags;
-  @TsExtractor.Mode private int tsMode;
-  @DefaultTsPayloadReaderFactory.Flags private int tsFlags;
+  private @AdtsExtractor.Flags int adtsFlags;
+  private @AmrExtractor.Flags int amrFlags;
+  private @FlacExtractor.Flags int flacFlags;
+  private @MatroskaExtractor.Flags int matroskaFlags;
+  private @Mp4Extractor.Flags int mp4Flags;
+  private @FragmentedMp4Extractor.Flags int fragmentedMp4Flags;
+  private @Mp3Extractor.Flags int mp3Flags;
+  private @TsExtractor.Mode int tsMode;
+  private @DefaultTsPayloadReaderFactory.Flags int tsFlags;
   private int tsTimestampSearchBytes;
 
   public DefaultExtractorsFactory() {

@@ -231,7 +231,7 @@ public interface HttpDataSource extends DataSource {
     /** The {@link DataSpec} associated with the current connection. */
     public final DataSpec dataSpec;
 
-    @Type public final int type;
+    public final @Type int type;
 
     /**
      * @deprecated Use {@link #HttpDataSourceException(DataSpec, int, int)
@@ -347,8 +347,8 @@ public interface HttpDataSource extends DataSource {
       this.type = type;
     }
 
-    @PlaybackException.ErrorCode
-    private static int assignErrorCode(@PlaybackException.ErrorCode int errorCode, @Type int type) {
+    private static @PlaybackException.ErrorCode int assignErrorCode(
+        @PlaybackException.ErrorCode int errorCode, @Type int type) {
       return errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED && type == TYPE_OPEN
           ? PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
           : errorCode;

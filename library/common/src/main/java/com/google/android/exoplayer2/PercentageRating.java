@@ -76,7 +76,7 @@ public final class PercentageRating extends Rating {
 
   // Bundleable implementation.
 
-  @RatingType private static final int TYPE = RATING_TYPE_PERCENTAGE;
+  private static final @RatingType int TYPE = RATING_TYPE_PERCENTAGE;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)

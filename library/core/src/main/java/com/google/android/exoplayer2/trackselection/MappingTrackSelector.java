@@ -104,8 +104,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
     private final String[] rendererNames;
     private final @C.TrackType int[] rendererTrackTypes;
     private final TrackGroupArray[] rendererTrackGroups;
-    @AdaptiveSupport private final int[] rendererMixedMimeTypeAdaptiveSupports;
-    @Capabilities private final int[][][] rendererFormatSupports;
+    private final @AdaptiveSupport int[] rendererMixedMimeTypeAdaptiveSupports;
+    private final @Capabilities int[][][] rendererFormatSupports;
     private final TrackGroupArray unmappedTrackGroups;
 
     /**
@@ -178,8 +178,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param rendererIndex The renderer index.
      * @return The {@link RendererSupport}.
      */
-    @RendererSupport
-    public int getRendererSupport(int rendererIndex) {
+    public @RendererSupport int getRendererSupport(int rendererIndex) {
       @RendererSupport int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       @Capabilities int[][] rendererFormatSupport = rendererFormatSupports[rendererIndex];
       for (@Capabilities int[] trackGroupFormatSupport : rendererFormatSupport) {
@@ -214,8 +213,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param trackType The {@link C.TrackType track type}.
      * @return The {@link RendererSupport}.
      */
-    @RendererSupport
-    public int getTypeSupport(@C.TrackType int trackType) {
+    public @RendererSupport int getTypeSupport(@C.TrackType int trackType) {
       @RendererSupport int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       for (int i = 0; i < rendererCount; i++) {
         if (rendererTrackTypes[i] == trackType) {
@@ -233,8 +231,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param trackIndex The index of the track within the track group.
      * @return The {@link Capabilities}.
      */
-    @Capabilities
-    public int getCapabilities(int rendererIndex, int groupIndex, int trackIndex) {
+    public @Capabilities int getCapabilities(int rendererIndex, int groupIndex, int trackIndex) {
       return rendererFormatSupports[rendererIndex][groupIndex][trackIndex];
     }
 
@@ -246,8 +243,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param trackIndex The index of the track within the track group.
      * @return The {@link FormatSupport}.
      */
-    @FormatSupport
-    public int getTrackSupport(int rendererIndex, int groupIndex, int trackIndex) {
+    public @FormatSupport int getTrackSupport(int rendererIndex, int groupIndex, int trackIndex) {
       return RendererCapabilities.getFormatSupport(
           getCapabilities(rendererIndex, groupIndex, trackIndex));
     }
@@ -269,8 +265,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     renderer are included when determining support.
      * @return The {@link AdaptiveSupport}.
      */
-    @AdaptiveSupport
-    public int getAdaptiveSupport(
+    public @AdaptiveSupport int getAdaptiveSupport(
         int rendererIndex, int groupIndex, boolean includeCapabilitiesExceededTracks) {
       int trackCount = rendererTrackGroups[rendererIndex].get(groupIndex).length;
       // Iterate over the tracks in the group, recording the indices of those to consider.
@@ -296,8 +291,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param groupIndex The index of the track group.
      * @return The {@link AdaptiveSupport}.
      */
-    @AdaptiveSupport
-    public int getAdaptiveSupport(int rendererIndex, int groupIndex, int[] trackIndices) {
+    public @AdaptiveSupport int getAdaptiveSupport(
+        int rendererIndex, int groupIndex, int[] trackIndices) {
       int handledTrackCount = 0;
       @AdaptiveSupport int adaptiveSupport = RendererCapabilities.ADAPTIVE_SEAMLESS;
       boolean multipleMimeTypes = false;
@@ -537,9 +532,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * @return An array containing {@link Capabilities} for each track in the group.
    * @throws ExoPlaybackException If an error occurs determining the format support.
    */
-  @Capabilities
-  private static int[] getFormatSupport(RendererCapabilities rendererCapabilities, TrackGroup group)
-      throws ExoPlaybackException {
+  private static @Capabilities int[] getFormatSupport(
+      RendererCapabilities rendererCapabilities, TrackGroup group) throws ExoPlaybackException {
     @Capabilities int[] formatSupport = new int[group.length];
     for (int i = 0; i < group.length; i++) {
       formatSupport[i] = rendererCapabilities.supportsFormat(group.getFormat(i));
@@ -556,8 +550,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    *     renderer.
    * @throws ExoPlaybackException If an error occurs determining the adaptation support.
    */
-  @AdaptiveSupport
-  private static int[] getMixedMimeTypeAdaptationSupports(
+  private static @AdaptiveSupport int[] getMixedMimeTypeAdaptationSupports(
       RendererCapabilities[] rendererCapabilities) throws ExoPlaybackException {
     @AdaptiveSupport int[] mixedMimeTypeAdaptationSupport = new int[rendererCapabilities.length];
     for (int i = 0; i < mixedMimeTypeAdaptationSupport.length; i++) {

@@ -82,7 +82,7 @@ public final class PlaybackStatsListener
 
   @Nullable private String discontinuityFromSession;
   private long discontinuityFromPositionMs;
-  @Player.DiscontinuityReason private int discontinuityReason;
+  private @Player.DiscontinuityReason int discontinuityReason;
   private int droppedFrames;
   @Nullable private Exception nonFatalException;
   private long bandwidthTimeMs;

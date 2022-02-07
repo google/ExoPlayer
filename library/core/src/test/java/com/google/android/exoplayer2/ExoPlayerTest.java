@@ -11478,7 +11478,7 @@ public final class ExoPlayerTest {
   private static final class PlayerStateGrabber extends PlayerRunnable {
 
     public boolean playWhenReady;
-    @Player.State public int playbackState;
+    public @Player.State int playbackState;
     @Nullable public Timeline timeline;
 
     @Override

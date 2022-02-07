@@ -46,7 +46,7 @@ public final class CryptoInfo {
    *
    * @see android.media.MediaCodec.CryptoInfo#mode
    */
-  @C.CryptoMode public int mode;
+  public @C.CryptoMode int mode;
   /**
    * The number of leading unencrypted bytes in each sub-sample. If null, all bytes are treated as
    * encrypted and {@link #numBytesOfEncryptedData} must be specified.

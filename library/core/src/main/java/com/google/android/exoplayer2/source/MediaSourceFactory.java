@@ -44,8 +44,7 @@ public interface MediaSourceFactory extends MediaSource.Factory {
         }
 
         @Override
-        @C.ContentType
-        public int[] getSupportedTypes() {
+        public @C.ContentType int[] getSupportedTypes() {
           throw new UnsupportedOperationException();
         }
 

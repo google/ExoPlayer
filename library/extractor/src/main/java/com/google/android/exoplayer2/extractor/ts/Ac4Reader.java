@@ -58,7 +58,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
 
-  @State private int state;
+  private @State int state;
   private int bytesRead;
 
   // Used to find the header.

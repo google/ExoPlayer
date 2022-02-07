@@ -81,13 +81,13 @@ public final class TextEmphasisSpan implements LanguageFeatureSpan {
   public static final int MARK_FILL_OPEN = 2;
 
   /** The mark shape used for text emphasis. */
-  @MarkShape public int markShape;
+  public @MarkShape int markShape;
 
   /** The mark fill for the text emphasis mark. */
-  @MarkShape public int markFill;
+  public @MarkShape int markFill;
 
   /** The position of the text emphasis relative to the base text. */
-  @TextAnnotation.Position public final int position;
+  public final @TextAnnotation.Position int position;
 
   public TextEmphasisSpan(
       @MarkShape int shape, @MarkFill int fill, @TextAnnotation.Position int position) {

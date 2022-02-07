@@ -282,8 +282,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  @Capabilities
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+  protected @Capabilities int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);

@@ -265,7 +265,7 @@ public interface ExoMediaDrm {
 
     private final byte[] data;
     private final String licenseServerUrl;
-    @RequestType private final int requestType;
+    private final @RequestType int requestType;
 
     /**
      * Creates an instance with {@link #REQUEST_TYPE_UNKNOWN}.
@@ -305,8 +305,7 @@ public interface ExoMediaDrm {
      * request does not specify a type. Note that when using a platform {@link MediaDrm} instance,
      * key requests only specify a type on API levels 23 and above.
      */
-    @RequestType
-    public int getRequestType() {
+    public @RequestType int getRequestType() {
       return requestType;
     }
   }
