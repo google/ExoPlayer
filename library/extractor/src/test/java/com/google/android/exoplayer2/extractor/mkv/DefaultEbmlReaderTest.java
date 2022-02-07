@@ -178,7 +178,8 @@ public class DefaultEbmlReaderTest {
     private final List<String> events = new ArrayList<>();
 
     @Override
-    public @EbmlProcessor.ElementType int getElementType(int id) {
+    @EbmlProcessor.ElementType
+    public int getElementType(int id) {
       switch (id) {
         case ID_EBML:
         case ID_SEGMENT:

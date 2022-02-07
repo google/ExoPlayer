@@ -148,7 +148,8 @@ public interface AnalyticsListener {
      * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
      * @return The {@link EventFlags event} at the given index.
      */
-    public @EventFlags int get(int index) {
+    @EventFlags
+    public int get(int index) {
       return flags.get(index);
     }
   }

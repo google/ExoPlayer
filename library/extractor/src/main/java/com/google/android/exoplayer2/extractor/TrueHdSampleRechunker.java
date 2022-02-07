@@ -32,7 +32,7 @@ public final class TrueHdSampleRechunker {
   private boolean foundSyncframe;
   private int chunkSampleCount;
   private long chunkTimeUs;
-  private @C.BufferFlags int chunkFlags;
+  @C.BufferFlags private int chunkFlags;
   private int chunkSize;
   private int chunkOffset;
 

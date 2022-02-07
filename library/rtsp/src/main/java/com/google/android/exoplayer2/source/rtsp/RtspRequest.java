@@ -86,7 +86,7 @@ import java.lang.annotation.Target;
   /** The {@link Uri} to which this request is sent. */
   public final Uri uri;
   /** The request method, as defined in {@link Method}. */
-  public final @Method int method;
+  @Method public final int method;
   /** The headers of this request. */
   public final RtspHeaders headers;
   /** The body of this RTSP message, or empty string if absent. */

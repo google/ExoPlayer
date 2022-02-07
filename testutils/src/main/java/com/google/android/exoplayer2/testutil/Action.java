@@ -493,7 +493,7 @@ public abstract class Action {
   /** Calls {@link Player#setRepeatMode(int)}. */
   public static final class SetRepeatMode extends Action {
 
-    private final @Player.RepeatMode int repeatMode;
+    @Player.RepeatMode private final int repeatMode;
 
     /**
      * @param tag A tag to use for logging.
@@ -740,7 +740,7 @@ public abstract class Action {
 
     @Nullable private final Timeline expectedTimeline;
     private final boolean ignoreExpectedReason;
-    private final @Player.TimelineChangeReason int expectedReason;
+    @Player.TimelineChangeReason private final int expectedReason;
 
     /**
      * Creates action waiting for a timeline change for a given reason.
@@ -907,7 +907,7 @@ public abstract class Action {
    */
   public static final class WaitForPlaybackState extends Action {
 
-    private final @Player.State int targetPlaybackState;
+    @Player.State private final int targetPlaybackState;
 
     /**
      * @param tag A tag to use for logging.

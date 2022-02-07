@@ -42,7 +42,7 @@ import com.google.android.exoplayer2.util.Util;
   private final MediaItem mediaItem = MediaItem.fromUri("http://google.com/0");
 
   private Timeline timeline;
-  private @Player.State int state;
+  @Player.State private int state;
   private boolean playWhenReady;
   private int periodIndex;
   private long positionMs;
@@ -236,7 +236,8 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   @Override
-  public @Player.State int getPlaybackState() {
+  @Player.State
+  public int getPlaybackState() {
     return state;
   }
 
@@ -246,7 +247,8 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   @Override
-  public @RepeatMode int getRepeatMode() {
+  @RepeatMode
+  public int getRepeatMode() {
     return REPEAT_MODE_OFF;
   }
 

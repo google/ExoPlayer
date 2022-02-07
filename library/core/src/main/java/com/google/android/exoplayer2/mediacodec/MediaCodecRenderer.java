@@ -325,7 +325,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable private ArrayDeque<MediaCodecInfo> availableCodecInfos;
   @Nullable private DecoderInitializationException preferredDecoderInitializationException;
   @Nullable private MediaCodecInfo codecInfo;
-  private @AdaptationWorkaroundMode int codecAdaptationWorkaroundMode;
+  @AdaptationWorkaroundMode private int codecAdaptationWorkaroundMode;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
   private boolean codecNeedsSosFlushWorkaround;
@@ -347,9 +347,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean bypassSampleBufferPending;
   private boolean bypassDrainAndReinitialize;
   private boolean codecReconfigured;
-  private @ReconfigurationState int codecReconfigurationState;
-  private @DrainState int codecDrainState;
-  private @DrainAction int codecDrainAction;
+  @ReconfigurationState private int codecReconfigurationState;
+  @DrainState private int codecDrainState;
+  @DrainAction private int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
   private boolean codecHasOutputMediaFormat;
@@ -435,12 +435,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  public final @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
+  @AdaptiveSupport
+  public final int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
   @Override
-  public final @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
+  @Capabilities
+  public final int supportsFormat(Format format) throws ExoPlaybackException {
     try {
       return supportsFormat(mediaCodecSelector, format);
     } catch (DecoderQueryException e) {
@@ -456,8 +458,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @return The {@link Capabilities} for this {@link Format}.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
-  protected abstract @Capabilities int supportsFormat(
-      MediaCodecSelector mediaCodecSelector, Format format) throws DecoderQueryException;
+  @Capabilities
+  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+      throws DecoderQueryException;
 
   /**
    * Returns a list of decoders that can decode media in the specified format, in priority order.

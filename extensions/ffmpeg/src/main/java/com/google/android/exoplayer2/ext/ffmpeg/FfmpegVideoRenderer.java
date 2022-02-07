@@ -71,7 +71,8 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
-  public final @RendererCapabilities.Capabilities int supportsFormat(Format format) {
+  @RendererCapabilities.Capabilities
+  public final int supportsFormat(Format format) {
     // TODO: Remove this line and uncomment the implementation below.
     return C.FORMAT_UNSUPPORTED_TYPE;
     /*

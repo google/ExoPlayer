@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.C;
 /** Base class for buffers with flags. */
 public abstract class Buffer {
 
-  private @C.BufferFlags int flags;
+  @C.BufferFlags private int flags;
 
   /** Clears the buffer. */
   public void clear() {

@@ -39,7 +39,8 @@ public final class ColorInfo implements Bundleable {
    * made.
    */
   @Pure
-  public static @C.ColorSpace int isoColorPrimariesToColorSpace(int isoColorPrimaries) {
+  @C.ColorSpace
+  public static int isoColorPrimariesToColorSpace(int isoColorPrimaries) {
     switch (isoColorPrimaries) {
       case 1:
         return C.COLOR_SPACE_BT709;
@@ -61,8 +62,8 @@ public final class ColorInfo implements Bundleable {
    * mapping can be made.
    */
   @Pure
-  public static @C.ColorTransfer int isoTransferCharacteristicsToColorTransfer(
-      int isoTransferCharacteristics) {
+  @C.ColorTransfer
+  public static int isoTransferCharacteristicsToColorTransfer(int isoTransferCharacteristics) {
     switch (isoTransferCharacteristics) {
       case 1: // BT.709.
       case 6: // SMPTE 170M.
@@ -81,20 +82,20 @@ public final class ColorInfo implements Bundleable {
    * The color space of the video. Valid values are {@link C#COLOR_SPACE_BT601}, {@link
    * C#COLOR_SPACE_BT709}, {@link C#COLOR_SPACE_BT2020} or {@link Format#NO_VALUE} if unknown.
    */
-  public final @C.ColorSpace int colorSpace;
+  @C.ColorSpace public final int colorSpace;
 
   /**
    * The color range of the video. Valid values are {@link C#COLOR_RANGE_LIMITED}, {@link
    * C#COLOR_RANGE_FULL} or {@link Format#NO_VALUE} if unknown.
    */
-  public final @C.ColorRange int colorRange;
+  @C.ColorRange public final int colorRange;
 
   /**
    * The color transfer characteristics of the video. Valid values are {@link C#COLOR_TRANSFER_HLG},
    * {@link C#COLOR_TRANSFER_ST2084}, {@link C#COLOR_TRANSFER_SDR} or {@link Format#NO_VALUE} if
    * unknown.
    */
-  public final @C.ColorTransfer int colorTransfer;
+  @C.ColorTransfer public final int colorTransfer;
 
   /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
   @Nullable public final byte[] hdrStaticInfo;

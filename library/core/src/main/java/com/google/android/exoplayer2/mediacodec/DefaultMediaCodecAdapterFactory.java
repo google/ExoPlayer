@@ -51,7 +51,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
 
   private static final String TAG = "DMCodecAdapterFactory";
 
-  private @Mode int asynchronousMode;
+  @Mode private int asynchronousMode;
   private boolean enableSynchronizeCodecInteractionsWithQueueing;
   private boolean enableImmediateCodecStartAfterFlush;
 

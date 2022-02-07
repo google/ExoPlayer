@@ -351,7 +351,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final List<String> messageLines;
 
-    private @ReadingState int state;
+    @ReadingState private int state;
     private long messageBodyLength;
 
     /** Creates a new instance. */

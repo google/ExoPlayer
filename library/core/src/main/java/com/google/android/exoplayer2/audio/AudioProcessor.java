@@ -43,7 +43,7 @@ public interface AudioProcessor {
     /** The number of interleaved channels. */
     public final int channelCount;
     /** The type of linear PCM encoding. */
-    public final @C.PcmEncoding int encoding;
+    @C.PcmEncoding public final int encoding;
     /** The number of bytes used to represent one audio frame. */
     public final int bytesPerFrame;
 

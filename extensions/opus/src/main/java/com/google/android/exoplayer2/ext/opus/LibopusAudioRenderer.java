@@ -78,7 +78,8 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
   }
 
   @Override
-  protected @C.FormatSupport int supportsFormatInternal(Format format) {
+  @C.FormatSupport
+  protected int supportsFormatInternal(Format format) {
     boolean drmIsSupported = OpusLibrary.supportsCryptoType(format.cryptoType);
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {

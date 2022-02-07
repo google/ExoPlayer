@@ -71,7 +71,8 @@ public class DecoderAudioRendererTest {
           }
 
           @Override
-          protected @C.FormatSupport int supportsFormatInternal(Format format) {
+          @C.FormatSupport
+          protected int supportsFormatInternal(Format format) {
             return FORMAT_HANDLED;
           }
 

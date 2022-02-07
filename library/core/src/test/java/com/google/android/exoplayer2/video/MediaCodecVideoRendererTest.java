@@ -110,8 +110,8 @@ public class MediaCodecVideoRendererTest {
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1) {
           @Override
-          protected @Capabilities int supportsFormat(
-              MediaCodecSelector mediaCodecSelector, Format format) {
+          @Capabilities
+          protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format) {
             return RendererCapabilities.create(C.FORMAT_HANDLED);
           }
 

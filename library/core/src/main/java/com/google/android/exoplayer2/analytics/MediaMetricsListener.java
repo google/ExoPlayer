@@ -118,7 +118,7 @@ public final class MediaMetricsListener
 
   @Nullable private String activeSessionId;
   @Nullable private PlaybackMetrics.Builder metricsBuilder;
-  private @Player.DiscontinuityReason int discontinuityReason;
+  @Player.DiscontinuityReason private int discontinuityReason;
   private int currentPlaybackState;
   private int currentNetworkType;
   @Nullable private PlaybackException pendingPlayerError;
@@ -885,7 +885,7 @@ public final class MediaMetricsListener
   private static final class PendingFormatUpdate {
 
     public final Format format;
-    public final @C.SelectionReason int selectionReason;
+    @C.SelectionReason public final int selectionReason;
     public final String sessionId;
 
     public PendingFormatUpdate(

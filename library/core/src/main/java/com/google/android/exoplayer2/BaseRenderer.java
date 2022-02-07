@@ -196,7 +196,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // RendererCapabilities implementation.
 
   @Override
-  public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  @AdaptiveSupport
+  public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
@@ -419,7 +420,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    *     the data of a sample being read. The buffer {@link DecoderInputBuffer#timeUs timestamp} and
    *     flags are populated if this exception is thrown, but the read position is not advanced.
    */
-  protected final @ReadDataResult int readSource(
+  @ReadDataResult
+  protected final int readSource(
       FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
     @ReadDataResult
     int result = Assertions.checkNotNull(stream).readData(formatHolder, buffer, readFlags);

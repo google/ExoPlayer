@@ -141,7 +141,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private String sessionId;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
   @Nullable private RtspAuthenticationInfo rtspAuthenticationInfo;
-  private @RtspState int rtspState;
+  @RtspState private int rtspState;
   private boolean hasUpdatedTimelineAndTracks;
   private boolean receivedAuthorizationRequest;
   private boolean hasPendingPauseRequest;
@@ -204,7 +204,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Returns the current {@link RtspState RTSP state}. */
-  public @RtspState int getState() {
+  @RtspState
+  public int getState() {
     return rtspState;
   }
 
