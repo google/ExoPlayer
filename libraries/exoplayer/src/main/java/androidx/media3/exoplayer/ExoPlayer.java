@@ -1082,32 +1082,6 @@ public interface ExoPlayer extends Player {
   DeviceComponent getDeviceComponent();
 
   /**
-   * Registers a listener to receive events from the player.
-   *
-   * <p>The listener's methods will be called on the thread associated with {@link
-   * #getApplicationLooper()}.
-   *
-   * @param listener The listener to register.
-   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
-   */
-  @UnstableApi
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void addListener(EventListener listener);
-
-  /**
-   * Unregister a listener registered through {@link #addListener(EventListener)}. The listener will
-   * no longer receive events from the player.
-   *
-   * @param listener The listener to unregister.
-   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
-   */
-  @UnstableApi
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void removeListener(EventListener listener);
-
-  /**
    * Adds a listener to receive audio offload events.
    *
    * @param listener The listener to register.
