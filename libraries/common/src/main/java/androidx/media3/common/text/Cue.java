@@ -569,7 +569,7 @@ public final class Cue implements Bundleable {
     @Nullable private Alignment textAlignment;
     @Nullable private Alignment multiRowAlignment;
     private float line;
-    @LineType private int lineType;
+    private @LineType int lineType;
     private @AnchorType int lineAnchor;
     private float position;
     private @AnchorType int positionAnchor;
@@ -730,8 +730,7 @@ public final class Cue implements Bundleable {
      * @see Cue#lineType
      */
     @Pure
-    @LineType
-    public int getLineType() {
+    public @LineType int getLineType() {
       return lineType;
     }
 
@@ -751,8 +750,7 @@ public final class Cue implements Bundleable {
      * @see Cue#lineAnchor
      */
     @Pure
-    @AnchorType
-    public int getLineAnchor() {
+    public @AnchorType int getLineAnchor() {
       return lineAnchor;
     }
 
@@ -794,8 +792,7 @@ public final class Cue implements Bundleable {
      * @see Cue#positionAnchor
      */
     @Pure
-    @AnchorType
-    public int getPositionAnchor() {
+    public @AnchorType int getPositionAnchor() {
       return positionAnchor;
     }
 
@@ -817,8 +814,7 @@ public final class Cue implements Bundleable {
      * @see Cue#textSizeType
      */
     @Pure
-    @TextSizeType
-    public int getTextSizeType() {
+    public @TextSizeType int getTextSizeType() {
       return textSizeType;
     }
 
@@ -936,8 +932,7 @@ public final class Cue implements Bundleable {
      * @see Cue#verticalType
      */
     @Pure
-    @VerticalType
-    public int getVerticalType() {
+    public @VerticalType int getVerticalType() {
       return verticalType;
     }
 

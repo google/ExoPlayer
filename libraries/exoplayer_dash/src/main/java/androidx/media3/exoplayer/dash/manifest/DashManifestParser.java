@@ -1481,8 +1481,8 @@ public class DashManifestParser extends DefaultHandler
 
   // Selection flag parsing.
 
-  @C.SelectionFlags
-  protected int parseSelectionFlagsFromRoleDescriptors(List<Descriptor> roleDescriptors) {
+  protected @C.SelectionFlags int parseSelectionFlagsFromRoleDescriptors(
+      List<Descriptor> roleDescriptors) {
     @C.SelectionFlags int result = 0;
     for (int i = 0; i < roleDescriptors.size(); i++) {
       Descriptor descriptor = roleDescriptors.get(i);
@@ -1493,8 +1493,7 @@ public class DashManifestParser extends DefaultHandler
     return result;
   }
 
-  @C.SelectionFlags
-  protected int parseSelectionFlagsFromDashRoleScheme(@Nullable String value) {
+  protected @C.SelectionFlags int parseSelectionFlagsFromDashRoleScheme(@Nullable String value) {
     if (value == null) {
       return 0;
     }
@@ -1510,8 +1509,7 @@ public class DashManifestParser extends DefaultHandler
 
   // Role and Accessibility parsing.
 
-  @C.RoleFlags
-  protected int parseRoleFlagsFromRoleDescriptors(List<Descriptor> roleDescriptors) {
+  protected @C.RoleFlags int parseRoleFlagsFromRoleDescriptors(List<Descriptor> roleDescriptors) {
     @C.RoleFlags int result = 0;
     for (int i = 0; i < roleDescriptors.size(); i++) {
       Descriptor descriptor = roleDescriptors.get(i);
@@ -1522,8 +1520,7 @@ public class DashManifestParser extends DefaultHandler
     return result;
   }
 
-  @C.RoleFlags
-  protected int parseRoleFlagsFromAccessibilityDescriptors(
+  protected @C.RoleFlags int parseRoleFlagsFromAccessibilityDescriptors(
       List<Descriptor> accessibilityDescriptors) {
     @C.RoleFlags int result = 0;
     for (int i = 0; i < accessibilityDescriptors.size(); i++) {
@@ -1538,8 +1535,8 @@ public class DashManifestParser extends DefaultHandler
     return result;
   }
 
-  @C.RoleFlags
-  protected int parseRoleFlagsFromProperties(List<Descriptor> accessibilityDescriptors) {
+  protected @C.RoleFlags int parseRoleFlagsFromProperties(
+      List<Descriptor> accessibilityDescriptors) {
     @C.RoleFlags int result = 0;
     for (int i = 0; i < accessibilityDescriptors.size(); i++) {
       Descriptor descriptor = accessibilityDescriptors.get(i);
@@ -1551,8 +1548,7 @@ public class DashManifestParser extends DefaultHandler
     return result;
   }
 
-  @C.RoleFlags
-  protected int parseRoleFlagsFromDashRoleScheme(@Nullable String value) {
+  protected @C.RoleFlags int parseRoleFlagsFromDashRoleScheme(@Nullable String value) {
     if (value == null) {
       return 0;
     }
@@ -1587,8 +1583,7 @@ public class DashManifestParser extends DefaultHandler
     }
   }
 
-  @C.RoleFlags
-  protected int parseTvaAudioPurposeCsValue(@Nullable String value) {
+  protected @C.RoleFlags int parseTvaAudioPurposeCsValue(@Nullable String value) {
     if (value == null) {
       return 0;
     }

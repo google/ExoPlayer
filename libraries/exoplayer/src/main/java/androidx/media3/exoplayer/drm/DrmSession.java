@@ -65,7 +65,7 @@ public interface DrmSession {
   class DrmSessionException extends IOException {
 
     /** The {@link PlaybackException.ErrorCode} that corresponds to the failure. */
-    @PlaybackException.ErrorCode public final int errorCode;
+    public final @PlaybackException.ErrorCode int errorCode;
 
     public DrmSessionException(Throwable cause, @PlaybackException.ErrorCode int errorCode) {
       super(cause);

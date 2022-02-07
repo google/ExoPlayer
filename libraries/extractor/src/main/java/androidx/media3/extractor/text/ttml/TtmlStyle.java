@@ -81,18 +81,18 @@ import java.lang.annotation.Target;
   private boolean hasFontColor;
   private int backgroundColor;
   private boolean hasBackgroundColor;
-  @OptionalBoolean private int linethrough;
-  @OptionalBoolean private int underline;
-  @OptionalBoolean private int bold;
-  @OptionalBoolean private int italic;
-  @FontSizeUnit private int fontSizeUnit;
+  private @OptionalBoolean int linethrough;
+  private @OptionalBoolean int underline;
+  private @OptionalBoolean int bold;
+  private @OptionalBoolean int italic;
+  private @FontSizeUnit int fontSizeUnit;
   private float fontSize;
   @Nullable private String id;
-  @RubyType private int rubyType;
-  @TextAnnotation.Position private int rubyPosition;
+  private @RubyType int rubyType;
+  private @TextAnnotation.Position int rubyPosition;
   @Nullable private Layout.Alignment textAlign;
   @Nullable private Layout.Alignment multiRowAlign;
-  @OptionalBoolean private int textCombine;
+  private @OptionalBoolean int textCombine;
   @Nullable private TextEmphasis textEmphasis;
   private float shearPercentage;
 
@@ -114,8 +114,7 @@ import java.lang.annotation.Target;
    * @return {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link #STYLE_BOLD}, {@link #STYLE_BOLD}
    *     or {@link #STYLE_BOLD_ITALIC}.
    */
-  @StyleFlags
-  public int getStyle() {
+  public @StyleFlags int getStyle() {
     if (bold == UNSPECIFIED && italic == UNSPECIFIED) {
       return UNSPECIFIED;
     }
@@ -292,8 +291,7 @@ import java.lang.annotation.Target;
     return this;
   }
 
-  @RubyType
-  public int getRubyType() {
+  public @RubyType int getRubyType() {
     return rubyType;
   }
 
@@ -302,8 +300,7 @@ import java.lang.annotation.Target;
     return this;
   }
 
-  @TextAnnotation.Position
-  public int getRubyPosition() {
+  public @TextAnnotation.Position int getRubyPosition() {
     return rubyPosition;
   }
 
@@ -357,8 +354,7 @@ import java.lang.annotation.Target;
     return this;
   }
 
-  @FontSizeUnit
-  public int getFontSizeUnit() {
+  public @FontSizeUnit int getFontSizeUnit() {
     return fontSizeUnit;
   }
 

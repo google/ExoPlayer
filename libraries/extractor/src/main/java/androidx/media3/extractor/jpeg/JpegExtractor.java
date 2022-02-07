@@ -84,7 +84,7 @@ public final class JpegExtractor implements Extractor {
 
   private @MonotonicNonNull ExtractorOutput extractorOutput;
 
-  @State private int state;
+  private @State int state;
   private int marker;
   private int segmentLength;
   private long mp4StartPosition;
@@ -128,8 +128,8 @@ public final class JpegExtractor implements Extractor {
   }
 
   @Override
-  @ReadResult
-  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException {
     switch (state) {
       case STATE_READING_MARKER:
         readMarker(input);

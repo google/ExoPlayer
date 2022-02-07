@@ -47,7 +47,7 @@ public final class DownloadBuilder {
   @Nullable private String cacheKey;
   private byte[] customMetadata;
 
-  @Download.State private int state;
+  private @Download.State int state;
   private long startTimeMs;
   private long updateTimeMs;
   private long contentLength;

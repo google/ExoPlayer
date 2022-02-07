@@ -82,7 +82,7 @@ public class MockPlayer implements Player {
   public int newIndex;
   public int currentPeriodIndex;
   public int currentMediaItemIndex;
-  @RepeatMode public int repeatMode;
+  public @RepeatMode int repeatMode;
   public boolean shuffleModeEnabled;
   public VideoSize videoSize;
   @Nullable public Surface surface;
@@ -95,8 +95,8 @@ public class MockPlayer implements Player {
   public int deviceVolume;
   public boolean deviceMuted;
   public boolean playWhenReady;
-  @PlaybackSuppressionReason public int playbackSuppressionReason;
-  @State public int playbackState;
+  public @PlaybackSuppressionReason int playbackSuppressionReason;
+  public @State int playbackState;
   public boolean isPlaying;
   public boolean isLoading;
   public MediaMetadata mediaMetadata;
@@ -591,14 +591,12 @@ public class MockPlayer implements Player {
   }
 
   @Override
-  @PlaybackSuppressionReason
-  public int getPlaybackSuppressionReason() {
+  public @PlaybackSuppressionReason int getPlaybackSuppressionReason() {
     return playbackSuppressionReason;
   }
 
   @Override
-  @State
-  public int getPlaybackState() {
+  public @State int getPlaybackState() {
     return playbackState;
   }
 
