@@ -124,8 +124,7 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
-  @Capabilities
-  public final int supportsFormat(Format format) {
+  public final @Capabilities int supportsFormat(Format format) {
     if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }

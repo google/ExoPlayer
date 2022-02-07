@@ -56,11 +56,11 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Rating userRating;
     @Nullable private Rating overallRating;
     @Nullable private byte[] artworkData;
-    @Nullable @PictureType private Integer artworkDataType;
+    @Nullable private @PictureType Integer artworkDataType;
     @Nullable private Uri artworkUri;
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
-    @Nullable @FolderType private Integer folderType;
+    @Nullable private @FolderType Integer folderType;
     @Nullable private Boolean isPlayable;
     @Nullable private Integer recordingYear;
     @Nullable private Integer recordingMonth;

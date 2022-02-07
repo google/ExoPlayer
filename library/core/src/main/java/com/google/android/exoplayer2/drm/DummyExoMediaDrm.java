@@ -150,8 +150,7 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  @C.CryptoType
-  public int getCryptoType() {
+  public @C.CryptoType int getCryptoType() {
     return C.CRYPTO_TYPE_UNSUPPORTED;
   }
 }

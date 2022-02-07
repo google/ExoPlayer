@@ -98,7 +98,7 @@ public final class ParsingLoadable<T> implements Loadable {
   private final StatsDataSource dataSource;
   private final Parser<? extends T> parser;
 
-  private volatile @Nullable T result;
+  @Nullable private volatile T result;
 
   /**
    * @param dataSource A {@link DataSource} to use when loading the data.

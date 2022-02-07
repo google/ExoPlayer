@@ -103,8 +103,7 @@ public final class DummySurface extends Surface {
     }
   }
 
-  @SecureMode
-  private static int getSecureMode(Context context) {
+  private static @SecureMode int getSecureMode(Context context) {
     if (GlUtil.isProtectedContentExtensionSupported(context)) {
       if (GlUtil.isSurfacelessContextExtensionSupported()) {
         return SECURE_MODE_SURFACELESS_CONTEXT;

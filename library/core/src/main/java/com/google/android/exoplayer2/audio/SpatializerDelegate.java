@@ -129,8 +129,7 @@ import java.util.concurrent.Executor;
   }
 
   /** Delegates to Spatializer.getImmersiveAudioLevel() */
-  @ImmersiveAudioLevel
-  public int getImmersiveAudioLevel() {
+  public @ImmersiveAudioLevel int getImmersiveAudioLevel() {
     try {
       return (int) Util.castNonNull(getImmersiveAudioLevel.invoke(spatializer));
     } catch (IllegalAccessException | InvocationTargetException e) {

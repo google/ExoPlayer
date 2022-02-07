@@ -109,7 +109,7 @@ public class DecoderInputBuffer extends Buffer {
    */
   @Nullable public ByteBuffer supplementalData;
 
-  @BufferReplacementMode private final int bufferReplacementMode;
+  private final @BufferReplacementMode int bufferReplacementMode;
   private final int paddingSize;
 
   /** Returns a new instance that's not able to hold any data. */

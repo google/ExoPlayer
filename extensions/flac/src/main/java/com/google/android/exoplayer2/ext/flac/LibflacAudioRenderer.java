@@ -77,8 +77,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
   }
 
   @Override
-  @C.FormatSupport
-  protected int supportsFormatInternal(Format format) {
+  protected @C.FormatSupport int supportsFormatInternal(Format format) {
     if (!FlacLibrary.isAvailable()
         || !MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)) {
       return C.FORMAT_UNSUPPORTED_TYPE;
