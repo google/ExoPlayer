@@ -89,12 +89,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A view for controlling {@link Player} instances.
  *
- * <p>A StyledPlayerControlView can be customized by setting attributes (or calling corresponding
+ * <p>A PlayerControlView can be customized by setting attributes (or calling corresponding
  * methods), or overriding drawables.
  *
  * <h2>Attributes</h2>
  *
- * The following attributes can be set on a StyledPlayerControlView when used in a layout XML file:
+ * The following attributes can be set on a PlayerControlView when used in a layout XML file:
  *
  * <ul>
  *   <li><b>{@code show_timeout}</b> - The time between the last user interaction and the controls
@@ -160,13 +160,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
  *   <li>All attributes that can be set on {@link DefaultTimeBar} can also be set on a
- *       StyledPlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar}
- *       unless the layout is overridden to specify a custom {@code exo_progress} (see below).
+ *       PlayerControlView, and will be propagated to the inflated {@link DefaultTimeBar} unless the
+ *       layout is overridden to specify a custom {@code exo_progress} (see below).
  * </ul>
  *
  * <h2>Overriding drawables</h2>
  *
- * The drawables used by StyledPlayerControlView (with its default layout file) can be overridden by
+ * The drawables used by PlayerControlView (with its default layout file) can be overridden by
  * drawables with the same names defined in your application. The drawables that can be overridden
  * are:
  *
@@ -375,40 +375,32 @@ public class PlayerControlView extends FrameLayout {
           context
               .getTheme()
               .obtainStyledAttributes(
-                  playbackAttrs,
-                  R.styleable.StyledPlayerControlView,
-                  defStyleAttr,
-                  /* defStyleRes= */ 0);
+                  playbackAttrs, R.styleable.PlayerControlView, defStyleAttr, /* defStyleRes= */ 0);
       try {
         controllerLayoutId =
-            a.getResourceId(
-                R.styleable.StyledPlayerControlView_controller_layout_id, controllerLayoutId);
-        showTimeoutMs = a.getInt(R.styleable.StyledPlayerControlView_show_timeout, showTimeoutMs);
+            a.getResourceId(R.styleable.PlayerControlView_controller_layout_id, controllerLayoutId);
+        showTimeoutMs = a.getInt(R.styleable.PlayerControlView_show_timeout, showTimeoutMs);
         repeatToggleModes = getRepeatToggleModes(a, repeatToggleModes);
         showRewindButton =
-            a.getBoolean(R.styleable.StyledPlayerControlView_show_rewind_button, showRewindButton);
+            a.getBoolean(R.styleable.PlayerControlView_show_rewind_button, showRewindButton);
         showFastForwardButton =
             a.getBoolean(
-                R.styleable.StyledPlayerControlView_show_fastforward_button, showFastForwardButton);
+                R.styleable.PlayerControlView_show_fastforward_button, showFastForwardButton);
         showPreviousButton =
-            a.getBoolean(
-                R.styleable.StyledPlayerControlView_show_previous_button, showPreviousButton);
+            a.getBoolean(R.styleable.PlayerControlView_show_previous_button, showPreviousButton);
         showNextButton =
-            a.getBoolean(R.styleable.StyledPlayerControlView_show_next_button, showNextButton);
+            a.getBoolean(R.styleable.PlayerControlView_show_next_button, showNextButton);
         showShuffleButton =
-            a.getBoolean(
-                R.styleable.StyledPlayerControlView_show_shuffle_button, showShuffleButton);
+            a.getBoolean(R.styleable.PlayerControlView_show_shuffle_button, showShuffleButton);
         showSubtitleButton =
-            a.getBoolean(
-                R.styleable.StyledPlayerControlView_show_subtitle_button, showSubtitleButton);
-        showVrButton =
-            a.getBoolean(R.styleable.StyledPlayerControlView_show_vr_button, showVrButton);
+            a.getBoolean(R.styleable.PlayerControlView_show_subtitle_button, showSubtitleButton);
+        showVrButton = a.getBoolean(R.styleable.PlayerControlView_show_vr_button, showVrButton);
         setTimeBarMinUpdateInterval(
             a.getInt(
-                R.styleable.StyledPlayerControlView_time_bar_min_update_interval,
+                R.styleable.PlayerControlView_time_bar_min_update_interval,
                 timeBarMinUpdateIntervalMs));
         animationEnabled =
-            a.getBoolean(R.styleable.StyledPlayerControlView_animation_enabled, animationEnabled);
+            a.getBoolean(R.styleable.PlayerControlView_animation_enabled, animationEnabled);
       } finally {
         a.recycle();
       }
@@ -1572,7 +1564,7 @@ public class PlayerControlView extends FrameLayout {
   @SuppressWarnings("ResourceType")
   private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
       TypedArray a, @RepeatModeUtil.RepeatToggleModes int defaultValue) {
-    return a.getInt(R.styleable.StyledPlayerControlView_repeat_toggle_modes, defaultValue);
+    return a.getInt(R.styleable.PlayerControlView_repeat_toggle_modes, defaultValue);
   }
 
   private final class ComponentListener
