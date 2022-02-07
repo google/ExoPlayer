@@ -1087,7 +1087,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return Long.toHexString(segmentMediaSequence);
   }
 
-  private static @C.SelectionFlags int parseSelectionFlags(String line) {
+  @C.SelectionFlags
+  private static int parseSelectionFlags(String line) {
     int flags = 0;
     if (parseOptionalBooleanAttribute(line, REGEX_DEFAULT, false)) {
       flags |= C.SELECTION_FLAG_DEFAULT;
@@ -1101,8 +1102,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return flags;
   }
 
-  private static @C.RoleFlags int parseRoleFlags(
-      String line, Map<String, String> variableDefinitions) {
+  @C.RoleFlags
+  private static int parseRoleFlags(String line, Map<String, String> variableDefinitions) {
     String concatenatedCharacteristics =
         parseOptionalStringAttr(line, REGEX_CHARACTERISTICS, variableDefinitions);
     if (TextUtils.isEmpty(concatenatedCharacteristics)) {

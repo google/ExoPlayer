@@ -41,7 +41,7 @@ import java.util.List;
 
   private final String codecName;
   @Nullable private final byte[] extraData;
-  private final @C.PcmEncoding int encoding;
+  @C.PcmEncoding private final int encoding;
   private final int outputBufferSize;
 
   private long nativeContext; // May be reassigned on resetting the codec.
@@ -158,7 +158,8 @@ import java.util.List;
   }
 
   /** Returns the encoding of output audio. */
-  public @C.PcmEncoding int getEncoding() {
+  @C.PcmEncoding
+  public int getEncoding() {
     return encoding;
   }
 

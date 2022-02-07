@@ -49,7 +49,7 @@ public final class VpxDecoder
 
   @Nullable private ByteBuffer lastSupplementalData;
 
-  private volatile @C.VideoOutputMode int outputMode;
+  @C.VideoOutputMode private volatile int outputMode;
 
   /**
    * Creates a VP9 decoder.

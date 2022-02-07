@@ -67,7 +67,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return The {@link Capabilities} for this format.
    */
   @Override
-  public final @Capabilities int supportsFormat(Format format) {
+  @Capabilities
+  public final int supportsFormat(Format format) {
     return RendererCapabilities.create(
         MimeTypes.getTrackType(format.sampleMimeType) == getTrackType()
             ? C.FORMAT_HANDLED

@@ -303,7 +303,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     has been {@link #CHUNK_PUBLICATION_STATE_REMOVED removed} or is definitely {@link
    *     #CHUNK_PUBLICATION_STATE_PUBLISHED published}.
    */
-  public @ChunkPublicationState int getChunkPublicationState(HlsMediaChunk mediaChunk) {
+  @ChunkPublicationState
+  public int getChunkPublicationState(HlsMediaChunk mediaChunk) {
     if (mediaChunk.partIndex == C.INDEX_UNSET) {
       // Chunks based on full segments can't be removed and are always published.
       return CHUNK_PUBLICATION_STATE_PUBLISHED;

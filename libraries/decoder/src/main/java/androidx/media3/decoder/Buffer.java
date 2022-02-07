@@ -22,7 +22,7 @@ import androidx.media3.common.util.UnstableApi;
 @UnstableApi
 public abstract class Buffer {
 
-  private @C.BufferFlags int flags;
+  @C.BufferFlags private int flags;
 
   /** Clears the buffer. */
   public void clear() {

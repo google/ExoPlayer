@@ -44,7 +44,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   private final ConditionVariable initializedCondition;
   private final ConditionVariable idleCondition;
 
-  private @Download.FailureReason int failureReason;
+  @Download.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(DownloadManager downloadManager) {
     this.downloadManager = downloadManager;

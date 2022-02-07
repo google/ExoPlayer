@@ -55,7 +55,7 @@ import androidx.media3.common.util.Util;
   private final AudioManager audioManager;
 
   @Nullable private VolumeChangeReceiver receiver;
-  private @C.StreamType int streamType;
+  @C.StreamType private int streamType;
   private int volume;
   private boolean muted;
 

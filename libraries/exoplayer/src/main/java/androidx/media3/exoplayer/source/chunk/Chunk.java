@@ -42,7 +42,7 @@ public abstract class Chunk implements Loadable {
   /** The {@link DataSpec} that defines the data to be loaded. */
   public final DataSpec dataSpec;
   /** The {@link DataType data type} of the chunk. For reporting only. */
-  public final @DataType int type;
+  @DataType public final int type;
   /** The format of the track to which this chunk belongs. */
   public final Format trackFormat;
   /**
@@ -50,7 +50,7 @@ public abstract class Chunk implements Loadable {
    * C#SELECTION_REASON_UNKNOWN} if the chunk does not belong to a track, or if the selection reason
    * is unknown.
    */
-  public final @C.SelectionReason int trackSelectionReason;
+  @C.SelectionReason public final int trackSelectionReason;
   /**
    * Optional data associated with the selection of the track to which this chunk belongs. Null if
    * the chunk does not belong to a track, or if there is no associated track selection data.

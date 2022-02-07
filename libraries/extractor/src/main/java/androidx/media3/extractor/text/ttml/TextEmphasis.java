@@ -97,13 +97,13 @@ import java.util.regex.Pattern;
           TtmlNode.ANNOTATION_POSITION_OUTSIDE);
 
   /** The text emphasis mark shape. */
-  public final @MarkShape int markShape;
+  @MarkShape public final int markShape;
 
   /** The fill style of the text emphasis mark. */
-  public final @TextEmphasisSpan.MarkFill int markFill;
+  @TextEmphasisSpan.MarkFill public final int markFill;
 
   /** The position of the text emphasis relative to the base text. */
-  public final @Position int position;
+  @Position public final int position;
 
   private TextEmphasis(
       @MarkShape int markShape,

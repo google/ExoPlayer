@@ -312,7 +312,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Nullable private byte[] offlineLicenseKeySetId;
   private @MonotonicNonNull PlayerId playerId;
 
-  /* package */ @Nullable volatile MediaDrmHandler mediaDrmHandler;
+  /* package */ volatile @Nullable MediaDrmHandler mediaDrmHandler;
 
   /**
    * @param uuid The UUID of the drm scheme.
@@ -590,7 +590,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public @C.CryptoType int getCryptoType(Format format) {
+  @C.CryptoType
+  public int getCryptoType(Format format) {
     @C.CryptoType int cryptoType = checkNotNull(exoMediaDrm).getCryptoType();
     if (format.drmInitData == null) {
       int trackType = MimeTypes.getTrackType(format.sampleMimeType);

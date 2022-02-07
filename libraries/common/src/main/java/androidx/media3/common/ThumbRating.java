@@ -76,7 +76,7 @@ public final class ThumbRating extends Rating {
 
   // Bundleable implementation.
 
-  private static final @RatingType int TYPE = RATING_TYPE_THUMB;
+  @RatingType private static final int TYPE = RATING_TYPE_THUMB;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)

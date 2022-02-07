@@ -28,7 +28,7 @@ import androidx.media3.common.util.UnstableApi;
 public final class MediaLoadData {
 
   /** The {@link DataType data type}. */
-  public final @DataType int dataType;
+  @DataType public final int dataType;
   /**
    * One of the {@link TrackType track types}, which is a media track type if the data corresponds
    * to media of a specific type, or {@link C#TRACK_TYPE_UNKNOWN} otherwise.

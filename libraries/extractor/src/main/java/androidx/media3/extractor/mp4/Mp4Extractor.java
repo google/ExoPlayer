@@ -141,7 +141,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private static final long MAXIMUM_READ_AHEAD_BYTES_STREAM = 10 * 1024 * 1024;
 
-  private final @Flags int flags;
+  @Flags private final int flags;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -153,7 +153,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final SefReader sefReader;
   private final List<Metadata.Entry> slowMotionMetadataEntries;
 
-  private @State int parserState;
+  @State private int parserState;
   private int atomType;
   private long atomSize;
   private int atomHeaderBytesRead;
@@ -171,7 +171,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private long @MonotonicNonNull [][] accumulatedSampleSizes;
   private int firstVideoTrackIndex;
   private long durationUs;
-  private @FileType int fileType;
+  @FileType private int fileType;
   @Nullable private MotionPhotoMetadata motionPhotoMetadata;
 
   /** Creates a new extractor for unfragmented MP4 streams. */
@@ -438,8 +438,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return seekRequired && parserState != STATE_READING_SAMPLE;
   }
 
-  private @ReadResult int readSefData(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException {
+  @ReadResult
+  private int readSefData(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     @ReadResult int result = sefReader.read(input, seekPosition, slowMotionMetadataEntries);
     if (result == RESULT_SEEK && seekPosition.position == 0) {
       enterReadingAtomHeaderState();
@@ -861,7 +861,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * @param atomData The ftyp atom data.
    * @return The {@link FileType}.
    */
-  private static @FileType int processFtypAtom(ParsableByteArray atomData) {
+  @FileType
+  private static int processFtypAtom(ParsableByteArray atomData) {
     atomData.setPosition(Atom.HEADER_SIZE);
     int majorBrand = atomData.readInt();
     @FileType int fileType = brandToFileType(majorBrand);
@@ -878,7 +879,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return FILE_TYPE_MP4;
   }
 
-  private static @FileType int brandToFileType(int brand) {
+  @FileType
+  private static int brandToFileType(int brand) {
     switch (brand) {
       case BRAND_QUICKTIME:
         return FILE_TYPE_QUICKTIME;

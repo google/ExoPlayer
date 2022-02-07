@@ -62,12 +62,14 @@ public class StubPlayer extends BasePlayer {
   }
 
   @Override
-  public @State int getPlaybackState() {
+  @State
+  public int getPlaybackState() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public @PlaybackSuppressionReason int getPlaybackSuppressionReason() {
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
     throw new UnsupportedOperationException();
   }
 

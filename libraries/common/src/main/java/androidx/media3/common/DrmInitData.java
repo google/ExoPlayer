@@ -52,8 +52,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
    * @param mediaData DRM session acquisition data obtained from the media.
    * @return A {@link DrmInitData} obtained from merging a media manifest and a media stream.
    */
-  @Nullable
-  public static DrmInitData createSessionCreationData(
+  public static @Nullable DrmInitData createSessionCreationData(
       @Nullable DrmInitData manifestData, @Nullable DrmInitData mediaData) {
     ArrayList<SchemeData> result = new ArrayList<>();
     String schemeType = null;

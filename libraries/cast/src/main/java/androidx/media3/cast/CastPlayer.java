@@ -150,7 +150,7 @@ public final class CastPlayer extends BasePlayer {
   private TrackSelectionArray currentTrackSelection;
   private TracksInfo currentTracksInfo;
   private Commands availableCommands;
-  private @Player.State int playbackState;
+  @Player.State private int playbackState;
   private int currentWindowIndex;
   private long lastReportedPositionMs;
   private int pendingSeekCount;
@@ -387,12 +387,14 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public @Player.State int getPlaybackState() {
+  @Player.State
+  public int getPlaybackState() {
     return playbackState;
   }
 
   @Override
-  public @PlaybackSuppressionReason int getPlaybackSuppressionReason() {
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
     return Player.PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
@@ -572,7 +574,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public @RepeatMode int getRepeatMode() {
+  @RepeatMode
+  public int getRepeatMode() {
     return repeatMode.value;
   }
 
@@ -1289,7 +1292,8 @@ public final class CastPlayer extends BasePlayer {
    * Retrieves the repeat mode from {@code remoteMediaClient} and maps it into a {@link
    * Player.RepeatMode}.
    */
-  private static @RepeatMode int fetchRepeatMode(RemoteMediaClient remoteMediaClient) {
+  @RepeatMode
+  private static int fetchRepeatMode(RemoteMediaClient remoteMediaClient) {
     MediaStatus mediaStatus = remoteMediaClient.getMediaStatus();
     if (mediaStatus == null) {
       // No media session active, yet.
