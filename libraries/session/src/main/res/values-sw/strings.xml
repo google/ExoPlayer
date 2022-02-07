@@ -14,11 +14,11 @@
      limitations under the License.
 -->
 <resources>
-  <string name="default_notification_channel_name">Now playing</string>
-  <string name="media3_controls_play_description">Play</string>
-  <string name="media3_controls_pause_description">Pause</string>
-  <string name="media3_controls_seek_to_previous_description">Seek to previous item</string>
-  <string name="media3_controls_seek_to_next_description">Seek to next item</string>
-  <string name="media3_controls_seek_back_description">Seek back</string>
-  <string name="media3_controls_seek_forward_description">Seek forward</string>
+  <string name="default_notification_channel_name">Inayocheza sasa</string>
+  <string name="media3_controls_play_description">Cheza</string>
+  <string name="media3_controls_pause_description">Sitisha</string>
+  <string name="media3_controls_seek_to_previous_description">Rudi kwenye maudhui yaliyotangulia</string>
+  <string name="media3_controls_seek_to_next_description">Nenda kwenye maudhui yanayofuata</string>
+  <string name="media3_controls_seek_back_description">Sogeza nyuma</string>
+  <string name="media3_controls_seek_forward_description">Sogeza mbele</string>
 </resources>
