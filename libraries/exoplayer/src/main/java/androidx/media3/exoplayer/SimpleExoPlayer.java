@@ -33,6 +33,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroupArray;
@@ -618,9 +619,21 @@ public class SimpleExoPlayer extends BasePlayer
     player.addListener(listener);
   }
 
+  @Deprecated
+  @Override
+  public void addListener(Player.EventListener listener) {
+    player.addEventListener(listener);
+  }
+
   @Override
   public void removeListener(Listener listener) {
     player.removeListener(listener);
+  }
+
+  @Deprecated
+  @Override
+  public void removeListener(Player.EventListener listener) {
+    player.removeEventListener(listener);
   }
 
   @Override
