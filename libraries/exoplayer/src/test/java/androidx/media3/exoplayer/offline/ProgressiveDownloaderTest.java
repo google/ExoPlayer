@@ -41,8 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link ActionFile}. */
-@SuppressWarnings("deprecation")
+/** Unit tests for {@link ProgressiveDownloader}. */
 @RunWith(AndroidJUnit4.class)
 public class ProgressiveDownloaderTest {
 
