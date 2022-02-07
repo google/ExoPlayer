@@ -127,40 +127,6 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     }
 
     /**
-     * @deprecated Pass the {@link ExtractorsFactory} via {@link #Factory(DataSource.Factory,
-     *     ExtractorsFactory)}. This is necessary so that proguard can treat the default extractors
-     *     factory as unused.
-     */
-    @Deprecated
-    public Factory setExtractorsFactory(@Nullable ExtractorsFactory extractorsFactory) {
-      this.progressiveMediaExtractorFactory =
-          playerId ->
-              new BundledExtractorsAdapter(
-                  extractorsFactory != null ? extractorsFactory : new DefaultExtractorsFactory());
-      return this;
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setCustomCacheKey(String)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setCustomCacheKey(@Nullable String customCacheKey) {
-      this.customCacheKey = customCacheKey;
-      return this;
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setTag(@Nullable Object tag) {
-      this.tag = tag;
-      return this;
-    }
-
-    /**
      * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
      * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
      *
