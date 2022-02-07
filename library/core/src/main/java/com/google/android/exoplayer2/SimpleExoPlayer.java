@@ -608,21 +608,9 @@ public class SimpleExoPlayer extends BasePlayer
     player.addListener(listener);
   }
 
-  @Deprecated
-  @Override
-  public void addListener(Player.EventListener listener) {
-    player.addEventListener(listener);
-  }
-
   @Override
   public void removeListener(Listener listener) {
     player.removeListener(listener);
-  }
-
-  @Deprecated
-  @Override
-  public void removeListener(Player.EventListener listener) {
-    player.removeEventListener(listener);
   }
 
   @Override
