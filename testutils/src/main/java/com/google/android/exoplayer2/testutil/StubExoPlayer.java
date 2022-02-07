@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.SeekParameters;
@@ -74,6 +75,16 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public Clock getClock() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addListener(Player.EventListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeListener(Player.EventListener listener) {
     throw new UnsupportedOperationException();
   }
 

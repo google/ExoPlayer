@@ -150,7 +150,6 @@
         `DefaultMediaItemConverter`
         ([#9663](https://github.com/google/ExoPlayer/issues/9663)).
 *   Remove deprecated symbols:
-    *   Remove `Player.EventLister`. Use `Player.Listener` instead.
     *   Remove `MediaSourceFactory#setDrmSessionManager`,
         `MediaSourceFactory#setDrmHttpDataSourceFactory`, and
         `MediaSourceFactory#setDrmUserAgent`. Use

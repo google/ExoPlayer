@@ -135,7 +135,7 @@ public final class CastPlayer extends BasePlayer {
   private final SeekResultCallback seekResultCallback;
 
   // Listeners and notification.
-  private final ListenerSet<Listener> listeners;
+  private final ListenerSet<Player.EventListener> listeners;
   @Nullable private SessionAvailabilityListener sessionAvailabilityListener;
 
   // Internal state.
@@ -278,11 +278,41 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void addListener(Listener listener) {
+    EventListener eventListener = listener;
+    addListener(eventListener);
+  }
+
+  /**
+   * Registers a listener to receive events from the player.
+   *
+   * <p>The listener's methods will be called on the thread associated with {@link
+   * #getApplicationLooper()}.
+   *
+   * @param listener The listener to register.
+   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public void addListener(EventListener listener) {
     listeners.add(listener);
   }
 
   @Override
   public void removeListener(Listener listener) {
+    EventListener eventListener = listener;
+    removeListener(eventListener);
+  }
+
+  /**
+   * Unregister a listener registered through {@link #addListener(EventListener)}. The listener will
+   * no longer receive events from the player.
+   *
+   * @param listener The listener to unregister.
+   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public void removeListener(EventListener listener) {
     listeners.remove(listener);
   }
 
@@ -441,7 +471,7 @@ public final class CastPlayer extends BasePlayer {
       }
       updateAvailableCommandsAndNotifyIfChanged();
     } else if (pendingSeekCount == 0) {
-      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
+      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
     }
     listeners.flushEvents();
   }
@@ -1445,7 +1475,7 @@ public final class CastPlayer extends BasePlayer {
         currentWindowIndex = pendingSeekWindowIndex;
         pendingSeekWindowIndex = C.INDEX_UNSET;
         pendingSeekPositionMs = C.TIME_UNSET;
-        listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
+        listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
       }
     }
   }
