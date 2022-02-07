@@ -70,341 +70,6 @@ import java.util.List;
  */
 public interface Player {
 
-  /**
-   * Listener of changes in player state.
-   *
-   * <p>All methods have no-op default implementations to allow selective overrides.
-   *
-   * <p>Listeners can choose to implement individual events (e.g. {@link
-   * #onIsPlayingChanged(boolean)}) or {@link #onEvents(Player, Events)}, which is called after one
-   * or more events occurred together.
-   *
-   * @deprecated Use {@link Player.Listener}.
-   */
-  @Deprecated
-  interface EventListener {
-
-    /**
-     * Called when the timeline has been refreshed.
-     *
-     * <p>Note that the current {@link MediaItem} or playback position may change as a result of a
-     * timeline change. If playback can't continue smoothly because of this timeline change, a
-     * separate {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} callback will be
-     * triggered.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param timeline The latest timeline. Never null, but may be empty.
-     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
-     */
-    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
-
-    /**
-     * Called when playback transitions to a media item or starts repeating a media item according
-     * to the current {@link #getRepeatMode() repeat mode}.
-     *
-     * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
-     * consequence of a playlist change.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param mediaItem The {@link MediaItem}. May be null if the playlist becomes empty.
-     * @param reason The reason for the transition.
-     */
-    default void onMediaItemTransition(
-        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
-
-    /**
-     * Called when the available or selected tracks change.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The selected tracks. Never null, but may contain null elements. A
-     *     concrete implementation may include null elements if it has a fixed number of renderer
-     *     components, wishes to report a TrackSelection for each of them, and has one or more
-     *     renderer components that is not assigned any selected tracks.
-     * @deprecated Use {@link #onTracksInfoChanged(TracksInfo)} instead.
-     */
-    @Deprecated
-    default void onTracksChanged(
-        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
-
-    /**
-     * Called when the available or selected tracks change.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param tracksInfo The available tracks information. Never null, but may be of length zero.
-     */
-    default void onTracksInfoChanged(TracksInfo tracksInfo) {}
-
-    /**
-     * Called when the combined {@link MediaMetadata} changes.
-     *
-     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
-     * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
-     * selections' formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in
-     * the {@link MediaItem#mediaMetadata}, it will be prioritised above the same field coming from
-     * static or dynamic metadata.
-     *
-     * <p>This method may be called multiple times in quick succession.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param mediaMetadata The combined {@link MediaMetadata}.
-     */
-    default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
-
-    /** Called when the playlist {@link MediaMetadata} changes. */
-    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
-
-    /**
-     * Called when the player starts or stops loading the source.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param isLoading Whether the source is currently being loaded.
-     */
-    default void onIsLoadingChanged(boolean isLoading) {}
-
-    /** @deprecated Use {@link #onIsLoadingChanged(boolean)} instead. */
-    @Deprecated
-    default void onLoadingChanged(boolean isLoading) {}
-
-    /**
-     * Called when the value returned from {@link #isCommandAvailable(int)} changes for at least one
-     * {@link Command}.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param availableCommands The available {@link Commands}.
-     */
-    default void onAvailableCommandsChanged(Commands availableCommands) {}
-
-    /**
-     * Called when the value returned from {@link #getTrackSelectionParameters()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param parameters The new {@link TrackSelectionParameters}.
-     */
-    default void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {}
-
-    /**
-     * @deprecated Use {@link #onPlaybackStateChanged(int)} and {@link
-     *     #onPlayWhenReadyChanged(boolean, int)} instead.
-     */
-    @Deprecated
-    default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
-
-    /**
-     * Called when the value returned from {@link #getPlaybackState()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param playbackState The new playback {@link State state}.
-     */
-    default void onPlaybackStateChanged(@State int playbackState) {}
-
-    /**
-     * Called when the value returned from {@link #getPlayWhenReady()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param playWhenReady Whether playback will proceed when ready.
-     * @param reason The {@link PlayWhenReadyChangeReason reason} for the change.
-     */
-    default void onPlayWhenReadyChanged(
-        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {}
-
-    /**
-     * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
-     */
-    default void onPlaybackSuppressionReasonChanged(
-        @PlaybackSuppressionReason int playbackSuppressionReason) {}
-
-    /**
-     * Called when the value of {@link #isPlaying()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param isPlaying Whether the player is playing.
-     */
-    default void onIsPlayingChanged(boolean isPlaying) {}
-
-    /**
-     * Called when the value of {@link #getRepeatMode()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param repeatMode The {@link RepeatMode} used for playback.
-     */
-    default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
-
-    /**
-     * Called when the value of {@link #getShuffleModeEnabled()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param shuffleModeEnabled Whether shuffling of {@link MediaItem media items} is enabled.
-     */
-    default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
-
-    /**
-     * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
-     * immediately after this method is called. The player instance can still be used, and {@link
-     * #release()} must still be called on the player should it no longer be required.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
-     * to this method in order to include more information about the error.
-     *
-     * @param error The error.
-     */
-    default void onPlayerError(PlaybackException error) {}
-
-    /**
-     * Called when the {@link PlaybackException} returned by {@link #getPlayerError()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
-     * to this method in order to include more information about the error.
-     *
-     * @param error The new error, or null if the error is being cleared.
-     */
-    default void onPlayerErrorChanged(@Nullable PlaybackException error) {}
-
-    /**
-     * @deprecated Use {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} instead.
-     */
-    @Deprecated
-    default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
-
-    /**
-     * Called when a position discontinuity occurs.
-     *
-     * <p>A position discontinuity occurs when the playing period changes, the playback position
-     * jumps within the period currently being played, or when the playing period has been skipped
-     * or removed.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param oldPosition The position before the discontinuity.
-     * @param newPosition The position after the discontinuity.
-     * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
-     */
-    default void onPositionDiscontinuity(
-        PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {}
-
-    /**
-     * Called when the current playback parameters change. The playback parameters may change due to
-     * a call to {@link #setPlaybackParameters(PlaybackParameters)}, or the player itself may change
-     * them (for example, if audio playback switches to passthrough or offload mode, where speed
-     * adjustment is no longer possible).
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param playbackParameters The playback parameters.
-     */
-    default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
-
-    /**
-     * Called when the value of {@link #getSeekBackIncrement()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
-     */
-    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
-
-    /**
-     * Called when the value of {@link #getSeekForwardIncrement()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
-     */
-    default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
-
-    /**
-     * Called when the value of {@link #getMaxSeekToPreviousPosition()} changes.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param maxSeekToPreviousPositionMs The maximum position for which {@link #seekToPrevious()}
-     *     seeks to the previous position, in milliseconds.
-     */
-    default void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {}
-
-    /**
-     * @deprecated Seeks are processed without delay. Listen to {@link
-     *     #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} with reason {@link
-     *     #DISCONTINUITY_REASON_SEEK} instead.
-     */
-    @Deprecated
-    default void onSeekProcessed() {}
-
-    /**
-     * Called when one or more player states changed.
-     *
-     * <p>State changes and events that happen within one {@link Looper} message queue iteration are
-     * reported together and only after all individual callbacks were triggered.
-     *
-     * <p>Only state changes represented by {@link Event events} are reported through this method.
-     *
-     * <p>Listeners should prefer this method over individual callbacks in the following cases:
-     *
-     * <ul>
-     *   <li>They intend to trigger the same logic for multiple events (e.g. when updating a UI for
-     *       both {@link #onPlaybackStateChanged(int)} and {@link #onPlayWhenReadyChanged(boolean,
-     *       int)}).
-     *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
-     *       {@link Player#seekTo(long)} after a {@link #onMediaItemTransition(MediaItem, int)}).
-     *   <li>They intend to use multiple state values together or in combination with {@link Player}
-     *       getter methods. For example using {@link #getCurrentMediaItemIndex()} with the {@code
-     *       timeline} provided in {@link #onTimelineChanged(Timeline, int)} is only safe from
-     *       within this method.
-     *   <li>They are interested in events that logically happened together (e.g {@link
-     *       #onPlaybackStateChanged(int)} to {@link #STATE_BUFFERING} because of {@link
-     *       #onMediaItemTransition(MediaItem, int)}).
-     * </ul>
-     *
-     * @param player The {@link Player} whose state changed. Use the getters to obtain the latest
-     *     states.
-     * @param events The {@link Events} that happened in this iteration, indicating which player
-     *     states changed.
-     */
-    default void onEvents(Player player, Events events) {}
-  }
-
   /** A set of {@link Event events}. */
   final class Events {
 
@@ -937,62 +602,327 @@ public interface Player {
    *
    * <p>All methods have no-op default implementations to allow selective overrides.
    */
-  interface Listener extends EventListener {
+  interface Listener {
 
-    @Override
+    /**
+     * Called when one or more player states changed.
+     *
+     * <p>State changes and events that happen within one {@link Looper} message queue iteration are
+     * reported together and only after all individual callbacks were triggered.
+     *
+     * <p>Only state changes represented by {@link Event events} are reported through this method.
+     *
+     * <p>Listeners should prefer this method over individual callbacks in the following cases:
+     *
+     * <ul>
+     *   <li>They intend to trigger the same logic for multiple events (e.g. when updating a UI for
+     *       both {@link #onPlaybackStateChanged(int)} and {@link #onPlayWhenReadyChanged(boolean,
+     *       int)}).
+     *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
+     *       {@link Player#seekTo(long)} after a {@link #onMediaItemTransition(MediaItem, int)}).
+     *   <li>They intend to use multiple state values together or in combination with {@link Player}
+     *       getter methods. For example using {@link #getCurrentMediaItemIndex()} with the {@code
+     *       timeline} provided in {@link #onTimelineChanged(Timeline, int)} is only safe from
+     *       within this method.
+     *   <li>They are interested in events that logically happened together (e.g {@link
+     *       #onPlaybackStateChanged(int)} to {@link #STATE_BUFFERING} because of {@link
+     *       #onMediaItemTransition(MediaItem, int)}).
+     * </ul>
+     *
+     * @param player The {@link Player} whose state changed. Use the getters to obtain the latest
+     *     states.
+     * @param events The {@link Events} that happened in this iteration, indicating which player
+     *     states changed.
+     */
+    default void onEvents(Player player, Events events) {}
+
+    /**
+     * Called when the timeline has been refreshed.
+     *
+     * <p>Note that the current {@link MediaItem} or playback position may change as a result of a
+     * timeline change. If playback can't continue smoothly because of this timeline change, a
+     * separate {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} callback will be
+     * triggered.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param timeline The latest timeline. Never null, but may be empty.
+     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
+     */
     default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
 
-    @Override
+    /**
+     * Called when playback transitions to a media item or starts repeating a media item according
+     * to the current {@link #getRepeatMode() repeat mode}.
+     *
+     * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
+     * consequence of a playlist change.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param mediaItem The {@link MediaItem}. May be null if the playlist becomes empty.
+     * @param reason The reason for the transition.
+     */
     default void onMediaItemTransition(
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
 
-    @Override
+    /**
+     * Called when the available or selected tracks change.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param trackGroups The available tracks. Never null, but may be of length zero.
+     * @param trackSelections The selected tracks. Never null, but may contain null elements. A
+     *     concrete implementation may include null elements if it has a fixed number of renderer
+     *     components, wishes to report a TrackSelection for each of them, and has one or more
+     *     renderer components that is not assigned any selected tracks.
+     * @deprecated Use {@link #onTracksInfoChanged(TracksInfo)} instead.
+     */
+    @Deprecated
+    default void onTracksChanged(
+        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
+
+    /**
+     * Called when the available or selected tracks change.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param tracksInfo The available tracks information. Never null, but may be of length zero.
+     */
     default void onTracksInfoChanged(TracksInfo tracksInfo) {}
 
-    @Override
+    /**
+     * Called when the combined {@link MediaMetadata} changes.
+     *
+     * <p>The provided {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata}
+     * and the static and dynamic metadata from the {@link TrackSelection#getFormat(int) track
+     * selections' formats} and {@link Listener#onMetadata(Metadata)}. If a field is populated in
+     * the {@link MediaItem#mediaMetadata}, it will be prioritised above the same field coming from
+     * static or dynamic metadata.
+     *
+     * <p>This method may be called multiple times in quick succession.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param mediaMetadata The combined {@link MediaMetadata}.
+     */
+    default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+
+    /** Called when the playlist {@link MediaMetadata} changes. */
+    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
+
+    /**
+     * Called when the player starts or stops loading the source.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param isLoading Whether the source is currently being loaded.
+     */
     default void onIsLoadingChanged(boolean isLoading) {}
 
-    @Override
+    /** @deprecated Use {@link #onIsLoadingChanged(boolean)} instead. */
+    @Deprecated
+    default void onLoadingChanged(boolean isLoading) {}
+
+    /**
+     * Called when the value returned from {@link #isCommandAvailable(int)} changes for at least one
+     * {@link Command}.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param availableCommands The available {@link Commands}.
+     */
     default void onAvailableCommandsChanged(Commands availableCommands) {}
 
-    @Override
+    /**
+     * Called when the value returned from {@link #getTrackSelectionParameters()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param parameters The new {@link TrackSelectionParameters}.
+     */
+    default void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {}
+
+    /**
+     * @deprecated Use {@link #onPlaybackStateChanged(int)} and {@link
+     *     #onPlayWhenReadyChanged(boolean, int)} instead.
+     */
+    @Deprecated
+    default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
+
+    /**
+     * Called when the value returned from {@link #getPlaybackState()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param playbackState The new playback {@link State state}.
+     */
     default void onPlaybackStateChanged(@State int playbackState) {}
 
-    @Override
+    /**
+     * Called when the value returned from {@link #getPlayWhenReady()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param playWhenReady Whether playback will proceed when ready.
+     * @param reason The {@link PlayWhenReadyChangeReason reason} for the change.
+     */
     default void onPlayWhenReadyChanged(
         boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {}
 
-    @Override
+    /**
+     * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
+     */
     default void onPlaybackSuppressionReasonChanged(
         @PlaybackSuppressionReason int playbackSuppressionReason) {}
 
-    @Override
+    /**
+     * Called when the value of {@link #isPlaying()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param isPlaying Whether the player is playing.
+     */
     default void onIsPlayingChanged(boolean isPlaying) {}
 
-    @Override
+    /**
+     * Called when the value of {@link #getRepeatMode()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param repeatMode The {@link RepeatMode} used for playback.
+     */
     default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
 
-    @Override
+    /**
+     * Called when the value of {@link #getShuffleModeEnabled()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param shuffleModeEnabled Whether shuffling of {@link MediaItem media items} is enabled.
+     */
     default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
 
-    @Override
+    /**
+     * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
+     * immediately after this method is called. The player instance can still be used, and {@link
+     * #release()} must still be called on the player should it no longer be required.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
+     * to this method in order to include more information about the error.
+     *
+     * @param error The error.
+     */
     default void onPlayerError(PlaybackException error) {}
 
-    @Override
+    /**
+     * Called when the {@link PlaybackException} returned by {@link #getPlayerError()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException}
+     * to this method in order to include more information about the error.
+     *
+     * @param error The new error, or null if the error is being cleared.
+     */
     default void onPlayerErrorChanged(@Nullable PlaybackException error) {}
 
-    @Override
+    /**
+     * @deprecated Use {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} instead.
+     */
+    @Deprecated
+    default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
+
+    /**
+     * Called when a position discontinuity occurs.
+     *
+     * <p>A position discontinuity occurs when the playing period changes, the playback position
+     * jumps within the period currently being played, or when the playing period has been skipped
+     * or removed.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param oldPosition The position before the discontinuity.
+     * @param newPosition The position after the discontinuity.
+     * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
+     */
     default void onPositionDiscontinuity(
         PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {}
 
-    @Override
+    /**
+     * Called when the current playback parameters change. The playback parameters may change due to
+     * a call to {@link #setPlaybackParameters(PlaybackParameters)}, or the player itself may change
+     * them (for example, if audio playback switches to passthrough or offload mode, where speed
+     * adjustment is no longer possible).
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param playbackParameters The playback parameters.
+     */
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
-    @Override
+    /**
+     * Called when the value of {@link #getSeekBackIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param seekBackIncrementMs The {@link #seekBack()} increment, in milliseconds.
+     */
+    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
+
+    /**
+     * Called when the value of {@link #getSeekForwardIncrement()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param seekForwardIncrementMs The {@link #seekForward()} increment, in milliseconds.
+     */
     default void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {}
 
-    @Override
-    default void onSeekBackIncrementChanged(long seekBackIncrementMs) {}
+    /**
+     * Called when the value of {@link #getMaxSeekToPreviousPosition()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param maxSeekToPreviousPositionMs The maximum position for which {@link #seekToPrevious()}
+     *     seeks to the previous position, in milliseconds.
+     */
+    default void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {}
+
+    /**
+     * @deprecated Seeks are processed without delay. Listen to {@link
+     *     #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} with reason {@link
+     *     #DISCONTINUITY_REASON_SEEK} instead.
+     */
+    @Deprecated
+    default void onSeekProcessed() {}
 
     /**
      * Called when the audio session ID changes.
@@ -1027,9 +957,6 @@ public interface Player {
 
     /** Called when the device volume or mute state changes. */
     default void onDeviceVolumeChanged(int volume, boolean muted) {}
-
-    @Override
-    default void onEvents(Player player, Events events) {}
 
     /**
      * Called each time there's a change in the size of the video being rendered.
@@ -1071,12 +998,6 @@ public interface Player {
      * @param metadata The metadata.
      */
     default void onMetadata(Metadata metadata) {}
-
-    @Override
-    default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
-
-    @Override
-    default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
   }
 
   /**
