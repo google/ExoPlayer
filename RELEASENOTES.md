@@ -138,6 +138,11 @@
         ([#9775](https://github.com/google/ExoPlayer/issues/9775)).
     *   Ignores invalid RTP-Info header values
         ([#9619](https://github.com/google/ExoPlayer/issues/9619)).
+*   Transformer:
+    *   The transformer module is no longer included by depending on
+        `com.google.android.exoplayer:exoplayer`. To continue using
+        transformer, add an additional dependency on
+        `com.google.android.exoplayer:exoplayer-transformer`.
 *   Cast extension
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
         correctly ([#9792](https://github.com/google/ExoPlayer/issues/9792)).
