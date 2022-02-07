@@ -2781,7 +2781,6 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void onCues(List<Cue> cues) {
       currentCues = cues;
-      analyticsCollector.onCues(cues);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listeners : listenerArraySet) {
         listeners.onCues(cues);
@@ -2890,7 +2889,6 @@ import java.util.concurrent.TimeoutException;
       DeviceInfo deviceInfo = createDeviceInfo(streamVolumeManager);
       if (!deviceInfo.equals(ExoPlayerImpl.this.deviceInfo)) {
         ExoPlayerImpl.this.deviceInfo = deviceInfo;
-        analyticsCollector.onDeviceInfoChanged(deviceInfo);
         // TODO(internal b/187152483): Events should be dispatched via ListenerSet
         for (Listener listener : listenerArraySet) {
           listener.onDeviceInfoChanged(deviceInfo);
@@ -2900,7 +2898,6 @@ import java.util.concurrent.TimeoutException;
 
     @Override
     public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
-      analyticsCollector.onDeviceVolumeChanged(streamVolume, streamMuted);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listener : listenerArraySet) {
         listener.onDeviceVolumeChanged(streamVolume, streamMuted);
