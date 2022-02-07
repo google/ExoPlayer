@@ -139,7 +139,6 @@ import androidx.media3.exoplayer.PlayerMessage.Target;
 import androidx.media3.exoplayer.Renderer.MessageType;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
-import androidx.media3.exoplayer.analytics.MediaMetricsListener;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
@@ -372,11 +371,7 @@ import java.util.concurrent.TimeoutException;
               playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
       playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
       analyticsCollector.setPlayer(wrappingPlayer, applicationLooper);
-      PlayerId playerId =
-          Util.SDK_INT < 31
-              ? new PlayerId()
-              : Api31.registerMediaMetricsListener(
-                  applicationContext, /* player= */ this, builder.usePlatformDiagnostics);
+      PlayerId playerId = Util.SDK_INT < 31 ? new PlayerId() : Api31.createPlayerId();
       internalPlayer =
           new ExoPlayerImplInternal(
               renderers,
@@ -3062,17 +3057,9 @@ import java.util.concurrent.TimeoutException;
     private Api31() {}
 
     @DoNotInline
-    public static PlayerId registerMediaMetricsListener(
-        Context context, ExoPlayerImpl player, boolean usePlatformDiagnostics) {
-      @Nullable MediaMetricsListener listener = MediaMetricsListener.create(context);
-      if (listener == null) {
-        Log.w(TAG, "MediaMetricsService unavailable.");
-        return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);
-      }
-      if (usePlatformDiagnostics) {
-        player.addAnalyticsListener(listener);
-      }
-      return new PlayerId(listener.getLogSessionId());
+    public static PlayerId createPlayerId() {
+      // TODO: Create a MediaMetricsListener and obtain LogSessionId from it.
+      return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);
     }
   }
 }
