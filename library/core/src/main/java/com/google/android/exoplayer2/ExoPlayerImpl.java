@@ -97,6 +97,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.ExoPlayer.AudioOffloadListener;
 import com.google.android.exoplayer2.Player.Commands;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.Listener;
 import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
@@ -180,9 +181,9 @@ import java.util.concurrent.TimeoutException;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
 
-  private final ListenerSet<Listener> listeners;
-  // TODO(b/187152483): Remove this once all events are dispatched via ListenerSet.
-  private final CopyOnWriteArraySet<Listener> listenerArraySet;
+  @SuppressWarnings("deprecation") // TODO(b/187152483): Merge with non-deprecated listeners.
+  private final ListenerSet<Player.EventListener> eventListeners;
+
   private final CopyOnWriteArraySet<AudioOffloadListener> audioOffloadListeners;
   private final Timeline.Period period;
   private final Timeline.Window window;
@@ -197,6 +198,7 @@ import java.util.concurrent.TimeoutException;
   private final Clock clock;
   private final ComponentListener componentListener;
   private final FrameMetadataListener frameMetadataListener;
+  private final CopyOnWriteArraySet<Listener> listeners;
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
   private final StreamVolumeManager streamVolumeManager;
@@ -282,6 +284,7 @@ import java.util.concurrent.TimeoutException;
       detachSurfaceTimeoutMs = builder.detachSurfaceTimeoutMs;
       componentListener = new ComponentListener();
       frameMetadataListener = new FrameMetadataListener();
+      listeners = new CopyOnWriteArraySet<>();
       Handler eventHandler = new Handler(builder.looper);
       renderers =
           builder
@@ -305,12 +308,11 @@ import java.util.concurrent.TimeoutException;
       this.applicationLooper = builder.looper;
       this.clock = builder.clock;
       this.wrappingPlayer = wrappingPlayer;
-      listeners =
+      eventListeners =
           new ListenerSet<>(
               applicationLooper,
               clock,
               (listener, flags) -> listener.onEvents(wrappingPlayer, new Events(flags)));
-      listenerArraySet = new CopyOnWriteArraySet<>();
       audioOffloadListeners = new CopyOnWriteArraySet<>();
       mediaSourceHolderSnapshots = new ArrayList<>();
       shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
@@ -398,9 +400,9 @@ import java.util.concurrent.TimeoutException;
       currentCues = ImmutableList.of();
       throwsWhenUsingWrongThread = true;
 
-      listeners.add(analyticsCollector);
+      addEventListener(analyticsCollector);
       bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
-      listeners.add(componentListener);
+      addEventListener(componentListener);
       addAudioOffloadListener(componentListener);
       if (builder.foregroundModeTimeoutMs > 0) {
         experimentalSetForegroundModeTimeoutMs(builder.foregroundModeTimeoutMs);
@@ -474,6 +476,18 @@ import java.util.concurrent.TimeoutException;
   public Clock getClock() {
     // Don't verify application thread. We allow calls to this method from any thread.
     return clock;
+  }
+
+  @SuppressWarnings("deprecation") // Register deprecated EventListener.
+  public void addEventListener(Player.EventListener eventListener) {
+    // Don't verify application thread. We allow calls to this method from any thread.
+    eventListeners.add(eventListener);
+  }
+
+  @SuppressWarnings("deprecation") // Deregister deprecated EventListener.
+  public void removeEventListener(Player.EventListener eventListener) {
+    // Don't verify application thread. We allow calls to this method from any thread.
+    eventListeners.remove(eventListener);
   }
 
   public void addAudioOffloadListener(AudioOffloadListener listener) {
@@ -781,10 +795,10 @@ import java.util.concurrent.TimeoutException;
     if (this.repeatMode != repeatMode) {
       this.repeatMode = repeatMode;
       internalPlayer.setRepeatMode(repeatMode);
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
       updateAvailableCommands();
-      listeners.flushEvents();
+      eventListeners.flushEvents();
     }
   }
 
@@ -798,11 +812,11 @@ import java.util.concurrent.TimeoutException;
     if (this.shuffleModeEnabled != shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
       internalPlayer.setShuffleModeEnabled(shuffleModeEnabled);
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
       updateAvailableCommands();
-      listeners.flushEvents();
+      eventListeners.flushEvents();
     }
   }
 
@@ -1004,7 +1018,7 @@ import java.util.concurrent.TimeoutException;
     audioFocusManager.release();
     if (!internalPlayer.release()) {
       // One of the renderers timed out releasing its resources.
-      listeners.sendEvent(
+      eventListeners.sendEvent(
           Player.EVENT_PLAYER_ERROR,
           listener ->
               listener.onPlayerError(
@@ -1012,7 +1026,7 @@ import java.util.concurrent.TimeoutException;
                       new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_RELEASE),
                       PlaybackException.ERROR_CODE_TIMEOUT)));
     }
-    listeners.release();
+    eventListeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
     bandwidthMeter.removeEventListener(analyticsCollector);
     playbackInfo = playbackInfo.copyWithPlaybackState(Player.STATE_IDLE);
@@ -1192,7 +1206,7 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     trackSelector.setParameters(parameters);
-    listeners.queueEvent(
+    eventListeners.queueEvent(
         EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
         listener -> listener.onTrackSelectionParametersChanged(parameters));
   }
@@ -1212,7 +1226,7 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     mediaMetadata = newMediaMetadata;
-    listeners.sendEvent(
+    eventListeners.sendEvent(
         EVENT_MEDIA_METADATA_CHANGED, listener -> listener.onMediaMetadataChanged(mediaMetadata));
   }
 
@@ -1228,7 +1242,7 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     this.playlistMetadata = playlistMetadata;
-    listeners.sendEvent(
+    eventListeners.sendEvent(
         EVENT_PLAYLIST_METADATA_CHANGED,
         listener -> listener.onPlaylistMetadataChanged(this.playlistMetadata));
   }
@@ -1385,7 +1399,7 @@ import java.util.concurrent.TimeoutException;
       streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
       analyticsCollector.onAudioAttributesChanged(audioAttributes);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
+      for (Listener listener : listeners) {
         listener.onAudioAttributesChanged(audioAttributes);
       }
     }
@@ -1423,7 +1437,7 @@ import java.util.concurrent.TimeoutException;
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     analyticsCollector.onAudioSessionIdChanged(audioSessionId);
     // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-    for (Listener listener : listenerArraySet) {
+    for (Listener listener : listeners) {
       listener.onAudioSessionIdChanged(audioSessionId);
     }
   }
@@ -1451,7 +1465,7 @@ import java.util.concurrent.TimeoutException;
     sendVolumeToRenderers();
     analyticsCollector.onVolumeChanged(volume);
     // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-    for (Listener listener : listenerArraySet) {
+    for (Listener listener : listeners) {
       listener.onVolumeChanged(volume);
     }
   }
@@ -1583,14 +1597,14 @@ import java.util.concurrent.TimeoutException;
     // Don't verify application thread. We allow calls to this method from any thread.
     checkNotNull(listener);
     listeners.add(listener);
-    listenerArraySet.add(listener);
+    addEventListener(listener);
   }
 
   public void removeListener(Listener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     checkNotNull(listener);
     listeners.remove(listener);
-    listenerArraySet.remove(listener);
+    removeEventListener(listener);
   }
 
   public void setHandleWakeLock(boolean handleWakeLock) {
@@ -1791,7 +1805,7 @@ import java.util.concurrent.TimeoutException;
     mediaMetadata = newMediaMetadata;
 
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
     }
@@ -1800,7 +1814,7 @@ import java.util.concurrent.TimeoutException;
           getPreviousPositionInfo(
               positionDiscontinuityReason, previousPlaybackInfo, oldMaskingMediaItemIndex);
       PositionInfo positionInfo = getPositionInfo(discontinuityWindowStartPositionUs);
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
           listener -> {
             listener.onPositionDiscontinuity(positionDiscontinuityReason);
@@ -1810,16 +1824,16 @@ import java.util.concurrent.TimeoutException;
     }
     if (mediaItemTransitioned) {
       @Nullable final MediaItem finalMediaItem = mediaItem;
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener -> listener.onMediaItemTransition(finalMediaItem, mediaItemTransitionReason));
     }
     if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_PLAYER_ERROR,
           listener -> listener.onPlayerErrorChanged(newPlaybackInfo.playbackError));
       if (newPlaybackInfo.playbackError != null) {
-        listeners.queueEvent(
+        eventListeners.queueEvent(
             Player.EVENT_PLAYER_ERROR,
             listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
       }
@@ -1828,21 +1842,21 @@ import java.util.concurrent.TimeoutException;
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
       TrackSelectionArray newSelection =
           new TrackSelectionArray(newPlaybackInfo.trackSelectorResult.selections);
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksInfoChanged(newPlaybackInfo.trackSelectorResult.tracksInfo));
     }
     if (metadataChanged) {
       final MediaMetadata finalMediaMetadata = mediaMetadata;
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           EVENT_MEDIA_METADATA_CHANGED,
           listener -> listener.onMediaMetadataChanged(finalMediaMetadata));
     }
     if (previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_IS_LOADING_CHANGED,
           listener -> {
             listener.onLoadingChanged(newPlaybackInfo.isLoading);
@@ -1851,19 +1865,19 @@ import java.util.concurrent.TimeoutException;
     }
     if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState
         || previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
           listener ->
               listener.onPlayerStateChanged(
                   newPlaybackInfo.playWhenReady, newPlaybackInfo.playbackState));
     }
     if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_PLAYBACK_STATE_CHANGED,
           listener -> listener.onPlaybackStateChanged(newPlaybackInfo.playbackState));
     }
     if (previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
@@ -1871,27 +1885,27 @@ import java.util.concurrent.TimeoutException;
     }
     if (previousPlaybackInfo.playbackSuppressionReason
         != newPlaybackInfo.playbackSuppressionReason) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
           listener ->
               listener.onPlaybackSuppressionReasonChanged(
                   newPlaybackInfo.playbackSuppressionReason));
     }
     if (isPlaying(previousPlaybackInfo) != isPlaying(newPlaybackInfo)) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_IS_PLAYING_CHANGED,
           listener -> listener.onIsPlayingChanged(isPlaying(newPlaybackInfo)));
     }
     if (!previousPlaybackInfo.playbackParameters.equals(newPlaybackInfo.playbackParameters)) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(newPlaybackInfo.playbackParameters));
     }
     if (seekProcessed) {
-      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
+      eventListeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
     }
     updateAvailableCommands();
-    listeners.flushEvents();
+    eventListeners.flushEvents();
 
     if (previousPlaybackInfo.offloadSchedulingEnabled != newPlaybackInfo.offloadSchedulingEnabled) {
       for (AudioOffloadListener listener : audioOffloadListeners) {
@@ -2048,7 +2062,7 @@ import java.util.concurrent.TimeoutException;
     Commands previousAvailableCommands = availableCommands;
     availableCommands = Util.getAvailableCommands(wrappingPlayer, permanentAvailableCommands);
     if (!availableCommands.equals(previousAvailableCommands)) {
-      listeners.queueEvent(
+      eventListeners.queueEvent(
           Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
           listener -> listener.onAvailableCommandsChanged(availableCommands));
     }
@@ -2468,7 +2482,7 @@ import java.util.concurrent.TimeoutException;
       surfaceHeight = height;
       analyticsCollector.onSurfaceSizeChanged(width, height);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
+      for (Listener listener : listeners) {
         listener.onSurfaceSizeChanged(width, height);
       }
     }
@@ -2482,7 +2496,7 @@ import java.util.concurrent.TimeoutException;
   private void notifySkipSilenceEnabledChanged() {
     analyticsCollector.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-    for (Listener listener : listenerArraySet) {
+    for (Listener listener : listeners) {
       listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     }
   }
@@ -2624,9 +2638,10 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  // TODO(b/204189802): Remove self-listening to deprecated EventListener.
+  @SuppressWarnings("deprecation")
   private final class ComponentListener
-      implements Player.Listener,
-          VideoRendererEventListener,
+      implements VideoRendererEventListener,
           AudioRendererEventListener,
           TextOutput,
           MetadataOutput,
@@ -2636,6 +2651,7 @@ import java.util.concurrent.TimeoutException;
           AudioFocusManager.PlayerControl,
           AudioBecomingNoisyManager.EventListener,
           StreamVolumeManager.Listener,
+          Player.EventListener,
           AudioOffloadListener {
 
     // VideoRendererEventListener implementation
@@ -2670,7 +2686,7 @@ import java.util.concurrent.TimeoutException;
       ExoPlayerImpl.this.videoSize = videoSize;
       analyticsCollector.onVideoSizeChanged(videoSize);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
+      for (Listener listener : listeners) {
         listener.onVideoSizeChanged(videoSize);
       }
     }
@@ -2680,7 +2696,7 @@ import java.util.concurrent.TimeoutException;
       analyticsCollector.onRenderedFirstFrame(output, renderTimeMs);
       if (videoOutput == output) {
         // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-        for (Listener listener : listenerArraySet) {
+        for (Listener listener : listeners) {
           listener.onRenderedFirstFrame();
         }
       }
@@ -2777,7 +2793,7 @@ import java.util.concurrent.TimeoutException;
     public void onCues(List<Cue> cues) {
       currentCues = cues;
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listeners : listenerArraySet) {
+      for (Listener listeners : listeners) {
         listeners.onCues(cues);
       }
     }
@@ -2789,7 +2805,7 @@ import java.util.concurrent.TimeoutException;
       analyticsCollector.onMetadata(metadata);
       ExoPlayerImpl.this.onMetadata(metadata);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
+      for (Listener listener : listeners) {
         listener.onMetadata(metadata);
       }
     }
@@ -2885,7 +2901,7 @@ import java.util.concurrent.TimeoutException;
       if (!deviceInfo.equals(ExoPlayerImpl.this.deviceInfo)) {
         ExoPlayerImpl.this.deviceInfo = deviceInfo;
         // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-        for (Listener listener : listenerArraySet) {
+        for (Listener listener : listeners) {
           listener.onDeviceInfoChanged(deviceInfo);
         }
       }
@@ -2894,12 +2910,12 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
+      for (Listener listener : listeners) {
         listener.onDeviceVolumeChanged(streamVolume, streamMuted);
       }
     }
 
-    // Player.Listener implementation.
+    // Player.EventListener implementation.
 
     @Override
     public void onIsLoadingChanged(boolean isLoading) {
