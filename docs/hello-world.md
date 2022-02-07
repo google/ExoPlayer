@@ -50,27 +50,15 @@ implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 ~~~
 {: .language-gradle}
 
-When depending on individual modules they must all be the same version.
-
-The available library modules are listed below. Adding a dependency to the full
-ExoPlayer library is equivalent to adding dependencies on all of the library
-modules individually.
-
-* `exoplayer-core`: Core functionality (required).
-* `exoplayer-dash`: Support for DASH content.
-* `exoplayer-hls`: Support for HLS content.
-* `exoplayer-rtsp`: Support for RTSP content.
-* `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
-* `exoplayer-transformer`: Media transformation functionality.
-* `exoplayer-ui`: UI components and resources for use with ExoPlayer.
+When depending on individual modules, they must all be the same version. You can
+browse the list of available modules on the [Google Maven ExoPlayer page][]. The
+full library includes all of the library modules prefixed with `exoplayer-`,
+except for `exoplayer-transformer`.
 
 In addition to library modules, ExoPlayer has extension modules that depend on
 external libraries to provide additional functionality. Some extensions are
 available from the Maven repository, whereas others must be built manually.
 Browse the [extensions directory][] and their individual READMEs for details.
-
-More information on the library and extension modules that are available can be
-found on the [Google Maven ExoPlayer page][].
 
 ### Turn on Java 8 support ###
 
