@@ -132,7 +132,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private static final int STATE_READING_SAMPLE_CONTINUE = 4;
 
   // Workarounds.
-  private final @Flags int flags;
+  @Flags private final int flags;
   @Nullable private final Track sideloadedTrack;
 
   // Sideloaded data.
@@ -1689,7 +1689,8 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     /** Returns the {@link C.BufferFlags} corresponding to the current sample. */
-    public @C.BufferFlags int getCurrentSampleFlags() {
+    @C.BufferFlags
+    public int getCurrentSampleFlags() {
       int flags =
           !currentlyInFragment
               ? moovSampleTable.flags[currentSampleIndex]

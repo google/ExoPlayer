@@ -245,7 +245,8 @@ public final class MappingTrackSelectorTest {
     }
 
     @Override
-    public @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
+    @Capabilities
+    public int supportsFormat(Format format) throws ExoPlaybackException {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
           ? RendererCapabilities.create(
               C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
@@ -253,7 +254,8 @@ public final class MappingTrackSelectorTest {
     }
 
     @Override
-    public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    @AdaptiveSupport
+    public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
       return ADAPTIVE_SEAMLESS;
     }
   }

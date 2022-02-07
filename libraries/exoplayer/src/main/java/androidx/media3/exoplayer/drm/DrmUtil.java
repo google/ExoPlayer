@@ -72,7 +72,8 @@ public final class DrmUtil {
    * @return The {@link PlaybackException.ErrorCode} that corresponds to the given DRM-related
    *     exception.
    */
-  public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmException(
+  @PlaybackException.ErrorCode
+  public static int getErrorCodeForMediaDrmException(
       Exception exception, @ErrorSource int errorSource) {
     if (Util.SDK_INT >= 21 && Api21.isMediaDrmStateException(exception)) {
       return Api21.mediaDrmStateExceptionToErrorCode(exception);
@@ -127,8 +128,8 @@ public final class DrmUtil {
     }
 
     @DoNotInline
-    public static @PlaybackException.ErrorCode int mediaDrmStateExceptionToErrorCode(
-        Throwable throwable) {
+    @PlaybackException.ErrorCode
+    public static int mediaDrmStateExceptionToErrorCode(Throwable throwable) {
       @Nullable
       String diagnosticsInfo = ((MediaDrm.MediaDrmStateException) throwable).getDiagnosticInfo();
       int drmErrorCode = Util.getErrorCodeFromPlatformDiagnosticsInfo(diagnosticsInfo);

@@ -130,7 +130,7 @@ public interface LoadErrorHandlingPolicy {
   /** A selected fallback option. */
   final class FallbackSelection {
     /** The type of fallback. */
-    public final @FallbackType int type;
+    @FallbackType public final int type;
     /** The duration for which the failing resource should be excluded, in milliseconds. */
     public final long exclusionDurationMs;
 

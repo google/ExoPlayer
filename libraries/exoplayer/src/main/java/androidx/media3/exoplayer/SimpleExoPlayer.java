@@ -398,7 +398,8 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public @C.VideoScalingMode int getVideoScalingMode() {
+  @C.VideoScalingMode
+  public int getVideoScalingMode() {
     return player.getVideoScalingMode();
   }
 
@@ -409,7 +410,8 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public @C.VideoChangeFrameRateStrategy int getVideoChangeFrameRateStrategy() {
+  @C.VideoChangeFrameRateStrategy
+  public int getVideoChangeFrameRateStrategy() {
     return player.getVideoChangeFrameRateStrategy();
   }
 
@@ -637,12 +639,14 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public @State int getPlaybackState() {
+  @State
+  public int getPlaybackState() {
     return player.getPlaybackState();
   }
 
   @Override
-  public @PlaybackSuppressionReason int getPlaybackSuppressionReason() {
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
     return player.getPlaybackSuppressionReason();
   }
 

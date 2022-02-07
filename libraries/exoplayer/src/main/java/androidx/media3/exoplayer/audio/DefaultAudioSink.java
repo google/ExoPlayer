@@ -482,8 +482,8 @@ public final class DefaultAudioSink implements AudioSink {
   private final AudioTrackPositionTracker audioTrackPositionTracker;
   private final ArrayDeque<MediaPositionParameters> mediaPositionParametersCheckpoints;
   private final boolean enableAudioTrackPlaybackParams;
-  private final @OffloadMode int offloadMode;
-  private @MonotonicNonNull StreamEventCallbackV29 offloadStreamEventCallbackV29;
+  @OffloadMode private final int offloadMode;
+  @MonotonicNonNull private StreamEventCallbackV29 offloadStreamEventCallbackV29;
   private final PendingExceptionHolder<InitializationException>
       initializationExceptionPendingExceptionHolder;
   private final PendingExceptionHolder<WriteException> writeExceptionPendingExceptionHolder;
@@ -492,7 +492,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Nullable private PlayerId playerId;
   @Nullable private Listener listener;
   @Nullable private Configuration pendingConfiguration;
-  private @MonotonicNonNull Configuration configuration;
+  @MonotonicNonNull private Configuration configuration;
   @Nullable private AudioTrack audioTrack;
 
   private AudioAttributes audioAttributes;
@@ -518,7 +518,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Nullable private ByteBuffer inputBuffer;
   private int inputBufferAccessUnitCount;
   @Nullable private ByteBuffer outputBuffer;
-  private @MonotonicNonNull byte[] preV21OutputBuffer;
+  @MonotonicNonNull private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
   private int drainingAudioProcessorIndex;
   private boolean handledEndOfStream;
@@ -661,7 +661,8 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public @SinkFormatSupport int getFormatSupport(Format format) {
+  @SinkFormatSupport
+  public int getFormatSupport(Format format) {
     if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)) {
       if (!Util.isEncodingLinearPcm(format.pcmEncoding)) {
         Log.w(TAG, "Invalid PCM encoding: " + format.pcmEncoding);
@@ -2135,11 +2136,11 @@ public final class DefaultAudioSink implements AudioSink {
 
     public final Format inputFormat;
     public final int inputPcmFrameSize;
-    public final @OutputMode int outputMode;
+    @OutputMode public final int outputMode;
     public final int outputPcmFrameSize;
     public final int outputSampleRate;
     public final int outputChannelConfig;
-    public final @C.Encoding int outputEncoding;
+    @C.Encoding public final int outputEncoding;
     public final int bufferSize;
     public final AudioProcessor[] availableAudioProcessors;
 

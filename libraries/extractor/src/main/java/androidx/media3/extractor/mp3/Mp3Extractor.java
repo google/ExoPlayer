@@ -142,7 +142,7 @@ public final class Mp3Extractor implements Extractor {
   private static final int SEEK_HEADER_VBRI = 0x56425249;
   private static final int SEEK_HEADER_UNSET = 0;
 
-  private final @Flags int flags;
+  @Flags private final int flags;
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
   private final MpegAudioUtil.Header synchronizedHeader;

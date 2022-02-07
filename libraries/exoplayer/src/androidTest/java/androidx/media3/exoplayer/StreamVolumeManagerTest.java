@@ -273,7 +273,7 @@ public class StreamVolumeManagerTest {
 
   private static class TestListener implements StreamVolumeManager.Listener {
 
-    private @C.StreamType int lastStreamType;
+    @C.StreamType private int lastStreamType;
     private int lastStreamVolume;
     private boolean lastStreamVolumeMuted;
     public final CountDownLatch onStreamVolumeChangedLatch;

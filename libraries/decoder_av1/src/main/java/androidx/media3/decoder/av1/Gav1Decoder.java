@@ -41,7 +41,7 @@ public final class Gav1Decoder
 
   private final long gav1DecoderContext;
 
-  private volatile @C.VideoOutputMode int outputMode;
+  @C.VideoOutputMode private volatile int outputMode;
 
   /**
    * Creates a Gav1Decoder.

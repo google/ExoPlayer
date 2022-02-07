@@ -93,7 +93,7 @@ import java.util.regex.Pattern;
   public static final int SSA_ALIGNMENT_TOP_RIGHT = 9;
 
   public final String name;
-  public final @SsaAlignment int alignment;
+  @SsaAlignment public final int alignment;
   @Nullable @ColorInt public final Integer primaryColor;
   public final float fontSize;
   public final boolean bold;
@@ -158,7 +158,8 @@ import java.util.regex.Pattern;
     }
   }
 
-  private static @SsaAlignment int parseAlignment(String alignmentStr) {
+  @SsaAlignment
+  private static int parseAlignment(String alignmentStr) {
     try {
       @SsaAlignment int alignment = Integer.parseInt(alignmentStr.trim());
       if (isValidAlignment(alignment)) {
@@ -372,7 +373,7 @@ import java.util.regex.Pattern;
     /** Matches "\anx" and returns x in group 1 */
     private static final Pattern ALIGNMENT_OVERRIDE_PATTERN = Pattern.compile("\\\\an(\\d+)");
 
-    public final @SsaAlignment int alignment;
+    @SsaAlignment public final int alignment;
     @Nullable public final PointF position;
 
     private Overrides(@SsaAlignment int alignment, @Nullable PointF position) {
@@ -450,7 +451,8 @@ import java.util.regex.Pattern;
           Float.parseFloat(Assertions.checkNotNull(y).trim()));
     }
 
-    private static @SsaAlignment int parseAlignmentOverride(String braceContents) {
+    @SsaAlignment
+    private static int parseAlignmentOverride(String braceContents) {
       Matcher matcher = ALIGNMENT_OVERRIDE_PATTERN.matcher(braceContents);
       return matcher.find()
           ? parseAlignment(Assertions.checkNotNull(matcher.group(1)))

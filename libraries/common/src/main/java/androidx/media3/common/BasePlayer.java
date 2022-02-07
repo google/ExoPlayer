@@ -384,7 +384,8 @@ public abstract class BasePlayer implements Player {
         : timeline.getWindow(getCurrentMediaItemIndex(), window).getDurationMs();
   }
 
-  private @RepeatMode int getRepeatModeForNavigation() {
+  @RepeatMode
+  private int getRepeatModeForNavigation() {
     @RepeatMode int repeatMode = getRepeatMode();
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }

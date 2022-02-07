@@ -79,7 +79,7 @@ public final class HeartRating extends Rating {
 
   // Bundleable implementation.
 
-  private static final @RatingType int TYPE = RATING_TYPE_HEART;
+  @RatingType private static final int TYPE = RATING_TYPE_HEART;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)

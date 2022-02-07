@@ -351,7 +351,8 @@ public final class DownloadManager {
    *
    * @return The not met {@link Requirements.RequirementFlags}, or 0 if all requirements are met.
    */
-  public @Requirements.RequirementFlags int getNotMetRequirements() {
+  @Requirements.RequirementFlags
+  public int getNotMetRequirements() {
     return notMetRequirements;
   }
 
@@ -704,7 +705,7 @@ public final class DownloadManager {
     private final ArrayList<Download> downloads;
     private final HashMap<String, Task> activeTasks;
 
-    private @Requirements.RequirementFlags int notMetRequirements;
+    @Requirements.RequirementFlags private int notMetRequirements;
     private boolean downloadsPaused;
     private int maxParallelDownloads;
     private int minRetryCount;

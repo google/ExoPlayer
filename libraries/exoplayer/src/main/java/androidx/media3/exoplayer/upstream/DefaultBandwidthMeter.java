@@ -281,14 +281,14 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private long sampleStartTimeMs;
   private long sampleBytesTransferred;
 
-  private @C.NetworkType int networkType;
+  @C.NetworkType private int networkType;
   private long totalElapsedTimeMs;
   private long totalBytesTransferred;
   private long bitrateEstimate;
   private long lastReportedBitrateEstimate;
 
   private boolean networkTypeOverrideSet;
-  private @C.NetworkType int networkTypeOverride;
+  @C.NetworkType private int networkTypeOverride;
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated

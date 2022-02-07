@@ -122,8 +122,8 @@ public final class WavExtractor implements Extractor {
   }
 
   @Override
-  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException {
+  @ReadResult
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     assertInitialized();
     switch (state) {
       case STATE_READING_FILE_TYPE:
@@ -227,7 +227,8 @@ public final class WavExtractor implements Extractor {
     state = STATE_READING_SAMPLE_DATA;
   }
 
-  private @ReadResult int readSampleData(ExtractorInput input) throws IOException {
+  @ReadResult
+  private int readSampleData(ExtractorInput input) throws IOException {
     Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
     long bytesLeft = dataEndPosition - input.getPosition();
     return Assertions.checkNotNull(outputWriter).sampleData(input, bytesLeft)

@@ -121,7 +121,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   private DecoderInputBuffer inputBuffer;
   private VideoDecoderOutputBuffer outputBuffer;
-  private @VideoOutputMode int outputMode;
+  @VideoOutputMode private int outputMode;
   @Nullable private Object output;
   @Nullable private Surface outputSurface;
   @Nullable private VideoDecoderOutputBufferRenderer outputBufferRenderer;
@@ -130,7 +130,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   @Nullable private DrmSession decoderDrmSession;
   @Nullable private DrmSession sourceDrmSession;
 
-  private @ReinitializationState int decoderReinitializationState;
+  @ReinitializationState private int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
 
   private boolean renderedFirstFrameAfterReset;

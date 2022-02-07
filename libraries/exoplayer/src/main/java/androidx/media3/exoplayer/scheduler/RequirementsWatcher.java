@@ -62,7 +62,7 @@ public final class RequirementsWatcher {
 
   @Nullable private DeviceStatusChangeReceiver receiver;
 
-  private @Requirements.RequirementFlags int notMetRequirements;
+  @Requirements.RequirementFlags private int notMetRequirements;
   @Nullable private NetworkCallback networkCallback;
 
   /**
@@ -83,7 +83,8 @@ public final class RequirementsWatcher {
    *
    * @return Initial {@link Requirements.RequirementFlags RequirementFlags} that are not met, or 0.
    */
-  public @Requirements.RequirementFlags int start() {
+  @Requirements.RequirementFlags
+  public int start() {
     notMetRequirements = requirements.getNotMetRequirements(context);
 
     IntentFilter filter = new IntentFilter();

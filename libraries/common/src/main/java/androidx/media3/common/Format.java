@@ -156,14 +156,14 @@ public final class Format implements Bundleable {
     private int rotationDegrees;
     private float pixelWidthHeightRatio;
     @Nullable private byte[] projectionData;
-    private @C.StereoMode int stereoMode;
+    @C.StereoMode private int stereoMode;
     @Nullable private ColorInfo colorInfo;
 
     // Audio specific.
 
     private int channelCount;
     private int sampleRate;
-    private @C.PcmEncoding int pcmEncoding;
+    @C.PcmEncoding private int pcmEncoding;
     private int encoderDelay;
     private int encoderPadding;
 
@@ -173,7 +173,7 @@ public final class Format implements Bundleable {
 
     // Provided by the source.
 
-    private @C.CryptoType int cryptoType;
+    @C.CryptoType private int cryptoType;
 
     /** Creates a new instance with default values. */
     public Builder() {
@@ -727,7 +727,7 @@ public final class Format implements Bundleable {
    * modes are {@link C#STEREO_MODE_MONO}, {@link C#STEREO_MODE_TOP_BOTTOM}, {@link
    * C#STEREO_MODE_LEFT_RIGHT}, {@link C#STEREO_MODE_STEREO_MESH}.
    */
-  @UnstableApi public final @C.StereoMode int stereoMode;
+  @UnstableApi @C.StereoMode public final int stereoMode;
   /** The color metadata associated with the video, or null if not applicable. */
   @UnstableApi @Nullable public final ColorInfo colorInfo;
 
@@ -738,7 +738,7 @@ public final class Format implements Bundleable {
   /** The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int sampleRate;
   /** The {@link C.PcmEncoding} for PCM audio. Set to {@link #NO_VALUE} for other media types. */
-  @UnstableApi public final @C.PcmEncoding int pcmEncoding;
+  @UnstableApi @C.PcmEncoding public final int pcmEncoding;
   /**
    * The number of frames to trim from the start of the decoded audio stream, or 0 if not
    * applicable.
@@ -762,7 +762,7 @@ public final class Format implements Bundleable {
    * {@link #drmInitData} is non-null, but may be {@link C#CRYPTO_TYPE_UNSUPPORTED} to indicate that
    * the samples are encrypted using an unsupported crypto type.
    */
-  @UnstableApi public final @C.CryptoType int cryptoType;
+  @UnstableApi @C.CryptoType public final int cryptoType;
 
   // Lazily initialized hashcode.
   private int hashCode;

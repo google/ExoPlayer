@@ -138,7 +138,7 @@ public abstract class DecoderAudioRenderer<
   @Nullable private DrmSession decoderDrmSession;
   @Nullable private DrmSession sourceDrmSession;
 
-  private @ReinitializationState int decoderReinitializationState;
+  @ReinitializationState private int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
   private boolean audioTrackNeedsConfigure;
 
@@ -228,7 +228,8 @@ public abstract class DecoderAudioRenderer<
   }
 
   @Override
-  public final @Capabilities int supportsFormat(Format format) {
+  @Capabilities
+  public final int supportsFormat(Format format) {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
@@ -247,7 +248,8 @@ public abstract class DecoderAudioRenderer<
    * @param format The format, which has an audio {@link Format#sampleMimeType}.
    * @return The {@link C.FormatSupport} for this {@link Format}.
    */
-  protected abstract @C.FormatSupport int supportsFormatInternal(Format format);
+  @C.FormatSupport
+  protected abstract int supportsFormatInternal(Format format);
 
   /**
    * Returns whether the renderer's {@link AudioSink} supports a given {@link Format}.
@@ -264,7 +266,8 @@ public abstract class DecoderAudioRenderer<
    *
    * @see AudioSink#getFormatSupport(Format) (Format)
    */
-  protected final @SinkFormatSupport int getSinkFormatSupport(Format format) {
+  @SinkFormatSupport
+  protected final int getSinkFormatSupport(Format format) {
     return audioSink.getFormatSupport(format);
   }
 

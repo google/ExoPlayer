@@ -123,7 +123,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean allowAudioMixedChannelCountAdaptiveness;
     private boolean allowAudioMixedDecoderSupportAdaptiveness;
     // Text
-    private @C.SelectionFlags int disabledTextTrackSelectionFlags;
+    @C.SelectionFlags private int disabledTextTrackSelectionFlags;
     // General
     private boolean exceedRendererCapabilitiesIfNecessary;
     private boolean tunnelingEnabled;
@@ -894,7 +894,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Bitmask of selection flags that are disabled for text track selections. See {@link
      * C.SelectionFlags}. The default value is {@code 0} (i.e. no flags).
      */
-    public final @C.SelectionFlags int disabledTextTrackSelectionFlags;
+    @C.SelectionFlags public final int disabledTextTrackSelectionFlags;
 
     /** Returns an instance configured with default values. */
     public static Parameters getDefaults(Context context) {
@@ -2255,7 +2255,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /** Returns to what extent the track is {@link SelectionEligibility eligible for selection}. */
-    public abstract @SelectionEligibility int getSelectionEligibility();
+    @SelectionEligibility
+    public abstract int getSelectionEligibility();
 
     /**
      * Returns whether this track is compatible for an adaptive selection with the specified other
@@ -2307,7 +2308,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final int preferredRoleFlagsScore;
     private final boolean hasMainOrNoRoleFlag;
     private final boolean allowMixedMimeTypes;
-    private final @SelectionEligibility int selectionEligibility;
+    @SelectionEligibility private final int selectionEligibility;
     private final boolean usesPrimaryDecoder;
     private final boolean usesHardwareAcceleration;
     private final int codecPreferenceScore;
@@ -2374,7 +2375,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public @SelectionEligibility int getSelectionEligibility() {
+    @SelectionEligibility
+    public int getSelectionEligibility() {
       return selectionEligibility;
     }
 
@@ -2387,7 +2389,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                   && this.usesHardwareAcceleration == otherTrack.usesHardwareAcceleration));
     }
 
-    private @SelectionEligibility int evaluateSelectionEligibility(
+    @SelectionEligibility
+    private int evaluateSelectionEligibility(
         @Capabilities int rendererSupport, @AdaptiveSupport int requiredAdaptiveSupport) {
       if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
         // Ignore trick-play tracks for now.
@@ -2499,7 +2502,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return listBuilder.build();
     }
 
-    private final @SelectionEligibility int selectionEligibility;
+    @SelectionEligibility private final int selectionEligibility;
     private final boolean isWithinConstraints;
     @Nullable private final String language;
     private final Parameters parameters;
@@ -2591,7 +2594,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public @SelectionEligibility int getSelectionEligibility() {
+    @SelectionEligibility
+    public int getSelectionEligibility() {
       return selectionEligibility;
     }
 
@@ -2660,7 +2664,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           .result();
     }
 
-    private @SelectionEligibility int evaluateSelectionEligibility(
+    @SelectionEligibility
+    private int evaluateSelectionEligibility(
         @Capabilities int rendererSupport, boolean hasMappedVideoTracks) {
       if (!isSupported(rendererSupport, parameters.exceedRendererCapabilitiesIfNecessary)) {
         return SELECTION_ELIGIBILITY_NO;
@@ -2707,7 +2712,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return listBuilder.build();
     }
 
-    private final @SelectionEligibility int selectionEligibility;
+    @SelectionEligibility private final int selectionEligibility;
     private final boolean isWithinRendererCapabilities;
     private final boolean isDefault;
     private final boolean isForced;
@@ -2772,7 +2777,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public @SelectionEligibility int getSelectionEligibility() {
+    @SelectionEligibility
+    public int getSelectionEligibility() {
       return selectionEligibility;
     }
 

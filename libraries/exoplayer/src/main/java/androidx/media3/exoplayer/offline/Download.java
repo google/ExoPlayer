@@ -99,7 +99,7 @@ public final class Download {
   /** The download request. */
   public final DownloadRequest request;
   /** The state of the download. */
-  public final @State int state;
+  @State public final int state;
   /** The first time when download entry is created. */
   public final long startTimeMs;
   /** The last update time. */
@@ -112,7 +112,7 @@ public final class Download {
    * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
    * #FAILURE_REASON_NONE}.
    */
-  public final @FailureReason int failureReason;
+  @FailureReason public final int failureReason;
 
   /* package */ final DownloadProgress progress;
 

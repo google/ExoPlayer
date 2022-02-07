@@ -552,7 +552,8 @@ public final class MimeTypes {
    * @return The corresponding {@link C.Encoding}, or {@link C#ENCODING_INVALID}.
    */
   @UnstableApi
-  public static @C.Encoding int getEncoding(String mimeType, @Nullable String codec) {
+  @C.Encoding
+  public static int getEncoding(String mimeType, @Nullable String codec) {
     switch (mimeType) {
       case MimeTypes.AUDIO_MPEG:
         return C.ENCODING_MP3;
@@ -727,7 +728,8 @@ public final class MimeTypes {
     }
 
     /** Returns the encoding for {@link #audioObjectTypeIndication}. */
-    public @C.Encoding int getEncoding() {
+    @C.Encoding
+    public int getEncoding() {
       // See AUDIO_OBJECT_TYPE_AAC_* constants in AacUtil.
       switch (audioObjectTypeIndication) {
         case 2:

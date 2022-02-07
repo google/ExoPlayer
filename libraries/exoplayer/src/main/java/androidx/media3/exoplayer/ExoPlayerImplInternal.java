@@ -93,9 +93,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     public PlaybackInfo playbackInfo;
     public int operationAcks;
     public boolean positionDiscontinuity;
-    public @DiscontinuityReason int discontinuityReason;
+    @DiscontinuityReason public int discontinuityReason;
     public boolean hasPlayWhenReadyChangeReason;
-    public @PlayWhenReadyChangeReason int playWhenReadyChangeReason;
+    @PlayWhenReadyChangeReason public int playWhenReadyChangeReason;
 
     public PlaybackInfoUpdate(PlaybackInfo playbackInfo) {
       this.playbackInfo = playbackInfo;
@@ -216,7 +216,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean pendingPauseAtEndOfPeriod;
   private boolean isRebuffering;
   private boolean shouldContinueLoading;
-  private @Player.RepeatMode int repeatMode;
+  @Player.RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
   private boolean foregroundMode;
   private boolean requestForRendererSleep;
@@ -2943,8 +2943,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @return The uid in the new timeline of the first subsequent period, or null if no such period
    *     was found.
    */
-  /* package */ @Nullable
-  static Object resolveSubsequentPeriod(
+  /* package */ static @Nullable Object resolveSubsequentPeriod(
       Timeline.Window window,
       Timeline.Period period,
       @Player.RepeatMode int repeatMode,

@@ -85,7 +85,8 @@ public final class NetworkTypeObserver {
   private final Object networkTypeLock;
 
   @GuardedBy("networkTypeLock")
-  private @C.NetworkType int networkType;
+  @C.NetworkType
+  private int networkType;
 
   /**
    * Returns a network type observer instance.
@@ -131,7 +132,8 @@ public final class NetworkTypeObserver {
   }
 
   /** Returns the current network type. */
-  public @C.NetworkType int getNetworkType() {
+  @C.NetworkType
+  public int getNetworkType() {
     synchronized (networkTypeLock) {
       return networkType;
     }
@@ -162,7 +164,8 @@ public final class NetworkTypeObserver {
     }
   }
 
-  private static @C.NetworkType int getNetworkTypeFromConnectivityManager(Context context) {
+  @C.NetworkType
+  private static int getNetworkTypeFromConnectivityManager(Context context) {
     NetworkInfo networkInfo;
     @Nullable
     ConnectivityManager connectivityManager =
@@ -195,7 +198,8 @@ public final class NetworkTypeObserver {
     }
   }
 
-  private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
+  @C.NetworkType
+  private static int getMobileNetworkType(NetworkInfo networkInfo) {
     switch (networkInfo.getSubtype()) {
       case TelephonyManager.NETWORK_TYPE_EDGE:
       case TelephonyManager.NETWORK_TYPE_GPRS:

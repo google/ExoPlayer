@@ -125,13 +125,13 @@ public final class DecoderReuseEvaluation {
   public final Format newFormat;
 
   /** The {@link DecoderReuseResult result} of the evaluation. */
-  public final @DecoderReuseResult int result;
+  @DecoderReuseResult public final int result;
 
   /**
    * {@link DecoderDiscardReasons Reasons} why the decoder cannot be reused. Always {@code 0} if
    * reuse is possible. May also be {code 0} if reuse is not possible for an unspecified reason.
    */
-  public final @DecoderDiscardReasons int discardReasons;
+  @DecoderDiscardReasons public final int discardReasons;
 
   /**
    * @param decoderName The name of the decoder.

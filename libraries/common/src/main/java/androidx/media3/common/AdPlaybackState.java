@@ -67,7 +67,7 @@ public final class AdPlaybackState implements Bundleable {
     /** The URI of each ad in the ad group. */
     public final @NullableType Uri[] uris;
     /** The state of each ad in the ad group. */
-    public final @AdState int[] states;
+    @AdState public final int[] states;
     /** The durations of each ad in the ad group, in microseconds. */
     public final long[] durationsUs;
     /**

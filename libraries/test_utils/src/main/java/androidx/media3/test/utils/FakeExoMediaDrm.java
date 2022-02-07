@@ -398,7 +398,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public @C.CryptoType int getCryptoType() {
+  @C.CryptoType
+  public int getCryptoType() {
     return FakeCryptoConfig.TYPE;
   }
 

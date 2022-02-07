@@ -66,7 +66,8 @@ public interface DrmSessionManager {
         }
 
         @Override
-        public @C.CryptoType int getCryptoType(Format format) {
+        @C.CryptoType
+        public int getCryptoType(Format format) {
           return format.drmInitData != null ? C.CRYPTO_TYPE_UNSUPPORTED : C.CRYPTO_TYPE_NONE;
         }
       };
