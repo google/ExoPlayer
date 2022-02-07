@@ -97,7 +97,7 @@ import java.util.List;
   private static final Splitter ASTERISK_SPLITTER = Splitter.on('*');
 
   private final List<DataReference> dataReferences;
-  @State private int readerState;
+  private @State int readerState;
   private int tailLength;
 
   public SefReader() {
@@ -110,8 +110,7 @@ import java.util.List;
     readerState = STATE_SHOULD_CHECK_FOR_SEF;
   }
 
-  @Extractor.ReadResult
-  public int read(
+  public @Extractor.ReadResult int read(
       ExtractorInput input,
       PositionHolder seekPosition,
       List<Metadata.Entry> slowMotionMetadataEntries)
@@ -250,8 +249,7 @@ import java.util.List;
     return new SlowMotionData(segments);
   }
 
-  @DataType
-  private static int nameToDataType(String name) throws ParserException {
+  private static @DataType int nameToDataType(String name) throws ParserException {
     switch (name) {
       case "SlowMotion_Data":
         return TYPE_SLOW_MOTION_DATA;
@@ -269,7 +267,7 @@ import java.util.List;
   }
 
   private static final class DataReference {
-    @DataType public final int dataType;
+    public final @DataType int dataType;
     public final long startOffset;
     public final int size;
 

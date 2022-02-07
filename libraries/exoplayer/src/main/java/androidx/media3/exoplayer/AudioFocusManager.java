@@ -139,7 +139,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private PlayerControl playerControl;
   @Nullable private AudioAttributes audioAttributes;
 
-  @AudioFocusState private int audioFocusState;
+  private @AudioFocusState int audioFocusState;
   private @AudioFocusGain int focusGainToRequest;
   private float volumeMultiplier = VOLUME_MULTIPLIER_DEFAULT;
 
@@ -193,8 +193,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param playbackState The desired playback state.
    * @return A {@link PlayerCommand} to execute on the player.
    */
-  @PlayerCommand
-  public int updateAudioFocus(boolean playWhenReady, @Player.State int playbackState) {
+  public @PlayerCommand int updateAudioFocus(
+      boolean playWhenReady, @Player.State int playbackState) {
     if (shouldAbandonAudioFocusIfHeld(playbackState)) {
       abandonAudioFocusIfHeld();
       return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
@@ -222,8 +222,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return playbackState == Player.STATE_IDLE || focusGainToRequest != AUDIOFOCUS_GAIN;
   }
 
-  @PlayerCommand
-  private int requestAudioFocus() {
+  private @PlayerCommand int requestAudioFocus() {
     if (audioFocusState == AUDIO_FOCUS_STATE_HAVE_FOCUS) {
       return PLAYER_COMMAND_PLAY_WHEN_READY;
     }

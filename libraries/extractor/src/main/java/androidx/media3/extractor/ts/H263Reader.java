@@ -335,7 +335,7 @@ public final class H263Reader implements ElementaryStreamReader {
     private static final int STATE_WAIT_FOR_VOP_START = 4;
 
     private boolean isFilling;
-    @State private int state;
+    private @State int state;
 
     public int length;
     public int volStartPosition;
