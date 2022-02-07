@@ -211,7 +211,7 @@ public final class OpusDecoder
     outputData.position(0);
     outputData.limit(result);
     if (skipSamples > 0) {
-      int bytesPerSample = channelCount * 2;
+      int bytesPerSample = samplesToBytes(1, channelCount, outputFloat);
       int skipBytes = skipSamples * bytesPerSample;
       if (result <= skipBytes) {
         skipSamples -= result / bytesPerSample;
@@ -276,6 +276,12 @@ public final class OpusDecoder
     }
     // Fall back to returning the default seek pre-roll.
     return DEFAULT_SEEK_PRE_ROLL_SAMPLES;
+  }
+
+  /** Returns number of bytes to represent {@code samples}. */
+  private static int samplesToBytes(int samples, int channelCount, boolean outputFloat) {
+    int bytesPerChannel = outputFloat ? 4 : 2;
+    return samples * channelCount * bytesPerChannel;
   }
 
   private static int readSignedLittleEndian16(byte[] input, int offset) {
