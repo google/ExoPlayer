@@ -96,11 +96,6 @@ downloadManager.setMaxParallelDownloads(3);
 
 See [`DemoUtil`][] in the demo app for a concrete example.
 
-The example in the demo app also imports download state from legacy `ActionFile`
-instances. This is only necessary if your app used `ActionFile` prior to
-ExoPlayer 2.10.0.
-{:.info}
-
 ## Adding a download ##
 
 To add a download you need to create a `DownloadRequest` and send it to your
