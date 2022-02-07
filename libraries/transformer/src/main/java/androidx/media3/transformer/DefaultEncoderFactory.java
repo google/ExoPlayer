@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.transformer.CodecFactoryUtil.createCodec;
@@ -151,30 +152,44 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       // Applying suggested profile/level settings from
       // https://developer.android.com/guide/topics/media/sharing-video#b-frames_and_encoding_profiles
       if (Util.SDK_INT >= 29) {
-        if (EncoderUtil.isProfileLevelSupported(
-            encoderInfo,
-            mimeType,
-            MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
-            EncoderUtil.LEVEL_UNSET)) {
+        int supportedEncodingLevel =
+            EncoderUtil.findHighestSupportedEncodingLevel(
+                encoderInfo, mimeType, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
+        if (supportedEncodingLevel != EncoderUtil.LEVEL_UNSET) {
           // Use the highest supported profile and use B-frames.
           mediaFormat.setInteger(
               MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
+          mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
           mediaFormat.setInteger(MediaFormat.KEY_MAX_B_FRAMES, 1);
         }
       } else if (Util.SDK_INT >= 26) {
-        if (EncoderUtil.isProfileLevelSupported(
-            encoderInfo,
-            mimeType,
-            MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
-            EncoderUtil.LEVEL_UNSET)) {
-          // Use the highest-supported profile, but disable the generation of B-frames. This
-          // accommodates some limitations in the MediaMuxer in these system versions.
+        int supportedEncodingLevel =
+            EncoderUtil.findHighestSupportedEncodingLevel(
+                encoderInfo, mimeType, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
+        if (supportedEncodingLevel != EncoderUtil.LEVEL_UNSET) {
+          // Use the highest-supported profile, but disable the generation of B-frames using
+          // MediaFormat.KEY_LATENCY. This accommodates some limitations in the MediaMuxer in these
+          // system versions.
           mediaFormat.setInteger(
               MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
+          mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
+          // TODO(b/210593256): Set KEY_LATENCY to 2 to enable B-frame production after switching to
+          // in-app muxing.
           mediaFormat.setInteger(MediaFormat.KEY_LATENCY, 1);
         }
+      } else if (Util.SDK_INT >= 23) {
+        int supportedLevel =
+            EncoderUtil.findHighestSupportedEncodingLevel(
+                encoderInfo, mimeType, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
+        checkState(supportedLevel != EncoderUtil.LEVEL_UNSET);
+        // Use the baseline profile for safest results, as encoding in baseline is required per
+        // https://source.android.com/compatibility/5.0/android-5.0-cdd#5_2_video_encoding
+        mediaFormat.setInteger(
+            MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
+        mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedLevel);
       } else {
-        // Use the baseline profile for safest results.
+        // Use the baseline profile for safest results, as encoding in baseline is required per
+        // https://source.android.com/compatibility/5.0/android-5.0-cdd#5_2_video_encoding
         mediaFormat.setInteger(
             MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
       }
@@ -270,11 +285,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     @Nullable String codecs = null;
     if (profileLevel != null
         && requestedFormat.sampleMimeType.equals(mimeType)
-        && EncoderUtil.isProfileLevelSupported(
-            pickedEncoder,
-            mimeType,
-            /* profile= */ profileLevel.first,
-            /* level= */ profileLevel.second)) {
+        && profileLevel.second
+            <= EncoderUtil.findHighestSupportedEncodingLevel(
+                pickedEncoder, mimeType, /* profile= */ profileLevel.first)) {
       codecs = requestedFormat.codecs;
     }
 

@@ -113,28 +113,26 @@ public final class EncoderUtil {
   }
 
   /**
-   * Checks whether the {@link MediaCodecInfo encoder} supports the given profile and level.
+   * Finds the highest supported encoding level given a profile.
    *
    * @param encoderInfo The {@link MediaCodecInfo encoderInfo}.
    * @param mimeType The {@link MimeTypes MIME type}.
    * @param profile The encoding profile.
-   * @param level The encoding level, specify {@link #LEVEL_UNSET} if checking whether the encoder
-   *     supports a specific profile.
-   * @return Whether the profile and level (if set) is supported by the encoder.
+   * @return The highest supported encoding level, as documented in {@link
+   *     MediaCodecInfo.CodecProfileLevel}, or {@link #LEVEL_UNSET} if the profile is not supported.
    */
-  public static boolean isProfileLevelSupported(
-      MediaCodecInfo encoderInfo, String mimeType, int profile, int level) {
+  public static int findHighestSupportedEncodingLevel(
+      MediaCodecInfo encoderInfo, String mimeType, int profile) {
     // TODO(b/214964116): Merge into MediaCodecUtil.
     MediaCodecInfo.CodecProfileLevel[] profileLevels =
         encoderInfo.getCapabilitiesForType(mimeType).profileLevels;
 
     for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
-      if (profileLevel.profile == profile
-          && (level == LEVEL_UNSET || profileLevel.level == level)) {
-        return true;
+      if (profileLevel.profile == profile) {
+        return profileLevel.level;
       }
     }
-    return false;
+    return LEVEL_UNSET;
   }
 
   /**
