@@ -171,6 +171,11 @@
         `ProgressiveMediaSource.Factory#setCustomCacheKey`. Use
         `MediaItem.Builder#setTag` and `MediaItem.Builder#setCustomCacheKey`
         instead.
+    *   Remove `DefaultRenderersFactory(Context, @ExtensionRendererMode int)`
+        and `DefaultRenderersFactory(Context, @ExtensionRendererMode int, long)`
+        constructors. Use the `DefaultRenderersFactory(Context)` constructor,
+        `DefaultRenderersFactory#setExtensionRendererMode`, and
+        `DefaultRenderersFactory#setAllowedVideoJoiningTimeMs` instead.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
     the compilation of usages in Kotlin, which can be fixed by moving the
     annotation to annotate the type (`Int`).
