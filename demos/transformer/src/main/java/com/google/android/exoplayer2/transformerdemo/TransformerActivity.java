@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.TransformationException;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
+import com.google.android.exoplayer2.transformer.TransformationResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
@@ -223,7 +224,8 @@ public final class TransformerActivity extends AppCompatActivity {
         .addListener(
             new Transformer.Listener() {
               @Override
-              public void onTransformationCompleted(MediaItem mediaItem) {
+              public void onTransformationCompleted(
+                  MediaItem mediaItem, TransformationResult transformationResult) {
                 TransformerActivity.this.onTransformationCompleted(filePath);
               }
 

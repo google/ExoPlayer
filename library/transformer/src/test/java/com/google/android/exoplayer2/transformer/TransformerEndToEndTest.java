@@ -22,6 +22,8 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -57,6 +59,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -239,9 +242,9 @@ public final class TransformerEndToEndTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    verify(mockListener1, times(1)).onTransformationCompleted(mediaItem);
-    verify(mockListener2, times(1)).onTransformationCompleted(mediaItem);
-    verify(mockListener3, times(1)).onTransformationCompleted(mediaItem);
+    verify(mockListener1, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener2, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener3, times(1)).onTransformationCompleted(eq(mediaItem), any());
   }
 
   @Test
@@ -313,9 +316,9 @@ public final class TransformerEndToEndTest {
     transformer2.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer2);
 
-    verify(mockListener1, times(1)).onTransformationCompleted(mediaItem);
-    verify(mockListener2, never()).onTransformationCompleted(mediaItem);
-    verify(mockListener3, times(1)).onTransformationCompleted(mediaItem);
+    verify(mockListener1, times(1)).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener2, never()).onTransformationCompleted(eq(mediaItem), any());
+    verify(mockListener3, times(1)).onTransformationCompleted(eq(mediaItem), any());
   }
 
   @Test
@@ -331,6 +334,30 @@ public final class TransformerEndToEndTest {
     TransformerTestRunner.runUntilCompleted(transformer);
 
     DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_WITH_SEF_SLOW_MOTION));
+  }
+
+  @Test
+  public void startTransformation_completesWithValidBitrate() throws Exception {
+    AtomicReference<@NullableType TransformationResult> resultReference = new AtomicReference<>();
+    Transformer.Listener listener =
+        new Transformer.Listener() {
+          @Override
+          public void onTransformationCompleted(
+              MediaItem inputMediaItem, TransformationResult transformationResult) {
+            resultReference.set(transformationResult);
+          }
+        };
+    Transformer transformer =
+        createTransformerBuilder(/* disableFallback= */ true).addListener(listener).build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
+
+    transformer.startTransformation(mediaItem, outputPath);
+    TransformerTestRunner.runUntilCompleted(transformer);
+
+    @Nullable TransformationResult result = resultReference.get();
+    assertThat(result).isNotNull();
+    assertThat(result.averageAudioBitrate).isGreaterThan(0);
+    assertThat(result.averageVideoBitrate).isGreaterThan(0);
   }
 
   @Test

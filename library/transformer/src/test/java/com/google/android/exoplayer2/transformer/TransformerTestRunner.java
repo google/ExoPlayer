@@ -78,7 +78,8 @@ public final class TransformerTestRunner {
     transformer.addListener(
         new Transformer.Listener() {
           @Override
-          public void onTransformationCompleted(MediaItem inputMediaItem) {
+          public void onTransformationCompleted(
+              MediaItem inputMediaItem, TransformationResult transformationResult) {
             transformationCompleted.set(true);
           }
 

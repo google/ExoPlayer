@@ -48,6 +48,7 @@ import java.nio.ByteBuffer;
   private final Muxer.Factory muxerFactory;
   private final SparseIntArray trackTypeToIndex;
   private final SparseLongArray trackTypeToTimeUs;
+  private final SparseLongArray trackTypeToBytesWritten;
   private final String containerMimeType;
 
   private int trackCount;
@@ -62,6 +63,7 @@ import java.nio.ByteBuffer;
     this.containerMimeType = containerMimeType;
     trackTypeToIndex = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
+    trackTypeToBytesWritten = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
   }
 
@@ -121,6 +123,7 @@ import java.nio.ByteBuffer;
     int trackIndex = muxer.addTrack(format);
     trackTypeToIndex.put(trackType, trackIndex);
     trackTypeToTimeUs.put(trackType, 0L);
+    trackTypeToBytesWritten.put(trackType, 0L);
     trackFormatCount++;
     if (trackFormatCount == trackCount) {
       isReady = true;
@@ -154,8 +157,11 @@ import java.nio.ByteBuffer;
       return false;
     }
 
-    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
+    trackTypeToBytesWritten.put(
+        trackType, trackTypeToBytesWritten.get(trackType) + data.remaining());
     trackTypeToTimeUs.put(trackType, presentationTimeUs);
+
+    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
     return true;
   }
@@ -168,7 +174,6 @@ import java.nio.ByteBuffer;
    */
   public void endTrack(@C.TrackType int trackType) {
     trackTypeToIndex.delete(trackType);
-    trackTypeToTimeUs.delete(trackType);
   }
 
   /**
@@ -192,6 +197,25 @@ import java.nio.ByteBuffer;
   }
 
   /**
+   * Returns the average bitrate of data written to the track of the provided {@code trackType}, or
+   * {@link C#RATE_UNSET_INT} if there is no track data.
+   */
+  public int getTrackAverageBitrate(@C.TrackType int trackType) {
+    long trackDurationUs = trackTypeToTimeUs.get(trackType, /* valueIfKeyNotFound= */ -1);
+    long trackBytes = trackTypeToBytesWritten.get(trackType, /* valueIfKeyNotFound= */ -1);
+    if (trackDurationUs <= 0 || trackBytes <= 0) {
+      return C.RATE_UNSET_INT;
+    }
+    // The number of bytes written is not a timestamp, however this utility method provides
+    // overflow-safe multiplication & division.
+    return (int)
+        Util.scaleLargeTimestamp(
+            /* timestamp= */ trackBytes,
+            /* multiplier= */ C.BITS_PER_BYTE * C.MICROS_PER_SECOND,
+            /* divisor= */ trackDurationUs);
+  }
+
+  /**
    * Returns whether the muxer can write a sample of the given track type.
    *
    * @param trackType The track type, defined by the {@code TRACK_TYPE_*} constants in {@link C}.
@@ -208,7 +232,7 @@ import java.nio.ByteBuffer;
     if (!isReady) {
       return false;
     }
-    if (trackTypeToTimeUs.size() == 1) {
+    if (trackTypeToIndex.size() == 1) {
       return true;
     }
     if (trackType != previousTrackType) {

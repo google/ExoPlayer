@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import java.io.File;
 import java.io.FileWriter;
@@ -38,50 +39,6 @@ public final class AndroidTestUtil {
   public static final String SEF_ASSET_URI_STRING = "asset:///media/mp4/sample_sef_slow_motion.mp4";
   public static final String REMOTE_MP4_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
-
-  /** Information about the result of successfully running a transformer. */
-  public static final class TransformationResult {
-
-    /** A builder for {@link TransformationResult} instances. */
-    public static final class Builder {
-      private final String testId;
-      @Nullable private Long fileSizeBytes;
-
-      public Builder(String testId) {
-        this.testId = testId;
-      }
-
-      public Builder setFileSizeBytes(long fileSizeBytes) {
-        this.fileSizeBytes = fileSizeBytes;
-        return this;
-      }
-
-      public TransformationResult build() {
-        return new TransformationResult(testId, fileSizeBytes);
-      }
-    }
-
-    public final String testId;
-    @Nullable public final Long fileSizeBytes;
-
-    private TransformationResult(String testId, @Nullable Long fileSizeBytes) {
-      this.testId = testId;
-      this.fileSizeBytes = fileSizeBytes;
-    }
-
-    /**
-     * Returns all the analysis data from the test.
-     *
-     * <p>If a value was not generated, it will not be part of the return value.
-     */
-    public String getFormattedAnalysis() {
-      String analysis = "test=" + testId;
-      if (fileSizeBytes != null) {
-        analysis += ", fileSizeBytes=" + fileSizeBytes;
-      }
-      return analysis;
-    }
-  }
 
   /**
    * Transforms the {@code uriString} with the {@link Transformer}.
@@ -98,6 +55,7 @@ public final class AndroidTestUtil {
       Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
       throws Exception {
     AtomicReference<@NullableType Exception> exceptionReference = new AtomicReference<>();
+    AtomicReference<TransformationResult> resultReference = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
 
     Transformer testTransformer =
@@ -106,7 +64,9 @@ public final class AndroidTestUtil {
             .addListener(
                 new Transformer.Listener() {
                   @Override
-                  public void onTransformationCompleted(MediaItem inputMediaItem) {
+                  public void onTransformationCompleted(
+                      MediaItem inputMediaItem, TransformationResult result) {
+                    resultReference.set(result);
                     countDownLatch.countDown();
                   }
 
@@ -141,19 +101,21 @@ public final class AndroidTestUtil {
     }
 
     TransformationResult result =
-        new TransformationResult.Builder(testId).setFileSizeBytes(outputVideoFile.length()).build();
+        resultReference.get().buildUpon().setFileSizeBytes(outputVideoFile.length()).build();
 
-    writeTransformationResultToFile(context, result);
+    writeResultToFile(context, testId, result);
     return result;
   }
 
-  private static void writeTransformationResultToFile(Context context, TransformationResult result)
+  private static void writeResultToFile(Context context, String testId, TransformationResult result)
       throws IOException {
-    File analysisFile =
-        createExternalCacheFile(context, /* fileName= */ result.testId + "-result.txt");
+    File analysisFile = createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
     try (FileWriter fileWriter = new FileWriter(analysisFile)) {
       String fileContents =
-          result.getFormattedAnalysis()
+          "test="
+              + testId
+              + ", "
+              + getFormattedResult(result)
               + ", deviceFingerprint="
               + Build.FINGERPRINT
               + ", deviceBrand="
@@ -164,6 +126,22 @@ public final class AndroidTestUtil {
               + Build.VERSION.SDK_INT;
       fileWriter.write(fileContents);
     }
+  }
+
+  /** Formats a {@link TransformationResult} into a comma separated String. */
+  public static String getFormattedResult(TransformationResult result) {
+    String analysis = "";
+    if (result.fileSizeBytes != C.LENGTH_UNSET) {
+      analysis += "fileSizeBytes=" + result.fileSizeBytes;
+    }
+    if (result.averageAudioBitrate != C.RATE_UNSET_INT) {
+      analysis += ", averageAudioBitrate=" + result.averageAudioBitrate;
+    }
+    if (result.averageVideoBitrate != C.RATE_UNSET_INT) {
+      analysis += ", averageVideoBitrate=" + result.averageVideoBitrate;
+    }
+
+    return analysis;
   }
 
   private static File createExternalCacheFile(Context context, String fileName) throws IOException {

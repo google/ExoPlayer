@@ -444,11 +444,21 @@ public final class Transformer {
   public interface Listener {
 
     /**
+     * @deprecated Use {@link #onTransformationCompleted(MediaItem, TransformationResult)} instead.
+     */
+    @Deprecated
+    default void onTransformationCompleted(MediaItem inputMediaItem) {}
+
+    /**
      * Called when the transformation is completed successfully.
      *
      * @param inputMediaItem The {@link MediaItem} for which the transformation is completed.
+     * @param transformationResult The {@link TransformationResult} of the transformation.
      */
-    default void onTransformationCompleted(MediaItem inputMediaItem) {}
+    default void onTransformationCompleted(
+        MediaItem inputMediaItem, TransformationResult transformationResult) {
+      onTransformationCompleted(inputMediaItem);
+    }
 
     /** @deprecated Use {@link #onTransformationError(MediaItem, TransformationException)}. */
     @Deprecated
@@ -733,8 +743,9 @@ public final class Transformer {
    * Returns the current {@link ProgressState} and updates {@code progressHolder} with the current
    * progress if it is {@link #PROGRESS_STATE_AVAILABLE available}.
    *
-   * <p>After a transformation {@link Listener#onTransformationCompleted(MediaItem) completes}, this
-   * method returns {@link #PROGRESS_STATE_NO_TRANSFORMATION}.
+   * <p>After a transformation {@link Listener#onTransformationCompleted(MediaItem,
+   * TransformationResult) completes}, this method returns {@link
+   * #PROGRESS_STATE_NO_TRANSFORMATION}.
    *
    * @param progressHolder A {@link ProgressHolder}, updated to hold the percentage progress if
    *     {@link #PROGRESS_STATE_AVAILABLE available}.
@@ -950,9 +961,14 @@ public final class Transformer {
             /* eventFlag= */ C.INDEX_UNSET,
             listener -> listener.onTransformationError(mediaItem, finalException));
       } else {
+        TransformationResult result =
+            new TransformationResult.Builder()
+                .setAverageAudioBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_AUDIO))
+                .setAverageVideoBitrate(muxerWrapper.getTrackAverageBitrate(C.TRACK_TYPE_VIDEO))
+                .build();
         listeners.queueEvent(
             /* eventFlag= */ C.INDEX_UNSET,
-            listener -> listener.onTransformationCompleted(mediaItem));
+            listener -> listener.onTransformationCompleted(mediaItem, result));
       }
       listeners.flushEvents();
     }

@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
+import com.google.android.exoplayer2.transformer.TransformationResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -57,7 +58,7 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      AndroidTestUtil.TransformationResult result =
+      TransformationResult result =
           runTransformer(
               context,
               /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
@@ -91,7 +92,7 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      AndroidTestUtil.TransformationResult result =
+      TransformationResult result =
           runTransformer(
               context,
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
@@ -122,7 +123,7 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      AndroidTestUtil.TransformationResult result =
+      TransformationResult result =
           runTransformer(
               context,
               /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
