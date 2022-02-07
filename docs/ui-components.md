@@ -19,7 +19,7 @@ well as playback controls.
 `StyledPlayerView` has a `setPlayer` method for attaching and detaching (by
 passing `null`) player instances.
 
-## `StyledPlayerView` ##
+## StyledPlayerView ##
 
 `StyledPlayerView` can be used for both video and audio playbacks. It renders
 video and subtitles in the case of video playback, and can display artwork

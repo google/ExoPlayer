@@ -104,7 +104,7 @@ ExoPlayer player =
 ~~~
 {: .language-java}
 
-## Custom `MediaSource` instantiation ##
+## Custom MediaSource instantiation ##
 
 If your app is using a custom `MediaSource.Factory` and you want
 `DefaultMediaSourceFactory` to be removed by code stripping, you should pass
