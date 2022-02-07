@@ -173,6 +173,13 @@
     *   Remove `ActionFile` and `ActionFileUpgradeUtil`. Use ExoPlayer 2.16.1 or
         before to use `ActionFileUpgradeUtil` to merge legacy action files into
         `DefaultDownloadIndex`.
+    *   Remove `ProgressiveMediaSource#setExtractorsFactory`. Use
+        `ProgressiveMediaSource.Factory(DataSource.Factory, ExtractorsFactory)`
+        constructor instead.
+    *   Remove `ProgressiveMediaSource.Factory#setTag` and, and
+        `ProgressiveMediaSource.Factory#setCustomCacheKey`. Use
+        `MediaItem.Builder#setTag` and `MediaItem.Builder#setCustomCacheKey`
+        instead.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
     the compilation of usages in Kotlin, which can be fixed by moving the
     annotation to annotate the type (`Int`).
