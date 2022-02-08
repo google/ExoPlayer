@@ -72,6 +72,8 @@
         ([#9673](https://github.com/google/ExoPlayer/issues/9673)).
     *   Add basic support for WebVTT subtitles in Matroska containers
         ([#9886](https://github.com/google/ExoPlayer/issues/9886)).
+    *   Prevent `Cea708Decoder` from reading more than the declared size of a
+        service block.
 *   DRM:
     *   Remove `playbackLooper` from `DrmSessionManager.(pre)acquireSession`.
         When a `DrmSessionManager` is used by an app in a custom `MediaSource`,
