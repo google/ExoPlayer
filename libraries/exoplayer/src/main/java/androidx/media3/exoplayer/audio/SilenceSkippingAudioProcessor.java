@@ -88,7 +88,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    */
   private byte[] paddingBuffer;
 
-  @State private int state;
+  private @State int state;
   private int maybeSilenceBufferSize;
   private int paddingSize;
   private boolean hasOutputNoise;

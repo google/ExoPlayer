@@ -937,7 +937,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     public final int[] adaptationSetIndices;
     public final @C.TrackType int trackType;
-    @TrackGroupCategory public final int trackGroupCategory;
+    public final @TrackGroupCategory int trackGroupCategory;
 
     public final int eventStreamGroupIndex;
     public final int primaryTrackGroupIndex;

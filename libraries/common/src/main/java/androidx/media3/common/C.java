@@ -1247,8 +1247,8 @@ public final class C {
       replacement = "Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode)",
       imports = {"androidx.media3.common.util.Util"})
   @Deprecated
-  @PlaybackException.ErrorCode
-  public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
+  public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmErrorCode(
+      int mediaDrmErrorCode) {
     return Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode);
   }
 }

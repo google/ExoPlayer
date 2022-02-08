@@ -97,13 +97,13 @@ public final class WebvttCssStyle {
   private boolean hasFontColor;
   private int backgroundColor;
   private boolean hasBackgroundColor;
-  @OptionalBoolean private int linethrough;
-  @OptionalBoolean private int underline;
-  @OptionalBoolean private int bold;
-  @OptionalBoolean private int italic;
-  @FontSizeUnit private int fontSizeUnit;
+  private @OptionalBoolean int linethrough;
+  private @OptionalBoolean int underline;
+  private @OptionalBoolean int bold;
+  private @OptionalBoolean int italic;
+  private @FontSizeUnit int fontSizeUnit;
   private float fontSize;
-  @TextAnnotation.Position private int rubyPosition;
+  private @TextAnnotation.Position int rubyPosition;
   private boolean combineUpright;
 
   public WebvttCssStyle() {
@@ -186,8 +186,7 @@ public final class WebvttCssStyle {
    * @return {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link #STYLE_BOLD}, {@link #STYLE_BOLD}
    *     or {@link #STYLE_BOLD_ITALIC}.
    */
-  @StyleFlags
-  public int getStyle() {
+  public @StyleFlags int getStyle() {
     if (bold == UNSPECIFIED && italic == UNSPECIFIED) {
       return UNSPECIFIED;
     }
@@ -276,8 +275,7 @@ public final class WebvttCssStyle {
     return this;
   }
 
-  @FontSizeUnit
-  public int getFontSizeUnit() {
+  public @FontSizeUnit int getFontSizeUnit() {
     return fontSizeUnit;
   }
 
@@ -290,8 +288,7 @@ public final class WebvttCssStyle {
     return this;
   }
 
-  @TextAnnotation.Position
-  public int getRubyPosition() {
+  public @TextAnnotation.Position int getRubyPosition() {
     return rubyPosition;
   }
 

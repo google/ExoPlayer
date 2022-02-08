@@ -472,8 +472,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       mediaSourceFactories = new HashMap<>();
     }
 
-    @C.ContentType
-    public int[] getSupportedTypes() {
+    public @C.ContentType int[] getSupportedTypes() {
       ensureAllSuppliersAreLoaded();
       return Ints.toArray(supportedTypes);
     }

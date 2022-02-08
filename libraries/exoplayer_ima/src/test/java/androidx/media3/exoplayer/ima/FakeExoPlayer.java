@@ -42,7 +42,7 @@ import androidx.media3.test.utils.StubExoPlayer;
   private final MediaItem mediaItem = MediaItem.fromUri("http://google.com/0");
 
   private Timeline timeline;
-  @Player.State private int state;
+  private @Player.State int state;
   private boolean playWhenReady;
   private int periodIndex;
   private long positionMs;
@@ -236,8 +236,7 @@ import androidx.media3.test.utils.StubExoPlayer;
   }
 
   @Override
-  @Player.State
-  public int getPlaybackState() {
+  public @Player.State int getPlaybackState() {
     return state;
   }
 
@@ -247,8 +246,7 @@ import androidx.media3.test.utils.StubExoPlayer;
   }
 
   @Override
-  @RepeatMode
-  public int getRepeatMode() {
+  public @RepeatMode int getRepeatMode() {
     return REPEAT_MODE_OFF;
   }
 
