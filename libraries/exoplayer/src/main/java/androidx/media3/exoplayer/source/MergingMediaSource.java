@@ -61,7 +61,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     public static final int REASON_PERIOD_COUNT_MISMATCH = 0;
 
     /** The reason the merge failed. */
-    @Reason public final int reason;
+    public final @Reason int reason;
 
     /** @param reason The reason the merge failed. */
     public IllegalMergeException(@Reason int reason) {

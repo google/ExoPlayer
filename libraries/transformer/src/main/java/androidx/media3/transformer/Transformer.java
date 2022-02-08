@@ -552,7 +552,7 @@ public final class Transformer {
 
   @Nullable private MuxerWrapper muxerWrapper;
   @Nullable private ExoPlayer player;
-  @ProgressState private int progressState;
+  private @ProgressState int progressState;
 
   private Transformer(
       Context context,
@@ -754,8 +754,7 @@ public final class Transformer {
    * @return The {@link ProgressState}.
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
-  @ProgressState
-  public int getProgress(ProgressHolder progressHolder) {
+  public @ProgressState int getProgress(ProgressHolder progressHolder) {
     verifyApplicationThread();
     if (progressState == PROGRESS_STATE_AVAILABLE) {
       Player player = checkNotNull(this.player);

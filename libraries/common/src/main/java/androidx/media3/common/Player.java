@@ -686,8 +686,7 @@ public interface Player {
     @UnstableApi
     public static final class Builder {
 
-      @Command
-      private static final int[] SUPPORTED_COMMANDS = {
+      private static final @Command int[] SUPPORTED_COMMANDS = {
         COMMAND_PLAY_PAUSE,
         COMMAND_PREPARE,
         COMMAND_STOP,

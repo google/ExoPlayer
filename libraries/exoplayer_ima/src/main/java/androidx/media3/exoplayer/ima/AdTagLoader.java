@@ -162,7 +162,7 @@ import java.util.Map;
   /** Whether IMA has sent an ad event to pause content since the last resume content event. */
   private boolean imaPausedContent;
   /** The current ad playback state. */
-  @ImaAdState private int imaAdState;
+  private @ImaAdState int imaAdState;
   /** The current ad media info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
   @Nullable private AdMediaInfo imaAdMediaInfo;
   /** The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */

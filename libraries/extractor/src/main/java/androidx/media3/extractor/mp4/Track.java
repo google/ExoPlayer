@@ -69,7 +69,7 @@ public final class Track {
    * One of {@code TRANSFORMATION_*}. Defines the transformation to apply before outputting each
    * sample.
    */
-  @Transformation public final int sampleTransformation;
+  public final @Transformation int sampleTransformation;
 
   /** Durations of edit list segments in the movie timescale. Null if there is no edit list. */
   @Nullable public final long[] editListDurations;

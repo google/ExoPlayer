@@ -63,7 +63,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     public static final int REASON_START_EXCEEDS_END = 2;
 
     /** The reason clipping failed. */
-    @Reason public final int reason;
+    public final @Reason int reason;
 
     /** @param reason The reason clipping failed. */
     public IllegalClippingException(@Reason int reason) {

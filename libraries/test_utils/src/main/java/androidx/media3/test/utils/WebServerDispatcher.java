@@ -99,7 +99,7 @@ public class WebServerDispatcher extends Dispatcher {
       private byte @MonotonicNonNull [] data;
       private boolean supportsRangeRequests;
       private boolean resolvesToUnknownLength;
-      @GzipSupport private int gzipSupport;
+      private @GzipSupport int gzipSupport;
 
       /** Constructs an instance. */
       public Builder() {
@@ -187,7 +187,7 @@ public class WebServerDispatcher extends Dispatcher {
     private final byte[] data;
     private final boolean supportsRangeRequests;
     private final boolean resolvesToUnknownLength;
-    @GzipSupport private final int gzipSupport;
+    private final @GzipSupport int gzipSupport;
 
     private Resource(
         String path,
@@ -223,8 +223,7 @@ public class WebServerDispatcher extends Dispatcher {
     }
 
     /** Returns the level of gzip support the server should provide for this resource. */
-    @GzipSupport
-    public int getGzipSupport() {
+    public @GzipSupport int getGzipSupport() {
       return gzipSupport;
     }
 
