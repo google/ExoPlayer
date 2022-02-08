@@ -143,8 +143,8 @@
         ([#9619](https://github.com/google/ExoPlayer/issues/9619)).
 *   Transformer:
     *   The transformer module is no longer included by depending on
-        `com.google.android.exoplayer:exoplayer`. To continue using
-        transformer, add an additional dependency on
+        `com.google.android.exoplayer:exoplayer`. To continue using transformer,
+        add an additional dependency on
         `com.google.android.exoplayer:exoplayer-transformer`.
 *   Cast extension
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
@@ -186,6 +186,8 @@
         constructors. Use the `DefaultRenderersFactory(Context)` constructor,
         `DefaultRenderersFactory#setExtensionRendererMode`, and
         `DefaultRenderersFactory#setAllowedVideoJoiningTimeMs` instead.
+    *   Remove all public `CronetDataSource` constructors. Use
+        `CronetDataSource.Factory` instead.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
     the compilation of usages in Kotlin, which can be fixed by moving the
     annotation to annotate the type (`Int`).
