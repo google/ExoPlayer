@@ -327,7 +327,9 @@ public final class Cea708Decoder extends CeaDecoder {
     // 8.10.4 for more details.
     boolean cuesNeedUpdate = false;
 
-    while (serviceBlockPacket.bitsLeft() > 0) {
+    int blockEndBitPosition = serviceBlockPacket.getPosition() + (blockSize * 8);
+    while (serviceBlockPacket.bitsLeft() > 0
+        && serviceBlockPacket.getPosition() < blockEndBitPosition) {
       int command = serviceBlockPacket.readBits(8);
       if (command != COMMAND_EXT1) {
         if (command <= GROUP_C0_END) {
