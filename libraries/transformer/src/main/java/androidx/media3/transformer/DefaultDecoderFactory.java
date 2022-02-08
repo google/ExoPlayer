@@ -18,7 +18,6 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
-import static androidx.media3.transformer.CodecFactoryUtil.createCodec;
 
 import android.media.MediaFormat;
 import android.view.Surface;
@@ -36,11 +35,10 @@ import androidx.media3.common.util.MediaFormatUtil;
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
 
-    return createCodec(
+    return new DefaultCodec(
         format,
         mediaFormat,
         /* mediaCodecName= */ null,
-        /* isVideo= */ false,
         /* isDecoder= */ true,
         /* outputSurface= */ null);
   }
@@ -61,12 +59,7 @@ import androidx.media3.common.util.MediaFormatUtil;
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
     }
 
-    return createCodec(
-        format,
-        mediaFormat,
-        /* mediaCodecName= */ null,
-        /* isVideo= */ true,
-        /* isDecoder= */ true,
-        outputSurface);
+    return new DefaultCodec(
+        format, mediaFormat, /* mediaCodecName= */ null, /* isDecoder= */ true, outputSurface);
   }
 }

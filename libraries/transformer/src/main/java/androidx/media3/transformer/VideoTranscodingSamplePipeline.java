@@ -135,7 +135,7 @@ import org.checkerframework.dataflow.qual.Pure;
               actualOutputFormat.height,
               inputFormat.pixelWidthHeightRatio,
               transformationMatrix,
-              /* outputSurface= */ checkNotNull(encoder.getInputSurface()),
+              /* outputSurface= */ encoder.getInputSurface(),
               transformationRequest.enableHdrEditing,
               debugViewProvider);
     } else {
@@ -145,9 +145,7 @@ import org.checkerframework.dataflow.qual.Pure;
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
-            frameEditor == null
-                ? checkNotNull(encoder.getInputSurface())
-                : frameEditor.getInputSurface());
+            frameEditor == null ? encoder.getInputSurface() : frameEditor.getInputSurface());
   }
 
   @Override
@@ -262,7 +260,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void releaseOutputBuffer() throws TransformationException {
-    encoder.releaseOutputBuffer();
+    encoder.releaseOutputBuffer(/* render= */ false);
   }
 
   @Override
