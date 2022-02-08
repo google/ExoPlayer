@@ -15,6 +15,8 @@
  */
 package androidx.media3.datasource.cronet;
 
+import static org.chromium.net.UrlRequest.Builder.REQUEST_PRIORITY_MEDIUM;
+
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DefaultHttpDataSource;
@@ -346,10 +348,15 @@ public final class CronetDataSourceFactory extends BaseFactory {
         new CronetDataSource(
             cronetEngine,
             executor,
+            REQUEST_PRIORITY_MEDIUM,
             connectTimeoutMs,
             readTimeoutMs,
             resetTimeoutOnRedirects,
-            defaultRequestProperties);
+            /* handleSetCookieRequests= */ false,
+            /* userAgent= */ null,
+            defaultRequestProperties,
+            /* contentTypePredicate= */ null,
+            /* keepPostFor302Redirects */ false);
     if (transferListener != null) {
       dataSource.addTransferListener(transferListener);
     }
