@@ -1937,8 +1937,6 @@ import java.util.concurrent.TimeoutException;
     long oldPositionUs;
     long oldContentPositionUs;
     if (positionDiscontinuityReason == DISCONTINUITY_REASON_AUTO_TRANSITION) {
-      oldPositionUs = oldPeriod.positionInWindowUs + oldPeriod.durationUs;
-      oldContentPositionUs = oldPositionUs;
       if (oldPlaybackInfo.periodId.isAd()) {
         // The old position is the end of the previous ad.
         oldPositionUs =
@@ -1946,11 +1944,14 @@ import java.util.concurrent.TimeoutException;
                 oldPlaybackInfo.periodId.adGroupIndex, oldPlaybackInfo.periodId.adIndexInAdGroup);
         // The ad cue point is stored in the old requested content position.
         oldContentPositionUs = getRequestedContentPositionUs(oldPlaybackInfo);
-      } else if (oldPlaybackInfo.periodId.nextAdGroupIndex != C.INDEX_UNSET
-          && playbackInfo.periodId.isAd()) {
-        // If it's a transition from content to an ad in the same window, the old position is the
-        // ad cue point that is the same as current content position.
+      } else if (oldPlaybackInfo.periodId.nextAdGroupIndex != C.INDEX_UNSET) {
+        // The old position is the end of a clipped content before an ad group. Use the exact ad
+        // cue point as the transition position.
         oldPositionUs = getRequestedContentPositionUs(playbackInfo);
+        oldContentPositionUs = oldPositionUs;
+      } else {
+        // The old position is the end of a Timeline period. Use the exact duration.
+        oldPositionUs = oldPeriod.positionInWindowUs + oldPeriod.durationUs;
         oldContentPositionUs = oldPositionUs;
       }
     } else if (oldPlaybackInfo.periodId.isAd()) {
