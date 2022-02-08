@@ -116,21 +116,6 @@ public class ForwardingPlayerTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation") // Testing backwards compatibility with deprecated type.
-  public void forwardingEventListener_overridesAllEventListenerMethods() throws Exception {
-    // Check with reflection that ForwardingListener overrides all Listener methods.
-    Class<?> forwardingListenerClass = getInnerClass("ForwardingEventListener");
-    List<Method> methods = getPublicMethods(Player.EventListener.class);
-    for (int i = 0; i < methods.size(); i++) {
-      Method method = methods.get(i);
-      assertThat(
-              forwardingListenerClass.getDeclaredMethod(
-                  method.getName(), method.getParameterTypes()))
-          .isNotNull();
-    }
-  }
-
-  @Test
   public void forwardingListener_overridesAllListenerMethods() throws Exception {
     // Check with reflection that ForwardingListener overrides all Listener methods.
     Class<?> forwardingListenerClass = getInnerClass("ForwardingListener");

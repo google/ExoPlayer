@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.Format;
-import androidx.media3.common.Player;
 import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
@@ -77,16 +76,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public Clock getClock() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addListener(Player.EventListener listener) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void removeListener(Player.EventListener listener) {
     throw new UnsupportedOperationException();
   }
 
