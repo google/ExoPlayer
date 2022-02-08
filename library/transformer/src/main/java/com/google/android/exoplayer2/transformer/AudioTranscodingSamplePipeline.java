@@ -150,7 +150,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void releaseOutputBuffer() throws TransformationException {
-    encoder.releaseOutputBuffer();
+    encoder.releaseOutputBuffer(/* render= */ false);
   }
 
   @Override
@@ -188,7 +188,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
     feedEncoder(decoderOutputBuffer);
     if (!decoderOutputBuffer.hasRemaining()) {
-      decoder.releaseOutputBuffer();
+      decoder.releaseOutputBuffer(/* render= */ false);
     }
     return true;
   }
@@ -243,7 +243,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
     speedChangingAudioProcessor.queueInput(decoderOutputBuffer);
     if (!decoderOutputBuffer.hasRemaining()) {
-      decoder.releaseOutputBuffer();
+      decoder.releaseOutputBuffer(/* render= */ false);
     }
     return true;
   }

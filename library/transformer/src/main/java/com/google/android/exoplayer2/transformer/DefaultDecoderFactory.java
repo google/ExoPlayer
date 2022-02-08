@@ -16,7 +16,6 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.CodecFactoryUtil.createCodec;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
@@ -36,11 +35,10 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
         mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
 
-    return createCodec(
+    return new DefaultCodec(
         format,
         mediaFormat,
         /* mediaCodecName= */ null,
-        /* isVideo= */ false,
         /* isDecoder= */ true,
         /* outputSurface= */ null);
   }
@@ -61,12 +59,7 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
     }
 
-    return createCodec(
-        format,
-        mediaFormat,
-        /* mediaCodecName= */ null,
-        /* isVideo= */ true,
-        /* isDecoder= */ true,
-        outputSurface);
+    return new DefaultCodec(
+        format, mediaFormat, /* mediaCodecName= */ null, /* isDecoder= */ true, outputSurface);
   }
 }

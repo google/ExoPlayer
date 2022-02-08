@@ -205,24 +205,23 @@ public final class TransformationException extends Exception {
    * Creates an instance for a decoder or encoder related exception.
    *
    * @param cause The cause of the failure.
-   * @param componentName The name of the component used, e.g. 'VideoEncoder'.
-   * @param configurationFormat The {@link Format} used for configuring the decoder/encoder.
+   * @param format The {@link Format} used for configuring the decoder/encoder.
+   * @param isVideo Whether the decoder or encoder is configured for video.
+   * @param isDecoder Whether the exception is created for a decoder.
    * @param mediaCodecName The name of the {@link MediaCodec} used, if known.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
   public static TransformationException createForCodec(
       Throwable cause,
-      String componentName,
-      Format configurationFormat,
+      Format format,
+      boolean isVideo,
+      boolean isDecoder,
       @Nullable String mediaCodecName,
       int errorCode) {
+    String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
     return new TransformationException(
-        componentName
-            + " error, format = "
-            + configurationFormat
-            + ", mediaCodecName="
-            + mediaCodecName,
+        componentName + " error, format = " + format + ", mediaCodecName=" + mediaCodecName,
         cause,
         errorCode);
   }

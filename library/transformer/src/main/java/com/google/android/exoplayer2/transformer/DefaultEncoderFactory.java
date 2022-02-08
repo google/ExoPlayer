@@ -16,8 +16,6 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.CodecFactoryUtil.createCodec;
-import static com.google.android.exoplayer2.transformer.CodecFactoryUtil.createTransformationException;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -79,12 +77,13 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         // capabilities limitations.
         format = format.buildUpon().setSampleMimeType(allowedMimeTypes.get(0)).build();
       } else {
-        throw createTransformationException(
+        throw TransformationException.createForCodec(
             new IllegalArgumentException("The requested output format is not supported."),
             format,
             /* isVideo= */ false,
             /* isDecoder= */ false,
-            /* mediaCodecName= */ null);
+            /* mediaCodecName= */ null,
+            TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
       }
     }
     MediaFormat mediaFormat =
@@ -92,11 +91,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
             checkNotNull(format.sampleMimeType), format.sampleRate, format.channelCount);
     mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, format.bitrate);
 
-    return createCodec(
+    return new DefaultCodec(
         format,
         mediaFormat,
         /* mediaCodecName= */ null,
-        /* isVideo= */ false,
         /* isDecoder= */ false,
         /* outputSurface= */ null);
   }
@@ -119,12 +117,13 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         findEncoderWithClosestFormatSupport(
             format, videoEncoderSelector, allowedMimeTypes, disableFallback);
     if (encoderAndClosestFormatSupport == null) {
-      throw createTransformationException(
+      throw TransformationException.createForCodec(
           new IllegalArgumentException("The requested output format is not supported."),
           format,
           /* isVideo= */ true,
           /* isDecoder= */ false,
-          /* mediaCodecName= */ null);
+          /* mediaCodecName= */ null,
+          TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
     }
 
     MediaCodecInfo encoderInfo = encoderAndClosestFormatSupport.first;
@@ -196,11 +195,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, DEFAULT_COLOR_FORMAT);
     mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, DEFAULT_I_FRAME_INTERVAL_SECS);
 
-    return createCodec(
+    return new DefaultCodec(
         format,
         mediaFormat,
         encoderInfo.getName(),
-        /* isVideo= */ true,
         /* isDecoder= */ false,
         /* outputSurface= */ null);
   }
