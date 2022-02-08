@@ -97,6 +97,9 @@
     *   Add support for
         [IMA Dynamic Ad Insertion (DAI)](https://support.google.com/admanager/answer/6147120)
         ([#8213](https://github.com/google/ExoPlayer/issues/8213)).
+    *   Fix issue where an ad group that failed to load caused an immediate
+        playback reset
+        ([#9929](https://github.com/google/ExoPlayer/issues/9929)).
 *   DASH:
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).

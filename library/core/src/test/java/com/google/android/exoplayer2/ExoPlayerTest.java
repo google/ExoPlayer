@@ -720,7 +720,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void adGroupWithLoadErrorIsSkipped() throws Exception {
+  public void adGroupWithLoadError_noFurtherAdGroup_isSkipped() throws Exception {
     AdPlaybackState initialAdPlaybackState =
         FakeTimeline.createAdPlaybackState(
             /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
@@ -735,11 +735,12 @@ public final class ExoPlayerTest {
                 /* isDynamic= */ false,
                 /* isLive= */ false,
                 /* isPlaceholder= */ false,
-                /* durationUs= */ C.MICROS_PER_SECOND,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
                 /* defaultPositionUs= */ 0,
                 TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                 initialAdPlaybackState));
-    AdPlaybackState errorAdPlaybackState = initialAdPlaybackState.withAdLoadError(0, 0);
+    AdPlaybackState errorAdPlaybackState =
+        initialAdPlaybackState.withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
     final Timeline adErrorTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -749,30 +750,166 @@ public final class ExoPlayerTest {
                 /* isDynamic= */ false,
                 /* isLive= */ false,
                 /* isPlaceholder= */ false,
-                /* durationUs= */ C.MICROS_PER_SECOND,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
                 /* defaultPositionUs= */ 0,
                 TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                 errorAdPlaybackState));
     final FakeMediaSource fakeMediaSource =
         new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(() -> fakeMediaSource.setNewSourceInfo(adErrorTimeline))
-            .waitForTimelineChanged(
-                adErrorTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .play()
-            .build();
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(fakeMediaSource)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Player.Listener mockListener = mock(Player.Listener.class);
+    player.addListener(mockListener);
+
+    player.setMediaSource(fakeMediaSource);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    fakeMediaSource.setNewSourceInfo(adErrorTimeline);
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    Timeline.Window window =
+        player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    Timeline.Period period =
+        player
+            .getCurrentTimeline()
+            .getPeriod(/* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true);
+    player.release();
+
     // There is still one discontinuity from content to content for the failed ad insertion.
-    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    PositionInfo positionInfo =
+        new PositionInfo(
+            window.uid,
+            /* mediaItemIndex= */ 0,
+            window.mediaItem,
+            period.uid,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 5_000,
+            /* contentPositionMs= */ 5_000,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    verify(mockListener)
+        .onPositionDiscontinuity(
+            positionInfo, positionInfo, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+  }
+
+  @Test
+  public void adGroupWithLoadError_withFurtherAdGroup_isSkipped() throws Exception {
+    AdPlaybackState initialAdPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
+            TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
+                + 5 * C.MICROS_PER_SECOND,
+            TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
+                + 8 * C.MICROS_PER_SECOND);
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 0,
+                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                initialAdPlaybackState));
+    AdPlaybackState errorAdPlaybackState =
+        initialAdPlaybackState.withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+    final Timeline adErrorTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 0,
+                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                errorAdPlaybackState));
+    final FakeMediaSource fakeMediaSource =
+        new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Player.Listener mockListener = mock(Player.Listener.class);
+    player.addListener(mockListener);
+
+    player.setMediaSource(fakeMediaSource);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    fakeMediaSource.setNewSourceInfo(adErrorTimeline);
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    Timeline.Window window =
+        player.getCurrentTimeline().getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    Timeline.Period period =
+        player
+            .getCurrentTimeline()
+            .getPeriod(/* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true);
+    player.release();
+
+    // There is still one discontinuity from content to content for the failed ad insertion and the
+    // normal ad transition for the successful ad insertion.
+    PositionInfo positionInfoFailedAd =
+        new PositionInfo(
+            window.uid,
+            /* mediaItemIndex= */ 0,
+            window.mediaItem,
+            period.uid,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 5_000,
+            /* contentPositionMs= */ 5_000,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    verify(mockListener)
+        .onPositionDiscontinuity(
+            positionInfoFailedAd,
+            positionInfoFailedAd,
+            Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    PositionInfo positionInfoContentAtSuccessfulAd =
+        new PositionInfo(
+            window.uid,
+            /* mediaItemIndex= */ 0,
+            window.mediaItem,
+            period.uid,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 8_000,
+            /* contentPositionMs= */ 8_000,
+            /* adGroupIndex= */ C.INDEX_UNSET,
+            /* adIndexInAdGroup= */ C.INDEX_UNSET);
+    PositionInfo positionInfoSuccessfulAdStart =
+        new PositionInfo(
+            window.uid,
+            /* mediaItemIndex= */ 0,
+            window.mediaItem,
+            period.uid,
+            /* periodIndex= */ 0,
+            /* positionMs= */ 0,
+            /* contentPositionMs= */ 8_000,
+            /* adGroupIndex= */ 1,
+            /* adIndexInAdGroup= */ 0);
+    PositionInfo positionInfoSuccessfulAdEnd =
+        new PositionInfo(
+            window.uid,
+            /* mediaItemIndex= */ 0,
+            window.mediaItem,
+            period.uid,
+            /* periodIndex= */ 0,
+            /* positionMs= */ Util.usToMs(
+                period.getAdDurationUs(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0)),
+            /* contentPositionMs= */ 8_000,
+            /* adGroupIndex= */ 1,
+            /* adIndexInAdGroup= */ 0);
+    verify(mockListener)
+        .onPositionDiscontinuity(
+            positionInfoContentAtSuccessfulAd,
+            positionInfoSuccessfulAdStart,
+            Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
+    verify(mockListener)
+        .onPositionDiscontinuity(
+            positionInfoSuccessfulAdEnd,
+            positionInfoContentAtSuccessfulAd,
+            Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
   }
 
   @Test
