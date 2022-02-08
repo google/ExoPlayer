@@ -408,7 +408,7 @@ import java.util.concurrent.TimeoutException;
       currentCues = ImmutableList.of();
       throwsWhenUsingWrongThread = true;
 
-      listeners.add(analyticsCollector);
+      addListener(analyticsCollector);
       bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
       addAudioOffloadListener(componentListener);
       if (builder.foregroundModeTimeoutMs > 0) {
@@ -1392,7 +1392,6 @@ import java.util.concurrent.TimeoutException;
       this.audioAttributes = audioAttributes;
       sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
       streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
-      analyticsCollector.onAudioAttributesChanged(audioAttributes);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listener : listenerArraySet) {
         listener.onAudioAttributesChanged(audioAttributes);
@@ -1430,7 +1429,6 @@ import java.util.concurrent.TimeoutException;
     this.audioSessionId = audioSessionId;
     sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-    analyticsCollector.onAudioSessionIdChanged(audioSessionId);
     // TODO(internal b/187152483): Events should be dispatched via ListenerSet
     for (Listener listener : listenerArraySet) {
       listener.onAudioSessionIdChanged(audioSessionId);
@@ -1458,7 +1456,6 @@ import java.util.concurrent.TimeoutException;
     }
     this.volume = volume;
     sendVolumeToRenderers();
-    analyticsCollector.onVolumeChanged(volume);
     // TODO(internal b/187152483): Events should be dispatched via ListenerSet
     for (Listener listener : listenerArraySet) {
       listener.onVolumeChanged(volume);
@@ -2485,7 +2482,6 @@ import java.util.concurrent.TimeoutException;
     if (width != surfaceWidth || height != surfaceHeight) {
       surfaceWidth = width;
       surfaceHeight = height;
-      analyticsCollector.onSurfaceSizeChanged(width, height);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listener : listenerArraySet) {
         listener.onSurfaceSizeChanged(width, height);
@@ -2499,7 +2495,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   private void notifySkipSilenceEnabledChanged() {
-    analyticsCollector.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     // TODO(internal b/187152483): Events should be dispatched via ListenerSet
     for (Listener listener : listenerArraySet) {
       listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
@@ -2698,7 +2693,6 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
       ExoPlayerImpl.this.videoSize = videoSize;
-      analyticsCollector.onVideoSizeChanged(videoSize);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listener : listenerArraySet) {
         listener.onVideoSizeChanged(videoSize);
@@ -2806,7 +2800,6 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void onCues(List<Cue> cues) {
       currentCues = cues;
-      analyticsCollector.onCues(cues);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listeners : listenerArraySet) {
         listeners.onCues(cues);
@@ -2817,7 +2810,6 @@ import java.util.concurrent.TimeoutException;
 
     @Override
     public void onMetadata(Metadata metadata) {
-      analyticsCollector.onMetadata(metadata);
       ExoPlayerImpl.this.onMetadata(metadata);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listener : listenerArraySet) {
@@ -2915,7 +2907,6 @@ import java.util.concurrent.TimeoutException;
       DeviceInfo deviceInfo = createDeviceInfo(streamVolumeManager);
       if (!deviceInfo.equals(ExoPlayerImpl.this.deviceInfo)) {
         ExoPlayerImpl.this.deviceInfo = deviceInfo;
-        analyticsCollector.onDeviceInfoChanged(deviceInfo);
         // TODO(internal b/187152483): Events should be dispatched via ListenerSet
         for (Listener listener : listenerArraySet) {
           listener.onDeviceInfoChanged(deviceInfo);
@@ -2925,7 +2916,6 @@ import java.util.concurrent.TimeoutException;
 
     @Override
     public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
-      analyticsCollector.onDeviceVolumeChanged(streamVolume, streamMuted);
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listener : listenerArraySet) {
         listener.onDeviceVolumeChanged(streamVolume, streamMuted);
