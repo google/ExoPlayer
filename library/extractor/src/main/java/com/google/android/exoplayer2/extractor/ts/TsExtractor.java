@@ -116,7 +116,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * 50;
   private static final int SNIFF_TS_PACKET_COUNT = 5;
 
-  @Mode private final int mode;
+  private final @Mode int mode;
   private final int timestampSearchBytes;
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
@@ -296,8 +296,8 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  @ReadResult
-  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException {
     long inputLength = input.getLength();
     if (tracksEnded) {
       boolean canReadDuration = inputLength != C.LENGTH_UNSET && mode != MODE_HLS;

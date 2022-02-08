@@ -91,7 +91,7 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
 
   private static final class DumpableConfiguration implements Dumper.Dumpable {
 
-    @C.PcmEncoding private final int inputPcmEncoding;
+    private final @C.PcmEncoding int inputPcmEncoding;
     private final int inputChannelCount;
     private final int inputSampleRate;
 

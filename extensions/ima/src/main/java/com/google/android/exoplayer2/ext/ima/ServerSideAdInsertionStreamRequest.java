@@ -51,7 +51,7 @@ import java.util.Map;
     @Nullable private String authToken;
     @Nullable private String streamActivityMonitorId;
     private ImmutableMap<String, String> adTagParameters;
-    @ContentType public int format = C.TYPE_HLS;
+    public @ContentType int format = C.TYPE_HLS;
     private int loadVideoTimeoutMs;
 
     /** Creates a new instance. */
@@ -270,7 +270,7 @@ import java.util.Map;
   @Nullable public final String contentUrl;
   @Nullable public final String authToken;
   @Nullable public final String streamActivityMonitorId;
-  @ContentType public int format = C.TYPE_HLS;
+  public @ContentType int format = C.TYPE_HLS;
   public final int loadVideoTimeoutMs;
 
   private ServerSideAdInsertionStreamRequest(

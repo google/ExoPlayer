@@ -77,8 +77,7 @@ public final class TrackEncryptionBox {
             schemeToCryptoMode(schemeType), keyId, defaultEncryptedBlocks, defaultClearBlocks);
   }
 
-  @C.CryptoMode
-  private static int schemeToCryptoMode(@Nullable String schemeType) {
+  private static @C.CryptoMode int schemeToCryptoMode(@Nullable String schemeType) {
     if (schemeType == null) {
       // If unknown, assume cenc.
       return C.CRYPTO_MODE_AES_CTR;

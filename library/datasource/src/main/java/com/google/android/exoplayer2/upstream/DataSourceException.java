@@ -55,7 +55,7 @@ public class DataSourceException extends IOException {
    * The reason of this {@link DataSourceException}, should be one of the {@code ERROR_CODE_IO_*} in
    * {@link PlaybackException.ErrorCode}.
    */
-  @PlaybackException.ErrorCode public final int reason;
+  public final @PlaybackException.ErrorCode int reason;
 
   /**
    * Constructs a DataSourceException.

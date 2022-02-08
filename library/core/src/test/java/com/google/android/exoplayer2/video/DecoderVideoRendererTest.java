@@ -84,7 +84,7 @@ public final class DecoderVideoRendererTest {
             /* maxDroppedFramesToNotify= */ -1) {
 
           private final Phaser inputBuffersInCodecPhaser = new Phaser();
-          @C.VideoOutputMode private int outputMode;
+          private @C.VideoOutputMode int outputMode;
 
           @Override
           public String getName() {
@@ -92,8 +92,7 @@ public final class DecoderVideoRendererTest {
           }
 
           @Override
-          @Capabilities
-          public int supportsFormat(Format format) {
+          public @Capabilities int supportsFormat(Format format) {
             return RendererCapabilities.create(C.FORMAT_HANDLED);
           }
 

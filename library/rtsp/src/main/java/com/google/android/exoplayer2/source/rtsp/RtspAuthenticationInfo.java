@@ -54,7 +54,7 @@ import java.security.NoSuchAlgorithmException;
   private static final String ALGORITHM = "MD5";
 
   /** The authentication mechanism. */
-  @AuthenticationMechanism public final int authenticationMechanism;
+  public final @AuthenticationMechanism int authenticationMechanism;
   /** The authentication realm. */
   public final String realm;
   /** The nonce used in digest authentication; empty if using {@link #BASIC} authentication. */

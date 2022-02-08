@@ -54,7 +54,7 @@ import com.google.android.exoplayer2.util.Util;
   private final AudioManager audioManager;
 
   @Nullable private VolumeChangeReceiver receiver;
-  @C.StreamType private int streamType;
+  private @C.StreamType int streamType;
   private int volume;
   private boolean muted;
 

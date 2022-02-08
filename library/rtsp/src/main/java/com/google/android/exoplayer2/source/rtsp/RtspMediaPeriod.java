@@ -773,8 +773,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return sampleQueue.isReady(/* loadingFinished= */ canceled);
     }
 
-    @ReadDataResult
-    public int read(
+    public @ReadDataResult int read(
         FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       return sampleQueue.read(formatHolder, buffer, readFlags, /* loadingFinished= */ canceled);
     }

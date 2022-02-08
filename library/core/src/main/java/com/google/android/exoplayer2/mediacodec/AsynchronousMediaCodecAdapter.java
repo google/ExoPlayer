@@ -141,7 +141,7 @@ import java.nio.ByteBuffer;
   private final boolean synchronizeCodecInteractionsWithQueueing;
   private final boolean enableImmediateCodecStartAfterFlush;
   private boolean codecReleased;
-  @State private int state;
+  private @State int state;
 
   private AsynchronousMediaCodecAdapter(
       MediaCodec codec,

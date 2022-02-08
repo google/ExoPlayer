@@ -60,7 +60,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         FileTypes.MP3,
       };
 
-  @DefaultTsPayloadReaderFactory.Flags private final int payloadReaderFactoryFlags;
+  private final @DefaultTsPayloadReaderFactory.Flags int payloadReaderFactoryFlags;
   private final boolean exposeCea608WhenMissingDeclarations;
 
   /**

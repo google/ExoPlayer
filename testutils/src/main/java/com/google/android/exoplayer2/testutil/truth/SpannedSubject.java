@@ -1113,7 +1113,7 @@ public final class SpannedSubject extends Subject {
 
     private static final class TextAndPosition {
       private final String text;
-      @TextAnnotation.Position private final int position;
+      private final @TextAnnotation.Position int position;
 
       private TextAndPosition(String text, int position) {
         this.text = text;
@@ -1210,9 +1210,9 @@ public final class SpannedSubject extends Subject {
 
     private static final class MarkAndPosition {
 
-      @TextEmphasisSpan.MarkShape private final int markShape;
-      @TextEmphasisSpan.MarkFill private final int markFill;
-      @TextAnnotation.Position private final int position;
+      private final @TextEmphasisSpan.MarkShape int markShape;
+      private final @TextEmphasisSpan.MarkFill int markFill;
+      private final @TextAnnotation.Position int position;
 
       private MarkAndPosition(
           @TextEmphasisSpan.MarkShape int markShape,

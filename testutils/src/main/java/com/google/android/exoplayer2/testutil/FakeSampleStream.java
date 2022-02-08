@@ -293,7 +293,7 @@ public class FakeSampleStream implements SampleStream {
 
   private static class SampleInfo {
     public final byte[] data;
-    @C.BufferFlags public final int flags;
+    public final @C.BufferFlags int flags;
     public final long timeUs;
 
     public SampleInfo(byte[] data, @C.BufferFlags int flags, long timeUs) {

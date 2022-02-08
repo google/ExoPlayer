@@ -23,13 +23,13 @@ import com.google.android.exoplayer2.text.Cue;
   public final String id;
   public final float position;
   public final float line;
-  @Cue.LineType public final int lineType;
-  @Cue.AnchorType public final int lineAnchor;
+  public final @Cue.LineType int lineType;
+  public final @Cue.AnchorType int lineAnchor;
   public final float width;
   public final float height;
-  @Cue.TextSizeType public final int textSizeType;
+  public final @Cue.TextSizeType int textSizeType;
   public final float textSize;
-  @Cue.VerticalType public final int verticalType;
+  public final @Cue.VerticalType int verticalType;
 
   public TtmlRegion(String id) {
     this(

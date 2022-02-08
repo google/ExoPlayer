@@ -51,7 +51,7 @@ import java.util.List;
   /** The start position after a reported position discontinuity, in microseconds. */
   public final long discontinuityStartPositionUs;
   /** The current playback state. One of the {@link Player}.STATE_ constants. */
-  @Player.State public final int playbackState;
+  public final @Player.State int playbackState;
   /** The current playback error, or null if this is not an error state. */
   @Nullable public final ExoPlaybackException playbackError;
   /** Whether the player is currently loading. */
@@ -67,7 +67,7 @@ import java.util.List;
   /** Whether playback should proceed when {@link #playbackState} == {@link Player#STATE_READY}. */
   public final boolean playWhenReady;
   /** Reason why playback is suppressed even though {@link #playWhenReady} is {@code true}. */
-  @PlaybackSuppressionReason public final int playbackSuppressionReason;
+  public final @PlaybackSuppressionReason int playbackSuppressionReason;
   /** The playback parameters. */
   public final PlaybackParameters playbackParameters;
   /** Whether offload scheduling is enabled for the main player loop. */

@@ -254,8 +254,7 @@ import java.util.regex.Pattern;
     }
   }
 
-  @RtspRequest.Method
-  private static int parseMethodString(String method) {
+  private static @RtspRequest.Method int parseMethodString(String method) {
     switch (method) {
       case "ANNOUNCE":
         return METHOD_ANNOUNCE;
