@@ -204,8 +204,7 @@ public final class TrackGroup implements Bundleable {
     return language == null || language.equals(C.LANGUAGE_UNDETERMINED) ? "" : language;
   }
 
-  @C.RoleFlags
-  private static int normalizeRoleFlags(@C.RoleFlags int roleFlags) {
+  private static @C.RoleFlags int normalizeRoleFlags(@C.RoleFlags int roleFlags) {
     // Treat trick-play and non-trick-play formats as compatible.
     return roleFlags | C.ROLE_FLAG_TRICK_PLAY;
   }

@@ -86,7 +86,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeyFrame;
-  @ReplacementState private int decoderReplacementState;
+  private @ReplacementState int decoderReplacementState;
   @Nullable private Format streamFormat;
   @Nullable private SubtitleDecoder decoder;
   @Nullable private SubtitleInputBuffer nextInputBuffer;
@@ -133,8 +133,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
-  @Capabilities
-  public int supportsFormat(Format format) {
+  public @Capabilities int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {
       return RendererCapabilities.create(
           format.cryptoType == C.CRYPTO_TYPE_NONE ? C.FORMAT_HANDLED : C.FORMAT_UNSUPPORTED_DRM);

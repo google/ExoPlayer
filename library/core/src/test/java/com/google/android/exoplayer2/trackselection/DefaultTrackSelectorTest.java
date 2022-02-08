@@ -2414,7 +2414,7 @@ public final class DefaultTrackSelectorTest {
   private static final class FakeRendererCapabilities implements RendererCapabilities {
 
     private final int trackType;
-    @Capabilities private final int supportValue;
+    private final @Capabilities int supportValue;
 
     /**
      * Returns {@link FakeRendererCapabilities} that advertises adaptive support for all tracks of
@@ -2454,16 +2454,14 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
-    @Capabilities
-    public int supportsFormat(Format format) {
+    public @Capabilities int supportsFormat(Format format) {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
           ? supportValue
           : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
-    @AdaptiveSupport
-    public int supportsMixedMimeTypeAdaptation() {
+    public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }
   }
@@ -2502,16 +2500,14 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
-    @Capabilities
-    public int supportsFormat(Format format) {
+    public @Capabilities int supportsFormat(Format format) {
       return format.id != null && formatToCapability.containsKey(format.id)
           ? formatToCapability.get(format.id)
           : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
-    @AdaptiveSupport
-    public int supportsMixedMimeTypeAdaptation() {
+    public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
       return ADAPTIVE_SEAMLESS;
     }
   }

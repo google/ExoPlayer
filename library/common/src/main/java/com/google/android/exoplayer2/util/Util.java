@@ -1558,8 +1558,7 @@ public final class Util {
    *     C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and {@link C#ENCODING_PCM_32BIT}. If
    *     the bit depth is unsupported then {@link C#ENCODING_INVALID} is returned.
    */
-  @C.PcmEncoding
-  public static int getPcmEncoding(int bitDepth) {
+  public static @C.PcmEncoding int getPcmEncoding(int bitDepth) {
     switch (bitDepth) {
       case 8:
         return C.ENCODING_PCM_8BIT;
@@ -1669,8 +1668,7 @@ public final class Util {
   }
 
   /** Returns the {@link C.AudioUsage} corresponding to the specified {@link C.StreamType}. */
-  @C.AudioUsage
-  public static int getAudioUsageForStreamType(@C.StreamType int streamType) {
+  public static @C.AudioUsage int getAudioUsageForStreamType(@C.StreamType int streamType) {
     switch (streamType) {
       case C.STREAM_TYPE_ALARM:
         return C.USAGE_ALARM;
@@ -1691,8 +1689,8 @@ public final class Util {
   }
 
   /** Returns the {@link C.AudioContentType} corresponding to the specified {@link C.StreamType}. */
-  @C.AudioContentType
-  public static int getAudioContentTypeForStreamType(@C.StreamType int streamType) {
+  public static @C.AudioContentType int getAudioContentTypeForStreamType(
+      @C.StreamType int streamType) {
     switch (streamType) {
       case C.STREAM_TYPE_ALARM:
       case C.STREAM_TYPE_DTMF:
@@ -1709,8 +1707,7 @@ public final class Util {
   }
 
   /** Returns the {@link C.StreamType} corresponding to the specified {@link C.AudioUsage}. */
-  @C.StreamType
-  public static int getStreamTypeForAudioUsage(@C.AudioUsage int usage) {
+  public static @C.StreamType int getStreamTypeForAudioUsage(@C.AudioUsage int usage) {
     switch (usage) {
       case C.USAGE_MEDIA:
       case C.USAGE_GAME:
@@ -1760,7 +1757,8 @@ public final class Util {
    *     "clearkey"}.
    * @return The derived {@link UUID}, or {@code null} if one could not be derived.
    */
-  public static @Nullable UUID getDrmUuid(String drmScheme) {
+  @Nullable
+  public static UUID getDrmUuid(String drmScheme) {
     switch (Ascii.toLowerCase(drmScheme)) {
       case "widevine":
         return C.WIDEVINE_UUID;
@@ -1782,8 +1780,8 @@ public final class Util {
    * MediaDrm.ErrorCodes} value. Returns {@link PlaybackException#ERROR_CODE_DRM_SYSTEM_ERROR} if
    * the provided error code isn't recognised.
    */
-  @PlaybackException.ErrorCode
-  public static int getErrorCodeForMediaDrmErrorCode(int mediaDrmErrorCode) {
+  public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmErrorCode(
+      int mediaDrmErrorCode) {
     switch (mediaDrmErrorCode) {
       case MediaDrm.ErrorCodes.ERROR_PROVISIONING_CONFIG:
       case MediaDrm.ErrorCodes.ERROR_PROVISIONING_PARSE:
@@ -1819,8 +1817,7 @@ public final class Util {
    * @param overrideExtension If not null, used to infer the type.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentType(Uri uri, @Nullable String overrideExtension) {
+  public static @ContentType int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
         : inferContentType("." + overrideExtension);
@@ -1832,8 +1829,7 @@ public final class Util {
    * @param uri The {@link Uri}.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentType(Uri uri) {
+  public static @ContentType int inferContentType(Uri uri) {
     @Nullable String scheme = uri.getScheme();
     if (scheme != null && Ascii.equalsIgnoreCase("rtsp", scheme)) {
       return C.TYPE_RTSP;
@@ -1849,8 +1845,7 @@ public final class Util {
    * @param fileName Name of the file. It can include the path of the file.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentType(String fileName) {
+  public static @ContentType int inferContentType(String fileName) {
     fileName = Ascii.toLowerCase(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
@@ -1879,8 +1874,8 @@ public final class Util {
    * @param mimeType If MIME type, or {@code null}.
    * @return The content type.
    */
-  @ContentType
-  public static int inferContentTypeForUriAndMimeType(Uri uri, @Nullable String mimeType) {
+  public static @ContentType int inferContentTypeForUriAndMimeType(
+      Uri uri, @Nullable String mimeType) {
     if (mimeType == null) {
       return Util.inferContentType(uri);
     }
@@ -2030,7 +2025,8 @@ public final class Util {
    * @return The original value of the file name before it was escaped, or null if the escaped
    *     fileName seems invalid.
    */
-  public static @Nullable String unescapeFileName(String fileName) {
+  @Nullable
+  public static String unescapeFileName(String fileName) {
     int length = fileName.length();
     int percentCharacterCount = 0;
     for (int i = 0; i < length; i++) {

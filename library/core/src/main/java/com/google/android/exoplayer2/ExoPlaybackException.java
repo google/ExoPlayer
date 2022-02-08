@@ -80,7 +80,7 @@ public final class ExoPlaybackException extends PlaybackException {
   public static final int TYPE_REMOTE = 3;
 
   /** The {@link Type} of the playback failure. */
-  @Type public final int type;
+  public final @Type int type;
 
   /** If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer. */
   @Nullable public final String rendererName;
@@ -99,7 +99,7 @@ public final class ExoPlaybackException extends PlaybackException {
    * renderer for {@link #rendererFormat}. If {@link #rendererFormat} is null, this is {@link
    * C#FORMAT_HANDLED}.
    */
-  @FormatSupport public final int rendererFormatSupport;
+  public final @FormatSupport int rendererFormatSupport;
 
   /** The {@link MediaPeriodId} of the media associated with this error, or null if undetermined. */
   @Nullable public final MediaPeriodId mediaPeriodId;

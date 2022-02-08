@@ -538,8 +538,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
     return new DrmInitData(schemeType, schemeDatas);
   }
 
-  @SelectionFlags
-  private static int getSelectionFlags(MediaFormat mediaFormat) {
+  private static @SelectionFlags int getSelectionFlags(MediaFormat mediaFormat) {
     int selectionFlags = 0;
     selectionFlags |=
         getFlag(

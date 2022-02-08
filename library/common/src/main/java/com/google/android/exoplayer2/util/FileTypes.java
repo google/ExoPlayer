@@ -112,8 +112,8 @@ public final class FileTypes {
   private FileTypes() {}
 
   /** Returns the {@link Type} corresponding to the response headers provided. */
-  @FileTypes.Type
-  public static int inferFileTypeFromResponseHeaders(Map<String, List<String>> responseHeaders) {
+  public static @FileTypes.Type int inferFileTypeFromResponseHeaders(
+      Map<String, List<String>> responseHeaders) {
     @Nullable List<String> contentTypes = responseHeaders.get(HEADER_CONTENT_TYPE);
     @Nullable
     String mimeType = contentTypes == null || contentTypes.isEmpty() ? null : contentTypes.get(0);
@@ -125,8 +125,7 @@ public final class FileTypes {
    *
    * <p>Returns {@link #UNKNOWN} if the mime type is {@code null}.
    */
-  @FileTypes.Type
-  public static int inferFileTypeFromMimeType(@Nullable String mimeType) {
+  public static @FileTypes.Type int inferFileTypeFromMimeType(@Nullable String mimeType) {
     if (mimeType == null) {
       return FileTypes.UNKNOWN;
     }
@@ -176,8 +175,7 @@ public final class FileTypes {
   }
 
   /** Returns the {@link Type} corresponding to the {@link Uri} provided. */
-  @FileTypes.Type
-  public static int inferFileTypeFromUri(Uri uri) {
+  public static @FileTypes.Type int inferFileTypeFromUri(Uri uri) {
     @Nullable String filename = uri.getLastPathSegment();
     if (filename == null) {
       return FileTypes.UNKNOWN;

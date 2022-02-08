@@ -83,7 +83,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
   public static final String MEDIA_ID = "SilenceMediaSource";
 
   private static final int SAMPLE_RATE_HZ = 44100;
-  @C.PcmEncoding private static final int PCM_ENCODING = C.ENCODING_PCM_16BIT;
+  private static final @C.PcmEncoding int PCM_ENCODING = C.ENCODING_PCM_16BIT;
   private static final int CHANNEL_COUNT = 2;
   private static final Format FORMAT =
       new Format.Builder()

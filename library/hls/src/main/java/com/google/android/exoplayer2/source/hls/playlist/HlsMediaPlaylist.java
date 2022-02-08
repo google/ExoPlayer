@@ -396,7 +396,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final int PLAYLIST_TYPE_EVENT = 2;
 
   /** The type of the playlist. See {@link PlaylistType}. */
-  @PlaylistType public final int playlistType;
+  public final @PlaylistType int playlistType;
   /**
    * The start offset in microseconds from the beginning of the playlist, as defined by
    * #EXT-X-START, or {@link C#TIME_UNSET} if undefined. The value is guaranteed to be between 0 and

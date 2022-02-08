@@ -36,7 +36,7 @@ public final class RubySpan implements LanguageFeatureSpan {
   public final String rubyText;
 
   /** The position of the ruby text relative to the base text. */
-  @TextAnnotation.Position public final int position;
+  public final @TextAnnotation.Position int position;
 
   public RubySpan(String rubyText, @TextAnnotation.Position int position) {
     this.rubyText = rubyText;

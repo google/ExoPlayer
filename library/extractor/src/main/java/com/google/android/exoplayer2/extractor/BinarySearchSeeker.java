@@ -421,7 +421,7 @@ public abstract class BinarySearchSeeker {
         new TimestampSearchResult(TYPE_NO_TIMESTAMP, C.TIME_UNSET, C.POSITION_UNSET);
 
     /** The type of the result. */
-    @Type private final int type;
+    private final @Type int type;
 
     /**
      * When {@link #type} is {@link #TYPE_POSITION_OVERESTIMATED}, the {@link

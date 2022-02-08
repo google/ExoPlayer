@@ -844,8 +844,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
       return positionUs;
     }
 
-    @SampleStream.ReadDataResult
-    public int readData(
+    public @SampleStream.ReadDataResult int readData(
         MediaPeriodImpl mediaPeriod,
         int streamIndex,
         FormatHolder formatHolder,
@@ -1201,8 +1200,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
     }
 
     @Override
-    @ReadDataResult
-    public int readData(
+    public @ReadDataResult int readData(
         FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       return mediaPeriod.sharedPeriod.readData(
           mediaPeriod, streamIndex, formatHolder, buffer, readFlags);

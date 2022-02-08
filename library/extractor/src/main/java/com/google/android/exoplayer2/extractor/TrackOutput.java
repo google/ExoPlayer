@@ -38,7 +38,7 @@ public interface TrackOutput {
   final class CryptoData {
 
     /** The encryption mode used for the sample. */
-    @C.CryptoMode public final int cryptoMode;
+    public final @C.CryptoMode int cryptoMode;
 
     /** The encryption key associated with the sample. Its contents must not be modified. */
     public final byte[] encryptionKey;

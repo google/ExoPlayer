@@ -54,7 +54,7 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
   private final SubtitleInputBuffer inputBuffer;
   private final Deque<SubtitleOutputBuffer> availableOutputBuffers;
 
-  @InputBufferState private int inputBufferState;
+  private @InputBufferState int inputBufferState;
   private boolean released;
 
   public ExoplayerCuesDecoder() {
