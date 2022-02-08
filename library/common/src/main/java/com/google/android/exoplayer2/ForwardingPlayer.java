@@ -823,191 +823,159 @@ public class ForwardingPlayer implements Player {
     return player;
   }
 
-  @SuppressWarnings("deprecation") // Use of deprecated type for backwards compatibility.
-  private static class ForwardingEventListener implements EventListener {
+  private static final class ForwardingListener implements Listener {
 
     private final ForwardingPlayer forwardingPlayer;
-    private final EventListener eventListener;
+    private final Listener listener;
 
-    private ForwardingEventListener(
-        ForwardingPlayer forwardingPlayer, EventListener eventListener) {
+    public ForwardingListener(ForwardingPlayer forwardingPlayer, Listener listener) {
       this.forwardingPlayer = forwardingPlayer;
-      this.eventListener = eventListener;
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
-      eventListener.onTimelineChanged(timeline, reason);
-    }
-
-    @Override
-    public void onMediaItemTransition(
-        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
-      eventListener.onMediaItemTransition(mediaItem, reason);
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      eventListener.onTracksChanged(trackGroups, trackSelections);
-    }
-
-    @Override
-    public void onTracksInfoChanged(TracksInfo tracksInfo) {
-      eventListener.onTracksInfoChanged(tracksInfo);
-    }
-
-    @Override
-    public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
-      eventListener.onMediaMetadataChanged(mediaMetadata);
-    }
-
-    @Override
-    public void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {
-      eventListener.onPlaylistMetadataChanged(mediaMetadata);
-    }
-
-    @Override
-    public void onIsLoadingChanged(boolean isLoading) {
-      eventListener.onIsLoadingChanged(isLoading);
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      eventListener.onIsLoadingChanged(isLoading);
-    }
-
-    @Override
-    public void onAvailableCommandsChanged(Commands availableCommands) {
-      eventListener.onAvailableCommandsChanged(availableCommands);
-    }
-
-    @Override
-    public void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {
-      eventListener.onTrackSelectionParametersChanged(parameters);
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {
-      eventListener.onPlayerStateChanged(playWhenReady, playbackState);
-    }
-
-    @Override
-    public void onPlaybackStateChanged(@State int playbackState) {
-      eventListener.onPlaybackStateChanged(playbackState);
-    }
-
-    @Override
-    public void onPlayWhenReadyChanged(
-        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-      eventListener.onPlayWhenReadyChanged(playWhenReady, reason);
-    }
-
-    @Override
-    public void onPlaybackSuppressionReasonChanged(
-        @PlayWhenReadyChangeReason int playbackSuppressionReason) {
-      eventListener.onPlaybackSuppressionReasonChanged(playbackSuppressionReason);
-    }
-
-    @Override
-    public void onIsPlayingChanged(boolean isPlaying) {
-      eventListener.onIsPlayingChanged(isPlaying);
-    }
-
-    @Override
-    public void onRepeatModeChanged(@RepeatMode int repeatMode) {
-      eventListener.onRepeatModeChanged(repeatMode);
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      eventListener.onShuffleModeEnabledChanged(shuffleModeEnabled);
-    }
-
-    @Override
-    public void onPlayerError(PlaybackException error) {
-      eventListener.onPlayerError(error);
-    }
-
-    @Override
-    public void onPlayerErrorChanged(@Nullable PlaybackException error) {
-      eventListener.onPlayerErrorChanged(error);
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-      eventListener.onPositionDiscontinuity(reason);
-    }
-
-    @Override
-    public void onPositionDiscontinuity(
-        PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {
-      eventListener.onPositionDiscontinuity(oldPosition, newPosition, reason);
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      eventListener.onPlaybackParametersChanged(playbackParameters);
-    }
-
-    @Override
-    public void onSeekBackIncrementChanged(long seekBackIncrementMs) {
-      eventListener.onSeekBackIncrementChanged(seekBackIncrementMs);
-    }
-
-    @Override
-    public void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {
-      eventListener.onSeekForwardIncrementChanged(seekForwardIncrementMs);
-    }
-
-    @Override
-    public void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {
-      eventListener.onMaxSeekToPreviousPositionChanged(maxSeekToPreviousPositionMs);
-    }
-
-    @Override
-    public void onSeekProcessed() {
-      eventListener.onSeekProcessed();
+      this.listener = listener;
     }
 
     @Override
     public void onEvents(Player player, Events events) {
       // Replace player with forwarding player.
-      eventListener.onEvents(forwardingPlayer, events);
+      listener.onEvents(forwardingPlayer, events);
     }
 
     @Override
-    public boolean equals(@Nullable Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof ForwardingEventListener)) {
-        return false;
-      }
-
-      ForwardingEventListener that = (ForwardingEventListener) o;
-
-      if (!forwardingPlayer.equals(that.forwardingPlayer)) {
-        return false;
-      }
-      return eventListener.equals(that.eventListener);
+    public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+      listener.onTimelineChanged(timeline, reason);
     }
 
     @Override
-    public int hashCode() {
-      int result = forwardingPlayer.hashCode();
-      result = 31 * result + eventListener.hashCode();
-      return result;
+    public void onMediaItemTransition(
+        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
+      listener.onMediaItemTransition(mediaItem, reason);
     }
-  }
 
-  private static final class ForwardingListener extends ForwardingEventListener
-      implements Listener {
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+      listener.onTracksChanged(trackGroups, trackSelections);
+    }
 
-    private final Listener listener;
+    @Override
+    public void onTracksInfoChanged(TracksInfo tracksInfo) {
+      listener.onTracksInfoChanged(tracksInfo);
+    }
 
-    public ForwardingListener(ForwardingPlayer forwardingPlayer, Listener listener) {
-      super(forwardingPlayer, listener);
-      this.listener = listener;
+    @Override
+    public void onMediaMetadataChanged(MediaMetadata mediaMetadata) {
+      listener.onMediaMetadataChanged(mediaMetadata);
+    }
+
+    @Override
+    public void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {
+      listener.onPlaylistMetadataChanged(mediaMetadata);
+    }
+
+    @Override
+    public void onIsLoadingChanged(boolean isLoading) {
+      listener.onIsLoadingChanged(isLoading);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onLoadingChanged(boolean isLoading) {
+      listener.onIsLoadingChanged(isLoading);
+    }
+
+    @Override
+    public void onAvailableCommandsChanged(Commands availableCommands) {
+      listener.onAvailableCommandsChanged(availableCommands);
+    }
+
+    @Override
+    public void onTrackSelectionParametersChanged(TrackSelectionParameters parameters) {
+      listener.onTrackSelectionParametersChanged(parameters);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {
+      listener.onPlayerStateChanged(playWhenReady, playbackState);
+    }
+
+    @Override
+    public void onPlaybackStateChanged(@State int playbackState) {
+      listener.onPlaybackStateChanged(playbackState);
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+      listener.onPlayWhenReadyChanged(playWhenReady, reason);
+    }
+
+    @Override
+    public void onPlaybackSuppressionReasonChanged(
+        @PlayWhenReadyChangeReason int playbackSuppressionReason) {
+      listener.onPlaybackSuppressionReasonChanged(playbackSuppressionReason);
+    }
+
+    @Override
+    public void onIsPlayingChanged(boolean isPlaying) {
+      listener.onIsPlayingChanged(isPlaying);
+    }
+
+    @Override
+    public void onRepeatModeChanged(@RepeatMode int repeatMode) {
+      listener.onRepeatModeChanged(repeatMode);
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      listener.onShuffleModeEnabledChanged(shuffleModeEnabled);
+    }
+
+    @Override
+    public void onPlayerError(PlaybackException error) {
+      listener.onPlayerError(error);
+    }
+
+    @Override
+    public void onPlayerErrorChanged(@Nullable PlaybackException error) {
+      listener.onPlayerErrorChanged(error);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+      listener.onPositionDiscontinuity(reason);
+    }
+
+    @Override
+    public void onPositionDiscontinuity(
+        PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {
+      listener.onPositionDiscontinuity(oldPosition, newPosition, reason);
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+      listener.onPlaybackParametersChanged(playbackParameters);
+    }
+
+    @Override
+    public void onSeekBackIncrementChanged(long seekBackIncrementMs) {
+      listener.onSeekBackIncrementChanged(seekBackIncrementMs);
+    }
+
+    @Override
+    public void onSeekForwardIncrementChanged(long seekForwardIncrementMs) {
+      listener.onSeekForwardIncrementChanged(seekForwardIncrementMs);
+    }
+
+    @Override
+    public void onMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs) {
+      listener.onMaxSeekToPreviousPositionChanged(maxSeekToPreviousPositionMs);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onSeekProcessed() {
+      listener.onSeekProcessed();
     }
 
     @Override
@@ -1063,6 +1031,28 @@ public class ForwardingPlayer implements Player {
     @Override
     public void onDeviceVolumeChanged(int volume, boolean muted) {
       listener.onDeviceVolumeChanged(volume, muted);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof ForwardingListener)) {
+        return false;
+      }
+      ForwardingListener that = (ForwardingListener) o;
+      if (!forwardingPlayer.equals(that.forwardingPlayer)) {
+        return false;
+      }
+      return listener.equals(that.listener);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = forwardingPlayer.hashCode();
+      result = 31 * result + listener.hashCode();
+      return result;
     }
   }
 }
