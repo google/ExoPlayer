@@ -410,7 +410,6 @@ import java.util.concurrent.TimeoutException;
 
       listeners.add(analyticsCollector);
       bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
-      listeners.add(componentListener);
       addAudioOffloadListener(componentListener);
       if (builder.foregroundModeTimeoutMs > 0) {
         experimentalSetForegroundModeTimeoutMs(builder.foregroundModeTimeoutMs);
@@ -1794,11 +1793,21 @@ import java.util.concurrent.TimeoutException;
               .buildUpon()
               .populateFromMetadata(newPlaybackInfo.staticMetadata)
               .build();
-
       newMediaMetadata = buildUpdatedMediaMetadata();
     }
     boolean metadataChanged = !newMediaMetadata.equals(mediaMetadata);
     mediaMetadata = newMediaMetadata;
+    boolean playWhenReadyChanged =
+        previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady;
+    boolean playbackStateChanged =
+        previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState;
+    if (playbackStateChanged || playWhenReadyChanged) {
+      updateWakeAndWifiLock();
+    }
+    boolean isLoadingChanged = previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading;
+    if (isLoadingChanged) {
+      updatePriorityTaskManagerForIsLoadingChange(newPlaybackInfo.isLoading);
+    }
 
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
@@ -1851,7 +1860,7 @@ import java.util.concurrent.TimeoutException;
           EVENT_MEDIA_METADATA_CHANGED,
           listener -> listener.onMediaMetadataChanged(finalMediaMetadata));
     }
-    if (previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading) {
+    if (isLoadingChanged) {
       listeners.queueEvent(
           Player.EVENT_IS_LOADING_CHANGED,
           listener -> {
@@ -1859,20 +1868,19 @@ import java.util.concurrent.TimeoutException;
             listener.onIsLoadingChanged(newPlaybackInfo.isLoading);
           });
     }
-    if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState
-        || previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
+    if (playbackStateChanged || playWhenReadyChanged) {
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
           listener ->
               listener.onPlayerStateChanged(
                   newPlaybackInfo.playWhenReady, newPlaybackInfo.playbackState));
     }
-    if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState) {
+    if (playbackStateChanged) {
       listeners.queueEvent(
           Player.EVENT_PLAYBACK_STATE_CHANGED,
           listener -> listener.onPlaybackStateChanged(newPlaybackInfo.playbackState));
     }
-    if (previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
+    if (playWhenReadyChanged) {
       listeners.queueEvent(
           Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
@@ -2594,6 +2602,18 @@ import java.util.concurrent.TimeoutException;
     return keepSessionIdAudioTrack.getAudioSessionId();
   }
 
+  private void updatePriorityTaskManagerForIsLoadingChange(boolean isLoading) {
+    if (priorityTaskManager != null) {
+      if (isLoading && !isPriorityTaskManagerRegistered) {
+        priorityTaskManager.add(C.PRIORITY_PLAYBACK);
+        isPriorityTaskManagerRegistered = true;
+      } else if (!isLoading && isPriorityTaskManagerRegistered) {
+        priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
+        isPriorityTaskManagerRegistered = false;
+      }
+    }
+  }
+
   private static DeviceInfo createDeviceInfo(StreamVolumeManager streamVolumeManager) {
     return new DeviceInfo(
         DeviceInfo.PLAYBACK_TYPE_LOCAL,
@@ -2636,8 +2656,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   private final class ComponentListener
-      implements Player.Listener,
-          VideoRendererEventListener,
+      implements VideoRendererEventListener,
           AudioRendererEventListener,
           TextOutput,
           MetadataOutput,
@@ -2911,32 +2930,6 @@ import java.util.concurrent.TimeoutException;
       for (Listener listener : listenerArraySet) {
         listener.onDeviceVolumeChanged(streamVolume, streamMuted);
       }
-    }
-
-    // Player.Listener implementation.
-
-    @Override
-    public void onIsLoadingChanged(boolean isLoading) {
-      if (priorityTaskManager != null) {
-        if (isLoading && !isPriorityTaskManagerRegistered) {
-          priorityTaskManager.add(C.PRIORITY_PLAYBACK);
-          isPriorityTaskManagerRegistered = true;
-        } else if (!isLoading && isPriorityTaskManagerRegistered) {
-          priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
-          isPriorityTaskManagerRegistered = false;
-        }
-      }
-    }
-
-    @Override
-    public void onPlaybackStateChanged(@State int playbackState) {
-      updateWakeAndWifiLock();
-    }
-
-    @Override
-    public void onPlayWhenReadyChanged(
-        boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-      updateWakeAndWifiLock();
     }
 
     // Player.AudioOffloadListener implementation.
