@@ -742,29 +742,6 @@ import java.util.concurrent.TimeoutException;
         playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
   }
 
-  public void setPlayWhenReady(
-      boolean playWhenReady,
-      @PlaybackSuppressionReason int playbackSuppressionReason,
-      @PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
-    if (playbackInfo.playWhenReady == playWhenReady
-        && playbackInfo.playbackSuppressionReason == playbackSuppressionReason) {
-      return;
-    }
-    pendingOperationAcks++;
-    PlaybackInfo playbackInfo =
-        this.playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
-    internalPlayer.setPlayWhenReady(playWhenReady, playbackSuppressionReason);
-    updatePlaybackInfo(
-        playbackInfo,
-        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        playWhenReadyChangeReason,
-        /* seekProcessed= */ false,
-        /* positionDiscontinuity= */ false,
-        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
-        /* ignored */ C.TIME_UNSET,
-        /* ignored */ C.INDEX_UNSET);
-  }
-
   public boolean getPlayWhenReady() {
     verifyApplicationThread();
     return playbackInfo.playWhenReady;
@@ -1186,7 +1163,7 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     trackSelector.setParameters(parameters);
-    listeners.queueEvent(
+    listeners.sendEvent(
         EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
         listener -> listener.onTrackSelectionParametersChanged(parameters));
   }
@@ -1194,20 +1171,6 @@ import java.util.concurrent.TimeoutException;
   public MediaMetadata getMediaMetadata() {
     verifyApplicationThread();
     return mediaMetadata;
-  }
-
-  private void onMetadata(Metadata metadata) {
-    staticAndDynamicMediaMetadata =
-        staticAndDynamicMediaMetadata.buildUpon().populateFromMetadata(metadata).build();
-
-    MediaMetadata newMediaMetadata = buildUpdatedMediaMetadata();
-
-    if (newMediaMetadata.equals(mediaMetadata)) {
-      return;
-    }
-    mediaMetadata = newMediaMetadata;
-    listeners.sendEvent(
-        EVENT_MEDIA_METADATA_CHANGED, listener -> listener.onMediaMetadataChanged(mediaMetadata));
   }
 
   public MediaMetadata getPlaylistMetadata() {
@@ -2356,7 +2319,7 @@ import java.util.concurrent.TimeoutException;
    *
    * <p>{@link MediaItem} {@link MediaMetadata} is prioritized, with any gaps/missing fields
    * populated by metadata from static ({@link TrackGroup} {@link Format}) and dynamic ({@link
-   * #onMetadata(Metadata)}) sources.
+   * MetadataOutput#onMetadata(Metadata)}) sources.
    */
   private MediaMetadata buildUpdatedMediaMetadata() {
     Timeline timeline = getCurrentTimeline();
@@ -2496,7 +2459,23 @@ import java.util.concurrent.TimeoutException;
         playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
             ? Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
             : Player.PLAYBACK_SUPPRESSION_REASON_NONE;
-    setPlayWhenReady(playWhenReady, playbackSuppressionReason, playWhenReadyChangeReason);
+    if (playbackInfo.playWhenReady == playWhenReady
+        && playbackInfo.playbackSuppressionReason == playbackSuppressionReason) {
+      return;
+    }
+    pendingOperationAcks++;
+    PlaybackInfo playbackInfo =
+        this.playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
+    internalPlayer.setPlayWhenReady(playWhenReady, playbackSuppressionReason);
+    updatePlaybackInfo(
+        playbackInfo,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        playWhenReadyChangeReason,
+        /* seekProcessed= */ false,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ C.TIME_UNSET,
+        /* ignored */ C.INDEX_UNSET);
   }
 
   private void updateWakeAndWifiLock() {
@@ -2795,7 +2774,15 @@ import java.util.concurrent.TimeoutException;
 
     @Override
     public void onMetadata(Metadata metadata) {
-      ExoPlayerImpl.this.onMetadata(metadata);
+      staticAndDynamicMediaMetadata =
+          staticAndDynamicMediaMetadata.buildUpon().populateFromMetadata(metadata).build();
+      MediaMetadata newMediaMetadata = buildUpdatedMediaMetadata();
+      if (!newMediaMetadata.equals(mediaMetadata)) {
+        mediaMetadata = newMediaMetadata;
+        listeners.sendEvent(
+            EVENT_MEDIA_METADATA_CHANGED,
+            listener -> listener.onMediaMetadataChanged(mediaMetadata));
+      }
       // TODO(internal b/187152483): Events should be dispatched via ListenerSet
       for (Listener listener : listenerArraySet) {
         listener.onMetadata(metadata);
