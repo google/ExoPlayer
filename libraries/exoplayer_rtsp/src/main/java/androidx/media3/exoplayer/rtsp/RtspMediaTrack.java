@@ -45,7 +45,7 @@ import com.google.common.collect.ImmutableMap;
   // Format specific parameter names.
   private static final String PARAMETER_PROFILE_LEVEL_ID = "profile-level-id";
   private static final String PARAMETER_SPROP_PARAMS = "sprop-parameter-sets";
-  private static final String PARAMETER_CONFIG = "config";
+  private static final String PARAMETER_MP4V_CONFIG = "config";
 
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
@@ -171,7 +171,7 @@ import com.google.common.collect.ImmutableMap;
 
   private static void processMPEG4FmtpAttribute(
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
-    @Nullable String configInput = fmtpAttributes.get(PARAMETER_CONFIG);
+    @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4V_CONFIG);
     if (configInput != null) {
       byte[] csd = Util.getBytesFromHexString(configInput);
       ImmutableList<byte[]> initializationData = ImmutableList.of(csd);

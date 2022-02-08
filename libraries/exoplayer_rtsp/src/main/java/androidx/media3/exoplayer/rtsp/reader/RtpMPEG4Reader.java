@@ -30,7 +30,7 @@ import com.google.common.primitives.Bytes;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Parses an H265 byte stream carried on RTP packets, and extracts H265 Access Units. Refer to
+ * Parses an MPEG4 byte stream carried on RTP packets, and extracts MPEG4 Access Units. Refer to
  * RFC6416 for more details.
  */
 /* package */ final class RtpMPEG4Reader implements RtpPayloadReader {
@@ -44,16 +44,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int I_VOP = 0;
 
   private final RtpPayloadFormat payloadFormat;
-
   private @MonotonicNonNull TrackOutput trackOutput;
   @C.BufferFlags private int bufferFlags;
-
   private long firstReceivedTimestamp;
-
   private int previousSequenceNumber;
-
   private long startTimeOffsetUs;
-
   private int sampleLength;
 
   /** Creates an instance. */
@@ -62,15 +57,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     firstReceivedTimestamp = C.TIME_UNSET;
     previousSequenceNumber = C.INDEX_UNSET;
     sampleLength = 0;
-  }
-
-  private static long toSampleUs(
-      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
-    return startTimeOffsetUs
-        + Util.scaleLargeTimestamp(
-            (rtpTimestamp - firstReceivedRtpTimestamp),
-            /* multiplier= */ C.MICROS_PER_SECOND,
-            /* divisor= */ MEDIA_CLOCK_FREQUENCY);
   }
 
   @Override
@@ -113,6 +99,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     previousSequenceNumber = sequenceNumber;
   }
 
+  @Override
+  public void seek(long nextRtpTimestamp, long timeUs) {
+    firstReceivedTimestamp = nextRtpTimestamp;
+    startTimeOffsetUs = timeUs;
+    sampleLength = 0;
+  }
+
+  // Internal methods.
+
   /**
    * Parses VOP Coding type
    *
@@ -130,15 +125,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  private static long toSampleUs(
+      long startTimeOffsetUs, long rtpTimestamp, long firstReceivedRtpTimestamp) {
+    return startTimeOffsetUs
+        + Util.scaleLargeTimestamp(
+        (rtpTimestamp - firstReceivedRtpTimestamp),
+        /* multiplier= */ C.MICROS_PER_SECOND,
+        /* divisor= */ MEDIA_CLOCK_FREQUENCY);
+  }
+
   @C.BufferFlags
   private static int getBufferFlagsFromVopType(int vopType) {
     return vopType == I_VOP ? C.BUFFER_FLAG_KEY_FRAME : 0;
-  }
-
-  @Override
-  public void seek(long nextRtpTimestamp, long timeUs) {
-    firstReceivedTimestamp = nextRtpTimestamp;
-    startTimeOffsetUs = timeUs;
-    sampleLength = 0;
   }
 }
