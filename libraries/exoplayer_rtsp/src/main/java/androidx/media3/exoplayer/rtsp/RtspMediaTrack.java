@@ -169,6 +169,26 @@ import com.google.common.collect.ImmutableMap;
             AacUtil.buildAacLcAudioSpecificConfig(sampleRate, channelCount)));
   }
 
+  /** Returns H264/H265 initialization data from RTP parameter set. */
+  private static byte[] getInitializationDataFromParameterSet(String parameterSet) {
+    byte[] decodedParameterNalData = Base64.decode(parameterSet, Base64.DEFAULT);
+    byte[] decodedParameterNalUnit =
+        new byte[decodedParameterNalData.length + NAL_START_CODE.length];
+    System.arraycopy(
+        NAL_START_CODE,
+        /* srcPos= */ 0,
+        decodedParameterNalUnit,
+        /* destPos= */ 0,
+        NAL_START_CODE.length);
+    System.arraycopy(
+        decodedParameterNalData,
+        /* srcPos= */ 0,
+        decodedParameterNalUnit,
+        /* destPos= */ NAL_START_CODE.length,
+        decodedParameterNalData.length);
+    return decodedParameterNalUnit;
+  }
+
   private static void processH264FmtpAttribute(
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
     checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_PARAMS));
@@ -200,25 +220,6 @@ import com.google.common.collect.ImmutableMap;
     }
   }
 
-  private static byte[] getInitializationDataFromParameterSet(String parameterSet) {
-    byte[] decodedParameterNalData = Base64.decode(parameterSet, Base64.DEFAULT);
-    byte[] decodedParameterNalUnit =
-        new byte[decodedParameterNalData.length + NAL_START_CODE.length];
-    System.arraycopy(
-        NAL_START_CODE,
-        /* srcPos= */ 0,
-        decodedParameterNalUnit,
-        /* destPos= */ 0,
-        NAL_START_CODE.length);
-    System.arraycopy(
-        decodedParameterNalData,
-        /* srcPos= */ 0,
-        decodedParameterNalUnit,
-        /* destPos= */ NAL_START_CODE.length,
-        decodedParameterNalData.length);
-    return decodedParameterNalUnit;
-  }
-
   private static void processH265FmtpAttribute(
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
     if (fmtpAttributes.containsKey(PARAMETER_SPROP_H265_MAX_DON_DIFF)) {
@@ -228,23 +229,24 @@ import com.google.common.collect.ImmutableMap;
           "non-zero sprop-max-don-diff is not supported");
     }
 
+    checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_H265_VPS));
+    String spropVPS = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_VPS));
     checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_H265_SPS));
     String spropSPS = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_SPS));
     checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_H265_PPS));
     String spropPPS = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_PPS));
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_H265_VPS));
-    String spropVPS = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_VPS));
-
-    byte[] vpsNalData = getInitializationDataFromParameterSet(spropVPS);
-    byte[] spsNalData = getInitializationDataFromParameterSet(spropSPS);
-    byte[] ppsNalData = getInitializationDataFromParameterSet(spropPPS);
-    ImmutableList<byte[]> initializationData = ImmutableList.of(vpsNalData, spsNalData, ppsNalData);
+    ImmutableList<byte[]> initializationData =
+        ImmutableList.of(
+            getInitializationDataFromParameterSet(spropVPS),
+            getInitializationDataFromParameterSet(spropSPS),
+            getInitializationDataFromParameterSet(spropPPS));
     formatBuilder.setInitializationData(initializationData);
 
     // Process SPS (Sequence Parameter Set).
+    byte[] spsNalDataWithStartCode = initializationData.get(1);
     NalUnitUtil.H265SpsData spsData =
         NalUnitUtil.parseH265SpsNalUnit(
-            spsNalData, NAL_START_CODE.length, spsNalData.length);
+            spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);

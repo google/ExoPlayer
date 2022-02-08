@@ -42,17 +42,28 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
 
-  /** Offset of payload data within a FU type A payload. */
+  /** Offset of payload data within a FU payload. */
   private static final int FU_PAYLOAD_OFFSET = 3;
 
-  /** Single Time Aggregation Packet type A. */
-  private static final int RTP_PACKET_TYPE_STAP_A = 48; // RFC7798 Section 4.4.2
-  /** Fragmentation Unit type A. */
-  private static final int RTP_PACKET_TYPE_FU_A = 49;
+  /**
+   * Aggregation Packet.
+   *
+   * @see <a
+   *     href="https://datatracker.ietf.org/doc/html/draft-ietf-payload-rtp-h265-15#section-4.4.2">
+   *     RFC7798 Section 4.4.2</a>
+   */
+  private static final int RTP_PACKET_TYPE_AP = 48;
+  /**
+   * Fragmentation Unit.
+   *
+   * @see <a
+   *     href="https://datatracker.ietf.org/doc/html/draft-ietf-payload-rtp-h265-15#section-4.4.3">
+   *     RFC7798 Section 4.4.3</a>
+   */
+  private static final int RTP_PACKET_TYPE_FU = 49;
 
   /** IDR NAL unit type. */
-  private static final int NAL_IDR_W_LP = 19;
-
+  private static final int NAL_IDR_W_RADL = 19;
   private static final int NAL_IDR_N_LP = 20;
 
   /** Scratch for Fragmentation Unit RTP packets. */
@@ -65,12 +76,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private @MonotonicNonNull TrackOutput trackOutput;
   @C.BufferFlags private int bufferFlags;
-
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
-
   private long startTimeOffsetUs;
 
   /** Creates an instance. */
@@ -84,7 +93,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void createTracks(ExtractorOutput extractorOutput, int trackId) {
     trackOutput = extractorOutput.track(trackId, C.TRACK_TYPE_VIDEO);
-
     castNonNull(trackOutput).format(payloadFormat.format);
   }
 
@@ -94,7 +102,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void consume(ParsableByteArray data, long timestamp, int sequenceNumber, boolean rtpMarker)
       throws ParserException {
-
     int payloadType;
     try {
       // RFC7798 Section 1.1.4. NAL Unit Header
@@ -104,11 +111,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     checkStateNotNull(trackOutput);
-    if (payloadType >= 0 && payloadType < RTP_PACKET_TYPE_STAP_A) {
+    if (payloadType >= 0 && payloadType < RTP_PACKET_TYPE_AP) {
       processSingleNalUnitPacket(data);
-    } else if (payloadType == RTP_PACKET_TYPE_STAP_A) {
-      processSingleTimeAggregationPacket(data);
-    } else if (payloadType == RTP_PACKET_TYPE_FU_A) {
+    } else if (payloadType == RTP_PACKET_TYPE_AP) {
+      processAggregationPacket(data);
+    } else if (payloadType == RTP_PACKET_TYPE_FU) {
       processFragmentationUnitPacket(data, sequenceNumber);
     } else {
       throw ParserException.createForMalformedManifest(
@@ -173,46 +180,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     bufferFlags = getBufferFlagsFromNalType(nalHeaderType);
   }
 
-
   /**
-   * Processes STAP Type A packet (RFC7798 Section 4.4.2).
+   * Processes an AP packet (RFC7798 Section 4.4.2).
    *
    * <p>Outputs the received aggregation units (with start code prepended) to {@link #trackOutput}.
    * Sets {@link #bufferFlags} and {@link #fragmentedSampleSizeBytes} accordingly.
    */
   @RequiresNonNull("trackOutput")
-  private void processSingleTimeAggregationPacket(ParsableByteArray data) throws ParserException {
-    //  An Example of an AP Packet Containing Two Aggregation
-    //  Units without the DONL and DOND Fields.
-    //      0                   1                   2                   3
-    //     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    //    |                          RTP Header                           |
-    //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    //    |    PayloadHdr (Type=48)       |         NALU 1 Size           |
-    //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    //    |     NALU 1 HDR                |                               |
-    //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-       NALU 1 Data              |
-    //    |                                                               |
-    //    |                                                               |
-    //    +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    //    |               | NALU 2 Size                   | NALU 2 HDR    |
-    //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    //    | NALU 2 HDR    |                                               |
-    //    +-+-+-+-+-+-+-+-                    NALU 2 Data                 |
-    //    |                                                               |
-    //    |                               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    //    |                               :...OPTIONAL RTP padding        |
-    //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+  private void processAggregationPacket(ParsableByteArray data) throws ParserException {
     throw ParserException.createForMalformedManifest(
-        "need to implement processSingleTimeAggregationPacket",
+        "need to implement processAggregationPacket",
         /* cause= */ null);
-
   }
 
   /**
-   * Processes Fragmentation Unit Type A packet (RFC7798 Section 4.4.3).
+   * Processes Fragmentation Unit packet (RFC7798 Section 4.4.3).
    *
    * <p>This method will be invoked multiple times to receive a single frame that is broken down
    * into a series of fragmentation units in multiple RTP packets.
@@ -241,15 +223,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     //   +-+-+-+-+-+-+-+-+
     //   |S|E|  FuType   |
     //   +---------------+
+    //   Structure of HEVC NAL unit header
+    //   +---------------+---------------+
+    //   |0|1|2|3|4|5|6|7|0|1|2|3|4|5|6|7|
+    //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    //   |F|   Type    |  LayerId  | TID |
+    //   +-------------+-----------------+
 
-    int tid = (data.getData()[1] & 0x7); // last 3 bits in byte 1 of payload header section 1.1.4
+    int tid =
+        (data.getData()[1] & 0x7); // last 3 bits in byte 1 of payload header, RFC7798 Section 1.1.4
     int fuHeader = data.getData()[2];
     int nalUnitType = fuHeader & 0x3F;
     byte nalHeader[] = new byte[2];
 
-    nalHeader[0] = (byte) (nalUnitType << 1); // Section: 1.1.4
-    // According to section 1.1.4 in rfc7798, layerId is required to be zero so keeping its value
-    // zero and copying only tid.
+    nalHeader[0] = (byte) (nalUnitType << 1); // RFC7798 Section 1.1.4
+    // layerId must be zero according to RFC7798 Section 1.1.4, so copying the tid only
     nalHeader[1] = (byte) tid;
     boolean isFirstFuPacket = (fuHeader & 0x80) > 0;
     boolean isLastFuPacket = (fuHeader & 0x40) > 0;
@@ -258,12 +246,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // Prepends starter code.
       fragmentedSampleSizeBytes += writeStartCode();
 
-      // The bytes needed is 2 (NALU header) + payload size. The original data array has size 3
-      // (2 payload + 1 FU header) + payload size. Thus setting the correct header and set position
-      // to 1.
-      // Overwrite byte 1 of payload header with byte 0 of HEVC nal header
+      // Overwrite a few bytes in Rtp buffer to get HEVC NAL unit
+      // Rtp Byte 0  -> Ignore
+      // Rtp Byte 1  -> Byte 0 of HEVC NAL header
+      // Rtp Byte 2  -> Byte 1 of HEVC NAL header
+      // Rtp Payload -> HEVC NAL bytes, so leave them unchanged
+      // Set data position from byte 1 as byte 0 was ignored
       data.getData()[1] = (byte) nalHeader[0];
-      // Overwrite byte FU Header with byte 1 of HEVC nal header
       data.getData()[2] = (byte) nalHeader[1];
       fuScratchBuffer.reset(data.getData());
       fuScratchBuffer.setPosition(1);
@@ -312,6 +301,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @C.BufferFlags
   private static int getBufferFlagsFromNalType(int nalType) {
-    return (nalType == NAL_IDR_W_LP || nalType == NAL_IDR_N_LP) ? C.BUFFER_FLAG_KEY_FRAME : 0;
+    return (nalType == NAL_IDR_W_RADL || nalType == NAL_IDR_N_LP) ? C.BUFFER_FLAG_KEY_FRAME : 0;
   }
 }
