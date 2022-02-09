@@ -270,6 +270,28 @@ public interface AnalyticsListener {
   /** {@link Player#getMaxSeekToPreviousPosition()} changed. */
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED =
       Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED;
+  /** Audio attributes changed. */
+  int EVENT_AUDIO_ATTRIBUTES_CHANGED = Player.EVENT_AUDIO_ATTRIBUTES_CHANGED;
+  /** An audio session id was set. */
+  int EVENT_AUDIO_SESSION_ID = Player.EVENT_AUDIO_SESSION_ID;
+  /** The volume changed. */
+  int EVENT_VOLUME_CHANGED = Player.EVENT_VOLUME_CHANGED;
+  /** Skipping silences was enabled or disabled in the audio stream. */
+  int EVENT_SKIP_SILENCE_ENABLED_CHANGED = Player.EVENT_SKIP_SILENCE_ENABLED_CHANGED;
+  /** The surface size changed. */
+  int EVENT_SURFACE_SIZE_CHANGED = Player.EVENT_SURFACE_SIZE_CHANGED;
+  /** The video size changed. */
+  int EVENT_VIDEO_SIZE_CHANGED = Player.EVENT_VIDEO_SIZE_CHANGED;
+  /**
+   * The first frame has been rendered since setting the surface, since the renderer was reset or
+   * since the stream changed.
+   */
+  int EVENT_RENDERED_FIRST_FRAME = Player.EVENT_RENDERED_FIRST_FRAME;
+  /** Metadata associated with the current playback time was reported. */
+  int EVENT_METADATA = Player.EVENT_METADATA;
+
+  // TODO: Forward EVENT_CUES, EVENT_DEVICE_INFO_CHANGED and EVENT_DEVICE_VOLUME_CHANGED.
+
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -284,73 +306,54 @@ public interface AnalyticsListener {
   int EVENT_UPSTREAM_DISCARDED = 1005;
   /** The bandwidth estimate has been updated. */
   int EVENT_BANDWIDTH_ESTIMATE = 1006;
-  /** Metadata associated with the current playback time was reported. */
-  int EVENT_METADATA = 1007;
   /** An audio renderer was enabled. */
-  int EVENT_AUDIO_ENABLED = 1008;
+  int EVENT_AUDIO_ENABLED = 1007;
   /** An audio renderer created a decoder. */
-  int EVENT_AUDIO_DECODER_INITIALIZED = 1009;
+  int EVENT_AUDIO_DECODER_INITIALIZED = 1008;
   /** The format consumed by an audio renderer changed. */
-  int EVENT_AUDIO_INPUT_FORMAT_CHANGED = 1010;
+  int EVENT_AUDIO_INPUT_FORMAT_CHANGED = 1009;
   /** The audio position has increased for the first time since the last pause or position reset. */
-  int EVENT_AUDIO_POSITION_ADVANCING = 1011;
+  int EVENT_AUDIO_POSITION_ADVANCING = 1010;
   /** An audio underrun occurred. */
-  int EVENT_AUDIO_UNDERRUN = 1012;
+  int EVENT_AUDIO_UNDERRUN = 1011;
   /** An audio renderer released a decoder. */
-  int EVENT_AUDIO_DECODER_RELEASED = 1013;
+  int EVENT_AUDIO_DECODER_RELEASED = 1012;
   /** An audio renderer was disabled. */
-  int EVENT_AUDIO_DISABLED = 1014;
-  /** An audio session id was set. */
-  int EVENT_AUDIO_SESSION_ID = 1015;
-  /** Audio attributes changed. */
-  int EVENT_AUDIO_ATTRIBUTES_CHANGED = 1016;
-  /** Skipping silences was enabled or disabled in the audio stream. */
-  int EVENT_SKIP_SILENCE_ENABLED_CHANGED = 1017;
+  int EVENT_AUDIO_DISABLED = 1013;
   /** The audio sink encountered a non-fatal error. */
-  int EVENT_AUDIO_SINK_ERROR = 1018;
-  /** The volume changed. */
-  int EVENT_VOLUME_CHANGED = 1019;
+  int EVENT_AUDIO_SINK_ERROR = 1014;
   /** A video renderer was enabled. */
-  int EVENT_VIDEO_ENABLED = 1020;
+  int EVENT_VIDEO_ENABLED = 1015;
   /** A video renderer created a decoder. */
-  int EVENT_VIDEO_DECODER_INITIALIZED = 1021;
+  int EVENT_VIDEO_DECODER_INITIALIZED = 1016;
   /** The format consumed by a video renderer changed. */
-  int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 1022;
+  int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 1017;
   /** Video frames have been dropped. */
-  int EVENT_DROPPED_VIDEO_FRAMES = 1023;
+  int EVENT_DROPPED_VIDEO_FRAMES = 1018;
   /** A video renderer released a decoder. */
-  int EVENT_VIDEO_DECODER_RELEASED = 1024;
+  int EVENT_VIDEO_DECODER_RELEASED = 1019;
   /** A video renderer was disabled. */
-  int EVENT_VIDEO_DISABLED = 1025;
+  int EVENT_VIDEO_DISABLED = 1020;
   /** Video frame processing offset data has been reported. */
-  int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 1026;
-  /**
-   * The first frame has been rendered since setting the surface, since the renderer was reset or
-   * since the stream changed.
-   */
-  int EVENT_RENDERED_FIRST_FRAME = 1027;
-  /** The video size changed. */
-  int EVENT_VIDEO_SIZE_CHANGED = 1028;
-  /** The surface size changed. */
-  int EVENT_SURFACE_SIZE_CHANGED = 1029;
+  int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 1021;
   /** A DRM session has been acquired. */
-  int EVENT_DRM_SESSION_ACQUIRED = 1030;
+  int EVENT_DRM_SESSION_ACQUIRED = 1022;
   /** DRM keys were loaded. */
-  int EVENT_DRM_KEYS_LOADED = 1031;
+  int EVENT_DRM_KEYS_LOADED = 1023;
   /** A non-fatal DRM session manager error occurred. */
-  int EVENT_DRM_SESSION_MANAGER_ERROR = 1032;
+  int EVENT_DRM_SESSION_MANAGER_ERROR = 1024;
   /** DRM keys were restored. */
-  int EVENT_DRM_KEYS_RESTORED = 1033;
+  int EVENT_DRM_KEYS_RESTORED = 1025;
   /** DRM keys were removed. */
-  int EVENT_DRM_KEYS_REMOVED = 1034;
+  int EVENT_DRM_KEYS_REMOVED = 1026;
   /** A DRM session has been released. */
-  int EVENT_DRM_SESSION_RELEASED = 1035;
+  int EVENT_DRM_SESSION_RELEASED = 1027;
   /** The player was released. */
-  int EVENT_PLAYER_RELEASED = 1036;
+  int EVENT_PLAYER_RELEASED = 1028;
   /** The audio codec encountered an error. */
-  int EVENT_AUDIO_CODEC_ERROR = 1037;
+  int EVENT_AUDIO_CODEC_ERROR = 1029;
   /** The video codec encountered an error. */
-  int EVENT_VIDEO_CODEC_ERROR = 1038;
+  int EVENT_VIDEO_CODEC_ERROR = 1030;
 
   /** Time information of an event. */
   final class EventTime {
