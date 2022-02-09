@@ -23,6 +23,7 @@ import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.rtsp.RtpPacket;
 import androidx.media3.exoplayer.rtsp.RtpPayloadFormat;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.TrackOutput;
@@ -38,9 +39,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final long MEDIA_CLOCK_FREQUENCY = 90_000;
 
-  /**
-   * VOP unit type.
-   */
+  /** VOP unit type. */
   private static final int I_VOP = 0;
 
   private final RtpPayloadFormat payloadFormat;
@@ -66,22 +65,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {
-    Log.i(TAG, "RtpMPEG4Reader onReceivingFirstPacket");
-  }
+  public void onReceivingFirstPacket(long timestamp, int sequenceNumber) {}
 
   @Override
   public void consume(ParsableByteArray data, long timestamp, int sequenceNumber, boolean rtpMarker)
       throws ParserException {
-    if (previousSequenceNumber != C.INDEX_UNSET && sequenceNumber != (previousSequenceNumber + 1)) {
-      Log.e(TAG, "Packet loss");
-    }
     checkStateNotNull(trackOutput);
+    // Check that this packet is in the sequence of the previous packet.
+    if (previousSequenceNumber != C.INDEX_UNSET) {
+      int expectedSequenceNumber = RtpPacket.getNextSequenceNumber(previousSequenceNumber);
+      if (sequenceNumber != expectedSequenceNumber) {
+        Log.w(
+            TAG,
+            Util.formatInvariant(
+                "Received RTP packet with unexpected sequence number. Expected: %d; received: %d."
+                    + " Dropping packet.",
+                expectedSequenceNumber, sequenceNumber));
+        return;
+      }
+    }
 
+    // Parse VOP Type and get the buffer flags
     int limit = data.bytesLeft();
     trackOutput.sampleData(data, limit);
+    if (sampleLength == 0) bufferFlags = getBufferFlagsFromVop(data);
     sampleLength += limit;
-    parseVopType(data);
 
     // Marker (M) bit: The marker bit is set to 1 to indicate the last RTP
     // packet(or only RTP packet) of a VOP. When multiple VOPs are carried
@@ -95,7 +103,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         trackOutput.sampleMetadata(timeUs, bufferFlags, sampleLength, 0, null);
         sampleLength = 0;
       }
-
     previousSequenceNumber = sequenceNumber;
   }
 
@@ -109,20 +116,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Internal methods.
 
   /**
-   * Parses VOP Coding type
+   * Parses VOP Coding type.
    *
    * Sets {@link #bufferFlags} according to the VOP Coding type.
    */
-  private void parseVopType(ParsableByteArray data) {
+  @C.BufferFlags
+  private static int getBufferFlagsFromVop(ParsableByteArray data) {
+    int flags = 0;
     // search for VOP_START_CODE (00 00 01 B6)
     byte[] inputData = data.getData();
-    byte[] startCode = {0x0, 0x0, 0x01, (byte) 0xB6};
+    byte[] startCode = new byte[] {0x0, 0x0, 0x1, (byte) 0xB6};
     int vopStartCodePos = Bytes.indexOf(inputData, startCode);
     if (vopStartCodePos != -1) {
       data.setPosition(vopStartCodePos + 4);
       int vopType = data.peekUnsignedByte() >> 6;
-      bufferFlags = getBufferFlagsFromVopType(vopType);
+      flags = vopType == I_VOP ? C.BUFFER_FLAG_KEY_FRAME : 0;
     }
+    return flags;
   }
 
   private static long toSampleUs(
@@ -132,10 +142,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         (rtpTimestamp - firstReceivedRtpTimestamp),
         /* multiplier= */ C.MICROS_PER_SECOND,
         /* divisor= */ MEDIA_CLOCK_FREQUENCY);
-  }
-
-  @C.BufferFlags
-  private static int getBufferFlagsFromVopType(int vopType) {
-    return vopType == I_VOP ? C.BUFFER_FLAG_KEY_FRAME : 0;
   }
 }

@@ -15,6 +15,8 @@
  */
 package androidx.media3.common.util;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -85,14 +87,15 @@ public final class CodecSpecificDataUtil {
    *     to parse.
    * @return A pair consisting of the width and the height.
    */
-  public static Pair<Integer, Integer> parseMpeg4VideoSpecificConfig(byte[] videoSpecificConfig) {
+  public static Pair<Integer, Integer> getVideoResolutionFromMpeg4VideoConfig(
+      byte[] videoSpecificConfig) {
     int offset = 0;
     boolean foundVOL = false;
-    ParsableByteArray scdScratchBytes = new ParsableByteArray(videoSpecificConfig);
+    ParsableByteArray scratchBytes = new ParsableByteArray(videoSpecificConfig);
     while (offset + 3 < videoSpecificConfig.length) {
-      if (scdScratchBytes.readUnsignedInt24() != VISUAL_OBJECT_LAYER
+      if (scratchBytes.readUnsignedInt24() != VISUAL_OBJECT_LAYER
           || (videoSpecificConfig[offset + 3] & 0xf0) != VISUAL_OBJECT_LAYER_START) {
-        scdScratchBytes.setPosition(scdScratchBytes.getPosition() - 2);
+        scratchBytes.setPosition(scratchBytes.getPosition() - 2);
         offset++;
         continue;
       }
@@ -100,57 +103,59 @@ public final class CodecSpecificDataUtil {
       break;
     }
 
-    Assertions.checkArgument(foundVOL, "Invalid input. VOL not found");
+    checkArgument(foundVOL, "Invalid input: VOL not found.");
 
-    ParsableBitArray scdScratchBits = new ParsableBitArray(videoSpecificConfig);
-    scdScratchBits.skipBits((offset + 4) * 8);
-    scdScratchBits.skipBits(1); // random_accessible_vol
-    scdScratchBits.skipBits(8); // video_object_type_indication
+    ParsableBitArray scratchBits = new ParsableBitArray(videoSpecificConfig);
+    // Skip the start codecs from the bitstream
+    scratchBits.skipBits((offset + 4) * 8);
+    scratchBits.skipBits(1); // random_accessible_vol
+    scratchBits.skipBits(8); // video_object_type_indication
 
-    if (scdScratchBits.readBit()) { // object_layer_identifier
-      scdScratchBits.skipBits(4); // video_object_layer_verid
-      scdScratchBits.skipBits(3); // video_object_layer_priority
+    if (scratchBits.readBit()) { // object_layer_identifier
+      scratchBits.skipBits(4); // video_object_layer_verid
+      scratchBits.skipBits(3); // video_object_layer_priority
     }
 
-    int aspectRatioInfo = scdScratchBits.readBits(4);
+    int aspectRatioInfo = scratchBits.readBits(4);
     if (aspectRatioInfo == EXTENDED_PAR) {
-      scdScratchBits.skipBits(8); // par_width
-      scdScratchBits.skipBits(8); // par_height
+      scratchBits.skipBits(8); // par_width
+      scratchBits.skipBits(8); // par_height
     }
 
-    if (scdScratchBits.readBit()) { // vol_control_parameters
-      scdScratchBits.skipBits(2); // chroma_format
-      scdScratchBits.skipBits(1); // low_delay
-      if (scdScratchBits.readBit()) { // vbv_parameters
-        scdScratchBits.skipBits(79);
+    if (scratchBits.readBit()) { // vol_control_parameters
+      scratchBits.skipBits(2); // chroma_format
+      scratchBits.skipBits(1); // low_delay
+      if (scratchBits.readBit()) { // vbv_parameters
+        scratchBits.skipBits(79);
       }
     }
 
-    int videoObjectLayerShape = scdScratchBits.readBits(2);
-    Assertions.checkArgument(videoObjectLayerShape == RECTANGULAR, "Unsupported feature");
+    int videoObjectLayerShape = scratchBits.readBits(2);
+    checkArgument(
+        videoObjectLayerShape == RECTANGULAR, "Only supports rectangular video object layer shape");
 
-    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
-    int vopTimeIncrementResolution = scdScratchBits.readBits(16);
-    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
+    checkArgument(scratchBits.readBit()); // marker_bit
+    int vopTimeIncrementResolution = scratchBits.readBits(16);
+    checkArgument(scratchBits.readBit()); // marker_bit
 
-    if (scdScratchBits.readBit()) { // fixed_vop_rate
-      Assertions.checkArgument(vopTimeIncrementResolution > 0, "Invalid input");
-      --vopTimeIncrementResolution;
-      int numBits = 0;
+    if (scratchBits.readBit()) { // fixed_vop_rate
+      checkArgument(vopTimeIncrementResolution > 0);
+      vopTimeIncrementResolution--;
+      int numBitsToSkip = 0;
       while (vopTimeIncrementResolution > 0) {
-        ++numBits;
+        numBitsToSkip++;
         vopTimeIncrementResolution >>= 1;
       }
-      scdScratchBits.skipBits(numBits); // fixed_vop_time_increment
+      scratchBits.skipBits(numBitsToSkip); // fixed_vop_time_increment
     }
 
-    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
-    int videoObjectLayerWidth = scdScratchBits.readBits(13);
-    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
-    int videoObjectLayerHeight = scdScratchBits.readBits(13);
-    Assertions.checkArgument(scdScratchBits.readBit(), "Invalid input"); // marker_bit
+    checkArgument(scratchBits.readBit()); // marker_bit
+    int videoObjectLayerWidth = scratchBits.readBits(13);
+    checkArgument(scratchBits.readBit()); // marker_bit
+    int videoObjectLayerHeight = scratchBits.readBits(13);
+    checkArgument(scratchBits.readBit()); // marker_bit
 
-    scdScratchBits.skipBits(1); // interlaced
+    scratchBits.skipBits(1); // interlaced
 
     return Pair.create(videoObjectLayerWidth, videoObjectLayerHeight);
   }

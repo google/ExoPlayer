@@ -174,17 +174,14 @@ import com.google.common.collect.ImmutableMap;
     @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4V_CONFIG);
     if (configInput != null) {
       byte[] csd = Util.getBytesFromHexString(configInput);
-      ImmutableList<byte[]> initializationData = ImmutableList.of(csd);
-      formatBuilder.setInitializationData(initializationData);
-      Pair<Integer, Integer> dimensions = CodecSpecificDataUtil.parseMpeg4VideoSpecificConfig(csd);
-      formatBuilder.setWidth(dimensions.first);
-      formatBuilder.setHeight(dimensions.second);
+      formatBuilder.setInitializationData(ImmutableList.of(csd));
+      Pair<Integer, Integer> resolution =
+          CodecSpecificDataUtil.getVideoResolutionFromMpeg4VideoConfig(csd);
+      formatBuilder.setWidth(resolution.first);
+      formatBuilder.setHeight(resolution.second);
     }
     @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
-    if (profileLevel == null) {
-      profileLevel = "1"; // default
-    }
-    formatBuilder.setCodecs(MPEG4_CODECS_PREFIX + profileLevel);
+    formatBuilder.setCodecs(MPEG4_CODECS_PREFIX + (profileLevel == null ? "1" : profileLevel));
   }
 
   private static void processH264FmtpAttribute(
