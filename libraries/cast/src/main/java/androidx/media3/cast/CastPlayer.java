@@ -527,7 +527,7 @@ public final class CastPlayer extends BasePlayer {
     setRepeatModeAndNotifyIfChanged(repeatMode);
     listeners.flushEvents();
     PendingResult<MediaChannelResult> pendingResult =
-        remoteMediaClient.queueSetRepeatMode(getCastRepeatMode(repeatMode), /* jsonObject= */ null);
+        remoteMediaClient.queueSetRepeatMode(getCastRepeatMode(repeatMode), /* customData= */ null);
     this.repeatMode.pendingResultCallback =
         new ResultCallback<MediaChannelResult>() {
           @Override
