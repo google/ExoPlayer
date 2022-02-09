@@ -130,7 +130,7 @@ public interface AudioRendererEventListener {
   /**
    * Called when {@link AudioSink} has encountered an error.
    *
-   * <p>If the sink writes to a platform {@link AudioTrack}, this will called for all {@link
+   * <p>If the sink writes to a platform {@link AudioTrack}, this will be called for all {@link
    * AudioTrack} errors.
    *
    * <p>This method being called does not indicate that playback has failed, or that it will fail.
