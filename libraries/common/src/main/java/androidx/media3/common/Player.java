@@ -714,7 +714,12 @@ public interface Player {
      */
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
 
-    /** Called when the playlist {@link MediaMetadata} changes. */
+    /**
+     * Called when the playlist {@link MediaMetadata} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     */
     default void onPlaylistMetadataChanged(MediaMetadata mediaMetadata) {}
 
     /**
@@ -932,6 +937,9 @@ public interface Player {
     /**
      * Called when the audio session ID changes.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param audioSessionId The audio session ID.
      */
     @UnstableApi
@@ -940,12 +948,18 @@ public interface Player {
     /**
      * Called when the audio attributes change.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param audioAttributes The audio attributes.
      */
     default void onAudioAttributesChanged(AudioAttributes audioAttributes) {}
 
     /**
      * Called when the volume changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param volume The new volume, with 0 being silence and 1 being unity gain.
      */
@@ -954,18 +968,39 @@ public interface Player {
     /**
      * Called when skipping silences is enabled or disabled in the audio stream.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
      */
     default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
 
-    /** Called when the device information changes. */
+    /**
+     * Called when the device information changes
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param deviceInfo The new {@link DeviceInfo}.
+     */
     default void onDeviceInfoChanged(DeviceInfo deviceInfo) {}
 
-    /** Called when the device volume or mute state changes. */
+    /**
+     * Called when the device volume or mute state changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param volume The new device volume, with 0 being silence and 1 being unity gain.
+     * @param muted Whether the device is muted.
+     */
     default void onDeviceVolumeChanged(int volume, boolean muted) {}
 
     /**
      * Called each time there's a change in the size of the video being rendered.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param videoSize The new size of the video.
      */
@@ -974,6 +1009,9 @@ public interface Player {
     /**
      * Called each time there's a change in the size of the surface onto which the video is being
      * rendered.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
      *     the video is not rendered onto a surface.
@@ -985,6 +1023,9 @@ public interface Player {
     /**
      * Called when a frame is rendered for the first time since setting the surface, or since the
      * renderer was reset, or since the stream being rendered was changed.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      */
     default void onRenderedFirstFrame() {}
 
@@ -994,12 +1035,18 @@ public interface Player {
      * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
      * displayed, the {@link Cue} nearer the end of the list should be shown on top.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param cues The {@link Cue Cues}. May be empty.
      */
     default void onCues(List<Cue> cues) {}
 
     /**
      * Called when there is metadata associated with the current playback time.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param metadata The metadata.
      */
@@ -1252,6 +1299,17 @@ public interface Player {
     EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
     EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
     EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+    EVENT_AUDIO_ATTRIBUTES_CHANGED,
+    EVENT_AUDIO_SESSION_ID,
+    EVENT_VOLUME_CHANGED,
+    EVENT_SKIP_SILENCE_ENABLED_CHANGED,
+    EVENT_SURFACE_SIZE_CHANGED,
+    EVENT_VIDEO_SIZE_CHANGED,
+    EVENT_RENDERED_FIRST_FRAME,
+    EVENT_CUES,
+    EVENT_METADATA,
+    EVENT_DEVICE_INFO_CHANGED,
+    EVENT_DEVICE_VOLUME_CHANGED
   })
   @interface Event {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -1297,6 +1355,31 @@ public interface Player {
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 18;
   /** {@link #getTrackSelectionParameters()} changed. */
   int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = 19;
+  /** {@link #getAudioAttributes()} changed. */
+  int EVENT_AUDIO_ATTRIBUTES_CHANGED = 20;
+  /** The audio session id was set. */
+  int EVENT_AUDIO_SESSION_ID = 21;
+  /** {@link #getVolume()} changed. */
+  int EVENT_VOLUME_CHANGED = 22;
+  /** Skipping silences in the audio stream is enabled or disabled. */
+  int EVENT_SKIP_SILENCE_ENABLED_CHANGED = 23;
+  /** The size of the surface onto which the video is being rendered changed. */
+  int EVENT_SURFACE_SIZE_CHANGED = 24;
+  /** {@link #getVideoSize()} changed. */
+  int EVENT_VIDEO_SIZE_CHANGED = 25;
+  /**
+   * A frame is rendered for the first time since setting the surface, or since the renderer was
+   * reset, or since the stream being rendered was changed.
+   */
+  int EVENT_RENDERED_FIRST_FRAME = 26;
+  /** {@link #getCurrentCues()} changed. */
+  int EVENT_CUES = 27;
+  /** Metadata associated with the current playback time changed. */
+  int EVENT_METADATA = 28;
+  /** {@link #getDeviceInfo()} changed. */
+  int EVENT_DEVICE_INFO_CHANGED = 29;
+  /** {@link #getDeviceVolume()} changed. */
+  int EVENT_DEVICE_VOLUME_CHANGED = 30;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
