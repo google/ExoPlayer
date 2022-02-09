@@ -45,9 +45,20 @@ import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_AUTO_TRA
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_INTERNAL;
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_REMOVE;
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK;
+import static com.google.android.exoplayer2.Player.EVENT_AUDIO_ATTRIBUTES_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_AUDIO_SESSION_ID;
+import static com.google.android.exoplayer2.Player.EVENT_CUES;
+import static com.google.android.exoplayer2.Player.EVENT_DEVICE_INFO_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_DEVICE_VOLUME_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_MEDIA_METADATA_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_METADATA;
 import static com.google.android.exoplayer2.Player.EVENT_PLAYLIST_METADATA_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_RENDERED_FIRST_FRAME;
+import static com.google.android.exoplayer2.Player.EVENT_SKIP_SILENCE_ENABLED_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SURFACE_SIZE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_VIDEO_SIZE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_VOLUME_CHANGED;
 import static com.google.android.exoplayer2.Player.MEDIA_ITEM_TRANSITION_REASON_AUTO;
 import static com.google.android.exoplayer2.Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
 import static com.google.android.exoplayer2.Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT;
@@ -180,8 +191,6 @@ import java.util.concurrent.TimeoutException;
   private final ExoPlayerImplInternal internalPlayer;
 
   private final ListenerSet<Listener> listeners;
-  // TODO(b/187152483): Remove this once all events are dispatched via ListenerSet.
-  private final CopyOnWriteArraySet<Listener> listenerArraySet;
   private final CopyOnWriteArraySet<AudioOffloadListener> audioOffloadListeners;
   private final Timeline.Period period;
   private final Timeline.Window window;
@@ -309,7 +318,6 @@ import java.util.concurrent.TimeoutException;
               applicationLooper,
               clock,
               (listener, flags) -> listener.onEvents(wrappingPlayer, new Events(flags)));
-      listenerArraySet = new CopyOnWriteArraySet<>();
       audioOffloadListeners = new CopyOnWriteArraySet<>();
       mediaSourceHolderSnapshots = new ArrayList<>();
       shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
@@ -1331,27 +1339,28 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
-  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+  public void setAudioAttributes(AudioAttributes newAudioAttributes, boolean handleAudioFocus) {
     verifyApplicationThread();
     if (playerReleased) {
       return;
     }
-    if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
-      this.audioAttributes = audioAttributes;
-      sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
-      streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
-      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
-        listener.onAudioAttributesChanged(audioAttributes);
-      }
+    if (!Util.areEqual(this.audioAttributes, newAudioAttributes)) {
+      this.audioAttributes = newAudioAttributes;
+      sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_ATTRIBUTES, newAudioAttributes);
+      streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(newAudioAttributes.usage));
+      // Queue event only and flush after updating playWhenReady in case both events are triggered.
+      listeners.queueEvent(
+          EVENT_AUDIO_ATTRIBUTES_CHANGED,
+          listener -> listener.onAudioAttributesChanged(newAudioAttributes));
     }
 
-    audioFocusManager.setAudioAttributes(handleAudioFocus ? audioAttributes : null);
+    audioFocusManager.setAudioAttributes(handleAudioFocus ? newAudioAttributes : null);
     boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
     updatePlayWhenReady(
         playWhenReady, playerCommand, getPlayWhenReadyChangeReason(playWhenReady, playerCommand));
+    listeners.flushEvents();
   }
 
   public AudioAttributes getAudioAttributes() {
@@ -1377,10 +1386,9 @@ import java.util.concurrent.TimeoutException;
     this.audioSessionId = audioSessionId;
     sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-    // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-    for (Listener listener : listenerArraySet) {
-      listener.onAudioSessionIdChanged(audioSessionId);
-    }
+    int finalAudioSessionId = audioSessionId;
+    listeners.sendEvent(
+        EVENT_AUDIO_SESSION_ID, listener -> listener.onAudioSessionIdChanged(finalAudioSessionId));
   }
 
   public int getAudioSessionId() {
@@ -1404,10 +1412,8 @@ import java.util.concurrent.TimeoutException;
     }
     this.volume = volume;
     sendVolumeToRenderers();
-    // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-    for (Listener listener : listenerArraySet) {
-      listener.onVolumeChanged(volume);
-    }
+    float finalVolume = volume;
+    listeners.sendEvent(EVENT_VOLUME_CHANGED, listener -> listener.onVolumeChanged(finalVolume));
   }
 
   public float getVolume() {
@@ -1418,14 +1424,16 @@ import java.util.concurrent.TimeoutException;
     return skipSilenceEnabled;
   }
 
-  public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
+  public void setSkipSilenceEnabled(boolean newSkipSilenceEnabled) {
     verifyApplicationThread();
-    if (this.skipSilenceEnabled == skipSilenceEnabled) {
+    if (skipSilenceEnabled == newSkipSilenceEnabled) {
       return;
     }
-    this.skipSilenceEnabled = skipSilenceEnabled;
-    sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
-    notifySkipSilenceEnabledChanged();
+    skipSilenceEnabled = newSkipSilenceEnabled;
+    sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_SKIP_SILENCE_ENABLED, newSkipSilenceEnabled);
+    listeners.sendEvent(
+        EVENT_SKIP_SILENCE_ENABLED_CHANGED,
+        listener -> listener.onSkipSilenceEnabledChanged(newSkipSilenceEnabled));
   }
 
   public AnalyticsCollector getAnalyticsCollector() {
@@ -1537,14 +1545,12 @@ import java.util.concurrent.TimeoutException;
     // Don't verify application thread. We allow calls to this method from any thread.
     checkNotNull(listener);
     listeners.add(listener);
-    listenerArraySet.add(listener);
   }
 
   public void removeListener(Listener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     checkNotNull(listener);
     listeners.remove(listener);
-    listenerArraySet.remove(listener);
   }
 
   public void setHandleWakeLock(boolean handleWakeLock) {
@@ -2430,23 +2436,14 @@ import java.util.concurrent.TimeoutException;
     if (width != surfaceWidth || height != surfaceHeight) {
       surfaceWidth = width;
       surfaceHeight = height;
-      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
-        listener.onSurfaceSizeChanged(width, height);
-      }
+      listeners.sendEvent(
+          EVENT_SURFACE_SIZE_CHANGED, listener -> listener.onSurfaceSizeChanged(width, height));
     }
   }
 
   private void sendVolumeToRenderers() {
     float scaledVolume = volume * audioFocusManager.getVolumeMultiplier();
     sendRendererMessage(TRACK_TYPE_AUDIO, MSG_SET_VOLUME, scaledVolume);
-  }
-
-  private void notifySkipSilenceEnabledChanged() {
-    // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-    for (Listener listener : listenerArraySet) {
-      listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
-    }
   }
 
   private void updatePlayWhenReady(
@@ -2655,22 +2652,17 @@ import java.util.concurrent.TimeoutException;
     }
 
     @Override
-    public void onVideoSizeChanged(VideoSize videoSize) {
-      ExoPlayerImpl.this.videoSize = videoSize;
-      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
-        listener.onVideoSizeChanged(videoSize);
-      }
+    public void onVideoSizeChanged(VideoSize newVideoSize) {
+      videoSize = newVideoSize;
+      listeners.sendEvent(
+          EVENT_VIDEO_SIZE_CHANGED, listener -> listener.onVideoSizeChanged(newVideoSize));
     }
 
     @Override
     public void onRenderedFirstFrame(Object output, long renderTimeMs) {
       analyticsCollector.onRenderedFirstFrame(output, renderTimeMs);
       if (videoOutput == output) {
-        // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-        for (Listener listener : listenerArraySet) {
-          listener.onRenderedFirstFrame();
-        }
+        listeners.sendEvent(EVENT_RENDERED_FIRST_FRAME, Listener::onRenderedFirstFrame);
       }
     }
 
@@ -2741,12 +2733,14 @@ import java.util.concurrent.TimeoutException;
     }
 
     @Override
-    public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
-      if (ExoPlayerImpl.this.skipSilenceEnabled == skipSilenceEnabled) {
+    public void onSkipSilenceEnabledChanged(boolean newSkipSilenceEnabled) {
+      if (skipSilenceEnabled == newSkipSilenceEnabled) {
         return;
       }
-      ExoPlayerImpl.this.skipSilenceEnabled = skipSilenceEnabled;
-      notifySkipSilenceEnabledChanged();
+      skipSilenceEnabled = newSkipSilenceEnabled;
+      listeners.sendEvent(
+          EVENT_SKIP_SILENCE_ENABLED_CHANGED,
+          listener -> listener.onSkipSilenceEnabledChanged(newSkipSilenceEnabled));
     }
 
     @Override
@@ -2764,10 +2758,7 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void onCues(List<Cue> cues) {
       currentCues = cues;
-      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listeners : listenerArraySet) {
-        listeners.onCues(cues);
-      }
+      listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cues));
     }
 
     // MetadataOutput implementation
@@ -2779,14 +2770,12 @@ import java.util.concurrent.TimeoutException;
       MediaMetadata newMediaMetadata = buildUpdatedMediaMetadata();
       if (!newMediaMetadata.equals(mediaMetadata)) {
         mediaMetadata = newMediaMetadata;
-        listeners.sendEvent(
+        listeners.queueEvent(
             EVENT_MEDIA_METADATA_CHANGED,
             listener -> listener.onMediaMetadataChanged(mediaMetadata));
       }
-      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
-        listener.onMetadata(metadata);
-      }
+      listeners.queueEvent(EVENT_METADATA, listener -> listener.onMetadata(metadata));
+      listeners.flushEvents();
     }
 
     // SurfaceHolder.Callback implementation
@@ -2876,22 +2865,19 @@ import java.util.concurrent.TimeoutException;
 
     @Override
     public void onStreamTypeChanged(@C.StreamType int streamType) {
-      DeviceInfo deviceInfo = createDeviceInfo(streamVolumeManager);
-      if (!deviceInfo.equals(ExoPlayerImpl.this.deviceInfo)) {
-        ExoPlayerImpl.this.deviceInfo = deviceInfo;
-        // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-        for (Listener listener : listenerArraySet) {
-          listener.onDeviceInfoChanged(deviceInfo);
-        }
+      DeviceInfo newDeviceInfo = createDeviceInfo(streamVolumeManager);
+      if (!newDeviceInfo.equals(deviceInfo)) {
+        deviceInfo = newDeviceInfo;
+        listeners.sendEvent(
+            EVENT_DEVICE_INFO_CHANGED, listener -> listener.onDeviceInfoChanged(newDeviceInfo));
       }
     }
 
     @Override
     public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
-      // TODO(internal b/187152483): Events should be dispatched via ListenerSet
-      for (Listener listener : listenerArraySet) {
-        listener.onDeviceVolumeChanged(streamVolume, streamMuted);
-      }
+      listeners.sendEvent(
+          EVENT_DEVICE_VOLUME_CHANGED,
+          listener -> listener.onDeviceVolumeChanged(streamVolume, streamMuted));
     }
 
     // Player.AudioOffloadListener implementation.

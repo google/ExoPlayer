@@ -43,6 +43,8 @@
     *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
     *   Make `SimpleExoPlayer.renderers` private. Renderers can be accessed via
         `ExoPlayer.getRenderer`.
+    *   Updated some `AnalyticsListener.EventFlags` constant values to match
+        values in `Player.EventFlags`.
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
