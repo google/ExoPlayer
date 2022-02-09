@@ -62,7 +62,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private static final int RTP_PACKET_TYPE_FU = 49;
 
-  /** IDR NAL unit type. */
+  /** IDR NAL unit types. */
   private static final int NAL_IDR_W_RADL = 19;
   private static final int NAL_IDR_N_LP = 20;
 
@@ -158,7 +158,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @RequiresNonNull("trackOutput")
   private void processSingleNalUnitPacket(ParsableByteArray data) {
-    // Example of a Single Nal Unit packet
+    //  The structure a single NAL unit packet.
     //     0                   1                   2                   3
     //     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     //    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -204,7 +204,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @RequiresNonNull("trackOutput")
   private void processFragmentationUnitPacket(ParsableByteArray data, int packetSequenceNumber) {
-    //  Example of a FU packet
+    //  The structure of an FU packet.
     //    0                   1                   2                   3
     //    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -246,10 +246,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // Prepends starter code.
       fragmentedSampleSizeBytes += writeStartCode();
 
-      // Overwrite a few bytes in Rtp buffer to get HEVC NAL unit
+      // Overwrite a few bytes in Rtp buffer to get HEVC NAL Unit
       // Rtp Byte 0  -> Ignore
-      // Rtp Byte 1  -> Byte 0 of HEVC NAL header
-      // Rtp Byte 2  -> Byte 1 of HEVC NAL header
+      // Rtp Byte 1  -> Byte 0 of HEVC NAL Header
+      // Rtp Byte 2  -> Byte 1 of HEVC NAL Header
       // Rtp Payload -> HEVC NAL bytes, so leave them unchanged
       // Set data position from byte 1 as byte 0 was ignored
       data.getData()[1] = (byte) nalHeader[0];
