@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
@@ -107,41 +109,19 @@ public final class AndroidTestUtil {
     return result;
   }
 
-  private static void writeResultToFile(Context context, String testId, TransformationResult result)
-      throws IOException {
+  private static void writeResultToFile(
+      Context context, String testId, TransformationResult transformationResult)
+      throws IOException, JSONException {
     File analysisFile = createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
+    String analysisContent =
+        new JSONObject()
+            .put("testId", testId)
+            .put("device", getDeviceJson())
+            .put("transformationResult", getTransformationResultJson(transformationResult))
+            .toString(/* indentSpaces= */ 2);
     try (FileWriter fileWriter = new FileWriter(analysisFile)) {
-      String fileContents =
-          "test="
-              + testId
-              + ", "
-              + getFormattedResult(result)
-              + ", deviceFingerprint="
-              + Build.FINGERPRINT
-              + ", deviceBrand="
-              + Build.MANUFACTURER
-              + ", deviceModel="
-              + Build.MODEL
-              + ", sdkVersion="
-              + Build.VERSION.SDK_INT;
-      fileWriter.write(fileContents);
+      fileWriter.write(analysisContent);
     }
-  }
-
-  /** Formats a {@link TransformationResult} into a comma separated String. */
-  public static String getFormattedResult(TransformationResult result) {
-    String analysis = "";
-    if (result.fileSizeBytes != C.LENGTH_UNSET) {
-      analysis += "fileSizeBytes=" + result.fileSizeBytes;
-    }
-    if (result.averageAudioBitrate != C.RATE_UNSET_INT) {
-      analysis += ", averageAudioBitrate=" + result.averageAudioBitrate;
-    }
-    if (result.averageVideoBitrate != C.RATE_UNSET_INT) {
-      analysis += ", averageVideoBitrate=" + result.averageVideoBitrate;
-    }
-
-    return analysis;
   }
 
   private static File createExternalCacheFile(Context context, String fileName) throws IOException {
@@ -149,6 +129,29 @@ public final class AndroidTestUtil {
     checkState(!file.exists() || file.delete(), "Could not delete file: " + file.getAbsolutePath());
     checkState(file.createNewFile(), "Could not create file: " + file.getAbsolutePath());
     return file;
+  }
+
+  private static JSONObject getDeviceJson() throws JSONException {
+    return new JSONObject()
+        .put("manufacturer", Build.MANUFACTURER)
+        .put("model", Build.MODEL)
+        .put("sdkVersion", Build.VERSION.SDK_INT)
+        .put("fingerprint", Build.FINGERPRINT);
+  }
+
+  private static JSONObject getTransformationResultJson(TransformationResult transformationResult)
+      throws JSONException {
+    JSONObject transformationResultJson = new JSONObject();
+    if (transformationResult.fileSizeBytes != C.LENGTH_UNSET) {
+      transformationResultJson.put("fileSizeBytes", transformationResult.fileSizeBytes);
+    }
+    if (transformationResult.averageAudioBitrate != C.RATE_UNSET_INT) {
+      transformationResultJson.put("averageAudioBitrate", transformationResult.averageAudioBitrate);
+    }
+    if (transformationResult.averageVideoBitrate != C.RATE_UNSET_INT) {
+      transformationResultJson.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
+    }
+    return transformationResultJson;
   }
 
   private AndroidTestUtil() {}
