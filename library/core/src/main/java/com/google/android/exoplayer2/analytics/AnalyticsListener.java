@@ -31,6 +31,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DeviceInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
@@ -54,8 +55,10 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -65,6 +68,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 
 /**
  * A listener for analytics events.
@@ -182,6 +186,10 @@ public interface AnalyticsListener {
     EVENT_PLAYLIST_METADATA_CHANGED,
     EVENT_SEEK_BACK_INCREMENT_CHANGED,
     EVENT_SEEK_FORWARD_INCREMENT_CHANGED,
+    EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED,
+    EVENT_TRACK_SELECTION_PARAMETERS_CHANGED,
+    EVENT_DEVICE_INFO_CHANGED,
+    EVENT_DEVICE_VOLUME_CHANGED,
     EVENT_LOAD_STARTED,
     EVENT_LOAD_COMPLETED,
     EVENT_LOAD_CANCELED,
@@ -190,6 +198,7 @@ public interface AnalyticsListener {
     EVENT_UPSTREAM_DISCARDED,
     EVENT_BANDWIDTH_ESTIMATE,
     EVENT_METADATA,
+    EVENT_CUES,
     EVENT_AUDIO_ENABLED,
     EVENT_AUDIO_DECODER_INITIALIZED,
     EVENT_AUDIO_INPUT_FORMAT_CHANGED,
@@ -270,6 +279,8 @@ public interface AnalyticsListener {
   /** {@link Player#getMaxSeekToPreviousPosition()} changed. */
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED =
       Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED;
+  /** {@link Player#getTrackSelectionParameters()} changed. */
+  int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED;
   /** Audio attributes changed. */
   int EVENT_AUDIO_ATTRIBUTES_CHANGED = Player.EVENT_AUDIO_ATTRIBUTES_CHANGED;
   /** An audio session id was set. */
@@ -289,9 +300,12 @@ public interface AnalyticsListener {
   int EVENT_RENDERED_FIRST_FRAME = Player.EVENT_RENDERED_FIRST_FRAME;
   /** Metadata associated with the current playback time was reported. */
   int EVENT_METADATA = Player.EVENT_METADATA;
-
-  // TODO: Forward EVENT_CUES, EVENT_DEVICE_INFO_CHANGED and EVENT_DEVICE_VOLUME_CHANGED.
-
+  /** {@link Player#getCurrentCues()} changed. */
+  int EVENT_CUES = Player.EVENT_CUES;
+  /** {@link Player#getDeviceInfo()} changed. */
+  int EVENT_DEVICE_INFO_CHANGED = Player.EVENT_DEVICE_INFO_CHANGED;
+  /** {@link Player#getDeviceVolume()} changed. */
+  int EVENT_DEVICE_VOLUME_CHANGED = Player.EVENT_DEVICE_VOLUME_CHANGED;
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
   /** A source started completed loading data. */
@@ -682,6 +696,17 @@ public interface AnalyticsListener {
   default void onPlayerError(EventTime eventTime, PlaybackException error) {}
 
   /**
+   * Called when the {@link PlaybackException} returned by {@link Player#getPlayerError()} changes.
+   *
+   * <p>Implementations of Player may pass an instance of a subclass of {@link PlaybackException} to
+   * this method in order to include more information about the error.
+   *
+   * @param eventTime The event time.
+   * @param error The new error, or null if the error is being cleared.
+   */
+  default void onPlayerErrorChanged(EventTime eventTime, @Nullable PlaybackException error) {}
+
+  /**
    * Called when the available or selected tracks for the renderers changed.
    *
    * @param eventTime The event time.
@@ -700,6 +725,15 @@ public interface AnalyticsListener {
    * @param tracksInfo The available tracks information. Never null, but may be of length zero.
    */
   default void onTracksInfoChanged(EventTime eventTime, TracksInfo tracksInfo) {}
+
+  /**
+   * Called when track selection parameters change.
+   *
+   * @param eventTime The event time.
+   * @param trackSelectionParameters The new {@link TrackSelectionParameters}.
+   */
+  default void onTrackSelectionParametersChanged(
+      EventTime eventTime, TrackSelectionParameters trackSelectionParameters) {}
 
   /**
    * Called when the combined {@link MediaMetadata} changes.
@@ -809,6 +843,17 @@ public interface AnalyticsListener {
    * @param metadata The metadata.
    */
   default void onMetadata(EventTime eventTime, Metadata metadata) {}
+
+  /**
+   * Called when there is a change in the {@link Cue Cues}.
+   *
+   * <p>{@code cues} is in ascending order of priority. If any of the cue boxes overlap when
+   * displayed, the {@link Cue} nearer the end of the list should be shown on top.
+   *
+   * @param eventTime The event time.
+   * @param cues The {@link Cue Cues}. May be empty.
+   */
+  default void onCues(EventTime eventTime, List<Cue> cues) {}
 
   /** @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead. */
   @Deprecated
@@ -986,6 +1031,23 @@ public interface AnalyticsListener {
    * @param volume The new volume, with 0 being silence and 1 being unity gain.
    */
   default void onVolumeChanged(EventTime eventTime, float volume) {}
+
+  /**
+   * Called when the device information changes
+   *
+   * @param eventTime The event time.
+   * @param deviceInfo The new {@link DeviceInfo}.
+   */
+  default void onDeviceInfoChanged(EventTime eventTime, DeviceInfo deviceInfo) {}
+
+  /**
+   * Called when the device volume or mute state changes.
+   *
+   * @param eventTime The event time.
+   * @param volume The new device volume, with 0 being silence and 1 being unity gain.
+   * @param muted Whether the device is muted.
+   */
+  default void onDeviceVolumeChanged(EventTime eventTime, int volume, boolean muted) {}
 
   /**
    * Called when a video renderer is enabled.
