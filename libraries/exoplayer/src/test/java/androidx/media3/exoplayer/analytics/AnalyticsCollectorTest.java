@@ -121,6 +121,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -190,6 +191,18 @@ public final class AnalyticsCollectorTest {
   private EventWindowAndPeriodId period1Seq2;
   private EventWindowAndPeriodId window0Period1Seq0;
   private EventWindowAndPeriodId window1Period0Seq1;
+
+  @Test
+  public void analyticsCollector_overridesAllPlayerListenerMethods() throws Exception {
+    // Verify that AnalyticsCollector forwards all Player.Listener methods to AnalyticsListener.
+    for (Method method : Player.Listener.class.getDeclaredMethods()) {
+      assertThat(
+              AnalyticsCollector.class
+                  .getMethod(method.getName(), method.getParameterTypes())
+                  .getDeclaringClass())
+          .isEqualTo(AnalyticsCollector.class);
+    }
+  }
 
   @Test
   public void emptyTimeline() throws Exception {
@@ -434,7 +447,7 @@ public final class AnalyticsCollectorTest {
             // Wait until second period has fully loaded to assert loading events without flakiness.
             .waitForIsLoading(true)
             .waitForIsLoading(false)
-            .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
+            .seek(/* mediaItemIndex= */ 1, /* positionMs= */ 0)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource, actionSchedule);
@@ -527,7 +540,7 @@ public final class AnalyticsCollectorTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .playUntilPosition(/* windowIndex= */ 0, periodDurationMs)
+            .playUntilPosition(/* mediaItemIndex= */ 0, periodDurationMs)
             .seekAndWait(/* positionMs= */ 0)
             .play()
             .build();
@@ -821,7 +834,7 @@ public final class AnalyticsCollectorTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             // Ensure second period is already being read from.
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ periodDurationMs)
+            .playUntilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ periodDurationMs)
             .executeRunnable(
                 () ->
                     concatenatedMediaSource.moveMediaSource(
@@ -1086,9 +1099,9 @@ public final class AnalyticsCollectorTest {
             .waitForPlaybackState(Player.STATE_READY)
             // Wait in each content part to ensure previously triggered events get a chance to be
             // delivered. This prevents flakiness caused by playback progressing too fast.
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 3_000)
+            .playUntilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 3_000)
             .waitForPendingPlayerCommands()
-            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 8_000)
+            .playUntilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 8_000)
             .waitForPendingPlayerCommands()
             .play()
             .waitForPlaybackState(Player.STATE_ENDED)
