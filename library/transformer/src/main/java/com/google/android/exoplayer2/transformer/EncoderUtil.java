@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static java.lang.Math.max;
 import static java.lang.Math.round;
 
 import android.media.MediaCodec;
@@ -125,12 +126,13 @@ public final class EncoderUtil {
     MediaCodecInfo.CodecProfileLevel[] profileLevels =
         encoderInfo.getCapabilitiesForType(mimeType).profileLevels;
 
+    int maxSupportedLevel = LEVEL_UNSET;
     for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
       if (profileLevel.profile == profile) {
-        return profileLevel.level;
+        maxSupportedLevel = max(maxSupportedLevel, profileLevel.level);
       }
     }
-    return LEVEL_UNSET;
+    return maxSupportedLevel;
   }
 
   /**
