@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -205,7 +206,40 @@ public final class TransformationException extends Exception {
    * Creates an instance for a decoder or encoder related exception.
    *
    * @param cause The cause of the failure.
-   * @param format The {@link Format} used for configuring the decoder/encoder.
+   * @param mediaFormat The {@link MediaFormat} used for configuring the underlying {@link
+   *     MediaCodec}, if known.
+   * @param format The {@link Format} used for configuring the {@link Codec}.
+   * @param isVideo Whether the decoder or encoder is configured for video.
+   * @param isDecoder Whether the exception is created for a decoder.
+   * @param mediaCodecName The name of the {@link MediaCodec} used, if known.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  public static TransformationException createForCodec(
+      Throwable cause,
+      @Nullable MediaFormat mediaFormat,
+      Format format,
+      boolean isVideo,
+      boolean isDecoder,
+      @Nullable String mediaCodecName,
+      int errorCode) {
+    String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
+    String errorMessage =
+        componentName
+            + " error, format="
+            + format
+            + ", mediaCodecName="
+            + mediaCodecName
+            + ", mediaFormat="
+            + (mediaFormat == null ? "no configured MediaFormat" : mediaFormat.toString());
+    return new TransformationException(errorMessage, cause, errorCode);
+  }
+
+  /**
+   * Creates an instance for a decoder or encoder related exception.
+   *
+   * @param cause The cause of the failure.
+   * @param format The {@link Format} used for configuring the {@link Codec}.
    * @param isVideo Whether the decoder or encoder is configured for video.
    * @param isDecoder Whether the exception is created for a decoder.
    * @param mediaCodecName The name of the {@link MediaCodec} used, if known.
@@ -219,11 +253,8 @@ public final class TransformationException extends Exception {
       boolean isDecoder,
       @Nullable String mediaCodecName,
       int errorCode) {
-    String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
-    return new TransformationException(
-        componentName + " error, format = " + format + ", mediaCodecName=" + mediaCodecName,
-        cause,
-        errorCode);
+    return createForCodec(
+        cause, /* mediaFormat= */ null, format, isVideo, isDecoder, mediaCodecName, errorCode);
   }
 
   /**
