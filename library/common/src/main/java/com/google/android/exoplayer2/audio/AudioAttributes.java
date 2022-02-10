@@ -44,6 +44,11 @@ import java.lang.reflect.Method;
  */
 public final class AudioAttributes implements Bundleable {
 
+  /**
+   * The default audio attributes, where the content type is {@link C#CONTENT_TYPE_UNKNOWN}, usage
+   * is {@link C#USAGE_MEDIA}, capture policy is {@link C#ALLOW_CAPTURE_BY_ALL} and no flags are
+   * set.
+   */
   public static final AudioAttributes DEFAULT = new Builder().build();
 
   /** Builder for {@link AudioAttributes}. */
@@ -69,19 +74,19 @@ public final class AudioAttributes implements Bundleable {
       spatializationBehavior = C.SPATIALIZATION_BEHAVIOR_AUTO;
     }
 
-    /** @see android.media.AudioAttributes.Builder#setContentType(int) */
+    /** See {@link android.media.AudioAttributes.Builder#setContentType(int)} */
     public Builder setContentType(@C.AudioContentType int contentType) {
       this.contentType = contentType;
       return this;
     }
 
-    /** @see android.media.AudioAttributes.Builder#setFlags(int) */
+    /** See {@link android.media.AudioAttributes.Builder#setFlags(int)} */
     public Builder setFlags(@C.AudioFlags int flags) {
       this.flags = flags;
       return this;
     }
 
-    /** @see android.media.AudioAttributes.Builder#setUsage(int) */
+    /** See {@link android.media.AudioAttributes.Builder#setUsage(int)} */
     public Builder setUsage(@C.AudioUsage int usage) {
       this.usage = usage;
       return this;
@@ -95,7 +100,7 @@ public final class AudioAttributes implements Bundleable {
 
     // TODO[b/190759307] Update javadoc to link to AudioAttributes.Builder#setSpatializationBehavior
     //  once compile SDK target is set to 32.
-    /** See AudioAttributes.Builder#setSpatializationBehavior(int). */
+    /** See {@code android.media.AudioAttributes.Builder.setSpatializationBehavior(int)}. */
     public Builder setSpatializationBehavior(@C.SpatializationBehavior int spatializationBehavior) {
       this.spatializationBehavior = spatializationBehavior;
       return this;
@@ -108,10 +113,15 @@ public final class AudioAttributes implements Bundleable {
     }
   }
 
+  /** The {@link C.AudioContentType}. */
   public final @C.AudioContentType int contentType;
+  /** The {@link C.AudioFlags}. */
   public final @C.AudioFlags int flags;
+  /** The {@link C.AudioUsage}. */
   public final @C.AudioUsage int usage;
+  /** The {@link C.AudioAllowedCapturePolicy}. */
   public final @C.AudioAllowedCapturePolicy int allowedCapturePolicy;
+  /** The {@link C.SpatializationBehavior}. */
   public final @C.SpatializationBehavior int spatializationBehavior;
 
   @Nullable private android.media.AudioAttributes audioAttributesV21;
