@@ -174,7 +174,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
           // in-app muxing.
           mediaFormat.setInteger(MediaFormat.KEY_LATENCY, 1);
         }
-      } else if (Util.SDK_INT >= 23) {
+      } else if (Util.SDK_INT >= 24) {
         int supportedLevel =
             EncoderUtil.findHighestSupportedEncodingLevel(
                 encoderInfo, mimeType, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
@@ -184,12 +184,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         mediaFormat.setInteger(
             MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
         mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedLevel);
-      } else {
-        // Use the baseline profile for safest results, as encoding in baseline is required per
-        // https://source.android.com/compatibility/5.0/android-5.0-cdd#5_2_video_encoding
-        mediaFormat.setInteger(
-            MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
       }
+      // For API levels below 24, setting profile and level can lead to failures in MediaCodec
+      // configuration. The encoder selects the profile/level when we don't set them.
     }
 
     mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, DEFAULT_COLOR_FORMAT);
