@@ -209,16 +209,107 @@ media stream contains both ads and content. A DASH manifest may point to both
 content and ad segments, possibly in separate periods. For HLS, see the Apple
 documentation on [incorporating ads into a playlist][].
 
-When using server-side ad insertion the client may need to report tracking
-events to an ad SDK or ad server. For example, the media stream may include
-timed events that need to be reported by the client (see [supported formats][]
-for information on what timed metadata formats are supported by ExoPlayer). Apps
+When using server-side ad insertion, the client may need to resolve the media
+URL dynamically to get the stitched stream, it may need to display ads overlays
+in the UI or it may need to report events to an ads SDK or ad server.
+
+ExoPlayer's `DefaultMediaSourceFactory` can delegate all these tasks to a
+server-side ad insertion `MediaSource` for URIs using the `ssai://` scheme:
+
+```
+Player player =
+    new ExoPlayer.Builder(context)
+        .setMediaSourceFactory(
+            new DefaultMediaSourceFactory(dataSourceFactory)
+                .setServerSideAdInsertionMediaSourceFactory(ssaiFactory))
+        .build();
+```
+
+### IMA extension ###
+
+The [ExoPlayer IMA extension][] provides `ImaServerSideAdInsertionMediaSource`,
+making it easy to integrate with IMA's server-side inserted ad streams in your
+app. It wraps the functionality of the [IMA DAI SDK for Android][] and fully
+integrates the provided ad metadata into the player. For example, this allows
+you to use methods like `Player.isPlayingAd()`, listen to content-ad transitions
+and let the player handle ad playback logic like skipping already played ads.
+
+In order to use this class, you need to set up the
+`ImaServerSideAdInsertionMediaSource.AdsLoader` and the
+`ImaServerSideAdInsertionMediaSource.Factory` and connect them to the player:
+
+```
+// MediaSource.Factory to load the actual media stream.
+DefaultMediaSourceFactory defaultMediaSourceFactory =
+    new DefaultMediaSourceFactory(dataSourceFactory);
+// AdsLoader that can be reused for multiple playbacks.
+ImaServerSideAdInsertionMediaSource.AdsLoader adsLoader =
+    new ImaServerSideAdInsertionMediaSource.AdsLoader.Builder(context, adViewProvider)
+        .build();
+// MediaSource.Factory to create the ad sources for the current player.
+ImaServerSideAdInsertionMediaSource.Factory adsMediaSourceFactory =
+    new ImaServerSideAdInsertionMediaSource.Factory(adsLoader, defaultMediaSourceFactory);
+// Configure DefaultMediaSourceFactory to create both IMA DAI sources and
+// regular media sources. If you just play IMA DAI streams, you can also use
+// adsMediaSourceFactory directly.
+defaultMediaSourceFactory.setServerSideAdInsertionMediaSourceFactory(adsMediaSourceFactory);
+// Set the MediaSource.Factory on the Player.
+Player player =
+    new ExoPlayer.Builder(context)
+        .setMediaSourceFactory(defaultMediaSourceFactory)
+        .build();
+// Set the player on the AdsLoader
+adsLoader.setPlayer(player);
+```
+
+Load your IMA asset key, or content source id and video id, by building an URL
+with `ImaServerSideAdInsertionUriBuilder`:
+
+```
+Uri ssaiUri =
+    new ImaServerSideAdInsertionUriBuilder().setAssetKey(assetKey).build();
+player.setMediaItem(MediaItem.fromUri(ssaiUri));
+```
+
+Finally, release your ads loader once it's no longer used:
+```
+adsLoader.release();
+```
+
+Currently only a single IMA server-side ad insertion stream is supported in the
+same playlist. You can combine the stream with other media but not with another
+IMA server-side ad insertion stream.
+{:.info}
+
+#### UI considerations ####
+
+The same [UI considerations as for client-side ad insertion][] apply to
+server-side ad insertion too.
+
+#### Companion ads ####
+
+Some ad tags contain additional companion ads that can be shown in 'slots' in an
+app UI. These slots can be passed via
+`ImaServerSideAdInsertionMediaSource.AdsLoader.Builder.setCompanionAdSlots(slots)`.
+For more information see [Adding Companion Ads][].
+
+### Using a third-party ads SDK ###
+
+If you need to load ads via a third-party ads SDK, it’s worth checking whether
+it already provides an ExoPlayer integration. If not, it's recommended to
+provide a custom `MediaSource` that accepts URIs with the `ssai://` scheme
+similar to `ImaServerSideAdInsertionMediaSource`.
+
+The actual logic of creating the ad structure can be delegated to the general
+purpose `ServerSideInsertedAdsMediaSource`, which wraps a stream `MediaSource`
+and allows the user to set and update the `AdPlaybackState` representing the ad
+metadata.
+
+Often, server-side inserted ad streams contain timed events to notify the player
+about ad metadata. Please see [supported formats][] for information on what
+timed metadata formats are supported by ExoPlayer. Custom ads SDK `MediaSource`s
 can listen for timed metadata events from the player, e.g., via
 `ExoPlayer.addMetadataOutput`.
-
-The IMA extension currently only handles client-side ad insertion. It does not
-provide any integration with the DAI part of the IMA SDK.
-{:.info}
 
 [VAST]: https://www.iab.com/wp-content/uploads/2015/06/VASTv3_0.pdf
 [VMAP]: https://www.iab.com/guidelines/digital-video-multiple-ad-playlist-vmap-1-0-1/
@@ -234,3 +325,5 @@ provide any integration with the DAI part of the IMA SDK.
 [incorporating ads into a playlist]: https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming/incorporating_ads_into_a_playlist
 [supported formats]: {{ site.baseurl }}/supported-formats.html
 [Google Mobile Ads SDK]: https://developers.google.com/admob/android/quick-start
+[IMA DAI SDK for Android]: https://developers.google.com/interactive-media-ads/docs/sdks/android/dai
+[UI considerations as for client-side ad insertion]: #ui-considerations
