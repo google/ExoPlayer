@@ -108,7 +108,7 @@ public final class DefaultCodec implements Codec {
       }
 
       throw createInitializationTransformationException(
-          e, configurationFormat, isVideo, isDecoder, mediaCodecName);
+          e, mediaFormat, configurationFormat, isVideo, isDecoder, mediaCodecName);
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
@@ -299,6 +299,7 @@ public final class DefaultCodec implements Codec {
 
   private static TransformationException createInitializationTransformationException(
       Exception cause,
+      MediaFormat mediaFormat,
       Format format,
       boolean isVideo,
       boolean isDecoder,
@@ -306,6 +307,7 @@ public final class DefaultCodec implements Codec {
     if (cause instanceof IOException || cause instanceof MediaCodec.CodecException) {
       return TransformationException.createForCodec(
           cause,
+          mediaFormat,
           format,
           isVideo,
           isDecoder,
@@ -317,6 +319,7 @@ public final class DefaultCodec implements Codec {
     if (cause instanceof IllegalArgumentException) {
       return TransformationException.createForCodec(
           cause,
+          mediaFormat,
           format,
           isVideo,
           isDecoder,
