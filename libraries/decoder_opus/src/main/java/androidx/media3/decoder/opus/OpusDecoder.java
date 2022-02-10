@@ -99,6 +99,7 @@ public final class OpusDecoder
     }
     preSkipSamples = getPreSkipSamples(initializationData);
     seekPreRollSamples = getSeekPreRollSamples(initializationData);
+    skipSamples = preSkipSamples;
 
     byte[] headerBytes = initializationData.get(0);
     if (headerBytes.length < 19) {
