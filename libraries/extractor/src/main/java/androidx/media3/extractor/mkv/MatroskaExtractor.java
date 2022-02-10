@@ -1552,12 +1552,13 @@ public class MatroskaExtractor implements Extractor {
         blockFlags |= C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
         blockAdditionalData.reset(/* limit= */ 0);
         // If there is supplemental data, the structure of the sample data is:
-        // sample size (4 bytes) || sample data || supplemental data
+        // encryption data (if any) || sample size (4 bytes) || sample data || supplemental data
+        int sampleSize = size + sampleStrippedBytes.limit() - sampleBytesRead;
         scratch.reset(/* limit= */ 4);
-        scratch.getData()[0] = (byte) ((size >> 24) & 0xFF);
-        scratch.getData()[1] = (byte) ((size >> 16) & 0xFF);
-        scratch.getData()[2] = (byte) ((size >> 8) & 0xFF);
-        scratch.getData()[3] = (byte) (size & 0xFF);
+        scratch.getData()[0] = (byte) ((sampleSize >> 24) & 0xFF);
+        scratch.getData()[1] = (byte) ((sampleSize >> 16) & 0xFF);
+        scratch.getData()[2] = (byte) ((sampleSize >> 8) & 0xFF);
+        scratch.getData()[3] = (byte) (sampleSize & 0xFF);
         output.sampleData(scratch, 4, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
         sampleBytesWritten += 4;
       }
