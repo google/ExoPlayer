@@ -15,6 +15,9 @@
  */
 package androidx.media3.test.utils;
 
+import static androidx.media3.common.util.Util.sum;
+import static androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US;
+import static androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -27,7 +30,13 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Fake {@link Timeline} which can be setup to return custom {@link TimelineWindowDefinition}s. */
 @UnstableApi
@@ -52,7 +61,7 @@ public final class FakeTimeline extends Timeline {
     public final long durationUs;
     public final long defaultPositionUs;
     public final long windowOffsetInFirstPeriodUs;
-    public final AdPlaybackState adPlaybackState;
+    public final List<AdPlaybackState> adPlaybackStates;
 
     /**
      * Creates a window definition that corresponds to a placeholder timeline using the given tag.
@@ -179,8 +188,39 @@ public final class FakeTimeline extends Timeline {
           durationUs,
           defaultPositionUs,
           windowOffsetInFirstPeriodUs,
-          adPlaybackState,
+          ImmutableList.of(adPlaybackState),
           FAKE_MEDIA_ITEM.buildUpon().setTag(id).build());
+    }
+
+    /**
+     * @deprecated Use {@link #TimelineWindowDefinition(int, Object, boolean, boolean, boolean,
+     *     boolean, long, long, long, List, MediaItem)} instead.
+     */
+    @Deprecated
+    public TimelineWindowDefinition(
+        int periodCount,
+        Object id,
+        boolean isSeekable,
+        boolean isDynamic,
+        boolean isLive,
+        boolean isPlaceholder,
+        long durationUs,
+        long defaultPositionUs,
+        long windowOffsetInFirstPeriodUs,
+        AdPlaybackState adPlaybackState,
+        MediaItem mediaItem) {
+      this(
+          periodCount,
+          id,
+          isSeekable,
+          isDynamic,
+          isLive,
+          isPlaceholder,
+          durationUs,
+          defaultPositionUs,
+          windowOffsetInFirstPeriodUs,
+          ImmutableList.of(adPlaybackState),
+          mediaItem);
     }
 
     /**
@@ -197,7 +237,7 @@ public final class FakeTimeline extends Timeline {
      * @param defaultPositionUs The default position of the window in microseconds.
      * @param windowOffsetInFirstPeriodUs The offset of the window in the first period, in
      *     microseconds.
-     * @param adPlaybackState The ad playback state.
+     * @param adPlaybackStates The ad playback states for the periods.
      * @param mediaItem The media item to include in the timeline.
      */
     public TimelineWindowDefinition(
@@ -210,7 +250,7 @@ public final class FakeTimeline extends Timeline {
         long durationUs,
         long defaultPositionUs,
         long windowOffsetInFirstPeriodUs,
-        AdPlaybackState adPlaybackState,
+        List<AdPlaybackState> adPlaybackStates,
         MediaItem mediaItem) {
       Assertions.checkArgument(durationUs != C.TIME_UNSET || periodCount == 1);
       this.periodCount = periodCount;
@@ -223,7 +263,7 @@ public final class FakeTimeline extends Timeline {
       this.durationUs = durationUs;
       this.defaultPositionUs = defaultPositionUs;
       this.windowOffsetInFirstPeriodUs = windowOffsetInFirstPeriodUs;
-      this.adPlaybackState = adPlaybackState;
+      this.adPlaybackStates = adPlaybackStates;
     }
   }
 
@@ -266,6 +306,59 @@ public final class FakeTimeline extends Timeline {
     adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
 
     return adPlaybackState;
+  }
+
+  /**
+   * Creates a multi-period timeline with ad and content periods specified by the flags passed as
+   * var-arg arguments.
+   *
+   * <p>Period uid end up being a {@code new Pair<>(windowId, periodIndex)}.
+   *
+   * @param windowId The window ID.
+   * @param numberOfPlayedAds The number of ads that should be marked as played.
+   * @param isAdPeriodFlags A value of true indicates an ad period. A value of false indicated a
+   *     content period.
+   * @return A timeline with a single window with as many periods as var-arg arguments.
+   */
+  public static FakeTimeline createMultiPeriodAdTimeline(
+      Object windowId, int numberOfPlayedAds, boolean... isAdPeriodFlags) {
+    long periodDurationUs = DEFAULT_WINDOW_DURATION_US / isAdPeriodFlags.length;
+    AdPlaybackState firstAdPeriodState =
+        new AdPlaybackState(/* adsId= */ "adsId", /* adGroupTimesUs... */ 0)
+            .withAdCount(/* adGroupIndex= */ 0, 1)
+            .withAdDurationsUs(
+                /* adGroupIndex= */ 0, DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US + periodDurationUs)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+    AdPlaybackState commonAdPeriodState = firstAdPeriodState.withAdDurationsUs(0, periodDurationUs);
+    AdPlaybackState contentPeriodState = new AdPlaybackState(/* adsId= */ "adsId");
+
+    List<AdPlaybackState> adPlaybackStates = new ArrayList<>();
+    int playedAdsCounter = 0;
+    for (boolean isAd : isAdPeriodFlags) {
+      AdPlaybackState periodAdPlaybackState =
+          isAd
+              ? (adPlaybackStates.isEmpty() ? firstAdPeriodState : commonAdPeriodState)
+              : contentPeriodState;
+      if (isAd && playedAdsCounter < numberOfPlayedAds) {
+        periodAdPlaybackState =
+            periodAdPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+        playedAdsCounter++;
+      }
+      adPlaybackStates.add(periodAdPlaybackState);
+    }
+    return new FakeTimeline(
+        new FakeTimeline.TimelineWindowDefinition(
+            isAdPeriodFlags.length,
+            windowId,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ DEFAULT_WINDOW_DURATION_US,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+            /* adPlaybackStates= */ adPlaybackStates,
+            MediaItem.EMPTY));
   }
 
   /**
@@ -363,6 +456,19 @@ public final class FakeTimeline extends Timeline {
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
+    long windowDurationUs = 0;
+    Period period = new Period();
+    for (int i = periodOffsets[windowIndex]; i < periodOffsets[windowIndex + 1]; i++) {
+      long periodDurationUs = getPeriod(/* periodIndex= */ i, period).durationUs;
+      if (i == periodOffsets[windowIndex] && periodDurationUs != 0) {
+        windowDurationUs -= windowDefinition.windowOffsetInFirstPeriodUs;
+      }
+      if (periodDurationUs == C.TIME_UNSET) {
+        windowDurationUs = C.TIME_UNSET;
+        break;
+      }
+      windowDurationUs += periodDurationUs;
+    }
     window.set(
         /* uid= */ windowDefinition.id,
         windowDefinition.mediaItem,
@@ -376,7 +482,7 @@ public final class FakeTimeline extends Timeline {
         windowDefinition.isDynamic,
         windowDefinition.isLive ? windowDefinition.mediaItem.liveConfiguration : null,
         windowDefinition.defaultPositionUs,
-        windowDefinition.durationUs,
+        windowDurationUs,
         periodOffsets[windowIndex],
         periodOffsets[windowIndex + 1] - 1,
         windowDefinition.windowOffsetInFirstPeriodUs);
@@ -396,11 +502,15 @@ public final class FakeTimeline extends Timeline {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
     Object id = setIds ? windowPeriodIndex : null;
     Object uid = setIds ? Pair.create(windowDefinition.id, windowPeriodIndex) : null;
+    AdPlaybackState adPlaybackState =
+        windowDefinition.adPlaybackStates.get(
+            periodIndex % windowDefinition.adPlaybackStates.size());
     // Arbitrarily set period duration by distributing window duration equally among all periods.
     long periodDurationUs =
-        windowDefinition.durationUs == C.TIME_UNSET
+        periodIndex == windowDefinition.periodCount - 1
+                && windowDefinition.durationUs == C.TIME_UNSET
             ? C.TIME_UNSET
-            : windowDefinition.durationUs / windowDefinition.periodCount;
+            : (windowDefinition.durationUs / windowDefinition.periodCount);
     long positionInWindowUs;
     if (windowPeriodIndex == 0) {
       if (windowDefinition.durationUs != C.TIME_UNSET) {
@@ -414,9 +524,11 @@ public final class FakeTimeline extends Timeline {
         id,
         uid,
         windowIndex,
-        periodDurationUs,
+        periodDurationUs == C.TIME_UNSET
+            ? C.TIME_UNSET
+            : periodDurationUs - getServerSideAdInsertionAdDurationUs(adPlaybackState),
         positionInWindowUs,
-        windowDefinition.adPlaybackState,
+        adPlaybackState,
         windowDefinition.isPlaceholder);
     return period;
   }
@@ -442,11 +554,38 @@ public final class FakeTimeline extends Timeline {
     return Pair.create(windowDefinition.id, windowPeriodIndex);
   }
 
+  /**
+   * Returns a map of ad playback states keyed by the period UID.
+   *
+   * @param windowIndex The window index of the window to get the map of ad playback states from.
+   * @return The map of {@link AdPlaybackState ad playback states}.
+   */
+  public ImmutableMap<Object, AdPlaybackState> getAdPlaybackStates(int windowIndex) {
+    Map<Object, AdPlaybackState> adPlaybackStateMap = new HashMap<>();
+    TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
+    for (int i = 0; i < windowDefinition.adPlaybackStates.size(); i++) {
+      adPlaybackStateMap.put(
+          new Pair<>(windowDefinition.id, i), windowDefinition.adPlaybackStates.get(i));
+    }
+    return ImmutableMap.copyOf(adPlaybackStateMap);
+  }
+
   private static TimelineWindowDefinition[] createDefaultWindowDefinitions(int windowCount) {
     TimelineWindowDefinition[] windowDefinitions = new TimelineWindowDefinition[windowCount];
     for (int i = 0; i < windowCount; i++) {
       windowDefinitions[i] = new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ i);
     }
     return windowDefinitions;
+  }
+
+  private static long getServerSideAdInsertionAdDurationUs(AdPlaybackState adPlaybackState) {
+    long adDurationUs = 0;
+    for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
+      if (adGroup.isServerSideInserted) {
+        adDurationUs += sum(adGroup.durationsUs);
+      }
+    }
+    return adDurationUs;
   }
 }

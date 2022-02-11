@@ -459,6 +459,52 @@ public class ImaUtilTest {
   }
 
   @Test
+  public void splitAdPlaybackStateForPeriods_singleAdOfAdGroupSpansMultiplePeriods_correctState() {
+    int periodCount = 8;
+    long periodDurationUs = DEFAULT_WINDOW_DURATION_US / periodCount;
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ "adsId", 0, periodDurationUs, 2 * periodDurationUs)
+            .withAdCount(/* adGroupIndex= */ 0, 1)
+            .withAdCount(/* adGroupIndex= */ 1, 1)
+            .withAdCount(/* adGroupIndex= */ 2, 1)
+            .withAdDurationsUs(
+                /* adGroupIndex= */ 0, /* adDurationsUs...= */
+                DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US + (2 * periodDurationUs))
+            .withAdDurationsUs(
+                /* adGroupIndex= */ 1, /* adDurationsUs...= */ (2 * periodDurationUs))
+            .withAdDurationsUs(
+                /* adGroupIndex= */ 2, /* adDurationsUs...= */ (2 * periodDurationUs))
+            .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .withPlayedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
+            .withIsServerSideInserted(/* adGroupIndex= */ 1, true)
+            .withIsServerSideInserted(/* adGroupIndex= */ 2, true);
+    FakeTimeline timeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ periodCount, /* id= */ 0L));
+
+    ImmutableMap<Object, AdPlaybackState> adPlaybackStates =
+        ImaUtil.splitAdPlaybackStateForPeriods(adPlaybackState, timeline);
+
+    assertThat(adPlaybackStates).hasSize(periodCount);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 0)).getAdGroup(/* adGroupIndex= */ 0).states[0])
+        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 1)).getAdGroup(/* adGroupIndex= */ 0).states[0])
+        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 2)).adGroupCount).isEqualTo(0);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 3)).getAdGroup(/* adGroupIndex= */ 0).states[0])
+        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 4)).getAdGroup(/* adGroupIndex= */ 0).states[0])
+        .isEqualTo(AdPlaybackState.AD_STATE_PLAYED);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 5)).adGroupCount).isEqualTo(0);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 6)).getAdGroup(/* adGroupIndex= */ 0).states[0])
+        .isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+    assertThat(adPlaybackStates.get(new Pair<>(0L, 7)).getAdGroup(/* adGroupIndex= */ 0).states[0])
+        .isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+  }
+
+  @Test
   public void splitAdPlaybackStateForPeriods_lateMidrollAdGroupStartTimeUs_adGroupIgnored() {
     int periodCount = 4;
     long periodDurationUs = DEFAULT_WINDOW_DURATION_US / periodCount;
