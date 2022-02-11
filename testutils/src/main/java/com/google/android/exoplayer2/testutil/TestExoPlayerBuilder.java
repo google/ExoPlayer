@@ -22,10 +22,10 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.DefaultAnalyticsCollector;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -35,8 +35,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A builder of {@link SimpleExoPlayer} instances for testing. */
-@SuppressWarnings("deprecation") // Returning deprecated type for backwards compatibility.
+/** A builder of {@link ExoPlayer} instances for testing. */
 public class TestExoPlayerBuilder {
 
   private final Context context;
@@ -273,8 +272,8 @@ public class TestExoPlayerBuilder {
     return seekForwardIncrementMs;
   }
 
-  /** Builds an {@link SimpleExoPlayer} using the provided values or their defaults. */
-  public SimpleExoPlayer build() {
+  /** Builds an {@link ExoPlayer} using the provided values or their defaults. */
+  public ExoPlayer build() {
     Assertions.checkNotNull(
         looper, "TestExoPlayer builder run on a thread without Looper and no Looper specified.");
     // Do not update renderersFactory and renderers here, otherwise their getters may
@@ -295,8 +294,8 @@ public class TestExoPlayerBuilder {
                   };
     }
 
-    SimpleExoPlayer.Builder builder =
-        new SimpleExoPlayer.Builder(context, playerRenderersFactory)
+    ExoPlayer.Builder builder =
+        new ExoPlayer.Builder(context, playerRenderersFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setBandwidthMeter(bandwidthMeter)

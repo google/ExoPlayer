@@ -65,9 +65,11 @@ import static org.junit.Assert.fail;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -170,7 +172,9 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAudioManager;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link ExoPlayer}. */
 @RunWith(AndroidJUnit4.class)
@@ -11458,6 +11462,122 @@ public final class ExoPlayerTest {
     assertThat(player.getMediaMetadata()).isEqualTo(mediaMetadata);
   }
 
+  @Test
+  @Config(sdk = Config.ALL_SDKS)
+  public void builder_inBackgroundThread_doesNotThrow() throws Exception {
+    Thread builderThread =
+        new Thread(
+            () -> new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build());
+    AtomicReference<Throwable> builderThrow = new AtomicReference<>();
+    builderThread.setUncaughtExceptionHandler((thread, throwable) -> builderThrow.set(throwable));
+
+    builderThread.start();
+    builderThread.join();
+
+    assertThat(builderThrow.get()).isNull();
+  }
+
+  @Test
+  public void onPlaylistMetadataChanged_calledWhenPlaylistMetadataSet() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+    Player.Listener playerListener = mock(Player.Listener.class);
+    player.addListener(playerListener);
+    AnalyticsListener analyticsListener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(analyticsListener);
+
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("test").build();
+    player.setPlaylistMetadata(mediaMetadata);
+
+    verify(playerListener).onPlaylistMetadataChanged(mediaMetadata);
+    verify(analyticsListener).onPlaylistMetadataChanged(any(), eq(mediaMetadata));
+  }
+
+  @Test
+  public void release_triggersAllPendingEventsInAnalyticsListeners() throws Exception {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setRenderersFactory(
+                (handler, videoListener, audioListener, textOutput, metadataOutput) ->
+                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+            .build();
+    AnalyticsListener listener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(listener);
+    // Do something that requires clean-up callbacks like decoder disabling.
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener).onVideoDisabled(any(), any());
+    verify(listener).onPlayerReleased(any());
+  }
+
+  @Test
+  public void releaseAfterRendererEvents_triggersPendingVideoEventsInListener() throws Exception {
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setRenderersFactory(
+                (handler, videoListener, audioListener, textOutput, metadataOutput) ->
+                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.setVideoSurface(surface);
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.release();
+    surface.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener, atLeastOnce()).onEvents(any(), any()); // EventListener
+    verify(listener).onRenderedFirstFrame(); // VideoListener
+  }
+
+  @Test
+  public void releaseAfterVolumeChanges_triggerPendingVolumeEventInListener() throws Exception {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.setVolume(0F);
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener).onVolumeChanged(anyFloat());
+  }
+
+  @Test
+  public void releaseAfterVolumeChanges_triggerPendingDeviceVolumeEventsInListener() {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    int deviceVolume = player.getDeviceVolume();
+    try {
+      player.setDeviceVolume(deviceVolume + 1); // No-op if at max volume.
+      player.setDeviceVolume(deviceVolume - 1); // No-op if at min volume.
+    } finally {
+      player.setDeviceVolume(deviceVolume); // Restore original volume.
+    }
+
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener, atLeast(2)).onDeviceVolumeChanged(anyInt(), anyBoolean());
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -11577,7 +11697,7 @@ public final class ExoPlayerTest {
     @Override
     public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
       super.render(positionUs, elapsedRealtimeUs);
-      if (sleepOnNextRender.compareAndSet(/* expect= */ true, /* update= */ false)) {
+      if (sleepOnNextRender.compareAndSet(/* expectedValue= */ true, /* newValue= */ false)) {
         wakeupListenerReceiver.get().onSleep(WAKEUP_DEADLINE_MS);
       }
     }
