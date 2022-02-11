@@ -26,6 +26,7 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSourceFactory;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.test.utils.FakeTimeline.TimelineWindowDefinition;
+import com.google.common.collect.ImmutableList;
 
 /** Fake {@link MediaSourceFactory} that creates a {@link FakeMediaSource}. */
 @UnstableApi
@@ -66,7 +67,7 @@ public final class FakeMediaSourceFactory implements MediaSourceFactory {
             /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
             /* defaultPositionUs= */ 2 * C.MICROS_PER_SECOND,
             /* windowOffsetInFirstPeriodUs= */ Util.msToUs(123456789),
-            AdPlaybackState.NONE,
+            ImmutableList.of(AdPlaybackState.NONE),
             mediaItem);
     return new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));
   }

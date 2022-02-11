@@ -438,12 +438,13 @@ import java.util.Set;
         new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs...= */ 0)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
             .withAdDurationsUs(/* adGroupIndex= */ 0, periodDurationUs)
-            .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, adGroup.contentResumeOffsetUs);
     long periodEndUs = periodStartUs + periodDurationUs;
     long adDurationsUs = 0;
     for (int i = 0; i < adGroup.count; i++) {
       adDurationsUs += adGroup.durationsUs[i];
-      if (periodEndUs == adGroup.timeUs + adDurationsUs) {
+      if (periodEndUs <= adGroup.timeUs + adDurationsUs + 10_000) {
         // Map the state of the global ad state to the period specific ad state.
         switch (adGroup.states[i]) {
           case AdPlaybackState.AD_STATE_PLAYED:

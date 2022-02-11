@@ -1178,7 +1178,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       requestedContentPositionUs =
           seekPosition.windowPositionUs == C.TIME_UNSET ? C.TIME_UNSET : resolvedContentPositionUs;
       periodId =
-          queue.resolveMediaPeriodIdForAds(
+          queue.resolveMediaPeriodIdForAdsAfterPeriodPositionChange(
               playbackInfo.timeline, periodUid, resolvedContentPositionUs);
       if (periodId.isAd()) {
         playbackInfo.timeline.getPeriodByUid(periodId.periodUid, period);
@@ -1492,7 +1492,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             window, period, firstWindowIndex, /* windowPositionUs= */ C.TIME_UNSET);
     // Add ad metadata if any and propagate the window sequence number to new period id.
     MediaPeriodId firstPeriodId =
-        queue.resolveMediaPeriodIdForAds(
+        queue.resolveMediaPeriodIdForAdsAfterPeriodPositionChange(
             timeline, firstPeriodAndPositionUs.first, /* positionUs= */ 0);
     long positionUs = firstPeriodAndPositionUs.second;
     if (firstPeriodId.isAd()) {
@@ -2354,7 +2354,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private PlaybackInfo handlePositionDiscontinuity(
       MediaPeriodId mediaPeriodId,
       long positionUs,
-      long contentPositionUs,
+      long requestedContentPositionUs,
       long discontinuityStartPositionUs,
       boolean reportDiscontinuity,
       @DiscontinuityReason int discontinuityReason) {
@@ -2379,9 +2379,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       staticMetadata = extractMetadataFromTrackSelectionArray(trackSelectorResult.selections);
       // Ensure the media period queue requested content position matches the new playback info.
       if (playingPeriodHolder != null
-          && playingPeriodHolder.info.requestedContentPositionUs != contentPositionUs) {
+          && playingPeriodHolder.info.requestedContentPositionUs != requestedContentPositionUs) {
         playingPeriodHolder.info =
-            playingPeriodHolder.info.copyWithRequestedContentPositionUs(contentPositionUs);
+            playingPeriodHolder.info.copyWithRequestedContentPositionUs(requestedContentPositionUs);
       }
     } else if (!mediaPeriodId.equals(playbackInfo.periodId)) {
       // Reset previously kept track info if unprepared and the period changes.
@@ -2395,7 +2395,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return playbackInfo.copyWithNewPosition(
         mediaPeriodId,
         positionUs,
-        contentPositionUs,
+        requestedContentPositionUs,
         discontinuityStartPositionUs,
         getTotalBufferedDurationUs(),
         trackGroupArray,
@@ -2668,7 +2668,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     // Ensure ad insertion metadata is up to date.
     MediaPeriodId periodIdWithAds =
-        queue.resolveMediaPeriodIdForAds(timeline, newPeriodUid, contentPositionForAdResolutionUs);
+        queue.resolveMediaPeriodIdForAdsAfterPeriodPositionChange(
+            timeline, newPeriodUid, contentPositionForAdResolutionUs);
     boolean earliestCuePointIsUnchangedOrLater =
         periodIdWithAds.nextAdGroupIndex == C.INDEX_UNSET
             || (oldPeriodId.nextAdGroupIndex != C.INDEX_UNSET
