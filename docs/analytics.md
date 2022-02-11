@@ -225,16 +225,16 @@ new PlaybackStatsListener(
 
 In case you need to add custom events to the analytics data, you need to save
 these events in your own data structure and combine them with the reported
-`PlaybackStats` later. If it helps, you can extend `AnalyticsCollector` to be
-able to generate `EventTime` instances for your custom events and send them to
-the already registered listeners as shown in the following example.
+`PlaybackStats` later. If it helps, you can extend `DefaultAnalyticsCollector`
+to be able to generate `EventTime` instances for your custom events and send
+them to the already registered listeners as shown in the following example.
 
 ~~~
 interface ExtendedListener extends AnalyticsListener {
   void onCustomEvent(EventTime eventTime);
 }
 
-class ExtendedCollector extends AnalyticsCollector {
+class ExtendedCollector extends DefaultAnalyticsCollector {
  public void customEvent() {
    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
    sendEvent(eventTime, CUSTOM_EVENT_ID, listener -> {

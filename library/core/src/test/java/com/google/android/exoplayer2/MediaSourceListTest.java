@@ -29,6 +29,7 @@ import android.os.Looper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.DefaultAnalyticsCollector;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
@@ -55,7 +56,7 @@ public class MediaSourceListTest {
 
   @Before
   public void setUp() {
-    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    AnalyticsCollector analyticsCollector = new DefaultAnalyticsCollector(Clock.DEFAULT);
     analyticsCollector.setPlayer(
         new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
         Looper.getMainLooper());

@@ -45,6 +45,8 @@
         `ExoPlayer.getRenderer`.
     *   Updated some `AnalyticsListener.EventFlags` constant values to match
         values in `Player.EventFlags`.
+    *   Split `AnalyticsCollector` into an interface and default implementation
+        to allow it to be stripped by R8 if an app doesn't need it.
 *   Android 12 compatibility:
     *   Upgrade the Cast extension to depend on
         `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier

@@ -55,12 +55,12 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.argThat;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -134,11 +134,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.robolectric.shadows.ShadowLooper;
 
-/** Integration test for {@link AnalyticsCollector}. */
+/** Integration test for {@link DefaultAnalyticsCollector}. */
 @RunWith(AndroidJUnit4.class)
-public final class AnalyticsCollectorTest {
+public final class DefaultAnalyticsCollectorTest {
 
-  private static final String TAG = "AnalyticsCollectorTest";
+  private static final String TAG = "DefaultAnalyticsCollectorTest";
 
   // Deprecated event constants.
   private static final long EVENT_PLAYER_STATE_CHANGED = 1L << 63;
@@ -193,14 +193,14 @@ public final class AnalyticsCollectorTest {
   private EventWindowAndPeriodId window1Period0Seq1;
 
   @Test
-  public void analyticsCollector_overridesAllPlayerListenerMethods() throws Exception {
+  public void defaultAnalyticsCollector_overridesAllPlayerListenerMethods() throws Exception {
     // Verify that AnalyticsCollector forwards all Player.Listener methods to AnalyticsListener.
     for (Method method : Player.Listener.class.getDeclaredMethods()) {
       assertThat(
-              AnalyticsCollector.class
+              DefaultAnalyticsCollector.class
                   .getMethod(method.getName(), method.getParameterTypes())
                   .getDeclaringClass())
-          .isEqualTo(AnalyticsCollector.class);
+          .isEqualTo(DefaultAnalyticsCollector.class);
     }
   }
 
@@ -1964,7 +1964,7 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void recursiveListenerInvocation_arrivesInCorrectOrder() {
-    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    AnalyticsCollector analyticsCollector = new DefaultAnalyticsCollector(Clock.DEFAULT);
     analyticsCollector.setPlayer(
         new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
         Looper.myLooper());
