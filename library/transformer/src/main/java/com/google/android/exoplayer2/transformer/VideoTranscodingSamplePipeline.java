@@ -152,7 +152,7 @@ import org.checkerframework.dataflow.qual.Pure;
     fallbackListener.onTransformationRequestFinalized(
         createFallbackTransformationRequest(
             transformationRequest,
-            !swapEncodingDimensions,
+            /* resolutionIsHeight= */ !swapEncodingDimensions,
             requestedEncoderFormat,
             encoderSupportedFormat));
 

@@ -35,7 +35,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import javax.microedition.khronos.egl.EGL10;
 
 /** OpenGL ES utilities. */
@@ -223,13 +222,29 @@ public final class GlUtil {
   }
 
   /**
-   * Makes the specified {@code surface} the render target, using a viewport of {@code width} by
+   * Makes the specified {@code eglSurface} the render target, using a viewport of {@code width} by
    * {@code height} pixels.
    */
   @RequiresApi(17)
-  public static void focusSurface(
-      EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface surface, int width, int height) {
-    Api17.focusSurface(eglDisplay, eglContext, surface, width, height);
+  public static void focusEglSurface(
+      EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface eglSurface, int width, int height) {
+    Api17.focusRenderTarget(
+        eglDisplay, eglContext, eglSurface, /* framebuffer= */ 0, width, height);
+  }
+
+  /**
+   * Makes the specified {@code framebuffer} the render target, using a viewport of {@code width} by
+   * {@code height} pixels.
+   */
+  @RequiresApi(17)
+  public static void focusFramebuffer(
+      EGLDisplay eglDisplay,
+      EGLContext eglContext,
+      EGLSurface eglSurface,
+      int framebuffer,
+      int width,
+      int height) {
+    Api17.focusRenderTarget(eglDisplay, eglContext, eglSurface, framebuffer, width, height);
   }
 
   /**
@@ -294,19 +309,70 @@ public final class GlUtil {
    * GL_CLAMP_TO_EDGE wrapping.
    */
   public static int createExternalTexture() {
+    return generateAndBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+  }
+
+  /**
+   * Returns the texture identifier for a newly-allocated texture with the specified dimensions.
+   *
+   * @param width of the new texture in pixels
+   * @param height of the new texture in pixels
+   */
+  public static int createTexture(int width, int height) {
+    int texId = generateAndBindTexture(GLES20.GL_TEXTURE_2D);
+    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(width * height * 4);
+    GLES20.glTexImage2D(
+        GLES20.GL_TEXTURE_2D,
+        /* level= */ 0,
+        GLES20.GL_RGBA,
+        width,
+        height,
+        /* border= */ 0,
+        GLES20.GL_RGBA,
+        GLES20.GL_UNSIGNED_BYTE,
+        byteBuffer);
+    checkGlError();
+    return texId;
+  }
+
+  /**
+   * Returns a GL texture identifier of a newly generated and bound texture of the requested type
+   * with default configuration of GL_LINEAR filtering and GL_CLAMP_TO_EDGE wrapping.
+   *
+   * @param textureTarget The target to which the texture is bound, e.g. {@link
+   *     GLES20#GL_TEXTURE_2D} for a two-dimensional texture or {@link
+   *     GLES11Ext#GL_TEXTURE_EXTERNAL_OES} for an external texture.
+   */
+  private static int generateAndBindTexture(int textureTarget) {
     int[] texId = new int[1];
-    GLES20.glGenTextures(/* n= */ 1, IntBuffer.wrap(texId));
-    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texId[0]);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-    GLES20.glTexParameteri(
-        GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+    GLES20.glGenTextures(/* n= */ 1, texId, /* offset= */ 0);
+    checkGlError();
+    GLES20.glBindTexture(textureTarget, texId[0]);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+    checkGlError();
+    GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
     checkGlError();
     return texId[0];
+  }
+
+  /**
+   * Returns a new framebuffer for the texture.
+   *
+   * @param texId The identifier of the texture to attach to the framebuffer.
+   */
+  public static int createFboForTexture(int texId) {
+    int[] fboId = new int[1];
+    GLES20.glGenFramebuffers(/* n= */ 1, fboId, /* offset= */ 0);
+    checkGlError();
+    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId[0]);
+    checkGlError();
+    GLES20.glFramebufferTexture2D(
+        GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, texId, 0);
+    checkGlError();
+    return fboId[0];
   }
 
   /* package */ static void throwGlException(String errorMsg) {
@@ -379,15 +445,19 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    public static void focusSurface(
-        EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface surface, int width, int height) {
-      int[] boundFrameBuffer = new int[1];
-      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFrameBuffer, /* offset= */ 0);
-      int defaultFrameBuffer = 0;
-      if (boundFrameBuffer[0] != defaultFrameBuffer) {
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, defaultFrameBuffer);
+    public static void focusRenderTarget(
+        EGLDisplay eglDisplay,
+        EGLContext eglContext,
+        EGLSurface eglSurface,
+        int framebuffer,
+        int width,
+        int height) {
+      int[] boundFramebuffer = new int[1];
+      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFramebuffer, /* offset= */ 0);
+      if (boundFramebuffer[0] != framebuffer) {
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
       }
-      EGL14.eglMakeCurrent(eglDisplay, surface, surface, eglContext);
+      EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
       GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
     }
 
