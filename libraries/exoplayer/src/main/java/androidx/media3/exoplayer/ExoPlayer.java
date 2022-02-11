@@ -1018,7 +1018,9 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If this method has already been called.
      */
     public ExoPlayer build() {
-      return buildSimpleExoPlayer();
+      checkState(!buildCalled);
+      buildCalled = true;
+      return new ExoPlayerImpl(/* builder= */ this, /* wrappingPlayer= */ null);
     }
 
     /* package */ SimpleExoPlayer buildSimpleExoPlayer() {
