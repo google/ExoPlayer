@@ -26,7 +26,6 @@ import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
@@ -225,24 +224,6 @@ public final class Transformer {
       return this;
     }
 
-    /** @deprecated Use {@link TransformationRequest.Builder#setResolution(int)} instead. */
-    @Deprecated
-    public Builder setResolution(int outputHeight) {
-      transformationRequest = transformationRequest.buildUpon().setResolution(outputHeight).build();
-      return this;
-    }
-
-    /**
-     * @deprecated Use {@link TransformationRequest.Builder#setTransformationMatrix(Matrix)}
-     *     instead.
-     */
-    @Deprecated
-    public Builder setTransformationMatrix(Matrix transformationMatrix) {
-      transformationRequest =
-          transformationRequest.buildUpon().setTransformationMatrix(transformationMatrix).build();
-      return this;
-    }
-
     /**
      * @deprecated This feature will be removed in a following release and the MIME type of the
      *     output will always be MP4.
@@ -250,22 +231,6 @@ public final class Transformer {
     @Deprecated
     public Builder setOutputMimeType(String outputMimeType) {
       this.containerMimeType = outputMimeType;
-      return this;
-    }
-
-    /** @deprecated Use {@link TransformationRequest.Builder#setVideoMimeType(String)} instead. */
-    @Deprecated
-    public Builder setVideoMimeType(String videoMimeType) {
-      transformationRequest =
-          transformationRequest.buildUpon().setVideoMimeType(videoMimeType).build();
-      return this;
-    }
-
-    /** @deprecated Use {@link TransformationRequest.Builder#setAudioMimeType(String)} instead. */
-    @Deprecated
-    public Builder setAudioMimeType(String audioMimeType) {
-      transformationRequest =
-          transformationRequest.buildUpon().setAudioMimeType(audioMimeType).build();
       return this;
     }
 
