@@ -524,6 +524,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               adPlaybackState,
               /* fromPositionUs= */ secToUs(cuePoint.getStartTime()),
               /* contentResumeOffsetUs= */ 0,
+              // TODO(b/192231683) Use getEndTimeMs()/getStartTimeMs() after jar target was removed
               /* adDurationsUs...= */ secToUs(cuePoint.getEndTime() - cuePoint.getStartTime()));
     }
     return adPlaybackState;

@@ -1365,7 +1365,9 @@ public final class ImaAdsLoaderTest {
   }
 
   private AdPlaybackState getAdPlaybackState(int periodIndex) {
-    return timelineWindowDefinitions[periodIndex].adPlaybackState;
+    int adPlaybackStateCount = timelineWindowDefinitions[periodIndex].adPlaybackStates.size();
+    return timelineWindowDefinitions[periodIndex].adPlaybackStates.get(
+        periodIndex % adPlaybackStateCount);
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
@@ -1408,7 +1410,11 @@ public final class ImaAdsLoaderTest {
       adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
 
       TimelineWindowDefinition timelineWindowDefinition = timelineWindowDefinitions[periodIndex];
-      assertThat(adPlaybackState.adsId).isEqualTo(timelineWindowDefinition.adPlaybackState.adsId);
+      assertThat(adPlaybackState.adsId)
+          .isEqualTo(
+              timelineWindowDefinition.adPlaybackStates.get(
+                      periodIndex % timelineWindowDefinition.adPlaybackStates.size())
+                  .adsId);
       timelineWindowDefinitions[periodIndex] =
           new TimelineWindowDefinition(
               timelineWindowDefinition.periodCount,

@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 
 /** Fake {@link MediaSourceFactory} that creates a {@link FakeMediaSource}. */
 // Implement and return deprecated type for backwards compatibility.
@@ -64,7 +65,7 @@ public final class FakeMediaSourceFactory implements MediaSourceFactory {
             /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
             /* defaultPositionUs= */ 2 * C.MICROS_PER_SECOND,
             /* windowOffsetInFirstPeriodUs= */ Util.msToUs(123456789),
-            AdPlaybackState.NONE,
+            ImmutableList.of(AdPlaybackState.NONE),
             mediaItem);
     return new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));
   }
