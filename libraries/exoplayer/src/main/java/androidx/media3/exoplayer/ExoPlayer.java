@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
@@ -65,6 +64,7 @@ import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
 import androidx.media3.exoplayer.video.spherical.CameraMotionListener;
 import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.ExtractorsFactory;
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import java.util.List;
 
@@ -383,7 +383,7 @@ public interface ExoPlayer extends Player {
     /* package */ Supplier<TrackSelector> trackSelectorSupplier;
     /* package */ Supplier<LoadControl> loadControlSupplier;
     /* package */ Supplier<BandwidthMeter> bandwidthMeterSupplier;
-    /* package */ Supplier<AnalyticsCollector> analyticsCollectorSupplier;
+    /* package */ Function<Clock, AnalyticsCollector> analyticsCollectorFunction;
     /* package */ Looper looper;
     @Nullable /* package */ PriorityTaskManager priorityTaskManager;
     /* package */ AudioAttributes audioAttributes;
@@ -547,7 +547,7 @@ public interface ExoPlayer extends Player {
           () -> trackSelector,
           () -> loadControl,
           () -> bandwidthMeter,
-          () -> analyticsCollector);
+          (clock) -> analyticsCollector);
     }
 
     private Builder(
@@ -561,7 +561,7 @@ public interface ExoPlayer extends Player {
           () -> new DefaultTrackSelector(context),
           DefaultLoadControl::new,
           () -> DefaultBandwidthMeter.getSingletonInstance(context),
-          /* analyticsCollectorSupplier= */ null);
+          DefaultAnalyticsCollector::new);
     }
 
     private Builder(
@@ -571,17 +571,14 @@ public interface ExoPlayer extends Player {
         Supplier<TrackSelector> trackSelectorSupplier,
         Supplier<LoadControl> loadControlSupplier,
         Supplier<BandwidthMeter> bandwidthMeterSupplier,
-        @Nullable Supplier<AnalyticsCollector> analyticsCollectorSupplier) {
+        Function<Clock, AnalyticsCollector> analyticsCollectorFunction) {
       this.context = context;
       this.renderersFactorySupplier = renderersFactorySupplier;
       this.mediaSourceFactorySupplier = mediaSourceFactorySupplier;
       this.trackSelectorSupplier = trackSelectorSupplier;
       this.loadControlSupplier = loadControlSupplier;
       this.bandwidthMeterSupplier = bandwidthMeterSupplier;
-      this.analyticsCollectorSupplier =
-          analyticsCollectorSupplier != null
-              ? analyticsCollectorSupplier
-              : () -> new DefaultAnalyticsCollector(checkNotNull(clock));
+      this.analyticsCollectorFunction = analyticsCollectorFunction;
       looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
@@ -708,7 +705,7 @@ public interface ExoPlayer extends Player {
     @UnstableApi
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       checkState(!buildCalled);
-      this.analyticsCollectorSupplier = () -> analyticsCollector;
+      this.analyticsCollectorFunction = (clock) -> analyticsCollector;
       return this;
     }
 

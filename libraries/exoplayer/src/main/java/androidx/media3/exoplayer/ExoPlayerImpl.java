@@ -233,7 +233,7 @@ import java.util.concurrent.TimeoutException;
               + Util.DEVICE_DEBUG_INFO
               + "]");
       applicationContext = builder.context.getApplicationContext();
-      analyticsCollector = builder.analyticsCollectorSupplier.get();
+      analyticsCollector = builder.analyticsCollectorFunction.apply(builder.clock);
       priorityTaskManager = builder.priorityTaskManager;
       audioAttributes = builder.audioAttributes;
       videoScalingMode = builder.videoScalingMode;
