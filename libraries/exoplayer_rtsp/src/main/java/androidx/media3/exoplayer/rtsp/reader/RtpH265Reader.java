@@ -188,6 +188,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @RequiresNonNull("trackOutput")
   private void processAggregationPacket(ParsableByteArray data) throws ParserException {
+    // TODO: Support AggregationPacket mode.
     throw ParserException.createForMalformedManifest(
         "need to implement processAggregationPacket",
         /* cause= */ null);
