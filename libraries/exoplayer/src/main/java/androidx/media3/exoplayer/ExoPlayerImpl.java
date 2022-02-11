@@ -398,6 +398,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   @Deprecated
   public AudioComponent getAudioComponent() {
+    verifyApplicationThread();
     return this;
   }
 
@@ -405,6 +406,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   @Deprecated
   public VideoComponent getVideoComponent() {
+    verifyApplicationThread();
     return this;
   }
 
@@ -412,6 +414,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   @Deprecated
   public TextComponent getTextComponent() {
+    verifyApplicationThread();
     return this;
   }
 
@@ -419,6 +422,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   @Deprecated
   public DeviceComponent getDeviceComponent() {
+    verifyApplicationThread();
     return this;
   }
 
@@ -492,6 +496,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   @Deprecated
   public void retry() {
+    verifyApplicationThread();
     prepare();
   }
 
@@ -922,6 +927,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void stop() {
+    verifyApplicationThread();
     stop(/* reset= */ false);
   }
 
@@ -1205,6 +1211,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public @C.VideoScalingMode int getVideoScalingMode() {
+    verifyApplicationThread();
     return videoScalingMode;
   }
 
@@ -1222,11 +1229,13 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public @C.VideoChangeFrameRateStrategy int getVideoChangeFrameRateStrategy() {
+    verifyApplicationThread();
     return videoChangeFrameRateStrategy;
   }
 
   @Override
   public VideoSize getVideoSize() {
+    verifyApplicationThread();
     return videoSize;
   }
 
@@ -1373,6 +1382,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public AudioAttributes getAudioAttributes() {
+    verifyApplicationThread();
     return audioAttributes;
   }
 
@@ -1403,6 +1413,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public int getAudioSessionId() {
+    verifyApplicationThread();
     return audioSessionId;
   }
 
@@ -1414,6 +1425,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void clearAuxEffectInfo() {
+    verifyApplicationThread();
     setAuxEffectInfo(new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, /* sendLevel= */ 0f));
   }
 
@@ -1432,11 +1444,13 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public float getVolume() {
+    verifyApplicationThread();
     return volume;
   }
 
   @Override
   public boolean getSkipSilenceEnabled() {
+    verifyApplicationThread();
     return skipSilenceEnabled;
   }
 
@@ -1455,6 +1469,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public AnalyticsCollector getAnalyticsCollector() {
+    verifyApplicationThread();
     return analyticsCollector;
   }
 
@@ -1501,24 +1516,28 @@ import java.util.concurrent.TimeoutException;
   @Override
   @Nullable
   public Format getVideoFormat() {
+    verifyApplicationThread();
     return videoFormat;
   }
 
   @Override
   @Nullable
   public Format getAudioFormat() {
+    verifyApplicationThread();
     return audioFormat;
   }
 
   @Override
   @Nullable
   public DecoderCounters getVideoDecoderCounters() {
+    verifyApplicationThread();
     return videoDecoderCounters;
   }
 
   @Override
   @Nullable
   public DecoderCounters getAudioDecoderCounters() {
+    verifyApplicationThread();
     return audioDecoderCounters;
   }
 
@@ -1588,6 +1607,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void setHandleWakeLock(boolean handleWakeLock) {
+    verifyApplicationThread();
     setWakeMode(handleWakeLock ? C.WAKE_MODE_LOCAL : C.WAKE_MODE_NONE);
   }
 
