@@ -31,6 +31,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.util.Clock;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
+import androidx.media3.exoplayer.analytics.DefaultAnalyticsCollector;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.MediaSource.MediaSourceCaller;
@@ -83,7 +84,7 @@ public final class MediaPeriodQueueTest {
 
   @Before
   public void setUp() {
-    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    AnalyticsCollector analyticsCollector = new DefaultAnalyticsCollector(Clock.DEFAULT);
     analyticsCollector.setPlayer(
         new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build(),
         Looper.getMainLooper());

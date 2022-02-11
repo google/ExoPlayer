@@ -47,6 +47,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
+import androidx.media3.exoplayer.analytics.DefaultAnalyticsCollector;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.DefaultAudioSink;
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer;
@@ -580,7 +581,7 @@ public interface ExoPlayer extends Player {
       this.analyticsCollectorSupplier =
           analyticsCollectorSupplier != null
               ? analyticsCollectorSupplier
-              : () -> new AnalyticsCollector(checkNotNull(clock));
+              : () -> new DefaultAnalyticsCollector(checkNotNull(clock));
       looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
