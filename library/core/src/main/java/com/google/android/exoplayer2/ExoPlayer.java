@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.analytics.DefaultAnalyticsCollector;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
@@ -565,7 +566,7 @@ public interface ExoPlayer extends Player {
       this.analyticsCollectorSupplier =
           analyticsCollectorSupplier != null
               ? analyticsCollectorSupplier
-              : () -> new AnalyticsCollector(checkNotNull(clock));
+              : () -> new DefaultAnalyticsCollector(checkNotNull(clock));
       looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;

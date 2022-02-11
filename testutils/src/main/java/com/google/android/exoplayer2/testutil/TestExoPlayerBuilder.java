@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.DefaultAnalyticsCollector;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -300,7 +300,7 @@ public class TestExoPlayerBuilder {
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setBandwidthMeter(bandwidthMeter)
-            .setAnalyticsCollector(new AnalyticsCollector(clock))
+            .setAnalyticsCollector(new DefaultAnalyticsCollector(clock))
             .setClock(clock)
             .setUseLazyPreparation(useLazyPreparation)
             .setLooper(looper)
