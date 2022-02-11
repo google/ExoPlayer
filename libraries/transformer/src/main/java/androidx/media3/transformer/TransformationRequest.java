@@ -26,7 +26,6 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.mp4.Mp4Extractor;
-import com.google.common.collect.ImmutableSet;
 
 /** A media transformation request. */
 @UnstableApi
@@ -34,9 +33,6 @@ public final class TransformationRequest {
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
-
-    private static final ImmutableSet<Integer> SUPPORTED_OUTPUT_HEIGHTS =
-        ImmutableSet.of(144, 240, 360, 480, 720, 1080, 1440, 2160);
 
     private Matrix transformationMatrix;
     private boolean flattenForSlowMotion;
@@ -124,27 +120,17 @@ public final class TransformationRequest {
 
     /**
      * Sets the output resolution using the output height. The default value {@link C#LENGTH_UNSET}
-     * corresponds to using the same height as the input. Output width will scale to preserve the
-     * input video's aspect ratio.
-     *
-     * <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
-     * supported, to ensure compatibility on different devices.
+     * corresponds to using the same height as the input. Output width of the displayed video will
+     * scale to preserve the video's aspect ratio after other transformations.
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
      *
-     * @param outputHeight The output height in pixels.
+     * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
      * @throws IllegalArgumentException If the {@code outputHeight} is not supported.
      */
     public Builder setResolution(int outputHeight) {
-      // TODO(b/209781577): Define outputHeight in the javadoc as height can be ambiguous for videos
-      // where rotationDegrees is set in the Format.
       // TODO(b/201293185): Restructure to input a Presentation class.
-      // TODO(b/201293185): Check encoder codec capabilities in order to allow arbitrary
-      // resolutions and reasonable fallbacks.
-      checkArgument(
-          outputHeight == C.LENGTH_UNSET || SUPPORTED_OUTPUT_HEIGHTS.contains(outputHeight),
-          "Unsupported outputHeight: " + outputHeight);
       this.outputHeight = outputHeight;
       return this;
     }
