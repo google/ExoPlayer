@@ -109,7 +109,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
       }
 
-      GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
       textureId = GlUtil.createExternalTexture();
       glProgram =
           configureGlProgram(
@@ -351,7 +351,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   /** Focuses the specified surface with the specified width and height, then draws a quad. */
   private void focusAndDrawQuad(EGLSurface eglSurface, int width, int height) {
-    GlUtil.focusSurface(eglDisplay, eglContext, eglSurface, width, height);
+    GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, width, height);
     // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
   }
