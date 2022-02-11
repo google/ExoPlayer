@@ -152,7 +152,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     rotateSpinner = findViewById(R.id.rotate_spinner);
     rotateSpinner.setAdapter(rotateAdapter);
-    rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "90", "180");
+    rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "60", "90", "180");
 
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
   }
