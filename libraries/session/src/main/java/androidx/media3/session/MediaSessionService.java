@@ -20,8 +20,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.postOrRun;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -35,13 +33,12 @@ import android.os.RemoteException;
 import android.view.KeyEvent;
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
-import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
-import androidx.media3.common.Player;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -50,16 +47,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Superclass to be extended by services hosting {@link MediaSession media sessions}.
  *
  * <p>It's highly recommended for an app to use this class if they want to keep media playback in
  * the background. The service allows other apps to know that your app supports {@link MediaSession}
- * even when your app isn't running. For example, user's voice command may start your app to play
+ * even when your app isn't running. For example, a user voice command may start your app to play
  * media.
  *
- * <p>To extend this class, declare the intent filter in your {@code AndroidManifest.xml}.
+ * <p>To extend this class, declare the intent filter in your {@code AndroidManifest.xml}:
  *
  * <pre>{@code
  * <service android:name="NameOfYourService">
@@ -89,20 +87,21 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>A media session service is a bound service. When a {@link MediaController} is created for the
  * service, the controller binds to the service. {@link #onGetSession(ControllerInfo)} will be
- * called inside of the {@link #onBind(Intent)}.
+ * called from {@link #onBind(Intent)}.
  *
- * <p>After the binding, the session's {@link MediaSession.SessionCallback#onConnect(MediaSession,
+ * <p>After binding, the session's {@link MediaSession.SessionCallback#onConnect(MediaSession,
  * MediaSession.ControllerInfo)} will be called to accept or reject the connection request from the
  * controller. If it's accepted, the controller will be available and keep the binding. If it's
  * rejected, the controller will unbind.
  *
- * <p>When a playback is started on the service, {@link #onUpdateNotification(MediaSession)} is
- * called and the service will become a <a
- * href="https://developer.android.com/guide/components/foreground-services">foreground service</a>.
- * It's required to keep the playback after the controller is destroyed. The service will become a
- * background service when all playbacks are stopped. Apps targeting {@code SDK_INT >= 28} must
- * request the permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}, in order to make
- * the service foreground.
+ * <p>When a playback is started on the service, the service will obtain a {@link MediaNotification}
+ * from the {@link MediaNotification.Provider} that's set with {@link #setMediaNotificationProvider}
+ * (or {@link DefaultMediaNotificationProvider}, if no provider is set), and the service will become
+ * a <a href="https://developer.android.com/guide/components/foreground-services">foreground
+ * service</a>. It's required to keep the playback after the controller is destroyed. The service
+ * will become a background service when all playbacks are stopped. Apps targeting {@code SDK_INT >=
+ * 28} must request the permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}, in order
+ * to make the service foreground.
  *
  * <p>The service will be destroyed when all sessions are closed, or no controller is binding to the
  * service while the service is in the background.
@@ -110,18 +109,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * <h2 id="MultipleSessions">Supporting Multiple Sessions</h2>
  *
  * <p>Generally, multiple sessions aren't necessary for most media apps. One exception is if your
- * app can play multiple media content at the same time, but only for the playback of video-only
- * media or remote playback, since the <a
+ * app can play multiple media contents at the same time, but only for playback of video-only media
+ * or remote playback, since the <a
  * href="https://developer.android.com/guide/topics/media-apps/audio-focus">audio focus policy</a>
- * recommends not playing multiple audio content at the same time. Also, keep in mind that multiple
- * media sessions would make Android Auto and Bluetooth device with display to show your apps
+ * recommends not playing multiple audio contents at the same time. Also, keep in mind that multiple
+ * media sessions would make Android Auto and Bluetooth devices with a display to show your apps
  * multiple times, because they list up media sessions, not media apps.
  *
  * <p>However, if you're capable of handling multiple playbacks and want to keep their sessions
  * while the app is in the background, create multiple sessions and add them to this service with
  * {@link #addSession(MediaSession)}.
  *
- * <p>Note that {@link MediaController} can be created with {@link SessionToken} to connect to a
+ * <p>Note that a {@link MediaController} can be created with {@link SessionToken} to connect to a
  * session in this service. In that case, {@link #onGetSession(ControllerInfo)} will be called to
  * decide which session to handle the connection request. Pick the best session among the added
  * sessions, or create a new session and return it from {@link #onGetSession(ControllerInfo)}.
@@ -144,8 +143,13 @@ public abstract class MediaSessionService extends Service {
   private MediaSessionServiceStub stub;
 
   @GuardedBy("lock")
-  @Nullable
-  private MediaNotificationManager notificationHandler;
+  private @MonotonicNonNull MediaNotificationManager mediaNotificationManager;
+
+  @GuardedBy("lock")
+  private MediaNotification.@MonotonicNonNull Provider mediaNotificationProvider;
+
+  @GuardedBy("lock")
+  private @MonotonicNonNull DefaultActionFactory actionFactory;
 
   /** Creates a service. */
   public MediaSessionService() {
@@ -165,7 +169,6 @@ public abstract class MediaSessionService extends Service {
     super.onCreate();
     synchronized (lock) {
       stub = new MediaSessionServiceStub(this);
-      notificationHandler = new MediaNotificationManager(this);
     }
   }
 
@@ -179,7 +182,7 @@ public abstract class MediaSessionService extends Service {
    * session is closed. You don't need to manually call {@link #addSession(MediaSession)} nor {@link
    * #removeSession(MediaSession)}.
    *
-   * <p>There are two special cases where the {@link ControllerInfo#getPackageName()} returns
+   * <p>There are two special cases where the {@link ControllerInfo#getPackageName()} returns a
    * non-existent package name:
    *
    * <ul>
@@ -209,7 +212,7 @@ public abstract class MediaSessionService extends Service {
    * Adds a {@link MediaSession} to this service. This is not necessary for most media apps. See <a
    * href="#MultipleSessions">Supporting Multiple Sessions</a> for details.
    *
-   * <p>Added session will be removed automatically when it's closed.
+   * <p>The added session will be removed automatically when it's closed.
    *
    * @param session A session to be added.
    * @see #removeSession(MediaSession)
@@ -227,11 +230,8 @@ public abstract class MediaSessionService extends Service {
     if (old == null) {
       // Session has returned for the first time. Register callbacks.
       // TODO(b/191644474): Check whether the session is registered to multiple services.
-      MediaNotificationManager handler;
-      synchronized (lock) {
-        handler = checkStateNotNull(notificationHandler);
-      }
-      postOrRun(mainHandler, () -> handler.addSession(session));
+      MediaNotificationManager notificationManager = getMediaNotificationManager();
+      postOrRun(mainHandler, () -> notificationManager.addSession(session));
     }
   }
 
@@ -245,39 +245,12 @@ public abstract class MediaSessionService extends Service {
    */
   public final void removeSession(MediaSession session) {
     checkNotNull(session, "session must not be null");
-    MediaNotificationManager handler;
     synchronized (lock) {
+      checkArgument(sessions.containsKey(session.getId()), "session not found");
       sessions.remove(session.getId());
-      handler = checkStateNotNull(notificationHandler);
     }
-    postOrRun(mainHandler, () -> handler.removeSession(session));
-  }
-
-  /**
-   * Called when {@link MediaNotification} needs to be updated. Override this method to show or
-   * cancel your own notification.
-   *
-   * <p>This will be called on the application thread of the underlying {@link Player} of {@link
-   * MediaSession}.
-   *
-   * <p>With the notification returned by this method, the service becomes a <a
-   * href="https://developer.android.com/guide/components/foreground-services">foreground
-   * service</a> when the playback is started. Apps targeting {@code SDK_INT >= 28} must request the
-   * permission, {@link android.Manifest.permission#FOREGROUND_SERVICE}. It becomes a background
-   * service after the playback is stopped.
-   *
-   * @param session A session that needs notification update.
-   * @return A {@link MediaNotification}, or {@code null} if you don't want the automatic
-   *     foreground/background transitions.
-   */
-  @Nullable
-  public MediaNotification onUpdateNotification(MediaSession session) {
-    checkNotNull(session, "session must not be null");
-    MediaNotificationManager handler;
-    synchronized (lock) {
-      handler = checkStateNotNull(notificationHandler, "Service hasn't created");
-    }
-    return handler.onUpdateNotification(session);
+    MediaNotificationManager notificationManager = getMediaNotificationManager();
+    postOrRun(mainHandler, () -> notificationManager.removeSession(session));
   }
 
   /**
@@ -347,9 +320,15 @@ public abstract class MediaSessionService extends Service {
     if (intent == null) {
       return START_STICKY;
     }
-    if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
-      @Nullable Uri uri = intent.getData();
-      @Nullable MediaSession session = uri != null ? MediaSession.getSession(uri) : null;
+
+    DefaultActionFactory actionFactory;
+    synchronized (lock) {
+      actionFactory = checkStateNotNull(this.actionFactory);
+    }
+
+    @Nullable Uri uri = intent.getData();
+    @Nullable MediaSession session = uri != null ? MediaSession.getSession(uri) : null;
+    if (actionFactory.isMediaAction(intent)) {
       if (session == null) {
         ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
         session = onGetSession(controllerInfo);
@@ -358,9 +337,15 @@ public abstract class MediaSessionService extends Service {
         }
         addSession(session);
       }
-      KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+      @Nullable KeyEvent keyEvent = actionFactory.getKeyEvent(intent);
       if (keyEvent != null) {
         session.getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+      }
+    } else if (actionFactory.isCustomAction(intent)) {
+      @Nullable String customAction = actionFactory.getCustomAction(intent);
+      if (session != null && customAction != null) {
+        Bundle customExtras = actionFactory.getCustomActionExtras(intent);
+        getMediaNotificationManager().onCustomAction(session, customAction, customExtras);
       }
     }
     return START_STICKY;
@@ -383,35 +368,40 @@ public abstract class MediaSessionService extends Service {
     }
   }
 
+  /**
+   * Sets the {@link MediaNotification.Provider} to customize notifications.
+   *
+   * <p>This should be called before any session is attached to this service via {@link
+   * #onGetSession(ControllerInfo)} or {@link #addSession(MediaSession)}. Otherwise a default UX
+   * will be shown with {@link DefaultMediaNotificationProvider}.
+   */
+  @UnstableApi
+  protected final void setMediaNotificationProvider(
+      MediaNotification.Provider mediaNotificationProvider) {
+    checkNotNull(mediaNotificationProvider);
+    synchronized (lock) {
+      this.mediaNotificationProvider = mediaNotificationProvider;
+    }
+  }
+
   /* package */ IBinder getServiceBinder() {
     synchronized (lock) {
       return checkStateNotNull(stub).asBinder();
     }
   }
 
-  /** A notification for media playback returned by {@link #onUpdateNotification(MediaSession)}. */
-  public static final class MediaNotification {
-
-    /** The notification id. */
-    @IntRange(from = 1)
-    public final int notificationId;
-
-    /** The {@link Notification}. */
-    public final Notification notification;
-
-    /**
-     * Creates an instance.
-     *
-     * @param notificationId The notification id to be used for {@link
-     *     NotificationManager#notify(int, Notification)}.
-     * @param notification A {@link Notification} to make the {@link MediaSessionService} <a
-     *     href="https://developer.android.com/guide/components/foreground-services">foreground</a>.
-     *     It's highly recommended to use a {@link androidx.media.app.NotificationCompat.MediaStyle
-     *     media style} {@link Notification notification}.
-     */
-    public MediaNotification(@IntRange(from = 1) int notificationId, Notification notification) {
-      this.notificationId = notificationId;
-      this.notification = checkNotNull(notification);
+  private MediaNotificationManager getMediaNotificationManager() {
+    synchronized (lock) {
+      if (mediaNotificationManager == null) {
+        if (mediaNotificationProvider == null) {
+          mediaNotificationProvider = new DefaultMediaNotificationProvider(getApplicationContext());
+        }
+        actionFactory = new DefaultActionFactory(getApplicationContext());
+        mediaNotificationManager =
+            new MediaNotificationManager(
+                /* mediaSessionService= */ this, mediaNotificationProvider, actionFactory);
+      }
+      return mediaNotificationManager;
     }
   }
 
