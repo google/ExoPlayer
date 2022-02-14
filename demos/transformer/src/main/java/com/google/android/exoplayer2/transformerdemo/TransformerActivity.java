@@ -150,6 +150,7 @@ public final class TransformerActivity extends AppCompatActivity {
       throw new IllegalStateException(e);
     }
     informationTextView.setText(R.string.transformation_started);
+    playerView.setVisibility(View.GONE);
     Handler mainHandler = new Handler(getMainLooper());
     ProgressHolder progressHolder = new ProgressHolder();
     mainHandler.post(
@@ -287,6 +288,7 @@ public final class TransformerActivity extends AppCompatActivity {
         getString(
             R.string.transformation_completed, transformationStopwatch.elapsed(TimeUnit.SECONDS)));
     progressViewGroup.setVisibility(View.GONE);
+    playerView.setVisibility(View.VISIBLE);
     playMediaItem(MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
   }
