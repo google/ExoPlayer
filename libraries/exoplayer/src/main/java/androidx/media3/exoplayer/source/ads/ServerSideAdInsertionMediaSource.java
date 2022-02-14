@@ -264,10 +264,12 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     @Nullable SharedMediaPeriod sharedPeriod = null;
     Pair<Long, Object> sharedMediaPeriodKey = new Pair<>(id.windowSequenceNumber, id.periodUid);
+    boolean reusedSharedPeriod = false;
     if (lastUsedMediaPeriod != null) {
       if (lastUsedMediaPeriod.periodUid.equals(id.periodUid)) {
         sharedPeriod = lastUsedMediaPeriod;
         mediaPeriods.put(sharedMediaPeriodKey, sharedPeriod);
+        reusedSharedPeriod = true;
       } else {
         lastUsedMediaPeriod.release(mediaSource);
       }
@@ -298,6 +300,9 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
         new MediaPeriodImpl(
             sharedPeriod, id, createEventDispatcher(id), createDrmEventDispatcher(id));
     sharedPeriod.add(mediaPeriod);
+    if (reusedSharedPeriod && sharedPeriod.trackSelections.length > 0) {
+      mediaPeriod.seekToUs(startPositionUs);
+    }
     return mediaPeriod;
   }
 
