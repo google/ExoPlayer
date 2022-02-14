@@ -92,6 +92,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -474,6 +475,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   }
 
   @MainThread
+  @EnsuresNonNull("contentTimeline")
   private void setContentTimeline(Timeline contentTimeline) {
     if (contentTimeline.equals(this.contentTimeline)) {
       return;
@@ -638,7 +640,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
           // Map adGroupIndex and adIndexInAdGroup to multi-period window.
           Pair<Integer, Integer> adGroupIndexAndAdIndexInAdGroup =
               getAdGroupAndIndexInMultiPeriodWindow(
-                  oldPosition.periodIndex, adPlaybackState, timeline);
+                  oldPosition.periodIndex - window.firstPeriodIndex,
+                  adPlaybackState,
+                  checkNotNull(contentTimeline));
           adGroupIndex = adGroupIndexAndAdIndexInAdGroup.first;
           adIndexInAdGroup = adGroupIndexAndAdIndexInAdGroup.second;
         }
