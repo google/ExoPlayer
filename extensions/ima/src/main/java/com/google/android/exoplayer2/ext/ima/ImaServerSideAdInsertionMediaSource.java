@@ -293,23 +293,31 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       for (MediaSourceResourceHolder resourceHolder : mediaSourceResources.values()) {
         resourceHolder.streamPlayer.release();
         resourceHolder.adsLoader.release();
+        resourceHolder.imaServerSideAdInsertionMediaSource.setStreamManager(
+            /* streamManager= */ null);
       }
       mediaSourceResources.clear();
+      player = null;
     }
 
     /* package */ void addMediaSourceResources(
         ImaServerSideAdInsertionMediaSource mediaSource,
         StreamPlayer streamPlayer,
         com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader) {
-      mediaSourceResources.put(mediaSource, new MediaSourceResourceHolder(streamPlayer, adsLoader));
+      mediaSourceResources.put(
+          mediaSource, new MediaSourceResourceHolder(mediaSource, streamPlayer, adsLoader));
     }
 
     private static final class MediaSourceResourceHolder {
+      public final ImaServerSideAdInsertionMediaSource imaServerSideAdInsertionMediaSource;
       public final StreamPlayer streamPlayer;
       public final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
       private MediaSourceResourceHolder(
-          StreamPlayer streamPlayer, com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader) {
+          ImaServerSideAdInsertionMediaSource imaServerSideAdInsertionMediaSource,
+          StreamPlayer streamPlayer,
+          com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader) {
+        this.imaServerSideAdInsertionMediaSource = imaServerSideAdInsertionMediaSource;
         this.streamPlayer = streamPlayer;
         this.adsLoader = adsLoader;
       }
