@@ -17,7 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="app_name" translatable="false">Transformer Demo</string>
   <string name="configuration" translatable="false">Configuration</string>
-  <string name="choose_file_title" translatable="false">Choose File</string>
+  <string name="choose_file_title" translatable="false">Choose file</string>
   <string name="remove_audio" translatable="false">Remove audio</string>
   <string name="remove_video" translatable="false">Remove video</string>
   <string name="flatten_for_slow_motion" translatable="false">Flatten for slow motion</string>
@@ -30,7 +30,7 @@
   <string name="transform" translatable="false">Transform</string>
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
-  <string name="debug_preview_not_available" translatable="false">No debug preview available</string>
+  <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
   <string name="transformation_started" translatable="false">Transformation started</string>
   <string name="transformation_timer" translatable="false">Transformation started %d seconds ago.</string>
   <string name="transformation_completed" translatable="false">Transformation completed in %d seconds.</string>
