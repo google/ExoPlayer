@@ -174,7 +174,9 @@ public final class AdaptiveTrackSelectionTest {
     when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L, 2000L);
     AdaptiveTrackSelection adaptiveTrackSelection =
         prepareAdaptiveTrackSelectionWithBufferedFractionToLiveEdgeForQualiyIncrease(
-            trackGroup, /* bufferedFractionToLiveEdgeForQualityIncrease= */ 0.75f);
+            trackGroup,
+            /* bufferedFractionToLiveEdgeForQualityIncrease= */ 0.75f,
+            /* minDurationForQualityIncreaseMs= */ 5000);
 
     // Not buffered close to live edge yet.
     adaptiveTrackSelection.updateSelectedTrack(
@@ -187,6 +189,8 @@ public final class AdaptiveTrackSelectionTest {
     assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format2);
 
     // Buffered all possible chunks (except for newly added chunk of 2 seconds).
+    // Intentionally choose a situation where availableDurationUs > minDurationForQualityIncreaseMs
+    // to ensure the live calculation is used regardless.
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
         /* bufferedDurationUs= */ 3_600_000,
@@ -767,14 +771,16 @@ public final class AdaptiveTrackSelectionTest {
 
   private AdaptiveTrackSelection
       prepareAdaptiveTrackSelectionWithBufferedFractionToLiveEdgeForQualiyIncrease(
-          TrackGroup trackGroup, float bufferedFractionToLiveEdgeForQualityIncrease) {
+          TrackGroup trackGroup,
+          float bufferedFractionToLiveEdgeForQualityIncrease,
+          long minDurationForQualityIncreaseMs) {
     return prepareTrackSelection(
         new AdaptiveTrackSelection(
             trackGroup,
             selectedAllTracksInGroup(trackGroup),
             TrackSelection.TYPE_UNSET,
             mockBandwidthMeter,
-            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
+            minDurationForQualityIncreaseMs,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
             AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD,
