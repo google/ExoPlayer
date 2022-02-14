@@ -38,12 +38,17 @@ import java.util.List;
 
 /** Information about groups of tracks. */
 public final class TracksInfo implements Bundleable {
+
   /**
    * Information about a single group of tracks, including the underlying {@link TrackGroup}, the
    * {@link C.TrackType type} of tracks it contains, and the level to which each track is supported
    * by the player.
    */
   public static final class TrackGroupInfo implements Bundleable {
+
+    /** The number of tracks in the group. */
+    public final int length;
+
     private final TrackGroup trackGroup;
     private final @C.FormatSupport int[] trackSupport;
     private final @C.TrackType int trackType;
@@ -62,7 +67,7 @@ public final class TracksInfo implements Bundleable {
         @C.FormatSupport int[] trackSupport,
         @C.TrackType int trackType,
         boolean[] tracksSelected) {
-      int length = trackGroup.length;
+      length = trackGroup.length;
       checkArgument(length == trackSupport.length && length == tracksSelected.length);
       this.trackGroup = trackGroup;
       this.trackSupport = trackSupport.clone();
@@ -70,9 +75,19 @@ public final class TracksInfo implements Bundleable {
       this.trackSelected = tracksSelected.clone();
     }
 
-    /** Returns the {@link TrackGroup} described by this {@code TrackGroupInfo}. */
+    /** Returns the underlying {@link TrackGroup}. */
     public TrackGroup getTrackGroup() {
       return trackGroup;
+    }
+
+    /**
+     * Returns the {@link Format} for a specified track.
+     *
+     * @param trackIndex The index of the track in the {@link TrackGroup}.
+     * @return The {@link Format} of the track.
+     */
+    public Format getTrackFormat(int trackIndex) {
+      return trackGroup.getFormat(trackIndex);
     }
 
     /**

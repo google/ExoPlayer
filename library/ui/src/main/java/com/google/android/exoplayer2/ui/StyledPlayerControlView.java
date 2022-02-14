@@ -1130,12 +1130,12 @@ public class StyledPlayerControlView extends FrameLayout {
       if (trackGroupInfo.getTrackType() != trackType) {
         continue;
       }
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+      for (int trackIndex = 0; trackIndex < trackGroupInfo.length; trackIndex++) {
         if (!trackGroupInfo.isTrackSupported(trackIndex)) {
           continue;
         }
-        String trackName = trackNameProvider.getTrackName(trackGroup.getFormat(trackIndex));
+        String trackName =
+            trackNameProvider.getTrackName(trackGroupInfo.getTrackFormat(trackIndex));
         tracks.add(new TrackInformation(tracksInfo, trackGroupIndex, trackIndex, trackName));
       }
     }

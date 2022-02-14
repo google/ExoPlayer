@@ -40,12 +40,11 @@ for (TrackGroupInfo groupInfo : tracksInfo.getTrackGroupInfos()) {
   @C.TrackType int trackType = groupInfo.getTrackType();
   boolean trackInGroupIsSelected = groupInfo.isSelected();
   boolean trackInGroupIsSupported = groupInfo.isSupported();
-  TrackGroup group = groupInfo.getTrackGroup();
-  for (int i = 0; i < group.length; i++) {
+  for (int i = 0; i < groupInfo.length; i++) {
     // Individual track information.
     boolean isSupported = groupInfo.isTrackSupported(i);
     boolean isSelected = groupInfo.isTrackSelected(i);
-    Format trackFormat = group.getFormat(i);
+    Format trackFormat = groupInfo.getTrackFormat(i);
   }
 }
 ~~~

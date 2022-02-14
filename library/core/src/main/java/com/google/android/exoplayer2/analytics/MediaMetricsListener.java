@@ -62,7 +62,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
@@ -823,10 +822,9 @@ public final class MediaMetricsListener
   @Nullable
   private static DrmInitData getDrmInitData(ImmutableList<TrackGroupInfo> trackGroupInfos) {
     for (TrackGroupInfo trackGroupInfo : trackGroupInfos) {
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+      for (int trackIndex = 0; trackIndex < trackGroupInfo.length; trackIndex++) {
         if (trackGroupInfo.isTrackSelected(trackIndex)) {
-          @Nullable DrmInitData drmInitData = trackGroup.getFormat(trackIndex).drmInitData;
+          @Nullable DrmInitData drmInitData = trackGroupInfo.getTrackFormat(trackIndex).drmInitData;
           if (drmInitData != null) {
             return drmInitData;
           }
