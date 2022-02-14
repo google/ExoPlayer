@@ -1721,7 +1721,7 @@ public final class DefaultAnalyticsCollectorTest {
     ArgumentCaptor<AnalyticsListener.EventTime> individualTracksChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
-        .onTracksChanged(individualTracksChangedEventTimes.capture(), any(), any());
+        .onTracksInfoChanged(individualTracksChangedEventTimes.capture(), any());
     ArgumentCaptor<AnalyticsListener.EventTime> individualPlayWhenReadyChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
