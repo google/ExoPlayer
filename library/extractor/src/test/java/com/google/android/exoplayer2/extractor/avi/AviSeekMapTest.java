@@ -24,14 +24,14 @@ public class AviSeekMapTest {
   @Test
   public void getFrames_givenExactSeekPointMatch() {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
-    final long position = aviSeekMap.keyFrameOffsetsDiv2[1] * 2L + aviSeekMap.seekOffset;
+    final long position = aviSeekMap.getKeyFrameOffsets(DataHelper.AUDIO_ID) + aviSeekMap.seekOffset;
     final int secs = 4;
     final ChunkHandler[] chunkHandlers = new ChunkHandler[]{DataHelper.getVideoChunkHandler(secs),
         DataHelper.getAudioChunkHandler(secs)};
 
     int[] indexes = aviSeekMap.getIndexes(position);
     for (int i=0;i<chunkHandlers.length;i++) {
-      Assert.assertEquals(aviSeekMap.seekIndexes[i][1], indexes[i]);
+      Assert.assertEquals(aviSeekMap.getSeekIndexes(i)[1], indexes[i]);
     }
   }
 
@@ -51,12 +51,13 @@ public class AviSeekMapTest {
   public void getSeekPoints_givenNonKeyFrameUs() {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
     //Time before the 1st keyFrame
-    final long us = aviSeekMap.seekIndexes[0][1] * aviSeekMap.videoUsPerChunk - 100L;
+    final long videoUsPerChunk = aviSeekMap.getVideoUsPerChunk();
+    final long us = aviSeekMap.getSeekIndexes(DataHelper.VIDEO_ID)[1] * videoUsPerChunk - 100L;
 
     final SeekMap.SeekPoints seekPoints = aviSeekMap.getSeekPoints(us);
-    Assert.assertEquals(aviSeekMap.seekIndexes[0][0] * aviSeekMap.videoUsPerChunk,
+    Assert.assertEquals(aviSeekMap.getSeekIndexes(DataHelper.VIDEO_ID)[0] * videoUsPerChunk,
         seekPoints.first.timeUs);
-    Assert.assertEquals(aviSeekMap.seekIndexes[0][1] * aviSeekMap.videoUsPerChunk,
+    Assert.assertEquals(aviSeekMap.getSeekIndexes(DataHelper.VIDEO_ID)[1] * videoUsPerChunk,
         seekPoints.second.timeUs);
   }
 

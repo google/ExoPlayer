@@ -31,6 +31,7 @@ public class DataHelper {
   static final int AUDIO_PER_VIDEO = 4;
   static final int VIDEO_SIZE = 4096;
   static final int AUDIO_SIZE = 256;
+  static final int VIDEO_ID = 0;
   static final int AUDIO_ID = 1;
   static final int MOVI_OFFSET = 4096;
 

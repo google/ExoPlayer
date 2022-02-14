@@ -26,13 +26,13 @@ import java.util.Arrays;
  * Consists of Video chunk offsets and indexes for all streams
  */
 public class AviSeekMap implements SeekMap {
-  final int videoId;
-  final long videoUsPerChunk;
-  final long duration;
+  private final int videoId;
+  private final long videoUsPerChunk;
+  private final long duration;
   //These are ints / 2
-  final int[] keyFrameOffsetsDiv2;
+  private final int[] keyFrameOffsetsDiv2;
   //Seek chunk indexes by streamId
-  final int[][] seekIndexes;
+  private final int[][] seekIndexes;
   /**
    * Usually the same as moviOffset, but sometimes 0 (muxer bug)
    */
@@ -117,5 +117,20 @@ public class AviSeekMap implements SeekMap {
       }
     }
     return indexes;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  public long getKeyFrameOffsets(int streamId) {
+    return keyFrameOffsetsDiv2[streamId] * 2L;
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  public int[] getSeekIndexes(int streamId) {
+    return seekIndexes[streamId];
+  }
+
+  @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+  public long getVideoUsPerChunk() {
+    return videoUsPerChunk;
   }
 }

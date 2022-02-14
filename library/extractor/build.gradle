@@ -19,11 +19,6 @@ android {
             testCoverageEnabled = true
         }
     }
-    testOptions{
-        unitTests.all {
-            jvmArgs '-noverify'
-        }
-    }
     sourceSets.test.assets.srcDir '../../testdata/src/test/assets/'
 }
 

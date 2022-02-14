@@ -56,6 +56,8 @@ public final class MimeTypes {
   public static final String VIDEO_OGG = BASE_TYPE_VIDEO + "/ogg";
   public static final String VIDEO_AVI = BASE_TYPE_VIDEO + "/x-msvideo";
   public static final String VIDEO_MJPEG = BASE_TYPE_VIDEO + "/mjpeg";
+  public static final String VIDEO_MP42 = BASE_TYPE_VIDEO + "/mp42";
+  public static final String VIDEO_MP43 = BASE_TYPE_VIDEO + "/mp43";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
   // audio/ MIME types

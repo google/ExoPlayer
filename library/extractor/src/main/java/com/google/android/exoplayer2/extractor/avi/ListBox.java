@@ -37,7 +37,7 @@ public class ListBox extends Box {
 
   final List<Box> children;
 
-  ListBox(int size, int listType, List<Box> children) {
+  public ListBox(int size, int listType, List<Box> children) {
     super(LIST, size);
     this.listType = listType;
     this.children = children;

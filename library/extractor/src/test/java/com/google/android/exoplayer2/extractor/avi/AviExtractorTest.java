@@ -176,10 +176,10 @@ public class AviExtractorTest {
     Assert.assertEquals(2 * framesPerKeyFrame, videoTrack.keyFrames[2]);
 
     Assert.assertEquals(2 * keyFrameRate * DataHelper.AUDIO_PER_VIDEO,
-        aviSeekMap.seekIndexes[DataHelper.AUDIO_ID][2]);
+        aviSeekMap.getSeekIndexes(DataHelper.AUDIO_ID)[2]);
     Assert.assertEquals(4L + 2 * keyFrameRate * DataHelper.VIDEO_SIZE +
             2 * keyFrameRate * DataHelper.AUDIO_SIZE * DataHelper.AUDIO_PER_VIDEO,
-        aviSeekMap.keyFrameOffsetsDiv2[2] * 2L);
+        aviSeekMap.getKeyFrameOffsets(2));
 
   }
 
@@ -471,9 +471,10 @@ public class AviExtractorTest {
     final AviSeekMap aviSeekMap = DataHelper.getAviSeekMap();
     aviExtractor.aviSeekMap = aviSeekMap;
     final ChunkHandler chunkHandler = aviExtractor.getVideoTrack();
-    final long position = DataHelper.MOVI_OFFSET + aviSeekMap.keyFrameOffsetsDiv2[1] * 2L;
+    final long position = DataHelper.MOVI_OFFSET + aviSeekMap.getKeyFrameOffsets(DataHelper.AUDIO_ID);
     aviExtractor.seek(position, 0L);
-    Assert.assertEquals(aviSeekMap.seekIndexes[chunkHandler.getId()][1], chunkHandler.getClock().getIndex());
+    Assert.assertEquals(aviSeekMap.getSeekIndexes(chunkHandler.getId())[1],
+        chunkHandler.getClock().getIndex());
   }
 
   @Test

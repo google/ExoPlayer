@@ -35,8 +35,8 @@ public class ChunkHandler {
    */
   public static final int[] ALL_KEY_FRAMES = new int[0];
 
-  public static int TYPE_VIDEO = ('d' << 16) | ('c' << 24);
-  public static int TYPE_AUDIO = ('w' << 16) | ('b' << 24);
+  public static final int TYPE_VIDEO = ('d' << 16) | ('c' << 24);
+  public static final int TYPE_AUDIO = ('w' << 16) | ('b' << 24);
 
   @NonNull
   ChunkClock clock;

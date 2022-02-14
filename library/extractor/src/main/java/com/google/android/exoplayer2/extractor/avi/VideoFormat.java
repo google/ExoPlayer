@@ -32,12 +32,11 @@ public class VideoFormat {
   static {
     //Although other types are technically supported, AVI is almost exclusively MP4V and MJPEG
     final String mimeType = MimeTypes.VIDEO_MP4V;
-    //final String mimeType = MimeTypes.VIDEO_H263;
 
     //I've never seen an Android devices that actually supports MP42
-    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.BASE_TYPE_VIDEO+"/mp42");
+    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.VIDEO_MP42);
     //Samsung seems to support the rare MP43.
-    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('3' << 24), MimeTypes.BASE_TYPE_VIDEO+"/mp43");
+    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('3' << 24), MimeTypes.VIDEO_MP43);
     STREAM_MAP.put('H' | ('2' << 8) | ('6' << 16) | ('4' << 24), MimeTypes.VIDEO_H264);
     STREAM_MAP.put('a' | ('v' << 8) | ('c' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
     STREAM_MAP.put('A' | ('V' << 8) | ('C' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
