@@ -482,15 +482,11 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         listener -> listener.onMediaItemTransition(eventTime, mediaItem, reason));
   }
 
+  @SuppressWarnings("deprecation") // Implementing deprecated method.
   @Override
-  @SuppressWarnings("deprecation") // Implementing and calling deprecate listener method
   public final void onTracksChanged(
       TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_TRACKS_CHANGED,
-        listener -> listener.onTracksChanged(eventTime, trackGroups, trackSelections));
+    // Do nothing. Handled by non-deprecated onTracksInfoChanged.
   }
 
   @Override

@@ -54,10 +54,8 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.FlagSet;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
@@ -238,10 +236,7 @@ public interface AnalyticsListener {
    * {@link Player#getCurrentMediaItem()} changed or the player started repeating the current item.
    */
   int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
-  /**
-   * {@link Player#getCurrentTracksInfo()}, {@link Player#getCurrentTrackGroups()} or {@link
-   * Player#getCurrentTrackSelections()} changed.
-   */
+  /** {@link Player#getCurrentTracksInfo()} changed. */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
@@ -705,18 +700,6 @@ public interface AnalyticsListener {
    * @param error The new error, or null if the error is being cleared.
    */
   default void onPlayerErrorChanged(EventTime eventTime, @Nullable PlaybackException error) {}
-
-  /**
-   * Called when the available or selected tracks for the renderers changed.
-   *
-   * @param eventTime The event time.
-   * @param trackGroups The available tracks. May be empty.
-   * @param trackSelections The track selections for each renderer. May contain null elements.
-   * @deprecated Use {@link #onTracksInfoChanged}.
-   */
-  @Deprecated
-  default void onTracksChanged(
-      EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
   /**
    * Called when the available or selected tracks change.
