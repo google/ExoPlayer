@@ -7984,7 +7984,7 @@ public final class ExoPlayerTest {
     assertThat(timelineAfterError.get().getWindowCount()).isEqualTo(1);
     assertThat(mediaItemIndexAfterError.get()).isEqualTo(0);
     assertThat(trackInfosAfterError.get().getTrackGroupInfos()).hasSize(1);
-    assertThat(trackInfosAfterError.get().getTrackGroupInfos().get(0).getTrackGroup().getFormat(0))
+    assertThat(trackInfosAfterError.get().getTrackGroupInfos().get(0).getTrackFormat(0))
         .isEqualTo(ExoPlayerTestRunner.AUDIO_FORMAT);
     assertThat(trackSelectionsAfterError.get().get(0)).isNull(); // Video renderer.
     assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.

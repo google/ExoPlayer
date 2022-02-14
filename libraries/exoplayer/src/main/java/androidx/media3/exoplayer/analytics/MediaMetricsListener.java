@@ -49,7 +49,6 @@ import androidx.media3.common.ParserException;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.TracksInfo.TrackGroupInfo;
 import androidx.media3.common.VideoSize;
@@ -825,10 +824,9 @@ public final class MediaMetricsListener
   @Nullable
   private static DrmInitData getDrmInitData(ImmutableList<TrackGroupInfo> trackGroupInfos) {
     for (TrackGroupInfo trackGroupInfo : trackGroupInfos) {
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+      for (int trackIndex = 0; trackIndex < trackGroupInfo.length; trackIndex++) {
         if (trackGroupInfo.isTrackSelected(trackIndex)) {
-          @Nullable DrmInitData drmInitData = trackGroup.getFormat(trackIndex).drmInitData;
+          @Nullable DrmInitData drmInitData = trackGroupInfo.getTrackFormat(trackIndex).drmInitData;
           if (drmInitData != null) {
             return drmInitData;
           }

@@ -268,9 +268,8 @@ public class EventLogger implements AnalyticsListener {
     ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
     for (int groupIndex = 0; groupIndex < trackGroupInfos.size(); groupIndex++) {
       TracksInfo.TrackGroupInfo trackGroupInfo = trackGroupInfos.get(groupIndex);
-      TrackGroup trackGroup = trackGroupInfo.getTrackGroup();
       logd("  group [");
-      for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+      for (int trackIndex = 0; trackIndex < trackGroupInfo.length; trackIndex++) {
         String status = getTrackStatusString(trackGroupInfo.isTrackSelected(trackIndex));
         String formatSupport = getFormatSupportString(trackGroupInfo.getTrackSupport(trackIndex));
         logd(
@@ -279,7 +278,7 @@ public class EventLogger implements AnalyticsListener {
                 + " Track:"
                 + trackIndex
                 + ", "
-                + Format.toLogString(trackGroup.getFormat(trackIndex))
+                + Format.toLogString(trackGroupInfo.getTrackFormat(trackIndex))
                 + ", supported="
                 + formatSupport);
       }
