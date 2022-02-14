@@ -475,11 +475,11 @@ import java.util.Set;
    *
    * @param adPeriodIndex The period index of the ad period.
    * @param adPlaybackState The ad playback state that holds the ad group and ad information.
-   * @param timeline The timeline that contains the ad period.
+   * @param contentTimeline The timeline that contains the ad period.
    * @return A pair with the ad group index (first) and the ad index in that ad group (second).
    */
   public static Pair<Integer, Integer> getAdGroupAndIndexInMultiPeriodWindow(
-      int adPeriodIndex, AdPlaybackState adPlaybackState, Timeline timeline) {
+      int adPeriodIndex, AdPlaybackState adPlaybackState, Timeline contentTimeline) {
     Timeline.Period period = new Timeline.Period();
     int periodIndex = 0;
     long totalElapsedContentDurationUs = 0;
@@ -488,8 +488,8 @@ import java.util.Set;
       AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
       long adGroupDurationUs = sum(adGroup.durationsUs);
       long elapsedAdGroupAdDurationUs = 0;
-      for (int j = periodIndex; j < timeline.getPeriodCount(); j++) {
-        timeline.getPeriod(j, period, /* setIds= */ true);
+      for (int j = periodIndex; j < contentTimeline.getPeriodCount(); j++) {
+        contentTimeline.getPeriod(j, period, /* setIds= */ true);
         // TODO(b/192231683) Remove subtracted US from ad group time when we can upgrade the SDK.
         // Subtract one microsecond to work around rounding errors with adGroup.timeUs.
         if (totalElapsedContentDurationUs < adGroup.timeUs - 1) {
