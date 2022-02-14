@@ -104,6 +104,7 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(playerView);
     checkNotNull(debugTextView);
     checkNotNull(progressViewGroup);
+    checkNotNull(debugFrame);
     startTransformation();
 
     playerView.onResume();
@@ -132,6 +133,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "progressIndicator",
     "transformationStopwatch",
     "progressViewGroup",
+    "debugFrame",
   })
   private void startTransformation() {
     requestTransformerPermission();
@@ -189,6 +191,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "informationTextView",
     "transformationStopwatch",
     "progressViewGroup",
+    "debugFrame",
   })
   private Transformer createTransformer(@Nullable Bundle bundle, String filePath) {
     Transformer.Builder transformerBuilder = new Transformer.Builder(/* context= */ this);
@@ -263,12 +266,14 @@ public final class TransformerActivity extends AppCompatActivity {
   @RequiresNonNull({
     "informationTextView",
     "progressViewGroup",
+    "debugFrame",
     "transformationStopwatch",
   })
   private void onTransformationError(TransformationException exception) {
     transformationStopwatch.stop();
     informationTextView.setText(R.string.transformation_error);
     progressViewGroup.setVisibility(View.GONE);
+    debugFrame.removeAllViews();
     Toast.makeText(
             TransformerActivity.this, "Transformation error: " + exception, Toast.LENGTH_LONG)
         .show();
@@ -280,6 +285,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "debugTextView",
     "informationTextView",
     "progressViewGroup",
+    "debugFrame",
     "transformationStopwatch",
   })
   private void onTransformationCompleted(String filePath) {
@@ -288,6 +294,7 @@ public final class TransformerActivity extends AppCompatActivity {
         getString(
             R.string.transformation_completed, transformationStopwatch.elapsed(TimeUnit.SECONDS)));
     progressViewGroup.setVisibility(View.GONE);
+    debugFrame.removeAllViews();
     playerView.setVisibility(View.VISIBLE);
     playMediaItem(MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
