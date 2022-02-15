@@ -52,7 +52,6 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.TrackSelectionOverrides.TrackSelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -169,10 +168,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .addOverride(new TrackSelectionOverride(VIDEO_TRACK_GROUP, ImmutableList.of()))
-                    .build()));
+            .addOverride(new TrackSelectionOverride(VIDEO_TRACK_GROUP, ImmutableList.of()))
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
@@ -223,18 +220,16 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .addOverride(
-                        new TrackSelectionOverride(
-                            videoGroupHighBitrate, /* trackIndices= */ ImmutableList.of()))
-                    .addOverride(
-                        new TrackSelectionOverride(
-                            videoGroupMidBitrate, /* trackIndices= */ ImmutableList.of(0)))
-                    .addOverride(
-                        new TrackSelectionOverride(
-                            videoGroupLowBitrate, /* trackIndices= */ ImmutableList.of()))
-                    .build()));
+            .addOverride(
+                new TrackSelectionOverride(
+                    videoGroupHighBitrate, /* trackIndices= */ ImmutableList.of()))
+            .addOverride(
+                new TrackSelectionOverride(
+                    videoGroupMidBitrate, /* trackIndices= */ ImmutableList.of(0)))
+            .addOverride(
+                new TrackSelectionOverride(
+                    videoGroupLowBitrate, /* trackIndices= */ ImmutableList.of()))
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -258,12 +253,10 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(
-                        new TrackSelectionOverride(
-                            new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), ImmutableList.of()))
-                    .build()));
+            .setOverrideForType(
+                new TrackSelectionOverride(
+                    new TrackGroup(VIDEO_FORMAT, VIDEO_FORMAT), ImmutableList.of()))
+            .build());
 
     TrackSelectorResult result =
         trackSelector.selectTracks(
@@ -307,10 +300,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(new TrackSelectionOverride(videoGroupH264))
-                    .build()));
+            .setOverrideForType(new TrackSelectionOverride(videoGroupH264))
+            .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
@@ -326,10 +317,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(new TrackSelectionOverride(videoGroupAv1))
-                    .build()));
+            .setOverrideForType(new TrackSelectionOverride(videoGroupAv1))
+            .build());
     result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {rendererCapabilitiesH264, rendererCapabilitiesAv1},
@@ -359,10 +348,8 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setTrackSelectionOverrides(
-                new TrackSelectionOverrides.Builder()
-                    .setOverrideForType(new TrackSelectionOverride(audioGroupUnsupported))
-                    .build()));
+            .setOverrideForType(new TrackSelectionOverride(audioGroupUnsupported))
+            .build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES, audioRendererCapabilties},
@@ -2395,13 +2382,10 @@ public final class DefaultTrackSelectorTest {
         .setRendererDisabled(1, true)
         .setRendererDisabled(3, true)
         .setRendererDisabled(5, false)
-        .setTrackSelectionOverrides(
-            new TrackSelectionOverrides.Builder()
-                .setOverrideForType(
-                    new TrackSelectionOverride(
-                        new TrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT),
-                        /* trackIndices= */ ImmutableList.of(0, 2, 3)))
-                .build())
+        .setOverrideForType(
+            new TrackSelectionOverride(
+                new TrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT),
+                /* trackIndices= */ ImmutableList.of(0, 2, 3)))
         .setDisabledTrackTypes(ImmutableSet.of(C.TRACK_TYPE_AUDIO))
         .build();
   }

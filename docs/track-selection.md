@@ -124,13 +124,11 @@ track group to select this audio group and prevent any other audio track groups
 from being selected:
 
 ~~~
-TrackSelectionOverrides overrides =
-    new TrackSelectionOverrides.Builder()
-        .setOverrideForType(new TrackSelectionOverride(audioTrackGroup))
-        .build();
 player.setTrackSelectionParameters(
     player.getTrackSelectionParameters()
-        .buildUpon().setTrackSelectionOverrides(overrides).build());
+        .buildUpon()
+        .setOverrideForType(new TrackSelectionOverride(audioTrackGroup))
+        .build());
 ~~~
 {: .language-java}
 
@@ -149,20 +147,17 @@ player.setTrackSelectionParameters(
 ~~~
 {: .language-java}
 
-Alternatively, it's possible to prevent the selection of track groups for the
-current playlist item only by specifying empty overrides for these groups:
+Alternatively, it's possible to prevent the selection of tracks from a specific
+`TrackGroup` only by specifying an empty override for that group:
 
 ~~~
-TrackSelectionOverrides overrides =
-    new TrackSelectionOverrides.Builder()
-        .addOverride(
-             new TrackSelectionOverride(
-                disabledTrackGroup,
-                /* select no tracks for this group */ ImmutableList.of()))
-        .build();
 player.setTrackSelectionParameters(
     player.getTrackSelectionParameters()
-        .buildUpon().setTrackSelectionOverrides(overrides).build());
+        .buildUpon()
+        .addOverride(
+            new TrackSelectionOverride(
+                disabledTrackGroup, ImmutableList.of()))
+        .build());
 ~~~
 {: .language-java}
 
