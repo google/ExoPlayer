@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
@@ -27,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
@@ -314,7 +316,13 @@ public final class Codec {
   public void releaseOutputBuffer(boolean render) throws TransformationException {
     outputBuffer = null;
     try {
-      mediaCodec.releaseOutputBuffer(outputBufferIndex, render);
+      if (render) {
+        mediaCodec.releaseOutputBuffer(
+            outputBufferIndex,
+            /* renderTimestampNs= */ checkStateNotNull(outputBufferInfo).presentationTimeUs * 1000);
+      } else {
+        mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
+      }
     } catch (RuntimeException e) {
       throw createTransformationException(e);
     }
