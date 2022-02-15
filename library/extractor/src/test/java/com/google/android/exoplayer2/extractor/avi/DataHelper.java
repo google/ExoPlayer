@@ -26,14 +26,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DataHelper {
-  static final int FPS = 24;
-  static final long VIDEO_US = 1_000_000L / FPS;
-  static final int AUDIO_PER_VIDEO = 4;
-  static final int VIDEO_SIZE = 4096;
-  static final int AUDIO_SIZE = 256;
-  static final int VIDEO_ID = 0;
-  static final int AUDIO_ID = 1;
-  static final int MOVI_OFFSET = 4096;
+  /* package */ static final int FPS = 24;
+  /* package */ static final long VIDEO_US = 1_000_000L / FPS;
+  /* package */ static final int AUDIO_PER_VIDEO = 4;
+  /* package */ static final int VIDEO_SIZE = 4096;
+  /* package */ static final int AUDIO_SIZE = 256;
+  /* package */ static final int VIDEO_ID = 0;
+  /* package */ static final int AUDIO_ID = 1;
+  /* package */ static final int MOVI_OFFSET = 4096;
 
   public static StreamHeaderBox getStreamHeader(int type, int scale, int rate, int length) {
     final ByteBuffer byteBuffer = AviExtractor.allocate(0x40);
