@@ -67,7 +67,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   private static final String TEST_ASSET = "asset:///media/mp4/sample.mp4";
-  private static final String TEST_ASSET_DUMP = "playbackdumps/mp4/sample.mp4.dump";
+  private static final String TEST_ASSET_DUMP = "playbackdumps/mp4/ssai-sample.mp4.dump";
 
   @Test
   public void timeline_containsAdsDefinedInAdPlaybackState() throws Exception {

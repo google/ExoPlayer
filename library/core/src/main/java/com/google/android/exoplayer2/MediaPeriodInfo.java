@@ -38,9 +38,10 @@ import com.google.android.exoplayer2.util.Util;
   public final long requestedContentPositionUs;
   /**
    * The end position to which the media period's content is clipped in order to play a following ad
-   * group, in microseconds, or {@link C#TIME_UNSET} if there is no following ad group or if this
-   * media period is an ad. The value {@link C#TIME_END_OF_SOURCE} indicates that a postroll ad
-   * follows at the end of this content media period.
+   * group or to terminate a server side ad inserted stream before a played postroll, in
+   * microseconds, or {@link C#TIME_UNSET} if the content is not clipped or if this media period is
+   * an ad. The value {@link C#TIME_END_OF_SOURCE} indicates that a postroll ad follows at the end
+   * of this content media period.
    */
   public final long endPositionUs;
   /**

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -2145,14 +2146,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // If we advance more than one period at a time, notify listeners after each update.
         maybeNotifyPlaybackInfoChanged();
       }
-      MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
+      MediaPeriodHolder newPlayingPeriodHolder = checkNotNull(queue.advancePlayingPeriod());
+      boolean isCancelledSSAIAdTransition =
+          playbackInfo.periodId.periodUid.equals(newPlayingPeriodHolder.info.id.periodUid)
+              && playbackInfo.periodId.adGroupIndex == C.INDEX_UNSET
+              && newPlayingPeriodHolder.info.id.adGroupIndex == C.INDEX_UNSET
+              && playbackInfo.periodId.nextAdGroupIndex
+                  != newPlayingPeriodHolder.info.id.nextAdGroupIndex;
       playbackInfo =
           handlePositionDiscontinuity(
               newPlayingPeriodHolder.info.id,
               newPlayingPeriodHolder.info.startPositionUs,
               newPlayingPeriodHolder.info.requestedContentPositionUs,
               /* discontinuityStartPositionUs= */ newPlayingPeriodHolder.info.startPositionUs,
-              /* reportDiscontinuity= */ true,
+              /* reportDiscontinuity= */ !isCancelledSSAIAdTransition,
               Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
       resetPendingPauseAtEndOfPeriod();
       updatePlaybackPositions();

@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -799,8 +800,14 @@ import com.google.common.collect.ImmutableList;
     } else {
       // Play the next ad group if it's still available.
       int adIndexInAdGroup = period.getFirstAdIndexToPlay(currentPeriodId.nextAdGroupIndex);
-      if (adIndexInAdGroup == period.getAdCountInAdGroup(currentPeriodId.nextAdGroupIndex)) {
-        // The next ad group has no ads left to play. Play content from the end position instead.
+      boolean isPlayedServerSideInsertedAd =
+          period.isServerSideInsertedAdGroup(currentPeriodId.nextAdGroupIndex)
+              && period.getAdState(currentPeriodId.nextAdGroupIndex, adIndexInAdGroup)
+                  == AdPlaybackState.AD_STATE_PLAYED;
+      if (adIndexInAdGroup == period.getAdCountInAdGroup(currentPeriodId.nextAdGroupIndex)
+          || isPlayedServerSideInsertedAd) {
+        // The next ad group has no ads left to play or is a played SSAI ad group. Play content from
+        // the end position instead.
         long startPositionUs =
             getMinStartPositionAfterAdGroupUs(
                 timeline, currentPeriodId.periodUid, currentPeriodId.nextAdGroupIndex);
@@ -886,6 +893,20 @@ import com.google.common.collect.ImmutableList;
       long windowSequenceNumber) {
     timeline.getPeriodByUid(periodUid, period);
     int nextAdGroupIndex = period.getAdGroupIndexAfterPositionUs(startPositionUs);
+    boolean clipPeriodAtContentDuration = false;
+    if (nextAdGroupIndex == C.INDEX_UNSET) {
+      // Clip SSAI streams when at the end of the period.
+      clipPeriodAtContentDuration =
+          period.getAdGroupCount() > 0
+              && period.isServerSideInsertedAdGroup(period.getRemovedAdGroupCount());
+    } else if (period.isServerSideInsertedAdGroup(nextAdGroupIndex)
+        && period.getAdGroupTimeUs(nextAdGroupIndex) == period.durationUs) {
+      if (period.hasPlayedAdGroup(nextAdGroupIndex)) {
+        // Clip period before played SSAI post-rolls.
+        nextAdGroupIndex = C.INDEX_UNSET;
+        clipPeriodAtContentDuration = true;
+      }
+    }
     MediaPeriodId id = new MediaPeriodId(periodUid, windowSequenceNumber, nextAdGroupIndex);
     boolean isLastInPeriod = isLastInPeriod(id);
     boolean isLastInWindow = isLastInWindow(timeline, id);
@@ -895,7 +916,7 @@ import com.google.common.collect.ImmutableList;
     long endPositionUs =
         nextAdGroupIndex != C.INDEX_UNSET
             ? period.getAdGroupTimeUs(nextAdGroupIndex)
-            : C.TIME_UNSET;
+            : clipPeriodAtContentDuration ? period.durationUs : C.TIME_UNSET;
     long durationUs =
         endPositionUs == C.TIME_UNSET || endPositionUs == C.TIME_END_OF_SOURCE
             ? period.durationUs
