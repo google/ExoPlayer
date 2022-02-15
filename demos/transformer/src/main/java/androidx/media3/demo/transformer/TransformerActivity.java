@@ -248,8 +248,9 @@ public final class TransformerActivity extends AppCompatActivity {
 
     float translateX = bundle.getFloat(ConfigurationActivity.TRANSLATE_X, /* defaultValue= */ 0);
     float translateY = bundle.getFloat(ConfigurationActivity.TRANSLATE_Y, /* defaultValue= */ 0);
-    // TODO(b/213198690): Get resolution for aspect ratio and scale all translations' translateX
-    // by this aspect ratio.
+    // TODO(b/201293185): Implement an AdvancedFrameEditor to handle translation, as the current
+    // transformationMatrix is automatically adjusted to focus on the original pixels and
+    // effectively undo translations.
     transformationMatrix.postTranslate(translateX, translateY);
 
     float scaleX = bundle.getFloat(ConfigurationActivity.SCALE_X, /* defaultValue= */ 1);
