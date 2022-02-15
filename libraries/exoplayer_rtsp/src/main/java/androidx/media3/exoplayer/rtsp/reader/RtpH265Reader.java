@@ -68,10 +68,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /** Scratch for Fragmentation Unit RTP packets. */
   private final ParsableByteArray fuScratchBuffer;
-
-  private final ParsableByteArray nalStartCodeArray =
-      new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
-
+  private final ParsableByteArray nalStartCodeArray;
   private final RtpPayloadFormat payloadFormat;
 
   private @MonotonicNonNull TrackOutput trackOutput;
@@ -84,8 +81,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /** Creates an instance. */
   public RtpH265Reader(RtpPayloadFormat payloadFormat) {
-    this.payloadFormat = payloadFormat;
     fuScratchBuffer = new ParsableByteArray();
+    nalStartCodeArray = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
+    this.payloadFormat = payloadFormat;
     firstReceivedTimestamp = C.TIME_UNSET;
     previousSequenceNumber = C.INDEX_UNSET;
   }
@@ -235,11 +233,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         (data.getData()[1] & 0x7); // last 3 bits in byte 1 of payload header, RFC7798 Section 1.1.4
     int fuHeader = data.getData()[2];
     int nalUnitType = fuHeader & 0x3F;
-    byte nalHeader[] = new byte[2];
 
-    nalHeader[0] = (byte) (nalUnitType << 1); // RFC7798 Section 1.1.4
-    // layerId must be zero according to RFC7798 Section 1.1.4, so copying the tid only
-    nalHeader[1] = (byte) tid;
     boolean isFirstFuPacket = (fuHeader & 0x80) > 0;
     boolean isLastFuPacket = (fuHeader & 0x40) > 0;
 
@@ -249,12 +243,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
       // Overwrite a few bytes in Rtp buffer to get HEVC NAL Unit
       // Rtp Byte 0  -> Ignore
-      // Rtp Byte 1  -> Byte 0 of HEVC NAL Header
-      // Rtp Byte 2  -> Byte 1 of HEVC NAL Header
+      // Rtp Byte 1  -> nal_unit_type, RFC7798 Section 1.1.4
+      // Rtp Byte 2  -> layerId required to be zero so copying only tid, RFC7798 Section 1.1.4
       // Rtp Payload -> HEVC NAL bytes, so leave them unchanged
       // Set data position from byte 1 as byte 0 was ignored
-      data.getData()[1] = (byte) nalHeader[0];
-      data.getData()[2] = (byte) nalHeader[1];
+      data.getData()[1] = (byte) (nalUnitType << 1);
+      data.getData()[2] = (byte) tid;
       fuScratchBuffer.reset(data.getData());
       fuScratchBuffer.setPosition(1);
     } else {

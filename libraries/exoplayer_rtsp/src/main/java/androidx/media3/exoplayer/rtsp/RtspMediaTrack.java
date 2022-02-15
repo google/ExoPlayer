@@ -44,10 +44,10 @@ import com.google.common.collect.ImmutableMap;
   // Format specific parameter names.
   private static final String PARAMETER_PROFILE_LEVEL_ID = "profile-level-id";
   private static final String PARAMETER_SPROP_PARAMS = "sprop-parameter-sets";
-  private static final String PARAMETER_SPROP_H265_SPS = "sprop-sps";
-  private static final String PARAMETER_SPROP_H265_PPS = "sprop-pps";
-  private static final String PARAMETER_SPROP_H265_VPS = "sprop-vps";
-  private static final String PARAMETER_SPROP_H265_MAX_DON_DIFF = "sprop-max-don-diff";
+  private static final String PARAMETER_H265_SPROP_SPS = "sprop-sps";
+  private static final String PARAMETER_H265_SPROP_PPS = "sprop-pps";
+  private static final String PARAMETER_H265_SPROP_VPS = "sprop-vps";
+  private static final String PARAMETER_H265_SPROP_MAX_DON_DIFF = "sprop-max-don-diff";
 
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
@@ -222,19 +222,19 @@ import com.google.common.collect.ImmutableMap;
 
   private static void processH265FmtpAttribute(
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
-    if (fmtpAttributes.containsKey(PARAMETER_SPROP_H265_MAX_DON_DIFF)) {
+    if (fmtpAttributes.containsKey(PARAMETER_H265_SPROP_MAX_DON_DIFF)) {
       checkArgument(
-          Integer.parseInt(checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_MAX_DON_DIFF)))
+          Integer.parseInt(checkNotNull(fmtpAttributes.get(PARAMETER_H265_SPROP_MAX_DON_DIFF)))
               == 0,
           "non-zero sprop-max-don-diff is not supported");
     }
 
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_H265_VPS));
-    String spropVPS = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_VPS));
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_H265_SPS));
-    String spropSPS = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_SPS));
-    checkArgument(fmtpAttributes.containsKey(PARAMETER_SPROP_H265_PPS));
-    String spropPPS = checkNotNull(fmtpAttributes.get(PARAMETER_SPROP_H265_PPS));
+    checkArgument(fmtpAttributes.containsKey(PARAMETER_H265_SPROP_VPS));
+    String spropVPS = checkNotNull(fmtpAttributes.get(PARAMETER_H265_SPROP_VPS));
+    checkArgument(fmtpAttributes.containsKey(PARAMETER_H265_SPROP_SPS));
+    String spropSPS = checkNotNull(fmtpAttributes.get(PARAMETER_H265_SPROP_SPS));
+    checkArgument(fmtpAttributes.containsKey(PARAMETER_H265_SPROP_PPS));
+    String spropPPS = checkNotNull(fmtpAttributes.get(PARAMETER_H265_SPROP_PPS));
     ImmutableList<byte[]> initializationData =
         ImmutableList.of(
             getInitializationDataFromParameterSet(spropVPS),
@@ -248,8 +248,7 @@ import com.google.common.collect.ImmutableMap;
         NalUnitUtil.parseH265SpsNalUnit(
             spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
-    formatBuilder.setHeight(spsData.height);
-    formatBuilder.setWidth(spsData.width);
+    formatBuilder.setHeight(spsData.height).setWidth(spsData.width);
 
     formatBuilder.setCodecs(
         CodecSpecificDataUtil.buildHevcCodecString(
