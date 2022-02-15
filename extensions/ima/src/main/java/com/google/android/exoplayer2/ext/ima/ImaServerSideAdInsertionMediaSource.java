@@ -149,6 +149,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
     @Override
     public MediaSource createMediaSource(MediaItem mediaItem) {
+      checkNotNull(mediaItem.localConfiguration);
       Player player = checkNotNull(adsLoader.player);
       StreamPlayer streamPlayer = new StreamPlayer(player, mediaItem);
       ImaSdkFactory imaSdkFactory = ImaSdkFactory.getInstance();
@@ -161,6 +162,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
           new ImaServerSideAdInsertionMediaSource(
               mediaItem,
               player,
+              adsLoader,
               imaAdsLoader,
               streamPlayer,
               contentMediaSourceFactory,
@@ -183,6 +185,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       @Nullable private ImaSdkSettings imaSdkSettings;
       @Nullable private AdEventListener adEventListener;
       @Nullable private AdErrorEvent.AdErrorListener adErrorListener;
+      private State state;
       private ImmutableList<CompanionAdSlot> companionAdSlots;
 
       /**
@@ -195,6 +198,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         this.context = context;
         this.adViewProvider = adViewProvider;
         companionAdSlots = ImmutableList.of();
+        state = new State(ImmutableMap.of());
       }
 
       /**
@@ -246,6 +250,19 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         return this;
       }
 
+      /**
+       * Sets the optional state to resume with.
+       *
+       * <p>The state can be received when {@link #release() releasing} the {@link AdsLoader}.
+       *
+       * @param state The state to resume with.
+       * @return This builder, for convenience.
+       */
+      public AdsLoader.Builder setAdsLoaderState(State state) {
+        this.state = state;
+        return this;
+      }
+
       /** Returns a new {@link AdsLoader}. */
       public AdsLoader build() {
         @Nullable ImaSdkSettings imaSdkSettings = this.imaSdkSettings;
@@ -261,7 +278,17 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
                 adErrorListener,
                 companionAdSlots,
                 imaSdkSettings.isDebugMode());
-        return new AdsLoader(context, configuration);
+        return new AdsLoader(context, configuration, state);
+      }
+    }
+
+    /** The state of the {@link AdsLoader}. */
+    public static class State {
+
+      private final ImmutableMap<String, AdPlaybackState> adPlaybackStates;
+
+      private State(ImmutableMap<String, AdPlaybackState> adPlaybackStates) {
+        this.adPlaybackStates = adPlaybackStates;
       }
     }
 
@@ -269,13 +296,19 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     private final Context context;
     private final Map<ImaServerSideAdInsertionMediaSource, MediaSourceResourceHolder>
         mediaSourceResources;
+    private final Map<String, AdPlaybackState> adPlaybackStateMap;
 
     @Nullable private Player player;
 
-    private AdsLoader(Context context, ImaUtil.ServerSideAdInsertionConfiguration configuration) {
+    private AdsLoader(
+        Context context, ImaUtil.ServerSideAdInsertionConfiguration configuration, State state) {
       this.context = context.getApplicationContext();
       this.configuration = configuration;
       mediaSourceResources = new HashMap<>();
+      adPlaybackStateMap = new HashMap<>();
+      for (Map.Entry<String, AdPlaybackState> entry : state.adPlaybackStates.entrySet()) {
+        adPlaybackStateMap.put(entry.getKey(), entry.getValue());
+      }
     }
 
     /**
@@ -288,8 +321,12 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       this.player = player;
     }
 
-    /** Releases resources when the ads loader is no longer needed. */
-    public void release() {
+    /**
+     * Releases resources.
+     *
+     * @return The {@link State} that can be used to resume with.
+     */
+    public State release() {
       for (MediaSourceResourceHolder resourceHolder : mediaSourceResources.values()) {
         resourceHolder.streamPlayer.release();
         resourceHolder.adsLoader.release();
@@ -298,14 +335,26 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       }
       mediaSourceResources.clear();
       player = null;
+      return new State(ImmutableMap.copyOf(adPlaybackStateMap));
     }
 
-    /* package */ void addMediaSourceResources(
+    // Internal methods.
+
+    private void addMediaSourceResources(
         ImaServerSideAdInsertionMediaSource mediaSource,
         StreamPlayer streamPlayer,
         com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader) {
       mediaSourceResources.put(
           mediaSource, new MediaSourceResourceHolder(mediaSource, streamPlayer, adsLoader));
+    }
+
+    private AdPlaybackState getAdPlaybackState(String adsId) {
+      @Nullable AdPlaybackState adPlaybackState = adPlaybackStateMap.get(adsId);
+      return adPlaybackState != null ? adPlaybackState : AdPlaybackState.NONE;
+    }
+
+    private void setAdPlaybackState(String adsId, AdPlaybackState adPlaybackState) {
+      this.adPlaybackStateMap.put(adsId, adPlaybackState);
     }
 
     private static final class MediaSourceResourceHolder {
@@ -327,7 +376,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   private final MediaItem mediaItem;
   private final Player player;
   private final MediaSource.Factory contentMediaSourceFactory;
-  private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
+  private final AdsLoader adsLoader;
+  private final com.google.ads.interactivemedia.v3.api.AdsLoader sdkAdsLoader;
   @Nullable private final AdEventListener applicationAdEventListener;
   @Nullable private final AdErrorListener applicationAdErrorListener;
   private final boolean isLiveStream;
@@ -348,7 +398,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   private ImaServerSideAdInsertionMediaSource(
       MediaItem mediaItem,
       Player player,
-      com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader,
+      AdsLoader adsLoader,
+      com.google.ads.interactivemedia.v3.api.AdsLoader sdkAdsLoader,
       StreamPlayer streamPlayer,
       MediaSource.Factory contentMediaSourceFactory,
       @Nullable AdEventListener applicationAdEventListener,
@@ -356,18 +407,19 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     this.mediaItem = mediaItem;
     this.player = player;
     this.adsLoader = adsLoader;
+    this.sdkAdsLoader = sdkAdsLoader;
     this.streamPlayer = streamPlayer;
     this.contentMediaSourceFactory = contentMediaSourceFactory;
     this.applicationAdEventListener = applicationAdEventListener;
     this.applicationAdErrorListener = applicationAdErrorListener;
     componentListener = new ComponentListener();
-    adPlaybackState = AdPlaybackState.NONE;
     mainHandler = Util.createHandlerForCurrentLooper();
     Uri streamRequestUri = checkNotNull(mediaItem.localConfiguration).uri;
     isLiveStream = ImaServerSideAdInsertionUriBuilder.isLiveStream(streamRequestUri);
     adsId = ImaServerSideAdInsertionUriBuilder.getAdsId(streamRequestUri);
     loadVideoTimeoutMs = ImaServerSideAdInsertionUriBuilder.getLoadVideoTimeoutMs(streamRequestUri);
     streamRequest = ImaServerSideAdInsertionUriBuilder.createStreamRequest(streamRequestUri);
+    adPlaybackState = adsLoader.getAdPlaybackState(adsId);
   }
 
   @Override
@@ -384,7 +436,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       player.addListener(componentListener);
       StreamManagerLoadable streamManagerLoadable =
           new StreamManagerLoadable(
-              adsLoader,
+              sdkAdsLoader,
               streamRequest,
               streamPlayer,
               applicationAdErrorListener,
@@ -500,6 +552,10 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
           splitAdPlaybackStateForPeriods(adPlaybackState, contentTimeline);
       streamPlayer.setAdPlaybackStates(adsId, splitAdPlaybackStates, contentTimeline);
       checkNotNull(serverSideAdInsertionMediaSource).setAdPlaybackStates(splitAdPlaybackStates);
+      if (!ImaServerSideAdInsertionUriBuilder.isLiveStream(
+          checkNotNull(mediaItem.localConfiguration).uri)) {
+        adsLoader.setAdPlaybackState(adsId, adPlaybackState);
+      }
     }
   }
 
