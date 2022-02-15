@@ -41,7 +41,7 @@ public final class ImaServerSideAdInsertionUriBuilder {
   /** The default timeout for loading the video URI, in milliseconds. */
   public static final int DEFAULT_LOAD_VIDEO_TIMEOUT_MS = 10_000;
 
-  private static final String IMA_AUTHORITY = "dai.google.com";
+  /* package */ static final String IMA_AUTHORITY = "dai.google.com";
   private static final String ADS_ID = "adsId";
   private static final String ASSET_KEY = "assetKey";
   private static final String API_KEY = "apiKey";
