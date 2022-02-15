@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
  * Wrapper around the various StreamFormats
  */
 public class StreamFormatBox extends ResidentBox {
-  public static final int STRF = 's' | ('t' << 8) | ('r' << 16) | ('f' << 24);
+  public static final int STRF = 0x66727473; // strf
 
   StreamFormatBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);

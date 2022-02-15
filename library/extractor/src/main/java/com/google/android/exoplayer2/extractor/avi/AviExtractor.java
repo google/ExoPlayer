@@ -110,15 +110,15 @@ public class AviExtractor implements Extractor {
   static final int AVIIF_KEYFRAME = 16;
 
 
-  static final int RIFF = 'R' | ('I' << 8) | ('F' << 16) | ('F' << 24);
-  static final int AVI_ = 'A' | ('V' << 8) | ('I' << 16) | (' ' << 24);
+  static final int RIFF = 0x46464952; // RIFF
+  static final int AVI_ = 0x20495641; // AVI<space>
   //movie data box
-  static final int MOVI = 'm' | ('o' << 8) | ('v' << 16) | ('i' << 24);
+  static final int MOVI = 0x69766f6d; // movi
   //Index
-  static final int IDX1 = 'i' | ('d' << 8) | ('x' << 16) | ('1' << 24);
+  static final int IDX1 = 0x31786469; // idx1
 
-  static final int JUNK = 'J' | ('U' << 8) | ('N' << 16) | ('K' << 24);
-  static final int REC_ = 'r' | ('e' << 8) | ('c' << 16) | (' ' << 24);
+  static final int JUNK = 0x4b4e554a; // JUNK
+  static final int REC_ = 0x20636572; // rec<space>
 
   @VisibleForTesting
   int state;

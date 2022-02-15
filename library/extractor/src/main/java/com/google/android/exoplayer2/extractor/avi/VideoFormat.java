@@ -25,7 +25,7 @@ import java.util.HashMap;
  */
 public class VideoFormat {
 
-  static final int XVID = 'X' | ('V' << 8) | ('I' << 16) | ('D' << 24);
+  static final int XVID = 0x44495658; // XVID
 
   private static final HashMap<Integer, String> STREAM_MAP = new HashMap<>();
 
@@ -34,21 +34,21 @@ public class VideoFormat {
     final String mimeType = MimeTypes.VIDEO_MP4V;
 
     //I've never seen an Android devices that actually supports MP42
-    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('2' << 24), MimeTypes.VIDEO_MP42);
+    STREAM_MAP.put(0x3234504d, MimeTypes.VIDEO_MP42); // MP42
     //Samsung seems to support the rare MP43.
-    STREAM_MAP.put('M' | ('P' << 8) | ('4' << 16) | ('3' << 24), MimeTypes.VIDEO_MP43);
-    STREAM_MAP.put('H' | ('2' << 8) | ('6' << 16) | ('4' << 24), MimeTypes.VIDEO_H264);
-    STREAM_MAP.put('a' | ('v' << 8) | ('c' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
-    STREAM_MAP.put('A' | ('V' << 8) | ('C' << 16) | ('1' << 24), MimeTypes.VIDEO_H264);
-    STREAM_MAP.put('3' | ('V' << 8) | ('I' << 16) | ('D' << 24), mimeType);
-    STREAM_MAP.put('d' | ('i' << 8) | ('v' << 16) | ('x' << 24), mimeType);
-    STREAM_MAP.put('D' | ('I' << 8) | ('V' << 16) | ('X' << 24), mimeType);
-    STREAM_MAP.put('D' | ('X' << 8) | ('5' << 16) | ('0' << 24), mimeType);
-    STREAM_MAP.put('F' | ('M' << 8) | ('P' << 16) | ('4' << 24), mimeType);
-    STREAM_MAP.put('x' | ('v' << 8) | ('i' << 16) | ('d' << 24), mimeType);
-    STREAM_MAP.put(XVID, mimeType);
-    STREAM_MAP.put('M' | ('J' << 8) | ('P' << 16) | ('G' << 24), MimeTypes.VIDEO_MJPEG);
-    STREAM_MAP.put('m' | ('j' << 8) | ('p' << 16) | ('g' << 24), MimeTypes.VIDEO_MJPEG);
+    STREAM_MAP.put(0x3334504d, MimeTypes.VIDEO_MP43); // MP43
+    STREAM_MAP.put(0x34363248, MimeTypes.VIDEO_H264); // H264
+    STREAM_MAP.put(0x31637661, MimeTypes.VIDEO_H264); // avc1
+    STREAM_MAP.put(0x31435641, MimeTypes.VIDEO_H264); // AVC1
+    STREAM_MAP.put(0x44495633, mimeType); // 3VID
+    STREAM_MAP.put(0x78766964, mimeType); // divx
+    STREAM_MAP.put(0x58564944, mimeType); // DIVX
+    STREAM_MAP.put(0x30355844, mimeType); // DX50
+    STREAM_MAP.put(0x34504d46, mimeType); // FMP4
+    STREAM_MAP.put(0x64697678, mimeType); // xvid
+    STREAM_MAP.put(XVID, mimeType); // XVID
+    STREAM_MAP.put(0x47504a4d, MimeTypes.VIDEO_MJPEG); // MJPG
+    STREAM_MAP.put(0x67706a6d, MimeTypes.VIDEO_MJPEG); // mjpg
   }
 
   private final ByteBuffer byteBuffer;

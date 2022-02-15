@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
  * Box containing a human readable stream name
  */
 public class StreamNameBox extends ResidentBox {
-  public static final int STRN = 's' | ('t' << 8) | ('r' << 16) | ('n' << 24);
+  public static final int STRN = 0x6e727473; // strn
 
   StreamNameBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);

@@ -25,7 +25,7 @@ public class AviHeaderBox extends ResidentBox {
   static final int LEN = 0x38;
   static final int AVIF_HASINDEX = 0x10;
   private static final int AVIF_MUSTUSEINDEX = 0x20;
-  static final int AVIH = 'a' | ('v' << 8) | ('i' << 16) | ('h' << 24);
+  static final int AVIH = 0x68697661; // avih
 
   AviHeaderBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);

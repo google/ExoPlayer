@@ -22,13 +22,13 @@ import java.nio.ByteBuffer;
  * Wrapper around the AVISTREAMHEADER structure
  */
 public class StreamHeaderBox extends ResidentBox {
-  public static final int STRH = 's' | ('t' << 8) | ('r' << 16) | ('h' << 24);
+  public static final int STRH = 0x68727473; // strh
 
   //Audio Stream
-  static final int AUDS = 'a' | ('u' << 8) | ('d' << 16) | ('s' << 24);
+  static final int AUDS = 0x73647561; // auds
 
   //Videos Stream
-  static final int VIDS = 'v' | ('i' << 8) | ('d' << 16) | ('s' << 24);
+  static final int VIDS = 0x73646976; // vids
 
   StreamHeaderBox(int type, int size, ByteBuffer byteBuffer) {
     super(type, size, byteBuffer);

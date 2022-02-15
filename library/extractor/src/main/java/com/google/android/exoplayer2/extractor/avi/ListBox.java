@@ -27,11 +27,9 @@ import java.util.List;
  * An AVI LIST box.  Similar to a Java List<Box>
  */
 public class ListBox extends Box {
-  public static final int LIST = 'L' | ('I' << 8) | ('S' << 16) | ('T' << 24);
-  //Header List
-  public static final int TYPE_HDRL = 'h' | ('d' << 8) | ('r' << 16) | ('l' << 24);
-  //Stream List
-  public static final int TYPE_STRL = 's' | ('t' << 8) | ('r' << 16) | ('l' << 24);
+  public static final int LIST = 0x5453494c; // LIST
+  public static final int TYPE_HDRL = 0x6c726468; // hdrl - Header List
+  public static final int TYPE_STRL = 0x6c727473; // strl - Stream List
 
   private final int listType;
 
