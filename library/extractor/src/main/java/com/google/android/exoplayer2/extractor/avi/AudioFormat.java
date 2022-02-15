@@ -23,18 +23,13 @@ import java.nio.ByteBuffer;
  * Wrapper for the WAVEFORMATEX structure
  */
 public class AudioFormat {
-  public static final short WAVE_FORMAT_PCM = 1;
-  static final short WAVE_FORMAT_AAC = 0xff;
-  private static final short WAVE_FORMAT_MPEGLAYER3 = 0x55;
-  private static final short WAVE_FORMAT_DVM = 0x2000; //AC3
-  private static final short WAVE_FORMAT_DTS2 = 0x2001; //DTS
   private static final SparseArray<String> FORMAT_MAP = new SparseArray<>();
   static {
-    FORMAT_MAP.put(WAVE_FORMAT_PCM, MimeTypes.AUDIO_RAW);
-    FORMAT_MAP.put(WAVE_FORMAT_MPEGLAYER3, MimeTypes.AUDIO_MPEG);
-    FORMAT_MAP.put(WAVE_FORMAT_AAC, MimeTypes.AUDIO_AAC);
-    FORMAT_MAP.put(WAVE_FORMAT_DVM, MimeTypes.AUDIO_AC3);
-    FORMAT_MAP.put(WAVE_FORMAT_DTS2, MimeTypes.AUDIO_DTS);
+    FORMAT_MAP.put(0x1, MimeTypes.AUDIO_RAW);    // WAVE_FORMAT_PCM
+    FORMAT_MAP.put(0x55, MimeTypes.AUDIO_MPEG);  // WAVE_FORMAT_MPEGLAYER3
+    FORMAT_MAP.put(0xff, MimeTypes.AUDIO_AAC);   // WAVE_FORMAT_AAC
+    FORMAT_MAP.put(0x2000, MimeTypes.AUDIO_AC3); // WAVE_FORMAT_DVM - AC3
+    FORMAT_MAP.put(0x2001, MimeTypes.AUDIO_DTS); // WAVE_FORMAT_DTS2
   }
 
   private final ByteBuffer byteBuffer;

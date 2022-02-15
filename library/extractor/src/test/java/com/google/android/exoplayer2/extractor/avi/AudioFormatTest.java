@@ -32,7 +32,7 @@ public class AudioFormatTest {
     final AudioFormat audioFormat = streamFormatBox.getAudioFormat();
     Assert.assertEquals(MimeTypes.AUDIO_AAC, audioFormat.getMimeType());
     Assert.assertEquals(2, audioFormat.getChannels());
-    Assert.assertEquals(AudioFormat.WAVE_FORMAT_AAC, audioFormat.getFormatTag());
+    Assert.assertEquals(0xff, audioFormat.getFormatTag()); // AAC
     Assert.assertEquals(48000, audioFormat.getSamplesPerSecond());
     Assert.assertEquals(0, audioFormat.getBitsPerSample()); //Not meaningful for AAC
     Assert.assertArrayEquals(CODEC_PRIVATE, audioFormat.getCodecData());
