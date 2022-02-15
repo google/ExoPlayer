@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
  * from emulators, so tests on physical devices may fail. To test on physical devices, please modify
  * the MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE.
  */
-// TODO(b/214510265): Fix these tests on Pixel 4 emulators.
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorDataProcessingTest {
 
