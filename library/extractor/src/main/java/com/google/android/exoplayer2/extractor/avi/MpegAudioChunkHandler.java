@@ -132,7 +132,6 @@ public class MpegAudioChunkHandler extends ChunkHandler {
     frameRemaining -= bytes;
     if (frameRemaining == 0) {
       trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, header.frameSize, 0, null);
-      //Log.d(AviExtractor.TAG, "MP3: us=" + us);
       timeUs += header.samplesPerFrame * C.MICROS_PER_SECOND / samplesPerSecond;
     }
     chunkRemaining -= bytes;

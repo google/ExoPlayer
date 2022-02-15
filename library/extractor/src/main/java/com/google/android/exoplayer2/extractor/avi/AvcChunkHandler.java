@@ -92,7 +92,6 @@ public class AvcChunkHandler extends NalChunkHandler {
     //We skip IDR in the switch
     if (spsData.picOrderCountType == 0) {
       int picOrderCountLsb = in.readBits(spsData.picOrderCntLsbLength);
-      //Log.d("Test", "FrameNum: " + frame + " cnt=" + picOrderCountLsb);
       picCountClock.setPicCount(picOrderCountLsb);
       return;
     } else if (spsData.picOrderCountType == 2) {

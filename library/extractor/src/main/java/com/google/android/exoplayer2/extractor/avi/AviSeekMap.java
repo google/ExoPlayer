@@ -95,8 +95,6 @@ public class AviSeekMap implements SeekMap {
     } else {
       return new SeekPoints(getSeekPoint(firstSeekIndex));
     }
-
-    //Log.d(AviExtractor.TAG, "SeekPoint: us=" + outUs + " pos=" + position);
   }
 
   /**
