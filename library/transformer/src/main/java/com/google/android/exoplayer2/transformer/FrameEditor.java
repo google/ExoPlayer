@@ -325,8 +325,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       glProgram.bindAttributesAndUniforms();
 
       focusAndDrawQuad(eglSurface, outputWidth, outputHeight);
-      long surfaceTextureTimestampNs = inputSurfaceTexture.getTimestamp();
-      EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, surfaceTextureTimestampNs);
+      long presentationTimeNs = inputSurfaceTexture.getTimestamp();
+      EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
       EGL14.eglSwapBuffers(eglDisplay, eglSurface);
 
       if (debugPreviewEglSurface != null) {

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
@@ -27,6 +28,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -312,7 +314,13 @@ public final class Codec {
   public void releaseOutputBuffer(boolean render) throws TransformationException {
     outputBuffer = null;
     try {
-      mediaCodec.releaseOutputBuffer(outputBufferIndex, render);
+      if (render) {
+        mediaCodec.releaseOutputBuffer(
+            outputBufferIndex,
+            /* renderTimestampNs= */ checkStateNotNull(outputBufferInfo).presentationTimeUs * 1000);
+      } else {
+        mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
+      }
     } catch (RuntimeException e) {
       throw createTransformationException(e);
     }
