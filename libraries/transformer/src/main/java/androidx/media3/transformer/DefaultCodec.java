@@ -209,7 +209,13 @@ public final class DefaultCodec implements Codec {
   public void releaseOutputBuffer(boolean render) throws TransformationException {
     outputBuffer = null;
     try {
-      mediaCodec.releaseOutputBuffer(outputBufferIndex, render);
+      if (render) {
+        mediaCodec.releaseOutputBuffer(
+            outputBufferIndex,
+            /* renderTimestampNs= */ checkStateNotNull(outputBufferInfo).presentationTimeUs * 1000);
+      } else {
+        mediaCodec.releaseOutputBuffer(outputBufferIndex, /* render= */ false);
+      }
     } catch (RuntimeException e) {
       throw createTransformationException(e);
     }
