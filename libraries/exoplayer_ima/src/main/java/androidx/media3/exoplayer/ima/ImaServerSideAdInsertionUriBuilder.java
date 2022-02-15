@@ -368,6 +368,10 @@ public final class ImaServerSideAdInsertionUriBuilder {
     if (streamActivityMonitorId != null) {
       streamRequest.setStreamActivityMonitorId(streamActivityMonitorId);
     }
+    checkState(
+        streamRequest.getFormat() != StreamFormat.DASH
+            || TextUtils.isEmpty(streamRequest.getAssetKey()),
+        "DASH live streams are not supported yet.");
     return streamRequest;
   }
 }
