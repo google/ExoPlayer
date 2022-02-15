@@ -49,29 +49,34 @@ public final class TracksInfo implements Bundleable {
     /** The number of tracks in the group. */
     public final int length;
 
-    private final TrackGroup trackGroup;
-    private final @C.FormatSupport int[] trackSupport;
     private final @C.TrackType int trackType;
+    private final TrackGroup trackGroup;
+    private final boolean adaptiveSupported;
+    private final @C.FormatSupport int[] trackSupport;
     private final boolean[] trackSelected;
 
     /**
      * Constructs a TrackGroupInfo.
      *
-     * @param trackGroup The {@link TrackGroup} described.
-     * @param trackSupport The {@link C.FormatSupport} of each track in the {@code trackGroup}.
      * @param trackType The {@link C.TrackType} of the tracks in the {@code trackGroup}.
+     * @param trackGroup The {@link TrackGroup} described.
+     * @param adaptiveSupported Whether adaptive selections containing more than one track are
+     *     supported.
+     * @param trackSupport The {@link C.FormatSupport} of each track in the {@code trackGroup}.
      * @param tracksSelected Whether a track is selected for each track in {@code trackGroup}.
      */
     public TrackGroupInfo(
-        TrackGroup trackGroup,
-        @C.FormatSupport int[] trackSupport,
         @C.TrackType int trackType,
+        TrackGroup trackGroup,
+        boolean adaptiveSupported,
+        @C.FormatSupport int[] trackSupport,
         boolean[] tracksSelected) {
       length = trackGroup.length;
       checkArgument(length == trackSupport.length && length == tracksSelected.length);
-      this.trackGroup = trackGroup;
-      this.trackSupport = trackSupport.clone();
       this.trackType = trackType;
+      this.trackGroup = trackGroup;
+      this.adaptiveSupported = adaptiveSupported && length > 1;
+      this.trackSupport = trackSupport.clone();
       this.trackSelected = tracksSelected.clone();
     }
 
@@ -131,6 +136,11 @@ public final class TracksInfo implements Bundleable {
     /** Returns whether at least one track in the group is selected for playback. */
     public boolean isSelected() {
       return Booleans.contains(trackSelected, true);
+    }
+
+    /** Returns whether adaptive selections containing more than one track are supported. */
+    public boolean isAdaptiveSupported() {
+      return adaptiveSupported;
     }
 
     /**
@@ -215,6 +225,7 @@ public final class TracksInfo implements Bundleable {
       FIELD_TRACK_SUPPORT,
       FIELD_TRACK_TYPE,
       FIELD_TRACK_SELECTED,
+      FIELD_ADAPTIVE_SUPPORTED,
     })
     private @interface FieldNumber {}
 
@@ -222,6 +233,7 @@ public final class TracksInfo implements Bundleable {
     private static final int FIELD_TRACK_SUPPORT = 1;
     private static final int FIELD_TRACK_TYPE = 2;
     private static final int FIELD_TRACK_SELECTED = 3;
+    private static final int FIELD_ADAPTIVE_SUPPORTED = 4;
 
     @Override
     public Bundle toBundle() {
@@ -230,6 +242,7 @@ public final class TracksInfo implements Bundleable {
       bundle.putIntArray(keyForField(FIELD_TRACK_SUPPORT), trackSupport);
       bundle.putInt(keyForField(FIELD_TRACK_TYPE), trackType);
       bundle.putBooleanArray(keyForField(FIELD_TRACK_SELECTED), trackSelected);
+      bundle.putBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), adaptiveSupported);
       return bundle;
     }
 
@@ -249,7 +262,10 @@ public final class TracksInfo implements Bundleable {
               MoreObjects.firstNonNull(
                   bundle.getBooleanArray(keyForField(FIELD_TRACK_SELECTED)),
                   new boolean[trackGroup.length]);
-          return new TrackGroupInfo(trackGroup, trackSupport, trackType, selected);
+          boolean adaptiveSupported =
+              bundle.getBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), false);
+          return new TrackGroupInfo(
+              trackType, trackGroup, adaptiveSupported, trackSupport, selected);
         };
 
     private static String keyForField(@FieldNumber int field) {
@@ -275,6 +291,16 @@ public final class TracksInfo implements Bundleable {
   /** Returns the {@link TrackGroupInfo TrackGroupInfos} describing the groups of tracks. */
   public ImmutableList<TrackGroupInfo> getTrackGroupInfos() {
     return trackGroupInfos;
+  }
+
+  /** Returns true if there are tracks of type {@code trackType}, and false otherwise. */
+  public boolean hasTracksOfType(@C.TrackType int trackType) {
+    for (int i = 0; i < trackGroupInfos.size(); i++) {
+      if (trackGroupInfos.get(i).trackType == trackType) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

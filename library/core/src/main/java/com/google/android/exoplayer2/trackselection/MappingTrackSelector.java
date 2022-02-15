@@ -570,6 +570,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
       @Nullable TrackSelection trackSelection = selections[rendererIndex];
       for (int groupIndex = 0; groupIndex < trackGroupArray.length; groupIndex++) {
         TrackGroup trackGroup = trackGroupArray.get(groupIndex);
+        boolean adaptiveSupported =
+            mappedTrackInfo.getAdaptiveSupport(
+                    rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false)
+                != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
         @C.FormatSupport int[] trackSupport = new int[trackGroup.length];
         boolean[] selected = new boolean[trackGroup.length];
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
@@ -583,7 +587,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
         }
         @C.TrackType int trackGroupType = mappedTrackInfo.getRendererType(rendererIndex);
         builder.add(
-            new TracksInfo.TrackGroupInfo(trackGroup, trackSupport, trackGroupType, selected));
+            new TracksInfo.TrackGroupInfo(
+                trackGroupType, trackGroup, adaptiveSupported, trackSupport, selected));
       }
     }
     TrackGroupArray unmappedTrackGroups = mappedTrackInfo.getUnmappedTrackGroups();
@@ -596,7 +601,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
       int trackGroupType = MimeTypes.getTrackType(trackGroup.getFormat(0).sampleMimeType);
       boolean[] selected = new boolean[trackGroup.length]; // Initialized to false.
       builder.add(
-          new TracksInfo.TrackGroupInfo(trackGroup, trackSupport, trackGroupType, selected));
+          new TracksInfo.TrackGroupInfo(
+              trackGroupType, trackGroup, /* adaptiveSupported= */ false, trackSupport, selected));
     }
     return new TracksInfo(builder.build());
   }
