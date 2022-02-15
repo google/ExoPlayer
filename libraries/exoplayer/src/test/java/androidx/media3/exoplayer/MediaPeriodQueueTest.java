@@ -388,7 +388,7 @@ public final class MediaPeriodQueueTest {
         /* periodUid= */ firstPeriodUid,
         /* startPositionUs= */ SECOND_AD_START_TIME_US,
         /* requestedContentPositionUs= */ SECOND_AD_START_TIME_US,
-        /* endPositionUs= */ C.TIME_UNSET,
+        /* endPositionUs= */ CONTENT_DURATION_US,
         /* durationUs= */ CONTENT_DURATION_US,
         /* isFollowedByTransitionToSameStream= */ false,
         /* isLastInPeriod= */ true,
