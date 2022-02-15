@@ -15,8 +15,12 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.AUDIO_FORMAT;
+import static com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.VIDEO_FORMAT;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -33,6 +37,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource;
 import com.google.android.exoplayer2.source.ads.SinglePeriodAdTimeline;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
@@ -44,6 +49,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.common.collect.ImmutableList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -818,10 +825,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_behindAdInMultiPeriodTimeline_rollForward() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_behindAdInMultiPeriodTimeline_rollForward()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId,
             /* numberOfPlayedAds= */ 0,
             /* isAdPeriodFlags...= */ true,
@@ -852,10 +860,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_behindAdInMultiPeriodAllAdsPlayed_seekNotAdjusted() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_behindAdInMultiPeriodAllAdsPlayed_seekNotAdjusted()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId,
             /* numberOfPlayedAds= */ 4,
             /* isAdPeriodFlags...= */ true,
@@ -886,10 +895,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_behindAdInMultiPeriodFirstTwoAdsPlayed_rollForward() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_behindAdInMultiPeriodFirstTwoAdsPlayed_rollForward()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId,
             /* numberOfPlayedAds= */ 2,
             /* isAdPeriodFlags...= */ true,
@@ -911,10 +921,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_beforeAdInMultiPeriodTimeline_seekNotAdjusted() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_beforeAdInMultiPeriodTimeline_seekNotAdjusted()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId, /* numberOfPlayedAds= */ 0, /* isAdPeriodFlags...= */ false, true);
 
     MediaPeriodId mediaPeriodId =
@@ -929,10 +940,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toUnplayedAdInMultiPeriodTimeline_resolvedAsAd() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toUnplayedAdInMultiPeriodTimeline_resolvedAsAd()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId, /* numberOfPlayedAds= */ 0, /* isAdPeriodFlags...= */ false, true, false);
 
     MediaPeriodId mediaPeriodId =
@@ -947,10 +959,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toPlayedAdInMultiPeriodTimeline_skipPlayedAd() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toPlayedAdInMultiPeriodTimeline_skipPlayedAd()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId, /* numberOfPlayedAds= */ 1, /* isAdPeriodFlags...= */ false, true, false);
 
     MediaPeriodId mediaPeriodId =
@@ -965,12 +978,12 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toStartOfWindowPlayedAdPreroll_skipsPlayedPrerolls() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toStartOfWindowPlayedAdPreroll_skipsPlayedPrerolls()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId, /* numberOfPlayedAds= */ 2, /* isAdPeriodFlags...= */ true, true, false);
-
     MediaPeriodId mediaPeriodId =
         mediaPeriodQueue.resolveMediaPeriodIdForAdsAfterPeriodPositionChange(
             timeline, new Pair<>(windowId, 0), /* positionUs= */ 0);
@@ -983,10 +996,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toPlayedPostrolls_skipsAllButLastPostroll() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_toPlayedPostrolls_skipsAllButLastPostroll()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId,
             /* numberOfPlayedAds= */ 4,
             /* isAdPeriodFlags...= */ false,
@@ -1007,10 +1021,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_consecutiveContentPeriods_rollForward() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_consecutiveContentPeriods_rollForward()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId,
             /* numberOfPlayedAds= */ 0,
             /* isAdPeriodFlags...= */ true,
@@ -1030,10 +1045,11 @@ public final class MediaPeriodQueueTest {
 
   @Test
   public void
-      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_onlyConsecutiveContentPeriods_seekNotAdjusted() {
+      resolveMediaPeriodIdForAdsAfterPeriodPositionChange_onlyConsecutiveContentPeriods_seekNotAdjusted()
+          throws InterruptedException {
     Object windowId = new Object();
-    FakeTimeline timeline =
-        FakeTimeline.createMultiPeriodAdTimeline(
+    Timeline timeline =
+        createMultiPeriodServerSideInsertedTimeline(
             windowId,
             /* numberOfPlayedAds= */ 0,
             /* isAdPeriodFlags...= */ false,
@@ -1244,5 +1260,30 @@ public final class MediaPeriodQueueTest {
       periodHolder = periodHolder.getNext();
     }
     return length;
+  }
+
+  private static Timeline createMultiPeriodServerSideInsertedTimeline(
+      Object windowId, int numberOfPlayedAds, boolean... isAdPeriodFlags)
+      throws InterruptedException {
+    FakeTimeline timeline =
+        FakeTimeline.createMultiPeriodAdTimeline(windowId, numberOfPlayedAds, isAdPeriodFlags);
+    ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource =
+        new ServerSideAdInsertionMediaSource(
+            new FakeMediaSource(timeline, VIDEO_FORMAT, AUDIO_FORMAT), contentTimeline -> false);
+    serverSideAdInsertionMediaSource.setAdPlaybackStates(
+        timeline.getAdPlaybackStates(/* windowIndex= */ 0));
+    AtomicReference<Timeline> serverSideAdInsertionTimelineRef = new AtomicReference<>();
+    CountDownLatch countDownLatch = new CountDownLatch(/* count= */ 1);
+    serverSideAdInsertionMediaSource.prepareSource(
+        (source, serverSideInsertedAdTimeline) -> {
+          serverSideAdInsertionTimelineRef.set(serverSideInsertedAdTimeline);
+          countDownLatch.countDown();
+        },
+        /* mediaTransferListener= */ null,
+        new PlayerId());
+    if (!countDownLatch.await(/* timeout= */ 2, SECONDS)) {
+      fail();
+    }
+    return serverSideAdInsertionTimelineRef.get();
   }
 }
