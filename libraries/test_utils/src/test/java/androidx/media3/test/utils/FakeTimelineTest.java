@@ -45,20 +45,21 @@ public class FakeTimelineTest {
             true,
             true,
             false,
+            true,
             true);
 
     assertThat(timeline.getWindowCount()).isEqualTo(1);
-    assertThat(timeline.getPeriodCount()).isEqualTo(7);
+    assertThat(timeline.getPeriodCount()).isEqualTo(8);
     // Assert content periods and window duration.
     Timeline.Period contentPeriod1 = timeline.getPeriod(/* periodIndex= */ 1, period);
     Timeline.Period contentPeriod5 = timeline.getPeriod(/* periodIndex= */ 5, period);
-    assertThat(contentPeriod1.durationUs).isEqualTo(DEFAULT_WINDOW_DURATION_US / 7);
-    assertThat(contentPeriod5.durationUs).isEqualTo(DEFAULT_WINDOW_DURATION_US / 7);
+    assertThat(contentPeriod1.durationUs).isEqualTo(DEFAULT_WINDOW_DURATION_US / 8);
+    assertThat(contentPeriod5.durationUs).isEqualTo(DEFAULT_WINDOW_DURATION_US / 8);
     assertThat(contentPeriod1.getAdGroupCount()).isEqualTo(0);
     assertThat(contentPeriod5.getAdGroupCount()).isEqualTo(0);
     timeline.getWindow(/* windowIndex= */ 0, window);
     assertThat(window.uid).isEqualTo(windowId);
-    assertThat(window.durationUs).isEqualTo(contentPeriod1.durationUs + contentPeriod5.durationUs);
+    assertThat(window.durationUs).isEqualTo(DEFAULT_WINDOW_DURATION_US);
     assertThat(window.positionInFirstPeriodUs).isEqualTo(DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US);
     // Assert ad periods.
     int[] adIndices = {0, 2, 3, 4, 6};
@@ -67,7 +68,6 @@ public class FakeTimelineTest {
       Timeline.Period adPeriod = timeline.getPeriod(periodIndex, period);
       assertThat(adPeriod.isServerSideInsertedAdGroup(0)).isTrue();
       assertThat(adPeriod.getAdGroupCount()).isEqualTo(1);
-      assertThat(adPeriod.durationUs).isEqualTo(0);
       if (adPeriod.getAdGroupCount() > 0) {
         if (adCounter < numberOfPlayedAds) {
           assertThat(adPeriod.getAdState(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0))
@@ -79,8 +79,9 @@ public class FakeTimelineTest {
         adCounter++;
       }
       long expectedDurationUs =
-          (DEFAULT_WINDOW_DURATION_US / 7)
+          (DEFAULT_WINDOW_DURATION_US / 8)
               + (periodIndex == 0 ? DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US : 0);
+      assertThat(adPeriod.durationUs).isEqualTo(expectedDurationUs);
       assertThat(adPeriod.getAdDurationUs(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0))
           .isEqualTo(expectedDurationUs);
     }
@@ -100,7 +101,7 @@ public class FakeTimelineTest {
 
     timeline.getWindow(/* windowIndex= */ 0, window);
     // Assert content periods and window duration.
-    assertThat(window.durationUs).isEqualTo(DEFAULT_WINDOW_DURATION_US / 2);
+    assertThat(window.durationUs).isEqualTo(DEFAULT_WINDOW_DURATION_US);
     assertThat(window.positionInFirstPeriodUs).isEqualTo(DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US);
   }
 }
