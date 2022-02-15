@@ -74,14 +74,9 @@ public final class TransformationRequest {
      * @return This builder.
      */
     public Builder setTransformationMatrix(Matrix transformationMatrix) {
-      // TODO(b/201293185): After {@link #setResolution} supports arbitrary resolutions,
-      // allow transformations to change the resolution, by scaling to the appropriate min/max
-      // values. This will also be required to create the VertexTransformation class, in order to
-      // have aspect ratio helper methods (which require resolution to change).
-
-      // TODO(b/213198690): Consider changing how transformationMatrix is applied, so that
-      // dimensions will be from -1 to 1 on both x and y axes, but transformations will be applied
-      // in a predictable manner.
+      // TODO(b/201293185): Implement an AdvancedFrameEditor to handle translation, as the current
+      // transformationMatrix is automatically adjusted to focus on the original pixels and
+      // effectively undo translations.
       this.transformationMatrix = new Matrix(transformationMatrix);
       return this;
     }

@@ -115,6 +115,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return false;
     }
     if (!transformationRequest.transformationMatrix.isIdentity()) {
+      // TODO(b/201293185, b/214010296): Move FrameProcessor transformationMatrix calculation /
+      // adjustments out of the VideoTranscodingSamplePipeline, so that we can skip transcoding when
+      // adjustments result in identity matrices.
       return false;
     }
     return true;
