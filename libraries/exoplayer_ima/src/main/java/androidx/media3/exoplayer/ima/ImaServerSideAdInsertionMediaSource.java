@@ -379,6 +379,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   @Override
   public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+    mainHandler.post(() -> assertSingleInstanceInPlaylist(checkNotNull(player)));
     super.prepareSourceInternal(mediaTransferListener);
     if (loader == null) {
       Loader loader = new Loader("ImaServerSideAdInsertionMediaSource");
@@ -1150,6 +1151,22 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               overlayInfo.view,
               ImaUtil.getFriendlyObstructionPurpose(overlayInfo.purpose),
               overlayInfo.reasonDetail != null ? overlayInfo.reasonDetail : "Unknown reason"));
+    }
+  }
+
+  private static void assertSingleInstanceInPlaylist(Player player) {
+    int counter = 0;
+    for (int i = 0; i < player.getMediaItemCount(); i++) {
+      MediaItem mediaItem = player.getMediaItemAt(i);
+      if (mediaItem.localConfiguration != null
+          && C.SSAI_SCHEME.equals(mediaItem.localConfiguration.uri.getScheme())
+          && ImaServerSideAdInsertionUriBuilder.IMA_AUTHORITY.equals(
+              mediaItem.localConfiguration.uri.getAuthority())) {
+        if (++counter > 1) {
+          throw new IllegalStateException(
+              "Multiple IMA server side ad insertion sources not supported.");
+        }
+      }
     }
   }
 }
