@@ -38,8 +38,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackGroupArray;
 import androidx.media3.common.TrackSelection;
-import androidx.media3.common.TrackSelectionOverrides;
-import androidx.media3.common.TrackSelectionOverrides.TrackSelectionOverride;
+import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleableUtil;
@@ -598,9 +597,32 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public ParametersBuilder setTrackSelectionOverrides(
-        TrackSelectionOverrides trackSelectionOverrides) {
-      super.setTrackSelectionOverrides(trackSelectionOverrides);
+    public ParametersBuilder addOverride(TrackSelectionOverride override) {
+      super.addOverride(override);
+      return this;
+    }
+
+    @Override
+    public ParametersBuilder clearOverride(TrackGroup trackGroup) {
+      super.clearOverride(trackGroup);
+      return this;
+    }
+
+    @Override
+    public ParametersBuilder setOverrideForType(TrackSelectionOverride override) {
+      super.setOverrideForType(override);
+      return this;
+    }
+
+    @Override
+    public ParametersBuilder clearOverridesOfType(@C.TrackType int trackType) {
+      super.clearOverridesOfType(trackType);
+      return this;
+    }
+
+    @Override
+    public ParametersBuilder clearOverrides() {
+      super.clearOverrides();
       return this;
     }
 
@@ -705,7 +727,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param groups The {@link TrackGroupArray} for which the override should be applied.
      * @param override The override.
      * @return This builder.
-     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#addOverride(TrackSelectionOverride)}.
      */
     @Deprecated
     public final ParametersBuilder setSelectionOverride(
@@ -730,7 +752,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param rendererIndex The renderer index.
      * @param groups The {@link TrackGroupArray} for which the override should be cleared.
      * @return This builder.
-     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverride(TrackGroup)}.
      */
     @Deprecated
     public final ParametersBuilder clearSelectionOverride(
@@ -753,7 +775,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *
      * @param rendererIndex The renderer index.
      * @return This builder.
-     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverridesOfType(int)}.
      */
     @Deprecated
     public final ParametersBuilder clearSelectionOverrides(int rendererIndex) {
@@ -771,7 +793,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Clears all track selection overrides for all renderers.
      *
      * @return This builder.
-     * @deprecated Use {@link TrackSelectionParameters.Builder#setTrackSelectionOverrides}.
+     * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverrides()}.
      */
     @Deprecated
     public final ParametersBuilder clearSelectionOverrides() {
@@ -1022,7 +1044,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return Whether there is an override.
      * @deprecated Only works to retrieve the overrides set with the deprecated {@link
      *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
-     *     {@link TrackSelectionParameters#trackSelectionOverrides} instead.
+     *     {@link TrackSelectionParameters#overrides} instead.
      */
     @Deprecated
     public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
@@ -1039,7 +1061,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @return The override, or null if no override exists.
      * @deprecated Only works to retrieve the overrides set with the deprecated {@link
      *     ParametersBuilder#setSelectionOverride(int, TrackGroupArray, SelectionOverride)}. Use
-     *     {@link TrackSelectionParameters#trackSelectionOverrides} instead.
+     *     {@link TrackSelectionParameters#overrides} instead.
      */
     @Deprecated
     @Nullable
@@ -1661,9 +1683,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
       for (int j = 0; j < rendererTrackGroups.length; j++) {
         maybeUpdateApplicableOverrides(
-            applicableOverrides,
-            params.trackSelectionOverrides.getOverride(rendererTrackGroups.get(j)),
-            rendererIndex);
+            applicableOverrides, params.overrides.get(rendererTrackGroups.get(j)), rendererIndex);
       }
     }
     // Also iterate unmapped groups to see if they have overrides.
@@ -1671,7 +1691,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     for (int i = 0; i < unmappedGroups.length; i++) {
       maybeUpdateApplicableOverrides(
           applicableOverrides,
-          params.trackSelectionOverrides.getOverride(unmappedGroups.get(i)),
+          params.overrides.get(unmappedGroups.get(i)),
           /* rendererIndex= */ C.INDEX_UNSET);
     }
     return applicableOverrides;

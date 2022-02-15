@@ -63,8 +63,7 @@ import androidx.media3.common.Player.Events;
 import androidx.media3.common.Player.State;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.TrackSelectionOverrides;
-import androidx.media3.common.TrackSelectionOverrides.TrackSelectionOverride;
+import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.TracksInfo.TrackGroupInfo;
@@ -1902,7 +1901,7 @@ public class PlayerControlView extends FrameLayout {
       holder.textView.setText(R.string.exo_track_selection_auto);
       // hasSelectionOverride is true means there is an explicit track selection, not "Auto".
       TrackSelectionParameters parameters = checkNotNull(player).getTrackSelectionParameters();
-      boolean hasSelectionOverride = hasSelectionOverride(parameters.trackSelectionOverrides);
+      boolean hasSelectionOverride = hasSelectionOverride(parameters);
       holder.checkView.setVisibility(hasSelectionOverride ? INVISIBLE : VISIBLE);
       holder.itemView.setOnClickListener(
           v -> {
@@ -1911,12 +1910,6 @@ public class PlayerControlView extends FrameLayout {
             }
             TrackSelectionParameters trackSelectionParameters =
                 player.getTrackSelectionParameters();
-            TrackSelectionOverrides trackSelectionOverrides =
-                trackSelectionParameters
-                    .trackSelectionOverrides
-                    .buildUpon()
-                    .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
-                    .build();
             Set<@C.TrackType Integer> disabledTrackTypes =
                 new HashSet<>(trackSelectionParameters.disabledTrackTypes);
             disabledTrackTypes.remove(C.TRACK_TYPE_AUDIO);
@@ -1924,7 +1917,7 @@ public class PlayerControlView extends FrameLayout {
                 .setTrackSelectionParameters(
                     trackSelectionParameters
                         .buildUpon()
-                        .setTrackSelectionOverrides(trackSelectionOverrides)
+                        .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
                         .setDisabledTrackTypes(disabledTrackTypes)
                         .build());
             settingsAdapter.setSubTextAtPosition(
@@ -1934,10 +1927,10 @@ public class PlayerControlView extends FrameLayout {
           });
     }
 
-    private boolean hasSelectionOverride(TrackSelectionOverrides trackSelectionOverrides) {
+    private boolean hasSelectionOverride(TrackSelectionParameters trackSelectionParameters) {
       for (int i = 0; i < tracks.size(); i++) {
         TrackGroup trackGroup = tracks.get(i).trackGroupInfo.getTrackGroup();
-        if (trackSelectionOverrides.getOverride(trackGroup) != null) {
+        if (trackSelectionParameters.overrides.containsKey(trackGroup)) {
           return true;
         }
       }
@@ -1960,7 +1953,7 @@ public class PlayerControlView extends FrameLayout {
             getResources().getString(R.string.exo_track_selection_none));
         // TODO(insun) : Make the audio item in main settings (settingsAdapater)
         //  to be non-clickable.
-      } else if (!hasSelectionOverride(params.trackSelectionOverrides)) {
+      } else if (!hasSelectionOverride(params)) {
         settingsAdapter.setSubTextAtPosition(
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_auto));
@@ -2011,8 +2004,7 @@ public class PlayerControlView extends FrameLayout {
         TrackInformation track = tracks.get(position - 1);
         TrackGroup trackGroup = track.trackGroupInfo.getTrackGroup();
         TrackSelectionParameters params = checkNotNull(player).getTrackSelectionParameters();
-        boolean explicitlySelected =
-            params.trackSelectionOverrides.getOverride(trackGroup) != null && track.isSelected();
+        boolean explicitlySelected = params.overrides.get(trackGroup) != null && track.isSelected();
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
@@ -2022,14 +2014,6 @@ public class PlayerControlView extends FrameLayout {
               }
               TrackSelectionParameters trackSelectionParameters =
                   player.getTrackSelectionParameters();
-              TrackSelectionOverrides overrides =
-                  trackSelectionParameters
-                      .trackSelectionOverrides
-                      .buildUpon()
-                      .setOverrideForType(
-                          new TrackSelectionOverride(
-                              trackGroup, ImmutableList.of(track.trackIndex)))
-                      .build();
               Set<@C.TrackType Integer> disabledTrackTypes =
                   new HashSet<>(trackSelectionParameters.disabledTrackTypes);
               disabledTrackTypes.remove(track.trackGroupInfo.getTrackType());
@@ -2037,7 +2021,9 @@ public class PlayerControlView extends FrameLayout {
                   .setTrackSelectionParameters(
                       trackSelectionParameters
                           .buildUpon()
-                          .setTrackSelectionOverrides(overrides)
+                          .setOverrideForType(
+                              new TrackSelectionOverride(
+                                  trackGroup, ImmutableList.of(track.trackIndex)))
                           .setDisabledTrackTypes(disabledTrackTypes)
                           .build());
               onTrackSelection(track.trackName);
