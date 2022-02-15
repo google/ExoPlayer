@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US;
 import static com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
-import static com.google.android.exoplayer2.util.Util.sum;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -321,14 +320,15 @@ public final class FakeTimeline extends Timeline {
   public static FakeTimeline createMultiPeriodAdTimeline(
       Object windowId, int numberOfPlayedAds, boolean... isAdPeriodFlags) {
     long periodDurationUs = DEFAULT_WINDOW_DURATION_US / isAdPeriodFlags.length;
+    AdPlaybackState contentPeriodState = new AdPlaybackState(/* adsId= */ "adsId");
     AdPlaybackState firstAdPeriodState =
-        new AdPlaybackState(/* adsId= */ "adsId", /* adGroupTimesUs... */ 0)
+        contentPeriodState
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimesUs */ 0)
             .withAdCount(/* adGroupIndex= */ 0, 1)
             .withAdDurationsUs(
                 /* adGroupIndex= */ 0, DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US + periodDurationUs)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true);
     AdPlaybackState commonAdPeriodState = firstAdPeriodState.withAdDurationsUs(0, periodDurationUs);
-    AdPlaybackState contentPeriodState = new AdPlaybackState(/* adsId= */ "adsId");
 
     List<AdPlaybackState> adPlaybackStates = new ArrayList<>();
     int playedAdsCounter = 0;
@@ -522,9 +522,7 @@ public final class FakeTimeline extends Timeline {
         id,
         uid,
         windowIndex,
-        periodDurationUs == C.TIME_UNSET
-            ? C.TIME_UNSET
-            : periodDurationUs - getServerSideAdInsertionAdDurationUs(adPlaybackState),
+        periodDurationUs,
         positionInWindowUs,
         adPlaybackState,
         windowDefinition.isPlaceholder);
@@ -574,16 +572,5 @@ public final class FakeTimeline extends Timeline {
       windowDefinitions[i] = new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ i);
     }
     return windowDefinitions;
-  }
-
-  private static long getServerSideAdInsertionAdDurationUs(AdPlaybackState adPlaybackState) {
-    long adDurationUs = 0;
-    for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
-      AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(i);
-      if (adGroup.isServerSideInserted) {
-        adDurationUs += sum(adGroup.durationsUs);
-      }
-    }
-    return adDurationUs;
   }
 }
