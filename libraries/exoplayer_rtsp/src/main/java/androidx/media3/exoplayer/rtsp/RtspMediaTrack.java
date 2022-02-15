@@ -56,6 +56,10 @@ import com.google.common.collect.ImmutableMap;
 
   private static final String GENERIC_CONTROL_ATTR = "*";
 
+  /** Default width and height for VP8. */
+  private static final int DEFAULT_VP8_WIDTH = 320;
+  private static final int DEFAULT_VP8_HEIGHT = 240;
+
   /** The track's associated {@link RtpPayloadFormat}. */
   public final RtpPayloadFormat payloadFormat;
   /** The track's URI. */
@@ -128,6 +132,10 @@ import com.google.common.collect.ImmutableMap;
       case MimeTypes.VIDEO_H265:
         checkArgument(!fmtpParameters.isEmpty());
         processH265FmtpAttribute(formatBuilder, fmtpParameters);
+        break;
+      case MimeTypes.VIDEO_VP8:
+        // VP8 does not require a FMTP attribute. So Setting default width and height.
+        formatBuilder.setWidth(DEFAULT_VP8_WIDTH).setHeight(DEFAULT_VP8_HEIGHT);
         break;
       case MimeTypes.AUDIO_AC3:
         // AC3 does not require a FMTP attribute. Fall through.
