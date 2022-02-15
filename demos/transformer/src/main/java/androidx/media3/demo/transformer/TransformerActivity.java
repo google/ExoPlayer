@@ -114,10 +114,12 @@ public final class TransformerActivity extends AppCompatActivity {
   protected void onStop() {
     super.onStop();
 
-    checkNotNull(transformationStopwatch).reset();
-
     checkNotNull(transformer).cancel();
     transformer = null;
+
+    // The stop watch is reset after cancelling the transformation, in case cancelling causes the
+    // stop watch to be stopped in a transformer callback.
+    checkNotNull(transformationStopwatch).reset();
 
     checkNotNull(playerView).onPause();
     releasePlayer();

@@ -518,6 +518,7 @@ public final class Transformer {
   @Nullable private MuxerWrapper muxerWrapper;
   @Nullable private ExoPlayer player;
   private @ProgressState int progressState;
+  private boolean isCancelling;
 
   private Transformer(
       Context context,
@@ -736,11 +737,13 @@ public final class Transformer {
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
   public void cancel() {
+    isCancelling = true;
     try {
       releaseResources(/* forCancellation= */ true);
     } catch (TransformationException impossible) {
       throw new IllegalStateException(impossible);
     }
+    isCancelling = false;
   }
 
   /**
@@ -898,10 +901,19 @@ public final class Transformer {
     @Override
     public void onPlayerError(PlaybackException error) {
       @Nullable Throwable cause = error.getCause();
-      handleTransformationEnded(
+      TransformationException transformationException =
           cause instanceof TransformationException
               ? (TransformationException) cause
-              : TransformationException.createForPlaybackException(error));
+              : TransformationException.createForPlaybackException(error);
+      if (isCancelling) {
+        // Resources are already being released.
+        listeners.queueEvent(
+            /* eventFlag= */ C.INDEX_UNSET,
+            listener -> listener.onTransformationError(mediaItem, transformationException));
+        listeners.flushEvents();
+      } else {
+        handleTransformationEnded(transformationException);
+      }
     }
 
     private void handleTransformationEnded(@Nullable TransformationException exception) {
