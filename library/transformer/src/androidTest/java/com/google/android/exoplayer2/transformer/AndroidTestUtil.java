@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.content.Context;
@@ -26,10 +26,12 @@ import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.json.JSONException;
@@ -43,21 +45,42 @@ public final class AndroidTestUtil {
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
 
   /**
-   * Transforms the {@code uriString} with the {@link Transformer}.
+   * Transforms the {@code uriString} with the {@link Transformer}, saving a summary of the
+   * transformation to the application cache.
    *
    * @param context The {@link Context}.
    * @param testId An identifier for the test.
    * @param transformer The {@link Transformer} that performs the transformation.
    * @param uriString The uri (as a {@link String}) that will be transformed.
-   * @param timeoutSeconds The transformer timeout. An assertion confirms this is not exceeded.
+   * @param timeoutSeconds The transformer timeout. An exception is thrown if this is exceeded.
    * @return The {@link TransformationResult}.
    * @throws Exception The cause of the transformation not completing.
    */
   public static TransformationResult runTransformer(
       Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
       throws Exception {
-    AtomicReference<@NullableType Exception> exceptionReference = new AtomicReference<>();
-    AtomicReference<TransformationResult> resultReference = new AtomicReference<>();
+    JSONObject resultJson = new JSONObject();
+    try {
+      TransformationResult transformationResult =
+          runTransformerInternal(context, testId, transformer, uriString, timeoutSeconds);
+      resultJson.put("transformationResult", getTransformationResultJson(transformationResult));
+      return transformationResult;
+    } catch (Exception e) {
+      resultJson.put("exception", getExceptionJson(e));
+      throw e;
+    } finally {
+      writeTestSummaryToFile(context, testId, resultJson);
+    }
+  }
+
+  private static TransformationResult runTransformerInternal(
+      Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
+      throws Exception {
+    AtomicReference<@NullableType TransformationException> transformationExceptionReference =
+        new AtomicReference<>();
+    AtomicReference<@NullableType Exception> unexpectedExceptionReference = new AtomicReference<>();
+    AtomicReference<@NullableType TransformationResult> transformationResultReference =
+        new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
 
     Transformer testTransformer =
@@ -68,14 +91,14 @@ public final class AndroidTestUtil {
                   @Override
                   public void onTransformationCompleted(
                       MediaItem inputMediaItem, TransformationResult result) {
-                    resultReference.set(result);
+                    transformationResultReference.set(result);
                     countDownLatch.countDown();
                   }
 
                   @Override
                   public void onTransformationError(
                       MediaItem inputMediaItem, TransformationException exception) {
-                    exceptionReference.set(exception);
+                    transformationExceptionReference.set(exception);
                     countDownLatch.countDown();
                   }
                 })
@@ -89,38 +112,49 @@ public final class AndroidTestUtil {
               try {
                 testTransformer.startTransformation(
                     MediaItem.fromUri(uri), outputVideoFile.getAbsolutePath());
-              } catch (IOException e) {
-                exceptionReference.set(e);
+                // Catch all exceptions to report. Exceptions thrown here and not caught will NOT
+                // propagate.
+              } catch (Exception e) {
+                unexpectedExceptionReference.set(e);
+                countDownLatch.countDown();
               }
             });
 
-    assertWithMessage("Transformer timed out after " + timeoutSeconds + " seconds.")
-        .that(countDownLatch.await(timeoutSeconds, SECONDS))
-        .isTrue();
-    @Nullable Exception exception = exceptionReference.get();
-    if (exception != null) {
-      throw exception;
+    if (!countDownLatch.await(timeoutSeconds, SECONDS)) {
+      throw new TimeoutException("Transformer timed out after " + timeoutSeconds + " seconds.");
     }
 
-    TransformationResult result =
-        resultReference.get().buildUpon().setFileSizeBytes(outputVideoFile.length()).build();
+    @Nullable Exception unexpectedException = unexpectedExceptionReference.get();
+    if (unexpectedException != null) {
+      throw unexpectedException;
+    }
 
-    writeResultToFile(context, testId, result);
-    return result;
+    @Nullable
+    TransformationException transformationException = transformationExceptionReference.get();
+    if (transformationException != null) {
+      throw transformationException;
+    }
+
+    // If both exceptions are null, the Transformation must have succeeded, and a
+    // transformationResult will be available.
+    return checkNotNull(transformationResultReference.get())
+        .buildUpon()
+        .setFileSizeBytes(outputVideoFile.length())
+        .build();
   }
 
-  private static void writeResultToFile(
-      Context context, String testId, TransformationResult transformationResult)
+  private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
       throws IOException, JSONException {
+    resultJson.put("testId", testId).put("device", getDeviceJson());
+
+    String analysisContents = resultJson.toString(/* indentSpaces= */ 2);
+
+    // Log contents as well as writing to file, for easier visibility on individual device testing.
+    Log.i("TransformerAndroidTest_" + testId, analysisContents);
+
     File analysisFile = createExternalCacheFile(context, /* fileName= */ testId + "-result.txt");
-    String analysisContent =
-        new JSONObject()
-            .put("testId", testId)
-            .put("device", getDeviceJson())
-            .put("transformationResult", getTransformationResultJson(transformationResult))
-            .toString(/* indentSpaces= */ 2);
     try (FileWriter fileWriter = new FileWriter(analysisFile)) {
-      fileWriter.write(analysisContent);
+      fileWriter.write(analysisContents);
     }
   }
 
@@ -152,6 +186,17 @@ public final class AndroidTestUtil {
       transformationResultJson.put("averageVideoBitrate", transformationResult.averageVideoBitrate);
     }
     return transformationResultJson;
+  }
+
+  private static JSONObject getExceptionJson(Exception exception) throws JSONException {
+    JSONObject exceptionJson = new JSONObject();
+    exceptionJson.put("message", exception.getMessage());
+    exceptionJson.put("type", exception.getClass());
+    if (exception instanceof TransformationException) {
+      exceptionJson.put("errorCode", ((TransformationException) exception).errorCode);
+    }
+    exceptionJson.put("stackTrace", Log.getThrowableString(exception));
+    return exceptionJson;
   }
 
   private AndroidTestUtil() {}
