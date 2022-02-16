@@ -19,6 +19,8 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
+import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Util;
 import androidx.media3.transformer.Transformer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -28,8 +30,17 @@ import org.junit.runner.RunWith;
 /** {@link Transformer} instrumentation test. */
 @RunWith(AndroidJUnit4.class)
 public class TransformationTest {
+
+  private static final String TAG = "TransformationTest";
+
   @Test
   public void transform() throws Exception {
+    if (Util.SDK_INT < 25) {
+      // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
+      Log.i(TAG, "Skipping on this API version due to lack of muxing support");
+      return;
+    }
+
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     runTransformer(
