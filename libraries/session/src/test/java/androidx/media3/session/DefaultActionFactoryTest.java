@@ -20,10 +20,11 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import androidx.test.core.app.ApplicationProvider;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.shadows.ShadowPendingIntent;
 
 /** Tests for {@link DefaultActionFactory}. */
@@ -33,7 +34,7 @@ public class DefaultActionFactoryTest {
   @Test
   public void createMediaPendingIntent_intentIsMediaAction() {
     DefaultActionFactory actionFactory =
-        new DefaultActionFactory(ApplicationProvider.getApplicationContext());
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
     PendingIntent pendingIntent =
         actionFactory.createMediaActionPendingIntent(MediaNotification.ActionFactory.COMMAND_PLAY);
@@ -45,7 +46,7 @@ public class DefaultActionFactoryTest {
   @Test
   public void isMediaAction_withNonMediaIntent_returnsFalse() {
     DefaultActionFactory actionFactory =
-        new DefaultActionFactory(ApplicationProvider.getApplicationContext());
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
     Intent intent = new Intent("invalid_action");
 
@@ -55,10 +56,19 @@ public class DefaultActionFactoryTest {
   @Test
   public void isCustomAction_withNonCustomActionIntent_returnsFalse() {
     DefaultActionFactory actionFactory =
-        new DefaultActionFactory(ApplicationProvider.getApplicationContext());
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
 
     Intent intent = new Intent("invalid_action");
 
     assertThat(actionFactory.isCustomAction(intent)).isFalse();
+  }
+
+  /** A test service for unit tests. */
+  public static final class TestService extends MediaLibraryService {
+    @Nullable
+    @Override
+    public MediaLibrarySession onGetSession(MediaSession.ControllerInfo controllerInfo) {
+      return null;
+    }
   }
 }
