@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.common.util.Util.castNonNull;
 
@@ -24,6 +25,7 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.ParcelFileDescriptor;
+import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
@@ -119,12 +121,14 @@ import java.nio.ByteBuffer;
 
   private final MediaMuxer mediaMuxer;
   private final MediaCodec.BufferInfo bufferInfo;
+  private final SparseLongArray trackIndexToLastPresentationTimeUs;
 
   private boolean isStarted;
 
   private FrameworkMuxer(MediaMuxer mediaMuxer) {
     this.mediaMuxer = mediaMuxer;
     bufferInfo = new MediaCodec.BufferInfo();
+    trackIndexToLastPresentationTimeUs = new SparseLongArray();
   }
 
   @Override
@@ -172,7 +176,17 @@ import java.nio.ByteBuffer;
     int size = data.limit() - offset;
     int flags = isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0;
     bufferInfo.set(offset, size, presentationTimeUs, flags);
+    long lastSamplePresentationTimeUs = trackIndexToLastPresentationTimeUs.get(trackIndex);
     try {
+      // writeSampleData blocks on old API versions, so check here to avoid calling the method.
+      checkState(
+          Util.SDK_INT > 24 || presentationTimeUs >= lastSamplePresentationTimeUs,
+          "Samples not in presentation order ("
+              + presentationTimeUs
+              + " < "
+              + lastSamplePresentationTimeUs
+              + ") unsupported on this API version");
+      trackIndexToLastPresentationTimeUs.put(trackIndex, presentationTimeUs);
       mediaMuxer.writeSampleData(trackIndex, data, bufferInfo);
     } catch (RuntimeException e) {
       throw new MuxerException(
