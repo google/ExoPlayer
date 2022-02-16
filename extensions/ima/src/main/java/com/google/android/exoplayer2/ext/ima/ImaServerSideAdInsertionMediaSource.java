@@ -28,14 +28,18 @@ import static com.google.android.exoplayer2.util.Util.secToUs;
 import static com.google.android.exoplayer2.util.Util.sum;
 import static com.google.android.exoplayer2.util.Util.usToMs;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Pair;
 import android.view.ViewGroup;
+import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
@@ -56,6 +60,7 @@ import com.google.ads.interactivemedia.v3.api.StreamManager;
 import com.google.ads.interactivemedia.v3.api.StreamRequest;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.ads.interactivemedia.v3.api.player.VideoStreamPlayer;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -87,6 +92,10 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -283,12 +292,66 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     }
 
     /** The state of the {@link AdsLoader}. */
-    public static class State {
+    public static class State implements Bundleable {
 
       private final ImmutableMap<String, AdPlaybackState> adPlaybackStates;
 
-      private State(ImmutableMap<String, AdPlaybackState> adPlaybackStates) {
+      @VisibleForTesting
+      /* package */ State(ImmutableMap<String, AdPlaybackState> adPlaybackStates) {
         this.adPlaybackStates = adPlaybackStates;
+      }
+
+      @Override
+      public boolean equals(@Nullable Object o) {
+        if (this == o) {
+          return true;
+        }
+        if (!(o instanceof State)) {
+          return false;
+        }
+        State state = (State) o;
+        return adPlaybackStates.equals(state.adPlaybackStates);
+      }
+
+      @Override
+      public int hashCode() {
+        return adPlaybackStates.hashCode();
+      }
+
+      // Bundleable implementation.
+
+      @Documented
+      @Retention(RetentionPolicy.SOURCE)
+      @Target(TYPE_USE)
+      @IntDef({FIELD_AD_PLAYBACK_STATES})
+      private @interface FieldNumber {}
+
+      private static final int FIELD_AD_PLAYBACK_STATES = 1;
+
+      @Override
+      public Bundle toBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(keyForField(FIELD_AD_PLAYBACK_STATES), adPlaybackStates);
+        return bundle;
+      }
+
+      /** Object that can restore {@link AdsLoader.State} from a {@link Bundle}. */
+      public static final Bundleable.Creator<State> CREATOR = State::fromBundle;
+
+      @SuppressWarnings("unchecked")
+      private static State fromBundle(Bundle bundle) {
+        @Nullable
+        Map<String, AdPlaybackState> adPlaybackStateMap =
+            (Map<String, AdPlaybackState>)
+                bundle.getSerializable(keyForField(FIELD_AD_PLAYBACK_STATES));
+        return new State(
+            adPlaybackStateMap != null
+                ? ImmutableMap.copyOf(adPlaybackStateMap)
+                : ImmutableMap.of());
+      }
+
+      private static String keyForField(@FieldNumber int field) {
+        return Integer.toString(field, Character.MAX_RADIX);
       }
     }
 
