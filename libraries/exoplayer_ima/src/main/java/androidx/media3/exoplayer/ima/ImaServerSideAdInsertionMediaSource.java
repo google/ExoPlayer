@@ -293,7 +293,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       }
     }
 
-    /** The state of the {@link AdsLoader}. */
+    /** The state of the {@link AdsLoader} that can be used when resuming from the background. */
     public static class State implements Bundleable {
 
       private final ImmutableMap<String, AdPlaybackState> adPlaybackStates;
@@ -389,7 +389,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     /**
      * Releases resources.
      *
-     * @return The {@link State} that can be used to resume with.
+     * @return The {@link State} that can be used when resuming from the background.
      */
     public State release() {
       for (MediaSourceResourceHolder resourceHolder : mediaSourceResources.values()) {
@@ -398,9 +398,11 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         resourceHolder.imaServerSideAdInsertionMediaSource.setStreamManager(
             /* streamManager= */ null);
       }
+      State state = new State(ImmutableMap.copyOf(adPlaybackStateMap));
+      adPlaybackStateMap.clear();
       mediaSourceResources.clear();
       player = null;
-      return new State(ImmutableMap.copyOf(adPlaybackStateMap));
+      return state;
     }
 
     // Internal methods.
