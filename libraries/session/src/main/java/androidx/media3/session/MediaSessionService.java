@@ -396,7 +396,7 @@ public abstract class MediaSessionService extends Service {
         if (mediaNotificationProvider == null) {
           mediaNotificationProvider = new DefaultMediaNotificationProvider(getApplicationContext());
         }
-        actionFactory = new DefaultActionFactory(getApplicationContext());
+        actionFactory = new DefaultActionFactory(/* service= */ this);
         mediaNotificationManager =
             new MediaNotificationManager(
                 /* mediaSessionService= */ this, mediaNotificationProvider, actionFactory);

@@ -16,8 +16,8 @@
 package androidx.media3.session;
 
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -39,10 +39,10 @@ import androidx.media3.common.util.Util;
   public static final String EXTRAS_KEY_ACTION_CUSTOM_EXTRAS =
       "androidx.media3.session.EXTRAS_KEY_CUSTOM_NOTIFICATION_ACTION_EXTRAS";
 
-  private final Context context;
+  private final Service service;
 
-  public DefaultActionFactory(Context context) {
-    this.context = context.getApplicationContext();
+  public DefaultActionFactory(Service service) {
+    this.service = service;
   }
 
   @Override
@@ -62,13 +62,13 @@ import androidx.media3.common.util.Util;
   public PendingIntent createMediaActionPendingIntent(@Command long command) {
     int keyCode = PlaybackStateCompat.toKeyCode(command);
     Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-    intent.setComponent(new ComponentName(context, context.getClass()));
+    intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
     if (Util.SDK_INT >= 26 && command != COMMAND_PAUSE && command != COMMAND_STOP) {
-      return Api26.createPendingIntent(context, /* requestCode= */ keyCode, intent);
+      return Api26.createPendingIntent(service, /* requestCode= */ keyCode, intent);
     } else {
       return PendingIntent.getService(
-          context,
+          service,
           /* requestCode= */ keyCode,
           intent,
           Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
@@ -77,15 +77,15 @@ import androidx.media3.common.util.Util;
 
   private PendingIntent createCustomActionPendingIntent(String action, Bundle extras) {
     Intent intent = new Intent(ACTION_CUSTOM);
-    intent.setComponent(new ComponentName(context, context.getClass()));
+    intent.setComponent(new ComponentName(service, service.getClass()));
     intent.putExtra(EXTRAS_KEY_ACTION_CUSTOM, action);
     intent.putExtra(EXTRAS_KEY_ACTION_CUSTOM_EXTRAS, extras);
     if (Util.SDK_INT >= 26) {
       return Api26.createPendingIntent(
-          context, /* requestCode= */ KeyEvent.KEYCODE_UNKNOWN, intent);
+          service, /* requestCode= */ KeyEvent.KEYCODE_UNKNOWN, intent);
     } else {
       return PendingIntent.getService(
-          context,
+          service,
           /* requestCode= */ KeyEvent.KEYCODE_UNKNOWN,
           intent,
           Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
@@ -141,9 +141,9 @@ import androidx.media3.common.util.Util;
   private static final class Api26 {
     private Api26() {}
 
-    public static PendingIntent createPendingIntent(Context context, int keyCode, Intent intent) {
+    public static PendingIntent createPendingIntent(Service service, int keyCode, Intent intent) {
       return PendingIntent.getForegroundService(
-          context, /* requestCode= */ keyCode, intent, PendingIntent.FLAG_IMMUTABLE);
+          service, /* requestCode= */ keyCode, intent, PendingIntent.FLAG_IMMUTABLE);
     }
   }
 }
