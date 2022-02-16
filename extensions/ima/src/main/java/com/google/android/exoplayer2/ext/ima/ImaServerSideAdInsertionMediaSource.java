@@ -565,10 +565,17 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     if (serverSideAdInsertionMediaSource != null) {
       return;
     }
+    MediaItem contentMediaItem =
+        new MediaItem.Builder()
+            .setUri(contentUri)
+            .setDrmConfiguration(checkNotNull(mediaItem.localConfiguration).drmConfiguration)
+            .setLiveConfiguration(mediaItem.liveConfiguration)
+            .setCustomCacheKey(mediaItem.localConfiguration.customCacheKey)
+            .setStreamKeys(mediaItem.localConfiguration.streamKeys)
+            .build();
     ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource =
         new ServerSideAdInsertionMediaSource(
-            contentMediaSourceFactory.createMediaSource(MediaItem.fromUri(contentUri)),
-            componentListener);
+            contentMediaSourceFactory.createMediaSource(contentMediaItem), componentListener);
     this.serverSideAdInsertionMediaSource = serverSideAdInsertionMediaSource;
     if (isLiveStream) {
       AdPlaybackState liveAdPlaybackState =
