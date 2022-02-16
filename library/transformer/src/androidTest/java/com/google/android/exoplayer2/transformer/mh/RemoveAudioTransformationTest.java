@@ -22,14 +22,25 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.Transformer;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** {@link Transformer} instrumentation test for removing audio. */
 @RunWith(AndroidJUnit4.class)
 public class RemoveAudioTransformationTest {
+
+  private static final String TAG = "RemoveAudioTransformationTest";
+
   @Test
   public void removeAudioTransform() throws Exception {
+    if (Util.SDK_INT < 25) {
+      // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
+      Log.i(TAG, "Skipping on this API version due to lack of muxing support");
+      return;
+    }
+
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).setRemoveAudio(true).build();
     runTransformer(
