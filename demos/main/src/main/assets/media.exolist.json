@@ -388,6 +388,98 @@
     ]
   },
   {
+    "name": "IMA DAI streams",
+    "samples": [
+      {
+        "name": "HLS VOD: Demo (skippable pre/post), single ads [30 s]",
+        "uri": "ssai://dai.google.com/?contentSourceId=2483977&videoId=ima-vod-skippable-test&format=2&adsId=1"
+      },
+      {
+        "name": "HLS VOD: Tears of Steel (pre/mid/mid/mid/post), single ads [10s]",
+        "uri": "ssai://dai.google.com/?contentSourceId=2528370&videoId=tears-of-steel&format=2&adsId=1"
+      },
+      {
+        "name": "HLS Live: Big Buck Bunny (mid), 3 ads each [10 s]",
+        "uri": "ssai://dai.google.com/?assetKey=sN_IYUG8STe1ZzhIIE_ksA&format=2&adsId=3"
+      },
+      {
+        "name": "DASH VOD: Tears of Steel (11 periods, pre/mid/post), 2/5/2 ads [5/10s]",
+        "uri": "ssai://dai.google.com/?contentSourceId=2559737&videoId=tos-dash&format=0&adsId=1"
+      },
+      {
+        "name": "Playlist: No ads - HLS VOD: Demo (skippable pre/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2483977&videoId=ima-vod-skippable-test&format=2&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: No ads - HLS VOD: Tears of steel (pre/mid/mid/mid/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2528370&videoId=tears-of-steel&format=2&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: No ads - HLS Live: Big Buck Bunny (mid) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?assetKey=sN_IYUG8STe1ZzhIIE_ksA&format=2&adsId=3"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: No ads - DASH VOD: Tears of Steel (11 periods, pre/mid/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2559737&videoId=tos-dash&format=0&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: Client-side Ads - DASH VOD: Tears of Steel (11 periods, pre/mid/post) - No ads",
+        "playlist": [
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv",
+            "ad_tag_uri": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator="
+          },
+          {
+            "uri": "ssai://dai.google.com/?contentSourceId=2559737&videoId=tos-dash&format=0&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "name": "Playlists",
     "samples": [
       {
