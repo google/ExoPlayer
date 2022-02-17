@@ -49,10 +49,10 @@ cd "${FFMPEG_MODULE_PATH}/jni/ffmpeg"
     --arch=arm \
     --cpu=armv7-a \
     --cross-prefix="${TOOLCHAIN_PREFIX}/armv7a-linux-androideabi16-" \
-    --nm="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-nm" \
-    --ar="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-ar" \
-    --ranlib="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-ranlib" \
-    --strip="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-strip" \
+    --nm="${TOOLCHAIN_PREFIX}/llvm-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/llvm-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/llvm-ranlib" \
+    --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
     --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
     --extra-ldflags="-Wl,--fix-cortex-a8" \
     ${COMMON_OPTIONS}
@@ -64,10 +64,10 @@ make clean
     --arch=aarch64 \
     --cpu=armv8-a \
     --cross-prefix="${TOOLCHAIN_PREFIX}/aarch64-linux-android21-" \
-    --nm="${TOOLCHAIN_PREFIX}/aarch64-linux-android-nm" \
-    --ar="${TOOLCHAIN_PREFIX}/aarch64-linux-android-ar" \
-    --ranlib="${TOOLCHAIN_PREFIX}/aarch64-linux-android-ranlib" \
-    --strip="${TOOLCHAIN_PREFIX}/aarch64-linux-android-strip" \
+    --nm="${TOOLCHAIN_PREFIX}/llvm-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/llvm-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/llvm-ranlib" \
+    --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
     ${COMMON_OPTIONS}
 make -j$JOBS
 make install-libs
@@ -77,10 +77,10 @@ make clean
     --arch=x86 \
     --cpu=i686 \
     --cross-prefix="${TOOLCHAIN_PREFIX}/i686-linux-android16-" \
-    --nm="${TOOLCHAIN_PREFIX}/i686-linux-android-nm" \
-    --ar="${TOOLCHAIN_PREFIX}/i686-linux-android-ar" \
-    --ranlib="${TOOLCHAIN_PREFIX}/i686-linux-android-ranlib" \
-    --strip="${TOOLCHAIN_PREFIX}/i686-linux-android-strip" \
+    --nm="${TOOLCHAIN_PREFIX}/llvm-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/llvm-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/llvm-ranlib" \
+    --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
     --disable-asm \
     ${COMMON_OPTIONS}
 make -j$JOBS
@@ -91,10 +91,10 @@ make clean
     --arch=x86_64 \
     --cpu=x86_64 \
     --cross-prefix="${TOOLCHAIN_PREFIX}/x86_64-linux-android21-" \
-    --nm="${TOOLCHAIN_PREFIX}/x86_64-linux-android-nm" \
-    --ar="${TOOLCHAIN_PREFIX}/x86_64-linux-android-ar" \
-    --ranlib="${TOOLCHAIN_PREFIX}/x86_64-linux-android-ranlib" \
-    --strip="${TOOLCHAIN_PREFIX}/x86_64-linux-android-strip" \
+    --nm="${TOOLCHAIN_PREFIX}/llvm-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/llvm-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/llvm-ranlib" \
+    --strip="${TOOLCHAIN_PREFIX}/llvm-strip" \
     --disable-asm \
     ${COMMON_OPTIONS}
 make -j$JOBS
