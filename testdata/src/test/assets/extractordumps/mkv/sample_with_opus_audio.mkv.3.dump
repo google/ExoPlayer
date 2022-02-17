@@ -1,0 +1,36 @@
+seekMap:
+  isSeekable = true
+  duration = 58000
+  getPosition(0) = [[timeUs=0, position=569]]
+  getPosition(1) = [[timeUs=0, position=569]]
+  getPosition(29000) = [[timeUs=0, position=569]]
+  getPosition(58000) = [[timeUs=0, position=569]]
+numberOfTracks = 1
+track 1:
+  total output bytes = 828
+  sample count = 3
+  format 0:
+    id = 1
+    sampleMimeType = audio/opus
+    maxInputSize = 5760
+    channelCount = 1
+    sampleRate = 48000
+    selectionFlags = 1
+    language = und
+    initializationData:
+      data = length 19, hash CB9E23BC
+      data = length 8, hash CA22068C
+      data = length 8, hash 79C07075
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 283, hash 686EA90
+  sample 1:
+    time = 21000
+    flags = 1
+    data = length 217, hash 7D03A2A6
+  sample 2:
+    time = 41000
+    flags = 268435457
+    data = length 328, hash BB4A36F0
+tracksEnded = true
