@@ -118,14 +118,12 @@ public class DataHelper {
 
   public static AviSeekMap getAviSeekMap() {
     final int[] keyFrameOffsetsDiv2= {4, 1024};
-    final UnboundedIntArray videoArray = new UnboundedIntArray();
-    videoArray.add(0);
-    videoArray.add(4);
-    final UnboundedIntArray audioArray = new UnboundedIntArray();
-    audioArray.add(0);
-    audioArray.add(128);
+    final int[] videoArray = new int[2];
+    videoArray[1] = 4;
+    final int[]  audioArray = new int[2];
+    audioArray[1] = 128;
     return new AviSeekMap(0, 100L, 8, keyFrameOffsetsDiv2,
-        new UnboundedIntArray[]{videoArray, audioArray}, MOVI_OFFSET);
+        new int[][]{videoArray, audioArray}, MOVI_OFFSET);
   }
 
   private static void putIndex(final ByteBuffer byteBuffer, int chunkId, int flags, int offset,

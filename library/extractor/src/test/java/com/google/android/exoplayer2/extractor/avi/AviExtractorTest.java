@@ -594,4 +594,18 @@ public class AviExtractorTest {
     final FakeTrackOutput fakeTrackOutput = (FakeTrackOutput) chunkHandler.trackOutput;
     Assert.assertEquals(size, fakeTrackOutput.getSampleData(0).length);
   }
+
+  @Test
+  public void unboundIntArray_add_givenExceedsCapacity() {
+    final AviExtractor.UnboundedIntArray unboundedIntArray = new AviExtractor.UnboundedIntArray();
+    final int testLen = unboundedIntArray.array.length + 1;
+    for (int i=0; i < testLen; i++) {
+      unboundedIntArray.add(i);
+    }
+
+    Assert.assertEquals(testLen, unboundedIntArray.size);
+    for (int i=0; i < testLen; i++) {
+      Assert.assertEquals(i, unboundedIntArray.array[i]);
+    }
+  }
 }

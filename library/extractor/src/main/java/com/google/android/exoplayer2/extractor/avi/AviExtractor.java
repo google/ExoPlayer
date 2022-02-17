@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -449,8 +450,8 @@ public class AviExtractor implements Extractor {
         final int size = indexByteBuffer.getInt();
         if ((flags & AVIIF_KEYFRAME) == AVIIF_KEYFRAME) {
           if (chunkHandler.isVideo()) {
-            int indexSize = seekIndexes[videoId].getSize();
-            if (indexSize == 0 || chunkHandler.chunks - seekIndexes[videoId].get(indexSize - 1) >= chunksPerKeyFrame) {
+            int indexSize = seekIndexes[videoId].size;
+            if (indexSize == 0 || chunkHandler.chunks - seekIndexes[videoId].array[indexSize - 1] >= chunksPerKeyFrame) {
               keyFrameOffsetsDiv2.add(offset / 2);
               for (@Nullable ChunkHandler seekTrack : chunkHandlers) {
                 if (seekTrack != null) {
@@ -469,13 +470,17 @@ public class AviExtractor implements Extractor {
     if (videoTrack.chunks == keyFrameCounts[videoTrack.getId()]) {
       videoTrack.setKeyFrames(ChunkHandler.ALL_KEY_FRAMES);
     } else {
-      videoTrack.setKeyFrames(seekIndexes[videoId].getArray());
+      videoTrack.setKeyFrames(seekIndexes[videoId].pack());
     }
 
     //Work-around a bug where the offset is from the start of the file, not "movi"
     final long seekOffset = firstEntry.getInt(8) > moviOffset ? 0L : moviOffset;
+    int[][] seekIndexArrays = new int[seekIndexes.length][];
+    for (int i=0;i<seekIndexes.length;i++) {
+      seekIndexArrays[i] = seekIndexes[i].pack();
+    }
     final AviSeekMap seekMap = new AviSeekMap(videoId, videoTrack.clock.durationUs, videoTrack.chunks,
-        keyFrameOffsetsDiv2.getArray(), seekIndexes, seekOffset);
+        keyFrameOffsetsDiv2.pack(), seekIndexArrays, seekOffset);
 
     i("Video chunks=" + videoTrack.chunks + " us=" + seekMap.getDurationUs());
 
@@ -610,6 +615,38 @@ public class AviExtractor implements Extractor {
     //Intentionally blank
   }
 
+  /**
+   * Optimized unbounded array of ints.
+   * Used primarily to create Index (SeekMap) data.
+   */
+  @VisibleForTesting
+  static class UnboundedIntArray {
+    @NonNull
+    @VisibleForTesting
+    int[] array = new int[8];
+    @VisibleForTesting
+    int size = 0;
+
+    public void add(int v) {
+      if (size == array.length) {
+        grow();
+      }
+      array[size++] = v;
+    }
+
+    public int[] pack() {
+      if (size != array.length) {
+        array = Arrays.copyOf(array, size);
+      }
+      return array;
+    }
+
+    private void grow() {
+      int increase = Math.max(array.length /4, 1);
+      array = Arrays.copyOf(array, increase + array.length + size);
+    }
+  }
+
   @VisibleForTesting
   void setChunkHandlers(ChunkHandler[] chunkHandlers) {
     this.chunkHandlers = chunkHandlers;
@@ -642,18 +679,10 @@ public class AviExtractor implements Extractor {
   }
 
   private static void w(String message) {
-    try {
-      Log.w(TAG, message);
-    } catch (RuntimeException e) {
-      //Catch not mocked for tests
-    }
+    Log.w(TAG, message);
   }
 
   private static void i(String message) {
-    try {
-      Log.i(TAG, message);
-    } catch (RuntimeException e) {
-      //Catch not mocked for tests
-    }
+    Log.i(TAG, message);
   }
 }

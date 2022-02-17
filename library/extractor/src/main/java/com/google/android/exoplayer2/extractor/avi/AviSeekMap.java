@@ -39,15 +39,12 @@ public class AviSeekMap implements SeekMap {
   final long seekOffset;
 
   public AviSeekMap(int videoId, long usDuration, int videoChunks, int[] keyFrameOffsetsDiv2,
-      UnboundedIntArray[] seekIndexes, long seekOffset) {
+      int[][] seekIndexes, long seekOffset) {
     this.videoId = videoId;
     this.videoUsPerChunk = usDuration / videoChunks;
     this.duration = usDuration;
     this.keyFrameOffsetsDiv2 = keyFrameOffsetsDiv2;
-    this.seekIndexes = new int[seekIndexes.length][];
-    for (int i=0;i<seekIndexes.length;i++) {
-      this.seekIndexes[i] = seekIndexes[i].getArray();
-    }
+    this.seekIndexes = seekIndexes;
     this.seekOffset = seekOffset;
   }
 
