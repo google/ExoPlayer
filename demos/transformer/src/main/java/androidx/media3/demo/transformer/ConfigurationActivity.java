@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Util;
 import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -122,11 +123,10 @@ public final class ConfigurationActivity extends AppCompatActivity {
     videoMimeSpinner = findViewById(R.id.video_mime_spinner);
     videoMimeSpinner.setAdapter(videoMimeAdapter);
     videoMimeAdapter.addAll(
-        SAME_AS_INPUT_OPTION,
-        MimeTypes.VIDEO_H263,
-        MimeTypes.VIDEO_H264,
-        MimeTypes.VIDEO_H265,
-        MimeTypes.VIDEO_MP4V);
+        SAME_AS_INPUT_OPTION, MimeTypes.VIDEO_H263, MimeTypes.VIDEO_H264, MimeTypes.VIDEO_MP4V);
+    if (Util.SDK_INT >= 24) {
+      videoMimeAdapter.add(MimeTypes.VIDEO_H265);
+    }
 
     ArrayAdapter<String> resolutionHeightAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);
