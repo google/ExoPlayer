@@ -29,7 +29,14 @@ public final class VpxLibrary {
     MediaLibraryInfo.registerModule("media3.decoder.vpx");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxV2JNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("vpx", "vpxV2JNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
+
   private static @C.CryptoType int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
 
   private VpxLibrary() {}
