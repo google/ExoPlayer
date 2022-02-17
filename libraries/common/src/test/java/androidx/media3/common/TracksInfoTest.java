@@ -61,12 +61,10 @@ public class TracksInfoTest {
   public void tracksInfoGetters_withoutTrack_returnExpectedValues() {
     TracksInfo tracksInfo = new TracksInfo(ImmutableList.of());
 
-    assertThat(tracksInfo.hasTracksOfType(C.TRACK_TYPE_AUDIO)).isFalse();
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)).isTrue();
-    assertThat(
-            tracksInfo.isTypeSupportedOrEmpty(
-                C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true))
-        .isTrue();
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_AUDIO)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true))
+        .isFalse();
     assertThat(tracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO)).isFalse();
     ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
     assertThat(trackGroupInfos).isEmpty();
@@ -98,24 +96,18 @@ public class TracksInfoTest {
             /* tracksSelected= */ new boolean[] {false, true});
     TracksInfo tracksInfo = new TracksInfo(ImmutableList.of(trackGroupInfo0, trackGroupInfo1));
 
-    assertThat(tracksInfo.hasTracksOfType(C.TRACK_TYPE_AUDIO)).isTrue();
-    assertThat(tracksInfo.hasTracksOfType(C.TRACK_TYPE_VIDEO)).isTrue();
-    assertThat(tracksInfo.hasTracksOfType(C.TRACK_TYPE_TEXT)).isFalse();
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)).isFalse();
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)).isTrue();
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_TEXT)).isTrue();
-    assertThat(
-            tracksInfo.isTypeSupportedOrEmpty(
-                C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true))
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_AUDIO)).isTrue();
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_VIDEO)).isTrue();
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_TEXT)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_VIDEO)).isTrue();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_TEXT)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true))
         .isTrue();
-    assertThat(
-            tracksInfo.isTypeSupportedOrEmpty(
-                C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true))
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true))
         .isTrue();
-    assertThat(
-            tracksInfo.isTypeSupportedOrEmpty(
-                C.TRACK_TYPE_TEXT, /* allowExceedsCapabilities= */ true))
-        .isTrue();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_TEXT, /* allowExceedsCapabilities= */ true))
+        .isFalse();
     assertThat(tracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO)).isFalse();
     assertThat(tracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO)).isTrue();
     ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();

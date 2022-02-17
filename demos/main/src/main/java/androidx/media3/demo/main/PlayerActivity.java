@@ -466,12 +466,14 @@ public class PlayerActivity extends AppCompatActivity
       if (tracksInfo == lastSeenTracksInfo) {
         return;
       }
-      if (!tracksInfo.isTypeSupportedOrEmpty(
-          C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
+      if (tracksInfo.containsType(C.TRACK_TYPE_VIDEO)
+          && !tracksInfo.isTypeSupported(
+              C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_video);
       }
-      if (!tracksInfo.isTypeSupportedOrEmpty(
-          C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
+      if (tracksInfo.containsType(C.TRACK_TYPE_AUDIO)
+          && !tracksInfo.isTypeSupported(
+              C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
         showToast(R.string.error_unsupported_audio);
       }
       lastSeenTracksInfo = tracksInfo;
