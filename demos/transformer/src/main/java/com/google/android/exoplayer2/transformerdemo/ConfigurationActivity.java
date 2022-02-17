@@ -61,12 +61,14 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4",
     "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
     "https://html5demos.com/assets/dizzy.webm",
+    "https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4",
   };
   private static final String[] URI_DESCRIPTIONS = { // same order as INPUT_URIS
     "MP4 with H264 video and AAC audio",
     "MP4 with H265 video and AAC audio",
     "Long MP4 with H264 video and AAC audio",
     "WebM with VP8 video and Vorbis audio",
+    "4K 60fps MP4 with H264 video and AAC audio (portrait, timestamps always increase)",
   };
   private static final String SAME_AS_INPUT_OPTION = "same as input";
 
