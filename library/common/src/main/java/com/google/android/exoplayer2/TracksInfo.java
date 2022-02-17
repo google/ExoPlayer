@@ -284,7 +284,7 @@ public final class TracksInfo implements Bundleable {
   }
 
   /** Returns true if there are tracks of type {@code trackType}, and false otherwise. */
-  public boolean hasTracksOfType(@C.TrackType int trackType) {
+  public boolean containsType(@C.TrackType int trackType) {
     for (int i = 0; i < trackGroupInfos.size(); i++) {
       if (trackGroupInfos.get(i).getTrackType() == trackType) {
         return true;
@@ -295,16 +295,15 @@ public final class TracksInfo implements Bundleable {
 
   /**
    * Returns true if at least one track of type {@code trackType} is {@link
-   * TrackGroupInfo#isTrackSupported(int) supported} or if there are no tracks of this type.
+   * TrackGroupInfo#isTrackSupported(int) supported}.
    */
-  public boolean isTypeSupportedOrEmpty(@C.TrackType int trackType) {
-    return isTypeSupportedOrEmpty(trackType, /* allowExceedsCapabilities= */ false);
+  public boolean isTypeSupported(@C.TrackType int trackType) {
+    return isTypeSupported(trackType, /* allowExceedsCapabilities= */ false);
   }
 
   /**
    * Returns true if at least one track of type {@code trackType} is {@link
-   * TrackGroupInfo#isTrackSupported(int, boolean) supported} or if there are no tracks of this
-   * type.
+   * TrackGroupInfo#isTrackSupported(int, boolean) supported}.
    *
    * @param allowExceedsCapabilities Whether to consider the track as supported if it has a
    *     supported {@link Format#sampleMimeType MIME type}, but otherwise exceeds the advertised
@@ -312,19 +311,29 @@ public final class TracksInfo implements Bundleable {
    *     decoder whose maximum advertised resolution is exceeded by the resolution of the track.
    *     Such tracks may be playable in some cases.
    */
-  public boolean isTypeSupportedOrEmpty(
-      @C.TrackType int trackType, boolean allowExceedsCapabilities) {
-    boolean supported = true;
+  public boolean isTypeSupported(@C.TrackType int trackType, boolean allowExceedsCapabilities) {
     for (int i = 0; i < trackGroupInfos.size(); i++) {
       if (trackGroupInfos.get(i).getTrackType() == trackType) {
         if (trackGroupInfos.get(i).isSupported(allowExceedsCapabilities)) {
           return true;
-        } else {
-          supported = false;
         }
       }
     }
-    return supported;
+    return false;
+  }
+
+  /** @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int)}. */
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public boolean isTypeSupportedOrEmpty(@C.TrackType int trackType) {
+    return isTypeSupportedOrEmpty(trackType, /* allowExceedsCapabilities= */ false);
+  }
+
+  /** @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int, boolean)}. */
+  @Deprecated
+  public boolean isTypeSupportedOrEmpty(
+      @C.TrackType int trackType, boolean allowExceedsCapabilities) {
+    return !containsType(trackType) || isTypeSupported(trackType, allowExceedsCapabilities);
   }
 
   /** Returns true if at least one track of the type {@code trackType} is selected for playback. */
