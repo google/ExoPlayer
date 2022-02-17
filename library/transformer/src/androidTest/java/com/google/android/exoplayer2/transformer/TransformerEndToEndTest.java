@@ -48,7 +48,7 @@ public class TransformerEndToEndTest {
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
             .setMuxerFactory(muxerFactory)
             .setEncoderFactory(
-                new DefaultEncoderFactory(EncoderSelector.DEFAULT, /* disableFallback= */ true))
+                new DefaultEncoderFactory(EncoderSelector.DEFAULT, /* enableFallback= */ false))
             .build();
     // Result of the following command:
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames bear-vp9.webm
@@ -81,7 +81,7 @@ public class TransformerEndToEndTest {
                     .build())
             .setMuxerFactory(muxerFactory)
             .setEncoderFactory(
-                new DefaultEncoderFactory(EncoderSelector.DEFAULT, /* disableFallback= */ true))
+                new DefaultEncoderFactory(EncoderSelector.DEFAULT, /* enableFallback= */ false))
             .build();
     // Result of the following command:
     // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4

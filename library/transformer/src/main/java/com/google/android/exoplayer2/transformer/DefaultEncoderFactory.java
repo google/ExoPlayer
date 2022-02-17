@@ -44,7 +44,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private static final int DEFAULT_I_FRAME_INTERVAL_SECS = 1;
 
   @Nullable private final EncoderSelector videoEncoderSelector;
-  private final boolean disableFallback;
+  private final boolean enableFallback;
 
   /**
    * Creates a new instance using the {@link EncoderSelector#DEFAULT default encoder selector}, and
@@ -56,14 +56,14 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    * type}, resolution, {@link Format#bitrate bitrate}, {@link Format#codecs profile/level}, etc.
    */
   public DefaultEncoderFactory() {
-    this(EncoderSelector.DEFAULT, /* disableFallback= */ false);
+    this(EncoderSelector.DEFAULT, /* enableFallback= */ true);
   }
 
   /** Creates a new instance. */
   public DefaultEncoderFactory(
-      @Nullable EncoderSelector videoEncoderSelector, boolean disableFallback) {
+      @Nullable EncoderSelector videoEncoderSelector, boolean enableFallback) {
     this.videoEncoderSelector = videoEncoderSelector;
-    this.disableFallback = disableFallback;
+    this.enableFallback = enableFallback;
   }
 
   @Override
@@ -72,7 +72,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     // TODO(b/210591626) Add encoder selection for audio.
     checkArgument(!allowedMimeTypes.isEmpty());
     if (!allowedMimeTypes.contains(format.sampleMimeType)) {
-      if (!disableFallback) {
+      if (enableFallback) {
         // TODO(b/210591626): Pick fallback MIME type using same strategy as for encoder
         // capabilities limitations.
         format = format.buildUpon().setSampleMimeType(allowedMimeTypes.get(0)).build();
@@ -115,7 +115,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     @Nullable
     Pair<MediaCodecInfo, Format> encoderAndClosestFormatSupport =
         findEncoderWithClosestFormatSupport(
-            format, videoEncoderSelector, allowedMimeTypes, disableFallback);
+            format, videoEncoderSelector, allowedMimeTypes, enableFallback);
     if (encoderAndClosestFormatSupport == null) {
       throw TransformationException.createForCodec(
           new IllegalArgumentException("The requested output format is not supported."),
@@ -211,11 +211,11 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       Format requestedFormat,
       EncoderSelector encoderSelector,
       List<String> allowedMimeTypes,
-      boolean disableFallback) {
+      boolean enableFallback) {
     String requestedMimeType = requestedFormat.sampleMimeType;
     @Nullable
     String mimeType = findFallbackMimeType(encoderSelector, requestedMimeType, allowedMimeTypes);
-    if (mimeType == null || (disableFallback && !requestedMimeType.equals(mimeType))) {
+    if (mimeType == null || (!enableFallback && !requestedMimeType.equals(mimeType))) {
       return null;
     }
 
@@ -223,7 +223,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     if (encodersForMimeType.isEmpty()) {
       return null;
     }
-    if (disableFallback) {
+    if (!enableFallback) {
       return Pair.create(encodersForMimeType.get(0), requestedFormat);
     }
     ImmutableList<MediaCodecInfo> filteredEncoders =
