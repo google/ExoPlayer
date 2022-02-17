@@ -1038,11 +1038,7 @@ public final class CastPlayer extends BasePlayer {
       final boolean[] trackSelected = new boolean[] {selected};
       trackGroupInfos[i] =
           new TracksInfo.TrackGroupInfo(
-              trackType,
-              trackGroups[i],
-              /* adaptiveSupported= */ false,
-              trackSupport,
-              trackSelected);
+              trackGroups[i], /* adaptiveSupported= */ false, trackSupport, trackSelected);
     }
     TrackGroupArray newTrackGroups = new TrackGroupArray(trackGroups);
     TrackSelectionArray newTrackSelections = new TrackSelectionArray(trackSelections);

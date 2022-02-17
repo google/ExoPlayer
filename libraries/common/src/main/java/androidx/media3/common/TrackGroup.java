@@ -43,6 +43,8 @@ public final class TrackGroup implements Bundleable {
   public final int length;
   /** An identifier for the track group. */
   public final String id;
+  /** The type of tracks in the group. */
+  public final @C.TrackType int type;
 
   private final Format[] formats;
 
@@ -71,6 +73,11 @@ public final class TrackGroup implements Bundleable {
     this.id = id;
     this.formats = formats;
     this.length = formats.length;
+    @C.TrackType int type = MimeTypes.getTrackType(formats[0].sampleMimeType);
+    if (type == C.TRACK_TYPE_UNKNOWN) {
+      type = MimeTypes.getTrackType(formats[0].containerMimeType);
+    }
+    this.type = type;
     verifyCorrectness();
   }
 
@@ -134,7 +141,7 @@ public final class TrackGroup implements Bundleable {
       return false;
     }
     TrackGroup other = (TrackGroup) obj;
-    return length == other.length && id.equals(other.id) && Arrays.equals(formats, other.formats);
+    return id.equals(other.id) && Arrays.equals(formats, other.formats);
   }
 
   // Bundleable implementation.

@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer.trackselection;
 
+import static androidx.media3.common.MimeTypes.AUDIO_AAC;
+import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.Pair;
@@ -53,7 +55,7 @@ public final class MappingTrackSelectorTest {
       new FakeRendererCapabilities(C.TRACK_TYPE_METADATA);
 
   private static final TrackGroup VIDEO_TRACK_GROUP = buildTrackGroup(MimeTypes.VIDEO_H264);
-  private static final TrackGroup AUDIO_TRACK_GROUP = buildTrackGroup(MimeTypes.AUDIO_AAC);
+  private static final TrackGroup AUDIO_TRACK_GROUP = buildTrackGroup(AUDIO_AAC);
   private static final TrackGroup METADATA_TRACK_GROUP = buildTrackGroup(MimeTypes.APPLICATION_ID3);
 
   private static final Timeline TIMELINE = new FakeTimeline();
@@ -146,10 +148,13 @@ public final class MappingTrackSelectorTest {
             new int[] {C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO},
             new TrackGroupArray[] {
               new TrackGroupArray(
-                  new TrackGroup("0", new Format.Builder().build()),
-                  new TrackGroup("1", new Format.Builder().build())),
+                  new TrackGroup("0", new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                  new TrackGroup("1", new Format.Builder().setSampleMimeType(AUDIO_AAC).build())),
               new TrackGroupArray(
-                  new TrackGroup("2", new Format.Builder().build(), new Format.Builder().build()))
+                  new TrackGroup(
+                      "2",
+                      new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                      new Format.Builder().setSampleMimeType(VIDEO_H264).build()))
             },
             new int[] {
               RendererCapabilities.ADAPTIVE_SEAMLESS, RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
