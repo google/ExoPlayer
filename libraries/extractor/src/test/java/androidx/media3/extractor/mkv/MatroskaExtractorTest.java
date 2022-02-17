@@ -88,6 +88,12 @@ public final class MatroskaExtractorTest {
   }
 
   @Test
+  public void mkvSample_withOpusAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/sample_with_opus_audio.mkv", simulationConfig);
+  }
+
+  @Test
   public void mkvSample_withHtcRotationInfoInTrackName() throws Exception {
     ExtractorAsserts.assertBehavior(
         MatroskaExtractor::new,
