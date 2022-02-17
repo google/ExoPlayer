@@ -64,6 +64,8 @@
         ([#8891](https://github.com/google/ExoPlayer/issues/8891)).
     *   Retry `AudioTrack` creation if the requested buffer size was > 1MB.
         ([#9712](https://github.com/google/ExoPlayer/issues/9712)).
+    *   Make `build_ffmpeg.sh` depend on LLVM's bin utils instead of GNU's
+        ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
 *   Extractors:
     *   Fix inconsistency with spec in H.265 SPS nal units parsing
         ([#9719](https://github.com/google/ExoPlayer/issues/9719)).
