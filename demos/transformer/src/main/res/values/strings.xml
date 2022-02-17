@@ -27,6 +27,7 @@
   <string name="translate" translatable="false">Translate video</string>
   <string name="scale" translatable="false">Scale video</string>
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
+  <string name="enable_fallback" translatable="false">Enable fallback</string>
   <string name="transform" translatable="false">Transform</string>
   <string name="hdr_editing" translatable="false">[Experimental] HDR editing</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>

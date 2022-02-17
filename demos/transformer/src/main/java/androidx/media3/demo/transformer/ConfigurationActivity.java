@@ -54,6 +54,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final String SCALE_X = "scale_x";
   public static final String SCALE_Y = "scale_y";
   public static final String ROTATE_DEGREES = "rotate_degrees";
+  public static final String ENABLE_FALLBACK = "enable_fallback";
   public static final String ENABLE_HDR_EDITING = "enable_hdr_editing";
   private static final String[] INPUT_URIS = {
     "https://html5demos.com/assets/dizzy.mp4",
@@ -80,6 +81,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   private @MonotonicNonNull Spinner translateSpinner;
   private @MonotonicNonNull Spinner scaleSpinner;
   private @MonotonicNonNull Spinner rotateSpinner;
+  private @MonotonicNonNull CheckBox enableFallbackCheckBox;
   private @MonotonicNonNull CheckBox enableHdrEditingCheckBox;
   private int inputUriPosition;
 
@@ -154,6 +156,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     rotateSpinner.setAdapter(rotateAdapter);
     rotateAdapter.addAll(SAME_AS_INPUT_OPTION, "0", "10", "45", "60", "90", "180");
 
+    enableFallbackCheckBox = findViewById(R.id.enable_fallback_checkbox);
     enableHdrEditingCheckBox = findViewById(R.id.hdr_editing_checkbox);
   }
 
@@ -183,6 +186,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "translateSpinner",
     "scaleSpinner",
     "rotateSpinner",
+    "enableFallbackCheckBox",
     "enableHdrEditingCheckBox"
   })
   private void startTransformation(View view) {
@@ -221,6 +225,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     if (!SAME_AS_INPUT_OPTION.equals(selectedRotate)) {
       bundle.putFloat(ROTATE_DEGREES, Float.parseFloat(selectedRotate));
     }
+    bundle.putBoolean(ENABLE_FALLBACK, enableFallbackCheckBox.isChecked());
     bundle.putBoolean(ENABLE_HDR_EDITING, enableHdrEditingCheckBox.isChecked());
     transformerIntent.putExtras(bundle);
 
