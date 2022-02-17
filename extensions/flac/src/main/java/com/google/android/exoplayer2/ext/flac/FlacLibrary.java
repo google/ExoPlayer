@@ -25,7 +25,13 @@ public final class FlacLibrary {
     ExoPlayerLibraryInfo.registerModule("goog.exo.flac");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("flacJNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("flacJNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
 
   private FlacLibrary() {}
 
