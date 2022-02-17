@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -241,7 +242,7 @@ public class WebServerDispatcher extends Dispatcher {
 
   /** Returns the path for a given {@link RecordedRequest}, stripping any query parameters. */
   public static String getRequestPath(RecordedRequest request) {
-    return Util.splitAtFirst(request.getPath(), "\\?")[0];
+    return Util.splitAtFirst(Strings.nullToEmpty(request.getPath()), "\\?")[0];
   }
 
   /**
