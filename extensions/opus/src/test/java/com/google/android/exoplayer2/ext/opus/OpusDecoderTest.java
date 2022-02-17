@@ -34,7 +34,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class OpusDecoderTest {
 
-  private static final LibraryLoader LOADER = new LibraryLoader("opusV2JNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("opusV2JNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
 
   private static final byte[] HEADER =
       new byte[] {79, 112, 117, 115, 72, 101, 97, 100, 0, 2, 1, 56, 0, 0, -69, -128, 0, 0, 0};

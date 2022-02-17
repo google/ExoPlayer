@@ -25,7 +25,13 @@ public final class Gav1Library {
     ExoPlayerLibraryInfo.registerModule("goog.exo.gav1");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("gav1JNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("gav1JNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
 
   private Gav1Library() {}
 

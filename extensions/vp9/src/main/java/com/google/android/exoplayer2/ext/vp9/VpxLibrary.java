@@ -27,7 +27,14 @@ public final class VpxLibrary {
     ExoPlayerLibraryInfo.registerModule("goog.exo.vpx");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxV2JNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("vpx", "vpxV2JNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
+
   private static @C.CryptoType int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
 
   private VpxLibrary() {}
