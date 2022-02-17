@@ -27,7 +27,13 @@ public final class FlacLibrary {
     MediaLibraryInfo.registerModule("media3.decoder.flac");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("flacJNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("flacJNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
 
   private FlacLibrary() {}
 

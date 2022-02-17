@@ -27,7 +27,13 @@ public final class Gav1Library {
     MediaLibraryInfo.registerModule("media3.decoder.av1");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("gav1JNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("gav1JNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
 
   private Gav1Library() {}
 
