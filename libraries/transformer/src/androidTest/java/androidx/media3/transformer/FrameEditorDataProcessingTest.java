@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 
+import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,7 +35,10 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -50,6 +54,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorDataProcessingTest {
+
+  private static final String TAG = "FrameEditorDataProcessingTest";
 
   // Input MP4 file to transform.
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
@@ -119,6 +125,7 @@ public final class FrameEditorDataProcessingTest {
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    saveTestBitmapToCacheDirectory("processData_noEdits", editedBitmap);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -137,6 +144,7 @@ public final class FrameEditorDataProcessingTest {
     // data.simple
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    saveTestBitmapToCacheDirectory("processData_translateRight", editedBitmap);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -154,6 +162,7 @@ public final class FrameEditorDataProcessingTest {
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    saveTestBitmapToCacheDirectory("processData_scaleNarrow", editedBitmap);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -174,6 +183,7 @@ public final class FrameEditorDataProcessingTest {
     // TODO(b/207848601): switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
         getAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, editedBitmap);
+    saveTestBitmapToCacheDirectory("processData_rotate90", editedBitmap);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
@@ -327,5 +337,22 @@ public final class FrameEditorDataProcessingTest {
       }
     }
     return (float) sumMaximumAbsoluteDifferences / (width * height);
+  }
+
+  /**
+   * Saves the {@link Bitmap} to the {@link Context#getCacheDir() cache directory} as a PNG.
+   *
+   * <p>File name will be {@code <testId>_output.png}.
+   *
+   * @param testId Name of the test that produced the {@link Bitmap}.
+   * @param bitmap The {@link Bitmap} to save.
+   */
+  private static void saveTestBitmapToCacheDirectory(String testId, Bitmap bitmap) {
+    File file = new File(getApplicationContext().getExternalCacheDir(), testId + "_output.png");
+    try (FileOutputStream outputStream = new FileOutputStream(file)) {
+      bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 100, outputStream);
+    } catch (IOException e) {
+      Log.e(TAG, "Could not write Bitmap to file path: " + file.getAbsolutePath(), e);
+    }
   }
 }
