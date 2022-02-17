@@ -1419,7 +1419,7 @@ public class MatroskaExtractor implements Extractor {
         if (blockSampleCount > 1) {
           // There were multiple samples in the block. Appending the additional data to the last
           // sample doesn't make sense. Skip instead.
-          flags &= ~C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
+          supplementalData.reset(/* limit= */ 0);
         } else {
           // Append supplemental data.
           int supplementalDataSize = supplementalData.limit();
