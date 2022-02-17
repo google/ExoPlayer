@@ -52,6 +52,8 @@ public final class OpusDecoderTest {
 
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
 
+  private static final int DISCARD_PADDING_NANOS = 166667;
+
   private static final ImmutableList<byte[]> HEADER_ONLY_INITIALIZATION_DATA =
       ImmutableList.of(HEADER);
 
@@ -103,6 +105,20 @@ public final class OpusDecoderTest {
   }
 
   @Test
+  public void getDiscardPaddingSamples_positiveSampleLength_returnSampleLength() {
+    int discardPaddingSamples =
+        OpusDecoder.getDiscardPaddingSamples(createSupplementalData(DISCARD_PADDING_NANOS));
+    assertThat(discardPaddingSamples).isEqualTo(nanosecondsToSampleCount(DISCARD_PADDING_NANOS));
+  }
+
+  @Test
+  public void getDiscardPaddingSamples_negativeSampleLength_returnZero() {
+    int discardPaddingSamples =
+        OpusDecoder.getDiscardPaddingSamples(createSupplementalData(-DISCARD_PADDING_NANOS));
+    assertThat(discardPaddingSamples).isEqualTo(0);
+  }
+
+  @Test
   public void decode_removesPreSkipFromOutput() throws OpusDecoderException {
     OpusDecoder decoder =
         new OpusDecoder(
@@ -118,6 +134,49 @@ public final class OpusDecoderTest {
     assertThat(decoder.decode(input, output, false)).isNull();
     assertThat(output.data.remaining())
         .isEqualTo(DECODED_DATA_SIZE - nanosecondsToBytes(PRE_SKIP_NANOS));
+  }
+
+  @Test
+  public void decode_whenDiscardPaddingDisabled_returnsDiscardPadding()
+      throws OpusDecoderException {
+    OpusDecoder decoder =
+        new OpusDecoder(
+            /* numInputBuffers= */ 0,
+            /* numOutputBuffers= */ 0,
+            /* initialInputBufferSize= */ 0,
+            createInitializationData(/* preSkipNanos= */ 0),
+            /* cryptoConfig= */ null,
+            /* outputFloat= */ false);
+    DecoderInputBuffer input =
+        createInputBuffer(
+            decoder,
+            ENCODED_DATA,
+            /* supplementalData= */ buildNativeOrderByteArray(DISCARD_PADDING_NANOS));
+    SimpleDecoderOutputBuffer output = decoder.createOutputBuffer();
+    assertThat(decoder.decode(input, output, false)).isNull();
+    assertThat(output.data.remaining()).isEqualTo(DECODED_DATA_SIZE);
+  }
+
+  @Test
+  public void decode_whenDiscardPaddingEnabled_removesDiscardPadding() throws OpusDecoderException {
+    OpusDecoder decoder =
+        new OpusDecoder(
+            /* numInputBuffers= */ 0,
+            /* numOutputBuffers= */ 0,
+            /* initialInputBufferSize= */ 0,
+            createInitializationData(/* preSkipNanos= */ 0),
+            /* cryptoConfig= */ null,
+            /* outputFloat= */ false);
+    decoder.experimentalSetDiscardPaddingEnabled(true);
+    DecoderInputBuffer input =
+        createInputBuffer(
+            decoder,
+            ENCODED_DATA,
+            /* supplementalData= */ buildNativeOrderByteArray(DISCARD_PADDING_NANOS));
+    SimpleDecoderOutputBuffer output = decoder.createOutputBuffer();
+    assertThat(decoder.decode(input, output, false)).isNull();
+    assertThat(output.data.limit())
+        .isEqualTo(DECODED_DATA_SIZE - nanosecondsToBytes(DISCARD_PADDING_NANOS));
   }
 
   private static long sampleCountToNanoseconds(long sampleCount) {
@@ -139,6 +198,10 @@ public final class OpusDecoderTest {
   private static ImmutableList<byte[]> createInitializationData(long preSkipNanos) {
     byte[] preSkip = buildNativeOrderByteArray(preSkipNanos);
     return ImmutableList.of(HEADER, preSkip, CUSTOM_SEEK_PRE_ROLL_BYTES);
+  }
+
+  private static ByteBuffer createSupplementalData(long value) {
+    return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(value).rewind();
   }
 
   private static DecoderInputBuffer createInputBuffer(
