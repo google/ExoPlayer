@@ -49,7 +49,6 @@ public final class TracksInfo implements Bundleable {
     /** The number of tracks in the group. */
     public final int length;
 
-    private final @C.TrackType int trackType;
     private final TrackGroup trackGroup;
     private final boolean adaptiveSupported;
     private final @C.FormatSupport int[] trackSupport;
@@ -58,22 +57,19 @@ public final class TracksInfo implements Bundleable {
     /**
      * Constructs a TrackGroupInfo.
      *
-     * @param trackType The {@link C.TrackType} of the tracks in the {@code trackGroup}.
      * @param trackGroup The {@link TrackGroup} described.
-     * @param adaptiveSupported Whether adaptive selections containing more than one track are
-     *     supported.
+     * @param adaptiveSupported Whether adaptive selections containing more than one track in the
+     *     {@code trackGroup} are supported.
      * @param trackSupport The {@link C.FormatSupport} of each track in the {@code trackGroup}.
-     * @param tracksSelected Whether a track is selected for each track in {@code trackGroup}.
+     * @param tracksSelected Whether each track in the {@code trackGroup} is selected.
      */
     public TrackGroupInfo(
-        @C.TrackType int trackType,
         TrackGroup trackGroup,
         boolean adaptiveSupported,
         @C.FormatSupport int[] trackSupport,
         boolean[] tracksSelected) {
       length = trackGroup.length;
       checkArgument(length == trackSupport.length && length == tracksSelected.length);
-      this.trackType = trackType;
       this.trackGroup = trackGroup;
       this.adaptiveSupported = adaptiveSupported && length > 1;
       this.trackSupport = trackSupport.clone();
@@ -189,7 +185,7 @@ public final class TracksInfo implements Bundleable {
 
     /** Returns the {@link C.TrackType} of the group. */
     public @C.TrackType int getTrackType() {
-      return trackType;
+      return trackGroup.type;
     }
 
     @Override
@@ -201,7 +197,7 @@ public final class TracksInfo implements Bundleable {
         return false;
       }
       TrackGroupInfo that = (TrackGroupInfo) other;
-      return trackType == that.trackType
+      return adaptiveSupported == that.adaptiveSupported
           && trackGroup.equals(that.trackGroup)
           && Arrays.equals(trackSupport, that.trackSupport)
           && Arrays.equals(trackSelected, that.trackSelected);
@@ -210,8 +206,8 @@ public final class TracksInfo implements Bundleable {
     @Override
     public int hashCode() {
       int result = trackGroup.hashCode();
+      result = 31 * result + (adaptiveSupported ? 1 : 0);
       result = 31 * result + Arrays.hashCode(trackSupport);
-      result = 31 * result + trackType;
       result = 31 * result + Arrays.hashCode(trackSelected);
       return result;
     }
@@ -223,7 +219,6 @@ public final class TracksInfo implements Bundleable {
     @IntDef({
       FIELD_TRACK_GROUP,
       FIELD_TRACK_SUPPORT,
-      FIELD_TRACK_TYPE,
       FIELD_TRACK_SELECTED,
       FIELD_ADAPTIVE_SUPPORTED,
     })
@@ -231,7 +226,6 @@ public final class TracksInfo implements Bundleable {
 
     private static final int FIELD_TRACK_GROUP = 0;
     private static final int FIELD_TRACK_SUPPORT = 1;
-    private static final int FIELD_TRACK_TYPE = 2;
     private static final int FIELD_TRACK_SELECTED = 3;
     private static final int FIELD_ADAPTIVE_SUPPORTED = 4;
 
@@ -240,7 +234,6 @@ public final class TracksInfo implements Bundleable {
       Bundle bundle = new Bundle();
       bundle.putBundle(keyForField(FIELD_TRACK_GROUP), trackGroup.toBundle());
       bundle.putIntArray(keyForField(FIELD_TRACK_SUPPORT), trackSupport);
-      bundle.putInt(keyForField(FIELD_TRACK_TYPE), trackType);
       bundle.putBooleanArray(keyForField(FIELD_TRACK_SELECTED), trackSelected);
       bundle.putBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), adaptiveSupported);
       return bundle;
@@ -256,16 +249,13 @@ public final class TracksInfo implements Bundleable {
           final @C.FormatSupport int[] trackSupport =
               MoreObjects.firstNonNull(
                   bundle.getIntArray(keyForField(FIELD_TRACK_SUPPORT)), new int[trackGroup.length]);
-          @C.TrackType
-          int trackType = bundle.getInt(keyForField(FIELD_TRACK_TYPE), C.TRACK_TYPE_UNKNOWN);
           boolean[] selected =
               MoreObjects.firstNonNull(
                   bundle.getBooleanArray(keyForField(FIELD_TRACK_SELECTED)),
                   new boolean[trackGroup.length]);
           boolean adaptiveSupported =
               bundle.getBoolean(keyForField(FIELD_ADAPTIVE_SUPPORTED), false);
-          return new TrackGroupInfo(
-              trackType, trackGroup, adaptiveSupported, trackSupport, selected);
+          return new TrackGroupInfo(trackGroup, adaptiveSupported, trackSupport, selected);
         };
 
     private static String keyForField(@FieldNumber int field) {
@@ -296,7 +286,7 @@ public final class TracksInfo implements Bundleable {
   /** Returns true if there are tracks of type {@code trackType}, and false otherwise. */
   public boolean hasTracksOfType(@C.TrackType int trackType) {
     for (int i = 0; i < trackGroupInfos.size(); i++) {
-      if (trackGroupInfos.get(i).trackType == trackType) {
+      if (trackGroupInfos.get(i).getTrackType() == trackType) {
         return true;
       }
     }
@@ -326,7 +316,7 @@ public final class TracksInfo implements Bundleable {
       @C.TrackType int trackType, boolean allowExceedsCapabilities) {
     boolean supported = true;
     for (int i = 0; i < trackGroupInfos.size(); i++) {
-      if (trackGroupInfos.get(i).trackType == trackType) {
+      if (trackGroupInfos.get(i).getTrackType() == trackType) {
         if (trackGroupInfos.get(i).isSupported(allowExceedsCapabilities)) {
           return true;
         } else {

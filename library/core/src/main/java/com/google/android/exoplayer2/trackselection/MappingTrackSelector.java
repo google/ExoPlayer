@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -370,8 +369,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
       // Associate the group to a preferred renderer.
-      boolean preferUnassociatedRenderer =
-          MimeTypes.getTrackType(group.getFormat(0).sampleMimeType) == C.TRACK_TYPE_METADATA;
+      boolean preferUnassociatedRenderer = group.type == C.TRACK_TYPE_METADATA;
       int rendererIndex =
           findRenderer(
               rendererCapabilities, group, rendererTrackGroupCounts, preferUnassociatedRenderer);
@@ -585,10 +583,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
                   && trackSelection.indexOf(trackIndex) != C.INDEX_UNSET;
           selected[trackIndex] = isTrackSelected;
         }
-        @C.TrackType int trackGroupType = mappedTrackInfo.getRendererType(rendererIndex);
         builder.add(
-            new TracksInfo.TrackGroupInfo(
-                trackGroupType, trackGroup, adaptiveSupported, trackSupport, selected));
+            new TracksInfo.TrackGroupInfo(trackGroup, adaptiveSupported, trackSupport, selected));
       }
     }
     TrackGroupArray unmappedTrackGroups = mappedTrackInfo.getUnmappedTrackGroups();
@@ -597,12 +593,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
       @C.FormatSupport int[] trackSupport = new int[trackGroup.length];
       Arrays.fill(trackSupport, C.FORMAT_UNSUPPORTED_TYPE);
       // A track group only contains tracks of the same type, thus only consider the first track.
-      @C.TrackType
-      int trackGroupType = MimeTypes.getTrackType(trackGroup.getFormat(0).sampleMimeType);
       boolean[] selected = new boolean[trackGroup.length]; // Initialized to false.
       builder.add(
           new TracksInfo.TrackGroupInfo(
-              trackGroupType, trackGroup, /* adaptiveSupported= */ false, trackSupport, selected));
+              trackGroup, /* adaptiveSupported= */ false, trackSupport, selected));
     }
     return new TracksInfo(builder.build());
   }
