@@ -13,7 +13,7 @@
 // limitations under the License.
 project.ext {
     releaseVersion = '1.0.0-alpha01'
-    releaseVersionCode = 1000000
+    releaseVersionCode = 1000000001
     minSdkVersion = 16
     appTargetSdkVersion = 29
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
