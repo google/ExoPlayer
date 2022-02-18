@@ -15,15 +15,13 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.runTransformer;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.transformer.Transformer;
-import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,19 +33,13 @@ public class TransformationTest {
 
   @Test
   public void transform() throws Exception {
-    if (Util.SDK_INT < 25) {
-      // TODO(b/210593256): Remove test skipping after removing the MediaMuxer dependency.
-      Log.i(TAG, "Skipping on this API version due to lack of muxing support");
-      return;
-    }
-
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     runTransformer(
         context,
         /* testId= */ "transform",
         transformer,
-        MP4_ASSET_URI_STRING,
+        MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING,
         /* timeoutSeconds= */ 120);
   }
 }

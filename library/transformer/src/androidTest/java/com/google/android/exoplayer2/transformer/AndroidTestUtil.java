@@ -40,6 +40,8 @@ import org.json.JSONObject;
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
+  public static final String MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING =
+      "asset:///media/mp4/sample_with_increasing_timestamps.mp4";
   public static final String SEF_ASSET_URI_STRING = "asset:///media/mp4/sample_sef_slow_motion.mp4";
   public static final String REMOTE_MP4_10_SECONDS_URI_STRING =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
