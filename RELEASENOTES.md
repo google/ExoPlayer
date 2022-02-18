@@ -152,6 +152,8 @@
     *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
         opt-out flag for apps that don't want to clear the playlist on stop.
 *   RTSP:
+    *   Add RTP reader for HEVC
+        ([#36](https://github.com/androidx/media/pull/36))
     *   Provide a client API to override the `SocketFactory` used for any server
         connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
     *   Prefers DIGEST authentication method over BASIC if both are present
