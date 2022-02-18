@@ -23,7 +23,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
 
-/** @deprecated Use {@link com.google.android.exoplayer2.metadata.vorbis.VorbisComment} instead. */
+/**
+ * @deprecated Use {@link com.google.android.exoplayer2.metadata.vorbis.VorbisComment} instead.
+ */
 @Deprecated
 public class VorbisComment implements Metadata.Entry {
 

@@ -26,7 +26,9 @@ public abstract class LibraryLoader {
   private boolean loadAttempted;
   private boolean isAvailable;
 
-  /** @param libraries The names of the libraries to load. */
+  /**
+   * @param libraries The names of the libraries to load.
+   */
   public LibraryLoader(String... libraries) {
     nativeLibraries = libraries;
   }

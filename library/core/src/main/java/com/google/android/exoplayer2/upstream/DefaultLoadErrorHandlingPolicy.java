@@ -38,7 +38,9 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE = 6;
   /** The default duration for which a track is excluded in milliseconds. */
   public static final long DEFAULT_TRACK_EXCLUSION_MS = 60_000;
-  /** @deprecated Use {@link #DEFAULT_TRACK_EXCLUSION_MS} instead. */
+  /**
+   * @deprecated Use {@link #DEFAULT_TRACK_EXCLUSION_MS} instead.
+   */
   @Deprecated public static final long DEFAULT_TRACK_BLACKLIST_MS = DEFAULT_TRACK_EXCLUSION_MS;
   /** The default duration for which a location is excluded in milliseconds. */
   public static final long DEFAULT_LOCATION_EXCLUSION_MS = 5 * 60_000;

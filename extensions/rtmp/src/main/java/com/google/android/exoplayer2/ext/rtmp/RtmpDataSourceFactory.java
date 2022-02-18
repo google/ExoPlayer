@@ -19,7 +19,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 
-/** @deprecated Use {@link RtmpDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link RtmpDataSource.Factory} instead.
+ */
 @Deprecated
 public final class RtmpDataSourceFactory implements DataSource.Factory {
 
@@ -29,7 +31,9 @@ public final class RtmpDataSourceFactory implements DataSource.Factory {
     this(null);
   }
 
-  /** @param listener An optional listener. */
+  /**
+   * @param listener An optional listener.
+   */
   public RtmpDataSourceFactory(@Nullable TransferListener listener) {
     this.listener = listener;
   }

@@ -223,17 +223,23 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       // Do nothing.
     }
 
-    /** @param xmlParser The underlying {@link XmlPullParser} */
+    /**
+     * @param xmlParser The underlying {@link XmlPullParser}
+     */
     protected void parseText(XmlPullParser xmlParser) {
       // Do nothing.
     }
 
-    /** @param xmlParser The underlying {@link XmlPullParser} */
+    /**
+     * @param xmlParser The underlying {@link XmlPullParser}
+     */
     protected void parseEndTag(XmlPullParser xmlParser) {
       // Do nothing.
     }
 
-    /** @param parsedChild A parsed child object. */
+    /**
+     * @param parsedChild A parsed child object.
+     */
     protected void addChild(Object parsedChild) {
       // Do nothing.
     }

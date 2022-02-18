@@ -227,21 +227,27 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private long bytesToRead;
   private long bytesRead;
 
-  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  /**
+   * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
+   */
   @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource() {
     this(/* userAgent= */ null, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
-  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  /**
+   * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
+   */
   @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource(@Nullable String userAgent) {
     this(userAgent, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
-  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  /**
+   * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
+   */
   @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource(
@@ -254,7 +260,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         /* defaultRequestProperties= */ null);
   }
 
-  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  /**
+   * @deprecated Use {@link DefaultHttpDataSource.Factory} instead.
+   */
   @Deprecated
   public DefaultHttpDataSource(
       @Nullable String userAgent,

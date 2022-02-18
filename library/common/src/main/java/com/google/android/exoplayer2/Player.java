@@ -148,7 +148,9 @@ public interface Player {
      * The UID of the window, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
      */
     @Nullable public final Object windowUid;
-    /** @deprecated Use {@link #mediaItemIndex} instead. */
+    /**
+     * @deprecated Use {@link #mediaItemIndex} instead.
+     */
     @Deprecated public final int windowIndex;
     /** The media item index. */
     public final int mediaItemIndex;
@@ -731,7 +733,9 @@ public interface Player {
      */
     default void onIsLoadingChanged(boolean isLoading) {}
 
-    /** @deprecated Use {@link #onIsLoadingChanged(boolean)} instead. */
+    /**
+     * @deprecated Use {@link #onIsLoadingChanged(boolean)} instead.
+     */
     @Deprecated
     default void onLoadingChanged(boolean isLoading) {}
 
@@ -1439,23 +1443,31 @@ public interface Player {
   int COMMAND_SEEK_TO_DEFAULT_POSITION = 4;
   /** Command to seek anywhere into the current {@link MediaItem}. */
   int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 5;
-  /** @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead.
+   */
   @Deprecated int COMMAND_SEEK_IN_CURRENT_WINDOW = COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
   /** Command to seek to the default position of the previous {@link MediaItem}. */
   int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
-  /** @deprecated Use {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} instead.
+   */
   @Deprecated int COMMAND_SEEK_TO_PREVIOUS_WINDOW = COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
   /** Command to seek to an earlier position in the current or previous {@link MediaItem}. */
   int COMMAND_SEEK_TO_PREVIOUS = 7;
   /** Command to seek to the default position of the next {@link MediaItem}. */
   int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 8;
-  /** @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead.
+   */
   @Deprecated int COMMAND_SEEK_TO_NEXT_WINDOW = COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
   /** Command to seek to a later position in the current or next {@link MediaItem}. */
   int COMMAND_SEEK_TO_NEXT = 9;
   /** Command to seek anywhere in any {@link MediaItem}. */
   int COMMAND_SEEK_TO_MEDIA_ITEM = 10;
-  /** @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead. */
+  /**
+   * @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead.
+   */
   @Deprecated int COMMAND_SEEK_TO_WINDOW = COMMAND_SEEK_TO_MEDIA_ITEM;
   /** Command to seek back by a fixed increment into the current {@link MediaItem}. */
   int COMMAND_SEEK_BACK = 11;
@@ -1881,11 +1893,15 @@ public interface Player {
    */
   void seekForward();
 
-  /** @deprecated Use {@link #hasPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   boolean hasPrevious();
 
-  /** @deprecated Use {@link #hasPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasPreviousMediaItem()} instead.
+   */
   @Deprecated
   boolean hasPreviousWindow();
 
@@ -1899,11 +1915,15 @@ public interface Player {
    */
   boolean hasPreviousMediaItem();
 
-  /** @deprecated Use {@link #seekToPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   void previous();
 
-  /** @deprecated Use {@link #seekToPreviousMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToPreviousMediaItem()} instead.
+   */
   @Deprecated
   void seekToPreviousWindow();
 
@@ -1949,11 +1969,15 @@ public interface Player {
    */
   void seekToPrevious();
 
-  /** @deprecated Use {@link #hasNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   boolean hasNext();
 
-  /** @deprecated Use {@link #hasNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #hasNextMediaItem()} instead.
+   */
   @Deprecated
   boolean hasNextWindow();
 
@@ -1967,11 +1991,15 @@ public interface Player {
    */
   boolean hasNextMediaItem();
 
-  /** @deprecated Use {@link #seekToNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   void next();
 
-  /** @deprecated Use {@link #seekToNextMediaItem()} instead. */
+  /**
+   * @deprecated Use {@link #seekToNextMediaItem()} instead.
+   */
   @Deprecated
   void seekToNextWindow();
 
@@ -2151,7 +2179,9 @@ public interface Player {
   /** Returns the index of the period currently being played. */
   int getCurrentPeriodIndex();
 
-  /** @deprecated Use {@link #getCurrentMediaItemIndex()} instead. */
+  /**
+   * @deprecated Use {@link #getCurrentMediaItemIndex()} instead.
+   */
   @Deprecated
   int getCurrentWindowIndex();
 
@@ -2162,7 +2192,9 @@ public interface Player {
    */
   int getCurrentMediaItemIndex();
 
-  /** @deprecated Use {@link #getNextMediaItemIndex()} instead. */
+  /**
+   * @deprecated Use {@link #getNextMediaItemIndex()} instead.
+   */
   @Deprecated
   int getNextWindowIndex();
 
@@ -2178,7 +2210,9 @@ public interface Player {
    */
   int getNextMediaItemIndex();
 
-  /** @deprecated Use {@link #getPreviousMediaItemIndex()} instead. */
+  /**
+   * @deprecated Use {@link #getPreviousMediaItemIndex()} instead.
+   */
   @Deprecated
   int getPreviousWindowIndex();
 
@@ -2239,7 +2273,9 @@ public interface Player {
    */
   long getTotalBufferedDuration();
 
-  /** @deprecated Use {@link #isCurrentMediaItemDynamic()} instead. */
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemDynamic()} instead.
+   */
   @Deprecated
   boolean isCurrentWindowDynamic();
 
@@ -2251,7 +2287,9 @@ public interface Player {
    */
   boolean isCurrentMediaItemDynamic();
 
-  /** @deprecated Use {@link #isCurrentMediaItemLive()} instead. */
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemLive()} instead.
+   */
   @Deprecated
   boolean isCurrentWindowLive();
 
@@ -2276,7 +2314,9 @@ public interface Player {
    */
   long getCurrentLiveOffset();
 
-  /** @deprecated Use {@link #isCurrentMediaItemSeekable()} instead. */
+  /**
+   * @deprecated Use {@link #isCurrentMediaItemSeekable()} instead.
+   */
   @Deprecated
   boolean isCurrentWindowSeekable();
 

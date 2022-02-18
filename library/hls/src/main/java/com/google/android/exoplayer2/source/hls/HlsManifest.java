@@ -22,7 +22,9 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist
 /** Holds a multivariant playlist along with a snapshot of one of its media playlists. */
 public final class HlsManifest {
 
-  /** @deprecated Use {@link #multivariantPlaylist} instead. */
+  /**
+   * @deprecated Use {@link #multivariantPlaylist} instead.
+   */
   @Deprecated
   @SuppressWarnings("deprecation") // Keeping deprecated field with deprecated class.
   public final HlsMasterPlaylist masterPlaylist;

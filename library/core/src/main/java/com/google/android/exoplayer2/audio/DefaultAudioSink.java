@@ -524,7 +524,9 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean offloadDisabledUntilNextConfiguration;
   private boolean isWaitingForOffloadEndOfStreamHandled;
 
-  /** @deprecated Use {@link Builder}. */
+  /**
+   * @deprecated Use {@link Builder}.
+   */
   @Deprecated
   @InlineMeValidationDisabled("Migrate constructor to Builder")
   @InlineMe(
@@ -542,7 +544,9 @@ public final class DefaultAudioSink implements AudioSink {
             .setAudioProcessors(audioProcessors));
   }
 
-  /** @deprecated Use {@link Builder}. */
+  /**
+   * @deprecated Use {@link Builder}.
+   */
   @Deprecated
   @InlineMeValidationDisabled("Migrate constructor to Builder")
   @InlineMe(
@@ -564,7 +568,9 @@ public final class DefaultAudioSink implements AudioSink {
             .setEnableFloatOutput(enableFloatOutput));
   }
 
-  /** @deprecated Use {@link Builder}. */
+  /**
+   * @deprecated Use {@link Builder}.
+   */
   @Deprecated
   @InlineMeValidationDisabled("Migrate constructor to Builder")
   @InlineMe(

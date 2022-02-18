@@ -47,7 +47,9 @@ import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.List;
 
-/** @deprecated Use {@link ExoPlayer} instead. */
+/**
+ * @deprecated Use {@link ExoPlayer} instead.
+ */
 @Deprecated
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
@@ -56,20 +58,26 @@ public class SimpleExoPlayer extends BasePlayer
         ExoPlayer.TextComponent,
         ExoPlayer.DeviceComponent {
 
-  /** @deprecated Use {@link ExoPlayer.Builder} instead. */
+  /**
+   * @deprecated Use {@link ExoPlayer.Builder} instead.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public static final class Builder {
 
     private final ExoPlayer.Builder wrappedBuilder;
 
-    /** @deprecated Use {@link ExoPlayer.Builder#Builder(Context)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#Builder(Context)} instead.
+     */
     @Deprecated
     public Builder(Context context) {
       wrappedBuilder = new ExoPlayer.Builder(context);
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#Builder(Context, RenderersFactory)} instead.
+     */
     @Deprecated
     public Builder(Context context, RenderersFactory renderersFactory) {
       wrappedBuilder = new ExoPlayer.Builder(context, renderersFactory);
@@ -133,7 +141,9 @@ public class SimpleExoPlayer extends BasePlayer
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setTrackSelector(TrackSelector)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setTrackSelector(TrackSelector)} instead.
+     */
     @Deprecated
     public Builder setTrackSelector(TrackSelector trackSelector) {
       wrappedBuilder.setTrackSelector(trackSelector);
@@ -149,21 +159,27 @@ public class SimpleExoPlayer extends BasePlayer
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setLoadControl(LoadControl)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setLoadControl(LoadControl)} instead.
+     */
     @Deprecated
     public Builder setLoadControl(LoadControl loadControl) {
       wrappedBuilder.setLoadControl(loadControl);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setBandwidthMeter(BandwidthMeter)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setBandwidthMeter(BandwidthMeter)} instead.
+     */
     @Deprecated
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
       wrappedBuilder.setBandwidthMeter(bandwidthMeter);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setLooper(Looper)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setLooper(Looper)} instead.
+     */
     @Deprecated
     public Builder setLooper(Looper looper) {
       wrappedBuilder.setLooper(looper);
@@ -199,35 +215,45 @@ public class SimpleExoPlayer extends BasePlayer
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setWakeMode(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setWakeMode(int)} instead.
+     */
     @Deprecated
     public Builder setWakeMode(@C.WakeMode int wakeMode) {
       wrappedBuilder.setWakeMode(wakeMode);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setHandleAudioBecomingNoisy(boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setHandleAudioBecomingNoisy(boolean)} instead.
+     */
     @Deprecated
     public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
       wrappedBuilder.setHandleAudioBecomingNoisy(handleAudioBecomingNoisy);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setSkipSilenceEnabled(boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setSkipSilenceEnabled(boolean)} instead.
+     */
     @Deprecated
     public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
       wrappedBuilder.setSkipSilenceEnabled(skipSilenceEnabled);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setVideoScalingMode(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setVideoScalingMode(int)} instead.
+     */
     @Deprecated
     public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
       wrappedBuilder.setVideoScalingMode(videoScalingMode);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setVideoChangeFrameRateStrategy(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setVideoChangeFrameRateStrategy(int)} instead.
+     */
     @Deprecated
     public Builder setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy) {
@@ -235,49 +261,63 @@ public class SimpleExoPlayer extends BasePlayer
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setUseLazyPreparation(boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setUseLazyPreparation(boolean)} instead.
+     */
     @Deprecated
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       wrappedBuilder.setUseLazyPreparation(useLazyPreparation);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setSeekParameters(SeekParameters)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setSeekParameters(SeekParameters)} instead.
+     */
     @Deprecated
     public Builder setSeekParameters(SeekParameters seekParameters) {
       wrappedBuilder.setSeekParameters(seekParameters);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setSeekBackIncrementMs(long)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setSeekBackIncrementMs(long)} instead.
+     */
     @Deprecated
     public Builder setSeekBackIncrementMs(@IntRange(from = 1) long seekBackIncrementMs) {
       wrappedBuilder.setSeekBackIncrementMs(seekBackIncrementMs);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setSeekForwardIncrementMs(long)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setSeekForwardIncrementMs(long)} instead.
+     */
     @Deprecated
     public Builder setSeekForwardIncrementMs(@IntRange(from = 1) long seekForwardIncrementMs) {
       wrappedBuilder.setSeekForwardIncrementMs(seekForwardIncrementMs);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setReleaseTimeoutMs(long)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setReleaseTimeoutMs(long)} instead.
+     */
     @Deprecated
     public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
       wrappedBuilder.setReleaseTimeoutMs(releaseTimeoutMs);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setDetachSurfaceTimeoutMs(long)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setDetachSurfaceTimeoutMs(long)} instead.
+     */
     @Deprecated
     public Builder setDetachSurfaceTimeoutMs(long detachSurfaceTimeoutMs) {
       wrappedBuilder.setDetachSurfaceTimeoutMs(detachSurfaceTimeoutMs);
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setPauseAtEndOfMediaItems(boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setPauseAtEndOfMediaItems(boolean)} instead.
+     */
     @Deprecated
     public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
       wrappedBuilder.setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems);
@@ -294,7 +334,9 @@ public class SimpleExoPlayer extends BasePlayer
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#setClock(Clock)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#setClock(Clock)} instead.
+     */
     @Deprecated
     @VisibleForTesting
     public Builder setClock(Clock clock) {
@@ -302,7 +344,9 @@ public class SimpleExoPlayer extends BasePlayer
       return this;
     }
 
-    /** @deprecated Use {@link ExoPlayer.Builder#build()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer.Builder#build()} instead.
+     */
     @Deprecated
     public SimpleExoPlayer build() {
       return wrappedBuilder.buildSimpleExoPlayer();
@@ -312,7 +356,9 @@ public class SimpleExoPlayer extends BasePlayer
   private final ExoPlayerImpl player;
   private final ConditionVariable constructorFinished;
 
-  /** @deprecated Use the {@link ExoPlayer.Builder}. */
+  /**
+   * @deprecated Use the {@link ExoPlayer.Builder}.
+   */
   @Deprecated
   protected SimpleExoPlayer(
       Context context,
@@ -339,12 +385,16 @@ public class SimpleExoPlayer extends BasePlayer
             .setLooper(applicationLooper));
   }
 
-  /** @param builder The {@link Builder} to obtain all construction parameters. */
+  /**
+   * @param builder The {@link Builder} to obtain all construction parameters.
+   */
   protected SimpleExoPlayer(Builder builder) {
     this(builder.wrappedBuilder);
   }
 
-  /** @param builder The {@link ExoPlayer.Builder} to obtain all construction parameters. */
+  /**
+   * @param builder The {@link ExoPlayer.Builder} to obtain all construction parameters.
+   */
   /* package */ SimpleExoPlayer(ExoPlayer.Builder builder) {
     constructorFinished = new ConditionVariable();
     try {
@@ -686,7 +736,9 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getPlayerError();
   }
 
-  /** @deprecated Use {@link #prepare()} instead. */
+  /**
+   * @deprecated Use {@link #prepare()} instead.
+   */
   @Deprecated
   @Override
   @SuppressWarnings("deprecation") // Calling deprecated method.

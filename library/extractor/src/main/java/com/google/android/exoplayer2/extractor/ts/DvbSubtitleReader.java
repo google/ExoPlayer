@@ -39,7 +39,9 @@ public final class DvbSubtitleReader implements ElementaryStreamReader {
   private int sampleBytesWritten;
   private long sampleTimeUs;
 
-  /** @param subtitleInfos Information about the DVB subtitles associated to the stream. */
+  /**
+   * @param subtitleInfos Information about the DVB subtitles associated to the stream.
+   */
   public DvbSubtitleReader(List<DvbSubtitleInfo> subtitleInfos) {
     this.subtitleInfos = subtitleInfos;
     outputs = new TrackOutput[subtitleInfos.size()];

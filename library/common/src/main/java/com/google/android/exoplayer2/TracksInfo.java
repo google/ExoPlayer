@@ -322,14 +322,18 @@ public final class TracksInfo implements Bundleable {
     return false;
   }
 
-  /** @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int)}. */
+  /**
+   * @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int)}.
+   */
   @Deprecated
   @SuppressWarnings("deprecation")
   public boolean isTypeSupportedOrEmpty(@C.TrackType int trackType) {
     return isTypeSupportedOrEmpty(trackType, /* allowExceedsCapabilities= */ false);
   }
 
-  /** @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int, boolean)}. */
+  /**
+   * @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int, boolean)}.
+   */
   @Deprecated
   public boolean isTypeSupportedOrEmpty(
       @C.TrackType int trackType, boolean allowExceedsCapabilities) {

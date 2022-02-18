@@ -76,7 +76,9 @@ public final class H265Reader implements ElementaryStreamReader {
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
-  /** @param seiReader An SEI reader for consuming closed caption channels. */
+  /**
+   * @param seiReader An SEI reader for consuming closed caption channels.
+   */
   public H265Reader(SeiReader seiReader) {
     this.seiReader = seiReader;
     prefixFlags = new boolean[3];

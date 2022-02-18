@@ -247,7 +247,9 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
-    /** @deprecated Use {@link #setRecordingYear(Integer)} instead. */
+    /**
+     * @deprecated Use {@link #setRecordingYear(Integer)} instead.
+     */
     @Deprecated
     public Builder setYear(@Nullable Integer year) {
       return setRecordingYear(year);
@@ -649,7 +651,9 @@ public final class MediaMetadata implements Bundleable {
   @Nullable public final @FolderType Integer folderType;
   /** Optional boolean for media playability. */
   @Nullable public final Boolean isPlayable;
-  /** @deprecated Use {@link #recordingYear} instead. */
+  /**
+   * @deprecated Use {@link #recordingYear} instead.
+   */
   @Deprecated @Nullable public final Integer year;
   /** Optional year of the recording date. */
   @Nullable public final Integer recordingYear;

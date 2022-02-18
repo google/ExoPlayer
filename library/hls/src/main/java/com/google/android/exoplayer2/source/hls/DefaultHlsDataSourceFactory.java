@@ -22,7 +22,9 @@ public final class DefaultHlsDataSourceFactory implements HlsDataSourceFactory {
 
   private final DataSource.Factory dataSourceFactory;
 
-  /** @param dataSourceFactory The {@link DataSource.Factory} to use for all data types. */
+  /**
+   * @param dataSourceFactory The {@link DataSource.Factory} to use for all data types.
+   */
   public DefaultHlsDataSourceFactory(DataSource.Factory dataSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
   }

@@ -90,7 +90,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     currentGranule = 0;
   }
 
-  /** @see Extractor#seek(long, long) */
+  /**
+   * @see Extractor#seek(long, long)
+   */
   final void seek(long position, long timeUs) {
     oggPacket.reset();
     if (position == 0) {
@@ -104,7 +106,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /** @see Extractor#read(ExtractorInput, PositionHolder) */
+  /**
+   * @see Extractor#read(ExtractorInput, PositionHolder)
+   */
   final int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     assertInitialized();
     switch (state) {

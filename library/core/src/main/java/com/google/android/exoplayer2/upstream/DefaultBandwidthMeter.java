@@ -285,7 +285,9 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private boolean networkTypeOverrideSet;
   private @C.NetworkType int networkTypeOverride;
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public DefaultBandwidthMeter() {
     this(

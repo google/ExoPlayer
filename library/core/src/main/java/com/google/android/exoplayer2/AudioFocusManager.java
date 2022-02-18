@@ -112,17 +112,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
   })
   private @interface AudioFocusGain {}
-  /** @see AudioManager#AUDIOFOCUS_NONE */
+  /**
+   * @see AudioManager#AUDIOFOCUS_NONE
+   */
   @SuppressWarnings("InlinedApi")
   private static final int AUDIOFOCUS_NONE = AudioManager.AUDIOFOCUS_NONE;
-  /** @see AudioManager#AUDIOFOCUS_GAIN */
+  /**
+   * @see AudioManager#AUDIOFOCUS_GAIN
+   */
   private static final int AUDIOFOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT */
+  /**
+   * @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT
+   */
   private static final int AUDIOFOCUS_GAIN_TRANSIENT = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK */
+  /**
+   * @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+   */
   private static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK =
       AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
-  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE */
+  /**
+   * @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
+   */
   @SuppressWarnings("InlinedApi")
   private static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE =
       AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;

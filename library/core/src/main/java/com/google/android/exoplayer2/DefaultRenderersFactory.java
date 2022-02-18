@@ -101,7 +101,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private boolean enableAudioTrackPlaybackParams;
   private boolean enableOffload;
 
-  /** @param context A {@link Context}. */
+  /**
+   * @param context A {@link Context}.
+   */
   public DefaultRenderersFactory(Context context) {
     this.context = context;
     codecAdapterFactory = new DefaultMediaCodecAdapterFactory();

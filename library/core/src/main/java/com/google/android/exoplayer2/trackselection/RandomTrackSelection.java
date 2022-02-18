@@ -40,7 +40,9 @@ public final class RandomTrackSelection extends BaseTrackSelection {
       random = new Random();
     }
 
-    /** @param seed A seed for the {@link Random} instance used by the factory. */
+    /**
+     * @param seed A seed for the {@link Random} instance used by the factory.
+     */
     public Factory(int seed) {
       random = new Random(seed);
     }

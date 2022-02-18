@@ -686,7 +686,9 @@ public final class MediaItem implements Bundleable {
     /** The UUID of the protection scheme. */
     public final UUID scheme;
 
-    /** @deprecated Use {@link #scheme} instead. */
+    /**
+     * @deprecated Use {@link #scheme} instead.
+     */
     @Deprecated public final UUID uuid;
 
     /**
@@ -695,7 +697,9 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Uri licenseUri;
 
-    /** @deprecated Use {@link #licenseRequestHeaders} instead. */
+    /**
+     * @deprecated Use {@link #licenseRequestHeaders} instead.
+     */
     @Deprecated public final ImmutableMap<String, String> requestHeaders;
 
     /** The headers to attach to requests sent to the DRM license server. */
@@ -716,7 +720,9 @@ public final class MediaItem implements Bundleable {
      */
     public final boolean forceDefaultLicenseUri;
 
-    /** @deprecated Use {@link #forcedSessionTrackTypes}. */
+    /**
+     * @deprecated Use {@link #forcedSessionTrackTypes}.
+     */
     @Deprecated public final ImmutableList<@C.TrackType Integer> sessionForClearTypes;
     /**
      * The types of tracks for which to always use a DRM session even if the content is unencrypted.
@@ -903,7 +909,9 @@ public final class MediaItem implements Bundleable {
 
     /** Optional subtitles to be sideloaded. */
     public final ImmutableList<SubtitleConfiguration> subtitleConfigurations;
-    /** @deprecated Use {@link #subtitleConfigurations} instead. */
+    /**
+     * @deprecated Use {@link #subtitleConfigurations} instead.
+     */
     @Deprecated public final List<Subtitle> subtitles;
 
     /**
@@ -972,7 +980,9 @@ public final class MediaItem implements Bundleable {
     }
   }
 
-  /** @deprecated Use {@link LocalConfiguration}. */
+  /**
+   * @deprecated Use {@link LocalConfiguration}.
+   */
   @Deprecated
   public static final class PlaybackProperties extends LocalConfiguration {
 
@@ -1133,7 +1143,9 @@ public final class MediaItem implements Bundleable {
           builder.maxPlaybackSpeed);
     }
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @Deprecated
     public LiveConfiguration(
         long targetOffsetMs,
@@ -1397,24 +1409,32 @@ public final class MediaItem implements Bundleable {
     }
   }
 
-  /** @deprecated Use {@link MediaItem.SubtitleConfiguration} instead */
+  /**
+   * @deprecated Use {@link MediaItem.SubtitleConfiguration} instead
+   */
   @Deprecated
   public static final class Subtitle extends SubtitleConfiguration {
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @Deprecated
     public Subtitle(Uri uri, String mimeType, @Nullable String language) {
       this(uri, mimeType, language, /* selectionFlags= */ 0);
     }
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @Deprecated
     public Subtitle(
         Uri uri, String mimeType, @Nullable String language, @C.SelectionFlags int selectionFlags) {
       this(uri, mimeType, language, selectionFlags, /* roleFlags= */ 0, /* label= */ null);
     }
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @Deprecated
     public Subtitle(
         Uri uri,
@@ -1516,7 +1536,9 @@ public final class MediaItem implements Bundleable {
         return buildClippingProperties();
       }
 
-      /** @deprecated Use {@link #build()} instead. */
+      /**
+       * @deprecated Use {@link #build()} instead.
+       */
       @Deprecated
       public ClippingProperties buildClippingProperties() {
         return new ClippingProperties(this);
@@ -1643,7 +1665,9 @@ public final class MediaItem implements Bundleable {
     }
   }
 
-  /** @deprecated Use {@link ClippingConfiguration} instead. */
+  /**
+   * @deprecated Use {@link ClippingConfiguration} instead.
+   */
   @Deprecated
   public static final class ClippingProperties extends ClippingConfiguration {
     public static final ClippingProperties UNSET =
@@ -1671,7 +1695,9 @@ public final class MediaItem implements Bundleable {
    * boundaries.
    */
   @Nullable public final LocalConfiguration localConfiguration;
-  /** @deprecated Use {@link #localConfiguration} instead. */
+  /**
+   * @deprecated Use {@link #localConfiguration} instead.
+   */
   @Deprecated @Nullable public final PlaybackProperties playbackProperties;
 
   /** The live playback configuration. */
@@ -1682,7 +1708,9 @@ public final class MediaItem implements Bundleable {
 
   /** The clipping properties. */
   public final ClippingConfiguration clippingConfiguration;
-  /** @deprecated Use {@link #clippingConfiguration} instead. */
+  /**
+   * @deprecated Use {@link #clippingConfiguration} instead.
+   */
   @Deprecated public final ClippingProperties clippingProperties;
 
   // Using PlaybackProperties and ClippingProperties until they're deleted.

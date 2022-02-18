@@ -186,7 +186,9 @@ public class FragmentedMp4Extractor implements Extractor {
     this(0);
   }
 
-  /** @param flags Flags that control the extractor's behavior. */
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
   public FragmentedMp4Extractor(@Flags int flags) {
     this(flags, /* timestampAdjuster= */ null);
   }

@@ -1476,19 +1476,25 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private final ExoTrackSelection.Factory trackSelectionFactory;
   private final AtomicReference<Parameters> parametersReference;
 
-  /** @deprecated Use {@link #DefaultTrackSelector(Context)} instead. */
+  /**
+   * @deprecated Use {@link #DefaultTrackSelector(Context)} instead.
+   */
   @Deprecated
   public DefaultTrackSelector() {
     this(Parameters.DEFAULT_WITHOUT_CONTEXT, new AdaptiveTrackSelection.Factory());
   }
 
-  /** @deprecated Use {@link #DefaultTrackSelector(Context, ExoTrackSelection.Factory)}. */
+  /**
+   * @deprecated Use {@link #DefaultTrackSelector(Context, ExoTrackSelection.Factory)}.
+   */
   @Deprecated
   public DefaultTrackSelector(ExoTrackSelection.Factory trackSelectionFactory) {
     this(Parameters.DEFAULT_WITHOUT_CONTEXT, trackSelectionFactory);
   }
 
-  /** @param context Any {@link Context}. */
+  /**
+   * @param context Any {@link Context}.
+   */
   public DefaultTrackSelector(Context context) {
     this(context, new AdaptiveTrackSelection.Factory());
   }

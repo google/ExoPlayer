@@ -48,7 +48,9 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
 
   private final Renderer renderer;
 
-  /** @param context A {@link Context}. */
+  /**
+   * @param context A {@link Context}.
+   */
   public VideoDecoderGLSurfaceView(Context context) {
     this(context, /* attrs= */ null);
   }
@@ -72,7 +74,9 @@ public final class VideoDecoderGLSurfaceView extends GLSurfaceView
     renderer.setOutputBuffer(outputBuffer);
   }
 
-  /** @deprecated This class implements {@link VideoDecoderOutputBufferRenderer} directly. */
+  /**
+   * @deprecated This class implements {@link VideoDecoderOutputBufferRenderer} directly.
+   */
   @Deprecated
   public VideoDecoderOutputBufferRenderer getVideoDecoderOutputBufferRenderer() {
     return this;

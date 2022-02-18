@@ -771,7 +771,9 @@ public final class Format implements Bundleable {
 
   // Video.
 
-  /** @deprecated Use {@link Format.Builder}. */
+  /**
+   * @deprecated Use {@link Format.Builder}.
+   */
   @Deprecated
   public static Format createVideoSampleFormat(
       @Nullable String id,
@@ -799,7 +801,9 @@ public final class Format implements Bundleable {
         .build();
   }
 
-  /** @deprecated Use {@link Format.Builder}. */
+  /**
+   * @deprecated Use {@link Format.Builder}.
+   */
   @Deprecated
   public static Format createVideoSampleFormat(
       @Nullable String id,
@@ -833,7 +837,9 @@ public final class Format implements Bundleable {
 
   // Audio.
 
-  /** @deprecated Use {@link Format.Builder}. */
+  /**
+   * @deprecated Use {@link Format.Builder}.
+   */
   @Deprecated
   public static Format createAudioSampleFormat(
       @Nullable String id,
@@ -863,7 +869,9 @@ public final class Format implements Bundleable {
         .build();
   }
 
-  /** @deprecated Use {@link Format.Builder}. */
+  /**
+   * @deprecated Use {@link Format.Builder}.
+   */
   @Deprecated
   public static Format createAudioSampleFormat(
       @Nullable String id,
@@ -897,7 +905,9 @@ public final class Format implements Bundleable {
 
   // Generic.
 
-  /** @deprecated Use {@link Format.Builder}. */
+  /**
+   * @deprecated Use {@link Format.Builder}.
+   */
   @Deprecated
   public static Format createContainerFormat(
       @Nullable String id,
@@ -923,7 +933,9 @@ public final class Format implements Bundleable {
         .build();
   }
 
-  /** @deprecated Use {@link Format.Builder}. */
+  /**
+   * @deprecated Use {@link Format.Builder}.
+   */
   @Deprecated
   public static Format createSampleFormat(@Nullable String id, @Nullable String sampleMimeType) {
     return new Builder().setId(id).setSampleMimeType(sampleMimeType).build();
@@ -981,25 +993,33 @@ public final class Format implements Bundleable {
     return new Builder(this);
   }
 
-  /** @deprecated Use {@link #buildUpon()} and {@link Builder#setMaxInputSize(int)}. */
+  /**
+   * @deprecated Use {@link #buildUpon()} and {@link Builder#setMaxInputSize(int)}.
+   */
   @Deprecated
   public Format copyWithMaxInputSize(int maxInputSize) {
     return buildUpon().setMaxInputSize(maxInputSize).build();
   }
 
-  /** @deprecated Use {@link #buildUpon()} and {@link Builder#setSubsampleOffsetUs(long)}. */
+  /**
+   * @deprecated Use {@link #buildUpon()} and {@link Builder#setSubsampleOffsetUs(long)}.
+   */
   @Deprecated
   public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
     return buildUpon().setSubsampleOffsetUs(subsampleOffsetUs).build();
   }
 
-  /** @deprecated Use {@link #buildUpon()} and {@link Builder#setLabel(String)} . */
+  /**
+   * @deprecated Use {@link #buildUpon()} and {@link Builder#setLabel(String)} .
+   */
   @Deprecated
   public Format copyWithLabel(@Nullable String label) {
     return buildUpon().setLabel(label).build();
   }
 
-  /** @deprecated Use {@link #withManifestFormatInfo(Format)}. */
+  /**
+   * @deprecated Use {@link #withManifestFormatInfo(Format)}.
+   */
   @Deprecated
   public Format copyWithManifestFormatInfo(Format manifestFormat) {
     return withManifestFormatInfo(manifestFormat);
@@ -1081,19 +1101,25 @@ public final class Format implements Bundleable {
     return buildUpon().setEncoderDelay(encoderDelay).setEncoderPadding(encoderPadding).build();
   }
 
-  /** @deprecated Use {@link #buildUpon()} and {@link Builder#setFrameRate(float)}. */
+  /**
+   * @deprecated Use {@link #buildUpon()} and {@link Builder#setFrameRate(float)}.
+   */
   @Deprecated
   public Format copyWithFrameRate(float frameRate) {
     return buildUpon().setFrameRate(frameRate).build();
   }
 
-  /** @deprecated Use {@link #buildUpon()} and {@link Builder#setDrmInitData(DrmInitData)}. */
+  /**
+   * @deprecated Use {@link #buildUpon()} and {@link Builder#setDrmInitData(DrmInitData)}.
+   */
   @Deprecated
   public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
     return buildUpon().setDrmInitData(drmInitData).build();
   }
 
-  /** @deprecated Use {@link #buildUpon()} and {@link Builder#setMetadata(Metadata)}. */
+  /**
+   * @deprecated Use {@link #buildUpon()} and {@link Builder#setMetadata(Metadata)}.
+   */
   @Deprecated
   public Format copyWithMetadata(@Nullable Metadata metadata) {
     return buildUpon().setMetadata(metadata).build();

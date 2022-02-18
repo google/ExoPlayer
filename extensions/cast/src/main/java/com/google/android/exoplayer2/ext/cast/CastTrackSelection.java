@@ -31,7 +31,9 @@ import com.google.android.exoplayer2.util.Assertions;
 
   private final TrackGroup trackGroup;
 
-  /** @param trackGroup The {@link TrackGroup} from which the first track will only be selected. */
+  /**
+   * @param trackGroup The {@link TrackGroup} from which the first track will only be selected.
+   */
   public CastTrackSelection(TrackGroup trackGroup) {
     this.trackGroup = trackGroup;
   }

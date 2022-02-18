@@ -96,7 +96,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
-  /** @deprecated Use {@link AdsLoader.Provider} instead. */
+  /**
+   * @deprecated Use {@link AdsLoader.Provider} instead.
+   */
   @Deprecated
   public interface AdsLoaderProvider extends AdsLoader.Provider {}
 

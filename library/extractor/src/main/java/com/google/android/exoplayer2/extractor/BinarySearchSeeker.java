@@ -532,7 +532,9 @@ public abstract class BinarySearchSeeker {
       return durationUs;
     }
 
-    /** @see SeekTimestampConverter#timeUsToTargetTime(long) */
+    /**
+     * @see SeekTimestampConverter#timeUsToTargetTime(long)
+     */
     public long timeUsToTargetTime(long timeUs) {
       return seekTimestampConverter.timeUsToTargetTime(timeUs);
     }
