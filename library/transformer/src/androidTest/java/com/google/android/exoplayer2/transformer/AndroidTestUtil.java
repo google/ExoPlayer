@@ -53,18 +53,20 @@ public final class AndroidTestUtil {
    * @param transformer The {@link Transformer} that performs the transformation.
    * @param uriString The uri (as a {@link String}) that will be transformed.
    * @param timeoutSeconds The transformer timeout. An exception is thrown if this is exceeded.
-   * @return The {@link TransformationResult}.
+   * @return The {@link TestTransformationResult}.
    * @throws Exception The cause of the transformation not completing.
    */
-  public static TransformationResult runTransformer(
+  public static TestTransformationResult runTransformer(
       Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
       throws Exception {
     JSONObject resultJson = new JSONObject();
     try {
-      TransformationResult transformationResult =
+      TestTransformationResult testTransformationResult =
           runTransformerInternal(context, testId, transformer, uriString, timeoutSeconds);
-      resultJson.put("transformationResult", getTransformationResultJson(transformationResult));
-      return transformationResult;
+      resultJson.put(
+          "transformationResult",
+          getTransformationResultJson(testTransformationResult.transformationResult));
+      return testTransformationResult;
     } catch (Exception e) {
       resultJson.put("exception", getExceptionJson(e));
       throw e;
@@ -73,7 +75,7 @@ public final class AndroidTestUtil {
     }
   }
 
-  private static TransformationResult runTransformerInternal(
+  private static TestTransformationResult runTransformerInternal(
       Context context, String testId, Transformer transformer, String uriString, int timeoutSeconds)
       throws Exception {
     AtomicReference<@NullableType TransformationException> transformationExceptionReference =
@@ -137,10 +139,13 @@ public final class AndroidTestUtil {
 
     // If both exceptions are null, the Transformation must have succeeded, and a
     // transformationResult will be available.
-    return checkNotNull(transformationResultReference.get())
-        .buildUpon()
-        .setFileSizeBytes(outputVideoFile.length())
-        .build();
+    TransformationResult transformationResult =
+        checkNotNull(transformationResultReference.get())
+            .buildUpon()
+            .setFileSizeBytes(outputVideoFile.length())
+            .build();
+
+    return new TestTransformationResult(transformationResult, outputVideoFile.getPath());
   }
 
   private static void writeTestSummaryToFile(Context context, String testId, JSONObject resultJson)
