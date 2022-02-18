@@ -30,13 +30,11 @@ import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests repeated transcoding operations (as a stress test and to help reproduce flakiness). */
 @RunWith(AndroidJUnit4.class)
-@Ignore("Internal - b/206917996")
 public final class RepeatedTranscodeTransformationTest {
   private static final int TRANSCODE_COUNT = 10;
 
@@ -44,14 +42,14 @@ public final class RepeatedTranscodeTransformationTest {
   public void repeatedTranscode_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Matrix transformationMatrix = new Matrix();
-    transformationMatrix.postTranslate((float) 0.1, (float) 0.1);
+    transformationMatrix.postTranslate(/* dx= */ 0.1f, /* dy= */ 0.1f);
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setVideoMimeType(MimeTypes.VIDEO_H265)
                     .setTransformationMatrix(transformationMatrix)
-                    .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
+                    // Video MIME type is H264.
+                    .setAudioMimeType(MimeTypes.AUDIO_AAC)
                     .build())
             .build();
 
@@ -63,7 +61,7 @@ public final class RepeatedTranscodeTransformationTest {
               context,
               /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
               transformer,
-              AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
+              AndroidTestUtil.REMOTE_MP4_10_SECONDS_H264_MP3_URI_STRING,
               /* timeoutSeconds= */ 120);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
@@ -78,13 +76,13 @@ public final class RepeatedTranscodeTransformationTest {
   public void repeatedTranscodeNoAudio_givesConsistentLengthOutput() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Matrix transformationMatrix = new Matrix();
-    transformationMatrix.postTranslate((float) 0.1, (float) 0.1);
+    transformationMatrix.postTranslate(/* dx= */ 0.1f, /* dy= */ 0.1f);
     Transformer transformer =
         new Transformer.Builder(context)
             .setRemoveAudio(true)
             .setTransformationRequest(
                 new TransformationRequest.Builder()
-                    .setVideoMimeType(MimeTypes.VIDEO_H265)
+                    // Video MIME type is H264.
                     .setTransformationMatrix(transformationMatrix)
                     .build())
             .build();
@@ -97,7 +95,7 @@ public final class RepeatedTranscodeTransformationTest {
               context,
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
               transformer,
-              AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
+              AndroidTestUtil.REMOTE_MP4_10_SECONDS_H264_MP3_URI_STRING,
               /* timeoutSeconds= */ 120);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
@@ -115,9 +113,7 @@ public final class RepeatedTranscodeTransformationTest {
         new Transformer.Builder(context)
             .setRemoveVideo(true)
             .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
-                    .build())
+                new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build())
             .build();
 
     Set<Long> differentOutputSizesBytes = new HashSet<>();
@@ -128,7 +124,7 @@ public final class RepeatedTranscodeTransformationTest {
               context,
               /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
               transformer,
-              AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
+              AndroidTestUtil.REMOTE_MP4_10_SECONDS_H264_MP3_URI_STRING,
               /* timeoutSeconds= */ 120);
       differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
