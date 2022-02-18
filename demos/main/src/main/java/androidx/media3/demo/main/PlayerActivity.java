@@ -260,7 +260,9 @@ public class PlayerActivity extends AppCompatActivity
     setContentView(R.layout.player_activity);
   }
 
-  /** @return Whether initialization was successful. */
+  /**
+   * @return Whether initialization was successful.
+   */
   protected boolean initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();

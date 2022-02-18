@@ -345,7 +345,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public final int cronetConnectionStatus;
 
-    /** @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(IOException cause, DataSpec dataSpec, int cronetConnectionStatus) {
       super(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
@@ -361,7 +363,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
-    /** @deprecated Use {@link #OpenException(String, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(String, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(String errorMessage, DataSpec dataSpec, int cronetConnectionStatus) {
       super(errorMessage, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);

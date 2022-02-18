@@ -301,7 +301,9 @@ public final class DashMediaSource extends BaseMediaSource {
    * if no value is defined in the {@link MediaItem} or the manifest.
    */
   public static final long DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS = 30_000;
-  /** @deprecated Use {@link #DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS} instead. */
+  /**
+   * @deprecated Use {@link #DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS} instead.
+   */
   @Deprecated public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30_000;
   /** The media id used by media items of dash media sources without a manifest URI. */
   public static final String DEFAULT_MEDIA_ID = "DashMediaSource";

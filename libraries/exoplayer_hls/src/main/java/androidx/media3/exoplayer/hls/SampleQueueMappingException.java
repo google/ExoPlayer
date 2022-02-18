@@ -25,7 +25,9 @@ import java.io.IOException;
 @UnstableApi
 public final class SampleQueueMappingException extends IOException {
 
-  /** @param mimeType The mime type of the track group whose mapping failed. */
+  /**
+   * @param mimeType The mime type of the track group whose mapping failed.
+   */
   public SampleQueueMappingException(@Nullable String mimeType) {
     super("Unable to bind a sample queue to TrackGroup with mime type " + mimeType + ".");
   }

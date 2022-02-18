@@ -108,7 +108,9 @@ public final class Transformer {
     private Clock clock;
     private Codec.EncoderFactory encoderFactory;
 
-    /** @deprecated Use {@link #Builder(Context)} instead. */
+    /**
+     * @deprecated Use {@link #Builder(Context)} instead.
+     */
     @Deprecated
     public Builder() {
       muxerFactory = new FrameworkMuxer.Factory();
@@ -154,7 +156,9 @@ public final class Transformer {
       this.clock = transformer.clock;
     }
 
-    /** @deprecated Use {@link #Builder(Context)} instead. */
+    /**
+     * @deprecated Use {@link #Builder(Context)} instead.
+     */
     @Deprecated
     public Builder setContext(Context context) {
       this.context = context.getApplicationContext();
@@ -427,7 +431,9 @@ public final class Transformer {
       onTransformationCompleted(inputMediaItem);
     }
 
-    /** @deprecated Use {@link #onTransformationError(MediaItem, TransformationException)}. */
+    /**
+     * @deprecated Use {@link #onTransformationError(MediaItem, TransformationException)}.
+     */
     @Deprecated
     default void onTransformationError(MediaItem inputMediaItem, Exception exception) {
       onTransformationError(inputMediaItem, (TransformationException) exception);

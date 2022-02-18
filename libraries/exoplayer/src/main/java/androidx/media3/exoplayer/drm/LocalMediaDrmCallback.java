@@ -32,7 +32,9 @@ public final class LocalMediaDrmCallback implements MediaDrmCallback {
 
   private final byte[] keyResponse;
 
-  /** @param keyResponse The fixed response for all key requests. */
+  /**
+   * @param keyResponse The fixed response for all key requests.
+   */
   public LocalMediaDrmCallback(byte[] keyResponse) {
     this.keyResponse = Assertions.checkNotNull(keyResponse);
   }

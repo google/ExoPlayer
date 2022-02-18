@@ -24,7 +24,9 @@ import androidx.media3.exoplayer.hls.playlist.HlsMultivariantPlaylist;
 @UnstableApi
 public final class HlsManifest {
 
-  /** @deprecated Use {@link #multivariantPlaylist} instead. */
+  /**
+   * @deprecated Use {@link #multivariantPlaylist} instead.
+   */
   @Deprecated
   @SuppressWarnings("deprecation") // Keeping deprecated field with deprecated class.
   public final HlsMasterPlaylist masterPlaylist;

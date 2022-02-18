@@ -173,13 +173,17 @@ public final class DownloadHelper {
     return capabilities;
   }
 
-  /** @deprecated Use {@link #forMediaItem(Context, MediaItem)} */
+  /**
+   * @deprecated Use {@link #forMediaItem(Context, MediaItem)}
+   */
   @Deprecated
   public static DownloadHelper forProgressive(Context context, Uri uri) {
     return forMediaItem(context, new MediaItem.Builder().setUri(uri).build());
   }
 
-  /** @deprecated Use {@link #forMediaItem(Context, MediaItem)} */
+  /**
+   * @deprecated Use {@link #forMediaItem(Context, MediaItem)}
+   */
   @Deprecated
   public static DownloadHelper forProgressive(Context context, Uri uri, @Nullable String cacheKey) {
     return forMediaItem(

@@ -160,43 +160,63 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface AudioComponent {
 
-    /** @deprecated Use {@link ExoPlayer#setAudioAttributes(AudioAttributes, boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setAudioAttributes(AudioAttributes, boolean)} instead.
+     */
     @Deprecated
     void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
 
-    /** @deprecated Use {@link Player#getAudioAttributes()} instead. */
+    /**
+     * @deprecated Use {@link Player#getAudioAttributes()} instead.
+     */
     @Deprecated
     AudioAttributes getAudioAttributes();
 
-    /** @deprecated Use {@link ExoPlayer#setAudioSessionId(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setAudioSessionId(int)} instead.
+     */
     @Deprecated
     void setAudioSessionId(int audioSessionId);
 
-    /** @deprecated Use {@link ExoPlayer#getAudioSessionId()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getAudioSessionId()} instead.
+     */
     @Deprecated
     int getAudioSessionId();
 
-    /** @deprecated Use {@link ExoPlayer#setAuxEffectInfo(AuxEffectInfo)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setAuxEffectInfo(AuxEffectInfo)} instead.
+     */
     @Deprecated
     void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
 
-    /** @deprecated Use {@link ExoPlayer#clearAuxEffectInfo()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#clearAuxEffectInfo()} instead.
+     */
     @Deprecated
     void clearAuxEffectInfo();
 
-    /** @deprecated Use {@link Player#setVolume(float)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVolume(float)} instead.
+     */
     @Deprecated
     void setVolume(float audioVolume);
 
-    /** @deprecated Use {@link Player#getVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#getVolume()} instead.
+     */
     @Deprecated
     float getVolume();
 
-    /** @deprecated Use {@link ExoPlayer#setSkipSilenceEnabled(boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setSkipSilenceEnabled(boolean)} instead.
+     */
     @Deprecated
     void setSkipSilenceEnabled(boolean skipSilenceEnabled);
 
-    /** @deprecated Use {@link ExoPlayer#getSkipSilenceEnabled()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getSkipSilenceEnabled()} instead.
+     */
     @Deprecated
     boolean getSkipSilenceEnabled();
   }
@@ -209,21 +229,29 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface VideoComponent {
 
-    /** @deprecated Use {@link ExoPlayer#setVideoScalingMode(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setVideoScalingMode(int)} instead.
+     */
     @Deprecated
     void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
 
-    /** @deprecated Use {@link ExoPlayer#getVideoScalingMode()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getVideoScalingMode()} instead.
+     */
     @Deprecated
     @C.VideoScalingMode
     int getVideoScalingMode();
 
-    /** @deprecated Use {@link ExoPlayer#setVideoChangeFrameRateStrategy(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setVideoChangeFrameRateStrategy(int)} instead.
+     */
     @Deprecated
     void setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy);
 
-    /** @deprecated Use {@link ExoPlayer#getVideoChangeFrameRateStrategy()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getVideoChangeFrameRateStrategy()} instead.
+     */
     @Deprecated
     @C.VideoChangeFrameRateStrategy
     int getVideoChangeFrameRateStrategy();
@@ -242,7 +270,9 @@ public interface ExoPlayer extends Player {
     @Deprecated
     void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
 
-    /** @deprecated Use {@link ExoPlayer#setCameraMotionListener(CameraMotionListener)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setCameraMotionListener(CameraMotionListener)} instead.
+     */
     @Deprecated
     void setCameraMotionListener(CameraMotionListener listener);
 
@@ -252,43 +282,63 @@ public interface ExoPlayer extends Player {
     @Deprecated
     void clearCameraMotionListener(CameraMotionListener listener);
 
-    /** @deprecated Use {@link Player#clearVideoSurface()} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurface()} instead.
+     */
     @Deprecated
     void clearVideoSurface();
 
-    /** @deprecated Use {@link Player#clearVideoSurface(Surface)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurface(Surface)} instead.
+     */
     @Deprecated
     void clearVideoSurface(@Nullable Surface surface);
 
-    /** @deprecated Use {@link Player#setVideoSurface(Surface)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoSurface(Surface)} instead.
+     */
     @Deprecated
     void setVideoSurface(@Nullable Surface surface);
 
-    /** @deprecated Use {@link Player#setVideoSurfaceHolder(SurfaceHolder)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoSurfaceHolder(SurfaceHolder)} instead.
+     */
     @Deprecated
     void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
-    /** @deprecated Use {@link Player#clearVideoSurfaceHolder(SurfaceHolder)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurfaceHolder(SurfaceHolder)} instead.
+     */
     @Deprecated
     void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
-    /** @deprecated Use {@link Player#setVideoSurfaceView(SurfaceView)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoSurfaceView(SurfaceView)} instead.
+     */
     @Deprecated
     void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
-    /** @deprecated Use {@link Player#clearVideoSurfaceView(SurfaceView)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurfaceView(SurfaceView)} instead.
+     */
     @Deprecated
     void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
-    /** @deprecated Use {@link Player#setVideoTextureView(TextureView)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoTextureView(TextureView)} instead.
+     */
     @Deprecated
     void setVideoTextureView(@Nullable TextureView textureView);
 
-    /** @deprecated Use {@link Player#clearVideoTextureView(TextureView)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoTextureView(TextureView)} instead.
+     */
     @Deprecated
     void clearVideoTextureView(@Nullable TextureView textureView);
 
-    /** @deprecated Use {@link Player#getVideoSize()} instead. */
+    /**
+     * @deprecated Use {@link Player#getVideoSize()} instead.
+     */
     @Deprecated
     VideoSize getVideoSize();
   }
@@ -301,7 +351,9 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface TextComponent {
 
-    /** @deprecated Use {@link Player#getCurrentCues()} instead. */
+    /**
+     * @deprecated Use {@link Player#getCurrentCues()} instead.
+     */
     @Deprecated
     List<Cue> getCurrentCues();
   }
@@ -314,31 +366,45 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface DeviceComponent {
 
-    /** @deprecated Use {@link Player#getDeviceInfo()} instead. */
+    /**
+     * @deprecated Use {@link Player#getDeviceInfo()} instead.
+     */
     @Deprecated
     DeviceInfo getDeviceInfo();
 
-    /** @deprecated Use {@link Player#getDeviceVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#getDeviceVolume()} instead.
+     */
     @Deprecated
     int getDeviceVolume();
 
-    /** @deprecated Use {@link Player#isDeviceMuted()} instead. */
+    /**
+     * @deprecated Use {@link Player#isDeviceMuted()} instead.
+     */
     @Deprecated
     boolean isDeviceMuted();
 
-    /** @deprecated Use {@link Player#setDeviceVolume(int)} instead. */
+    /**
+     * @deprecated Use {@link Player#setDeviceVolume(int)} instead.
+     */
     @Deprecated
     void setDeviceVolume(int volume);
 
-    /** @deprecated Use {@link Player#increaseDeviceVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#increaseDeviceVolume()} instead.
+     */
     @Deprecated
     void increaseDeviceVolume();
 
-    /** @deprecated Use {@link Player#decreaseDeviceVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#decreaseDeviceVolume()} instead.
+     */
     @Deprecated
     void decreaseDeviceVolume();
 
-    /** @deprecated Use {@link Player#setDeviceMuted(boolean)} instead. */
+    /**
+     * @deprecated Use {@link Player#setDeviceMuted(boolean)} instead.
+     */
     @Deprecated
     void setDeviceMuted(boolean muted);
   }
@@ -1158,12 +1224,16 @@ public interface ExoPlayer extends Player {
   @UnstableApi
   Clock getClock();
 
-  /** @deprecated Use {@link #prepare()} instead. */
+  /**
+   * @deprecated Use {@link #prepare()} instead.
+   */
   @UnstableApi
   @Deprecated
   void retry();
 
-  /** @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead. */
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead.
+   */
   @UnstableApi
   @Deprecated
   void prepare(MediaSource mediaSource);
@@ -1522,7 +1592,9 @@ public interface ExoPlayer extends Player {
    */
   void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy);
 
-  /** @deprecated Use {@link #setWakeMode(int)} instead. */
+  /**
+   * @deprecated Use {@link #setWakeMode(int)} instead.
+   */
   @UnstableApi
   @Deprecated
   void setHandleWakeLock(boolean handleWakeLock);

@@ -20,7 +20,9 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource.Factory;
 
-/** @deprecated Use {@link DefaultDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link DefaultDataSource.Factory} instead.
+ */
 @UnstableApi
 @Deprecated
 public final class DefaultDataSourceFactory implements Factory {

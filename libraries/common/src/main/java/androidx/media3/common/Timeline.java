@@ -169,7 +169,9 @@ public abstract class Timeline implements Bundleable {
      */
     public Object uid;
 
-    /** @deprecated Use {@link #mediaItem} instead. */
+    /**
+     * @deprecated Use {@link #mediaItem} instead.
+     */
     @UnstableApi @Deprecated @Nullable public Object tag;
 
     /** The {@link MediaItem} associated to the window. Not necessarily unique. */
@@ -212,7 +214,9 @@ public abstract class Timeline implements Bundleable {
     /** Whether this window may change when the timeline is updated. */
     public boolean isDynamic;
 
-    /** @deprecated Use {@link #isLive()} instead. */
+    /**
+     * @deprecated Use {@link #isLive()} instead.
+     */
     @UnstableApi @Deprecated public boolean isLive;
 
     /**
@@ -1178,7 +1182,9 @@ public abstract class Timeline implements Bundleable {
         == C.INDEX_UNSET;
   }
 
-  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead. */
+  /**
+   * @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead.
+   */
   @UnstableApi
   @Deprecated
   @InlineMe(replacement = "this.getPeriodPositionUs(window, period, windowIndex, windowPositionUs)")
@@ -1186,7 +1192,9 @@ public abstract class Timeline implements Bundleable {
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return getPeriodPositionUs(window, period, windowIndex, windowPositionUs);
   }
-  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead. */
+  /**
+   * @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead.
+   */
   @UnstableApi
   @Deprecated
   @Nullable

@@ -23,7 +23,9 @@ import androidx.media3.datasource.TransferListener;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 
-/** @deprecated Use {@link OkHttpDataSource.Factory} instead. */
+/**
+ * @deprecated Use {@link OkHttpDataSource.Factory} instead.
+ */
 @Deprecated
 @UnstableApi
 public final class OkHttpDataSourceFactory extends BaseFactory {

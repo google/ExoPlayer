@@ -669,7 +669,9 @@ public interface AnalyticsListener {
    */
   default void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
-  /** @deprecated Use {@link #onIsLoadingChanged(EventTime, boolean)} instead. */
+  /**
+   * @deprecated Use {@link #onIsLoadingChanged(EventTime, boolean)} instead.
+   */
   @Deprecated
   default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
@@ -840,7 +842,9 @@ public interface AnalyticsListener {
    */
   default void onCues(EventTime eventTime, List<Cue> cues) {}
 
-  /** @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead. */
+  /**
+   * @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead.
+   */
   @Deprecated
   default void onDecoderEnabled(
       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
@@ -860,7 +864,9 @@ public interface AnalyticsListener {
   @Deprecated
   default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
 
-  /** @deprecated Use {@link #onAudioDisabled} and {@link #onVideoDisabled} instead. */
+  /**
+   * @deprecated Use {@link #onAudioDisabled} and {@link #onVideoDisabled} instead.
+   */
   @Deprecated
   default void onDecoderDisabled(
       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
@@ -889,7 +895,9 @@ public interface AnalyticsListener {
       long initializedTimestampMs,
       long initializationDurationMs) {}
 
-  /** @deprecated Use {@link #onAudioDecoderInitialized(EventTime, String, long, long)}. */
+  /**
+   * @deprecated Use {@link #onAudioDecoderInitialized(EventTime, String, long, long)}.
+   */
   @Deprecated
   default void onAudioDecoderInitialized(
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
@@ -1058,7 +1066,9 @@ public interface AnalyticsListener {
       long initializedTimestampMs,
       long initializationDurationMs) {}
 
-  /** @deprecated Use {@link #onVideoDecoderInitialized(EventTime, String, long, long)}. */
+  /**
+   * @deprecated Use {@link #onVideoDecoderInitialized(EventTime, String, long, long)}.
+   */
   @Deprecated
   default void onVideoDecoderInitialized(
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
@@ -1164,7 +1174,9 @@ public interface AnalyticsListener {
    */
   default void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {}
 
-  /** @deprecated Implement {@link #onVideoSizeChanged(EventTime eventTime, VideoSize)} instead. */
+  /**
+   * @deprecated Implement {@link #onVideoSizeChanged(EventTime eventTime, VideoSize)} instead.
+   */
   @Deprecated
   default void onVideoSizeChanged(
       EventTime eventTime,
@@ -1184,7 +1196,9 @@ public interface AnalyticsListener {
    */
   default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
 
-  /** @deprecated Implement {@link #onDrmSessionAcquired(EventTime, int)} instead. */
+  /**
+   * @deprecated Implement {@link #onDrmSessionAcquired(EventTime, int)} instead.
+   */
   @Deprecated
   default void onDrmSessionAcquired(EventTime eventTime) {}
 

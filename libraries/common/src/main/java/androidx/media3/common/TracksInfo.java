@@ -326,7 +326,9 @@ public final class TracksInfo implements Bundleable {
     return false;
   }
 
-  /** @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int)}. */
+  /**
+   * @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int)}.
+   */
   @Deprecated
   @UnstableApi
   @SuppressWarnings("deprecation")
@@ -334,7 +336,9 @@ public final class TracksInfo implements Bundleable {
     return isTypeSupportedOrEmpty(trackType, /* allowExceedsCapabilities= */ false);
   }
 
-  /** @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int, boolean)}. */
+  /**
+   * @deprecated Use {@link #containsType(int)} and {@link #isTypeSupported(int, boolean)}.
+   */
   @Deprecated
   @UnstableApi
   public boolean isTypeSupportedOrEmpty(
