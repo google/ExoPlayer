@@ -43,15 +43,6 @@
     *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
     *   Make `SimpleExoPlayer.renderers` private. Renderers can be accessed via
         `ExoPlayer.getRenderer`.
-    *   Enable support for Android platform diagnostics via
-        `MediaMetricsManager`. ExoPlayer will forward playback events and
-        performance data to the platform, which helps to provide system
-        performance and debugging information on the device. This data may also
-        be collected by Google
-        [if sharing usage and diagnostics data is enabled](https://support.google.com/accounts/answer/6078260)
-        by the user of the device. Apps can opt-out of contributing to platform
-        diagnostics for ExoPlayer with
-        `ExoPlayer.Builder.setUsePlatformDiagnostics(false)`.
     *   Updated some `AnalyticsListener.EventFlags` constant values to match
         values in `Player.EventFlags`.
     *   Split `AnalyticsCollector` into an interface and default implementation
