@@ -81,9 +81,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
       } else {
         throw TransformationException.createForCodec(
             new IllegalArgumentException("The requested output format is not supported."),
-            format,
             /* isVideo= */ false,
             /* isDecoder= */ false,
+            format,
             /* mediaCodecName= */ null,
             TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
       }
@@ -121,9 +121,9 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     if (encoderAndClosestFormatSupport == null) {
       throw TransformationException.createForCodec(
           new IllegalArgumentException("The requested output format is not supported."),
-          format,
           /* isVideo= */ true,
           /* isDecoder= */ false,
+          format,
           /* mediaCodecName= */ null,
           TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED);
     }

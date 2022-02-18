@@ -45,6 +45,9 @@ public final class DefaultCodec implements Codec {
   private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
 
   private final BufferInfo outputBufferInfo;
+  /** The {@link MediaFormat} used to configure the underlying {@link MediaCodec}. */
+  private final MediaFormat configurationMediaFormat;
+
   private final Format configurationFormat;
   private final MediaCodec mediaCodec;
   @Nullable private final Surface inputSurface;
@@ -63,7 +66,8 @@ public final class DefaultCodec implements Codec {
    * @param configurationFormat The {@link Format} to configure the {@code DefaultCodec}. See {@link
    *     #getConfigurationFormat()}. The {@link Format#sampleMimeType sampleMimeType} must not be
    *     {@code null}.
-   * @param mediaFormat The {@link MediaFormat} to configure the underlying {@link MediaCodec}.
+   * @param configurationMediaFormat The {@link MediaFormat} to configure the underlying {@link
+   *     MediaCodec}.
    * @param mediaCodecName The name of a specific {@link MediaCodec} to instantiate. If {@code
    *     null}, {@code DefaultCodec} uses {@link Format#sampleMimeType
    *     configurationFormat.sampleMimeType} to create the underlying {@link MediaCodec codec}.
@@ -72,12 +76,13 @@ public final class DefaultCodec implements Codec {
    */
   public DefaultCodec(
       Format configurationFormat,
-      MediaFormat mediaFormat,
+      MediaFormat configurationMediaFormat,
       @Nullable String mediaCodecName,
       boolean isDecoder,
       @Nullable Surface outputSurface)
       throws TransformationException {
     this.configurationFormat = configurationFormat;
+    this.configurationMediaFormat = configurationMediaFormat;
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
@@ -93,7 +98,7 @@ public final class DefaultCodec implements Codec {
               : isDecoder
                   ? MediaCodec.createDecoderByType(sampleMimeType)
                   : MediaCodec.createEncoderByType(sampleMimeType);
-      configureCodec(mediaCodec, mediaFormat, isDecoder, outputSurface);
+      configureCodec(mediaCodec, configurationMediaFormat, isDecoder, outputSurface);
       if (isVideo && !isDecoder) {
         inputSurface = mediaCodec.createInputSurface();
       }
@@ -108,7 +113,7 @@ public final class DefaultCodec implements Codec {
       }
 
       throw createInitializationTransformationException(
-          e, mediaFormat, configurationFormat, isVideo, isDecoder, mediaCodecName);
+          e, configurationMediaFormat, isVideo, isDecoder, mediaCodecName);
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
@@ -294,9 +299,9 @@ public final class DefaultCodec implements Codec {
     boolean isVideo = MimeTypes.isVideo(configurationFormat.sampleMimeType);
     return TransformationException.createForCodec(
         cause,
-        configurationFormat,
         isVideo,
         isDecoder,
+        configurationMediaFormat,
         mediaCodec.getName(),
         isDecoder
             ? TransformationException.ERROR_CODE_DECODING_FAILED
@@ -306,17 +311,15 @@ public final class DefaultCodec implements Codec {
   private static TransformationException createInitializationTransformationException(
       Exception cause,
       MediaFormat mediaFormat,
-      Format format,
       boolean isVideo,
       boolean isDecoder,
       @Nullable String mediaCodecName) {
     if (cause instanceof IOException || cause instanceof MediaCodec.CodecException) {
       return TransformationException.createForCodec(
           cause,
-          mediaFormat,
-          format,
           isVideo,
           isDecoder,
+          mediaFormat,
           mediaCodecName,
           isDecoder
               ? TransformationException.ERROR_CODE_DECODER_INIT_FAILED
@@ -325,10 +328,9 @@ public final class DefaultCodec implements Codec {
     if (cause instanceof IllegalArgumentException) {
       return TransformationException.createForCodec(
           cause,
-          mediaFormat,
-          format,
           isVideo,
           isDecoder,
+          mediaFormat,
           mediaCodecName,
           isDecoder
               ? TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
