@@ -15,16 +15,16 @@
  */
 package androidx.media3.transformer.mh;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.runTransformer;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.graphics.Matrix;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.transformer.AndroidTestUtil;
+import androidx.media3.transformer.TestTransformationResult;
 import androidx.media3.transformer.TransformationRequest;
-import androidx.media3.transformer.TransformationResult;
 import androidx.media3.transformer.Transformer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -58,14 +58,14 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TransformationResult result =
+      TestTransformationResult testResult =
           runTransformer(
               context,
               /* testId= */ "repeatedTranscode_givesConsistentLengthOutput_" + i,
               transformer,
               AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
               /* timeoutSeconds= */ 120);
-      differentOutputSizesBytes.add(Assertions.checkNotNull(result.fileSizeBytes));
+      differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
     assertWithMessage(
@@ -92,14 +92,14 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TransformationResult result =
+      TestTransformationResult testResult =
           runTransformer(
               context,
               /* testId= */ "repeatedTranscodeNoAudio_givesConsistentLengthOutput_" + i,
               transformer,
               AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
               /* timeoutSeconds= */ 120);
-      differentOutputSizesBytes.add(Assertions.checkNotNull(result.fileSizeBytes));
+      differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
     assertWithMessage(
@@ -123,14 +123,14 @@ public final class RepeatedTranscodeTransformationTest {
     Set<Long> differentOutputSizesBytes = new HashSet<>();
     for (int i = 0; i < TRANSCODE_COUNT; i++) {
       // Use a long video in case an error occurs a while after the start of the video.
-      TransformationResult result =
+      TestTransformationResult testResult =
           runTransformer(
               context,
               /* testId= */ "repeatedTranscodeNoVideo_givesConsistentLengthOutput_" + i,
               transformer,
               AndroidTestUtil.REMOTE_MP4_10_SECONDS_URI_STRING,
               /* timeoutSeconds= */ 120);
-      differentOutputSizesBytes.add(Assertions.checkNotNull(result.fileSizeBytes));
+      differentOutputSizesBytes.add(checkNotNull(testResult.transformationResult.fileSizeBytes));
     }
 
     assertWithMessage(
