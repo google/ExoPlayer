@@ -49,8 +49,6 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.TrackGroupArray;
-import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.common.VideoSize;
@@ -1679,20 +1677,6 @@ public class MediaController implements Player {
   public MediaMetadata getMediaMetadata() {
     verifyApplicationThread();
     return isConnected() ? impl.getMediaMetadata() : MediaMetadata.EMPTY;
-  }
-
-  /** Returns {@link TrackGroupArray#EMPTY}. */
-  @UnstableApi
-  @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    return TrackGroupArray.EMPTY;
-  }
-
-  /** Returns an empty {@link TrackSelectionArray}. */
-  @UnstableApi
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    return new TrackSelectionArray();
   }
 
   @Override

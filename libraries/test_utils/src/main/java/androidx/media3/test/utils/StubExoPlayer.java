@@ -21,6 +21,8 @@ import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.PriorityTaskManager;
+import androidx.media3.common.TrackGroupArray;
+import androidx.media3.common.TrackSelectionArray;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DecoderCounters;
@@ -291,6 +293,16 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
   @Override
   @Nullable
   public TrackSelector getTrackSelector() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackGroupArray getCurrentTrackGroups() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
     throw new UnsupportedOperationException();
   }
 

@@ -442,22 +442,6 @@ public class ForwardingPlayer implements Player {
     player.release();
   }
 
-  /** Calls {@link Player#getCurrentTrackGroups()} on the delegate and returns the result. */
-  @SuppressWarnings("deprecation") // Forwarding to deprecated method
-  @Deprecated
-  @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    return player.getCurrentTrackGroups();
-  }
-
-  /** Calls {@link Player#getCurrentTrackSelections()} on the delegate and returns the result. */
-  @SuppressWarnings("deprecation") // Forwarding to deprecated method
-  @Deprecated
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    return player.getCurrentTrackSelections();
-  }
-
   /** Calls {@link Player#getCurrentTracksInfo()} on the delegate and returns the result. */
   @Override
   public TracksInfo getCurrentTracksInfo() {
@@ -844,12 +828,6 @@ public class ForwardingPlayer implements Player {
     public void onMediaItemTransition(
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
       listener.onMediaItemTransition(mediaItem, reason);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      listener.onTracksChanged(trackGroups, trackSelections);
     }
 
     @Override
