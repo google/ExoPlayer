@@ -44,9 +44,11 @@ import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -1142,6 +1144,25 @@ public interface ExoPlayer extends Player {
    */
   @Nullable
   TrackSelector getTrackSelector();
+
+  /**
+   * Returns the available track groups.
+   *
+   * @see Listener#onTracksInfoChanged(TracksInfo)
+   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   */
+  @Deprecated
+  TrackGroupArray getCurrentTrackGroups();
+
+  /**
+   * Returns the current track selections for each renderer, which may include {@code null} elements
+   * if some renderers do not have any selected tracks.
+   *
+   * @see Listener#onTracksInfoChanged(TracksInfo)
+   * @deprecated Use {@link #getCurrentTracksInfo()}.
+   */
+  @Deprecated
+  TrackSelectionArray getCurrentTrackSelections();
 
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();

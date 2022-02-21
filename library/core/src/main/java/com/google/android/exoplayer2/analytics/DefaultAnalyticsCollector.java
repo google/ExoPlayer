@@ -47,9 +47,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -480,13 +478,6 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         eventTime,
         AnalyticsListener.EVENT_MEDIA_ITEM_TRANSITION,
         listener -> listener.onMediaItemTransition(eventTime, mediaItem, reason));
-  }
-
-  @SuppressWarnings("deprecation") // Implementing deprecated method.
-  @Override
-  public final void onTracksChanged(
-      TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    // Do nothing. Handled by non-deprecated onTracksInfoChanged.
   }
 
   @Override

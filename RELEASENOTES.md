@@ -200,6 +200,13 @@
         `DefaultRenderersFactory#setAllowedVideoJoiningTimeMs` instead.
     *   Remove all public `CronetDataSource` constructors. Use
         `CronetDataSource.Factory` instead.
+    *   Remove `Player.Listener.onTracksChanged`. Use
+        `Player.Listener.onTracksInfoChanged` instead.
+    *   Remove `Player.getCurrentTrackGroups` and
+        `Player.getCurrentTrackSelections`. Use `Player.getCurrentTracksInfo`
+        instead. You can also continue to use `ExoPlayer.getCurrentTrackGroups`
+        and `ExoPlayer.getCurrentTrackSelections`, although these methods remain
+        deprecated.
 *   Change the following `IntDefs` to `@Target(TYPE_USE)` only. This may break
     the compilation of usages in Kotlin, which can be fixed by moving the
     annotation to annotate the type (`Int`).

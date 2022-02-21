@@ -23,9 +23,7 @@ import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.video.VideoSize;
 import java.util.List;
@@ -446,22 +444,6 @@ public class ForwardingPlayer implements Player {
     player.release();
   }
 
-  /** Calls {@link Player#getCurrentTrackGroups()} on the delegate and returns the result. */
-  @SuppressWarnings("deprecation") // Forwarding to deprecated method
-  @Deprecated
-  @Override
-  public TrackGroupArray getCurrentTrackGroups() {
-    return player.getCurrentTrackGroups();
-  }
-
-  /** Calls {@link Player#getCurrentTrackSelections()} on the delegate and returns the result. */
-  @SuppressWarnings("deprecation") // Forwarding to deprecated method
-  @Deprecated
-  @Override
-  public TrackSelectionArray getCurrentTrackSelections() {
-    return player.getCurrentTrackSelections();
-  }
-
   /** Calls {@link Player#getCurrentTracksInfo()} on the delegate and returns the result. */
   @Override
   public TracksInfo getCurrentTracksInfo() {
@@ -848,12 +830,6 @@ public class ForwardingPlayer implements Player {
     public void onMediaItemTransition(
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
       listener.onMediaItemTransition(mediaItem, reason);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      listener.onTracksChanged(trackGroups, trackSelections);
     }
 
     @Override

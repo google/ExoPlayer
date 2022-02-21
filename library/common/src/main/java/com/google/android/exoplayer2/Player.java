@@ -33,10 +33,8 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.BundleableUtil;
 import com.google.android.exoplayer2.util.FlagSet;
@@ -669,23 +667,6 @@ public interface Player {
      */
     default void onMediaItemTransition(
         @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
-
-    /**
-     * Called when the available or selected tracks change.
-     *
-     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
-     * other events that happen in the same {@link Looper} message queue iteration.
-     *
-     * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The selected tracks. Never null, but may contain null elements. A
-     *     concrete implementation may include null elements if it has a fixed number of renderer
-     *     components, wishes to report a TrackSelection for each of them, and has one or more
-     *     renderer components that is not assigned any selected tracks.
-     * @deprecated Use {@link #onTracksInfoChanged(TracksInfo)} instead.
-     */
-    @Deprecated
-    default void onTracksChanged(
-        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
     /**
      * Called when the available or selected tracks change.
@@ -2088,31 +2069,9 @@ public interface Player {
   void release();
 
   /**
-   * Returns the available track groups.
+   * Returns information about the current tracks.
    *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
-   */
-  @Deprecated
-  TrackGroupArray getCurrentTrackGroups();
-
-  /**
-   * Returns the current track selections.
-   *
-   * <p>A concrete implementation may include null elements if it has a fixed number of renderer
-   * components, wishes to report a TrackSelection for each of them, and has one or more renderer
-   * components that is not assigned any selected tracks.
-   *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
-   * @deprecated Use {@link #getCurrentTracksInfo()}.
-   */
-  @Deprecated
-  TrackSelectionArray getCurrentTrackSelections();
-
-  /**
-   * Returns the available tracks, as well as the tracks' support, type, and selection status.
-   *
-   * @see Listener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   * @see Listener#onTracksInfoChanged(TracksInfo)
    */
   TracksInfo getCurrentTracksInfo();
 

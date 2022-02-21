@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
@@ -289,6 +291,16 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
   @Override
   @Nullable
   public TrackSelector getTrackSelector() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackGroupArray getCurrentTrackGroups() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
     throw new UnsupportedOperationException();
   }
 

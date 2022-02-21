@@ -1880,11 +1880,6 @@ import java.util.concurrent.TimeoutException;
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
-      TrackSelectionArray newSelection =
-          new TrackSelectionArray(newPlaybackInfo.trackSelectorResult.selections);
-      listeners.queueEvent(
-          Player.EVENT_TRACKS_CHANGED,
-          listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksInfoChanged(newPlaybackInfo.trackSelectorResult.tracksInfo));
