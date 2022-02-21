@@ -88,7 +88,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Parse VOP Type and get the buffer flags
     int limit = data.bytesLeft();
     trackOutput.sampleData(data, limit);
-    if (sampleLength == 0) bufferFlags = getBufferFlagsFromVop(data);
+    if (sampleLength == 0) {
+      bufferFlags = getBufferFlagsFromVop(data);
+    }
     sampleLength += limit;
 
     // Marker (M) bit: The marker bit is set to 1 to indicate the last RTP
@@ -122,7 +124,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @C.BufferFlags
   private static int getBufferFlagsFromVop(ParsableByteArray data) {
-    int flags = 0;
     // search for VOP_START_CODE (00 00 01 B6)
     byte[] inputData = data.getData();
     byte[] startCode = new byte[] {0x0, 0x0, 0x1, (byte) 0xB6};
@@ -130,9 +131,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (vopStartCodePos != -1) {
       data.setPosition(vopStartCodePos + 4);
       int vopType = data.peekUnsignedByte() >> 6;
-      flags = vopType == I_VOP ? C.BUFFER_FLAG_KEY_FRAME : 0;
+      return (vopType == I_VOP ? C.BUFFER_FLAG_KEY_FRAME : 0);
     }
-    return flags;
+    return 0;
   }
 
   private static long toSampleUs(

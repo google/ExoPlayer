@@ -56,7 +56,7 @@ import com.google.common.collect.ImmutableMap;
   /** Prefix for the RFC6381 codecs string for AVC formats. */
   private static final String H264_CODECS_PREFIX = "avc1.";
   /** Prefix for the RFC6416 codecs string for MPEG4V-ES formats. */
-  private static final String MPEG4_CODECS_PREFIX = "mp4v";
+  private static final String MPEG4_CODECS_PREFIX = "mp4v.";
 
   private static final String GENERIC_CONTROL_ATTR = "*";
 
@@ -181,12 +181,14 @@ import com.google.common.collect.ImmutableMap;
       Format.Builder formatBuilder, ImmutableMap<String, String> fmtpAttributes) {
     @Nullable String configInput = fmtpAttributes.get(PARAMETER_MP4V_CONFIG);
     if (configInput != null) {
-      byte[] csd = Util.getBytesFromHexString(configInput);
-      formatBuilder.setInitializationData(ImmutableList.of(csd));
+      byte[] configBuffer = Util.getBytesFromHexString(configInput);
+      formatBuilder.setInitializationData(ImmutableList.of(configBuffer));
       Pair<Integer, Integer> resolution =
-          CodecSpecificDataUtil.getVideoResolutionFromMpeg4VideoConfig(csd);
-      formatBuilder.setWidth(resolution.first);
-      formatBuilder.setHeight(resolution.second);
+          CodecSpecificDataUtil.getVideoResolutionFromMpeg4VideoConfig(configBuffer);
+      formatBuilder.setWidth(resolution.first).setHeight(resolution.second);
+    } else {
+      // set the default width and height
+      formatBuilder.setWidth(352).setHeight(288);
     }
     @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
     formatBuilder.setCodecs(MPEG4_CODECS_PREFIX + (profileLevel == null ? "1" : profileLevel));
