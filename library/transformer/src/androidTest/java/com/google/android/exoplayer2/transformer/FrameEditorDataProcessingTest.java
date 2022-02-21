@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorDataProcessingTest {
 
-  private static final String TAG = "FrameEditorDataProcessingTest";
+  private static final String TAG = "FrameEditorDataTest";
 
   // Input MP4 file to transform.
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
