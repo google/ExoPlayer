@@ -42,7 +42,7 @@ public final class TtmlStyleTest {
   private static final String FONT_FAMILY = "serif";
   @ColorInt private static final int FONT_COLOR = Color.WHITE;
   private static final float FONT_SIZE = 12.5f;
-  @TtmlStyle.FontSizeUnit private static final int FONT_SIZE_UNIT = TtmlStyle.FONT_SIZE_UNIT_EM;
+  private static final @TtmlStyle.FontSizeUnit int FONT_SIZE_UNIT = TtmlStyle.FONT_SIZE_UNIT_EM;
   @ColorInt private static final int BACKGROUND_COLOR = Color.BLACK;
   private static final int RUBY_TYPE = TtmlStyle.RUBY_TYPE_TEXT;
   private static final int RUBY_POSITION = TextAnnotation.POSITION_AFTER;

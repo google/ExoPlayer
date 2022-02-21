@@ -29,7 +29,14 @@ public final class OpusLibrary {
     MediaLibraryInfo.registerModule("media3.decoder.opus");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("opusV2JNI");
+  private static final LibraryLoader LOADER =
+      new LibraryLoader("opusV2JNI") {
+        @Override
+        protected void loadLibrary(String name) {
+          System.loadLibrary(name);
+        }
+      };
+
   private static @C.CryptoType int cryptoType = C.CRYPTO_TYPE_UNSUPPORTED;
 
   private OpusLibrary() {}

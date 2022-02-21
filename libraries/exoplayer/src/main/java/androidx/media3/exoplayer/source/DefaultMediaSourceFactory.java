@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import android.content.Context;
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.media3.common.AdViewProvider;
 import androidx.media3.common.C;
@@ -96,7 +97,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
-  /** @deprecated Use {@link AdsLoader.Provider} instead. */
+  /**
+   * @deprecated Use {@link AdsLoader.Provider} instead.
+   */
   @UnstableApi
   @Deprecated
   public interface AdsLoaderProvider extends AdsLoader.Provider {}
@@ -106,7 +109,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private final DataSource.Factory dataSourceFactory;
   private final DelegateFactoryLoader delegateFactoryLoader;
 
-  @Nullable private final MediaSource.Factory serverSideDaiMediaSourceFactory;
+  @Nullable private MediaSource.Factory serverSideAdInsertionMediaSourceFactory;
   @Nullable private AdsLoader.Provider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -135,10 +138,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   @UnstableApi
   public DefaultMediaSourceFactory(Context context, ExtractorsFactory extractorsFactory) {
-    this(
-        new DefaultDataSource.Factory(context),
-        extractorsFactory,
-        /* serverSideDaiMediaSourceFactory= */ null);
+    this(new DefaultDataSource.Factory(context), extractorsFactory);
   }
 
   /**
@@ -149,10 +149,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   @UnstableApi
   public DefaultMediaSourceFactory(DataSource.Factory dataSourceFactory) {
-    this(
-        dataSourceFactory,
-        new DefaultExtractorsFactory(),
-        /* serverSideDaiMediaSourceFactory= */ null);
+    this(dataSourceFactory, new DefaultExtractorsFactory());
   }
 
   /**
@@ -162,18 +159,11 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     for requesting media data.
    * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
    *     its container.
-   * @param serverSideDaiMediaSourceFactory A {@link MediaSource.Factory} for creating server side
-   *     inserted ad media sources.
    */
   @UnstableApi
   public DefaultMediaSourceFactory(
-      DataSource.Factory dataSourceFactory,
-      ExtractorsFactory extractorsFactory,
-      @Nullable MediaSource.Factory serverSideDaiMediaSourceFactory) {
+      DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    // Temporary until factory registration is agreed upon.
-    this.serverSideDaiMediaSourceFactory = serverSideDaiMediaSourceFactory;
-
     delegateFactoryLoader = new DelegateFactoryLoader(dataSourceFactory, extractorsFactory);
     liveTargetOffsetMs = C.TIME_UNSET;
     liveMinOffsetMs = C.TIME_UNSET;
@@ -221,6 +211,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public DefaultMediaSourceFactory setAdViewProvider(@Nullable AdViewProvider adViewProvider) {
     this.adViewProvider = adViewProvider;
+    return this;
+  }
+
+  /**
+   * Sets the {@link MediaSource.Factory} used to handle {@link MediaItem} instances containing a
+   * {@link Uri} identified as resolving to content with server side ad insertion (SSAI).
+   *
+   * <p>SSAI URIs are those with a {@link Uri#getScheme() scheme} of {@link C#SSAI_SCHEME}.
+   *
+   * @param serverSideAdInsertionMediaSourceFactory The {@link MediaSource.Factory} for SSAI
+   *     content, or {@code null} to remove a previously set {@link MediaSource.Factory}.
+   * @return This factory, for convenience.
+   */
+  @UnstableApi
+  public DefaultMediaSourceFactory setServerSideAdInsertionMediaSourceFactory(
+      @Nullable MediaSource.Factory serverSideAdInsertionMediaSourceFactory) {
+    this.serverSideAdInsertionMediaSourceFactory = serverSideAdInsertionMediaSourceFactory;
     return this;
   }
 
@@ -317,8 +324,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public MediaSource createMediaSource(MediaItem mediaItem) {
     Assertions.checkNotNull(mediaItem.localConfiguration);
     @Nullable String scheme = mediaItem.localConfiguration.uri.getScheme();
-    if (scheme != null && scheme.equals("imadai")) {
-      return checkNotNull(serverSideDaiMediaSourceFactory).createMediaSource(mediaItem);
+    if (scheme != null && scheme.equals(C.SSAI_SCHEME)) {
+      return checkNotNull(serverSideAdInsertionMediaSourceFactory).createMediaSource(mediaItem);
     }
     @C.ContentType
     int type =
@@ -380,15 +387,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                   };
           mediaSources[i + 1] =
               new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
+                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
                   .createMediaSource(
                       MediaItem.fromUri(subtitleConfigurations.get(i).uri.toString()));
         } else {
-          SingleSampleMediaSource.Factory singleSampleSourceFactory =
-              new SingleSampleMediaSource.Factory(dataSourceFactory)
-                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
           mediaSources[i + 1] =
-              singleSampleSourceFactory.createMediaSource(
-                  subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
+              new SingleSampleMediaSource.Factory(dataSourceFactory)
+                  .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
+                  .createMediaSource(subtitleConfigurations.get(i), /* durationUs= */ C.TIME_UNSET);
         }
       }
 
@@ -468,8 +474,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       mediaSourceFactories = new HashMap<>();
     }
 
-    @C.ContentType
-    public int[] getSupportedTypes() {
+    public @C.ContentType int[] getSupportedTypes() {
       ensureAllSuppliersAreLoaded();
       return Ints.toArray(supportedTypes);
     }

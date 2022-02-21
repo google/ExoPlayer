@@ -21,6 +21,7 @@ import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -97,6 +98,7 @@ public abstract class DecoderAudioRenderer<
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @java.lang.annotation.Target(TYPE_USE)
   @IntDef({
     REINITIALIZATION_STATE_NONE,
     REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
@@ -136,7 +138,7 @@ public abstract class DecoderAudioRenderer<
   @Nullable private DrmSession decoderDrmSession;
   @Nullable private DrmSession sourceDrmSession;
 
-  @ReinitializationState private int decoderReinitializationState;
+  private @ReinitializationState int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
   private boolean audioTrackNeedsConfigure;
 
@@ -226,8 +228,7 @@ public abstract class DecoderAudioRenderer<
   }
 
   @Override
-  @Capabilities
-  public final int supportsFormat(Format format) {
+  public final @Capabilities int supportsFormat(Format format) {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
@@ -246,8 +247,7 @@ public abstract class DecoderAudioRenderer<
    * @param format The format, which has an audio {@link Format#sampleMimeType}.
    * @return The {@link C.FormatSupport} for this {@link Format}.
    */
-  @C.FormatSupport
-  protected abstract int supportsFormatInternal(Format format);
+  protected abstract @C.FormatSupport int supportsFormatInternal(Format format);
 
   /**
    * Returns whether the renderer's {@link AudioSink} supports a given {@link Format}.
@@ -264,8 +264,7 @@ public abstract class DecoderAudioRenderer<
    *
    * @see AudioSink#getFormatSupport(Format) (Format)
    */
-  @SinkFormatSupport
-  protected final int getSinkFormatSupport(Format format) {
+  protected final @SinkFormatSupport int getSinkFormatSupport(Format format) {
     return audioSink.getFormatSupport(format);
   }
 

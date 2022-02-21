@@ -17,6 +17,7 @@ package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -710,7 +712,9 @@ public final class MediaItem implements Bundleable {
     /** The UUID of the protection scheme. */
     public final UUID scheme;
 
-    /** @deprecated Use {@link #scheme} instead. */
+    /**
+     * @deprecated Use {@link #scheme} instead.
+     */
     @UnstableApi @Deprecated public final UUID uuid;
 
     /**
@@ -719,7 +723,9 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Uri licenseUri;
 
-    /** @deprecated Use {@link #licenseRequestHeaders} instead. */
+    /**
+     * @deprecated Use {@link #licenseRequestHeaders} instead.
+     */
     @UnstableApi @Deprecated public final ImmutableMap<String, String> requestHeaders;
 
     /** The headers to attach to requests sent to the DRM license server. */
@@ -740,7 +746,9 @@ public final class MediaItem implements Bundleable {
      */
     public final boolean forceDefaultLicenseUri;
 
-    /** @deprecated Use {@link #forcedSessionTrackTypes}. */
+    /**
+     * @deprecated Use {@link #forcedSessionTrackTypes}.
+     */
     @UnstableApi @Deprecated public final ImmutableList<@C.TrackType Integer> sessionForClearTypes;
     /**
      * The types of tracks for which to always use a DRM session even if the content is unencrypted.
@@ -927,7 +935,9 @@ public final class MediaItem implements Bundleable {
 
     /** Optional subtitles to be sideloaded. */
     public final ImmutableList<SubtitleConfiguration> subtitleConfigurations;
-    /** @deprecated Use {@link #subtitleConfigurations} instead. */
+    /**
+     * @deprecated Use {@link #subtitleConfigurations} instead.
+     */
     @UnstableApi @Deprecated public final List<Subtitle> subtitles;
 
     /**
@@ -996,7 +1006,9 @@ public final class MediaItem implements Bundleable {
     }
   }
 
-  /** @deprecated Use {@link LocalConfiguration}. */
+  /**
+   * @deprecated Use {@link LocalConfiguration}.
+   */
   @UnstableApi
   @Deprecated
   public static final class PlaybackProperties extends LocalConfiguration {
@@ -1158,7 +1170,9 @@ public final class MediaItem implements Bundleable {
           builder.maxPlaybackSpeed);
     }
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @UnstableApi
     @Deprecated
     public LiveConfiguration(
@@ -1210,6 +1224,7 @@ public final class MediaItem implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_TARGET_OFFSET_MS,
       FIELD_MIN_OFFSET_MS,
@@ -1424,19 +1439,25 @@ public final class MediaItem implements Bundleable {
     }
   }
 
-  /** @deprecated Use {@link MediaItem.SubtitleConfiguration} instead */
+  /**
+   * @deprecated Use {@link MediaItem.SubtitleConfiguration} instead
+   */
   @UnstableApi
   @Deprecated
   public static final class Subtitle extends SubtitleConfiguration {
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @UnstableApi
     @Deprecated
     public Subtitle(Uri uri, String mimeType, @Nullable String language) {
       this(uri, mimeType, language, /* selectionFlags= */ 0);
     }
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @UnstableApi
     @Deprecated
     public Subtitle(
@@ -1444,7 +1465,9 @@ public final class MediaItem implements Bundleable {
       this(uri, mimeType, language, selectionFlags, /* roleFlags= */ 0, /* label= */ null);
     }
 
-    /** @deprecated Use {@link Builder} instead. */
+    /**
+     * @deprecated Use {@link Builder} instead.
+     */
     @UnstableApi
     @Deprecated
     public Subtitle(
@@ -1547,7 +1570,9 @@ public final class MediaItem implements Bundleable {
         return buildClippingProperties();
       }
 
-      /** @deprecated Use {@link #build()} instead. */
+      /**
+       * @deprecated Use {@link #build()} instead.
+       */
       @UnstableApi
       @Deprecated
       public ClippingProperties buildClippingProperties() {
@@ -1625,6 +1650,7 @@ public final class MediaItem implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_START_POSITION_MS,
       FIELD_END_POSITION_MS,
@@ -1676,7 +1702,9 @@ public final class MediaItem implements Bundleable {
     }
   }
 
-  /** @deprecated Use {@link ClippingConfiguration} instead. */
+  /**
+   * @deprecated Use {@link ClippingConfiguration} instead.
+   */
   @UnstableApi
   @Deprecated
   public static final class ClippingProperties extends ClippingConfiguration {
@@ -1705,7 +1733,9 @@ public final class MediaItem implements Bundleable {
    * boundaries.
    */
   @Nullable public final LocalConfiguration localConfiguration;
-  /** @deprecated Use {@link #localConfiguration} instead. */
+  /**
+   * @deprecated Use {@link #localConfiguration} instead.
+   */
   @UnstableApi @Deprecated @Nullable public final PlaybackProperties playbackProperties;
 
   /** The live playback configuration. */
@@ -1716,7 +1746,9 @@ public final class MediaItem implements Bundleable {
 
   /** The clipping properties. */
   public final ClippingConfiguration clippingConfiguration;
-  /** @deprecated Use {@link #clippingConfiguration} instead. */
+  /**
+   * @deprecated Use {@link #clippingConfiguration} instead.
+   */
   @UnstableApi @Deprecated public final ClippingProperties clippingProperties;
 
   // Using PlaybackProperties and ClippingProperties until they're deleted.
@@ -1773,6 +1805,7 @@ public final class MediaItem implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_MEDIA_ID,
     FIELD_LIVE_CONFIGURATION,
@@ -1839,7 +1872,7 @@ public final class MediaItem implements Bundleable {
     return new MediaItem(
         mediaId,
         clippingConfiguration,
-        /* playbackProperties= */ null,
+        /* localConfiguration= */ null,
         liveConfiguration,
         mediaMetadata);
   }

@@ -374,6 +374,7 @@ public class MediaController implements Player {
     @Initialized
     MediaController thisRef = this;
     impl = thisRef.createImpl(context, thisRef, token, connectionHints);
+    impl.connect();
   }
 
   /* package */ MediaControllerImpl createImpl(
@@ -1822,6 +1823,8 @@ public class MediaController implements Player {
   }
 
   interface MediaControllerImpl {
+
+    void connect();
 
     void addListener(Player.Listener listener);
 

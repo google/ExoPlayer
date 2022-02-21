@@ -646,7 +646,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         return MediaDescriptionCompat.BT_FOLDER_TYPE_YEARS;
       case MediaMetadata.FOLDER_TYPE_NONE:
       default:
-        throw new AssertionError("Unsupported folder type " + folderType);
+        throw new IllegalArgumentException("Unrecognized FolderType: " + folderType);
     }
   }
 
@@ -743,15 +743,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       case Player.STATE_IDLE:
         return PlaybackStateCompat.STATE_NONE;
       case Player.STATE_READY:
+      case Player.STATE_ENDED:
         return PlaybackStateCompat.STATE_PAUSED;
       case Player.STATE_BUFFERING:
         return playWhenReady
             ? PlaybackStateCompat.STATE_BUFFERING
             : PlaybackStateCompat.STATE_PAUSED;
-      case Player.STATE_ENDED:
-        return PlaybackStateCompat.STATE_PAUSED;
       default:
-        throw new AssertionError("Playback state shouldn't be " + playbackState);
+        throw new IllegalArgumentException("Unrecognized State: " + playbackState);
     }
   }
 
@@ -820,8 +819,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             convertToCurrentPositionMs(playbackStateCompat, currentMediaMetadata, timeDiffMs);
         return (currentPosition < duration) ? Player.STATE_READY : Player.STATE_ENDED;
       default:
-        throw new AssertionError(
-            "PlaybackStateCompat.State shouldn't be " + playbackStateCompat.getState());
+        throw new IllegalStateException(
+            "Unrecognized PlaybackStateCompat: " + playbackStateCompat.getState());
     }
   }
 
@@ -947,8 +946,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       case PlaybackStateCompat.REPEAT_MODE_GROUP:
         return Player.REPEAT_MODE_ALL;
       default:
-        throw new AssertionError(
-            "PlaybackStateCompat repeat mode shouldn't be " + playbackStateCompatRepeatMode);
+        throw new IllegalArgumentException(
+            "Unrecognized PlaybackStateCompat.RepeatMode: " + playbackStateCompatRepeatMode);
     }
   }
 
@@ -963,7 +962,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       case Player.REPEAT_MODE_ALL:
         return PlaybackStateCompat.REPEAT_MODE_ALL;
       default:
-        throw new AssertionError("Player.RepeatMode shouldn't be " + repeatMode);
+        throw new IllegalArgumentException("Unrecognized RepeatMode: " + repeatMode);
     }
   }
 
@@ -978,8 +977,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       case PlaybackStateCompat.SHUFFLE_MODE_GROUP:
         return true;
       default:
-        throw new AssertionError(
-            "PlaybackStateCompat.ShuffleMode shouldn't be " + playbackStateCompatShuffleMode);
+        throw new IllegalArgumentException(
+            "Unrecognized ShuffleMode: " + playbackStateCompatShuffleMode);
     }
   }
 
@@ -1133,6 +1132,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Converts {@link AudioAttributesCompat} into {@link AudioAttributes}. */
+  /*
+   * @AudioAttributesCompat.AttributeUsage and @C.AudioUsage both use the same constant values,
+   * defined by AudioAttributes in the platform.
+   */
+  @SuppressLint("WrongConstant")
   public static AudioAttributes convertToAudioAttributes(
       @Nullable AudioAttributesCompat audioAttributesCompat) {
     if (audioAttributesCompat == null) {

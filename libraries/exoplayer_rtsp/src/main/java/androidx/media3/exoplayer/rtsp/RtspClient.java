@@ -35,6 +35,7 @@ import static androidx.media3.exoplayer.rtsp.RtspRequest.METHOD_TEARDOWN;
 import static androidx.media3.exoplayer.rtsp.RtspRequest.METHOD_UNSET;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -61,6 +62,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -78,6 +80,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({RTSP_STATE_UNINITIALIZED, RTSP_STATE_INIT, RTSP_STATE_READY, RTSP_STATE_PLAYING})
   public @interface RtspState {}
   /** RTSP uninitialized state, the state before sending any SETUP request. */
@@ -138,7 +141,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private String sessionId;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
   @Nullable private RtspAuthenticationInfo rtspAuthenticationInfo;
-  @RtspState private int rtspState;
+  private @RtspState int rtspState;
   private boolean hasUpdatedTimelineAndTracks;
   private boolean receivedAuthorizationRequest;
   private boolean hasPendingPauseRequest;
@@ -201,8 +204,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Returns the current {@link RtspState RTSP state}. */
-  @RtspState
-  public int getState() {
+  public @RtspState int getState() {
     return rtspState;
   }
 
@@ -619,11 +621,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 startTimingString == null
                     ? RtspSessionTiming.DEFAULT
                     : RtspSessionTiming.parseTiming(startTimingString);
-            @Nullable String rtpInfoString = response.headers.get(RtspHeaders.RTP_INFO);
-            ImmutableList<RtspTrackTiming> trackTimingList =
-                rtpInfoString == null
-                    ? ImmutableList.of()
-                    : RtspTrackTiming.parseTrackTiming(rtpInfoString, uri);
+
+            ImmutableList<RtspTrackTiming> trackTimingList;
+            try {
+              @Nullable String rtpInfoString = response.headers.get(RtspHeaders.RTP_INFO);
+              trackTimingList =
+                  rtpInfoString == null
+                      ? ImmutableList.of()
+                      : RtspTrackTiming.parseTrackTiming(rtpInfoString, uri);
+            } catch (ParserException e) {
+              trackTimingList = ImmutableList.of();
+            }
+
             onPlayResponseReceived(new RtspPlayResponse(response.status, timing, trackTimingList));
             break;
 

@@ -177,6 +177,7 @@ public final class SessionResult implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_RESULT_CODE, FIELD_EXTRAS, FIELD_COMPLETION_TIME_MS})
   private @interface FieldNumber {}
 

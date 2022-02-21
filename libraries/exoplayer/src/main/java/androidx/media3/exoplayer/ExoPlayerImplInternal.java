@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -93,9 +94,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     public PlaybackInfo playbackInfo;
     public int operationAcks;
     public boolean positionDiscontinuity;
-    @DiscontinuityReason public int discontinuityReason;
+    public @DiscontinuityReason int discontinuityReason;
     public boolean hasPlayWhenReadyChangeReason;
-    @PlayWhenReadyChangeReason public int playWhenReadyChangeReason;
+    public @PlayWhenReadyChangeReason int playWhenReadyChangeReason;
 
     public PlaybackInfoUpdate(PlaybackInfo playbackInfo) {
       this.playbackInfo = playbackInfo;
@@ -216,7 +217,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean pendingPauseAtEndOfPeriod;
   private boolean isRebuffering;
   private boolean shouldContinueLoading;
-  @Player.RepeatMode private int repeatMode;
+  private @Player.RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
   private boolean foregroundMode;
   private boolean requestForRendererSleep;
@@ -238,7 +239,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       BandwidthMeter bandwidthMeter,
       @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
-      @Nullable AnalyticsCollector analyticsCollector,
+      AnalyticsCollector analyticsCollector,
       SeekParameters seekParameters,
       LivePlaybackSpeedControl livePlaybackSpeedControl,
       long releaseTimeoutMs,
@@ -1178,7 +1179,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       requestedContentPositionUs =
           seekPosition.windowPositionUs == C.TIME_UNSET ? C.TIME_UNSET : resolvedContentPositionUs;
       periodId =
-          queue.resolveMediaPeriodIdForAds(
+          queue.resolveMediaPeriodIdForAdsAfterPeriodPositionChange(
               playbackInfo.timeline, periodUid, resolvedContentPositionUs);
       if (periodId.isAd()) {
         playbackInfo.timeline.getPeriodByUid(periodId.periodUid, period);
@@ -1234,7 +1235,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 /* forceBufferingState= */ playbackInfo.playbackState == Player.STATE_ENDED);
         seekPositionAdjusted |= periodPositionUs != newPeriodPositionUs;
         periodPositionUs = newPeriodPositionUs;
-        updateLivePlaybackSpeedControl(
+        updatePlaybackSpeedSettingsForNewPeriod(
             /* newTimeline= */ playbackInfo.timeline,
             /* newPeriodId= */ periodId,
             /* oldTimeline= */ playbackInfo.timeline,
@@ -1492,7 +1493,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             window, period, firstWindowIndex, /* windowPositionUs= */ C.TIME_UNSET);
     // Add ad metadata if any and propagate the window sequence number to new period id.
     MediaPeriodId firstPeriodId =
-        queue.resolveMediaPeriodIdForAds(
+        queue.resolveMediaPeriodIdForAdsAfterPeriodPositionChange(
             timeline, firstPeriodAndPositionUs.first, /* positionUs= */ 0);
     long positionUs = firstPeriodAndPositionUs.second;
     if (firstPeriodId.isAd()) {
@@ -1874,7 +1875,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         newPositionUs = seekToPeriodPosition(newPeriodId, newPositionUs, forceBufferingState);
       }
     } finally {
-      updateLivePlaybackSpeedControl(
+      updatePlaybackSpeedSettingsForNewPeriod(
           /* newTimeline= */ timeline,
           newPeriodId,
           /* oldTimeline= */ playbackInfo.timeline,
@@ -1914,16 +1915,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  private void updateLivePlaybackSpeedControl(
+  private void updatePlaybackSpeedSettingsForNewPeriod(
       Timeline newTimeline,
       MediaPeriodId newPeriodId,
       Timeline oldTimeline,
       MediaPeriodId oldPeriodId,
       long positionForTargetOffsetOverrideUs) {
-    if (newTimeline.isEmpty() || !shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
-      // Live playback speed control is unused for the current period, reset speed if adjusted.
-      if (mediaClock.getPlaybackParameters().speed != playbackInfo.playbackParameters.speed) {
-        mediaClock.setPlaybackParameters(playbackInfo.playbackParameters);
+    if (!shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
+      // Live playback speed control is unused for the current period, reset speed to user-defined
+      // playback parameters or 1.0 for ad playback.
+      PlaybackParameters targetPlaybackParameters =
+          newPeriodId.isAd() ? PlaybackParameters.DEFAULT : playbackInfo.playbackParameters;
+      if (!mediaClock.getPlaybackParameters().equals(targetPlaybackParameters)) {
+        mediaClock.setPlaybackParameters(targetPlaybackParameters);
       }
       return;
     }
@@ -2054,9 +2058,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
 
+    MediaPeriodHolder oldReadingPeriodHolder = readingPeriodHolder;
     TrackSelectorResult oldTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
     readingPeriodHolder = queue.advanceReadingPeriod();
     TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
+
+    updatePlaybackSpeedSettingsForNewPeriod(
+        /* newTimeline= */ playbackInfo.timeline,
+        /* newPeriodId= */ readingPeriodHolder.info.id,
+        /* oldTimeline= */ playbackInfo.timeline,
+        /* oldPeriodId= */ oldReadingPeriodHolder.info.id,
+        /* positionForTargetOffsetOverrideUs= */ C.TIME_UNSET);
 
     if (readingPeriodHolder.prepared
         && readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET) {
@@ -2142,22 +2154,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // If we advance more than one period at a time, notify listeners after each update.
         maybeNotifyPlaybackInfoChanged();
       }
-      MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
-      MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
+      MediaPeriodHolder newPlayingPeriodHolder = checkNotNull(queue.advancePlayingPeriod());
+      boolean isCancelledSSAIAdTransition =
+          playbackInfo.periodId.periodUid.equals(newPlayingPeriodHolder.info.id.periodUid)
+              && playbackInfo.periodId.adGroupIndex == C.INDEX_UNSET
+              && newPlayingPeriodHolder.info.id.adGroupIndex == C.INDEX_UNSET
+              && playbackInfo.periodId.nextAdGroupIndex
+                  != newPlayingPeriodHolder.info.id.nextAdGroupIndex;
       playbackInfo =
           handlePositionDiscontinuity(
               newPlayingPeriodHolder.info.id,
               newPlayingPeriodHolder.info.startPositionUs,
               newPlayingPeriodHolder.info.requestedContentPositionUs,
               /* discontinuityStartPositionUs= */ newPlayingPeriodHolder.info.startPositionUs,
-              /* reportDiscontinuity= */ true,
+              /* reportDiscontinuity= */ !isCancelledSSAIAdTransition,
               Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
-      updateLivePlaybackSpeedControl(
-          /* newTimeline= */ playbackInfo.timeline,
-          /* newPeriodId= */ newPlayingPeriodHolder.info.id,
-          /* oldTimeline= */ playbackInfo.timeline,
-          /* oldPeriodId= */ oldPlayingPeriodHolder.info.id,
-          /* positionForTargetOffsetOverrideUs= */ C.TIME_UNSET);
       resetPendingPauseAtEndOfPeriod();
       updatePlaybackPositions();
       advancedPlayingPeriod = true;
@@ -2350,7 +2361,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private PlaybackInfo handlePositionDiscontinuity(
       MediaPeriodId mediaPeriodId,
       long positionUs,
-      long contentPositionUs,
+      long requestedContentPositionUs,
       long discontinuityStartPositionUs,
       boolean reportDiscontinuity,
       @DiscontinuityReason int discontinuityReason) {
@@ -2375,9 +2386,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       staticMetadata = extractMetadataFromTrackSelectionArray(trackSelectorResult.selections);
       // Ensure the media period queue requested content position matches the new playback info.
       if (playingPeriodHolder != null
-          && playingPeriodHolder.info.requestedContentPositionUs != contentPositionUs) {
+          && playingPeriodHolder.info.requestedContentPositionUs != requestedContentPositionUs) {
         playingPeriodHolder.info =
-            playingPeriodHolder.info.copyWithRequestedContentPositionUs(contentPositionUs);
+            playingPeriodHolder.info.copyWithRequestedContentPositionUs(requestedContentPositionUs);
       }
     } else if (!mediaPeriodId.equals(playbackInfo.periodId)) {
       // Reset previously kept track info if unprepared and the period changes.
@@ -2391,7 +2402,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return playbackInfo.copyWithNewPosition(
         mediaPeriodId,
         positionUs,
-        contentPositionUs,
+        requestedContentPositionUs,
         discontinuityStartPositionUs,
         getTotalBufferedDurationUs(),
         trackGroupArray,
@@ -2664,11 +2675,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     // Ensure ad insertion metadata is up to date.
     MediaPeriodId periodIdWithAds =
-        queue.resolveMediaPeriodIdForAds(timeline, newPeriodUid, contentPositionForAdResolutionUs);
+        queue.resolveMediaPeriodIdForAdsAfterPeriodPositionChange(
+            timeline, newPeriodUid, contentPositionForAdResolutionUs);
     boolean earliestCuePointIsUnchangedOrLater =
         periodIdWithAds.nextAdGroupIndex == C.INDEX_UNSET
             || (oldPeriodId.nextAdGroupIndex != C.INDEX_UNSET
-                && periodIdWithAds.adGroupIndex >= oldPeriodId.nextAdGroupIndex);
+                && periodIdWithAds.nextAdGroupIndex >= oldPeriodId.nextAdGroupIndex);
     // Drop update if we keep playing the same content (MediaPeriod.periodUid are identical) and
     // the only change is that MediaPeriodId.nextAdGroupIndex increased. This postpones a potential
     // discontinuity until we reach the former next ad group position.
@@ -2939,7 +2951,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @return The uid in the new timeline of the first subsequent period, or null if no such period
    *     was found.
    */
-  /* package */ static @Nullable Object resolveSubsequentPeriod(
+  /* package */ @Nullable
+  static Object resolveSubsequentPeriod(
       Timeline.Window window,
       Timeline.Period period,
       @Player.RepeatMode int repeatMode,

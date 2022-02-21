@@ -87,17 +87,19 @@ public final class MediaTestUtils {
         .build();
   }
 
-  public static ControllerInfo getTestControllerInfo(MediaSession session) {
-    if (session == null) {
-      return null;
-    }
-    for (ControllerInfo info : session.getConnectedControllers()) {
-      if (SUPPORT_APP_PACKAGE_NAME.equals(info.getPackageName())) {
-        return info;
+  public static List<ControllerInfo> getTestControllerInfos(MediaSession session) {
+    List<ControllerInfo> infos = new ArrayList<>();
+    if (session != null) {
+      for (ControllerInfo info : session.getConnectedControllers()) {
+        if (SUPPORT_APP_PACKAGE_NAME.equals(info.getPackageName())) {
+          infos.add(info);
+        }
       }
     }
-    Log.e(TAG, "Test controller was not found in connected controllers. session=" + session);
-    return null;
+    if (infos.isEmpty()) {
+      Log.e(TAG, "Test controller was not found in connected controllers. session=" + session);
+    }
+    return infos;
   }
 
   /**

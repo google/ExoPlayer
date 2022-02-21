@@ -16,6 +16,7 @@
 package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.CheckResult;
@@ -29,6 +30,7 @@ import com.google.common.collect.Lists;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +43,8 @@ public final class TrackGroup implements Bundleable {
   public final int length;
   /** An identifier for the track group. */
   public final String id;
+  /** The type of tracks in the group. */
+  public final @C.TrackType int type;
 
   private final Format[] formats;
 
@@ -69,6 +73,11 @@ public final class TrackGroup implements Bundleable {
     this.id = id;
     this.formats = formats;
     this.length = formats.length;
+    @C.TrackType int type = MimeTypes.getTrackType(formats[0].sampleMimeType);
+    if (type == C.TRACK_TYPE_UNKNOWN) {
+      type = MimeTypes.getTrackType(formats[0].containerMimeType);
+    }
+    this.type = type;
     verifyCorrectness();
   }
 
@@ -132,13 +141,14 @@ public final class TrackGroup implements Bundleable {
       return false;
     }
     TrackGroup other = (TrackGroup) obj;
-    return length == other.length && id.equals(other.id) && Arrays.equals(formats, other.formats);
+    return id.equals(other.id) && Arrays.equals(formats, other.formats);
   }
 
   // Bundleable implementation.
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_FORMATS, FIELD_ID})
   private @interface FieldNumber {}
 
@@ -204,8 +214,7 @@ public final class TrackGroup implements Bundleable {
     return language == null || language.equals(C.LANGUAGE_UNDETERMINED) ? "" : language;
   }
 
-  @C.RoleFlags
-  private static int normalizeRoleFlags(@C.RoleFlags int roleFlags) {
+  private static @C.RoleFlags int normalizeRoleFlags(@C.RoleFlags int roleFlags) {
     // Treat trick-play and non-trick-play formats as compatible.
     return roleFlags | C.ROLE_FLAG_TRICK_PLAY;
   }

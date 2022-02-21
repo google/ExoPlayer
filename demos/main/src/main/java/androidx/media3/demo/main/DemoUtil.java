@@ -16,7 +16,6 @@
 package androidx.media3.demo.main;
 
 import android.content.Context;
-import androidx.media3.common.util.Log;
 import androidx.media3.database.DatabaseProvider;
 import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
@@ -31,12 +30,9 @@ import androidx.media3.datasource.cronet.CronetDataSource;
 import androidx.media3.datasource.cronet.CronetUtil;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.RenderersFactory;
-import androidx.media3.exoplayer.offline.ActionFileUpgradeUtil;
-import androidx.media3.exoplayer.offline.DefaultDownloadIndex;
 import androidx.media3.exoplayer.offline.DownloadManager;
 import androidx.media3.exoplayer.offline.DownloadNotificationHelper;
 import java.io.File;
-import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -60,8 +56,6 @@ public final class DemoUtil {
   private static final boolean USE_CRONET_FOR_NETWORKING = true;
 
   private static final String TAG = "DemoUtil";
-  private static final String DOWNLOAD_ACTION_FILE = "actions";
-  private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
   private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
@@ -155,14 +149,6 @@ public final class DemoUtil {
 
   private static synchronized void ensureDownloadManagerInitialized(Context context) {
     if (downloadManager == null) {
-      DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(getDatabaseProvider(context));
-      upgradeActionFile(
-          context, DOWNLOAD_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ false);
-      upgradeActionFile(
-          context,
-          DOWNLOAD_TRACKER_ACTION_FILE,
-          downloadIndex,
-          /* addNewDownloadsAsCompleted= */ true);
       downloadManager =
           new DownloadManager(
               context,
@@ -172,23 +158,6 @@ public final class DemoUtil {
               Executors.newFixedThreadPool(/* nThreads= */ 6));
       downloadTracker =
           new DownloadTracker(context, getHttpDataSourceFactory(context), downloadManager);
-    }
-  }
-
-  private static synchronized void upgradeActionFile(
-      Context context,
-      String fileName,
-      DefaultDownloadIndex downloadIndex,
-      boolean addNewDownloadsAsCompleted) {
-    try {
-      ActionFileUpgradeUtil.upgradeAndDelete(
-          new File(getDownloadDirectory(context), fileName),
-          /* downloadIdProvider= */ null,
-          downloadIndex,
-          /* deleteOnFailure= */ true,
-          addNewDownloadsAsCompleted);
-    } catch (IOException e) {
-      Log.e(TAG, "Failed to upgrade action file: " + fileName, e);
     }
   }
 

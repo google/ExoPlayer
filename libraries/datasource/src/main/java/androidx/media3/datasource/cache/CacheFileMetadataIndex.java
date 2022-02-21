@@ -94,7 +94,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  /** @param databaseProvider Provides the database in which the index is stored. */
+  /**
+   * @param databaseProvider Provides the database in which the index is stored.
+   */
   public CacheFileMetadataIndex(DatabaseProvider databaseProvider) {
     this.databaseProvider = databaseProvider;
   }

@@ -32,6 +32,7 @@ import static androidx.media3.common.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
 import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -67,6 +68,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -398,10 +400,6 @@ public class PlayerNotificationManager {
       "androidx.media3.session.notificaiton.EXTRA_INSTANCE_ID";
   private static final String INTENT_SCHEME = "media3";
 
-  private static final int PENDING_INTENT_FLAGS =
-      (Util.SDK_INT >= 23)
-          ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-          : PendingIntent.FLAG_UPDATE_CURRENT;
   private static final String TAG = "NotificationManager";
 
   // Internal messages.
@@ -416,6 +414,7 @@ public class PlayerNotificationManager {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     NotificationCompat.VISIBILITY_PRIVATE,
     NotificationCompat.VISIBILITY_PUBLIC,
@@ -431,6 +430,7 @@ public class PlayerNotificationManager {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     NotificationCompat.PRIORITY_DEFAULT,
     NotificationCompat.PRIORITY_MAX,
@@ -1033,19 +1033,25 @@ public class PlayerNotificationManager {
             .appendPath(button.sessionCommand == null ? "null" : button.sessionCommand.customAction)
             .build();
     intent.setData(intentUri);
-    return PendingIntent.getBroadcast(context, instanceId, intent, PENDING_INTENT_FLAGS);
+    return PendingIntent.getBroadcast(context, instanceId, intent, getPendingIntentFlags());
   }
 
   private static PendingIntent createBroadcastIntent(
       Context context, String action, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
     intent.putExtra(INTENT_EXTRA_INSTANCE_ID, instanceId);
-    return PendingIntent.getBroadcast(context, instanceId, intent, PENDING_INTENT_FLAGS);
+    return PendingIntent.getBroadcast(context, instanceId, intent, getPendingIntentFlags());
   }
 
   @SuppressWarnings("nullness:argument")
   private static void setLargeIcon(NotificationCompat.Builder builder, @Nullable Bitmap largeIcon) {
     builder.setLargeIcon(largeIcon);
+  }
+
+  private static int getPendingIntentFlags() {
+    return Util.SDK_INT >= 23
+        ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        : PendingIntent.FLAG_UPDATE_CURRENT;
   }
 
   private class PlayerListener implements Player.Listener {
@@ -1104,8 +1110,9 @@ public class PlayerNotificationManager {
               } else if (controller.getPlaybackState() == controller.STATE_ENDED) {
                 controller.seekToDefaultPosition(controller.getCurrentWindowIndex());
               }
+              controller.setPlayWhenReady(true);
             } else {
-              controller.pause();
+              controller.setPlayWhenReady(false);
             }
             break;
           case COMMAND_SEEK_TO_PREVIOUS:

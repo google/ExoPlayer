@@ -157,7 +157,7 @@ public class DownloadServiceDashTest {
     testThread.release();
   }
 
-  @Ignore // b/78877092
+  @Ignore("Internal ref: b/78877092")
   @Test
   public void multipleDownloadRequest() throws Throwable {
     downloadKeys(fakeStreamKey1);
@@ -168,7 +168,7 @@ public class DownloadServiceDashTest {
     assertCachedData(cache, fakeDataSet);
   }
 
-  @Ignore // b/78877092
+  @Ignore("Internal ref: b/78877092")
   @Test
   public void removeAction() throws Throwable {
     downloadKeys(fakeStreamKey1, fakeStreamKey2);
@@ -182,7 +182,7 @@ public class DownloadServiceDashTest {
     assertCacheEmpty(cache);
   }
 
-  @Ignore // b/78877092
+  @Ignore("Internal ref: b/78877092")
   @Test
   public void removeBeforeDownloadComplete() throws Throwable {
     pauseDownloadCondition = new ConditionVariable();

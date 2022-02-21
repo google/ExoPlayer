@@ -15,6 +15,8 @@
  */
 package androidx.media3.common.util;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
@@ -29,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Generates a {@link SurfaceTexture} using EGL/GLES functions. */
 @RequiresApi(17)
@@ -47,6 +50,7 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({SECURE_MODE_NONE, SECURE_MODE_SURFACELESS_CONTEXT, SECURE_MODE_PROTECTED_PBUFFER})
   public @interface SecureMode {}
 

@@ -17,12 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE_PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -78,7 +73,7 @@ public final class SessionToken implements Bundleable {
   /** Types of {@link SessionToken}. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, TYPE_PARAMETER})
+  @Target(TYPE_USE)
   @IntDef(value = {TYPE_SESSION, TYPE_SESSION_SERVICE, TYPE_LIBRARY_SERVICE})
   public @interface TokenType {}
 
@@ -429,6 +424,7 @@ public final class SessionToken implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_IMPL_TYPE, FIELD_IMPL})
   private @interface FieldNumber {}
 
@@ -438,6 +434,7 @@ public final class SessionToken implements Bundleable {
   /** Types of {@link SessionTokenImpl} */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({IMPL_TYPE_BASE, IMPL_TYPE_LEGACY})
   private @interface SessionTokenImplType {}
 

@@ -15,6 +15,12 @@
  */
 package androidx.media3.exoplayer;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -35,6 +41,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Thrown when a non locally recoverable playback failure occurs. */
 public final class ExoPlaybackException extends PlaybackException {
@@ -44,9 +51,12 @@ public final class ExoPlaybackException extends PlaybackException {
    * {@link #TYPE_UNEXPECTED} or {@link #TYPE_REMOTE}. Note that new types may be added in the
    * future and error handling should handle unknown type values.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @UnstableApi
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED, TYPE_REMOTE})
   public @interface Type {}
   /**
@@ -75,7 +85,7 @@ public final class ExoPlaybackException extends PlaybackException {
   @UnstableApi public static final int TYPE_REMOTE = 3;
 
   /** The {@link Type} of the playback failure. */
-  @UnstableApi @Type public final int type;
+  @UnstableApi public final @Type int type;
 
   /** If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer. */
   @UnstableApi @Nullable public final String rendererName;
@@ -94,7 +104,7 @@ public final class ExoPlaybackException extends PlaybackException {
    * renderer for {@link #rendererFormat}. If {@link #rendererFormat} is null, this is {@link
    * C#FORMAT_HANDLED}.
    */
-  @UnstableApi @FormatSupport public final int rendererFormatSupport;
+  @UnstableApi public final @FormatSupport int rendererFormatSupport;
 
   /** The {@link MediaPeriodId} of the media associated with this error, or null if undetermined. */
   @UnstableApi @Nullable public final MediaPeriodId mediaPeriodId;

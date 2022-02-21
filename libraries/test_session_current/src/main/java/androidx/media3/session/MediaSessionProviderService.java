@@ -352,13 +352,15 @@ public class MediaSessionProviderService extends Service {
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
-    public void sendCustomCommand(String sessionId, Bundle controller, Bundle command, Bundle args)
+    public void sendCustomCommand(String sessionId, Bundle command, Bundle args)
         throws RemoteException {
       runOnHandler(
           () -> {
             MediaSession session = sessionMap.get(sessionId);
-            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session);
-            session.sendCustomCommand(info, SessionCommand.CREATOR.fromBundle(command), args);
+            List<ControllerInfo> controllerInfos = MediaTestUtils.getTestControllerInfos(session);
+            for (ControllerInfo info : controllerInfos) {
+              session.sendCustomCommand(info, SessionCommand.CREATOR.fromBundle(command), args);
+            }
           });
     }
 
@@ -373,35 +375,37 @@ public class MediaSessionProviderService extends Service {
 
     @Override
     public void setAvailableCommands(
-        String sessionId, Bundle controller, Bundle sessionCommands, Bundle playerCommands)
-        throws RemoteException {
+        String sessionId, Bundle sessionCommands, Bundle playerCommands) throws RemoteException {
       runOnHandler(
           () -> {
             MediaSession session = sessionMap.get(sessionId);
-            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session);
-            session.setAvailableCommands(
-                info,
-                SessionCommands.CREATOR.fromBundle(sessionCommands),
-                Player.Commands.CREATOR.fromBundle(playerCommands));
+            List<ControllerInfo> controllerInfos = MediaTestUtils.getTestControllerInfos(session);
+            for (ControllerInfo info : controllerInfos) {
+              session.setAvailableCommands(
+                  info,
+                  SessionCommands.CREATOR.fromBundle(sessionCommands),
+                  Player.Commands.CREATOR.fromBundle(playerCommands));
+            }
           });
     }
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
-    public void setCustomLayout(String sessionId, Bundle controller, List<Bundle> layout)
-        throws RemoteException {
+    public void setCustomLayout(String sessionId, List<Bundle> layout) throws RemoteException {
       if (layout == null) {
         return;
       }
       runOnHandler(
           () -> {
-            MediaSession session = sessionMap.get(sessionId);
-            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session);
             List<CommandButton> buttons = new ArrayList<>();
             for (Bundle bundle : layout) {
               buttons.add(CommandButton.CREATOR.fromBundle(bundle));
             }
-            session.setCustomLayout(info, buttons);
+            MediaSession session = sessionMap.get(sessionId);
+            List<ControllerInfo> controllerInfos = MediaTestUtils.getTestControllerInfos(session);
+            for (ControllerInfo info : controllerInfos) {
+              session.setCustomLayout(info, buttons);
+            }
           });
     }
 

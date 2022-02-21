@@ -19,7 +19,9 @@ import androidx.media3.common.PriorityTaskManager;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource.Factory;
 
-/** @deprecated Use {@link PriorityDataSource.Factory}. */
+/**
+ * @deprecated Use {@link PriorityDataSource.Factory}.
+ */
 @Deprecated
 @UnstableApi
 public final class PriorityDataSourceFactory implements Factory {

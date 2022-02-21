@@ -41,8 +41,9 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
       TransformerMediaClock mediaClock,
       TransformationRequest transformationRequest,
       Codec.EncoderFactory encoderFactory,
-      Codec.DecoderFactory decoderFactory) {
-    super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformationRequest);
+      Codec.DecoderFactory decoderFactory,
+      FallbackListener fallbackListener) {
+    super(C.TRACK_TYPE_AUDIO, muxerWrapper, mediaClock, transformationRequest, fallbackListener);
     this.encoderFactory = encoderFactory;
     this.decoderFactory = decoderFactory;
     decoderInputBuffer =
@@ -67,22 +68,18 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
       return false;
     }
     Format inputFormat = checkNotNull(formatHolder.format);
-    String sampleMimeType = checkNotNull(inputFormat.sampleMimeType);
-    if (transformationRequest.audioMimeType == null
-        && !muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
-      throw TransformationException.createForMuxer(
-          new IllegalArgumentException(
-              "The output sample MIME inferred from the input format is not supported by the muxer."
-                  + " Sample MIME type: "
-                  + sampleMimeType),
-          TransformationException.ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED);
-    }
     if (shouldPassthrough(inputFormat)) {
-      samplePipeline = new PassthroughSamplePipeline(inputFormat);
+      samplePipeline =
+          new PassthroughSamplePipeline(inputFormat, transformationRequest, fallbackListener);
     } else {
       samplePipeline =
-          new AudioSamplePipeline(
-              inputFormat, transformationRequest, encoderFactory, decoderFactory);
+          new AudioTranscodingSamplePipeline(
+              inputFormat,
+              transformationRequest,
+              decoderFactory,
+              encoderFactory,
+              muxerWrapper.getSupportedSampleMimeTypes(getTrackType()),
+              fallbackListener);
     }
     return true;
   }
@@ -90,6 +87,10 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
   private boolean shouldPassthrough(Format inputFormat) {
     if (transformationRequest.audioMimeType != null
         && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
+      return false;
+    }
+    if (transformationRequest.audioMimeType == null
+        && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
       return false;
     }
     if (transformationRequest.flattenForSlowMotion && isSlowMotion(inputFormat)) {

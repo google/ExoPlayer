@@ -17,6 +17,7 @@ package androidx.media3.extractor.text;
 
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -37,8 +38,10 @@ import androidx.media3.extractor.TrackOutput;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -46,7 +49,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Generic extractor for extracting subtitles from various subtitle formats. */
 @UnstableApi
 public class SubtitleExtractor implements Extractor {
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     STATE_CREATED,
     STATE_INITIALIZED,
@@ -82,7 +87,7 @@ public class SubtitleExtractor implements Extractor {
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @MonotonicNonNull TrackOutput trackOutput;
   private int bytesRead;
-  @State private int state;
+  private @State int state;
   private long seekTimeUs;
 
   /**

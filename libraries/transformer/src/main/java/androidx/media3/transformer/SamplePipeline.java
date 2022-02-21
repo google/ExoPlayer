@@ -29,7 +29,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   /** Returns a buffer if the pipeline is ready to accept input, and {@code null} otherwise. */
   @Nullable
-  DecoderInputBuffer dequeueInputBuffer();
+  DecoderInputBuffer dequeueInputBuffer() throws TransformationException;
 
   /**
    * Informs the pipeline that its input buffer contains new input.
@@ -37,7 +37,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
    * <p>Should be called after filling the input buffer from {@link #dequeueInputBuffer()} with new
    * input.
    */
-  void queueInputBuffer();
+  void queueInputBuffer() throws TransformationException;
 
   /**
    * Processes the input data and returns whether more data can be processed by calling this method
@@ -47,18 +47,18 @@ import androidx.media3.decoder.DecoderInputBuffer;
 
   /** Returns the output format of the pipeline if available, and {@code null} otherwise. */
   @Nullable
-  Format getOutputFormat();
+  Format getOutputFormat() throws TransformationException;
 
   /** Returns an output buffer if the pipeline has produced output, and {@code null} otherwise */
   @Nullable
-  DecoderInputBuffer getOutputBuffer();
+  DecoderInputBuffer getOutputBuffer() throws TransformationException;
 
   /**
    * Releases the pipeline's output buffer.
    *
    * <p>Should be called when the output buffer from {@link #getOutputBuffer()} is no longer needed.
    */
-  void releaseOutputBuffer();
+  void releaseOutputBuffer() throws TransformationException;
 
   /** Returns whether the pipeline has ended. */
   boolean isEnded();

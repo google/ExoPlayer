@@ -29,12 +29,12 @@
   <string name="exo_controls_stop_description">Interrompi</string>
   <string name="exo_controls_rewind_description">Riavvolgi</string>
   <plurals name="exo_controls_rewind_by_amount_description">
-    <item quantity="one">Indietro di %d secondo</item>
+    <item quantity="one">Indietro di %d secondi</item>
     <item quantity="other">Indietro di %d secondi</item>
   </plurals>
   <string name="exo_controls_fastforward_description">Avanti veloce</string>
   <plurals name="exo_controls_fastforward_by_amount_description">
-    <item quantity="one">Avanti di %d secondo</item>
+    <item quantity="one">Avanti di %d secondi</item>
     <item quantity="other">Avanti di %d secondi</item>
   </plurals>
   <string name="exo_controls_repeat_off_description">Non ripetere nulla</string>
@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">Disattiva i sottotitoli</string>
   <string name="exo_controls_cc_disabled_description">Attiva i sottotitoli</string>
   <string name="exo_controls_playback_speed">Velocità</string>
-  <string name="exo_controls_playback_speed_normal">Normale</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normale</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Testo</string>

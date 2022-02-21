@@ -16,6 +16,7 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.app.PendingIntent;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import androidx.media3.common.util.BundleableUtil;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Created by {@link MediaSession} to send its state to the {@link MediaController} when the
@@ -75,6 +77,7 @@ import java.lang.annotation.RetentionPolicy;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_VERSION,
     FIELD_SESSION_BINDER,

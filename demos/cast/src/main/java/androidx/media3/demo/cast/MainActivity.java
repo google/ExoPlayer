@@ -36,7 +36,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.ui.StyledPlayerView;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,7 +52,7 @@ import com.google.android.gms.dynamite.DynamiteModule;
 public class MainActivity extends AppCompatActivity
     implements OnClickListener, PlayerManager.Listener {
 
-  private StyledPlayerView playerView;
+  private PlayerView playerView;
   private PlayerManager playerManager;
   private RecyclerView mediaQueueList;
   private MediaQueueListAdapter mediaQueueListAdapter;

@@ -28,8 +28,8 @@ import androidx.media3.common.Player.TimelineChangeReason;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TracksInfo;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.ui.StyledPlayerControlView;
-import androidx.media3.ui.StyledPlayerView;
+import androidx.media3.ui.PlayerControlView;
+import androidx.media3.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
@@ -51,7 +51,7 @@ import java.util.ArrayList;
   }
 
   private final Context context;
-  private final StyledPlayerView playerView;
+  private final PlayerView playerView;
   private final Player localPlayer;
   private final CastPlayer castPlayer;
   private final ArrayList<MediaItem> mediaQueue;
@@ -66,11 +66,11 @@ import java.util.ArrayList;
    *
    * @param context A {@link Context}.
    * @param listener A {@link Listener} for queue position changes.
-   * @param playerView The {@link StyledPlayerView} for playback.
+   * @param playerView The {@link PlayerView} for playback.
    * @param castContext The {@link CastContext}.
    */
   public PlayerManager(
-      Context context, Listener listener, StyledPlayerView playerView, CastContext castContext) {
+      Context context, Listener listener, PlayerView playerView, CastContext castContext) {
     this.context = context;
     this.listener = listener;
     this.playerView = playerView;
@@ -223,10 +223,12 @@ import java.util.ArrayList;
     if (currentPlayer != localPlayer || tracksInfo == lastSeenTrackGroupInfo) {
       return;
     }
-    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)) {
+    if (tracksInfo.containsType(C.TRACK_TYPE_VIDEO)
+        && !tracksInfo.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_VIDEO);
     }
-    if (!tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)) {
+    if (tracksInfo.containsType(C.TRACK_TYPE_AUDIO)
+        && !tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
       listener.onUnsupportedTrack(C.TRACK_TYPE_AUDIO);
     }
     lastSeenTrackGroupInfo = tracksInfo;
@@ -270,7 +272,7 @@ import java.util.ArrayList;
               R.drawable.ic_baseline_cast_connected_400,
               /* theme= */ null));
     } else { // currentPlayer == localPlayer
-      playerView.setControllerShowTimeoutMs(StyledPlayerControlView.DEFAULT_SHOW_TIMEOUT_MS);
+      playerView.setControllerShowTimeoutMs(PlayerControlView.DEFAULT_SHOW_TIMEOUT_MS);
       playerView.setDefaultArtwork(null);
     }
 

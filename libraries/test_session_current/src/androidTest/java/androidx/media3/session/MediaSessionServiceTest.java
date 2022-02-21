@@ -85,6 +85,8 @@ public class MediaSessionServiceTest {
    */
   @Test
   public void onGetSessionIsCalled() throws Exception {
+    Bundle testHints = new Bundle();
+    testHints.putString("test_key", "test_value");
     List<ControllerInfo> controllerInfoList = new ArrayList<>();
     CountDownLatch latch = new CountDownLatch(1);
     TestServiceRegistry.getInstance()
@@ -92,19 +94,18 @@ public class MediaSessionServiceTest {
             new TestServiceRegistry.OnGetSessionHandler() {
               @Override
               public MediaSession onGetSession(ControllerInfo controllerInfo) {
-                controllerInfoList.add(controllerInfo);
-                latch.countDown();
+                if (SUPPORT_APP_PACKAGE_NAME.equals(controllerInfo.getPackageName())
+                    && TestUtils.equals(testHints, controllerInfo.getConnectionHints())) {
+                  controllerInfoList.add(controllerInfo);
+                  latch.countDown();
+                }
                 return null;
               }
             });
-
-    Bundle testHints = new Bundle();
-    testHints.putString("test_key", "test_value");
     controllerTestRule.createRemoteController(token, /* waitForConnection= */ false, testHints);
 
     // onGetSession() should be called.
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(controllerInfoList.get(0).getPackageName()).isEqualTo(SUPPORT_APP_PACKAGE_NAME);
     assertThat(TestUtils.equals(controllerInfoList.get(0).getConnectionHints(), testHints))
         .isTrue();
   }
@@ -117,6 +118,8 @@ public class MediaSessionServiceTest {
    */
   @Test
   public void onGetSession_returnsSession() throws Exception {
+    Bundle testHints = new Bundle();
+    testHints.putString("test_key", "test_value");
     List<ControllerInfo> controllerInfoList = new ArrayList<>();
     CountDownLatch latch = new CountDownLatch(1);
 
@@ -130,8 +133,11 @@ public class MediaSessionServiceTest {
                       @Override
                       public MediaSession.ConnectionResult onConnect(
                           MediaSession session, ControllerInfo controller) {
-                        controllerInfoList.add(controller);
-                        latch.countDown();
+                        if (SUPPORT_APP_PACKAGE_NAME.equals(controller.getPackageName())
+                            && TestUtils.equals(testHints, controller.getConnectionHints())) {
+                          controllerInfoList.add(controller);
+                          latch.countDown();
+                        }
                         return MediaSession.ConnectionResult.accept(
                             SessionCommands.EMPTY, Player.Commands.EMPTY);
                       }
@@ -147,14 +153,11 @@ public class MediaSessionServiceTest {
               }
             });
 
-    Bundle testHints = new Bundle();
-    testHints.putString("test_key", "test_value");
     RemoteMediaController controller =
         controllerTestRule.createRemoteController(token, true, testHints);
 
     // MediaSession.SessionCallback#onConnect() should be called.
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(controllerInfoList.get(0).getPackageName()).isEqualTo(SUPPORT_APP_PACKAGE_NAME);
     assertThat(TestUtils.equals(controllerInfoList.get(0).getConnectionHints(), testHints))
         .isTrue();
 
@@ -288,6 +291,7 @@ public class MediaSessionServiceTest {
 
     service.removeSession(session);
     sessions = service.getSessions();
+
     assertThat(sessions.contains(session)).isFalse();
   }
 
@@ -302,8 +306,9 @@ public class MediaSessionServiceTest {
     assertThat(sessions.contains(session)).isTrue();
     assertThat(sessions.size()).isEqualTo(2);
     threadTestRule.getHandler().postAndSync(session::release);
-    sessions = service.getSessions();
-    assertThat(sessions.contains(session)).isFalse();
+    // Wait until release of session is propagated.
+    MainLooperTestRule.runOnMainSync(() -> {});
+    assertThat(service.getSessions()).doesNotContain(session);
   }
 
   private MediaSession createMediaSession(String id) {

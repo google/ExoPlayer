@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">Субтитрді өшіру</string>
   <string name="exo_controls_cc_disabled_description">Субтитрді қосу</string>
   <string name="exo_controls_playback_speed">Жылдамдық</string>
-  <string name="exo_controls_playback_speed_normal">Қалыпты</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Қалыпты</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Бейне</string>
   <string name="exo_track_selection_title_audio">Aудиомазмұн</string>
   <string name="exo_track_selection_title_text">Мәтін</string>

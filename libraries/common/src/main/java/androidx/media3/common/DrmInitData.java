@@ -52,7 +52,8 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
    * @param mediaData DRM session acquisition data obtained from the media.
    * @return A {@link DrmInitData} obtained from merging a media manifest and a media stream.
    */
-  public static @Nullable DrmInitData createSessionCreationData(
+  @Nullable
+  public static DrmInitData createSessionCreationData(
       @Nullable DrmInitData manifestData, @Nullable DrmInitData mediaData) {
     ArrayList<SchemeData> result = new ArrayList<>();
     String schemeType = null;
@@ -91,7 +92,9 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   /** Number of {@link SchemeData}s. */
   public final int schemeDataCount;
 
-  /** @param schemeDatas Scheme initialization data for possibly multiple DRM schemes. */
+  /**
+   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
+   */
   public DrmInitData(List<SchemeData> schemeDatas) {
     this(null, false, schemeDatas.toArray(new SchemeData[0]));
   }
@@ -104,7 +107,9 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     this(schemeType, false, schemeDatas.toArray(new SchemeData[0]));
   }
 
-  /** @param schemeDatas Scheme initialization data for possibly multiple DRM schemes. */
+  /**
+   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
+   */
   public DrmInitData(SchemeData... schemeDatas) {
     this(null, schemeDatas);
   }

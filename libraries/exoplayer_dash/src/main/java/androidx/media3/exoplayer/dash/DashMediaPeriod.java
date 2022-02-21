@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.dash;
 
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import android.util.SparseArray;
@@ -60,6 +61,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
@@ -911,6 +913,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({CATEGORY_PRIMARY, CATEGORY_EMBEDDED, CATEGORY_MANIFEST_EVENTS})
     public @interface TrackGroupCategory {}
 
@@ -934,7 +937,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     public final int[] adaptationSetIndices;
     public final @C.TrackType int trackType;
-    @TrackGroupCategory public final int trackGroupCategory;
+    public final @TrackGroupCategory int trackGroupCategory;
 
     public final int eventStreamGroupIndex;
     public final int primaryTrackGroupIndex;

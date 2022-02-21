@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.exoplayer.rtsp.RtspMessageUtil.isRtspStartLine;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -43,6 +44,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -341,6 +343,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({STATE_READING_FIRST_LINE, STATE_READING_HEADER, STATE_READING_BODY})
     @interface ReadingState {}
 
@@ -350,7 +353,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final List<String> messageLines;
 
-    @ReadingState private int state;
+    private @ReadingState int state;
     private long messageBodyLength;
 
     /** Creates a new instance. */

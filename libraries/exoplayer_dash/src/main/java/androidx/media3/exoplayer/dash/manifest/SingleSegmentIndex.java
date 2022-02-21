@@ -23,7 +23,9 @@ import androidx.media3.exoplayer.dash.DashSegmentIndex;
 
   private final RangedUri uri;
 
-  /** @param uri A {@link RangedUri} defining the location of the segment data. */
+  /**
+   * @param uri A {@link RangedUri} defining the location of the segment data.
+   */
   public SingleSegmentIndex(RangedUri uri) {
     this.uri = uri;
   }

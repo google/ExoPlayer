@@ -32,7 +32,9 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
 
   private final Resources resources;
 
-  /** @param resources Resources from which to obtain strings. */
+  /**
+   * @param resources Resources from which to obtain strings.
+   */
   public DefaultTrackNameProvider(Resources resources) {
     this.resources = Assertions.checkNotNull(resources);
   }

@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -117,11 +118,15 @@ public class MediaSessionAndControllerTest {
     Handler mainHandler = new Handler(Looper.getMainLooper());
     Executor mainExecutor = (runnable) -> Util.postOrRun(mainHandler, runnable);
     for (int i = 0; i < 100; i++) {
-      int idx = i;
       MediaSession session =
           sessionTestRule.ensureReleaseAfterTest(
               new MediaSession.Builder(context, player).setId(TAG).build());
       CountDownLatch latch = new CountDownLatch(1);
+      // Keep the instance in AtomicReference to prevent GC.
+      // Otherwise ListenableFuture and corresponding controllers can be GCed and disconnected
+      // callback can be ignored.
+      AtomicReference<ListenableFuture<MediaController>> controllerFutureRef =
+          new AtomicReference<>();
       mainHandler.post(
           () -> {
             ListenableFuture<MediaController> controllerFuture =
@@ -134,6 +139,7 @@ public class MediaSessionAndControllerTest {
                           }
                         })
                     .buildAsync();
+            controllerFutureRef.set(controllerFuture);
             controllerFuture.addListener(
                 () -> {
                   try {

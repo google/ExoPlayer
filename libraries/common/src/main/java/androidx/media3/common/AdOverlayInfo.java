@@ -37,6 +37,8 @@ public final class AdOverlayInfo {
    * The purpose of the overlay. One of {@link #PURPOSE_CONTROLS}, {@link #PURPOSE_CLOSE_AD}, {@link
    * #PURPOSE_OTHER} or {@link #PURPOSE_NOT_VISIBLE}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
@@ -95,14 +97,18 @@ public final class AdOverlayInfo {
   /** An optional, detailed reason that the overlay view is needed. */
   @Nullable public final String reasonDetail;
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @UnstableApi
   @Deprecated
   public AdOverlayInfo(View view, @Purpose int purpose) {
     this(view, purpose, /* detailedReason= */ null);
   }
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @UnstableApi
   @Deprecated
   public AdOverlayInfo(View view, @Purpose int purpose, @Nullable String detailedReason) {

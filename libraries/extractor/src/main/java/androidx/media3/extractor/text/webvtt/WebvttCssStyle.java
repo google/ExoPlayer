@@ -15,6 +15,8 @@
  */
 package androidx.media3.extractor.text.webvtt;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import androidx.annotation.ColorInt;
@@ -26,6 +28,7 @@ import com.google.common.base.Ascii;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,6 +51,7 @@ public final class WebvttCssStyle {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC, STYLE_BOLD_ITALIC})
@@ -64,6 +68,7 @@ public final class WebvttCssStyle {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({UNSPECIFIED, FONT_SIZE_UNIT_PIXEL, FONT_SIZE_UNIT_EM, FONT_SIZE_UNIT_PERCENT})
   public @interface FontSizeUnit {}
 
@@ -73,6 +78,7 @@ public final class WebvttCssStyle {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({UNSPECIFIED, OFF, ON})
   private @interface OptionalBoolean {}
 
@@ -91,13 +97,13 @@ public final class WebvttCssStyle {
   private boolean hasFontColor;
   private int backgroundColor;
   private boolean hasBackgroundColor;
-  @OptionalBoolean private int linethrough;
-  @OptionalBoolean private int underline;
-  @OptionalBoolean private int bold;
-  @OptionalBoolean private int italic;
-  @FontSizeUnit private int fontSizeUnit;
+  private @OptionalBoolean int linethrough;
+  private @OptionalBoolean int underline;
+  private @OptionalBoolean int bold;
+  private @OptionalBoolean int italic;
+  private @FontSizeUnit int fontSizeUnit;
   private float fontSize;
-  @TextAnnotation.Position private int rubyPosition;
+  private @TextAnnotation.Position int rubyPosition;
   private boolean combineUpright;
 
   public WebvttCssStyle() {
@@ -180,8 +186,7 @@ public final class WebvttCssStyle {
    * @return {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link #STYLE_BOLD}, {@link #STYLE_BOLD}
    *     or {@link #STYLE_BOLD_ITALIC}.
    */
-  @StyleFlags
-  public int getStyle() {
+  public @StyleFlags int getStyle() {
     if (bold == UNSPECIFIED && italic == UNSPECIFIED) {
       return UNSPECIFIED;
     }
@@ -270,8 +275,7 @@ public final class WebvttCssStyle {
     return this;
   }
 
-  @FontSizeUnit
-  public int getFontSizeUnit() {
+  public @FontSizeUnit int getFontSizeUnit() {
     return fontSizeUnit;
   }
 
@@ -284,8 +288,7 @@ public final class WebvttCssStyle {
     return this;
   }
 
-  @TextAnnotation.Position
-  public int getRubyPosition() {
+  public @TextAnnotation.Position int getRubyPosition() {
     return rubyPosition;
   }
 

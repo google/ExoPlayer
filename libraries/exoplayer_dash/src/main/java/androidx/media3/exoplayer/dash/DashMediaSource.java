@@ -301,7 +301,9 @@ public final class DashMediaSource extends BaseMediaSource {
    * if no value is defined in the {@link MediaItem} or the manifest.
    */
   public static final long DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS = 30_000;
-  /** @deprecated Use {@link #DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS} instead. */
+  /**
+   * @deprecated Use {@link #DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS} instead.
+   */
   @Deprecated public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30_000;
   /** The media id used by media items of dash media sources without a manifest URI. */
   public static final String DEFAULT_MEDIA_ID = "DashMediaSource";
@@ -802,7 +804,7 @@ public final class DashMediaSource extends BaseMediaSource {
           nowUnixTimeUs
               - Util.msToUs(manifest.availabilityStartTimeMs)
               - windowStartTimeInManifestUs;
-      updateMediaItemLiveConfiguration(nowInWindowUs, windowDurationUs);
+      updateLiveConfiguration(nowInWindowUs, windowDurationUs);
       windowStartUnixTimeMs =
           manifest.availabilityStartTimeMs + Util.usToMs(windowStartTimeInManifestUs);
       windowDefaultPositionUs = nowInWindowUs - Util.msToUs(liveConfiguration.targetOffsetMs);
@@ -861,7 +863,7 @@ public final class DashMediaSource extends BaseMediaSource {
     }
   }
 
-  private void updateMediaItemLiveConfiguration(long nowInWindowUs, long windowDurationUs) {
+  private void updateLiveConfiguration(long nowInWindowUs, long windowDurationUs) {
     // Default maximum offset: start of window.
     long maxPossibleLiveOffsetMs = usToMs(nowInWindowUs);
     long maxLiveOffsetMs = maxPossibleLiveOffsetMs;
@@ -935,6 +937,16 @@ public final class DashMediaSource extends BaseMediaSource {
       maxPlaybackSpeed = mediaItem.liveConfiguration.maxPlaybackSpeed;
     } else if (manifest.serviceDescription != null) {
       maxPlaybackSpeed = manifest.serviceDescription.maxPlaybackSpeed;
+    }
+    if (minPlaybackSpeed == C.RATE_UNSET
+        && maxPlaybackSpeed == C.RATE_UNSET
+        && (manifest.serviceDescription == null
+            || manifest.serviceDescription.targetOffsetMs == C.TIME_UNSET)) {
+      // Force unit speed (instead of automatic adjustment with fallback speeds) if there are no
+      // specific speed limits defined by the media item or the manifest, and the manifest contains
+      // no low-latency target offset either.
+      minPlaybackSpeed = 1f;
+      maxPlaybackSpeed = 1f;
     }
     liveConfiguration =
         new MediaItem.LiveConfiguration.Builder()

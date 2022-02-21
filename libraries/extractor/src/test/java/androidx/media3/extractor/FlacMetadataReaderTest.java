@@ -24,7 +24,7 @@ import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.extractor.FlacMetadataReader.FlacStreamMetadataHolder;
 import androidx.media3.extractor.flac.FlacConstants;
 import androidx.media3.extractor.metadata.flac.PictureFrame;
-import androidx.media3.extractor.metadata.flac.VorbisComment;
+import androidx.media3.extractor.metadata.vorbis.VorbisComment;
 import androidx.media3.test.utils.FakeExtractorInput;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;

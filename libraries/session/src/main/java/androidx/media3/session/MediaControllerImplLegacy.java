@@ -155,9 +155,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.instance = instance;
     controllerCompatCallback = new ControllerCompatCallback();
     this.token = token;
+  }
 
+  @Override
+  public void connect() {
     if (this.token.getType() == SessionToken.TYPE_SESSION) {
-      browserCompat = null;
       connectToSession((MediaSessionCompat.Token) checkStateNotNull(this.token.getBinder()));
     } else {
       connectToService();
@@ -278,7 +280,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   Uri.parse(pendingSetMediaUriRequest.value), pendingSetMediaUriRequest.extras);
           break;
         default:
-          throw new AssertionError("Unexpected type " + pendingSetMediaUriRequest.type);
+          throw new IllegalStateException("Unexpected type " + pendingSetMediaUriRequest.type);
       }
       pendingSetMediaUriRequest.result.set(new SessionResult(RESULT_SUCCESS));
       pendingSetMediaUriRequest = null;
@@ -343,7 +345,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                   Uri.parse(pendingSetMediaUriRequest.value), pendingSetMediaUriRequest.extras);
           break;
         default:
-          throw new AssertionError("Unexpected type " + pendingSetMediaUriRequest.type);
+          throw new IllegalStateException("Unexpected type " + pendingSetMediaUriRequest.type);
       }
       pendingSetMediaUriRequest.result.set(new SessionResult(RESULT_SUCCESS));
       pendingSetMediaUriRequest = null;
@@ -2024,11 +2026,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     PlayerInfo playerInfo =
         new PlayerInfo(
             /* playerError= */ playerError,
-            /* mediaItemTransitionReason= */ C.INDEX_UNSET,
+            /* mediaItemTransitionReason= */ PlayerInfo.MEDIA_ITEM_TRANSITION_REASON_DEFAULT,
             /* sessionPositionInfo= */ sessionPositionInfo,
             /* oldPositionInfo= */ SessionPositionInfo.DEFAULT_POSITION_INFO,
             /* newPositionInfo= */ SessionPositionInfo.DEFAULT_POSITION_INFO,
-            /* discontinuityReason= */ C.INDEX_UNSET,
+            /* discontinuityReason= */ PlayerInfo.DISCONTINUITY_REASON_DEFAULT,
             /* playbackParameters= */ playbackParameters,
             /* repeatMode= */ repeatMode,
             /* shuffleModeEnabled= */ shuffleModeEnabled,
@@ -2042,8 +2044,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             /* deviceVolume= */ deviceVolume,
             /* deviceMuted= */ deviceMuted,
             /* playWhenReady= */ playWhenReady,
-            /* playWhenReadyChangedReason= */ C.INDEX_UNSET,
-            /* playbackSuppressionReason= */ C.INDEX_UNSET,
+            /* playWhenReadyChangedReason= */ PlayerInfo.PLAY_WHEN_READY_CHANGE_REASON_DEFAULT,
+            /* playbackSuppressionReason= */ Player.PLAYBACK_SUPPRESSION_REASON_NONE,
             /* playbackState= */ playbackState,
             /* isPlaying= */ isPlaying,
             /* isLoading= */ false,

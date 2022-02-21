@@ -17,6 +17,7 @@ package androidx.media3.exoplayer.source;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 
 /**
@@ -50,6 +52,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({REASON_INVALID_PERIOD_COUNT, REASON_NOT_SEEKABLE_TO_START, REASON_START_EXCEEDS_END})
     public @interface Reason {}
     /** The wrapped source doesn't consist of a single period. */
@@ -60,9 +63,11 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     public static final int REASON_START_EXCEEDS_END = 2;
 
     /** The reason clipping failed. */
-    @Reason public final int reason;
+    public final @Reason int reason;
 
-    /** @param reason The reason clipping failed. */
+    /**
+     * @param reason The reason clipping failed.
+     */
     public IllegalClippingException(@Reason int reason) {
       super("Illegal clipping: " + getReasonDescription(reason));
       this.reason = reason;

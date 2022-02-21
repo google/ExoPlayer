@@ -178,7 +178,7 @@ public class RemoteMediaSession {
   }
 
   public void sendCustomCommand(SessionCommand command, Bundle args) throws RemoteException {
-    binder.sendCustomCommand(sessionId, null, command.toBundle(), args);
+    binder.sendCustomCommand(sessionId, command.toBundle(), args);
   }
 
   public void release() throws RemoteException {
@@ -187,8 +187,7 @@ public class RemoteMediaSession {
 
   public void setAvailableCommands(SessionCommands sessionCommands, Player.Commands playerCommands)
       throws RemoteException {
-    binder.setAvailableCommands(
-        sessionId, null, sessionCommands.toBundle(), playerCommands.toBundle());
+    binder.setAvailableCommands(sessionId, sessionCommands.toBundle(), playerCommands.toBundle());
   }
 
   public void setCustomLayout(List<CommandButton> layout) throws RemoteException {
@@ -196,7 +195,7 @@ public class RemoteMediaSession {
     for (CommandButton button : layout) {
       bundleList.add(button.toBundle());
     }
-    binder.setCustomLayout(sessionId, null, bundleList);
+    binder.setCustomLayout(sessionId, bundleList);
   }
 
   ////////////////////////////////////////////////////////////////////////////////

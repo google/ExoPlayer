@@ -15,6 +15,12 @@
  */
 package androidx.media3.exoplayer.scheduler;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -34,6 +40,7 @@ import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Defines a set of device state requirements. */
 @UnstableApi
@@ -43,8 +50,11 @@ public final class Requirements implements Parcelable {
    * Requirement flags. Possible flag values are {@link #NETWORK}, {@link #NETWORK_UNMETERED},
    * {@link #DEVICE_IDLE}, {@link #DEVICE_CHARGING} and {@link #DEVICE_STORAGE_NOT_LOW}.
    */
+  // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
+  // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef(
       flag = true,
       value = {NETWORK, NETWORK_UNMETERED, DEVICE_IDLE, DEVICE_CHARGING, DEVICE_STORAGE_NOT_LOW})
@@ -64,9 +74,11 @@ public final class Requirements implements Parcelable {
    */
   public static final int DEVICE_STORAGE_NOT_LOW = 1 << 4;
 
-  @RequirementFlags private final int requirements;
+  private final @RequirementFlags int requirements;
 
-  /** @param requirements A combination of requirement flags. */
+  /**
+   * @param requirements A combination of requirement flags.
+   */
   public Requirements(@RequirementFlags int requirements) {
     if ((requirements & NETWORK_UNMETERED) != 0) {
       // Make sure network requirement flags are consistent.
@@ -76,8 +88,7 @@ public final class Requirements implements Parcelable {
   }
 
   /** Returns the requirements. */
-  @RequirementFlags
-  public int getRequirements() {
+  public @RequirementFlags int getRequirements() {
     return requirements;
   }
 
@@ -134,8 +145,7 @@ public final class Requirements implements Parcelable {
    * @param context Any context.
    * @return The requirements that are not met, or 0.
    */
-  @RequirementFlags
-  public int getNotMetRequirements(Context context) {
+  public @RequirementFlags int getNotMetRequirements(Context context) {
     @RequirementFlags int notMetRequirements = getNotMetNetworkRequirements(context);
     if (isChargingRequired() && !isDeviceCharging(context)) {
       notMetRequirements |= DEVICE_CHARGING;
@@ -149,8 +159,7 @@ public final class Requirements implements Parcelable {
     return notMetRequirements;
   }
 
-  @RequirementFlags
-  private int getNotMetNetworkRequirements(Context context) {
+  private @RequirementFlags int getNotMetNetworkRequirements(Context context) {
     if (!isNetworkRequired()) {
       return 0;
     }

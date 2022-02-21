@@ -15,6 +15,8 @@
  */
 package androidx.media3.decoder;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -24,6 +26,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
@@ -68,6 +71,7 @@ public class DecoderInputBuffer extends Buffer {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     BUFFER_REPLACEMENT_MODE_DISABLED,
     BUFFER_REPLACEMENT_MODE_NORMAL,
@@ -107,7 +111,7 @@ public class DecoderInputBuffer extends Buffer {
    */
   @Nullable public ByteBuffer supplementalData;
 
-  @BufferReplacementMode private final int bufferReplacementMode;
+  private final @BufferReplacementMode int bufferReplacementMode;
   private final int paddingSize;
 
   /** Returns a new instance that's not able to hold any data. */

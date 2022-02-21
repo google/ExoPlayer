@@ -46,7 +46,9 @@ public final class ContentDataSource extends BaseDataSource {
   /** Thrown when an {@link IOException} is encountered reading from a content URI. */
   public static class ContentDataSourceException extends DataSourceException {
 
-    /** @deprecated Use {@link #ContentDataSourceException(IOException, int)}. */
+    /**
+     * @deprecated Use {@link #ContentDataSourceException(IOException, int)}.
+     */
     @Deprecated
     public ContentDataSourceException(IOException cause) {
       this(cause, PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
@@ -67,7 +69,9 @@ public final class ContentDataSource extends BaseDataSource {
   private long bytesRemaining;
   private boolean opened;
 
-  /** @param context A context. */
+  /**
+   * @param context A context.
+   */
   public ContentDataSource(Context context) {
     super(/* isNetwork= */ false);
     this.resolver = context.getContentResolver();

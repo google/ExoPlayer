@@ -1,34 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2018 The Android Open Source Project
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+<!-- Copyright (C) 2018 The Android Open Source Project
 
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <resources>
-    <!-- Notification channel name for default media notification. [CHAR LIMIT=40] -->
+    <!-- Notification channel name for a notification about the current media playback. This name is visible to the user as a list entry in the system settings page for the notifications of the app. [CHAR LIMIT=40] -->
     <string name="default_notification_channel_name">Now playing</string>
-
-    <!-- Content description of 'play' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <!-- Accessibility description for a 'play' button on a media notification. [CHAR LIMIT=NONE] -->
     <string name="media3_controls_play_description">Play</string>
-    <!-- Content description of 'pause' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <!-- Accessibility description for a 'pause' button on a media notification. [CHAR LIMIT=NONE] -->
     <string name="media3_controls_pause_description">Pause</string>
-    <!-- Content description of 'seek to previous item' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <!-- Accessibility description for a 'seek to previous item' button on a media notification. [CHAR LIMIT=NONE] -->
     <string name="media3_controls_seek_to_previous_description">Seek to previous item</string>
-    <!-- Content description of 'seek to next item' button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <!-- Accessibility description for a 'seek to next item' button on a media notification. [CHAR LIMIT=NONE] -->
     <string name="media3_controls_seek_to_next_description">Seek to next item</string>
-    <!-- Content description of 'seek back' for rewind button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <!-- Accessibility description for a 'seek back' or 'rewind' button on a media notification. [CHAR LIMIT=NONE] -->
     <string name="media3_controls_seek_back_description">Seek back</string>
-    <!-- Content description of 'seek forward' for fast-forward button on media notification for accessibility (not shown on the screen). [CHAR LIMIT=NONE]  -->
+    <!-- Accessibility description for a 'seek forward' or 'fast-forward' button on a media notification. [CHAR LIMIT=NONE]  -->
     <string name="media3_controls_seek_forward_description">Seek forward</string>
 </resources>

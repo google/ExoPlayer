@@ -16,12 +16,15 @@
 
 package androidx.media3.exoplayer.rtsp;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Represents an RTSP request. */
 @UnstableApi
@@ -49,6 +52,7 @@ import java.lang.annotation.RetentionPolicy;
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       value = {
         METHOD_UNSET,
@@ -84,7 +88,7 @@ import java.lang.annotation.RetentionPolicy;
   /** The {@link Uri} to which this request is sent. */
   public final Uri uri;
   /** The request method, as defined in {@link Method}. */
-  @Method public final int method;
+  public final @Method int method;
   /** The headers of this request. */
   public final RtspHeaders headers;
   /** The body of this RTSP message, or empty string if absent. */

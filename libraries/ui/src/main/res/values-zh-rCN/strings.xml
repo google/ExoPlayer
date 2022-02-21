@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">停用字幕</string>
   <string name="exo_controls_cc_disabled_description">启用字幕</string>
   <string name="exo_controls_playback_speed">速度</string>
-  <string name="exo_controls_playback_speed_normal">正常</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25 倍</item>
+    <item>0.5 倍</item>
+    <item>0.75 倍</item>
+    <item>正常</item>
+    <item>1.25 倍</item>
+    <item>1.5 倍</item>
+    <item>2 倍</item>
+  </string-array>
   <string name="exo_track_selection_title_video">视频</string>
   <string name="exo_track_selection_title_audio">音频</string>
   <string name="exo_track_selection_title_text">文字</string>

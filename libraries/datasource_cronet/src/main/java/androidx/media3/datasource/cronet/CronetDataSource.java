@@ -345,7 +345,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      */
     public final int cronetConnectionStatus;
 
-    /** @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(IOException, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(IOException cause, DataSpec dataSpec, int cronetConnectionStatus) {
       super(cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
@@ -361,7 +363,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
-    /** @deprecated Use {@link #OpenException(String, DataSpec, int, int)}. */
+    /**
+     * @deprecated Use {@link #OpenException(String, DataSpec, int, int)}.
+     */
     @Deprecated
     public OpenException(String errorMessage, DataSpec dataSpec, int cronetConnectionStatus) {
       super(errorMessage, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED, TYPE_OPEN);
@@ -431,130 +435,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private boolean finished;
 
   private volatile long currentConnectTimeoutMs;
-
-  /** @deprecated Use {@link CronetDataSource.Factory} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public CronetDataSource(CronetEngine cronetEngine, Executor executor) {
-    this(
-        cronetEngine,
-        executor,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS,
-        /* resetTimeoutOnRedirects= */ false,
-        /* defaultRequestProperties= */ null);
-  }
-
-  /** @deprecated Use {@link CronetDataSource.Factory} instead. */
-  @Deprecated
-  public CronetDataSource(
-      CronetEngine cronetEngine,
-      Executor executor,
-      int connectTimeoutMs,
-      int readTimeoutMs,
-      boolean resetTimeoutOnRedirects,
-      @Nullable RequestProperties defaultRequestProperties) {
-    this(
-        cronetEngine,
-        executor,
-        REQUEST_PRIORITY_MEDIUM,
-        connectTimeoutMs,
-        readTimeoutMs,
-        resetTimeoutOnRedirects,
-        /* handleSetCookieRequests= */ false,
-        /* userAgent= */ null,
-        defaultRequestProperties,
-        /* contentTypePredicate= */ null,
-        /* keepPostFor302Redirects */ false);
-  }
-
-  /** @deprecated Use {@link CronetDataSource.Factory} instead. */
-  @Deprecated
-  public CronetDataSource(
-      CronetEngine cronetEngine,
-      Executor executor,
-      int connectTimeoutMs,
-      int readTimeoutMs,
-      boolean resetTimeoutOnRedirects,
-      @Nullable RequestProperties defaultRequestProperties,
-      boolean handleSetCookieRequests) {
-    this(
-        cronetEngine,
-        executor,
-        REQUEST_PRIORITY_MEDIUM,
-        connectTimeoutMs,
-        readTimeoutMs,
-        resetTimeoutOnRedirects,
-        handleSetCookieRequests,
-        /* userAgent= */ null,
-        defaultRequestProperties,
-        /* contentTypePredicate= */ null,
-        /* keepPostFor302Redirects */ false);
-  }
-
-  /** @deprecated Use {@link CronetDataSource.Factory} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public CronetDataSource(
-      CronetEngine cronetEngine,
-      Executor executor,
-      @Nullable Predicate<String> contentTypePredicate) {
-    this(
-        cronetEngine,
-        executor,
-        contentTypePredicate,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS,
-        /* resetTimeoutOnRedirects= */ false,
-        /* defaultRequestProperties= */ null);
-  }
-
-  /** @deprecated Use {@link CronetDataSource.Factory} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public CronetDataSource(
-      CronetEngine cronetEngine,
-      Executor executor,
-      @Nullable Predicate<String> contentTypePredicate,
-      int connectTimeoutMs,
-      int readTimeoutMs,
-      boolean resetTimeoutOnRedirects,
-      @Nullable RequestProperties defaultRequestProperties) {
-    this(
-        cronetEngine,
-        executor,
-        contentTypePredicate,
-        connectTimeoutMs,
-        readTimeoutMs,
-        resetTimeoutOnRedirects,
-        defaultRequestProperties,
-        /* handleSetCookieRequests= */ false);
-  }
-
-  /** @deprecated Use {@link CronetDataSource.Factory} instead. */
-  @Deprecated
-  public CronetDataSource(
-      CronetEngine cronetEngine,
-      Executor executor,
-      @Nullable Predicate<String> contentTypePredicate,
-      int connectTimeoutMs,
-      int readTimeoutMs,
-      boolean resetTimeoutOnRedirects,
-      @Nullable RequestProperties defaultRequestProperties,
-      boolean handleSetCookieRequests) {
-    this(
-        cronetEngine,
-        executor,
-        REQUEST_PRIORITY_MEDIUM,
-        connectTimeoutMs,
-        readTimeoutMs,
-        resetTimeoutOnRedirects,
-        handleSetCookieRequests,
-        /* userAgent= */ null,
-        defaultRequestProperties,
-        contentTypePredicate,
-        /* keepPostFor302Redirects */ false);
-  }
 
   protected CronetDataSource(
       CronetEngine cronetEngine,

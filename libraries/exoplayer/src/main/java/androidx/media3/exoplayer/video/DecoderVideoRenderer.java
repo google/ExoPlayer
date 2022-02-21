@@ -20,6 +20,7 @@ import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_RE
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -49,7 +50,7 @@ import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.FormatHolder;
-import androidx.media3.exoplayer.PlayerMessage.Target;
+import androidx.media3.exoplayer.PlayerMessage;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
@@ -57,12 +58,13 @@ import androidx.media3.exoplayer.video.VideoRendererEventListener.EventDispatche
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Decodes and renders video using a {@link Decoder}.
  *
- * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
- * on the playback thread:
+ * <p>This renderer accepts the following messages sent via {@link
+ * ExoPlayer#createMessage(PlayerMessage.Target)} on the playback thread:
  *
  * <ul>
  *   <li>Message with type {@link #MSG_SET_VIDEO_OUTPUT} to set the output surface. The message
@@ -81,6 +83,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   /** Decoder reinitialization states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     REINITIALIZATION_STATE_NONE,
     REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
@@ -118,7 +121,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   private DecoderInputBuffer inputBuffer;
   private VideoDecoderOutputBuffer outputBuffer;
-  @VideoOutputMode private int outputMode;
+  private @VideoOutputMode int outputMode;
   @Nullable private Object output;
   @Nullable private Surface outputSurface;
   @Nullable private VideoDecoderOutputBufferRenderer outputBufferRenderer;
@@ -127,7 +130,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   @Nullable private DrmSession decoderDrmSession;
   @Nullable private DrmSession sourceDrmSession;
 
-  @ReinitializationState private int decoderReinitializationState;
+  private @ReinitializationState int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
 
   private boolean renderedFirstFrameAfterReset;

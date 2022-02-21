@@ -30,7 +30,9 @@ public abstract class PollingCheck {
 
   /** The condition that the PollingCheck should use to proceed successfully. */
   public interface PollingCheckCondition {
-    /** @return Whether the polling condition has been met. */
+    /**
+     * @return Whether the polling condition has been met.
+     */
     boolean canProceed() throws Exception;
   }
 

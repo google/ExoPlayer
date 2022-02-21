@@ -92,45 +92,38 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     public Factory(
         DataSource.Factory dataSourceFactory,
         ProgressiveMediaExtractor.Factory progressiveMediaExtractorFactory) {
+      this(
+          dataSourceFactory,
+          progressiveMediaExtractorFactory,
+          new DefaultDrmSessionManagerProvider(),
+          new DefaultLoadErrorHandlingPolicy(),
+          DEFAULT_LOADING_CHECK_INTERVAL_BYTES);
+    }
+
+    /**
+     * Creates a new factory for {@link ProgressiveMediaSource}s.
+     *
+     * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
+     * @param progressiveMediaExtractorFactory A factory for the {@link ProgressiveMediaExtractor}
+     *     to extract media from its container.
+     * @param drmSessionManagerProvider A provider to obtain a {@link DrmSessionManager} for a
+     *     {@link MediaItem}.
+     * @param loadErrorHandlingPolicy A policy to handle load error.
+     * @param continueLoadingCheckIntervalBytes The number of bytes that should be loaded between
+     *     each invocation of {@link
+     *     MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
+     */
+    public Factory(
+        DataSource.Factory dataSourceFactory,
+        ProgressiveMediaExtractor.Factory progressiveMediaExtractorFactory,
+        DrmSessionManagerProvider drmSessionManagerProvider,
+        LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+        int continueLoadingCheckIntervalBytes) {
       this.dataSourceFactory = dataSourceFactory;
       this.progressiveMediaExtractorFactory = progressiveMediaExtractorFactory;
-      drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
-      loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
-      continueLoadingCheckIntervalBytes = DEFAULT_LOADING_CHECK_INTERVAL_BYTES;
-    }
-
-    /**
-     * @deprecated Pass the {@link ExtractorsFactory} via {@link #Factory(DataSource.Factory,
-     *     ExtractorsFactory)}. This is necessary so that proguard can treat the default extractors
-     *     factory as unused.
-     */
-    @Deprecated
-    public Factory setExtractorsFactory(@Nullable ExtractorsFactory extractorsFactory) {
-      this.progressiveMediaExtractorFactory =
-          playerId ->
-              new BundledExtractorsAdapter(
-                  extractorsFactory != null ? extractorsFactory : new DefaultExtractorsFactory());
-      return this;
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setCustomCacheKey(String)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setCustomCacheKey(@Nullable String customCacheKey) {
-      this.customCacheKey = customCacheKey;
-      return this;
-    }
-
-    /**
-     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
-     *     #createMediaSource(MediaItem)} instead.
-     */
-    @Deprecated
-    public Factory setTag(@Nullable Object tag) {
-      this.tag = tag;
-      return this;
+      this.drmSessionManagerProvider = drmSessionManagerProvider;
+      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+      this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     }
 
     /**

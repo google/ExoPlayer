@@ -28,11 +28,10 @@ interface IRemoteMediaSession {
   void setSessionPositionUpdateDelayMs(String sessionId, long updateDelayMs);
   void setPlayer(String sessionId, in Bundle playerBundle);
   void broadcastCustomCommand(String sessionId, in Bundle command, in Bundle args);
-  void sendCustomCommand(
-      String sessionId, in Bundle controller, in Bundle command, in Bundle args);
+  void sendCustomCommand(String sessionId, in Bundle command, in Bundle args);
   void release(String sessionId);
-  void setAvailableCommands(String sessionId, in Bundle controller, in Bundle sessionCommands, in Bundle playerCommands);
-  void setCustomLayout(String sessionId, in Bundle controller, in List<Bundle> layout);
+  void setAvailableCommands(String sessionId, in Bundle sessionCommands, in Bundle playerCommands);
+  void setCustomLayout(String sessionId, in List<Bundle> layout);
 
   // Player Methods
   void setPlayWhenReady(String sessionId, boolean playWhenReady, int reason);

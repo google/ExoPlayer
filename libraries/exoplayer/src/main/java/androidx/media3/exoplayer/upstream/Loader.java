@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.upstream;
 
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -145,6 +147,7 @@ public final class Loader implements LoaderErrorThrower {
   /** Types of action that can be taken in response to a load error. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     ACTION_TYPE_RETRY,
     ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT,

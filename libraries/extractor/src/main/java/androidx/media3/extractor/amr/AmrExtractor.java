@@ -15,6 +15,8 @@
  */
 package androidx.media3.extractor.amr;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -38,6 +40,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -62,6 +65,7 @@ public final class AmrExtractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING, FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS})
@@ -167,7 +171,9 @@ public final class AmrExtractor implements Extractor {
     this(/* flags= */ 0);
   }
 
-  /** @param flags Flags that control the extractor's behavior. */
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
   public AmrExtractor(@Flags int flags) {
     if ((flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS) != 0) {
       flags |= FLAG_ENABLE_CONSTANT_BITRATE_SEEKING;
@@ -319,7 +325,7 @@ public final class AmrExtractor implements Extractor {
         C.BUFFER_FLAG_KEY_FRAME,
         currentSampleSize,
         /* offset= */ 0,
-        /* encryptionData= */ null);
+        /* cryptoData= */ null);
     currentSampleTimeUs += SAMPLE_TIME_PER_FRAME_US;
     return RESULT_CONTINUE;
   }

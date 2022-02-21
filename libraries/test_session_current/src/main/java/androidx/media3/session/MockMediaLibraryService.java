@@ -313,7 +313,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
           return Futures.immediateFuture(LibraryResult.ofVoid(params));
         case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE:
           MockMediaLibraryService.this.session.notifyChildrenChanged(
-              MediaTestUtils.getTestControllerInfo(MockMediaLibraryService.this.session),
+              browser,
               parentId,
               NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
               NOTIFY_CHILDREN_CHANGED_PARAMS);
@@ -324,7 +324,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
           return Futures.immediateFuture(LibraryResult.ofVoid(params));
         case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID:
           MockMediaLibraryService.this.session.notifyChildrenChanged(
-              MediaTestUtils.getTestControllerInfo(MockMediaLibraryService.this.session),
+              browser,
               unsubscribedId,
               NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
               NOTIFY_CHILDREN_CHANGED_PARAMS);

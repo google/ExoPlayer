@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">Désactiver les sous-titres</string>
   <string name="exo_controls_cc_disabled_description">Activer les sous-titres</string>
   <string name="exo_controls_playback_speed">Vitesse</string>
-  <string name="exo_controls_playback_speed_normal">Normale</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>x 0,25</item>
+    <item>x 0,5</item>
+    <item>x 0,75</item>
+    <item>Normal</item>
+    <item>x 1,25</item>
+    <item>x 1,5</item>
+    <item>x 2</item>
+  </string-array>
   <string name="exo_track_selection_title_video">Vidéo</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Texte</string>

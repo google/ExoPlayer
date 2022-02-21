@@ -42,7 +42,7 @@ import androidx.media3.exoplayer.drm.HttpMediaDrmCallback;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 import androidx.media3.exoplayer.util.EventLogger;
-import androidx.media3.ui.StyledPlayerView;
+import androidx.media3.ui.PlayerView;
 import java.util.UUID;
 
 /**
@@ -61,7 +61,7 @@ public final class MainActivity extends Activity {
   private static final String DRM_SCHEME_EXTRA = "drm_scheme";
   private static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
 
-  @Nullable private StyledPlayerView playerView;
+  @Nullable private PlayerView playerView;
   @Nullable private VideoProcessingGLSurfaceView videoProcessingGLSurfaceView;
 
   @Nullable private ExoPlayer player;
@@ -181,7 +181,7 @@ public final class MainActivity extends Activity {
         Assertions.checkNotNull(this.videoProcessingGLSurfaceView);
     videoProcessingGLSurfaceView.setPlayer(player);
     Assertions.checkNotNull(playerView).setPlayer(player);
-    player.addAnalyticsListener(new EventLogger(/* trackSelector= */ null));
+    player.addAnalyticsListener(new EventLogger());
     this.player = player;
   }
 

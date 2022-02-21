@@ -21,15 +21,14 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
   <application
-      android:allowBackup="true"
+      android:allowBackup="false"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
-      android:supportsRtl="true"
       android:theme="@style/Theme.Media3Demo">
 
     <activity
-      android:name=".MainActivity"
-      android:exported="true">
+        android:name=".MainActivity"
+        android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -37,18 +36,16 @@
     </activity>
 
     <activity
-      android:name=".PlayerActivity"
-      android:exported="true">
-    </activity>
+        android:name=".PlayerActivity"
+        android:exported="true"/>
 
     <activity
-      android:name=".PlayableFolderActivity"
-      android:exported="true">
-    </activity>
+        android:name=".PlayableFolderActivity"
+        android:exported="true"/>
 
     <service
-      android:name=".PlaybackService"
-      android:exported="true">
+        android:name=".PlaybackService"
+        android:exported="true">
       <intent-filter>
         <action android:name="androidx.media3.session.MediaSessionService"/>
         <action android:name="android.media.browse.MediaBrowserService"/>

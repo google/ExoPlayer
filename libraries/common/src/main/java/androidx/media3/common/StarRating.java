@@ -16,6 +16,7 @@
 package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
 import androidx.annotation.FloatRange;
@@ -27,6 +28,7 @@ import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** A rating expressed as a fractional number of stars. */
 public final class StarRating extends Rating {
@@ -101,11 +103,12 @@ public final class StarRating extends Rating {
 
   // Bundleable implementation.
 
-  @RatingType private static final int TYPE = RATING_TYPE_STAR;
+  private static final @RatingType int TYPE = RATING_TYPE_STAR;
   private static final int MAX_STARS_DEFAULT = 5;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({FIELD_RATING_TYPE, FIELD_MAX_STARS, FIELD_STAR_RATING})
   private @interface FieldNumber {}
 
@@ -127,7 +130,7 @@ public final class StarRating extends Rating {
 
   private static StarRating fromBundle(Bundle bundle) {
     checkArgument(
-        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_DEFAULT)
+        bundle.getInt(keyForField(FIELD_RATING_TYPE), /* defaultValue= */ RATING_TYPE_UNSET)
             == TYPE);
     int maxStars =
         bundle.getInt(keyForField(FIELD_MAX_STARS), /* defaultValue= */ MAX_STARS_DEFAULT);

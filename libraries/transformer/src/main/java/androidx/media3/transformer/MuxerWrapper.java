@@ -48,6 +48,7 @@ import java.nio.ByteBuffer;
   private final Muxer.Factory muxerFactory;
   private final SparseIntArray trackTypeToIndex;
   private final SparseLongArray trackTypeToTimeUs;
+  private final SparseLongArray trackTypeToBytesWritten;
   private final String containerMimeType;
 
   private int trackCount;
@@ -62,6 +63,7 @@ import java.nio.ByteBuffer;
     this.containerMimeType = containerMimeType;
     trackTypeToIndex = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
+    trackTypeToBytesWritten = new SparseLongArray();
     previousTrackType = C.TRACK_TYPE_NONE;
   }
 
@@ -103,8 +105,10 @@ import java.nio.ByteBuffer;
    * @param format The {@link Format} to be added.
    * @throws IllegalStateException If the format is unsupported or if there is already a track
    *     format of the same type (audio or video).
+   * @throws Muxer.MuxerException If the underlying muxer encounters a problem while adding the
+   *     track.
    */
-  public void addTrackFormat(Format format) {
+  public void addTrackFormat(Format format) throws Muxer.MuxerException {
     checkState(trackCount > 0, "All tracks should be registered before the formats are added.");
     checkState(trackFormatCount < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
@@ -119,6 +123,7 @@ import java.nio.ByteBuffer;
     int trackIndex = muxer.addTrack(format);
     trackTypeToIndex.put(trackType, trackIndex);
     trackTypeToTimeUs.put(trackType, 0L);
+    trackTypeToBytesWritten.put(trackType, 0L);
     trackFormatCount++;
     if (trackFormatCount == trackCount) {
       isReady = true;
@@ -138,9 +143,11 @@ import java.nio.ByteBuffer;
    *     good interleaving.
    * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
    *     track of the given track type.
+   * @throws Muxer.MuxerException If the underlying muxer fails to write the sample.
    */
   public boolean writeSample(
-      @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
+      @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+      throws Muxer.MuxerException {
     int trackIndex = trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET);
     checkState(
         trackIndex != C.INDEX_UNSET,
@@ -150,8 +157,11 @@ import java.nio.ByteBuffer;
       return false;
     }
 
-    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
+    trackTypeToBytesWritten.put(
+        trackType, trackTypeToBytesWritten.get(trackType) + data.remaining());
     trackTypeToTimeUs.put(trackType, presentationTimeUs);
+
+    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     previousTrackType = trackType;
     return true;
   }
@@ -164,7 +174,6 @@ import java.nio.ByteBuffer;
    */
   public void endTrack(@C.TrackType int trackType) {
     trackTypeToIndex.delete(trackType);
-    trackTypeToTimeUs.delete(trackType);
   }
 
   /**
@@ -174,8 +183,10 @@ import java.nio.ByteBuffer;
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
+   * @throws Muxer.MuxerException If the underlying muxer fails to stop and to release resources and
+   *     {@code forCancellation} is false.
    */
-  public void release(boolean forCancellation) {
+  public void release(boolean forCancellation) throws Muxer.MuxerException {
     isReady = false;
     muxer.release(forCancellation);
   }
@@ -183,6 +194,25 @@ import java.nio.ByteBuffer;
   /** Returns the number of {@link #registerTrack() registered} tracks. */
   public int getTrackCount() {
     return trackCount;
+  }
+
+  /**
+   * Returns the average bitrate of data written to the track of the provided {@code trackType}, or
+   * {@link C#RATE_UNSET_INT} if there is no track data.
+   */
+  public int getTrackAverageBitrate(@C.TrackType int trackType) {
+    long trackDurationUs = trackTypeToTimeUs.get(trackType, /* valueIfKeyNotFound= */ -1);
+    long trackBytes = trackTypeToBytesWritten.get(trackType, /* valueIfKeyNotFound= */ -1);
+    if (trackDurationUs <= 0 || trackBytes <= 0) {
+      return C.RATE_UNSET_INT;
+    }
+    // The number of bytes written is not a timestamp, however this utility method provides
+    // overflow-safe multiplication & division.
+    return (int)
+        Util.scaleLargeTimestamp(
+            /* timestamp= */ trackBytes,
+            /* multiplier= */ C.BITS_PER_BYTE * C.MICROS_PER_SECOND,
+            /* divisor= */ trackDurationUs);
   }
 
   /**
@@ -202,7 +232,7 @@ import java.nio.ByteBuffer;
     if (!isReady) {
       return false;
     }
-    if (trackTypeToTimeUs.size() == 1) {
+    if (trackTypeToIndex.size() == 1) {
       return true;
     }
     if (trackType != previousTrackType) {

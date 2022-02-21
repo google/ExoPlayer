@@ -15,12 +15,10 @@
  */
 package androidx.media3.transformer;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -50,7 +48,7 @@ public final class TransformationException extends Exception {
   // TODO(b/209469847): Update the javadoc once the underlying values are fixed.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
+  @Target(TYPE_USE)
   @IntDef(
       open = true,
       value = {
@@ -70,9 +68,10 @@ public final class TransformationException extends Exception {
         ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
         ERROR_CODE_ENCODER_INIT_FAILED,
         ERROR_CODE_ENCODING_FAILED,
-        ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED,
+        ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED,
         ERROR_CODE_GL_INIT_FAILED,
         ERROR_CODE_GL_PROCESSING_FAILED,
+        ERROR_CODE_MUXING_FAILED,
       })
   public @interface ErrorCode {}
 
@@ -145,8 +144,13 @@ public final class TransformationException extends Exception {
   public static final int ERROR_CODE_ENCODER_INIT_FAILED = 4001;
   /** Caused by a failure while trying to encode media samples. */
   public static final int ERROR_CODE_ENCODING_FAILED = 4002;
-  /** Caused by requesting to encode content in a format that is not supported by the device. */
-  public static final int ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED = 4003;
+  /**
+   * Caused by the output format for a track not being supported.
+   *
+   * <p>Supported output formats are limited by the muxer's capabilities and the {@link
+   * Codec.DecoderFactory encoders} available.
+   */
+  public static final int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED = 4003;
 
   // Video editing errors (5xxx).
 
@@ -156,14 +160,8 @@ public final class TransformationException extends Exception {
   public static final int ERROR_CODE_GL_PROCESSING_FAILED = 5002;
 
   // Muxing errors (6xxx).
-
-  /**
-   * Caused by an output sample MIME type inferred from the input not being supported by the muxer.
-   *
-   * <p>Use {@link TransformationRequest.Builder#setAudioMimeType(String)} or {@link
-   * TransformationRequest.Builder#setVideoMimeType(String)} to transcode to a supported MIME type.
-   */
-  public static final int ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED = 6001;
+  /** Caused by a failure while muxing media samples. */
+  public static final int ERROR_CODE_MUXING_FAILED = 6001;
 
   private static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
@@ -182,12 +180,10 @@ public final class TransformationException extends Exception {
           .put("ERROR_CODE_DECODING_FORMAT_UNSUPPORTED", ERROR_CODE_DECODING_FORMAT_UNSUPPORTED)
           .put("ERROR_CODE_ENCODER_INIT_FAILED", ERROR_CODE_ENCODER_INIT_FAILED)
           .put("ERROR_CODE_ENCODING_FAILED", ERROR_CODE_ENCODING_FAILED)
-          .put("ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED", ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED)
+          .put("ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED", ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED)
           .put("ERROR_CODE_GL_INIT_FAILED", ERROR_CODE_GL_INIT_FAILED)
           .put("ERROR_CODE_GL_PROCESSING_FAILED", ERROR_CODE_GL_PROCESSING_FAILED)
-          .put(
-              "ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED",
-              ERROR_CODE_MUXER_SAMPLE_MIME_TYPE_UNSUPPORTED)
+          .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .buildOrThrow();
 
   /** Returns the {@code errorCode} for a given name. */
@@ -211,16 +207,55 @@ public final class TransformationException extends Exception {
   /**
    * Creates an instance for a decoder or encoder related exception.
    *
+   * <p>Use this method after the {@link MediaFormat} used to configure the {@link Codec} is known.
+   *
    * @param cause The cause of the failure.
-   * @param componentName The name of the component used, e.g. 'VideoEncoder'.
-   * @param format The {@link Format} used for the decoder/encoder.
+   * @param isVideo Whether the decoder or encoder is configured for video.
+   * @param isDecoder Whether the exception is created for a decoder.
+   * @param mediaFormat The {@link MediaFormat} used for configuring the underlying {@link
+   *     MediaCodec}.
+   * @param mediaCodecName The name of the {@link MediaCodec} used, if known.
    * @param errorCode See {@link #errorCode}.
    * @return The created instance.
    */
   public static TransformationException createForCodec(
-      Throwable cause, String componentName, Format format, int errorCode) {
-    return new TransformationException(
-        componentName + " error, format = " + format, cause, errorCode);
+      Throwable cause,
+      boolean isVideo,
+      boolean isDecoder,
+      MediaFormat mediaFormat,
+      @Nullable String mediaCodecName,
+      int errorCode) {
+    String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
+    String errorMessage =
+        componentName + ", mediaFormat=" + mediaFormat + ", mediaCodecName=" + mediaCodecName;
+    return new TransformationException(errorMessage, cause, errorCode);
+  }
+
+  /**
+   * Creates an instance for a decoder or encoder related exception.
+   *
+   * <p>Use this method before configuring the {@link Codec}, or when the {@link Codec} is not
+   * configured with a {@link MediaFormat}.
+   *
+   * @param cause The cause of the failure.
+   * @param isVideo Whether the decoder or encoder is configured for video.
+   * @param isDecoder Whether the exception is created for a decoder.
+   * @param format The {@link Format} used for configuring the {@link Codec}.
+   * @param mediaCodecName The name of the {@link MediaCodec} used, if known.
+   * @param errorCode See {@link #errorCode}.
+   * @return The created instance.
+   */
+  public static TransformationException createForCodec(
+      Throwable cause,
+      boolean isVideo,
+      boolean isDecoder,
+      Format format,
+      @Nullable String mediaCodecName,
+      int errorCode) {
+    String componentName = (isVideo ? "Video" : "Audio") + (isDecoder ? "Decoder" : "Encoder");
+    String errorMessage =
+        componentName + " error, format=" + format + ", mediaCodecName=" + mediaCodecName;
+    return new TransformationException(errorMessage, cause, errorCode);
   }
 
   /**

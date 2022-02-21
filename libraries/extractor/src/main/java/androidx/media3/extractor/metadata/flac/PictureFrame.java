@@ -22,10 +22,12 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
+import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.base.Charsets;
 import java.util.Arrays;
 
-/** A picture parsed from a FLAC file. */
+/** A picture parsed from a Vorbis Comment or a FLAC picture block. */
 @UnstableApi
 public final class PictureFrame implements Metadata.Entry {
 
@@ -134,6 +136,35 @@ public final class PictureFrame implements Metadata.Entry {
   @Override
   public int describeContents() {
     return 0;
+  }
+
+  /**
+   * Parses a {@code METADATA_BLOCK_PICTURE} into a {@code PictureFrame} instance.
+   *
+   * <p>{@code pictureBlock} may be read directly from a <a
+   * href="https://xiph.org/flac/format.html#metadata_block_picture">FLAC file</a>, or decoded from
+   * the base64 content of a <a
+   * href="https://wiki.xiph.org/VorbisComment#METADATA_BLOCK_PICTURE">Vorbis Comment</a>.
+   *
+   * @param pictureBlock The data of the {@code METADATA_BLOCK_PICTURE}, not including any headers.
+   * @return A {@code PictureFrame} parsed from {@code pictureBlock}.
+   */
+  public static PictureFrame fromPictureBlock(ParsableByteArray pictureBlock) {
+    int pictureType = pictureBlock.readInt();
+    int mimeTypeLength = pictureBlock.readInt();
+    String mimeType = pictureBlock.readString(mimeTypeLength, Charsets.US_ASCII);
+    int descriptionLength = pictureBlock.readInt();
+    String description = pictureBlock.readString(descriptionLength);
+    int width = pictureBlock.readInt();
+    int height = pictureBlock.readInt();
+    int depth = pictureBlock.readInt();
+    int colors = pictureBlock.readInt();
+    int pictureDataLength = pictureBlock.readInt();
+    byte[] pictureData = new byte[pictureDataLength];
+    pictureBlock.readBytes(pictureData, 0, pictureDataLength);
+
+    return new PictureFrame(
+        pictureType, mimeType, description, width, height, depth, colors, pictureData);
   }
 
   public static final Parcelable.Creator<PictureFrame> CREATOR =

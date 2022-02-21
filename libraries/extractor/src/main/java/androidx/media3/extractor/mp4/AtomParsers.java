@@ -1910,7 +1910,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Nullable public Format format;
     public int nalUnitLengthFieldLength;
-    @Track.Transformation public int requiredSampleTransformation;
+    public @Track.Transformation int requiredSampleTransformation;
 
     public StsdData(int numberOfEntries) {
       trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];

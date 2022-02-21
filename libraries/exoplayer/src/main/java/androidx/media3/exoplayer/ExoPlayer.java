@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
@@ -47,6 +46,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
+import androidx.media3.exoplayer.analytics.DefaultAnalyticsCollector;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.DefaultAudioSink;
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer;
@@ -64,6 +64,7 @@ import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
 import androidx.media3.exoplayer.video.spherical.CameraMotionListener;
 import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.ExtractorsFactory;
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import java.util.List;
 
@@ -159,43 +160,63 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface AudioComponent {
 
-    /** @deprecated Use {@link ExoPlayer#setAudioAttributes(AudioAttributes, boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setAudioAttributes(AudioAttributes, boolean)} instead.
+     */
     @Deprecated
     void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
 
-    /** @deprecated Use {@link Player#getAudioAttributes()} instead. */
+    /**
+     * @deprecated Use {@link Player#getAudioAttributes()} instead.
+     */
     @Deprecated
     AudioAttributes getAudioAttributes();
 
-    /** @deprecated Use {@link ExoPlayer#setAudioSessionId(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setAudioSessionId(int)} instead.
+     */
     @Deprecated
     void setAudioSessionId(int audioSessionId);
 
-    /** @deprecated Use {@link ExoPlayer#getAudioSessionId()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getAudioSessionId()} instead.
+     */
     @Deprecated
     int getAudioSessionId();
 
-    /** @deprecated Use {@link ExoPlayer#setAuxEffectInfo(AuxEffectInfo)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setAuxEffectInfo(AuxEffectInfo)} instead.
+     */
     @Deprecated
     void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
 
-    /** @deprecated Use {@link ExoPlayer#clearAuxEffectInfo()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#clearAuxEffectInfo()} instead.
+     */
     @Deprecated
     void clearAuxEffectInfo();
 
-    /** @deprecated Use {@link Player#setVolume(float)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVolume(float)} instead.
+     */
     @Deprecated
     void setVolume(float audioVolume);
 
-    /** @deprecated Use {@link Player#getVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#getVolume()} instead.
+     */
     @Deprecated
     float getVolume();
 
-    /** @deprecated Use {@link ExoPlayer#setSkipSilenceEnabled(boolean)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setSkipSilenceEnabled(boolean)} instead.
+     */
     @Deprecated
     void setSkipSilenceEnabled(boolean skipSilenceEnabled);
 
-    /** @deprecated Use {@link ExoPlayer#getSkipSilenceEnabled()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getSkipSilenceEnabled()} instead.
+     */
     @Deprecated
     boolean getSkipSilenceEnabled();
   }
@@ -208,21 +229,29 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface VideoComponent {
 
-    /** @deprecated Use {@link ExoPlayer#setVideoScalingMode(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setVideoScalingMode(int)} instead.
+     */
     @Deprecated
     void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
 
-    /** @deprecated Use {@link ExoPlayer#getVideoScalingMode()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getVideoScalingMode()} instead.
+     */
     @Deprecated
     @C.VideoScalingMode
     int getVideoScalingMode();
 
-    /** @deprecated Use {@link ExoPlayer#setVideoChangeFrameRateStrategy(int)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setVideoChangeFrameRateStrategy(int)} instead.
+     */
     @Deprecated
     void setVideoChangeFrameRateStrategy(
         @C.VideoChangeFrameRateStrategy int videoChangeFrameRateStrategy);
 
-    /** @deprecated Use {@link ExoPlayer#getVideoChangeFrameRateStrategy()} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#getVideoChangeFrameRateStrategy()} instead.
+     */
     @Deprecated
     @C.VideoChangeFrameRateStrategy
     int getVideoChangeFrameRateStrategy();
@@ -241,7 +270,9 @@ public interface ExoPlayer extends Player {
     @Deprecated
     void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
 
-    /** @deprecated Use {@link ExoPlayer#setCameraMotionListener(CameraMotionListener)} instead. */
+    /**
+     * @deprecated Use {@link ExoPlayer#setCameraMotionListener(CameraMotionListener)} instead.
+     */
     @Deprecated
     void setCameraMotionListener(CameraMotionListener listener);
 
@@ -251,43 +282,63 @@ public interface ExoPlayer extends Player {
     @Deprecated
     void clearCameraMotionListener(CameraMotionListener listener);
 
-    /** @deprecated Use {@link Player#clearVideoSurface()} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurface()} instead.
+     */
     @Deprecated
     void clearVideoSurface();
 
-    /** @deprecated Use {@link Player#clearVideoSurface(Surface)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurface(Surface)} instead.
+     */
     @Deprecated
     void clearVideoSurface(@Nullable Surface surface);
 
-    /** @deprecated Use {@link Player#setVideoSurface(Surface)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoSurface(Surface)} instead.
+     */
     @Deprecated
     void setVideoSurface(@Nullable Surface surface);
 
-    /** @deprecated Use {@link Player#setVideoSurfaceHolder(SurfaceHolder)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoSurfaceHolder(SurfaceHolder)} instead.
+     */
     @Deprecated
     void setVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
-    /** @deprecated Use {@link Player#clearVideoSurfaceHolder(SurfaceHolder)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurfaceHolder(SurfaceHolder)} instead.
+     */
     @Deprecated
     void clearVideoSurfaceHolder(@Nullable SurfaceHolder surfaceHolder);
 
-    /** @deprecated Use {@link Player#setVideoSurfaceView(SurfaceView)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoSurfaceView(SurfaceView)} instead.
+     */
     @Deprecated
     void setVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
-    /** @deprecated Use {@link Player#clearVideoSurfaceView(SurfaceView)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoSurfaceView(SurfaceView)} instead.
+     */
     @Deprecated
     void clearVideoSurfaceView(@Nullable SurfaceView surfaceView);
 
-    /** @deprecated Use {@link Player#setVideoTextureView(TextureView)} instead. */
+    /**
+     * @deprecated Use {@link Player#setVideoTextureView(TextureView)} instead.
+     */
     @Deprecated
     void setVideoTextureView(@Nullable TextureView textureView);
 
-    /** @deprecated Use {@link Player#clearVideoTextureView(TextureView)} instead. */
+    /**
+     * @deprecated Use {@link Player#clearVideoTextureView(TextureView)} instead.
+     */
     @Deprecated
     void clearVideoTextureView(@Nullable TextureView textureView);
 
-    /** @deprecated Use {@link Player#getVideoSize()} instead. */
+    /**
+     * @deprecated Use {@link Player#getVideoSize()} instead.
+     */
     @Deprecated
     VideoSize getVideoSize();
   }
@@ -300,7 +351,9 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface TextComponent {
 
-    /** @deprecated Use {@link Player#getCurrentCues()} instead. */
+    /**
+     * @deprecated Use {@link Player#getCurrentCues()} instead.
+     */
     @Deprecated
     List<Cue> getCurrentCues();
   }
@@ -313,31 +366,45 @@ public interface ExoPlayer extends Player {
   @Deprecated
   interface DeviceComponent {
 
-    /** @deprecated Use {@link Player#getDeviceInfo()} instead. */
+    /**
+     * @deprecated Use {@link Player#getDeviceInfo()} instead.
+     */
     @Deprecated
     DeviceInfo getDeviceInfo();
 
-    /** @deprecated Use {@link Player#getDeviceVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#getDeviceVolume()} instead.
+     */
     @Deprecated
     int getDeviceVolume();
 
-    /** @deprecated Use {@link Player#isDeviceMuted()} instead. */
+    /**
+     * @deprecated Use {@link Player#isDeviceMuted()} instead.
+     */
     @Deprecated
     boolean isDeviceMuted();
 
-    /** @deprecated Use {@link Player#setDeviceVolume(int)} instead. */
+    /**
+     * @deprecated Use {@link Player#setDeviceVolume(int)} instead.
+     */
     @Deprecated
     void setDeviceVolume(int volume);
 
-    /** @deprecated Use {@link Player#increaseDeviceVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#increaseDeviceVolume()} instead.
+     */
     @Deprecated
     void increaseDeviceVolume();
 
-    /** @deprecated Use {@link Player#decreaseDeviceVolume()} instead. */
+    /**
+     * @deprecated Use {@link Player#decreaseDeviceVolume()} instead.
+     */
     @Deprecated
     void decreaseDeviceVolume();
 
-    /** @deprecated Use {@link Player#setDeviceMuted(boolean)} instead. */
+    /**
+     * @deprecated Use {@link Player#setDeviceMuted(boolean)} instead.
+     */
     @Deprecated
     void setDeviceMuted(boolean muted);
   }
@@ -382,7 +449,7 @@ public interface ExoPlayer extends Player {
     /* package */ Supplier<TrackSelector> trackSelectorSupplier;
     /* package */ Supplier<LoadControl> loadControlSupplier;
     /* package */ Supplier<BandwidthMeter> bandwidthMeterSupplier;
-    /* package */ Supplier<AnalyticsCollector> analyticsCollectorSupplier;
+    /* package */ Function<Clock, AnalyticsCollector> analyticsCollectorFunction;
     /* package */ Looper looper;
     @Nullable /* package */ PriorityTaskManager priorityTaskManager;
     /* package */ AudioAttributes audioAttributes;
@@ -400,6 +467,7 @@ public interface ExoPlayer extends Player {
     /* package */ long releaseTimeoutMs;
     /* package */ long detachSurfaceTimeoutMs;
     /* package */ boolean pauseAtEndOfMediaItems;
+    /* package */ boolean usePlatformDiagnostics;
     /* package */ boolean buildCalled;
 
     /**
@@ -440,6 +508,7 @@ public interface ExoPlayer extends Player {
      *   <li>{@code releaseTimeoutMs}: {@link #DEFAULT_RELEASE_TIMEOUT_MS}
      *   <li>{@code detachSurfaceTimeoutMs}: {@link #DEFAULT_DETACH_SURFACE_TIMEOUT_MS}
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
+     *   <li>{@code usePlatformDiagnostics}: {@code true}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
@@ -544,7 +613,7 @@ public interface ExoPlayer extends Player {
           () -> trackSelector,
           () -> loadControl,
           () -> bandwidthMeter,
-          () -> analyticsCollector);
+          (clock) -> analyticsCollector);
     }
 
     private Builder(
@@ -558,7 +627,7 @@ public interface ExoPlayer extends Player {
           () -> new DefaultTrackSelector(context),
           DefaultLoadControl::new,
           () -> DefaultBandwidthMeter.getSingletonInstance(context),
-          /* analyticsCollectorSupplier= */ null);
+          DefaultAnalyticsCollector::new);
     }
 
     private Builder(
@@ -568,17 +637,14 @@ public interface ExoPlayer extends Player {
         Supplier<TrackSelector> trackSelectorSupplier,
         Supplier<LoadControl> loadControlSupplier,
         Supplier<BandwidthMeter> bandwidthMeterSupplier,
-        @Nullable Supplier<AnalyticsCollector> analyticsCollectorSupplier) {
+        Function<Clock, AnalyticsCollector> analyticsCollectorFunction) {
       this.context = context;
       this.renderersFactorySupplier = renderersFactorySupplier;
       this.mediaSourceFactorySupplier = mediaSourceFactorySupplier;
       this.trackSelectorSupplier = trackSelectorSupplier;
       this.loadControlSupplier = loadControlSupplier;
       this.bandwidthMeterSupplier = bandwidthMeterSupplier;
-      this.analyticsCollectorSupplier =
-          analyticsCollectorSupplier != null
-              ? analyticsCollectorSupplier
-              : () -> new AnalyticsCollector(checkNotNull(clock));
+      this.analyticsCollectorFunction = analyticsCollectorFunction;
       looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
@@ -592,6 +658,7 @@ public interface ExoPlayer extends Player {
       clock = Clock.DEFAULT;
       releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
       detachSurfaceTimeoutMs = DEFAULT_DETACH_SURFACE_TIMEOUT_MS;
+      usePlatformDiagnostics = true;
     }
 
     /**
@@ -704,7 +771,7 @@ public interface ExoPlayer extends Player {
     @UnstableApi
     public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
       checkState(!buildCalled);
-      this.analyticsCollectorSupplier = () -> analyticsCollector;
+      this.analyticsCollectorFunction = (clock) -> analyticsCollector;
       return this;
     }
 
@@ -972,6 +1039,28 @@ public interface ExoPlayer extends Player {
     }
 
     /**
+     * Sets whether the player reports diagnostics data to the Android platform.
+     *
+     * <p>If enabled, the player will use the {@link android.media.metrics.MediaMetricsManager} to
+     * create a {@link android.media.metrics.PlaybackSession} and forward playback events and
+     * performance data to this session. This helps to provide system performance and debugging
+     * information for media playback on the device. This data may also be collected by Google <a
+     * href="https://support.google.com/accounts/answer/6078260">if sharing usage and diagnostics
+     * data is enabled</a> by the user of the device.
+     *
+     * @param usePlatformDiagnostics Whether the player reports diagnostics data to the Android
+     *     platform.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @UnstableApi
+    public Builder setUsePlatformDiagnostics(boolean usePlatformDiagnostics) {
+      checkState(!buildCalled);
+      this.usePlatformDiagnostics = usePlatformDiagnostics;
+      return this;
+    }
+
+    /**
      * Sets the {@link Clock} that will be used by the player. Should only be set for testing
      * purposes.
      *
@@ -993,7 +1082,9 @@ public interface ExoPlayer extends Player {
      * @throws IllegalStateException If this method has already been called.
      */
     public ExoPlayer build() {
-      return buildSimpleExoPlayer();
+      checkState(!buildCalled);
+      buildCalled = true;
+      return new ExoPlayerImpl(/* builder= */ this, /* wrappingPlayer= */ null);
     }
 
     /* package */ SimpleExoPlayer buildSimpleExoPlayer() {
@@ -1057,32 +1148,6 @@ public interface ExoPlayer extends Player {
   DeviceComponent getDeviceComponent();
 
   /**
-   * Registers a listener to receive events from the player.
-   *
-   * <p>The listener's methods will be called on the thread associated with {@link
-   * #getApplicationLooper()}.
-   *
-   * @param listener The listener to register.
-   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
-   */
-  @UnstableApi
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void addListener(EventListener listener);
-
-  /**
-   * Unregister a listener registered through {@link #addListener(EventListener)}. The listener will
-   * no longer receive events from the player.
-   *
-   * @param listener The listener to unregister.
-   * @deprecated Use {@link #addListener(Listener)} and {@link #removeListener(Listener)} instead.
-   */
-  @UnstableApi
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  void removeListener(EventListener listener);
-
-  /**
    * Adds a listener to receive audio offload events.
    *
    * @param listener The listener to register.
@@ -1136,6 +1201,15 @@ public interface ExoPlayer extends Player {
   int getRendererType(int index);
 
   /**
+   * Returns the renderer at the given index.
+   *
+   * @param index The index of the renderer.
+   * @return The renderer at this index.
+   */
+  @UnstableApi
+  Renderer getRenderer(int index);
+
+  /**
    * Returns the track selector that this player uses, or null if track selection is not supported.
    */
   @UnstableApi
@@ -1150,12 +1224,16 @@ public interface ExoPlayer extends Player {
   @UnstableApi
   Clock getClock();
 
-  /** @deprecated Use {@link #prepare()} instead. */
+  /**
+   * @deprecated Use {@link #prepare()} instead.
+   */
   @UnstableApi
   @Deprecated
   void retry();
 
-  /** @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead. */
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead.
+   */
   @UnstableApi
   @Deprecated
   void prepare(MediaSource mediaSource);
@@ -1514,7 +1592,9 @@ public interface ExoPlayer extends Player {
    */
   void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy);
 
-  /** @deprecated Use {@link #setWakeMode(int)} instead. */
+  /**
+   * @deprecated Use {@link #setWakeMode(int)} instead.
+   */
   @UnstableApi
   @Deprecated
   void setHandleWakeLock(boolean handleWakeLock);
@@ -1546,20 +1626,6 @@ public interface ExoPlayer extends Player {
    */
   @UnstableApi
   void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager);
-
-  /**
-   * Sets whether the player should throw an {@link IllegalStateException} when methods are called
-   * from a thread other than the one associated with {@link #getApplicationLooper()}.
-   *
-   * <p>The default is {@code true} and this method will be removed in the future.
-   *
-   * @param throwsWhenUsingWrongThread Whether to throw when methods are called from a wrong thread.
-   * @deprecated Disabling the enforcement can result in hard-to-detect bugs. Do not use this method
-   *     except to ease the transition while wrong thread access problems are fixed.
-   */
-  @UnstableApi
-  @Deprecated
-  void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread);
 
   /**
    * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will run as

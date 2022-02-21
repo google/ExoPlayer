@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 /** Audio processor for trimming samples from the start/end of data. */
 /* package */ final class TrimmingAudioProcessor extends BaseAudioProcessor {
 
-  @C.PcmEncoding private static final int OUTPUT_ENCODING = C.ENCODING_PCM_16BIT;
+  private static final @C.PcmEncoding int OUTPUT_ENCODING = C.ENCODING_PCM_16BIT;
 
   private int trimStartFrames;
   private int trimEndFrames;

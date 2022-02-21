@@ -17,6 +17,7 @@ package androidx.media3.exoplayer.hls;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -50,8 +51,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,6 +92,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Chunk publication state. One of {@link #CHUNK_PUBLICATION_STATE_PRELOAD}, {@link
    * #CHUNK_PUBLICATION_STATE_PUBLISHED}, {@link #CHUNK_PUBLICATION_STATE_REMOVED}.
    */
+  @Documented
+  @Target(TYPE_USE)
   @IntDef({
     CHUNK_PUBLICATION_STATE_PRELOAD,
     CHUNK_PUBLICATION_STATE_PUBLISHED,
@@ -298,8 +303,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     has been {@link #CHUNK_PUBLICATION_STATE_REMOVED removed} or is definitely {@link
    *     #CHUNK_PUBLICATION_STATE_PUBLISHED published}.
    */
-  @ChunkPublicationState
-  public int getChunkPublicationState(HlsMediaChunk mediaChunk) {
+  public @ChunkPublicationState int getChunkPublicationState(HlsMediaChunk mediaChunk) {
     if (mediaChunk.partIndex == C.INDEX_UNSET) {
       // Chunks based on full segments can't be removed and are always published.
       return CHUNK_PUBLICATION_STATE_PUBLISHED;
@@ -910,7 +914,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public int getSelectionReason() {
+    public @C.SelectionReason int getSelectionReason() {
       return C.SELECTION_REASON_UNKNOWN;
     }
 

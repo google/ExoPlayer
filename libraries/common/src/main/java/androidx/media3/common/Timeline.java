@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import com.google.errorprone.annotations.InlineMe;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -167,7 +169,9 @@ public abstract class Timeline implements Bundleable {
      */
     public Object uid;
 
-    /** @deprecated Use {@link #mediaItem} instead. */
+    /**
+     * @deprecated Use {@link #mediaItem} instead.
+     */
     @UnstableApi @Deprecated @Nullable public Object tag;
 
     /** The {@link MediaItem} associated to the window. Not necessarily unique. */
@@ -210,7 +214,9 @@ public abstract class Timeline implements Bundleable {
     /** Whether this window may change when the timeline is updated. */
     public boolean isDynamic;
 
-    /** @deprecated Use {@link #isLive()} instead. */
+    /**
+     * @deprecated Use {@link #isLive()} instead.
+     */
     @UnstableApi @Deprecated public boolean isLive;
 
     /**
@@ -414,6 +420,7 @@ public abstract class Timeline implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_MEDIA_ITEM,
       FIELD_PRESENTATION_START_TIME_MS,
@@ -903,6 +910,7 @@ public abstract class Timeline implements Bundleable {
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
     @IntDef({
       FIELD_WINDOW_INDEX,
       FIELD_DURATION_US,
@@ -1174,7 +1182,9 @@ public abstract class Timeline implements Bundleable {
         == C.INDEX_UNSET;
   }
 
-  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead. */
+  /**
+   * @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long)} instead.
+   */
   @UnstableApi
   @Deprecated
   @InlineMe(replacement = "this.getPeriodPositionUs(window, period, windowIndex, windowPositionUs)")
@@ -1182,7 +1192,9 @@ public abstract class Timeline implements Bundleable {
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return getPeriodPositionUs(window, period, windowIndex, windowPositionUs);
   }
-  /** @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead. */
+  /**
+   * @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead.
+   */
   @UnstableApi
   @Deprecated
   @Nullable
@@ -1362,6 +1374,7 @@ public abstract class Timeline implements Bundleable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     FIELD_WINDOWS,
     FIELD_PERIODS,

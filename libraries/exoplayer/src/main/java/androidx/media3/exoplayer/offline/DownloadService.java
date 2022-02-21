@@ -225,7 +225,9 @@ public abstract class DownloadService extends Service {
         /* channelDescriptionResourceId= */ 0);
   }
 
-  /** @deprecated Use {@link #DownloadService(int, long, String, int, int)}. */
+  /**
+   * @deprecated Use {@link #DownloadService(int, long, String, int, int)}.
+   */
   @Deprecated
   protected DownloadService(
       int foregroundNotificationId,

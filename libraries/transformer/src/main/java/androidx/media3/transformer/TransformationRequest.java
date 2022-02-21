@@ -16,6 +16,8 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
 import android.graphics.Matrix;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -37,6 +39,7 @@ public final class TransformationRequest {
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
+    private boolean enableHdrEditing;
 
     /**
      * Creates a new instance with default values.
@@ -50,11 +53,12 @@ public final class TransformationRequest {
     }
 
     private Builder(TransformationRequest transformationRequest) {
-      this.transformationMatrix = transformationRequest.transformationMatrix;
+      this.transformationMatrix = new Matrix(transformationRequest.transformationMatrix);
       this.flattenForSlowMotion = transformationRequest.flattenForSlowMotion;
       this.outputHeight = transformationRequest.outputHeight;
       this.audioMimeType = transformationRequest.audioMimeType;
       this.videoMimeType = transformationRequest.videoMimeType;
+      this.enableHdrEditing = transformationRequest.enableHdrEditing;
     }
 
     /**
@@ -63,17 +67,19 @@ public final class TransformationRequest {
      * <p>This can be used to perform operations supported by {@link Matrix}, like scaling and
      * rotating the video.
      *
+     * <p>The video dimensions will be on the x axis, from -aspectRatio to aspectRatio, and on the y
+     * axis, from -1 to 1.
+     *
      * <p>For now, resolution will not be affected by this method.
      *
      * @param transformationMatrix The transformation to apply to video frames.
      * @return This builder.
      */
     public Builder setTransformationMatrix(Matrix transformationMatrix) {
-      // TODO(b/201293185): After {@link #setResolution} supports arbitrary resolutions,
-      // allow transformations to change the resolution, by scaling to the appropriate min/max
-      // values. This will also be required to create the VertexTransformation class, in order to
-      // have aspect ratio helper methods (which require resolution to change).
-      this.transformationMatrix = transformationMatrix;
+      // TODO(b/201293185): Implement an AdvancedFrameEditor to handle translation, as the current
+      // transformationMatrix is automatically adjusted to focus on the original pixels and
+      // effectively undo translations.
+      this.transformationMatrix = new Matrix(transformationMatrix);
       return this;
     }
 
@@ -108,39 +114,25 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the output resolution using the output height. The default value is the same height as
-     * the input. Output width will scale to preserve the input video's aspect ratio.
-     *
-     * <p>For now, only "popular" heights like 144, 240, 360, 480, 720, 1080, 1440, or 2160 are
-     * supported, to ensure compatibility on different devices.
+     * Sets the output resolution using the output height. The default value {@link C#LENGTH_UNSET}
+     * corresponds to using the same height as the input. Output width of the displayed video will
+     * scale to preserve the video's aspect ratio after other transformations.
      *
      * <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
      *
-     * @param outputHeight The output height in pixels.
+     * @param outputHeight The output height of the displayed video, in pixels.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code outputHeight} is not supported.
      */
     public Builder setResolution(int outputHeight) {
       // TODO(b/201293185): Restructure to input a Presentation class.
-      // TODO(b/201293185): Check encoder codec capabilities in order to allow arbitrary
-      // resolutions and reasonable fallbacks.
-      if (outputHeight != 144
-          && outputHeight != 240
-          && outputHeight != 360
-          && outputHeight != 480
-          && outputHeight != 720
-          && outputHeight != 1080
-          && outputHeight != 1440
-          && outputHeight != 2160) {
-        throw new IllegalArgumentException(
-            "Please use a height of 144, 240, 360, 480, 720, 1080, 1440, or 2160.");
-      }
       this.outputHeight = outputHeight;
       return this;
     }
 
     /**
-     * Sets the video MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
+     * Sets the video MIME type of the output. The default value is {@code null} which corresponds
+     * to using the same MIME type as the input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#VIDEO_H263}
@@ -151,17 +143,20 @@ public final class TransformationRequest {
      *
      * @param videoMimeType The MIME type of the video samples in the output.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code videoMimeType} is non-null but not a video
+     *     {@link MimeTypes MIME type}.
      */
-    public Builder setVideoMimeType(String videoMimeType) {
-      // TODO(b/209469847): Validate videoMimeType here once deprecated
-      // Transformer.Builder#setOuputMimeType(String) has been removed.
+    public Builder setVideoMimeType(@Nullable String videoMimeType) {
+      checkArgument(
+          videoMimeType == null || MimeTypes.isVideo(videoMimeType),
+          "Not a video MIME type: " + videoMimeType);
       this.videoMimeType = videoMimeType;
       return this;
     }
 
     /**
-     * Sets the audio MIME type of the output. The default value is to use the same MIME type as the
-     * input. Supported values are:
+     * Sets the audio MIME type of the output. The default value is {@code null} which corresponds
+     * to using the same MIME type as the input. Supported MIME types are:
      *
      * <ul>
      *   <li>{@link MimeTypes#AUDIO_AAC}
@@ -171,38 +166,98 @@ public final class TransformationRequest {
      *
      * @param audioMimeType The MIME type of the audio samples in the output.
      * @return This builder.
+     * @throws IllegalArgumentException If the {@code audioMimeType} is non-null but not an audio
+     *     {@link MimeTypes MIME type}.
      */
-    public Builder setAudioMimeType(String audioMimeType) {
-      // TODO(b/209469847): Validate audioMimeType here once deprecated
-      // Transformer.Builder#setOuputMimeType(String) has been removed.
+    public Builder setAudioMimeType(@Nullable String audioMimeType) {
+      checkArgument(
+          audioMimeType == null || MimeTypes.isAudio(audioMimeType),
+          "Not an audio MIME type: " + audioMimeType);
       this.audioMimeType = audioMimeType;
+      return this;
+    }
+
+    /**
+     * Sets whether to attempt to process any input video stream as a high dynamic range (HDR)
+     * signal.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release. The HDR
+     * editing feature is under development and is intended for developing/testing HDR processing
+     * and encoding support.
+     *
+     * @param enableHdrEditing Whether to attempt to process any input video stream as a high
+     *     dynamic range (HDR) signal.
+     * @return This builder.
+     */
+    public Builder experimental_setEnableHdrEditing(boolean enableHdrEditing) {
+      this.enableHdrEditing = enableHdrEditing;
       return this;
     }
 
     /** Builds a {@link TransformationRequest} instance. */
     public TransformationRequest build() {
       return new TransformationRequest(
-          transformationMatrix, flattenForSlowMotion, outputHeight, audioMimeType, videoMimeType);
+          transformationMatrix,
+          flattenForSlowMotion,
+          outputHeight,
+          audioMimeType,
+          videoMimeType,
+          enableHdrEditing);
     }
   }
 
+  /**
+   * A {@link Matrix transformation matrix} to apply to video frames.
+   *
+   * @see Builder#setTransformationMatrix(Matrix)
+   */
   public final Matrix transformationMatrix;
+  /**
+   * Whether the input should be flattened for media containing slow motion markers.
+   *
+   * @see Builder#setFlattenForSlowMotion(boolean)
+   */
   public final boolean flattenForSlowMotion;
+  /**
+   * The requested height of the output video, or {@link C#LENGTH_UNSET} if inferred from the input.
+   *
+   * @see Builder#setResolution(int)
+   */
   public final int outputHeight;
+  /**
+   * The requested output audio sample {@link MimeTypes MIME type}, or {@code null} if inferred from
+   * the input.
+   *
+   * @see Builder#setAudioMimeType(String)
+   */
   @Nullable public final String audioMimeType;
+  /**
+   * The requested output video sample {@link MimeTypes MIME type}, or {@code null} if inferred from
+   * the input.
+   *
+   * @see Builder#setVideoMimeType(String)
+   */
   @Nullable public final String videoMimeType;
+  /**
+   * Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.
+   *
+   * @see Builder#experimental_setEnableHdrEditing(boolean)
+   */
+  public final boolean enableHdrEditing;
 
   private TransformationRequest(
       Matrix transformationMatrix,
       boolean flattenForSlowMotion,
       int outputHeight,
       @Nullable String audioMimeType,
-      @Nullable String videoMimeType) {
+      @Nullable String videoMimeType,
+      boolean enableHdrEditing) {
     this.transformationMatrix = transformationMatrix;
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;
+    this.enableHdrEditing = enableHdrEditing;
   }
 
   @Override
@@ -218,7 +273,8 @@ public final class TransformationRequest {
         && flattenForSlowMotion == that.flattenForSlowMotion
         && outputHeight == that.outputHeight
         && Util.areEqual(audioMimeType, that.audioMimeType)
-        && Util.areEqual(videoMimeType, that.videoMimeType);
+        && Util.areEqual(videoMimeType, that.videoMimeType)
+        && enableHdrEditing == that.enableHdrEditing;
   }
 
   @Override
@@ -228,6 +284,7 @@ public final class TransformationRequest {
     result = 31 * result + outputHeight;
     result = 31 * result + (audioMimeType != null ? audioMimeType.hashCode() : 0);
     result = 31 * result + (videoMimeType != null ? videoMimeType.hashCode() : 0);
+    result = 31 * result + (enableHdrEditing ? 1 : 0);
     return result;
   }
 

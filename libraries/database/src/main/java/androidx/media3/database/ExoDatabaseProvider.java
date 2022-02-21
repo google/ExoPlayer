@@ -18,7 +18,9 @@ package androidx.media3.database;
 import android.content.Context;
 import androidx.media3.common.util.UnstableApi;
 
-/** @deprecated Use {@link StandaloneDatabaseProvider}. */
+/**
+ * @deprecated Use {@link StandaloneDatabaseProvider}.
+ */
 @Deprecated
 @UnstableApi
 public final class ExoDatabaseProvider extends StandaloneDatabaseProvider {

@@ -39,6 +39,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected final MuxerWrapper muxerWrapper;
   protected final TransformerMediaClock mediaClock;
   protected final TransformationRequest transformationRequest;
+  protected final FallbackListener fallbackListener;
 
   protected boolean isRendererStarted;
   protected boolean muxerWrapperTrackAdded;
@@ -50,11 +51,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       int trackType,
       MuxerWrapper muxerWrapper,
       TransformerMediaClock mediaClock,
-      TransformationRequest transformationRequest) {
+      TransformationRequest transformationRequest,
+      FallbackListener fallbackListener) {
     super(trackType);
     this.muxerWrapper = muxerWrapper;
     this.mediaClock = mediaClock;
     this.transformationRequest = transformationRequest;
+    this.fallbackListener = fallbackListener;
   }
 
   /**
@@ -64,8 +67,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return The {@link Capabilities} for this format.
    */
   @Override
-  @Capabilities
-  public final int supportsFormat(Format format) {
+  public final @Capabilities int supportsFormat(Format format) {
     return RendererCapabilities.create(
         MimeTypes.getTrackType(format.sampleMimeType) == getTrackType()
             ? C.FORMAT_HANDLED
@@ -97,6 +99,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       while (feedMuxerFromPipeline() || samplePipeline.processData() || feedPipelineFromInput()) {}
     } catch (TransformationException e) {
       throw wrapTransformationException(e);
+    } catch (Muxer.MuxerException e) {
+      throw wrapTransformationException(
+          TransformationException.createForMuxer(
+              e, TransformationException.ERROR_CODE_MUXING_FAILED));
     }
   }
 
@@ -108,6 +114,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   protected final void onEnabled(boolean joining, boolean mayRenderStartOfStream) {
     muxerWrapper.registerTrack();
+    fallbackListener.registerTrack();
     mediaClock.updateTimeForTrackType(getTrackType(), 0L);
   }
 
@@ -135,7 +142,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected abstract boolean ensureConfigured() throws TransformationException;
 
   @RequiresNonNull({"samplePipeline", "#1.data"})
-  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer) {
+  protected void maybeQueueSampleToPipeline(DecoderInputBuffer inputBuffer)
+      throws TransformationException {
     samplePipeline.queueInputBuffer();
   }
 
@@ -143,9 +151,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to write sample pipeline output data to the muxer.
    *
    * @return Whether it may be possible to write more data immediately by calling this method again.
+   * @throws Muxer.MuxerException If a muxing problem occurs.
+   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
    */
   @RequiresNonNull("samplePipeline")
-  private boolean feedMuxerFromPipeline() {
+  private boolean feedMuxerFromPipeline() throws Muxer.MuxerException, TransformationException {
     if (!muxerWrapperTrackAdded) {
       @Nullable Format samplePipelineOutputFormat = samplePipeline.getOutputFormat();
       if (samplePipelineOutputFormat == null) {
@@ -181,9 +191,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to read input data and pass the input data to the sample pipeline.
    *
    * @return Whether it may be possible to read more data immediately by calling this method again.
+   * @throws TransformationException If a {@link SamplePipeline} problem occurs.
    */
   @RequiresNonNull("samplePipeline")
-  private boolean feedPipelineFromInput() {
+  private boolean feedPipelineFromInput() throws TransformationException {
     @Nullable DecoderInputBuffer samplePipelineInputBuffer = samplePipeline.dequeueInputBuffer();
     if (samplePipelineInputBuffer == null) {
       return false;

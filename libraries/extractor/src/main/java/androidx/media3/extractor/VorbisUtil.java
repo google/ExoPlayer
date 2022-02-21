@@ -15,12 +15,21 @@
  */
 package androidx.media3.extractor;
 
+import android.util.Base64;
+import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
+import androidx.media3.common.Metadata;
+import androidx.media3.common.Metadata.Entry;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.extractor.metadata.flac.PictureFrame;
+import androidx.media3.extractor.metadata.vorbis.VorbisComment;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /** Utility methods for parsing Vorbis streams. */
 @UnstableApi
@@ -248,6 +257,45 @@ public final class VorbisUtil {
     }
     length += 1;
     return new CommentHeader(vendor, comments, length);
+  }
+
+  /**
+   * Builds a {@link Metadata} instance from a list of Vorbis Comments.
+   *
+   * <p>METADATA_BLOCK_PICTURE comments will be transformed into {@link PictureFrame} entries. All
+   * others will be transformed into {@link VorbisComment} entries.
+   *
+   * @param vorbisComments The raw input of comments, as a key-value pair KEY=VAL.
+   * @return The fully parsed Metadata instance. Null if no vorbis comments could be parsed.
+   */
+  @Nullable
+  public static Metadata parseVorbisComments(List<String> vorbisComments) {
+    List<Entry> metadataEntries = new ArrayList<>();
+    for (int i = 0; i < vorbisComments.size(); i++) {
+      String vorbisComment = vorbisComments.get(i);
+      String[] keyAndValue = Util.splitAtFirst(vorbisComment, "=");
+      if (keyAndValue.length != 2) {
+        Log.w(TAG, "Failed to parse Vorbis comment: " + vorbisComment);
+        continue;
+      }
+
+      if (keyAndValue[0].equals("METADATA_BLOCK_PICTURE")) {
+        // This tag is a special cover art tag, outlined by
+        // https://wiki.xiph.org/index.php/VorbisComment#Cover_art.
+        // Decode it from Base64 and transform it into a PictureFrame.
+        try {
+          byte[] decoded = Base64.decode(keyAndValue[1], Base64.DEFAULT);
+          metadataEntries.add(PictureFrame.fromPictureBlock(new ParsableByteArray(decoded)));
+        } catch (RuntimeException e) {
+          Log.w(TAG, "Failed to parse vorbis picture", e);
+        }
+      } else {
+        VorbisComment entry = new VorbisComment(keyAndValue[0], keyAndValue[1]);
+        metadataEntries.add(entry);
+      }
+    }
+
+    return metadataEntries.isEmpty() ? null : new Metadata(metadataEntries);
   }
 
   /**

@@ -15,6 +15,8 @@
  */
 package androidx.media3.extractor;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
@@ -24,6 +26,7 @@ import androidx.media3.common.util.UnstableApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Utility methods for handling AAC audio streams. */
 @UnstableApi
@@ -159,6 +162,7 @@ public final class AacUtil {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef({
     AUDIO_OBJECT_TYPE_AAC_LC,
     AUDIO_OBJECT_TYPE_AAC_SBR,

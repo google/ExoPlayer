@@ -173,13 +173,17 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   private int referenceCount;
   @Nullable private OnEventListener onEventListener;
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public FakeExoMediaDrm() {
     this(/* maxConcurrentSessions= */ Integer.MAX_VALUE);
   }
 
-  /** @deprecated Use {@link Builder} instead. */
+  /**
+   * @deprecated Use {@link Builder} instead.
+   */
   @Deprecated
   public FakeExoMediaDrm(int maxConcurrentSessions) {
     this(
@@ -398,8 +402,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  @C.CryptoType
-  public int getCryptoType() {
+  public @C.CryptoType int getCryptoType() {
     return FakeCryptoConfig.TYPE;
   }
 
@@ -554,7 +557,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
         optionalParameters.put(optionalParameterKeys.get(i), optionalParameterValues.get(i));
       }
 
-      this.optionalParameters = optionalParameters.build();
+      this.optionalParameters = optionalParameters.buildOrThrow();
     }
 
     public byte[] toByteArray() {

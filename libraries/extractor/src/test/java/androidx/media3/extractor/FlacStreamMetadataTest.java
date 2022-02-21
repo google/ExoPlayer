@@ -19,7 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.Metadata;
 import androidx.media3.extractor.flac.FlacConstants;
-import androidx.media3.extractor.metadata.flac.VorbisComment;
+import androidx.media3.extractor.metadata.vorbis.VorbisComment;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

@@ -27,6 +27,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import androidx.media3.common.C;
+import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import java.io.IOException;
 import java.util.Locale;
@@ -50,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Bitmap logoBitmap;
   private final Canvas overlayCanvas;
 
-  private GlUtil.@MonotonicNonNull Program program;
+  private @MonotonicNonNull GlProgram program;
 
   private float bitmapScaleX;
   private float bitmapScaleY;
@@ -78,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void initialize() {
     try {
       program =
-          new GlUtil.Program(
+          new GlProgram(
               context,
               /* vertexShaderFilePath= */ "bitmap_overlay_video_processor_vertex.glsl",
               /* fragmentShaderFilePath= */ "bitmap_overlay_video_processor_fragment.glsl");
@@ -86,23 +87,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throw new IllegalStateException(e);
     }
     program.setBufferAttribute(
-        "a_position",
-        new float[] {
-          -1, -1, 0, 1,
-          1, -1, 0, 1,
-          -1, 1, 0, 1,
-          1, 1, 0, 1
-        },
-        4);
+        "aFramePosition", GlUtil.getNormalizedCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     program.setBufferAttribute(
-        "a_texcoord",
-        new float[] {
-          0, 0, 0, 1,
-          1, 0, 0, 1,
-          0, 1, 0, 1,
-          1, 1, 0, 1
-        },
-        4);
+        "aTexCoords", GlUtil.getTextureCoordinateBounds(), GlUtil.RECTANGLE_VERTICES_COUNT);
     GLES20.glGenTextures(1, textures, 0);
     GLES20.glBindTexture(GL10.GL_TEXTURE_2D, textures[0]);
     GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
@@ -131,12 +118,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     GlUtil.checkGlError();
 
     // Run the shader program.
-    GlUtil.Program program = checkNotNull(this.program);
-    program.setSamplerTexIdUniform("tex_sampler_0", frameTexture, /* unit= */ 0);
-    program.setSamplerTexIdUniform("tex_sampler_1", textures[0], /* unit= */ 1);
-    program.setFloatUniform("scaleX", bitmapScaleX);
-    program.setFloatUniform("scaleY", bitmapScaleY);
-    program.setFloatsUniform("tex_transform", transformMatrix);
+    GlProgram program = checkNotNull(this.program);
+    program.setSamplerTexIdUniform("uTexSampler0", frameTexture, /* unit= */ 0);
+    program.setSamplerTexIdUniform("uTexSampler1", textures[0], /* unit= */ 1);
+    program.setFloatUniform("uScaleX", bitmapScaleX);
+    program.setFloatUniform("uScaleY", bitmapScaleY);
+    program.setFloatsUniform("uTexTransform", transformMatrix);
     program.bindAttributesAndUniforms();
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);

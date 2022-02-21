@@ -166,6 +166,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   private final Context context;
   private final SessionToken token;
+  private final Bundle connectionHints;
   private final IBinder.DeathRecipient deathRecipient;
   private final SurfaceCallback surfaceCallback;
   private final ListenerSet<Listener> listeners;
@@ -211,12 +212,24 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     sequencedFutureManager = new SequencedFutureManager();
     controllerStub = new MediaControllerStub(this);
     this.token = token;
+    this.connectionHints = connectionHints;
     deathRecipient =
         () ->
             MediaControllerImplBase.this.instance.runOnApplicationLooper(
                 MediaControllerImplBase.this.instance::release);
     surfaceCallback = new SurfaceCallback();
 
+    serviceConnection =
+        (this.token.getType() == TYPE_SESSION)
+            ? null
+            : new SessionServiceConnection(connectionHints);
+    flushCommandQueueHandler = new FlushCommandQueueHandler(instance.getApplicationLooper());
+    lastReturnedContentPositionMs = C.TIME_UNSET;
+    lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
+  }
+
+  @Override
+  public void connect() {
     boolean connectionRequested;
     if (this.token.getType() == TYPE_SESSION) {
       // Session
@@ -229,9 +242,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!connectionRequested) {
       this.instance.runOnApplicationLooper(MediaControllerImplBase.this.instance::release);
     }
-    flushCommandQueueHandler = new FlushCommandQueueHandler(instance.getApplicationLooper());
-    lastReturnedContentPositionMs = C.TIME_UNSET;
-    lastSetPlayWhenReadyCalledTimeMs = C.TIME_UNSET;
   }
 
   @Override
@@ -667,8 +677,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Override
   public long getContentPosition() {
     boolean receivedUpdatedPositionInfo =
-        lastSetPlayWhenReadyCalledTimeMs != C.TIME_UNSET
-            && lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
+        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
     if (!playerInfo.isPlaying || playerInfo.sessionPositionInfo.isPlayingAd) {
       if (receivedUpdatedPositionInfo || lastReturnedContentPositionMs == C.TIME_UNSET) {
         lastReturnedContentPositionMs =
@@ -2148,6 +2157,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private boolean requestConnectToService() {
+    int flags =
+        Util.SDK_INT >= 29
+            ? Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES
+            : Context.BIND_AUTO_CREATE;
+
     // Service. Needs to get fresh binder whenever connection is needed.
     Intent intent = new Intent(MediaSessionService.SERVICE_INTERFACE);
     intent.setClassName(token.getPackageName(), token.getServiceName());
@@ -2166,11 +2180,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     //    If a service wants to keep running, it should be either foreground service or
     //    bound service. But there had been request for the feature for system apps
     //    and using bindService() will be better fit with it.
-    boolean result =
-        context.bindService(
-            intent,
-            serviceConnection,
-            Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES);
+    boolean result = context.bindService(intent, serviceConnection, flags);
     if (!result) {
       Log.w(TAG, "bind to " + token + " failed");
       return false;
@@ -2202,8 +2212,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     try {
       MediaUtils.getFutureResult(future, /* timeoutMs= */ 3_000);
     } catch (ExecutionException e) {
-      // It never happens because future.setException will not be called anywhere
-      throw new AssertionError(e);
+      // Never happens because future.setException will not be called.
+      throw new IllegalStateException(e);
     } catch (TimeoutException e) {
       Log.w(TAG, "set/clearVideoSurface takes too long on the session side.", e);
       // TODO(b/188888693): Let developers know the failure in their code.
@@ -2238,10 +2248,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /** Returns session interface if the controller can send the predefined command. */
   @Nullable
   IMediaSession getSessionInterfaceWithSessionCommandIfAble(@CommandCode int commandCode) {
-    if (commandCode == COMMAND_CODE_CUSTOM) {
-      throw new AssertionError(
-          "Use getSessionInterfaceWithSessionCommandIfAble(SessionCommand) for custom commands");
-    }
+    checkArgument(commandCode != COMMAND_CODE_CUSTOM);
     if (!sessionCommands.contains(commandCode)) {
       Log.w(TAG, "Controller isn't allowed to call command, commandCode=" + commandCode);
       return null;
@@ -2252,10 +2259,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /** Returns session interface if the controller can send the custom command. */
   @Nullable
   IMediaSession getSessionInterfaceWithSessionCommandIfAble(SessionCommand command) {
-    if (command.commandCode != COMMAND_CODE_CUSTOM) {
-      throw new AssertionError(
-          "Use getSessionInterfaceWithSessionCommandIfAble(int) for predefined commands");
-    }
+    checkArgument(command.commandCode == COMMAND_CODE_CUSTOM);
     if (!sessionCommands.contains(command)) {
       Log.w(TAG, "Controller isn't allowed to call session command:" + command);
       return null;

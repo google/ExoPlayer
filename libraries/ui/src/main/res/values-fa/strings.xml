@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">غیرفعال کردن زیرنویس</string>
   <string name="exo_controls_cc_disabled_description">فعال کردن زیرنویس</string>
   <string name="exo_controls_playback_speed">سرعت</string>
-  <string name="exo_controls_playback_speed_normal">عادی</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>۰٫۲۵ برابر</item>
+    <item>۰٫۵ برابر</item>
+    <item>۰٫۷۵ برابر</item>
+    <item>عادی</item>
+    <item>۱٫۲۵ برابر</item>
+    <item>۱٫۵ برابر</item>
+    <item>۲ برابر</item>
+  </string-array>
   <string name="exo_track_selection_title_video">ویدیو</string>
   <string name="exo_track_selection_title_audio">صوتی</string>
   <string name="exo_track_selection_title_text">نوشتار</string>

@@ -173,13 +173,17 @@ public final class DownloadHelper {
     return capabilities;
   }
 
-  /** @deprecated Use {@link #forMediaItem(Context, MediaItem)} */
+  /**
+   * @deprecated Use {@link #forMediaItem(Context, MediaItem)}
+   */
   @Deprecated
   public static DownloadHelper forProgressive(Context context, Uri uri) {
     return forMediaItem(context, new MediaItem.Builder().setUri(uri).build());
   }
 
-  /** @deprecated Use {@link #forMediaItem(Context, MediaItem)} */
+  /**
+   * @deprecated Use {@link #forMediaItem(Context, MediaItem)}
+   */
   @Deprecated
   public static DownloadHelper forProgressive(Context context, Uri uri, @Nullable String cacheKey) {
     return forMediaItem(
@@ -893,8 +897,7 @@ public final class DownloadHelper {
       MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    return new DefaultMediaSourceFactory(
-            dataSourceFactory, ExtractorsFactory.EMPTY, /* serverSideDaiMediaSourceFactory= */ null)
+    return new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY)
         .setDrmSessionManagerProvider(
             drmSessionManager != null ? unusedMediaItem -> drmSessionManager : null)
         .createMediaSource(mediaItem);
@@ -1101,8 +1104,7 @@ public final class DownloadHelper {
     }
 
     @Override
-    @C.SelectionReason
-    public int getSelectionReason() {
+    public @C.SelectionReason int getSelectionReason() {
       return C.SELECTION_REASON_UNKNOWN;
     }
 

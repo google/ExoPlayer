@@ -15,8 +15,11 @@
  */
 package androidx.media3.common;
 
+import static androidx.media3.common.MimeTypes.AUDIO_AAC;
+import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.media3.common.TracksInfo.TrackGroupInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -38,16 +41,18 @@ public class TracksInfoTest {
     TracksInfo before =
         new TracksInfo(
             ImmutableList.of(
-                new TracksInfo.TrackGroupInfo(
-                    new TrackGroup(new Format.Builder().build()),
+                new TrackGroupInfo(
+                    new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+                    /* adaptiveSupported= */ false,
                     new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
-                    C.TRACK_TYPE_AUDIO,
-                    new boolean[] {true}),
-                new TracksInfo.TrackGroupInfo(
-                    new TrackGroup(new Format.Builder().build(), new Format.Builder().build()),
+                    /* tracksSelected= */ new boolean[] {true}),
+                new TrackGroupInfo(
+                    new TrackGroup(
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                        new Format.Builder().setSampleMimeType(VIDEO_H264).build()),
+                    /* adaptiveSupported= */ true,
                     new int[] {C.FORMAT_UNSUPPORTED_DRM, C.FORMAT_UNSUPPORTED_TYPE},
-                    C.TRACK_TYPE_VIDEO,
-                    new boolean[] {false, true})));
+                    /* tracksSelected= */ new boolean[] {false, true})));
     TracksInfo after = TracksInfo.CREATOR.fromBundle(before.toBundle());
     assertThat(after).isEqualTo(before);
   }
@@ -56,9 +61,12 @@ public class TracksInfoTest {
   public void tracksInfoGetters_withoutTrack_returnExpectedValues() {
     TracksInfo tracksInfo = new TracksInfo(ImmutableList.of());
 
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)).isTrue();
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_AUDIO)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true))
+        .isFalse();
     assertThat(tracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO)).isFalse();
-    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
+    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
     assertThat(trackGroupInfos).isEmpty();
   }
 
@@ -72,26 +80,37 @@ public class TracksInfoTest {
 
   @Test
   public void tracksInfoGetters_ofComplexTracksInfo_returnExpectedValues() {
-    TracksInfo.TrackGroupInfo trackGroupInfo0 =
-        new TracksInfo.TrackGroupInfo(
-            new TrackGroup(new Format.Builder().build()),
+    TrackGroupInfo trackGroupInfo0 =
+        new TrackGroupInfo(
+            new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+            /* adaptiveSupported= */ false,
             new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
-            C.TRACK_TYPE_AUDIO,
             /* tracksSelected= */ new boolean[] {false});
-    TracksInfo.TrackGroupInfo trackGroupInfo1 =
-        new TracksInfo.TrackGroupInfo(
-            new TrackGroup(new Format.Builder().build(), new Format.Builder().build()),
+    TrackGroupInfo trackGroupInfo1 =
+        new TrackGroupInfo(
+            new TrackGroup(
+                new Format.Builder().setSampleMimeType(VIDEO_H264).build(),
+                new Format.Builder().setSampleMimeType(VIDEO_H264).build()),
+            /* adaptiveSupported= */ true,
             new int[] {C.FORMAT_UNSUPPORTED_DRM, C.FORMAT_HANDLED},
-            C.TRACK_TYPE_VIDEO,
             /* tracksSelected= */ new boolean[] {false, true});
     TracksInfo tracksInfo = new TracksInfo(ImmutableList.of(trackGroupInfo0, trackGroupInfo1));
 
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_AUDIO)).isFalse();
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_VIDEO)).isTrue();
-    assertThat(tracksInfo.isTypeSupportedOrEmpty(C.TRACK_TYPE_TEXT)).isTrue();
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_AUDIO)).isTrue();
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_VIDEO)).isTrue();
+    assertThat(tracksInfo.containsType(C.TRACK_TYPE_TEXT)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_VIDEO)).isTrue();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_TEXT)).isFalse();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true))
+        .isTrue();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true))
+        .isTrue();
+    assertThat(tracksInfo.isTypeSupported(C.TRACK_TYPE_TEXT, /* allowExceedsCapabilities= */ true))
+        .isFalse();
     assertThat(tracksInfo.isTypeSelected(C.TRACK_TYPE_AUDIO)).isFalse();
     assertThat(tracksInfo.isTypeSelected(C.TRACK_TYPE_VIDEO)).isTrue();
-    ImmutableList<TracksInfo.TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
+    ImmutableList<TrackGroupInfo> trackGroupInfos = tracksInfo.getTrackGroupInfos();
     assertThat(trackGroupInfos).hasSize(2);
     assertThat(trackGroupInfos.get(0)).isSameInstanceAs(trackGroupInfo0);
     assertThat(trackGroupInfos.get(1)).isSameInstanceAs(trackGroupInfo1);
@@ -106,5 +125,20 @@ public class TracksInfoTest {
     assertThat(trackGroupInfos.get(1).isTrackSelected(1)).isTrue();
     assertThat(trackGroupInfos.get(0).getTrackType()).isEqualTo(C.TRACK_TYPE_AUDIO);
     assertThat(trackGroupInfos.get(1).getTrackType()).isEqualTo(C.TRACK_TYPE_VIDEO);
+  }
+
+  /**
+   * Tests that {@link TrackGroupInfo#isAdaptiveSupported} returns false if the group only contains
+   * a single track, even if true is passed to the constructor.
+   */
+  @Test
+  public void trackGroupInfo_withSingleTrack_isNotAdaptive() {
+    TrackGroupInfo trackGroupInfo0 =
+        new TrackGroupInfo(
+            new TrackGroup(new Format.Builder().setSampleMimeType(AUDIO_AAC).build()),
+            /* adaptiveSupported= */ true,
+            new int[] {C.FORMAT_EXCEEDS_CAPABILITIES},
+            /* tracksSelected= */ new boolean[] {false});
+    assertThat(trackGroupInfo0.isAdaptiveSupported()).isFalse();
   }
 }

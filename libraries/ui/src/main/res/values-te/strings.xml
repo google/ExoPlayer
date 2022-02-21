@@ -46,7 +46,15 @@
   <string name="exo_controls_cc_enabled_description">ఉప శీర్షికలను డిజేబుల్ చేయి</string>
   <string name="exo_controls_cc_disabled_description">ఉప శీర్షికలను ఎనేబుల్ చేయి</string>
   <string name="exo_controls_playback_speed">వేగం</string>
-  <string name="exo_controls_playback_speed_normal">సాధారణం</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>సాధారణం</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
   <string name="exo_track_selection_title_video">వీడియో</string>
   <string name="exo_track_selection_title_audio">ఆడియో</string>
   <string name="exo_track_selection_title_text">వచనం</string>

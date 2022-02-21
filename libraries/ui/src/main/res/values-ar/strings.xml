@@ -54,7 +54,15 @@
   <string name="exo_controls_cc_enabled_description">إيقاف الترجمة</string>
   <string name="exo_controls_cc_disabled_description">تفعيل الترجمة</string>
   <string name="exo_controls_playback_speed">السرعة</string>
-  <string name="exo_controls_playback_speed_normal">عادية</string>
+  <string-array name="exo_controls_playback_speeds">
+    <item>أسرع بـ 0.25 مرة</item>
+    <item>أسرع بـ 0.5 مرات</item>
+    <item>أسرع بـ 0.75 مرة</item>
+    <item>عادية</item>
+    <item>أسرع بـ 1.25 مرة</item>
+    <item>أسرع بـ 1.5 مرة</item>
+    <item>أسرع بمرتين</item>
+  </string-array>
   <string name="exo_track_selection_title_video">فيديو</string>
   <string name="exo_track_selection_title_audio">صوت</string>
   <string name="exo_track_selection_title_text">نص</string>

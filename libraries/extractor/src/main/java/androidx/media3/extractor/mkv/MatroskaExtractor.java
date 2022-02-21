@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.util.Pair;
 import android.util.SparseArray;
@@ -59,6 +60,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -87,6 +89,7 @@ public class MatroskaExtractor implements Extractor {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
   @IntDef(
       flag = true,
       value = {FLAG_DISABLE_SEEK_FOR_CUES})
@@ -140,6 +143,7 @@ public class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_PCM_FLOAT = "A_PCM/FLOAT/IEEE";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
   private static final String CODEC_ID_ASS = "S_TEXT/ASS";
+  private static final String CODEC_ID_VTT = "S_TEXT/WEBVTT";
   private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
   private static final String CODEC_ID_PGS = "S_HDMV/PGS";
   private static final String CODEC_ID_DVBSUB = "S_DVBSUB";
@@ -189,6 +193,7 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_CODEC_PRIVATE = 0x63A2;
   private static final int ID_CODEC_DELAY = 0x56AA;
   private static final int ID_SEEK_PRE_ROLL = 0x56BB;
+  private static final int ID_DISCARD_PADDING = 0x75A2;
   private static final int ID_VIDEO = 0xE0;
   private static final int ID_PIXEL_WIDTH = 0xB0;
   private static final int ID_PIXEL_HEIGHT = 0xBA;
@@ -325,6 +330,32 @@ public class MatroskaExtractor implements Extractor {
   /** The format of an SSA timecode. */
   private static final String SSA_TIMECODE_FORMAT = "%01d:%02d:%02d:%02d";
 
+  /**
+   * A template for the prefix that must be added to each VTT sample.
+   *
+   * <p>The display time of each subtitle is passed as {@code timeUs} to {@link
+   * TrackOutput#sampleMetadata}. The start and end timecodes in this template are relative to
+   * {@code timeUs}. Hence the start timecode is always zero. The 12 byte end timecode starting at
+   * {@link #VTT_PREFIX_END_TIMECODE_OFFSET} is set to a placeholder value, and must be replaced
+   * with the duration of the subtitle.
+   *
+   * <p>Equivalent to the UTF-8 string: "WEBVTT\n\n00:00:00.000 --> 00:00:00.000\n".
+   */
+  private static final byte[] VTT_PREFIX =
+      new byte[] {
+        87, 69, 66, 86, 84, 84, 10, 10, 48, 48, 58, 48, 48, 58, 48, 48, 46, 48, 48, 48, 32, 45, 45,
+        62, 32, 48, 48, 58, 48, 48, 58, 48, 48, 46, 48, 48, 48, 10
+      };
+  /** The byte offset of the end timecode in {@link #VTT_PREFIX}. */
+  private static final int VTT_PREFIX_END_TIMECODE_OFFSET = 25;
+  /**
+   * The value by which to divide a time in microseconds to convert it to the unit of the last value
+   * in a VTT timecode (milliseconds).
+   */
+  private static final long VTT_TIMECODE_LAST_VALUE_SCALING_FACTOR = 1000;
+  /** The format of a VTT timecode. */
+  private static final String VTT_TIMECODE_FORMAT = "%02d:%02d:%02d.%03d";
+
   /** The length in bytes of a WAVEFORMATEX structure. */
   private static final int WAVE_FORMAT_SIZE = 18;
   /** Format tag indicating a WAVEFORMATEXTENSIBLE structure. */
@@ -361,7 +392,7 @@ public class MatroskaExtractor implements Extractor {
   private final ParsableByteArray subtitleSample;
   private final ParsableByteArray encryptionInitializationVector;
   private final ParsableByteArray encryptionSubsampleData;
-  private final ParsableByteArray blockAdditionalData;
+  private final ParsableByteArray supplementalData;
   private @MonotonicNonNull ByteBuffer encryptionSubsampleDataBuffer;
 
   private long segmentContentSize;
@@ -401,9 +432,10 @@ public class MatroskaExtractor implements Extractor {
   private int[] blockSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
-  @C.BufferFlags private int blockFlags;
+  private @C.BufferFlags int blockFlags;
   private int blockAdditionalId;
   private boolean blockHasReferenceBlock;
+  private long blockGroupDiscardPaddingNs;
 
   // Sample writing state.
   private int sampleBytesRead;
@@ -442,7 +474,7 @@ public class MatroskaExtractor implements Extractor {
     subtitleSample = new ParsableByteArray();
     encryptionInitializationVector = new ParsableByteArray(ENCRYPTION_IV_SIZE);
     encryptionSubsampleData = new ParsableByteArray();
-    blockAdditionalData = new ParsableByteArray();
+    supplementalData = new ParsableByteArray();
     blockSampleSizes = new int[1];
   }
 
@@ -501,8 +533,7 @@ public class MatroskaExtractor implements Extractor {
    * @see EbmlProcessor#getElementType(int)
    */
   @CallSuper
-  @EbmlProcessor.ElementType
-  protected int getElementType(int id) {
+  protected @EbmlProcessor.ElementType int getElementType(int id) {
     switch (id) {
       case ID_EBML:
       case ID_SEGMENT:
@@ -550,6 +581,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_BLOCK_ADD_ID_TYPE:
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
+      case ID_DISCARD_PADDING:
       case ID_CHANNELS:
       case ID_AUDIO_BIT_DEPTH:
       case ID_CONTENT_ENCODING_ORDER:
@@ -661,6 +693,7 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_BLOCK_GROUP:
         blockHasReferenceBlock = false;
+        blockGroupDiscardPaddingNs = 0L;
         break;
       case ID_CONTENT_ENCODING:
         // TODO: check and fail if more than one content encoding is present.
@@ -721,13 +754,22 @@ public class MatroskaExtractor implements Extractor {
           // We've skipped this block (due to incompatible track number).
           return;
         }
+        Track track = tracks.get(blockTrackNumber);
+        track.assertOutputInitialized();
+        if (blockGroupDiscardPaddingNs > 0L && CODEC_ID_OPUS.equals(track.codecId)) {
+          // For Opus, attach DiscardPadding to the block group samples as supplemental data.
+          supplementalData.reset(
+              ByteBuffer.allocate(8)
+                  .order(ByteOrder.LITTLE_ENDIAN)
+                  .putLong(blockGroupDiscardPaddingNs)
+                  .array());
+        }
+
         // Commit sample metadata.
         int sampleOffset = 0;
         for (int i = 0; i < blockSampleCount; i++) {
           sampleOffset += blockSampleSizes[i];
         }
-        Track track = tracks.get(blockTrackNumber);
-        track.assertOutputInitialized();
         for (int i = 0; i < blockSampleCount; i++) {
           long sampleTimeUs = blockTimeUs + (i * track.defaultSampleDurationNs) / 1000;
           int sampleFlags = blockFlags;
@@ -858,6 +900,9 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_SEEK_PRE_ROLL:
         getCurrentTrack(id).seekPreRollNs = value;
+        break;
+      case ID_DISCARD_PADDING:
+        blockGroupDiscardPaddingNs = value;
         break;
       case ID_CHANNELS:
         getCurrentTrack(id).channelCount = (int) value;
@@ -1252,7 +1297,9 @@ public class MatroskaExtractor implements Extractor {
           // For SimpleBlock, we can write sample data and immediately commit the corresponding
           // sample metadata.
           while (blockSampleIndex < blockSampleCount) {
-            int sampleSize = writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
+            int sampleSize =
+                writeSampleData(
+                    input, track, blockSampleSizes[blockSampleIndex], /* isBlockGroup= */ false);
             long sampleTimeUs =
                 blockTimeUs + (blockSampleIndex * track.defaultSampleDurationNs) / 1000;
             commitSampleToOutput(track, sampleTimeUs, blockFlags, sampleSize, /* offset= */ 0);
@@ -1267,7 +1314,8 @@ public class MatroskaExtractor implements Extractor {
           // the sample data, storing the final sample sizes for when we commit the metadata.
           while (blockSampleIndex < blockSampleCount) {
             blockSampleSizes[blockSampleIndex] =
-                writeSampleData(input, track, blockSampleSizes[blockSampleIndex]);
+                writeSampleData(
+                    input, track, blockSampleSizes[blockSampleIndex], /* isBlockGroup= */ true);
             blockSampleIndex++;
           }
         }
@@ -1303,8 +1351,8 @@ public class MatroskaExtractor implements Extractor {
       throws IOException {
     if (blockAdditionalId == BLOCK_ADDITIONAL_ID_VP9_ITU_T_35
         && CODEC_ID_VP9.equals(track.codecId)) {
-      blockAdditionalData.reset(contentSize);
-      input.readFully(blockAdditionalData.getData(), 0, contentSize);
+      supplementalData.reset(contentSize);
+      input.readFully(supplementalData.getData(), 0, contentSize);
     } else {
       // Unhandled block additional data.
       input.skipFully(contentSize);
@@ -1344,7 +1392,9 @@ public class MatroskaExtractor implements Extractor {
       track.trueHdSampleRechunker.sampleMetadata(
           track.output, timeUs, flags, size, offset, track.cryptoData);
     } else {
-      if (CODEC_ID_SUBRIP.equals(track.codecId) || CODEC_ID_ASS.equals(track.codecId)) {
+      if (CODEC_ID_SUBRIP.equals(track.codecId)
+          || CODEC_ID_ASS.equals(track.codecId)
+          || CODEC_ID_VTT.equals(track.codecId)) {
         if (blockSampleCount > 1) {
           Log.w(TAG, "Skipping subtitle sample in laced block.");
         } else if (blockDurationUs == C.TIME_UNSET) {
@@ -1371,13 +1421,13 @@ public class MatroskaExtractor implements Extractor {
         if (blockSampleCount > 1) {
           // There were multiple samples in the block. Appending the additional data to the last
           // sample doesn't make sense. Skip instead.
-          flags &= ~C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
+          supplementalData.reset(/* limit= */ 0);
         } else {
           // Append supplemental data.
-          int blockAdditionalSize = blockAdditionalData.limit();
+          int supplementalDataSize = supplementalData.limit();
           track.output.sampleData(
-              blockAdditionalData, blockAdditionalSize, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
-          size += blockAdditionalSize;
+              supplementalData, supplementalDataSize, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
+          size += supplementalDataSize;
         }
       }
       track.output.sampleMetadata(timeUs, flags, size, offset, track.cryptoData);
@@ -1406,16 +1456,21 @@ public class MatroskaExtractor implements Extractor {
    * @param input The input from which to read sample data.
    * @param track The track to output the sample to.
    * @param size The size of the sample data on the input side.
+   * @param isBlockGroup Whether the samples are from a BlockGroup.
    * @return The final size of the written sample.
    * @throws IOException If an error occurs reading from the input.
    */
   @RequiresNonNull("#2.output")
-  private int writeSampleData(ExtractorInput input, Track track, int size) throws IOException {
+  private int writeSampleData(ExtractorInput input, Track track, int size, boolean isBlockGroup)
+      throws IOException {
     if (CODEC_ID_SUBRIP.equals(track.codecId)) {
       writeSubtitleSampleData(input, SUBRIP_PREFIX, size);
       return finishWriteSampleData();
     } else if (CODEC_ID_ASS.equals(track.codecId)) {
       writeSubtitleSampleData(input, SSA_PREFIX, size);
+      return finishWriteSampleData();
+    } else if (CODEC_ID_VTT.equals(track.codecId)) {
+      writeSubtitleSampleData(input, VTT_PREFIX, size);
       return finishWriteSampleData();
     }
 
@@ -1514,16 +1569,17 @@ public class MatroskaExtractor implements Extractor {
         sampleStrippedBytes.reset(track.sampleStrippedBytes, track.sampleStrippedBytes.length);
       }
 
-      if (track.maxBlockAdditionId > 0) {
+      if (track.samplesHaveSupplementalData(isBlockGroup)) {
         blockFlags |= C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
-        blockAdditionalData.reset(/* limit= */ 0);
+        supplementalData.reset(/* limit= */ 0);
         // If there is supplemental data, the structure of the sample data is:
-        // sample size (4 bytes) || sample data || supplemental data
+        // encryption data (if any) || sample size (4 bytes) || sample data || supplemental data
+        int sampleSize = size + sampleStrippedBytes.limit() - sampleBytesRead;
         scratch.reset(/* limit= */ 4);
-        scratch.getData()[0] = (byte) ((size >> 24) & 0xFF);
-        scratch.getData()[1] = (byte) ((size >> 16) & 0xFF);
-        scratch.getData()[2] = (byte) ((size >> 8) & 0xFF);
-        scratch.getData()[3] = (byte) (size & 0xFF);
+        scratch.getData()[0] = (byte) ((sampleSize >> 24) & 0xFF);
+        scratch.getData()[1] = (byte) ((sampleSize >> 16) & 0xFF);
+        scratch.getData()[2] = (byte) ((sampleSize >> 8) & 0xFF);
+        scratch.getData()[3] = (byte) (sampleSize & 0xFF);
         output.sampleData(scratch, 4, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
         sampleBytesWritten += 4;
       }
@@ -1643,7 +1699,8 @@ public class MatroskaExtractor implements Extractor {
    * <p>See documentation on {@link #SSA_DIALOGUE_FORMAT} and {@link #SUBRIP_PREFIX} for why we use
    * the duration as the end timecode.
    *
-   * @param codecId The subtitle codec; must be {@link #CODEC_ID_SUBRIP} or {@link #CODEC_ID_ASS}.
+   * @param codecId The subtitle codec; must be {@link #CODEC_ID_SUBRIP}, {@link #CODEC_ID_ASS} or
+   *     {@link #CODEC_ID_VTT}.
    * @param durationUs The duration of the sample, in microseconds.
    * @param subtitleData The subtitle sample in which to overwrite the end timecode (output
    *     parameter).
@@ -1663,6 +1720,12 @@ public class MatroskaExtractor implements Extractor {
             formatSubtitleTimecode(
                 durationUs, SSA_TIMECODE_FORMAT, SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR);
         endTimecodeOffset = SSA_PREFIX_END_TIMECODE_OFFSET;
+        break;
+      case CODEC_ID_VTT:
+        endTimecode =
+            formatSubtitleTimecode(
+                durationUs, VTT_TIMECODE_FORMAT, VTT_TIMECODE_LAST_VALUE_SCALING_FACTOR);
+        endTimecodeOffset = VTT_PREFIX_END_TIMECODE_OFFSET;
         break;
       default:
         throw new IllegalArgumentException();
@@ -1832,6 +1895,7 @@ public class MatroskaExtractor implements Extractor {
       case CODEC_ID_PCM_FLOAT:
       case CODEC_ID_SUBRIP:
       case CODEC_ID_ASS:
+      case CODEC_ID_VTT:
       case CODEC_ID_VOBSUB:
       case CODEC_ID_PGS:
       case CODEC_ID_DVBSUB:
@@ -1865,8 +1929,7 @@ public class MatroskaExtractor implements Extractor {
   private final class InnerEbmlProcessor implements EbmlProcessor {
 
     @Override
-    @ElementType
-    public int getElementType(int id) {
+    public @ElementType int getElementType(int id) {
       return MatroskaExtractor.this.getElementType(id);
     }
 
@@ -1938,16 +2001,16 @@ public class MatroskaExtractor implements Extractor {
     public int displayWidth = Format.NO_VALUE;
     public int displayHeight = Format.NO_VALUE;
     public int displayUnit = DISPLAY_UNIT_PIXELS;
-    @C.Projection public int projectionType = Format.NO_VALUE;
+    public @C.Projection int projectionType = Format.NO_VALUE;
     public float projectionPoseYaw = 0f;
     public float projectionPosePitch = 0f;
     public float projectionPoseRoll = 0f;
     public byte @MonotonicNonNull [] projectionData = null;
-    @C.StereoMode public int stereoMode = Format.NO_VALUE;
+    public @C.StereoMode int stereoMode = Format.NO_VALUE;
     public boolean hasColorInfo = false;
-    @C.ColorSpace public int colorSpace = Format.NO_VALUE;
-    @C.ColorTransfer public int colorTransfer = Format.NO_VALUE;
-    @C.ColorRange public int colorRange = Format.NO_VALUE;
+    public @C.ColorSpace int colorSpace = Format.NO_VALUE;
+    public @C.ColorTransfer int colorTransfer = Format.NO_VALUE;
+    public @C.ColorRange int colorRange = Format.NO_VALUE;
     public int maxContentLuminance = DEFAULT_MAX_CLL;
     public int maxFrameAverageLuminance = DEFAULT_MAX_FALL;
     public float primaryRChromaticityX = Format.NO_VALUE;
@@ -2159,6 +2222,9 @@ public class MatroskaExtractor implements Extractor {
           mimeType = MimeTypes.TEXT_SSA;
           initializationData = ImmutableList.of(SSA_DIALOGUE_FORMAT, getCodecPrivate(codecId));
           break;
+        case CODEC_ID_VTT:
+          mimeType = MimeTypes.TEXT_VTT;
+          break;
         case CODEC_ID_VOBSUB:
           mimeType = MimeTypes.APPLICATION_VOBSUB;
           initializationData = ImmutableList.of(getCodecPrivate(codecId));
@@ -2247,6 +2313,7 @@ public class MatroskaExtractor implements Extractor {
             .setColorInfo(colorInfo);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)
           || MimeTypes.TEXT_SSA.equals(mimeType)
+          || MimeTypes.TEXT_VTT.equals(mimeType)
           || MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)
           || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)) {
@@ -2289,6 +2356,21 @@ public class MatroskaExtractor implements Extractor {
       if (trueHdSampleRechunker != null) {
         trueHdSampleRechunker.reset();
       }
+    }
+
+    /**
+     * Returns true if supplemental data will be attached to the samples.
+     *
+     * @param isBlockGroup Whether the samples are from a BlockGroup.
+     */
+    private boolean samplesHaveSupplementalData(boolean isBlockGroup) {
+      if (CODEC_ID_OPUS.equals(codecId)) {
+        // At the end of a BlockGroup, a positive DiscardPadding value will be written out as
+        // supplemental data for Opus codec. Otherwise (i.e. DiscardPadding <= 0) supplemental data
+        // size will be 0.
+        return isBlockGroup;
+      }
+      return maxBlockAdditionId > 0;
     }
 
     /** Returns the HDR Static Info as defined in CTA-861.3. */

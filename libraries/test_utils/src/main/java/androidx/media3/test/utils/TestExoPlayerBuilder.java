@@ -25,19 +25,18 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DefaultLoadControl;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.LoadControl;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RenderersFactory;
-import androidx.media3.exoplayer.SimpleExoPlayer;
-import androidx.media3.exoplayer.analytics.AnalyticsCollector;
+import androidx.media3.exoplayer.analytics.DefaultAnalyticsCollector;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.upstream.BandwidthMeter;
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A builder of {@link SimpleExoPlayer} instances for testing. */
-@SuppressWarnings("deprecation") // Returning deprecated type for backwards compatibility.
+/** A builder of {@link ExoPlayer} instances for testing. */
 @UnstableApi
 public class TestExoPlayerBuilder {
 
@@ -275,8 +274,8 @@ public class TestExoPlayerBuilder {
     return seekForwardIncrementMs;
   }
 
-  /** Builds an {@link SimpleExoPlayer} using the provided values or their defaults. */
-  public SimpleExoPlayer build() {
+  /** Builds an {@link ExoPlayer} using the provided values or their defaults. */
+  public ExoPlayer build() {
     Assertions.checkNotNull(
         looper, "TestExoPlayer builder run on a thread without Looper and no Looper specified.");
     // Do not update renderersFactory and renderers here, otherwise their getters may
@@ -297,12 +296,12 @@ public class TestExoPlayerBuilder {
                   };
     }
 
-    SimpleExoPlayer.Builder builder =
-        new SimpleExoPlayer.Builder(context, playerRenderersFactory)
+    ExoPlayer.Builder builder =
+        new ExoPlayer.Builder(context, playerRenderersFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setBandwidthMeter(bandwidthMeter)
-            .setAnalyticsCollector(new AnalyticsCollector(clock))
+            .setAnalyticsCollector(new DefaultAnalyticsCollector(clock))
             .setClock(clock)
             .setUseLazyPreparation(useLazyPreparation)
             .setLooper(looper)

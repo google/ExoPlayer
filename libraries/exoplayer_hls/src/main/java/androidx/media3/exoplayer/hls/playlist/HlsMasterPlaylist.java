@@ -22,7 +22,9 @@ import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 import java.util.Map;
 
-/** @deprecated Use {@link HlsMultivariantPlaylist} instead. */
+/**
+ * @deprecated Use {@link HlsMultivariantPlaylist} instead.
+ */
 @UnstableApi
 @Deprecated
 public final class HlsMasterPlaylist extends HlsMultivariantPlaylist {
