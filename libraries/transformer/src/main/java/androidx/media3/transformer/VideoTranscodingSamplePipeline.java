@@ -197,7 +197,10 @@ import org.checkerframework.dataflow.qual.Pure;
       return false;
     }
 
-    if (SDK_INT >= 29) {
+    if (SDK_INT >= 29
+        && !(("samsung".equals(Util.MANUFACTURER) || "OnePlus".equals(Util.MANUFACTURER))
+            && SDK_INT < 31)) {
+      // TODO(b/213455700): Fix Samsung and OnePlus devices filling the decoder in processDataV29().
       return processDataV29();
     } else {
       return processDataDefault();
