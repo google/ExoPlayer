@@ -192,10 +192,18 @@ public final class DefaultAnalyticsCollectorTest {
   private EventWindowAndPeriodId window0Period1Seq0;
   private EventWindowAndPeriodId window1Period0Seq1;
 
+  /**
+   * Verify that {@link DefaultAnalyticsCollector} explicitly overrides all {@link Player.Listener}
+   * methods.
+   */
   @Test
   public void defaultAnalyticsCollector_overridesAllPlayerListenerMethods() throws Exception {
-    // Verify that AnalyticsCollector forwards all Player.Listener methods to AnalyticsListener.
     for (Method method : Player.Listener.class.getDeclaredMethods()) {
+      if (method.isSynthetic()) {
+        // JaCoCo inserts synthetic methods. See "My code uses reflection. Why does it fail when I
+        // execute it with JaCoCo?": https://www.eclemma.org/jacoco/trunk/doc/faq.html
+        continue;
+      }
       assertThat(
               DefaultAnalyticsCollector.class
                   .getMethod(method.getName(), method.getParameterTypes())
