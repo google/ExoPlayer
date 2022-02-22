@@ -48,9 +48,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Pixel test for frame processing via {@link FrameEditor#processData()}. Expected images are taken
- * from emulators, so tests on physical devices may fail. To test on physical devices, please modify
- * the MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE.
+ * Pixel test for frame processing via {@link FrameEditor#processData()}.
+ *
+ * <p>Expected images are taken from an emulator, so tests on different emulators or physical
+ * devices may fail. To test on other devices, please increase the {@link
+ * #MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output bitmaps.
  */
 @RunWith(AndroidJUnit4.class)
 public final class FrameEditorDataProcessingTest {
@@ -60,18 +62,7 @@ public final class FrameEditorDataProcessingTest {
   // Input MP4 file to transform.
   private static final String INPUT_MP4_ASSET_STRING = "media/mp4/sample.mp4";
 
-  /* Expected first frames after transformation.
-   * To generate new "expected" assets:
-   * 1. Insert this code into a test, to download some editedBitmap.
-   *  + try (FileOutputStream fileOutputStream = new FileOutputStream("/sdcard/tmp.png")) {
-   *  +    // quality is ignored
-   *  +   editedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
-   *  + }
-   * 2. Run the test on a "Nexus 6P API 23" emulator. Emulators are preferred as the automated
-   *    presubmit that will run this test will also be an emulator. API versions 29+ have storage
-   *    restrictions that complicate file generation.
-   * 3. Open the "Device File Explorer", find "/sdcard/tmp.png", and "Save As..." the file.
-   */
+  /* Expected first frames after transformation. */
   private static final String NO_EDITS_EXPECTED_OUTPUT_PNG_ASSET_STRING =
       "media/bitmap/sample_mp4_first_frame.png";
   private static final String TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING =
