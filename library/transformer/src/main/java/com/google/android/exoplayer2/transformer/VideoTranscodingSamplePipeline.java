@@ -166,7 +166,7 @@ import org.checkerframework.dataflow.qual.Pure;
               encoderSupportedFormat.width,
               encoderSupportedFormat.height,
               inputFormat.pixelWidthHeightRatio,
-              transformationMatrix,
+              new TransformationFrameProcessor(context, transformationMatrix),
               /* outputSurface= */ encoder.getInputSurface(),
               transformationRequest.enableHdrEditing,
               debugViewProvider);

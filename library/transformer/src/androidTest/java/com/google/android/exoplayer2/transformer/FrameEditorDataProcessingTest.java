@@ -116,8 +116,8 @@ public final class FrameEditorDataProcessingTest {
   public void processData_noEdits_producesExpectedOutput() throws Exception {
     Matrix identityMatrix = new Matrix();
     setUpAndPrepareFirstFrame(identityMatrix);
-
     Bitmap expectedBitmap = getBitmap(NO_EDITS_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+
     checkNotNull(frameEditor).processData();
     Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
     Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
@@ -134,8 +134,8 @@ public final class FrameEditorDataProcessingTest {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
     setUpAndPrepareFirstFrame(translateRightMatrix);
-
     Bitmap expectedBitmap = getBitmap(TRANSLATE_RIGHT_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+
     checkNotNull(frameEditor).processData();
     Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
     Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
@@ -174,8 +174,8 @@ public final class FrameEditorDataProcessingTest {
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);
     setUpAndPrepareFirstFrame(rotate90Matrix);
-
     Bitmap expectedBitmap = getBitmap(ROTATE_90_EXPECTED_OUTPUT_PNG_ASSET_STRING);
+
     checkNotNull(frameEditor).processData();
     Image editedImage = checkNotNull(frameEditorOutputImageReader).acquireLatestImage();
     Bitmap editedBitmap = getArgb8888BitmapForRgba8888Image(editedImage);
@@ -206,13 +206,14 @@ public final class FrameEditorDataProcessingTest {
       int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
       frameEditorOutputImageReader =
           ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, /* maxImages= */ 1);
+      Context context = getApplicationContext();
       frameEditor =
           FrameEditor.create(
-              getApplicationContext(),
+              context,
               width,
               height,
               PIXEL_WIDTH_HEIGHT_RATIO,
-              transformationMatrix,
+              new TransformationFrameProcessor(context, transformationMatrix),
               frameEditorOutputImageReader.getSurface(),
               /* enableExperimentalHdrEditing= */ false,
               Transformer.DebugViewProvider.NONE);
