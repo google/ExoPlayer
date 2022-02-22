@@ -194,24 +194,8 @@ import java.nio.ByteBuffer;
 
     isStarted = false;
     try {
-      mediaMuxer.stop();
+      stopMuxer(mediaMuxer);
     } catch (RuntimeException e) {
-      if (SDK_INT < 30) {
-        // Set the muxer state to stopped even if mediaMuxer.stop() failed so that
-        // mediaMuxer.release() doesn't attempt to stop the muxer and therefore doesn't throw the
-        // same exception without releasing its resources. This is already implemented in MediaMuxer
-        // from API level 30.
-        try {
-          Field muxerStoppedStateField = MediaMuxer.class.getDeclaredField("MUXER_STATE_STOPPED");
-          muxerStoppedStateField.setAccessible(true);
-          int muxerStoppedState = castNonNull((Integer) muxerStoppedStateField.get(mediaMuxer));
-          Field muxerStateField = MediaMuxer.class.getDeclaredField("mState");
-          muxerStateField.setAccessible(true);
-          muxerStateField.set(mediaMuxer, muxerStoppedState);
-        } catch (Exception reflectionException) {
-          // Do nothing.
-        }
-      }
       // It doesn't matter that stopping the muxer throws if the transformation is being cancelled.
       if (!forCancellation) {
         throw new MuxerException("Failed to stop the muxer", e);
@@ -237,6 +221,34 @@ import java.nio.ByteBuffer;
       return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
     } else {
       throw new IllegalArgumentException("Unsupported output MIME type: " + mimeType);
+    }
+  }
+
+  // Accesses MediaMuxer state via reflection to ensure that muxer resources can be released even
+  // if stopping fails.
+  @SuppressLint("PrivateApi")
+  private static void stopMuxer(MediaMuxer mediaMuxer) {
+    try {
+      mediaMuxer.stop();
+    } catch (RuntimeException e) {
+      if (SDK_INT < 30) {
+        // Set the muxer state to stopped even if mediaMuxer.stop() failed so that
+        // mediaMuxer.release() doesn't attempt to stop the muxer and therefore doesn't throw the
+        // same exception without releasing its resources. This is already implemented in MediaMuxer
+        // from API level 30. See also b/80338884.
+        try {
+          Field muxerStoppedStateField = MediaMuxer.class.getDeclaredField("MUXER_STATE_STOPPED");
+          muxerStoppedStateField.setAccessible(true);
+          int muxerStoppedState = castNonNull((Integer) muxerStoppedStateField.get(mediaMuxer));
+          Field muxerStateField = MediaMuxer.class.getDeclaredField("mState");
+          muxerStateField.setAccessible(true);
+          muxerStateField.set(mediaMuxer, muxerStoppedState);
+        } catch (Exception reflectionException) {
+          // Do nothing.
+        }
+      }
+      // Rethrow the original error.
+      throw e;
     }
   }
 }
