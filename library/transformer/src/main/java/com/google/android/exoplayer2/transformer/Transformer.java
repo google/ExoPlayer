@@ -677,7 +677,7 @@ public final class Transformer {
                 DEFAULT_BUFFER_FOR_PLAYBACK_MS / 10,
                 DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS / 10)
             .build();
-    player =
+    ExoPlayer.Builder playerBuilder =
         new ExoPlayer.Builder(
                 context,
                 new TransformerRenderersFactory(
@@ -693,9 +693,15 @@ public final class Transformer {
             .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
-            .setLooper(looper)
-            .setClock(clock)
-            .build();
+            .setLooper(looper);
+    if (clock != Clock.DEFAULT) {
+      // Transformer.Builder#setClock is also @VisibleForTesting, so if we're using a non-default
+      // clock we must be in a test context.
+      @SuppressWarnings("VisibleForTests")
+      ExoPlayer.Builder unusedForAnnotation = playerBuilder.setClock(clock);
+    }
+
+    player = playerBuilder.build();
     player.setMediaItem(mediaItem);
     player.addListener(new TransformerPlayerListener(mediaItem, muxerWrapper));
     player.prepare();
