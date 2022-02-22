@@ -165,11 +165,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final EGLSurface eglSurface;
-  /** Indentifier of the external texture the {@code FrameEditor} reads its input from. */
+  /** Identifier of the external texture the {@code FrameEditor} reads its input from. */
   private final int inputExternalTexId;
   /**
-   * Indentifier of the texture where the output of the {@link ExternalCopyFrameProcessor} is
-   * written to and the {@link TransformationFrameProcessor} reads its input from.
+   * Identifier of the texture where the output of the {@link ExternalCopyFrameProcessor} is written
+   * to and the {@link TransformationFrameProcessor} reads its input from.
    */
   private final int intermediateTexId;
   /** Identifier of a framebuffer object associated with the intermediate texture. */
