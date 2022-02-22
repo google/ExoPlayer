@@ -1,4 +1,5 @@
-// Copyright 2021 The Android Open Source Project
+#version 100
+// Copyright 2022 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Vertex shader that applies the 4 * 4 transformation matrix
-// uTransformationMatrix.
+// ES 2 fragment shader that samples from a (non-external) texture with uTexSampler,
+// copying from this texture to the current output.
 
-attribute vec4 aFramePosition;
-attribute vec4 aTexCoords;
-uniform mat4 uTexTransform;
-uniform mat4 uTransformationMatrix;
+precision mediump float;
+uniform sampler2D uTexSampler;
 varying vec2 vTexCoords;
 void main() {
-  gl_Position = uTransformationMatrix * aFramePosition;
-  vTexCoords = (uTexTransform * aTexCoords).xy;
+  gl_FragColor = texture2D(uTexSampler, vTexCoords);
 }

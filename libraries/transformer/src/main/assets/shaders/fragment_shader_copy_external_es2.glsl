@@ -1,3 +1,4 @@
+#version 100
 // Copyright 2021 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Fragment shader that samples from an external texture with uTexSampler,
+// ES 2 fragment shader that samples from an external texture with uTexSampler,
 // copying from this texture to the current output.
 
 #extension GL_OES_EGL_image_external : require

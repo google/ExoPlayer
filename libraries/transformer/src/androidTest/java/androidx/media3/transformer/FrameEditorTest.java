@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test for {@link FrameEditor#create(Context, int, int, float, Matrix, Surface, boolean,
+ * Test for {@link FrameEditor#create(Context, int, int, float, GlFrameProcessor, Surface, boolean,
  * Transformer.DebugViewProvider) creating} a {@link FrameEditor}.
  */
 @RunWith(AndroidJUnit4.class)
@@ -39,12 +39,14 @@ public final class FrameEditorTest {
   @Test
   public void create_withSupportedPixelWidthHeightRatio_completesSuccessfully()
       throws TransformationException {
+    Context context = getApplicationContext();
+
     FrameEditor.create(
-        getApplicationContext(),
+        context,
         /* outputWidth= */ 200,
         /* outputHeight= */ 100,
         /* pixelWidthHeightRatio= */ 1,
-        new Matrix(),
+        new TransformationFrameProcessor(context, new Matrix()),
         new Surface(new SurfaceTexture(false)),
         /* enableExperimentalHdrEditing= */ false,
         Transformer.DebugViewProvider.NONE);
@@ -52,16 +54,18 @@ public final class FrameEditorTest {
 
   @Test
   public void create_withUnsupportedPixelWidthHeightRatio_throwsException() {
+    Context context = getApplicationContext();
+
     TransformationException exception =
         assertThrows(
             TransformationException.class,
             () ->
                 FrameEditor.create(
-                    getApplicationContext(),
+                    context,
                     /* outputWidth= */ 200,
                     /* outputHeight= */ 100,
                     /* pixelWidthHeightRatio= */ 2,
-                    new Matrix(),
+                    new TransformationFrameProcessor(context, new Matrix()),
                     new Surface(new SurfaceTexture(false)),
                     /* enableExperimentalHdrEditing= */ false,
                     Transformer.DebugViewProvider.NONE));

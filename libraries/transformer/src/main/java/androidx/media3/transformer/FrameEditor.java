@@ -19,7 +19,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLContext;
@@ -40,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <p>Input becomes available on its {@link #getInputSurface() input surface} asynchronously so
  * {@link #canProcessData()} needs to be checked before calling {@link #processData()}. Output is
- * written to its {@link #create(Context, int, int, float, Matrix, Surface, boolean,
+ * written to its {@link #create(Context, int, int, float, GlFrameProcessor, Surface, boolean,
  * Transformer.DebugViewProvider) output surface}.
  */
 /* package */ final class FrameEditor {
@@ -56,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param outputWidth The output width in pixels.
    * @param outputHeight The output height in pixels.
    * @param pixelWidthHeightRatio The ratio of width over height, for each pixel.
-   * @param transformationMatrix The transformation matrix to apply to each frame.
+   * @param transformationFrameProcessor The {@link GlFrameProcessor} to apply to each frame.
    * @param outputSurface The {@link Surface}.
    * @param enableExperimentalHdrEditing Whether to attempt to process the input as an HDR signal.
    * @param debugViewProvider Provider for optional debug views to show intermediate output.
@@ -65,12 +64,14 @@ import java.util.concurrent.atomic.AtomicInteger;
    *     files fails, or an OpenGL error occurs while creating and configuring the OpenGL
    *     components.
    */
+  // TODO(b/214975934): Take a List<GlFrameProcessor> as input and rename FrameEditor to
+  //  FrameProcessorChain.
   public static FrameEditor create(
       Context context,
       int outputWidth,
       int outputHeight,
       float pixelWidthHeightRatio,
-      Matrix transformationMatrix,
+      GlFrameProcessor transformationFrameProcessor,
       Surface outputSurface,
       boolean enableExperimentalHdrEditing,
       Transformer.DebugViewProvider debugViewProvider)
@@ -85,8 +86,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
 
-    GlFrameProcessor frameProcessor =
-        new GlFrameProcessor(context, transformationMatrix, enableExperimentalHdrEditing);
+    ExternalCopyFrameProcessor externalCopyFrameProcessor =
+        new ExternalCopyFrameProcessor(context, enableExperimentalHdrEditing);
     @Nullable
     SurfaceView debugSurfaceView =
         debugViewProvider.getDebugPreviewSurfaceView(outputWidth, outputHeight);
@@ -94,7 +95,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     EGLDisplay eglDisplay;
     EGLContext eglContext;
     EGLSurface eglSurface;
-    int textureId;
+    int inputExternalTexId;
+    int intermediateTexId;
+    int frameBuffer;
     @Nullable EGLSurface debugPreviewEglSurface = null;
     try {
       eglDisplay = GlUtil.createEglDisplay();
@@ -117,9 +120,12 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
 
       GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-      textureId = GlUtil.createExternalTexture();
-      frameProcessor.initialize();
-    } catch (IOException | GlUtil.GlException e) {
+      inputExternalTexId = GlUtil.createExternalTexture();
+      intermediateTexId = GlUtil.createTexture(outputWidth, outputHeight);
+      frameBuffer = GlUtil.createFboForTexture(intermediateTexId);
+      externalCopyFrameProcessor.initialize();
+      transformationFrameProcessor.initialize();
+    } catch (GlUtil.GlException | IOException e) {
       throw TransformationException.createForFrameEditor(
           e, TransformationException.ERROR_CODE_GL_INIT_FAILED);
     }
@@ -138,8 +144,11 @@ import java.util.concurrent.atomic.AtomicInteger;
         eglDisplay,
         eglContext,
         eglSurface,
-        textureId,
-        frameProcessor,
+        inputExternalTexId,
+        intermediateTexId,
+        frameBuffer,
+        externalCopyFrameProcessor,
+        transformationFrameProcessor,
         outputWidth,
         outputHeight,
         debugPreviewEglSurface,
@@ -147,12 +156,25 @@ import java.util.concurrent.atomic.AtomicInteger;
         debugPreviewHeight);
   }
 
-  private final GlFrameProcessor frameProcessor;
+  // TODO(b/214975934): Write javadoc for fields where the purpose might be unclear to someone less
+  //  familiar with this class and consider grouping some of these fields into new classes to
+  //  reduce the number of constructor parameters.
+  private final ExternalCopyFrameProcessor externalCopyFrameProcessor;
+  private final GlFrameProcessor transformationFrameProcessor;
   private final float[] textureTransformMatrix;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final EGLSurface eglSurface;
-  private final int textureId;
+  /** Indentifier of the external texture the {@code FrameEditor} reads its input from. */
+  private final int inputExternalTexId;
+  /**
+   * Indentifier of the texture where the output of the {@link ExternalCopyFrameProcessor} is
+   * written to and the {@link TransformationFrameProcessor} reads its input from.
+   */
+  private final int intermediateTexId;
+  /** Identifier of a framebuffer object associated with the intermediate texture. */
+  private final int frameBuffer;
+
   private final AtomicInteger pendingInputFrameCount;
   private final AtomicInteger availableInputFrameCount;
   private final SurfaceTexture inputSurfaceTexture;
@@ -169,8 +191,11 @@ import java.util.concurrent.atomic.AtomicInteger;
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       EGLSurface eglSurface,
-      int textureId,
-      GlFrameProcessor frameProcessor,
+      int inputExternalTexId,
+      int intermediateTexId,
+      int frameBuffer,
+      ExternalCopyFrameProcessor externalCopyFrameProcessor,
+      GlFrameProcessor transformationFrameProcessor,
       int outputWidth,
       int outputHeight,
       @Nullable EGLSurface debugPreviewEglSurface,
@@ -179,8 +204,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.eglSurface = eglSurface;
-    this.textureId = textureId;
-    this.frameProcessor = frameProcessor;
+    this.inputExternalTexId = inputExternalTexId;
+    this.intermediateTexId = intermediateTexId;
+    this.frameBuffer = frameBuffer;
+    this.externalCopyFrameProcessor = externalCopyFrameProcessor;
+    this.transformationFrameProcessor = transformationFrameProcessor;
     this.outputWidth = outputWidth;
     this.outputHeight = outputHeight;
     this.debugPreviewEglSurface = debugPreviewEglSurface;
@@ -189,7 +217,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     pendingInputFrameCount = new AtomicInteger();
     availableInputFrameCount = new AtomicInteger();
     textureTransformMatrix = new float[16];
-    inputSurfaceTexture = new SurfaceTexture(textureId);
+    inputSurfaceTexture = new SurfaceTexture(inputExternalTexId);
     inputSurfaceTexture.setOnFrameAvailableListener(
         surfaceTexture -> {
           checkState(pendingInputFrameCount.getAndDecrement() > 0);
@@ -235,10 +263,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     try {
       inputSurfaceTexture.updateTexImage();
       inputSurfaceTexture.getTransformMatrix(textureTransformMatrix);
-      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
-      frameProcessor.setTextureTransformMatrix(textureTransformMatrix);
-      frameProcessor.updateProgramAndDraw(textureId);
       long presentationTimeNs = inputSurfaceTexture.getTimestamp();
+
+      GlUtil.focusFramebuffer(
+          eglDisplay, eglContext, eglSurface, frameBuffer, outputWidth, outputHeight);
+      externalCopyFrameProcessor.setTextureTransformMatrix(textureTransformMatrix);
+      externalCopyFrameProcessor.updateProgramAndDraw(inputExternalTexId, presentationTimeNs);
+
+      GlUtil.focusEglSurface(eglDisplay, eglContext, eglSurface, outputWidth, outputHeight);
+      transformationFrameProcessor.updateProgramAndDraw(intermediateTexId, presentationTimeNs);
       EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, presentationTimeNs);
       EGL14.eglSwapBuffers(eglDisplay, eglSurface);
 
@@ -260,8 +293,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   /** Releases all resources. */
   public void release() {
-    frameProcessor.release();
-    GlUtil.deleteTexture(textureId);
+    externalCopyFrameProcessor.release();
+    transformationFrameProcessor.release();
+    GlUtil.deleteTexture(inputExternalTexId);
+    GlUtil.deleteTexture(intermediateTexId);
     GlUtil.destroyEglContext(eglDisplay, eglContext);
     inputSurfaceTexture.release();
     inputSurface.release();
