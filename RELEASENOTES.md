@@ -1,19 +1,8 @@
 # Release notes
 
-### dev-v2 (not yet released)
+### 2.17.0 (2022-02-24)
 
 *   Core library:
-    *   Support preferred video role flags in track selection
-        ([#9402](https://github.com/google/ExoPlayer/issues/9402)).
-    *   Prefer audio content preferences (for example, "default" audio track or
-        track matching system Locale language) over technical track selection
-        constraints (for example, preferred MIME type, or maximum channel
-        count).
-    *   Prohibit duplicate `TrackGroup`s in a `TrackGroupArray`. `TrackGroup`s
-        can always be made distinguishable by setting an `id` in the
-        `TrackGroup` constructor. This fixes a crash when resuming playback
-        after backgrounding the app with an active track override
-        ([#9718](https://github.com/google/ExoPlayer/issues/9718)).
     *   Sleep and retry when creating a `MediaCodec` instance fails. This works
         around an issue that occurs on some devices when switching a surface
         from a secure codec to another codec
@@ -21,16 +10,21 @@
     *   Add `MediaCodecAdapter.getMetrics()` to allow users obtain metrics data
         from `MediaCodec`.
         ([#9766](https://github.com/google/ExoPlayer/issues/9766)).
-    *   Amend logic in `AdaptiveTrackSelection` to allow a quality increase
-        under sufficient network bandwidth even if playback is very close to the
-        live edge ([#9784](https://github.com/google/ExoPlayer/issues/9784)).
     *   Fix Maven dependency resolution
         ([#8353](https://github.com/google/ExoPlayer/issues/8353)).
-    *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC) and Dolby Vision
-        to use a compatible base decoder (E-AC3 or H264/H265) if needed.
     *   Disable automatic speed adjustment for live streams that neither have
         low-latency features nor a user request setting the speed
         ([#9329](https://github.com/google/ExoPlayer/issues/9329)).
+    *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
+    *   Make `SimpleExoPlayer.renderers` private. Renderers can be accessed via
+        `ExoPlayer.getRenderer`.
+    *   Updated some `AnalyticsListener.EventFlags` constant values to match
+        values in `Player.EventFlags`.
+    *   Split `AnalyticsCollector` into an interface and default implementation
+        to allow it to be stripped by R8 if an app doesn't need it.
+*   Track selection:
+    *   Support preferred video role flags in track selection
+        ([#9402](https://github.com/google/ExoPlayer/issues/9402)).
     *   Update video track selection logic to take preferred MIME types and role
         flags into account when selecting multiple video tracks for adaptation
         ([#9519](https://github.com/google/ExoPlayer/issues/9519)).
@@ -40,23 +34,24 @@
     *   Update video track selection logic to prefer more efficient codecs if
         multiple codecs are supported by primary, hardware-accelerated decoders
         ([#4835](https://github.com/google/ExoPlayer/issues/4835)).
-    *   Rename `DecoderCounters#inputBufferCount` to `queuedInputBufferCount`.
-    *   Make `SimpleExoPlayer.renderers` private. Renderers can be accessed via
-        `ExoPlayer.getRenderer`.
-    *   Updated some `AnalyticsListener.EventFlags` constant values to match
-        values in `Player.EventFlags`.
-    *   Split `AnalyticsCollector` into an interface and default implementation
-        to allow it to be stripped by R8 if an app doesn't need it.
-*   Android 12 compatibility:
-    *   Upgrade the Cast extension to depend on
-        `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
-        versions of `play-services-cast-framework` are not compatible with apps
-        targeting Android 12, and will crash with an `IllegalArgumentException`
-        when creating `PendingIntent`s
-        ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
+    *   Prefer audio content preferences (for example, the "default" audio track
+        or a track matching the system locale language) over technical track
+        selection constraints (for example, preferred MIME type, or maximum
+        channel count).
+    *   Prohibit duplicate `TrackGroup`s in a `TrackGroupArray`. `TrackGroup`s
+        can always be made distinguishable by setting an `id` in the
+        `TrackGroup` constructor. This fixes a crash when resuming playback
+        after backgrounding the app with an active track override
+        ([#9718](https://github.com/google/ExoPlayer/issues/9718)).
+    *   Amend logic in `AdaptiveTrackSelection` to allow a quality increase
+        under sufficient network bandwidth even if playback is very close to the
+        live edge ([#9784](https://github.com/google/ExoPlayer/issues/9784)).
+*   Video:
+    *   Fix decoder fallback logic for Dolby Vision to use a compatible
+        H264/H265 decoder if needed.
 *   Audio:
-    *   Add a `Builder` to `DefaultAudioSink` and deprecate the existing
-        constructors.
+    *   Fix decoder fallback logic for Dolby Atmos (E-AC3-JOC) to use a
+        compatible E-AC3 decoder if needed.
     *   Change `AudioCapabilities` APIs to require passing explicitly
         `AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES` instead of `null`.
     *   Allow customization of the `AudioTrack` buffer size calculation by
@@ -64,16 +59,14 @@
         ([#8891](https://github.com/google/ExoPlayer/issues/8891)).
     *   Retry `AudioTrack` creation if the requested buffer size was > 1MB.
         ([#9712](https://github.com/google/ExoPlayer/issues/9712)).
-    *   Make `build_ffmpeg.sh` depend on LLVM's bin utils instead of GNU's
-        ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
 *   Extractors:
-    *   Fix inconsistency with spec in H.265 SPS nal units parsing
+    *   Fix incorrect parsing of H.265 SPS NAL units
         ([#9719](https://github.com/google/ExoPlayer/issues/9719)).
     *   Parse Vorbis Comments (including `METADATA_BLOCK_PICTURE`) in Ogg Opus
-        and Vorbis files.
+        and Ogg Vorbis files.
 *   Text:
-    *   Add a `MediaItem.SubtitleConfiguration#id` field which is propagated to
-        the `Format#id` field of the subtitle track created from the
+    *   Add a `MediaItem.SubtitleConfiguration.id` field which is propagated to
+        the `Format.id` field of the subtitle track created from the
         configuration
         ([#9673](https://github.com/google/ExoPlayer/issues/9673)).
     *   Add basic support for WebVTT subtitles in Matroska containers
@@ -86,30 +79,34 @@
         the `playbackLooper` needs to be passed to `DrmSessionManager.setPlayer`
         instead.
 *   Ad playback / IMA:
+    *   Add support for
+        [IMA Dynamic Ad Insertion (DAI)](https://support.google.com/admanager/answer/6147120)
+        ([#8213](https://github.com/google/ExoPlayer/issues/8213)).
     *   Add a method to `AdPlaybackState` to allow resetting an ad group so that
         it can be played again
         ([#9615](https://github.com/google/ExoPlayer/issues/9615)).
     *   Enforce playback speed of 1.0 during ad playback
         ([#9018](https://github.com/google/ExoPlayer/issues/9018)).
-    *   Add support for
-        [IMA Dynamic Ad Insertion (DAI)](https://support.google.com/admanager/answer/6147120)
-        ([#8213](https://github.com/google/ExoPlayer/issues/8213)).
     *   Fix issue where an ad group that failed to load caused an immediate
         playback reset
         ([#9929](https://github.com/google/ExoPlayer/issues/9929)).
+*   UI:
+    *   Fix the color of the numbers in `StyledPlayerView` rewind and
+        fastforward buttons when using certain themes
+        ([#9765](https://github.com/google/ExoPlayer/issues/9765)).
+    *   Correctly translate playback speed strings
+        ([#9811](https://github.com/google/ExoPlayer/issues/9811)).
 *   DASH:
     *   Support the `forced-subtitle` track role
         ([#9727](https://github.com/google/ExoPlayer/issues/9727)).
     *   Stop interpreting the `main` track role as `C.SELECTION_FLAG_DEFAULT`.
-    *   Fix bug when base URLs have been assigned the same service location and
-        priority in manifests that do not declare the dvb namespace. This
-        prevents the exclusion logic to exclude base URL when they actually
-        should be used as a fallback base URL.
+    *   Fix base URL exclusion logic for manifests that do not declare the DVB
+        namespace ([#9856](https://github.com/google/ExoPlayer/issues/9856)).
     *   Support relative `MPD.Location` URLs
         ([#9939](https://github.com/google/ExoPlayer/issues/9939)).
 *   HLS:
     *   Use chunkless preparation by default to improve start up time. If your
-        renditions contain muxed closed-caption tracks that are *not* declared
+        renditions contain muxed closed-caption tracks that are **not** declared
         in the master playlist, you should add them to the master playlist to be
         available for playback, or turn off chunkless preparation with
         `HlsMediaSource.Factory.setAllowChunklessPreparation(false)`.
@@ -117,14 +114,15 @@
         ([#2882](https://github.com/google/ExoPlayer/issues/2882)).
     *   Correctly populate `Format.label` for audio only HLS streams
         ([#9608](https://github.com/google/ExoPlayer/issues/9608)).
-    *   Timestamp adjuster initialization occurs after opening the `DataSource`
-        ([#9777](https://github.com/google/ExoPlayer/pull/9777)).
-*   UI:
-    *   Fix the color of the numbers in `StyledPlayerView` rewind and
-        fastforward buttons when using certain themes
-        ([#9765](https://github.com/google/ExoPlayer/issues/9765)).
-    *   Correctly translate playback speed strings
-        ([#9811](https://github.com/google/ExoPlayer/issues/9811)).
+*   RTSP:
+    *   Provide a client API to override the `SocketFactory` used for any server
+        connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
+    *   Prefer DIGEST authentication method over BASIC if both are present
+        ([#9800](https://github.com/google/ExoPlayer/issues/9800)).
+    *   Handle when RTSP track timing is not available
+        ([#9775](https://github.com/google/ExoPlayer/issues/9775)).
+    *   Ignore invalid RTP-Info header values
+        ([#9619](https://github.com/google/ExoPlayer/issues/9619)).
 *   Transformer:
     *   Increase required min API version to 21.
     *   `TransformationException` is now used to describe errors that occur
@@ -135,29 +133,30 @@
     *   Fix potential NPE in `Transformer.getProgress` when releasing the muxer
         throws.
     *   Add a demo app for applying transformations.
-*   MediaSession extension:
-    *   Remove deprecated call to `onStop(/* reset= */ true)` and provide an
-        opt-out flag for apps that don't want to clear the playlist on stop.
-*   RTSP:
-    *   Provide a client API to override the `SocketFactory` used for any server
-        connection ([#9606](https://github.com/google/ExoPlayer/pull/9606)).
-    *   Prefers DIGEST authentication method over BASIC if both are present
-        ([#9800](https://github.com/google/ExoPlayer/issues/9800)).
-    *   Handle when RTSP track timing is not available
-        ([#9775](https://github.com/google/ExoPlayer/issues/9775)).
-    *   Ignores invalid RTP-Info header values
-        ([#9619](https://github.com/google/ExoPlayer/issues/9619)).
-*   Transformer:
     *   The transformer module is no longer included by depending on
         `com.google.android.exoplayer:exoplayer`. To continue using transformer,
         add an additional dependency on
         `com.google.android.exoplayer:exoplayer-transformer`.
-*   Cast extension
+*   MediaSession extension:
+    *   By default, `MediaSessionConnector` now clears the playlist on stop.
+        Apps that want the playlist to be retained can call
+        `setClearMediaItemsOnStop(false)` on the connector.
+*   Cast extension:
     *   Fix bug that prevented `CastPlayer` from calling `onIsPlayingChanged`
         correctly ([#9792](https://github.com/google/ExoPlayer/issues/9792)).
     *   Support audio metadata including artwork with
         `DefaultMediaItemConverter`
         ([#9663](https://github.com/google/ExoPlayer/issues/9663)).
+*   FFmpeg extension:
+    *   Make `build_ffmpeg.sh` depend on LLVM's bin utils instead of GNU's
+        ([#9933](https://github.com/google/ExoPlayer/issues/9933)).
+*   Android 12 compatibility:
+    *   Upgrade the Cast extension to depend on
+        `com.google.android.gms:play-services-cast-framework:20.1.0`. Earlier
+        versions of `play-services-cast-framework` are not compatible with apps
+        targeting Android 12, and will crash with an `IllegalArgumentException`
+        when creating `PendingIntent`s
+        ([#9528](https://github.com/google/ExoPlayer/issues/9528)).
 *   Remove deprecated symbols:
     *   Remove `Player.EventLister`. Use `Player.Listener` instead.
     *   Remove `MediaSourceFactory#setDrmSessionManager`,
