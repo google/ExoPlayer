@@ -59,6 +59,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
@@ -67,6 +68,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.TracksInfo.TrackGroupInfo;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.util.Assertions;
@@ -1133,8 +1135,14 @@ public class StyledPlayerControlView extends FrameLayout {
         if (!trackGroupInfo.isTrackSupported(trackIndex)) {
           continue;
         }
-        String trackName =
-            trackNameProvider.getTrackName(trackGroupInfo.getTrackFormat(trackIndex));
+
+        Format trackFormat = trackGroupInfo.getTrackFormat(trackIndex);
+
+        if(trackFormat.selectionFlags == C.SELECTION_FLAG_FORCED) {
+          continue;
+        }
+
+        String trackName = trackNameProvider.getTrackName(trackFormat);
         tracks.add(new TrackInformation(tracksInfo, trackGroupIndex, trackIndex, trackName));
       }
     }
@@ -1873,11 +1881,7 @@ public class StyledPlayerControlView extends FrameLayout {
               player.setTrackSelectionParameters(
                   trackSelectionParameters
                       .buildUpon()
-                      .setDisabledTrackTypes(
-                          new ImmutableSet.Builder<@C.TrackType Integer>()
-                              .addAll(trackSelectionParameters.disabledTrackTypes)
-                              .add(C.TRACK_TYPE_TEXT)
-                              .build())
+                      .setDisabledTextTrackSelectionFlags(~C.SELECTION_FLAG_FORCED)
                       .build());
               settingsWindow.dismiss();
             }
