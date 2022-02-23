@@ -1138,7 +1138,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
         Format trackFormat = trackGroupInfo.getTrackFormat(trackIndex);
 
-        if(trackFormat.selectionFlags == C.SELECTION_FLAG_FORCED) {
+        if (trackFormat.selectionFlags == C.SELECTION_FLAG_FORCED) {
           continue;
         }
 
