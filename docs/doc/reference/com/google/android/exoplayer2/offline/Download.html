@@ -206,7 +206,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.offline.Download.FailureReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#failureReason">failureReason</a></span></code></th>
 <td class="colLast">
 <div class="block">If <a href="#state"><code>state</code></a> is <a href="#STATE_FAILED"><code>STATE_FAILED</code></a> then this is the cause, otherwise <a href="#FAILURE_REASON_NONE"><code>FAILURE_REASON_NONE</code></a>.</div>
@@ -227,7 +227,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.offline.Download.State int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#state">state</a></span></code></th>
 <td class="colLast">
 <div class="block">The state of the download.</div>
@@ -321,23 +321,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.offline.DownloadRequest,int,long,long,long,int,int)">Download</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
-        int&nbsp;state,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.offline.DownloadRequest,@com.google.android.exoplayer2.offline.Download.Stateint,long,long,long,int,@com.google.android.exoplayer2.offline.Download.FailureReasonint)">Download</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
+        @com.google.android.exoplayer2.offline.Download.State int&nbsp;state,
         long&nbsp;startTimeMs,
         long&nbsp;updateTimeMs,
         long&nbsp;contentLength,
         int&nbsp;stopReason,
-        int&nbsp;failureReason)</code></th>
+        @com.google.android.exoplayer2.offline.Download.FailureReason int&nbsp;failureReason)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.offline.DownloadRequest,int,long,long,long,int,int,com.google.android.exoplayer2.offline.DownloadProgress)">Download</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
-        int&nbsp;state,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.offline.DownloadRequest,@com.google.android.exoplayer2.offline.Download.Stateint,long,long,long,int,@com.google.android.exoplayer2.offline.Download.FailureReasonint,com.google.android.exoplayer2.offline.DownloadProgress)">Download</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
+        @com.google.android.exoplayer2.offline.Download.State int&nbsp;state,
         long&nbsp;startTimeMs,
         long&nbsp;updateTimeMs,
         long&nbsp;contentLength,
         int&nbsp;stopReason,
-        int&nbsp;failureReason,
+        @com.google.android.exoplayer2.offline.Download.FailureReason int&nbsp;failureReason,
         <a href="DownloadProgress.html" title="class in com.google.android.exoplayer2.offline">DownloadProgress</a>&nbsp;progress)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -570,7 +570,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>state</h4>
 <pre><a href="Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
-public final&nbsp;int state</pre>
+public final&nbsp;@com.google.android.exoplayer2.offline.Download.State int state</pre>
 <div class="block">The state of the download.</div>
 </li>
 </ul>
@@ -621,7 +621,7 @@ public final&nbsp;int state</pre>
 <li class="blockList">
 <h4>failureReason</h4>
 <pre><a href="Download.FailureReason.html" title="annotation in com.google.android.exoplayer2.offline">@FailureReason</a>
-public final&nbsp;int failureReason</pre>
+public final&nbsp;@com.google.android.exoplayer2.offline.Download.FailureReason int failureReason</pre>
 <div class="block">If <a href="#state"><code>state</code></a> is <a href="#STATE_FAILED"><code>STATE_FAILED</code></a> then this is the cause, otherwise <a href="#FAILURE_REASON_NONE"><code>FAILURE_REASON_NONE</code></a>.</div>
 </li>
 </ul>
@@ -635,7 +635,7 @@ public final&nbsp;int failureReason</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.offline.DownloadRequest,int,long,long,long,int,int)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.offline.DownloadRequest,@com.google.android.exoplayer2.offline.Download.Stateint,long,long,long,int,@com.google.android.exoplayer2.offline.Download.FailureReasonint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -643,16 +643,16 @@ public final&nbsp;int failureReason</pre>
 <h4>Download</h4>
 <pre>public&nbsp;Download&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
                 <a href="Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
-                int&nbsp;state,
+                @com.google.android.exoplayer2.offline.Download.State int&nbsp;state,
                 long&nbsp;startTimeMs,
                 long&nbsp;updateTimeMs,
                 long&nbsp;contentLength,
                 int&nbsp;stopReason,
                 <a href="Download.FailureReason.html" title="annotation in com.google.android.exoplayer2.offline">@FailureReason</a>
-                int&nbsp;failureReason)</pre>
+                @com.google.android.exoplayer2.offline.Download.FailureReason int&nbsp;failureReason)</pre>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.offline.DownloadRequest,int,long,long,long,int,int,com.google.android.exoplayer2.offline.DownloadProgress)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.offline.DownloadRequest,@com.google.android.exoplayer2.offline.Download.Stateint,long,long,long,int,@com.google.android.exoplayer2.offline.Download.FailureReasonint,com.google.android.exoplayer2.offline.DownloadProgress)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -660,13 +660,13 @@ public final&nbsp;int failureReason</pre>
 <h4>Download</h4>
 <pre>public&nbsp;Download&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request,
                 <a href="Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
-                int&nbsp;state,
+                @com.google.android.exoplayer2.offline.Download.State int&nbsp;state,
                 long&nbsp;startTimeMs,
                 long&nbsp;updateTimeMs,
                 long&nbsp;contentLength,
                 int&nbsp;stopReason,
                 <a href="Download.FailureReason.html" title="annotation in com.google.android.exoplayer2.offline">@FailureReason</a>
-                int&nbsp;failureReason,
+                @com.google.android.exoplayer2.offline.Download.FailureReason int&nbsp;failureReason,
                 <a href="DownloadProgress.html" title="class in com.google.android.exoplayer2.offline">DownloadProgress</a>&nbsp;progress)</pre>
 </li>
 </ul>

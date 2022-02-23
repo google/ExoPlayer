@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -179,16 +179,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedToKeyframeCount">droppedToKeyframeCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedInputBufferCount">droppedInputBufferCount</a></span></code></th>
 <td class="colLast">
-<div class="block">The number of times all buffers to a keyframe were dropped.</div>
+<div class="block">The number of input buffers dropped.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inputBufferCount">inputBufferCount</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedToKeyframeCount">droppedToKeyframeCount</a></span></code></th>
 <td class="colLast">
-<div class="block">The number of queued input buffers.</div>
+<div class="block">The number of times all buffers to a keyframe were dropped.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -200,33 +200,40 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queuedInputBufferCount">queuedInputBufferCount</a></span></code></th>
+<td class="colLast">
+<div class="block">The number of input buffers queued to the decoder.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderedOutputBufferCount">renderedOutputBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of rendered output buffers.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedInputBufferCount">skippedInputBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of skipped input buffers.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedOutputBufferCount">skippedOutputBufferCount</a></span></code></th>
 <td class="colLast">
 <div class="block">The number of skipped output buffers.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFrameProcessingOffsetUs">totalVideoFrameProcessingOffsetUs</a></span></code></th>
 <td class="colLast">
 <div class="block">The sum of the video frame processing offsets in microseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoFrameProcessingOffsetCount">videoFrameProcessingOffsetCount</a></span></code></th>
 <td class="colLast">
@@ -294,13 +301,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Merges the counts from <code>other</code> into this instance.</div>
 </td>
 </tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -338,14 +350,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">The number of times a decoder has been released.</div>
 </li>
 </ul>
-<a id="inputBufferCount">
+<a id="queuedInputBufferCount">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>inputBufferCount</h4>
-<pre>public&nbsp;int inputBufferCount</pre>
-<div class="block">The number of queued input buffers.</div>
+<h4>queuedInputBufferCount</h4>
+<pre>public&nbsp;int queuedInputBufferCount</pre>
+<div class="block">The number of input buffers queued to the decoder.</div>
 </li>
 </ul>
 <a id="skippedInputBufferCount">
@@ -357,7 +369,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;int skippedInputBufferCount</pre>
 <div class="block">The number of skipped input buffers.
 
- <p>A skipped input buffer is an input buffer that was deliberately not sent to the decoder.</div>
+ <p>A skipped input buffer is an input buffer that was deliberately not queued to the decoder.</div>
 </li>
 </ul>
 <a id="renderedOutputBufferCount">
@@ -379,7 +391,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;int skippedOutputBufferCount</pre>
 <div class="block">The number of skipped output buffers.
 
- <p>A skipped output buffer is an output buffer that was deliberately not rendered.</div>
+ <p>A skipped output buffer is an output buffer that was deliberately not rendered. This
+ includes buffers that were never dequeued from the decoder and instead skipped while 'inside'
+ the codec due to a flush.</div>
 </li>
 </ul>
 <a id="droppedBufferCount">
@@ -391,8 +405,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;int droppedBufferCount</pre>
 <div class="block">The number of dropped buffers.
 
- <p>A dropped buffer is an buffer that was supposed to be decoded/rendered, but was instead
- dropped because it could not be rendered in time.</div>
+ <p>A dropped buffer is a buffer that was supposed to be decoded/rendered, but was instead
+ dropped because it could not be rendered in time.
+
+ <p>This includes all of <a href="#droppedInputBufferCount"><code>droppedInputBufferCount</code></a> in addition to buffers dropped after
+ being queued to the decoder.</div>
+</li>
+</ul>
+<a id="droppedInputBufferCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>droppedInputBufferCount</h4>
+<pre>public&nbsp;int droppedInputBufferCount</pre>
+<div class="block">The number of input buffers dropped.
+
+ <p>A dropped input buffer is a buffer that was not queued to the decoder because it would not
+ be rendered in time.</div>
 </li>
 </ul>
 <a id="maxConsecutiveDroppedBufferCount">
@@ -404,7 +434,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;int maxConsecutiveDroppedBufferCount</pre>
 <div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.
 
- <p>Skipped output buffers are ignored for the purposes of calculating this value.</div>
+ <p>Skipped buffers are ignored for the purposes of calculating this value.</div>
 </li>
 </ul>
 <a id="droppedToKeyframeCount">
@@ -416,9 +446,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;int droppedToKeyframeCount</pre>
 <div class="block">The number of times all buffers to a keyframe were dropped.
 
- <p>Each time buffers to a keyframe are dropped, this counter is increased by one, and the
- dropped buffer counters are increased by one (for the current output buffer) plus the number of
- buffers dropped from the source to advance to the keyframe.</div>
+ <p>Each time buffers to a keyframe are dropped:
+
+ <ul>
+   <li>This counter is incremented by one.
+   <li><a href="#droppedInputBufferCount"><code>droppedInputBufferCount</code></a> is incremented by the number of buffers dropped from the
+       source to advance to the keyframe.
+   <li><a href="#droppedBufferCount"><code>droppedBufferCount</code></a> is incremented by the sum of the number of buffers dropped
+       from the source to advance to the keyframe and the number of buffers 'inside' the
+       decoder.
+ </ul></div>
 </li>
 </ul>
 <a id="totalVideoFrameProcessingOffsetUs">
@@ -511,7 +548,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="addVideoFrameProcessingOffset(long)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>addVideoFrameProcessingOffset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addVideoFrameProcessingOffset&#8203;(long&nbsp;processingOffsetUs)</pre>
@@ -522,6 +559,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>processingOffsetUs</code> - The video frame processing offset in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>

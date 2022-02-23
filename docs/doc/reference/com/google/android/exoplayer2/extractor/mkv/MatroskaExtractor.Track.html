@@ -1,0 +1,1070 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>MatroskaExtractor.Track (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="MatroskaExtractor.Track (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.extractor.mkv</a></div>
+<h2 title="Class MatroskaExtractor.Track" class="title">Class MatroskaExtractor.Track</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Track</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv">MatroskaExtractor</a></dd>
+</dl>
+<hr>
+<pre>protected static final class <span class="typeNameLabel">MatroskaExtractor.Track</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Holds data corresponding to a single track.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audioBitDepth">audioBitDepth</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#channelCount">channelCount</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecDelayNs">codecDelayNs</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@MonotonicNonNull <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecId">codecId</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>byte @MonotonicNonNull []</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecPrivate">codecPrivate</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorRange int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorRange">colorRange</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorSpace int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorSpace">colorSpace</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorTransfer int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorTransfer">colorTransfer</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@MonotonicNonNull <a href="../TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cryptoData">cryptoData</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#defaultSampleDurationNs">defaultSampleDurationNs</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#displayHeight">displayHeight</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#displayUnit">displayUnit</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#displayWidth">displayWidth</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte @MonotonicNonNull []</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dolbyVisionConfigBytes">dolbyVisionConfigBytes</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@MonotonicNonNull <a href="../../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#drmInitData">drmInitData</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flagDefault">flagDefault</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flagForced">flagForced</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasColorInfo">hasColorInfo</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasContentEncryption">hasContentEncryption</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxBlockAdditionId">maxBlockAdditionId</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxContentLuminance">maxContentLuminance</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxFrameAverageLuminance">maxFrameAverageLuminance</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxMasteringLuminance">maxMasteringLuminance</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minMasteringLuminance">minMasteringLuminance</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nalUnitLengthFieldLength">nalUnitLengthFieldLength</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@MonotonicNonNull <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#name">name</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#number">number</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@MonotonicNonNull <a href="../TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#output">output</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#primaryBChromaticityX">primaryBChromaticityX</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#primaryBChromaticityY">primaryBChromaticityY</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#primaryGChromaticityX">primaryGChromaticityX</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#primaryGChromaticityY">primaryGChromaticityY</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#primaryRChromaticityX">primaryRChromaticityX</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#primaryRChromaticityY">primaryRChromaticityY</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte @MonotonicNonNull []</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#projectionData">projectionData</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#projectionPosePitch">projectionPosePitch</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#projectionPoseRoll">projectionPoseRoll</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#projectionPoseYaw">projectionPoseYaw</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.Projection int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#projectionType">projectionType</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleRate">sampleRate</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte @MonotonicNonNull []</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleStrippedBytes">sampleStrippedBytes</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekPreRollNs">seekPreRollNs</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.StereoMode int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stereoMode">stereoMode</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>@MonotonicNonNull <a href="../TrueHdSampleRechunker.html" title="class in com.google.android.exoplayer2.extractor">TrueHdSampleRechunker</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trueHdSampleRechunker">trueHdSampleRechunker</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#type">type</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#whitePointChromaticityX">whitePointChromaticityX</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#whitePointChromaticityY">whitePointChromaticityY</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colSecond" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Track</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initializeOutput(com.google.android.exoplayer2.extractor.ExtractorOutput,int)">initializeOutput</a></span>&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output,
+                int&nbsp;trackId)</code></th>
+<td class="colLast">
+<div class="block">Initializes the track with an output.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#outputPendingSampleMetadata()">outputPendingSampleMetadata</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Forces any pending sample metadata to be flushed to the output.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Resets any state stored in the track in response to a seek.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="name">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>name</h4>
+<pre>public&nbsp;@MonotonicNonNull <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> name</pre>
+</li>
+</ul>
+<a id="codecId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>codecId</h4>
+<pre>public&nbsp;@MonotonicNonNull <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> codecId</pre>
+</li>
+</ul>
+<a id="number">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>number</h4>
+<pre>public&nbsp;int number</pre>
+</li>
+</ul>
+<a id="type">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>type</h4>
+<pre>public&nbsp;int type</pre>
+</li>
+</ul>
+<a id="defaultSampleDurationNs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>defaultSampleDurationNs</h4>
+<pre>public&nbsp;int defaultSampleDurationNs</pre>
+</li>
+</ul>
+<a id="maxBlockAdditionId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxBlockAdditionId</h4>
+<pre>public&nbsp;int maxBlockAdditionId</pre>
+</li>
+</ul>
+<a id="hasContentEncryption">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasContentEncryption</h4>
+<pre>public&nbsp;boolean hasContentEncryption</pre>
+</li>
+</ul>
+<a id="sampleStrippedBytes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleStrippedBytes</h4>
+<pre>public&nbsp;byte @MonotonicNonNull [] sampleStrippedBytes</pre>
+</li>
+</ul>
+<a id="cryptoData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cryptoData</h4>
+<pre>public&nbsp;@MonotonicNonNull <a href="../TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a> cryptoData</pre>
+</li>
+</ul>
+<a id="codecPrivate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>codecPrivate</h4>
+<pre>public&nbsp;byte @MonotonicNonNull [] codecPrivate</pre>
+</li>
+</ul>
+<a id="drmInitData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>drmInitData</h4>
+<pre>public&nbsp;@MonotonicNonNull <a href="../../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> drmInitData</pre>
+</li>
+</ul>
+<a id="width">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>width</h4>
+<pre>public&nbsp;int width</pre>
+</li>
+</ul>
+<a id="height">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>height</h4>
+<pre>public&nbsp;int height</pre>
+</li>
+</ul>
+<a id="displayWidth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>displayWidth</h4>
+<pre>public&nbsp;int displayWidth</pre>
+</li>
+</ul>
+<a id="displayHeight">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>displayHeight</h4>
+<pre>public&nbsp;int displayHeight</pre>
+</li>
+</ul>
+<a id="displayUnit">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>displayUnit</h4>
+<pre>public&nbsp;int displayUnit</pre>
+</li>
+</ul>
+<a id="projectionType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projectionType</h4>
+<pre>public&nbsp;@com.google.android.exoplayer2.C.Projection int projectionType</pre>
+</li>
+</ul>
+<a id="projectionPoseYaw">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projectionPoseYaw</h4>
+<pre>public&nbsp;float projectionPoseYaw</pre>
+</li>
+</ul>
+<a id="projectionPosePitch">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projectionPosePitch</h4>
+<pre>public&nbsp;float projectionPosePitch</pre>
+</li>
+</ul>
+<a id="projectionPoseRoll">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projectionPoseRoll</h4>
+<pre>public&nbsp;float projectionPoseRoll</pre>
+</li>
+</ul>
+<a id="projectionData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projectionData</h4>
+<pre>public&nbsp;byte @MonotonicNonNull [] projectionData</pre>
+</li>
+</ul>
+<a id="stereoMode">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>stereoMode</h4>
+<pre>public&nbsp;@com.google.android.exoplayer2.C.StereoMode int stereoMode</pre>
+</li>
+</ul>
+<a id="hasColorInfo">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasColorInfo</h4>
+<pre>public&nbsp;boolean hasColorInfo</pre>
+</li>
+</ul>
+<a id="colorSpace">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>colorSpace</h4>
+<pre>public&nbsp;@com.google.android.exoplayer2.C.ColorSpace int colorSpace</pre>
+</li>
+</ul>
+<a id="colorTransfer">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>colorTransfer</h4>
+<pre>public&nbsp;@com.google.android.exoplayer2.C.ColorTransfer int colorTransfer</pre>
+</li>
+</ul>
+<a id="colorRange">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>colorRange</h4>
+<pre>public&nbsp;@com.google.android.exoplayer2.C.ColorRange int colorRange</pre>
+</li>
+</ul>
+<a id="maxContentLuminance">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxContentLuminance</h4>
+<pre>public&nbsp;int maxContentLuminance</pre>
+</li>
+</ul>
+<a id="maxFrameAverageLuminance">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxFrameAverageLuminance</h4>
+<pre>public&nbsp;int maxFrameAverageLuminance</pre>
+</li>
+</ul>
+<a id="primaryRChromaticityX">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>primaryRChromaticityX</h4>
+<pre>public&nbsp;float primaryRChromaticityX</pre>
+</li>
+</ul>
+<a id="primaryRChromaticityY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>primaryRChromaticityY</h4>
+<pre>public&nbsp;float primaryRChromaticityY</pre>
+</li>
+</ul>
+<a id="primaryGChromaticityX">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>primaryGChromaticityX</h4>
+<pre>public&nbsp;float primaryGChromaticityX</pre>
+</li>
+</ul>
+<a id="primaryGChromaticityY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>primaryGChromaticityY</h4>
+<pre>public&nbsp;float primaryGChromaticityY</pre>
+</li>
+</ul>
+<a id="primaryBChromaticityX">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>primaryBChromaticityX</h4>
+<pre>public&nbsp;float primaryBChromaticityX</pre>
+</li>
+</ul>
+<a id="primaryBChromaticityY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>primaryBChromaticityY</h4>
+<pre>public&nbsp;float primaryBChromaticityY</pre>
+</li>
+</ul>
+<a id="whitePointChromaticityX">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>whitePointChromaticityX</h4>
+<pre>public&nbsp;float whitePointChromaticityX</pre>
+</li>
+</ul>
+<a id="whitePointChromaticityY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>whitePointChromaticityY</h4>
+<pre>public&nbsp;float whitePointChromaticityY</pre>
+</li>
+</ul>
+<a id="maxMasteringLuminance">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxMasteringLuminance</h4>
+<pre>public&nbsp;float maxMasteringLuminance</pre>
+</li>
+</ul>
+<a id="minMasteringLuminance">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minMasteringLuminance</h4>
+<pre>public&nbsp;float minMasteringLuminance</pre>
+</li>
+</ul>
+<a id="dolbyVisionConfigBytes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dolbyVisionConfigBytes</h4>
+<pre>public&nbsp;byte @MonotonicNonNull [] dolbyVisionConfigBytes</pre>
+</li>
+</ul>
+<a id="channelCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>channelCount</h4>
+<pre>public&nbsp;int channelCount</pre>
+</li>
+</ul>
+<a id="audioBitDepth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>audioBitDepth</h4>
+<pre>public&nbsp;int audioBitDepth</pre>
+</li>
+</ul>
+<a id="sampleRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleRate</h4>
+<pre>public&nbsp;int sampleRate</pre>
+</li>
+</ul>
+<a id="codecDelayNs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>codecDelayNs</h4>
+<pre>public&nbsp;long codecDelayNs</pre>
+</li>
+</ul>
+<a id="seekPreRollNs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekPreRollNs</h4>
+<pre>public&nbsp;long seekPreRollNs</pre>
+</li>
+</ul>
+<a id="trueHdSampleRechunker">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>trueHdSampleRechunker</h4>
+<pre>public&nbsp;@MonotonicNonNull <a href="../TrueHdSampleRechunker.html" title="class in com.google.android.exoplayer2.extractor">TrueHdSampleRechunker</a> trueHdSampleRechunker</pre>
+</li>
+</ul>
+<a id="flagForced">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flagForced</h4>
+<pre>public&nbsp;boolean flagForced</pre>
+</li>
+</ul>
+<a id="flagDefault">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flagDefault</h4>
+<pre>public&nbsp;boolean flagDefault</pre>
+</li>
+</ul>
+<a id="output">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>output</h4>
+<pre>public&nbsp;@MonotonicNonNull <a href="../TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a> output</pre>
+</li>
+</ul>
+<a id="nalUnitLengthFieldLength">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>nalUnitLengthFieldLength</h4>
+<pre>public&nbsp;int nalUnitLengthFieldLength</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Track</h4>
+<pre>protected&nbsp;Track()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="initializeOutput(com.google.android.exoplayer2.extractor.ExtractorOutput,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initializeOutput</h4>
+<pre class="methodSignature">@RequiresNonNull("codecId")
+@EnsuresNonNull("this.output")
+public&nbsp;void&nbsp;initializeOutput&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output,
+                             int&nbsp;trackId)
+                      throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="block">Initializes the track with an output.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="outputPendingSampleMetadata()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>outputPendingSampleMetadata</h4>
+<pre class="methodSignature">@RequiresNonNull("output")
+public&nbsp;void&nbsp;outputPendingSampleMetadata()</pre>
+<div class="block">Forces any pending sample metadata to be flushed to the output.</div>
+</li>
+</ul>
+<a id="reset()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="block">Resets any state stored in the track in response to a seek.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

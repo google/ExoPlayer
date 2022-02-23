@@ -135,7 +135,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public static final class <span class="typeNameLabel">FakeSampleStream.FakeSampleStreamItem</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Item to customize a return value of <a href="../source/SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, int)</code></a>.</div>
+<div class="block">Item to customize a return value of <a href="../source/SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, @com.google.android.exoplayer2.source.SampleStream.ReadFlags int)</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -197,16 +197,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#oneByteSample(long,int)">oneByteSample</a></span>&#8203;(long&nbsp;timeUs,
-             int&nbsp;flags)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#oneByteSample(long,@com.google.android.exoplayer2.C.BufferFlagsint)">oneByteSample</a></span>&#8203;(long&nbsp;timeUs,
+             @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Creates an item representing a sample with the provided timestamp and flags.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sample(long,int,byte%5B%5D)">sample</a></span>&#8203;(long&nbsp;timeUs,
-      int&nbsp;flags,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sample(long,@com.google.android.exoplayer2.C.BufferFlagsint,byte%5B%5D)">sample</a></span>&#8203;(long&nbsp;timeUs,
+      @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags,
       byte[]&nbsp;sampleData)</code></th>
 <td class="colLast">
 <div class="block">Creates an item representing a sample with the provided timestamp, flags and data.</div>
@@ -282,15 +282,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="oneByteSample(long,int)">
+<a id="oneByteSample(long,@com.google.android.exoplayer2.C.BufferFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>oneByteSample</h4>
 <pre class="methodSignature">public static&nbsp;<a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a>&nbsp;oneByteSample&#8203;(long&nbsp;timeUs,
-                                                                  <a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@BufferFlags</a>
-                                                                  int&nbsp;flags)</pre>
+                                                                  @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)</pre>
 <div class="block">Creates an item representing a sample with the provided timestamp and flags.
 
  <p>The sample will contain a single byte of data.</div>
@@ -301,15 +300,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="sample(long,int,byte[])">
+<a id="sample(long,@com.google.android.exoplayer2.C.BufferFlagsint,byte[])">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>sample</h4>
 <pre class="methodSignature">public static&nbsp;<a href="FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a>&nbsp;sample&#8203;(long&nbsp;timeUs,
-                                                           <a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@BufferFlags</a>
-                                                           int&nbsp;flags,
+                                                           @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags,
                                                            byte[]&nbsp;sampleData)</pre>
 <div class="block">Creates an item representing a sample with the provided timestamp, flags and data.</div>
 <dl>

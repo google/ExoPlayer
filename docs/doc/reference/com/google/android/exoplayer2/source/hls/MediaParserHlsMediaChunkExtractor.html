@@ -183,12 +183,13 @@ implements <a href="HlsMediaChunkExtractor.html" title="interface in com.google.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.media.MediaParser,com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30,com.google.android.exoplayer2.Format,boolean,com.google.common.collect.ImmutableList,int)">MediaParserHlsMediaChunkExtractor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser</a>&nbsp;mediaParser,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.media.MediaParser,com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30,com.google.android.exoplayer2.Format,boolean,com.google.common.collect.ImmutableList,int,com.google.android.exoplayer2.analytics.PlayerId)">MediaParserHlsMediaChunkExtractor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser</a>&nbsp;mediaParser,
                                  <a href="../mediaparser/OutputConsumerAdapterV30.html" title="class in com.google.android.exoplayer2.source.mediaparser">OutputConsumerAdapterV30</a>&nbsp;outputConsumerAdapter,
                                  <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                  boolean&nbsp;overrideInBandCaptionDeclarations,
-                                 <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&gt;&nbsp;muxedCaptionMediaFormats,
-                                 int&nbsp;leadingBytesToSkip)</code></th>
+                                 <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&gt;&nbsp;muxedCaptionMediaFormats,
+                                 int&nbsp;leadingBytesToSkip,
+                                 <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
 <div class="block">Creates a new instance.</div>
 </td>
@@ -297,7 +298,7 @@ implements <a href="HlsMediaChunkExtractor.html" title="interface in com.google.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(android.media.MediaParser,com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30,com.google.android.exoplayer2.Format,boolean,com.google.common.collect.ImmutableList,int)">
+<a id="&lt;init&gt;(android.media.MediaParser,com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30,com.google.android.exoplayer2.Format,boolean,com.google.common.collect.ImmutableList,int,com.google.android.exoplayer2.analytics.PlayerId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -307,8 +308,9 @@ implements <a href="HlsMediaChunkExtractor.html" title="interface in com.google.
                                          <a href="../mediaparser/OutputConsumerAdapterV30.html" title="class in com.google.android.exoplayer2.source.mediaparser">OutputConsumerAdapterV30</a>&nbsp;outputConsumerAdapter,
                                          <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                          boolean&nbsp;overrideInBandCaptionDeclarations,
-                                         <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&gt;&nbsp;muxedCaptionMediaFormats,
-                                         int&nbsp;leadingBytesToSkip)</pre>
+                                         <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&gt;&nbsp;muxedCaptionMediaFormats,
+                                         int&nbsp;leadingBytesToSkip,
+                                         <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -325,6 +327,7 @@ implements <a href="HlsMediaChunkExtractor.html" title="interface in com.google.
      that <a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser</code></a> should expose.</dd>
 <dd><code>leadingBytesToSkip</code> - The number of bytes to skip from the start of the input before
      starting extraction.</dd>
+<dd><code>playerId</code> - The <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this chunk extractor.</dd>
 </dl>
 </li>
 </ul>

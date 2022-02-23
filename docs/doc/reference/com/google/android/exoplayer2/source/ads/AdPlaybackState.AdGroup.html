@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -218,7 +218,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int[]</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#states">states</a></span></code></th>
 <td class="colLast">
 <div class="block">The state of each ad in the ad group.</div>
@@ -342,7 +342,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdState(int,int)">withAdState</a></span>&#8203;(int&nbsp;state,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdState(@com.google.android.exoplayer2.source.ads.AdPlaybackState.AdStateint,int)">withAdState</a></span>&#8203;(@com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState int&nbsp;state,
            int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Returns a new instance with the specified ad set to the specified <code>state</code>.</div>
@@ -359,26 +359,34 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAllAdsReset()">withAllAdsReset</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns an instance with all ads in final states (played, skipped, error) reset to either
+ available or unavailable, which allows to play them again.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAllAdsSkipped()">withAllAdsSkipped</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns an instance with all unavailable and available ads marked as skipped.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentResumeOffsetUs(long)">withContentResumeOffsetUs</a></span>&#8203;(long&nbsp;contentResumeOffsetUs)</code></th>
 <td class="colLast">
 <div class="block">Returns an instance with the specified <a href="#contentResumeOffsetUs"><code>contentResumeOffsetUs</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withIsServerSideInserted(boolean)">withIsServerSideInserted</a></span>&#8203;(boolean&nbsp;isServerSideInserted)</code></th>
 <td class="colLast">
 <div class="block">Returns an instance with the specified value for <a href="#isServerSideInserted"><code>isServerSideInserted</code></a>.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withTimeUs(long)">withTimeUs</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
@@ -446,7 +454,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>states</h4>
 <pre><a href="AdPlaybackState.AdState.html" title="annotation in com.google.android.exoplayer2.source.ads">@AdState</a>
-public final&nbsp;int[] states</pre>
+public final&nbsp;@com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState int[] states</pre>
 <div class="block">The state of each ad in the ad group.</div>
 </li>
 </ul>
@@ -633,7 +641,7 @@ public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.an
  marked as <a href="AdPlaybackState.html#AD_STATE_AVAILABLE"><code>AdPlaybackState.AD_STATE_AVAILABLE</code></a>.</div>
 </li>
 </ul>
-<a id="withAdState(int,int)">
+<a id="withAdState(@com.google.android.exoplayer2.source.ads.AdPlaybackState.AdStateint,int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -641,7 +649,7 @@ public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.an
 <h4>withAdState</h4>
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withAdState&#8203;(<a href="AdPlaybackState.AdState.html" title="annotation in com.google.android.exoplayer2.source.ads">@AdState</a>
-                                           int&nbsp;state,
+                                           @com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState int&nbsp;state,
                                            @IntRange(from=0L)
                                            int&nbsp;index)</pre>
 <div class="block">Returns a new instance with the specified ad set to the specified <code>state</code>. The ad
@@ -694,6 +702,18 @@ public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.an
 public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withAllAdsSkipped()</pre>
 <div class="block">Returns an instance with all unavailable and available ads marked as skipped. If the ad count
  hasn't been set, it will be set to zero.</div>
+</li>
+</ul>
+<a id="withAllAdsReset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withAllAdsReset</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withAllAdsReset()</pre>
+<div class="block">Returns an instance with all ads in final states (played, skipped, error) reset to either
+ available or unavailable, which allows to play them again.</div>
 </li>
 </ul>
 <a id="toBundle()">

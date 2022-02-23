@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -182,6 +182,13 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
+<td class="colLast">
+<div class="block">An identifier for the track group.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#length">length</a></span></code></th>
 <td class="colLast">
@@ -208,7 +215,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Format...)">TrackGroup</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</code></th>
 <td class="colLast">
-<div class="block">Constructs an instance <code>TrackGroup</code> containing the provided <code>formats</code>.</div>
+<div class="block">Constructs a track group containing the provided <code>formats</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.Format...)">TrackGroup</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</code></th>
+<td class="colLast">
+<div class="block">Constructs a track group with the provided <code>id</code> and <code>formats</code>.</div>
 </td>
 </tr>
 </table>
@@ -230,30 +244,37 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithId(java.lang.String)">copyWithId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
+<td class="colLast">
+<div class="block">Returns a copy of this track group with the specified <code>id</code>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFormat(int)">getFormat</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Returns the format of the track at a given index.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#indexOf(com.google.android.exoplayer2.Format)">indexOf</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
 <div class="block">Returns the index of the track with the given format in the group.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -294,6 +315,16 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <div class="block">The number of tracks in the group.</div>
 </li>
 </ul>
+<a id="id">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>id</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> id</pre>
+<div class="block">An identifier for the track group.</div>
+</li>
+</ul>
 <a id="CREATOR">
 <!--   -->
 </a>
@@ -317,14 +348,30 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <a id="&lt;init&gt;(com.google.android.exoplayer2.Format...)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>TrackGroup</h4>
 <pre>public&nbsp;TrackGroup&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</pre>
-<div class="block">Constructs an instance <code>TrackGroup</code> containing the provided <code>formats</code>.</div>
+<div class="block">Constructs a track group containing the provided <code>formats</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>formats</code> - Non empty array of format.</dd>
+<dd><code>formats</code> - The list of <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a>. Must not be empty.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.Format...)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>TrackGroup</h4>
+<pre>public&nbsp;TrackGroup&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</pre>
+<div class="block">Constructs a track group with the provided <code>id</code> and <code>formats</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The identifier of the track group. May be an empty string.</dd>
+<dd><code>formats</code> - The list of <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a>. Must not be empty.</dd>
 </dl>
 </li>
 </ul>
@@ -338,6 +385,23 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="copyWithId(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithId</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;copyWithId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</pre>
+<div class="block">Returns a copy of this track group with the specified <code>id</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The identifier for the copy of the track group.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The copied track group.</dd>
+</dl>
+</li>
+</ul>
 <a id="getFormat(int)">
 <!--   -->
 </a>

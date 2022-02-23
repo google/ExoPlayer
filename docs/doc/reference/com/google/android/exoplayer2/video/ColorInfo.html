@@ -175,21 +175,21 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorRange int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorRange">colorRange</a></span></code></th>
 <td class="colLast">
 <div class="block">The color range of the video.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorSpace int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorSpace">colorSpace</a></span></code></th>
 <td class="colLast">
 <div class="block">The color space of the video.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.ColorTransfer int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorTransfer">colorTransfer</a></span></code></th>
 <td class="colLast">
 <div class="block">The color transfer characteristics of the video.</div>
@@ -225,9 +225,9 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,int,byte%5B%5D)">ColorInfo</a></span>&#8203;(int&nbsp;colorSpace,
-         int&nbsp;colorRange,
-         int&nbsp;colorTransfer,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.C.ColorSpaceint,@com.google.android.exoplayer2.C.ColorRangeint,@com.google.android.exoplayer2.C.ColorTransferint,byte%5B%5D)">ColorInfo</a></span>&#8203;(@com.google.android.exoplayer2.C.ColorSpace int&nbsp;colorSpace,
+         @com.google.android.exoplayer2.C.ColorRange int&nbsp;colorRange,
+         @com.google.android.exoplayer2.C.ColorTransfer int&nbsp;colorTransfer,
          byte[]&nbsp;hdrStaticInfo)</code></th>
 <td class="colLast">
 <div class="block">Constructs the ColorInfo.</div>
@@ -262,7 +262,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>static int</code></td>
+<td class="colFirst"><code>static @com.google.android.exoplayer2.C.ColorSpace int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isoColorPrimariesToColorSpace(int)">isoColorPrimariesToColorSpace</a></span>&#8203;(int&nbsp;isoColorPrimaries)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="../C.ColorSpace.html" title="annotation in com.google.android.exoplayer2"><code>C.ColorSpace</code></a> corresponding to the given ISO color primary code, as per
@@ -270,7 +270,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
+<td class="colFirst"><code>static @com.google.android.exoplayer2.C.ColorTransfer int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isoTransferCharacteristicsToColorTransfer(int)">isoTransferCharacteristicsToColorTransfer</a></span>&#8203;(int&nbsp;isoTransferCharacteristics)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2"><code>C.ColorTransfer</code></a> corresponding to the given ISO transfer characteristics
@@ -319,8 +319,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockList">
 <li class="blockList">
 <h4>colorSpace</h4>
-<pre><a href="../C.ColorSpace.html" title="annotation in com.google.android.exoplayer2">@ColorSpace</a>
-public final&nbsp;int colorSpace</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.ColorSpace int colorSpace</pre>
 <div class="block">The color space of the video. Valid values are <a href="../C.html#COLOR_SPACE_BT601"><code>C.COLOR_SPACE_BT601</code></a>, <a href="../C.html#COLOR_SPACE_BT709"><code>C.COLOR_SPACE_BT709</code></a>, <a href="../C.html#COLOR_SPACE_BT2020"><code>C.COLOR_SPACE_BT2020</code></a> or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
 </li>
 </ul>
@@ -330,8 +329,7 @@ public final&nbsp;int colorSpace</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>colorRange</h4>
-<pre><a href="../C.ColorRange.html" title="annotation in com.google.android.exoplayer2">@ColorRange</a>
-public final&nbsp;int colorRange</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.ColorRange int colorRange</pre>
 <div class="block">The color range of the video. Valid values are <a href="../C.html#COLOR_RANGE_LIMITED"><code>C.COLOR_RANGE_LIMITED</code></a>, <a href="../C.html#COLOR_RANGE_FULL"><code>C.COLOR_RANGE_FULL</code></a> or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
 </li>
 </ul>
@@ -341,8 +339,7 @@ public final&nbsp;int colorRange</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>colorTransfer</h4>
-<pre><a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2">@ColorTransfer</a>
-public final&nbsp;int colorTransfer</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.ColorTransfer int colorTransfer</pre>
 <div class="block">The color transfer characteristics of the video. Valid values are <a href="../C.html#COLOR_TRANSFER_HLG"><code>C.COLOR_TRANSFER_HLG</code></a>,
  <a href="../C.html#COLOR_TRANSFER_ST2084"><code>C.COLOR_TRANSFER_ST2084</code></a>, <a href="../C.html#COLOR_TRANSFER_SDR"><code>C.COLOR_TRANSFER_SDR</code></a> or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if
  unknown.</div>
@@ -378,18 +375,15 @@ public final&nbsp;byte[] hdrStaticInfo</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,int,int,byte[])">
+<a id="&lt;init&gt;(@com.google.android.exoplayer2.C.ColorSpaceint,@com.google.android.exoplayer2.C.ColorRangeint,@com.google.android.exoplayer2.C.ColorTransferint,byte[])">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ColorInfo</h4>
-<pre>public&nbsp;ColorInfo&#8203;(<a href="../C.ColorSpace.html" title="annotation in com.google.android.exoplayer2">@ColorSpace</a>
-                 int&nbsp;colorSpace,
-                 <a href="../C.ColorRange.html" title="annotation in com.google.android.exoplayer2">@ColorRange</a>
-                 int&nbsp;colorRange,
-                 <a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2">@ColorTransfer</a>
-                 int&nbsp;colorTransfer,
+<pre>public&nbsp;ColorInfo&#8203;(@com.google.android.exoplayer2.C.ColorSpace int&nbsp;colorSpace,
+                 @com.google.android.exoplayer2.C.ColorRange int&nbsp;colorRange,
+                 @com.google.android.exoplayer2.C.ColorTransfer int&nbsp;colorTransfer,
                  @Nullable
                  byte[]&nbsp;hdrStaticInfo)</pre>
 <div class="block">Constructs the ColorInfo.</div>
@@ -419,8 +413,7 @@ public final&nbsp;byte[] hdrStaticInfo</pre>
 <li class="blockList">
 <h4>isoColorPrimariesToColorSpace</h4>
 <pre class="methodSignature">@Pure
-<a href="../C.ColorSpace.html" title="annotation in com.google.android.exoplayer2">@ColorSpace</a>
-public static&nbsp;int&nbsp;isoColorPrimariesToColorSpace&#8203;(int&nbsp;isoColorPrimaries)</pre>
+public static&nbsp;@com.google.android.exoplayer2.C.ColorSpace int&nbsp;isoColorPrimariesToColorSpace&#8203;(int&nbsp;isoColorPrimaries)</pre>
 <div class="block">Returns the <a href="../C.ColorSpace.html" title="annotation in com.google.android.exoplayer2"><code>C.ColorSpace</code></a> corresponding to the given ISO color primary code, as per
  table A.7.21.1 in Rec. ITU-T T.832 (03/2009), or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if no mapping can be
  made.</div>
@@ -433,8 +426,7 @@ public static&nbsp;int&nbsp;isoColorPrimariesToColorSpace&#8203;(int&nbsp;isoCol
 <li class="blockList">
 <h4>isoTransferCharacteristicsToColorTransfer</h4>
 <pre class="methodSignature">@Pure
-<a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2">@ColorTransfer</a>
-public static&nbsp;int&nbsp;isoTransferCharacteristicsToColorTransfer&#8203;(int&nbsp;isoTransferCharacteristics)</pre>
+public static&nbsp;@com.google.android.exoplayer2.C.ColorTransfer int&nbsp;isoTransferCharacteristicsToColorTransfer&#8203;(int&nbsp;isoTransferCharacteristics)</pre>
 <div class="block">Returns the <a href="../C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2"><code>C.ColorTransfer</code></a> corresponding to the given ISO transfer characteristics
  code, as per table A.7.21.2 in Rec. ITU-T T.832 (03/2009), or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if no
  mapping can be made.</div>

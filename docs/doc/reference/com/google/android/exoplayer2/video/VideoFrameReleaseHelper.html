@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -191,70 +191,56 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisabled()">onDisabled</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Called when the renderer is disabled.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnabled()">onEnabled</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Called when the renderer is enabled.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFormatChanged(float)">onFormatChanged</a></span>&#8203;(float&nbsp;formatFrameRate)</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer's output format changes.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onNextFrame(long)">onNextFrame</a></span>&#8203;(long&nbsp;framePresentationTimeUs)</code></th>
 <td class="colLast">
 <div class="block">Called by the renderer for each frame, prior to it being skipped, dropped or rendered.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer's playback speed changes.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionReset()">onPositionReset</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer's position is reset.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer is started.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer is stopped.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSurfaceChanged(android.view.Surface)">onSurfaceChanged</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
 <div class="block">Called when the renderer changes which <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> it's rendering to renders to.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setChangeFrameRateStrategy(int)">setChangeFrameRateStrategy</a></span>&#8203;(int&nbsp;changeFrameRateStrategy)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)">setChangeFrameRateStrategy</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;changeFrameRateStrategy)</code></th>
 <td class="colLast">
 <div class="block">Change the <a href="../C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> used when calling <a href="https://developer.android.com/reference/android/view/Surface.html#setFrameRate(float,int,int)" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface.setFrameRate(float, int, int)</code></a>.</div>
 </td>
@@ -308,25 +294,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setChangeFrameRateStrategy(int)">
+<a id="setChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setChangeFrameRateStrategy</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setChangeFrameRateStrategy&#8203;(<a href="../C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2">@VideoChangeFrameRateStrategy</a>
-                                       int&nbsp;changeFrameRateStrategy)</pre>
+                                       @com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;changeFrameRateStrategy)</pre>
 <div class="block">Change the <a href="../C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> used when calling <a href="https://developer.android.com/reference/android/view/Surface.html#setFrameRate(float,int,int)" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface.setFrameRate(float, int, int)</code></a>.</div>
-</li>
-</ul>
-<a id="onEnabled()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onEnabled</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onEnabled()</pre>
-<div class="block">Called when the renderer is enabled.</div>
 </li>
 </ul>
 <a id="onStarted()">
@@ -414,16 +390,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>onStopped</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onStopped()</pre>
 <div class="block">Called when the renderer is stopped.</div>
-</li>
-</ul>
-<a id="onDisabled()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDisabled</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onDisabled()</pre>
-<div class="block">Called when the renderer is disabled.</div>
 </li>
 </ul>
 <a id="adjustReleaseTime(long)">

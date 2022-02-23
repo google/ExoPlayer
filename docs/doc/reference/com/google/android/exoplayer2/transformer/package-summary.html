@@ -104,9 +104,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="TranscodingTransformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">TranscodingTransformer.Listener</a></th>
+<th class="colFirst" scope="row"><a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.DecoderFactory</a></th>
 <td class="colLast">
-<div class="block">A listener for the transformation events.</div>
+<div class="block">A factory for <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>decoder</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.EncoderFactory</a></th>
+<td class="colLast">
+<div class="block">A factory for <a href="Codec.html" title="class in com.google.android.exoplayer2.transformer"><code>encoder</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Transformer.DebugViewProvider.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.DebugViewProvider</a></th>
+<td class="colLast">
+<div class="block">Provider for views to show diagnostic information during transformation, for debugging.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -127,21 +139,33 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="Codec.html" title="class in com.google.android.exoplayer2.transformer">Codec</a></th>
+<td class="colLast">
+<div class="block">A wrapper around <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="EncoderUtil.html" title="class in com.google.android.exoplayer2.transformer">EncoderUtil</a></th>
+<td class="colLast">
+<div class="block">Utility methods for <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> encoders.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a></th>
 <td class="colLast">
 <div class="block">Holds a progress percentage.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="TranscodingTransformer.html" title="class in com.google.android.exoplayer2.transformer">TranscodingTransformer</a></th>
+<th class="colFirst" scope="row"><a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a></th>
 <td class="colLast">
-<div class="block">A transcoding transformer to transform media inputs.</div>
+<div class="block">A media transformation request.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="TranscodingTransformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">TranscodingTransformer.Builder</a></th>
+<th class="colFirst" scope="row"><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></th>
 <td class="colLast">
-<div class="block">A builder for <a href="TranscodingTransformer.html" title="class in com.google.android.exoplayer2.transformer"><code>TranscodingTransformer</code></a> instances.</div>
+<div class="block">A builder for <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> instances.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -161,6 +185,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 <li class="blockList">
 <table class="typeSummary">
+<caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Exception</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></th>
+<td class="colLast">
+<div class="block">Thrown when a non-locally recoverable transformation failure occurs.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary">
 <caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Annotation Type</th>
@@ -168,9 +209,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="TranscodingTransformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer">TranscodingTransformer.ProgressState</a></th>
+<th class="colFirst" scope="row"><a href="TransformationException.ErrorCode.html" title="annotation in com.google.android.exoplayer2.transformer">TransformationException.ErrorCode</a></th>
 <td class="colLast">
-<div class="block">Progress state.</div>
+<div class="block">Codes that identify causes of <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> errors.</div>
 </td>
 </tr>
 <tr class="rowColor">

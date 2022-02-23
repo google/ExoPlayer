@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":50,"i3":18,"i4":18,"i5":18,"i6":18,"i7":50,"i8":18,"i9":18,"i10":18,"i11":18,"i12":18,"i13":18,"i14":18,"i15":50,"i16":50,"i17":50,"i18":50,"i19":18,"i20":18,"i21":18,"i22":18,"i23":50,"i24":18,"i25":18,"i26":18,"i27":18,"i28":18,"i29":18,"i30":18,"i31":18,"i32":18,"i33":18,"i34":50,"i35":18,"i36":18,"i37":18,"i38":18,"i39":18,"i40":18,"i41":18,"i42":18,"i43":18,"i44":18,"i45":50,"i46":18,"i47":18,"i48":50,"i49":18,"i50":18,"i51":18,"i52":18,"i53":18,"i54":50,"i55":50,"i56":18,"i57":18,"i58":18,"i59":18,"i60":50,"i61":18,"i62":18,"i63":18,"i64":50,"i65":18,"i66":18,"i67":18,"i68":18,"i69":18,"i70":50,"i71":18,"i72":50,"i73":18,"i74":18};
+var data = {"i0":18,"i1":18,"i2":50,"i3":18,"i4":18,"i5":18,"i6":18,"i7":50,"i8":18,"i9":18,"i10":18,"i11":18,"i12":18,"i13":18,"i14":18,"i15":18,"i16":50,"i17":50,"i18":50,"i19":50,"i20":18,"i21":18,"i22":18,"i23":18,"i24":18,"i25":18,"i26":50,"i27":18,"i28":18,"i29":18,"i30":18,"i31":18,"i32":18,"i33":18,"i34":18,"i35":18,"i36":18,"i37":50,"i38":18,"i39":18,"i40":18,"i41":18,"i42":18,"i43":18,"i44":18,"i45":18,"i46":18,"i47":18,"i48":18,"i49":50,"i50":18,"i51":18,"i52":50,"i53":18,"i54":18,"i55":18,"i56":18,"i57":18,"i58":50,"i59":50,"i60":18,"i61":18,"i62":18,"i63":18,"i64":50,"i65":18,"i66":18,"i67":18,"i68":18,"i69":50,"i70":18,"i71":18,"i72":18,"i73":18,"i74":18,"i75":50,"i76":18,"i77":50,"i78":18,"i79":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -122,7 +122,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../util/EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></code>, <code><a href="../testutil/ExoHostedTest.html" title="class in com.google.android.exoplayer2.testutil">ExoHostedTest</a></code>, <code><a href="PlaybackStatsListener.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStatsListener</a></code></dd>
+<dd><code><a href="../util/EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></code>, <code><a href="../testutil/ExoHostedTest.html" title="class in com.google.android.exoplayer2.testutil">ExoHostedTest</a></code>, <code><a href="MediaMetricsListener.html" title="class in com.google.android.exoplayer2.analytics">MediaMetricsListener</a></code>, <code><a href="PlaybackStatsListener.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStatsListener</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">AnalyticsListener</span></pre>
@@ -287,187 +287,208 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_CUES">EVENT_CUES</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="../Player.html#getCurrentCues()"><code>Player.getCurrentCues()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DEVICE_INFO_CHANGED">EVENT_DEVICE_INFO_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="../Player.html#getDeviceInfo()"><code>Player.getDeviceInfo()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DEVICE_VOLUME_CHANGED">EVENT_DEVICE_VOLUME_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="../Player.html#getDeviceVolume()"><code>Player.getDeviceVolume()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DOWNSTREAM_FORMAT_CHANGED">EVENT_DOWNSTREAM_FORMAT_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block">The downstream format sent to renderers changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_KEYS_LOADED">EVENT_DRM_KEYS_LOADED</a></span></code></th>
 <td class="colLast">
 <div class="block">DRM keys were loaded.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_KEYS_REMOVED">EVENT_DRM_KEYS_REMOVED</a></span></code></th>
 <td class="colLast">
 <div class="block">DRM keys were removed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_KEYS_RESTORED">EVENT_DRM_KEYS_RESTORED</a></span></code></th>
 <td class="colLast">
 <div class="block">DRM keys were restored.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_SESSION_ACQUIRED">EVENT_DRM_SESSION_ACQUIRED</a></span></code></th>
 <td class="colLast">
 <div class="block">A DRM session has been acquired.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_SESSION_MANAGER_ERROR">EVENT_DRM_SESSION_MANAGER_ERROR</a></span></code></th>
 <td class="colLast">
 <div class="block">A non-fatal DRM session manager error occurred.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_SESSION_RELEASED">EVENT_DRM_SESSION_RELEASED</a></span></code></th>
 <td class="colLast">
 <div class="block">A DRM session has been released.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DROPPED_VIDEO_FRAMES">EVENT_DROPPED_VIDEO_FRAMES</a></span></code></th>
 <td class="colLast">
 <div class="block">Video frames have been dropped.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_IS_LOADING_CHANGED">EVENT_IS_LOADING_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#isLoading()"><code>Player.isLoading()</code></a> ()} changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_IS_PLAYING_CHANGED">EVENT_IS_PLAYING_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#isPlaying()"><code>Player.isPlaying()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_CANCELED">EVENT_LOAD_CANCELED</a></span></code></th>
 <td class="colLast">
 <div class="block">A source canceled loading data.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_COMPLETED">EVENT_LOAD_COMPLETED</a></span></code></th>
 <td class="colLast">
 <div class="block">A source started completed loading data.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_ERROR">EVENT_LOAD_ERROR</a></span></code></th>
 <td class="colLast">
 <div class="block">A source had a non-fatal error loading data.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_STARTED">EVENT_LOAD_STARTED</a></span></code></th>
 <td class="colLast">
 <div class="block">A source started loading data.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED">EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getMaxSeekToPreviousPosition()"><code>Player.getMaxSeekToPreviousPosition()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MEDIA_ITEM_TRANSITION">EVENT_MEDIA_ITEM_TRANSITION</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getCurrentMediaItem()"><code>Player.getCurrentMediaItem()</code></a> changed or the player started repeating the current item.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MEDIA_METADATA_CHANGED">EVENT_MEDIA_METADATA_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getMediaMetadata()"><code>Player.getMediaMetadata()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_METADATA">EVENT_METADATA</a></span></code></th>
 <td class="colLast">
 <div class="block">Metadata associated with the current playback time was reported.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAY_WHEN_READY_CHANGED">EVENT_PLAY_WHEN_READY_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getPlayWhenReady()"><code>Player.getPlayWhenReady()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYBACK_PARAMETERS_CHANGED">EVENT_PLAYBACK_PARAMETERS_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getPlaybackParameters()"><code>Player.getPlaybackParameters()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYBACK_STATE_CHANGED">EVENT_PLAYBACK_STATE_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getPlaybackState()"><code>Player.getPlaybackState()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED">EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getPlaybackSuppressionReason()"><code>Player.getPlaybackSuppressionReason()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYER_ERROR">EVENT_PLAYER_ERROR</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYER_RELEASED">EVENT_PLAYER_RELEASED</a></span></code></th>
 <td class="colLast">
 <div class="block">The player was released.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYLIST_METADATA_CHANGED">EVENT_PLAYLIST_METADATA_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getPlaylistMetadata()"><code>Player.getPlaylistMetadata()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_POSITION_DISCONTINUITY">EVENT_POSITION_DISCONTINUITY</a></span></code></th>
 <td class="colLast">
 <div class="block">A position discontinuity occurred.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_RENDERED_FIRST_FRAME">EVENT_RENDERED_FIRST_FRAME</a></span></code></th>
 <td class="colLast">
@@ -475,53 +496,60 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  since the stream changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_REPEAT_MODE_CHANGED">EVENT_REPEAT_MODE_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getRepeatMode()"><code>Player.getRepeatMode()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SEEK_BACK_INCREMENT_CHANGED">EVENT_SEEK_BACK_INCREMENT_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getSeekBackIncrement()"><code>Player.getSeekBackIncrement()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SEEK_FORWARD_INCREMENT_CHANGED">EVENT_SEEK_FORWARD_INCREMENT_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getSeekForwardIncrement()"><code>Player.getSeekForwardIncrement()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SHUFFLE_MODE_ENABLED_CHANGED">EVENT_SHUFFLE_MODE_ENABLED_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getShuffleModeEnabled()"><code>Player.getShuffleModeEnabled()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SKIP_SILENCE_ENABLED_CHANGED">EVENT_SKIP_SILENCE_ENABLED_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block">Skipping silences was enabled or disabled in the audio stream.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SURFACE_SIZE_CHANGED">EVENT_SURFACE_SIZE_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block">The surface size changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TIMELINE_CHANGED">EVENT_TIMELINE_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="../Player.html#getCurrentTimeline()"><code>Player.getCurrentTimeline()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TRACK_SELECTION_PARAMETERS_CHANGED">EVENT_TRACK_SELECTION_PARAMETERS_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="../Player.html#getTrackSelectionParameters()"><code>Player.getTrackSelectionParameters()</code></a> changed.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -754,6 +782,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.util.List)">onCues</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues)</code></th>
+<td class="colLast">
+<div class="block">Called when there is a change in the <a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a>.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">onDecoderDisabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  int&nbsp;trackType,
                  <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
@@ -763,7 +799,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">onDecoderEnabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                 int&nbsp;trackType,
@@ -774,7 +810,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,java.lang.String,long)">onDecoderInitialized</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     int&nbsp;trackType,
@@ -787,7 +823,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.Format)">onDecoderInputFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            int&nbsp;trackType,
@@ -799,7 +835,24 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDeviceInfoChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.DeviceInfo)">onDeviceInfoChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                   <a href="../DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&nbsp;deviceInfo)</code></th>
+<td class="colLast">
+<div class="block">Called when the device information changes</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDeviceVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,boolean)">onDeviceVolumeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                     int&nbsp;volume,
+                     boolean&nbsp;muted)</code></th>
+<td class="colLast">
+<div class="block">Called when the device volume or mute state changes.</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDownstreamFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">onDownstreamFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
@@ -807,45 +860,45 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the downstream format sent to the renderers changed.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysLoaded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysLoaded</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
 <div class="block">Called each time drm keys are loaded.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysRemoved(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysRemoved</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
 <div class="block">Called each time offline drm keys are removed.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysRestored(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysRestored</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
 <div class="block">Called each time offline drm keys are restored.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmSessionAcquired</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)"><code>onDrmSessionAcquired(EventTime, int)</code></a> instead.</div>
+<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.drm.DrmSession.Stateint)"><code>onDrmSessionAcquired(EventTime, int)</code></a> instead.</div>
 </div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)">onDrmSessionAcquired</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                    int&nbsp;state)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">onDrmSessionAcquired</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                    @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</code></th>
 <td class="colLast">
 <div class="block">Called each time a drm session is acquired.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionManagerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onDrmSessionManagerError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                         <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;error)</code></th>
@@ -853,14 +906,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a drm error occurs.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmSessionReleased</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
 <div class="block">Called each time a drm session is released.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDroppedVideoFrames(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,long)">onDroppedVideoFrames</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     int&nbsp;droppedFrames,
@@ -869,7 +922,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called after video frames have been dropped.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.analytics.AnalyticsListener.Events)">onEvents</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
         <a href="AnalyticsListener.Events.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.Events</a>&nbsp;events)</code></th>
@@ -877,7 +930,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called after one or more events occurred.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onIsLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onIsLoadingChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   boolean&nbsp;isLoading)</code></th>
@@ -885,7 +938,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the player starts or stops loading data from a source.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onIsPlayingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onIsPlayingChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   boolean&nbsp;isPlaying)</code></th>
@@ -893,7 +946,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the player starts or stops playing.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadCanceled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">onLoadCanceled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -902,7 +955,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a media source canceled loading data.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadCompleted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">onLoadCompleted</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -911,7 +964,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a media source completed loading data.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData,java.io.IOException,boolean)">onLoadError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
            <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -922,7 +975,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a media source loading error occurred.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onLoadingChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                 boolean&nbsp;isLoading)</code></th>
@@ -932,7 +985,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadStarted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">onLoadStarted</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
              <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -941,7 +994,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a media source started loading data.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMaxSeekToPreviousPositionChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onMaxSeekToPreviousPositionChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   long&nbsp;maxSeekToPreviousPositionMs)</code></th>
@@ -950,7 +1003,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  previous window changes.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMediaItemTransition(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaItem,@com.google.android.exoplayer2.Player.MediaItemTransitionReasonint)">onMediaItemTransition</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                      <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
@@ -959,7 +1012,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when playback transitions to a different media item.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMediaMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</code></th>
@@ -967,7 +1020,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the combined <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMetadata(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
           <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
@@ -975,7 +1028,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when there is <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> associated with the current playback time.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
@@ -983,7 +1036,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the playback parameters changed.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.Stateint)">onPlaybackStateChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       @com.google.android.exoplayer2.Player.State int&nbsp;state)</code></th>
@@ -991,7 +1044,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the playback state changed.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSuppressionReasonChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">onPlaybackSuppressionReasonChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   @com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&nbsp;playbackSuppressionReason)</code></th>
@@ -999,7 +1052,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when playback suppression reason changed.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">onPlayerError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
              <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</code></th>
@@ -1007,14 +1060,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a fatal player error occurred.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i47" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerErrorChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">onPlayerErrorChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                    <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</code></th>
+<td class="colLast">
+<div class="block">Called when the <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a> returned by <a href="../Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> changes.</div>
+</td>
+</tr>
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onPlayerReleased</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
 <div class="block">Called when the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> is released.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean,@com.google.android.exoplayer2.Player.Stateint)">onPlayerStateChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     boolean&nbsp;playWhenReady,
@@ -1025,7 +1086,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaylistMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onPlaylistMetadataChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;playlistMetadata)</code></th>
@@ -1033,7 +1094,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the playlist <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayWhenReadyChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)">onPlayWhenReadyChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       boolean&nbsp;playWhenReady,
@@ -1042,7 +1103,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the value changed that indicates whether playback will proceed when ready.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</code></th>
@@ -1053,7 +1114,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;oldPosition,
@@ -1063,7 +1124,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a position discontinuity occurred.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRenderedFirstFrame(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Object,long)">onRenderedFirstFrame</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
@@ -1073,7 +1134,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  renderer was reset, or since the stream being rendered was changed.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRepeatModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.RepeatModeint)">onRepeatModeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</code></th>
@@ -1081,7 +1142,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the repeat mode changed.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekBackIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekBackIncrementChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                           long&nbsp;seekBackIncrementMs)</code></th>
@@ -1089,7 +1150,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the seek back increment changed.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekForwardIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekForwardIncrementChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                              long&nbsp;seekForwardIncrementMs)</code></th>
@@ -1097,7 +1158,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the seek forward increment changed.</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekProcessed(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onSeekProcessed</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
@@ -1106,7 +1167,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekStarted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onSeekStarted</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
@@ -1116,7 +1177,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onShuffleModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onShuffleModeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     boolean&nbsp;shuffleModeEnabled)</code></th>
@@ -1124,7 +1185,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the shuffle mode changed.</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipSilenceEnabledChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onSkipSilenceEnabledChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            boolean&nbsp;skipSilenceEnabled)</code></th>
@@ -1132,7 +1193,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 </td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSurfaceSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,int)">onSurfaceSizeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     int&nbsp;width,
@@ -1141,7 +1202,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the output surface size changed.</div>
 </td>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTimelineChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">onTimelineChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;reason)</code></th>
@@ -1149,7 +1210,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the timeline changed.</div>
 </td>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTracksChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)">onTracksChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
@@ -1160,7 +1221,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i65" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackSelectionParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">onTrackSelectionParametersChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                 <a href="../trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;trackSelectionParameters)</code></th>
+<td class="colLast">
+<div class="block">Called when track selection parameters change.</div>
+</td>
+</tr>
+<tr id="i66" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTracksInfoChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.TracksInfo)">onTracksInfoChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    <a href="../TracksInfo.html" title="class in com.google.android.exoplayer2">TracksInfo</a>&nbsp;tracksInfo)</code></th>
@@ -1168,7 +1237,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the available or selected tracks change.</div>
 </td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onUpstreamDiscarded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">onUpstreamDiscarded</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
@@ -1177,7 +1246,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  re-buffered in a different format.</div>
 </td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i68" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoCodecError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onVideoCodecError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</code></th>
@@ -1185,7 +1254,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a video decoder encounters an error.</div>
 </td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i69" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long)">onVideoDecoderInitialized</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
@@ -1196,7 +1265,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)">onVideoDecoderInitialized</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
@@ -1206,7 +1275,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a video renderer creates a decoder.</div>
 </td>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">onVideoDecoderReleased</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
@@ -1214,7 +1283,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a video renderer releases a decoder.</div>
 </td>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoDisabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
@@ -1222,7 +1291,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a video renderer is disabled.</div>
 </td>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoEnabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
@@ -1230,7 +1299,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when a video renderer is enabled.</div>
 </td>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoFrameProcessingOffset(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long,int)">onVideoFrameProcessingOffset</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             long&nbsp;totalProcessingOffsetUs,
@@ -1240,7 +1309,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  renderer.</div>
 </td>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i75" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format)">onVideoInputFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
@@ -1250,7 +1319,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i76" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">onVideoInputFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
@@ -1259,7 +1328,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Called when the format of the media being consumed by a video renderer changes.</div>
 </td>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i77" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,int,int,float)">onVideoSizeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   int&nbsp;width,
@@ -1272,7 +1341,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i78" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   <a href="../video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</code></th>
@@ -1281,7 +1350,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  there's a change in the size or pixel aspect ratio of the video being rendered.</div>
 </td>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i79" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,float)">onVolumeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                float&nbsp;volume)</code></th>
@@ -1572,6 +1641,175 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
+<a id="EVENT_TRACK_SELECTION_PARAMETERS_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_TRACK_SELECTION_PARAMETERS_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED</pre>
+<div class="block"><a href="../Player.html#getTrackSelectionParameters()"><code>Player.getTrackSelectionParameters()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_AUDIO_ATTRIBUTES_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_AUDIO_ATTRIBUTES_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_AUDIO_ATTRIBUTES_CHANGED</pre>
+<div class="block">Audio attributes changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_ATTRIBUTES_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_AUDIO_SESSION_ID">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_AUDIO_SESSION_ID</h4>
+<pre>static final&nbsp;int EVENT_AUDIO_SESSION_ID</pre>
+<div class="block">An audio session id was set.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_SESSION_ID">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_VOLUME_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_VOLUME_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_VOLUME_CHANGED</pre>
+<div class="block">The volume changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_VOLUME_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_SKIP_SILENCE_ENABLED_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_SKIP_SILENCE_ENABLED_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_SKIP_SILENCE_ENABLED_CHANGED</pre>
+<div class="block">Skipping silences was enabled or disabled in the audio stream.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_SKIP_SILENCE_ENABLED_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_SURFACE_SIZE_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_SURFACE_SIZE_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_SURFACE_SIZE_CHANGED</pre>
+<div class="block">The surface size changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_SURFACE_SIZE_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_VIDEO_SIZE_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_VIDEO_SIZE_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_VIDEO_SIZE_CHANGED</pre>
+<div class="block">The video size changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_VIDEO_SIZE_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_RENDERED_FIRST_FRAME">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_RENDERED_FIRST_FRAME</h4>
+<pre>static final&nbsp;int EVENT_RENDERED_FIRST_FRAME</pre>
+<div class="block">The first frame has been rendered since setting the surface, since the renderer was reset or
+ since the stream changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_RENDERED_FIRST_FRAME">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_METADATA">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_METADATA</h4>
+<pre>static final&nbsp;int EVENT_METADATA</pre>
+<div class="block">Metadata associated with the current playback time was reported.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_METADATA">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_CUES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_CUES</h4>
+<pre>static final&nbsp;int EVENT_CUES</pre>
+<div class="block"><a href="../Player.html#getCurrentCues()"><code>Player.getCurrentCues()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_CUES">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_DEVICE_INFO_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_DEVICE_INFO_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_DEVICE_INFO_CHANGED</pre>
+<div class="block"><a href="../Player.html#getDeviceInfo()"><code>Player.getDeviceInfo()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DEVICE_INFO_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_DEVICE_VOLUME_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_DEVICE_VOLUME_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_DEVICE_VOLUME_CHANGED</pre>
+<div class="block"><a href="../Player.html#getDeviceVolume()"><code>Player.getDeviceVolume()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DEVICE_VOLUME_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="EVENT_LOAD_STARTED">
 <!--   -->
 </a>
@@ -1667,20 +1905,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_BANDWIDTH_ESTIMATE">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="EVENT_METADATA">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_METADATA</h4>
-<pre>static final&nbsp;int EVENT_METADATA</pre>
-<div class="block">Metadata associated with the current playback time was reported.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_METADATA">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -1782,48 +2006,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
-<a id="EVENT_AUDIO_SESSION_ID">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_AUDIO_SESSION_ID</h4>
-<pre>static final&nbsp;int EVENT_AUDIO_SESSION_ID</pre>
-<div class="block">An audio session id was set.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_SESSION_ID">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="EVENT_AUDIO_ATTRIBUTES_CHANGED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_AUDIO_ATTRIBUTES_CHANGED</h4>
-<pre>static final&nbsp;int EVENT_AUDIO_ATTRIBUTES_CHANGED</pre>
-<div class="block">Audio attributes changed.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_ATTRIBUTES_CHANGED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="EVENT_SKIP_SILENCE_ENABLED_CHANGED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_SKIP_SILENCE_ENABLED_CHANGED</h4>
-<pre>static final&nbsp;int EVENT_SKIP_SILENCE_ENABLED_CHANGED</pre>
-<div class="block">Skipping silences was enabled or disabled in the audio stream.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_SKIP_SILENCE_ENABLED_CHANGED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
 <a id="EVENT_AUDIO_SINK_ERROR">
 <!--   -->
 </a>
@@ -1835,20 +2017,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_SINK_ERROR">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="EVENT_VOLUME_CHANGED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_VOLUME_CHANGED</h4>
-<pre>static final&nbsp;int EVENT_VOLUME_CHANGED</pre>
-<div class="block">The volume changed.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_VOLUME_CHANGED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -1947,49 +2115,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_VIDEO_FRAME_PROCESSING_OFFSET">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="EVENT_RENDERED_FIRST_FRAME">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_RENDERED_FIRST_FRAME</h4>
-<pre>static final&nbsp;int EVENT_RENDERED_FIRST_FRAME</pre>
-<div class="block">The first frame has been rendered since setting the surface, since the renderer was reset or
- since the stream changed.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_RENDERED_FIRST_FRAME">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="EVENT_VIDEO_SIZE_CHANGED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_VIDEO_SIZE_CHANGED</h4>
-<pre>static final&nbsp;int EVENT_VIDEO_SIZE_CHANGED</pre>
-<div class="block">The video size changed.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_VIDEO_SIZE_CHANGED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="EVENT_SURFACE_SIZE_CHANGED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EVENT_SURFACE_SIZE_CHANGED</h4>
-<pre>static final&nbsp;int EVENT_SURFACE_SIZE_CHANGED</pre>
-<div class="block">The surface size changed.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_SURFACE_SIZE_CHANGED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -2478,6 +2603,26 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 </dl>
 </li>
 </ul>
+<a id="onPlayerErrorChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPlayerErrorChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onPlayerErrorChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                  @Nullable
+                                  <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</pre>
+<div class="block">Called when the <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a> returned by <a href="../Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> changes.
+
+ <p>Implementations of Player may pass an instance of a subclass of <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a> to
+ this method in order to include more information about the error.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventTime</code> - The event time.</dd>
+<dd><code>error</code> - The new error, or null if the error is being cleared.</dd>
+</dl>
+</li>
+</ul>
 <a id="onTracksChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)">
 <!--   -->
 </a>
@@ -2513,6 +2658,22 @@ default&nbsp;void&nbsp;onTracksChanged&#8203;(<a href="AnalyticsListener.EventTi
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventTime</code> - The event time.</dd>
 <dd><code>tracksInfo</code> - The available tracks information. Never null, but may be of length zero.</dd>
+</dl>
+</li>
+</ul>
+<a id="onTrackSelectionParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTrackSelectionParametersChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onTrackSelectionParametersChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                               <a href="../trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;trackSelectionParameters)</pre>
+<div class="block">Called when track selection parameters change.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventTime</code> - The event time.</dd>
+<dd><code>trackSelectionParameters</code> - The new <a href="../trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionParameters</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -2701,6 +2862,25 @@ default&nbsp;void&nbsp;onTracksChanged&#8203;(<a href="AnalyticsListener.EventTi
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventTime</code> - The event time.</dd>
 <dd><code>metadata</code> - The metadata.</dd>
+</dl>
+</li>
+</ul>
+<a id="onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onCues</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onCues&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues)</pre>
+<div class="block">Called when there is a change in the <a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a>.
+
+ <p><code>cues</code> is in ascending order of priority. If any of the cue boxes overlap when
+ displayed, the <a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cue</code></a> nearer the end of the list should be shown on top.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventTime</code> - The event time.</dd>
+<dd><code>cues</code> - The <a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a>. May be empty.</dd>
 </dl>
 </li>
 </ul>
@@ -3037,6 +3217,40 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 </dl>
 </li>
 </ul>
+<a id="onDeviceInfoChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.DeviceInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onDeviceInfoChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onDeviceInfoChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                 <a href="../DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&nbsp;deviceInfo)</pre>
+<div class="block">Called when the device information changes</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventTime</code> - The event time.</dd>
+<dd><code>deviceInfo</code> - The new <a href="../DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="onDeviceVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onDeviceVolumeChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onDeviceVolumeChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                   int&nbsp;volume,
+                                   boolean&nbsp;muted)</pre>
+<div class="block">Called when the device volume or mute state changes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventTime</code> - The event time.</dd>
+<dd><code>volume</code> - The new device volume, with 0 being silence and 1 being unity gain.</dd>
+<dd><code>muted</code> - Whether the device is muted.</dd>
+</dl>
+</li>
+</ul>
 <a id="onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">
 <!--   -->
 </a>
@@ -3310,11 +3524,11 @@ default&nbsp;void&nbsp;onVideoSizeChanged&#8203;(<a href="AnalyticsListener.Even
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)"><code>onDrmSessionAcquired(EventTime, int)</code></a> instead.</div>
+<div class="deprecationComment">Implement <a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.drm.DrmSession.Stateint)"><code>onDrmSessionAcquired(EventTime, int)</code></a> instead.</div>
 </div>
 </li>
 </ul>
-<a id="onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)">
+<a id="onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -3322,7 +3536,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <h4>onDrmSessionAcquired</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   <a href="../drm/DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">@State</a>
-                                  int&nbsp;state)</pre>
+                                  @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</pre>
 <div class="block">Called each time a drm session is acquired.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

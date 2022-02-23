@@ -271,7 +271,7 @@ implements <a href="https://developer.android.com/reference/android/graphics/Sur
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(int)">init</a></span>&#8203;(int&nbsp;secureMode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureModeint)">init</a></span>&#8203;(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode int&nbsp;secureMode)</code></th>
 <td class="colLast">
 <div class="block">Initializes required EGL parameters and creates the <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a>.</div>
 </td>
@@ -379,7 +379,7 @@ implements <a href="https://developer.android.com/reference/android/graphics/Sur
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>handler</code> - The <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink"><code>Handler</code></a> that will be used to call <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html?is-external=true#updateTexImage()" title="class or interface in android.graphics" class="externalLink"><code>SurfaceTexture.updateTexImage()</code></a> to update images on the <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html?is-external=true" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a>. Note that
-     <a href="#init(int)"><code>init(int)</code></a> has to be called on the same looper thread as the <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler</code></a>'s
+     <a href="#init(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureModeint)"><code>init(int)</code></a> has to be called on the same looper thread as the <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler</code></a>'s
      looper.</dd>
 </dl>
 </li>
@@ -396,7 +396,7 @@ implements <a href="https://developer.android.com/reference/android/graphics/Sur
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>handler</code> - The <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink"><code>Handler</code></a> that will be used to call <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html?is-external=true#updateTexImage()" title="class or interface in android.graphics" class="externalLink"><code>SurfaceTexture.updateTexImage()</code></a> to update images on the <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html?is-external=true" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a>. Note that
-     <a href="#init(int)"><code>init(int)</code></a> has to be called on the same looper thread as the looper of the <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler</code></a>.</dd>
+     <a href="#init(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureModeint)"><code>init(int)</code></a> has to be called on the same looper thread as the looper of the <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler</code></a>.</dd>
 <dd><code>callback</code> - The <a href="EGLSurfaceTexture.TextureImageListener.html" title="interface in com.google.android.exoplayer2.util"><code>EGLSurfaceTexture.TextureImageListener</code></a> to be called when the texture image on <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a> has been updated. This callback will be called on the same handler thread
      as the <code>handler</code>.</dd>
 </dl>
@@ -412,14 +412,13 @@ implements <a href="https://developer.android.com/reference/android/graphics/Sur
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="init(int)">
+<a id="init(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureModeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="EGLSurfaceTexture.SecureMode.html" title="annotation in com.google.android.exoplayer2.util">@SecureMode</a>
-                 int&nbsp;secureMode)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode int&nbsp;secureMode)</pre>
 <div class="block">Initializes required EGL parameters and creates the <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -444,7 +443,7 @@ implements <a href="https://developer.android.com/reference/android/graphics/Sur
 <li class="blockList">
 <h4>getSurfaceTexture</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink" target="_top">SurfaceTexture</a>&nbsp;getSurfaceTexture()</pre>
-<div class="block">Returns the wrapped <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink"><code>SurfaceTexture</code></a>. This can only be called after <a href="#init(int)" target="_top"><code>init(int)</code></a>.</div>
+<div class="block">Returns the wrapped <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" class="externalLink"><code>SurfaceTexture</code></a>. This can only be called after <a href="#init(@com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureModeint)" target="_top"><code>init(int)</code></a>.</div>
 </li>
 </ul>
 <a id="onFrameAvailable(android.graphics.SurfaceTexture)">

@@ -461,8 +461,8 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected abstract <a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink" target="_top">Notification</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getForegroundNotification(java.util.List,int)">getForegroundNotification</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
-                         int&nbsp;notMetRequirements)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)">getForegroundNotification</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
+                         @com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags int&nbsp;notMetRequirements)</code></th>
 <td class="colLast">
 <div class="block">Returns a notification to be displayed when this service running in the foreground.</div>
 </td>
@@ -479,7 +479,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateForegroundNotification()">invalidateForegroundNotification</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Invalidates the current foreground notification and causes <a href="#getForegroundNotification(java.util.List,int)"><code>getForegroundNotification(List, int)</code></a> to be invoked again if the service isn't stopped.</div>
+<div class="block">Invalidates the current foreground notification and causes <a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)"><code>getForegroundNotification(List, int)</code></a> to be invoked again if the service isn't stopped.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -1512,7 +1512,7 @@ protected abstract&nbsp;<a href="../scheduler/Scheduler.html" title="interface i
  </ul></div>
 </li>
 </ul>
-<a id="getForegroundNotification(java.util.List,int)">
+<a id="getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1520,7 +1520,7 @@ protected abstract&nbsp;<a href="../scheduler/Scheduler.html" title="interface i
 <h4>getForegroundNotification</h4>
 <pre class="methodSignature">protected abstract&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink">Notification</a>&nbsp;getForegroundNotification&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
                                                           <a href="../scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler">@RequirementFlags</a>
-                                                          int&nbsp;notMetRequirements)</pre>
+                                                          @com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags int&nbsp;notMetRequirements)</pre>
 <div class="block">Returns a notification to be displayed when this service running in the foreground.
 
  <p>Download services that do not wish to run in the foreground should be created by setting the
@@ -1542,7 +1542,7 @@ protected abstract&nbsp;<a href="../scheduler/Scheduler.html" title="interface i
 <li class="blockList">
 <h4>invalidateForegroundNotification</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;invalidateForegroundNotification()</pre>
-<div class="block">Invalidates the current foreground notification and causes <a href="#getForegroundNotification(java.util.List,int)"><code>getForegroundNotification(List, int)</code></a> to be invoked again if the service isn't stopped.</div>
+<div class="block">Invalidates the current foreground notification and causes <a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)"><code>getForegroundNotification(List, int)</code></a> to be invoked again if the service isn't stopped.</div>
 </li>
 </ul>
 </li>

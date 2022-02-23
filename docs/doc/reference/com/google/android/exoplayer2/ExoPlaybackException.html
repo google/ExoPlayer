@@ -237,7 +237,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.FormatSupport int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rendererFormatSupport">rendererFormatSupport</a></span></code></th>
 <td class="colLast">
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the level of <a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>C.FormatSupport</code></a> of the
@@ -259,7 +259,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.ExoPlaybackException.Type int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#type">type</a></span></code></th>
 <td class="colLast">
 <div class="block">The <a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
@@ -327,11 +327,11 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,int,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createForRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.FormatSupportint,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createForRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rendererName,
                  int&nbsp;rendererIndex,
                  <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;rendererFormat,
-                 int&nbsp;rendererFormatSupport,
+                 @com.google.android.exoplayer2.C.FormatSupport int&nbsp;rendererFormatSupport,
                  boolean&nbsp;isRecoverable,
                  @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
@@ -405,7 +405,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a></h3>
-<code><a href="PlaybackException.html#getErrorCodeName()">getErrorCodeName</a>, <a href="PlaybackException.html#getErrorCodeName(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">getErrorCodeName</a>, <a href="PlaybackException.html#keyForField(int)">keyForField</a></code></li>
+<code><a href="PlaybackException.html#getErrorCodeName()">getErrorCodeName</a>, <a href="PlaybackException.html#getErrorCodeName(@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">getErrorCodeName</a>, <a href="PlaybackException.html#keyForField(@com.google.android.exoplayer2.PlaybackException.FieldNumberint)">keyForField</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Throwable">
@@ -508,7 +508,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <li class="blockList">
 <h4>type</h4>
 <pre><a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2">@Type</a>
-public final&nbsp;int type</pre>
+public final&nbsp;@com.google.android.exoplayer2.ExoPlaybackException.Type int type</pre>
 <div class="block">The <a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </li>
 </ul>
@@ -552,7 +552,7 @@ public final&nbsp;<a href="Format.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>rendererFormatSupport</h4>
 <pre><a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@FormatSupport</a>
-public final&nbsp;int rendererFormatSupport</pre>
+public final&nbsp;@com.google.android.exoplayer2.C.FormatSupport int rendererFormatSupport</pre>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the level of <a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>C.FormatSupport</code></a> of the
  renderer for <a href="#rendererFormat"><code>rendererFormat</code></a>. If <a href="#rendererFormat"><code>rendererFormat</code></a> is null, this is <a href="C.html#FORMAT_HANDLED"><code>C.FORMAT_HANDLED</code></a>.</div>
 </li>
@@ -606,7 +606,7 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
 </dl>
 </li>
 </ul>
-<a id="createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,int,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
+<a id="createForRenderer(java.lang.Throwable,java.lang.String,int,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.FormatSupportint,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -618,7 +618,7 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
                                                      @Nullable
                                                      <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;rendererFormat,
                                                      <a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@FormatSupport</a>
-                                                     int&nbsp;rendererFormatSupport,
+                                                     @com.google.android.exoplayer2.C.FormatSupport int&nbsp;rendererFormatSupport,
                                                      boolean&nbsp;isRecoverable,
                                                      <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
                                                      @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</pre>

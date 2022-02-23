@@ -172,12 +172,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createExtractor(android.net.Uri,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.util.TimestampAdjuster,java.util.Map,com.google.android.exoplayer2.extractor.ExtractorInput)">createExtractor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createExtractor(android.net.Uri,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.util.TimestampAdjuster,java.util.Map,com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.analytics.PlayerId)">createExtractor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;muxedCaptionFormats,
                <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders,
-               <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;sniffingExtractorInput)</code></th>
+               <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;sniffingExtractorInput,
+               <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
 <div class="block">Creates an <a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> for extracting HLS media chunks.</div>
 </td>
@@ -218,7 +219,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createExtractor(android.net.Uri,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.util.TimestampAdjuster,java.util.Map,com.google.android.exoplayer2.extractor.ExtractorInput)">
+<a id="createExtractor(android.net.Uri,com.google.android.exoplayer2.Format,java.util.List,com.google.android.exoplayer2.util.TimestampAdjuster,java.util.Map,com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.analytics.PlayerId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -230,7 +231,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;muxedCaptionFormats,
                                        <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
                                        <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders,
-                                       <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;sniffingExtractorInput)
+                                       <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;sniffingExtractorInput,
+                                       <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)
                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Creates an <a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> for extracting HLS media chunks.</div>
 <dl>
@@ -238,13 +240,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>uri</code> - The URI of the media chunk.</dd>
 <dd><code>format</code> - A <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> associated with the chunk to extract.</dd>
 <dd><code>muxedCaptionFormats</code> - List of muxed caption <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s. Null if no closed caption
-     information is available in the master playlist.</dd>
+     information is available in the multivariant playlist.</dd>
 <dd><code>timestampAdjuster</code> - Adjuster corresponding to the provided discontinuity sequence number.</dd>
 <dd><code>responseHeaders</code> - The HTTP response headers associated with the media segment or
      initialization section to extract.</dd>
 <dd><code>sniffingExtractorInput</code> - The first extractor input that will be passed to the returned
      extractor's <a href="../../extractor/Extractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)"><code>Extractor.read(ExtractorInput, PositionHolder)</code></a>. Must only be used to
      call <a href="../../extractor/Extractor.html#sniff(com.google.android.exoplayer2.extractor.ExtractorInput)"><code>Extractor.sniff(ExtractorInput)</code></a>.</dd>
+<dd><code>playerId</code> - The <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this extractors factory.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An <a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls"><code>HlsMediaChunkExtractor</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

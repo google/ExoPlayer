@@ -153,8 +153,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <div class="block">A view for controlling <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> instances.
 
  <p>A StyledPlayerControlView can be customized by setting attributes (or calling corresponding
- methods), overriding drawables, overriding the view's layout file, or by specifying a custom view
- layout file.
+ methods), or overriding drawables.
 
  <h2>Attributes</h2>
 
@@ -192,7 +191,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        mode toggle options are enabled. Valid values are: <code>none</code>, <code>one</code>, <code>all</code>,
        or <code>one|all</code>.
        <ul>
-         <li>Corresponding method: <a href="#setRepeatToggleModes(int)"><code>setRepeatToggleModes(int)</code></a>
+         <li>Corresponding method: <a href="#setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)"><code>setRepeatToggleModes(int)</code></a>
          <li>Default: <a href="#DEFAULT_REPEAT_TOGGLE_MODES"><code>DEFAULT_REPEAT_TOGGLE_MODES</code></a>
        </ul>
    <li><b><code>show_shuffle_button</code></b> - Whether the shuffle button is shown.
@@ -248,123 +247,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        disabled.
    <li><b><code>exo_styled_controls_shuffle_on</code></b> - The shuffle icon when shuffling is enabled.
    <li><b><code>exo_styled_controls_vr</code></b> - The VR icon.
- </ul>
-
- <h2>Overriding the layout file</h2>
-
- To customize the layout of StyledPlayerControlView throughout your app, or just for certain
- configurations, you can define <code>exo_styled_player_control_view.xml</code> layout files in your
- application <code>res/layout*</code> directories. But, in this case, you need to be careful since the
- default animation implementation expects certain relative positions between children. See also <a href="CustomLayout">Specifying a custom layout file</a>.
-
- <p>The layout files in your <code>res/layout*</code> will override the one provided by the library,
- and will be inflated for use by StyledPlayerControlView. The view identifies and binds its
- children by looking for the following ids:
-
- <ul>
-   <li><b><code>exo_play_pause</code></b> - The play and pause button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>ImageView</code></a>
-       </ul>
-   <li><b><code>exo_rew</code></b> - The rewind button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_rew_with_amount</code></b> - The rewind button with rewind amount.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/TextView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>TextView</code></a>
-         <li>Note: StyledPlayerControlView will programmatically set the text with the rewind
-             amount in seconds. Ignored if an <code>exo_rew</code> exists. Otherwise, it works as the
-             rewind button.
-       </ul>
-   <li><b><code>exo_ffwd</code></b> - The fast forward button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_ffwd_with_amount</code></b> - The fast forward button with fast forward amount.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/TextView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>TextView</code></a>
-         <li>Note: StyledPlayerControlView will programmatically set the text with the fast
-             forward amount in seconds. Ignored if an <code>exo_ffwd</code> exists. Otherwise, it works
-             as the fast forward button.
-       </ul>
-   <li><b><code>exo_prev</code></b> - The previous button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_next</code></b> - The next button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_repeat_toggle</code></b> - The repeat toggle button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>ImageView</code></a>
-         <li>Note: StyledPlayerControlView will programmatically set the drawable on the repeat
-             toggle button according to the player's current repeat mode. The drawables used are
-             <code>exo_controls_repeat_off</code>, <code>exo_controls_repeat_one</code> and <code>
-             exo_controls_repeat_all</code>. See the section above for information on overriding these
-             drawables.
-       </ul>
-   <li><b><code>exo_shuffle</code></b> - The shuffle button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>ImageView</code></a>
-         <li>Note: StyledPlayerControlView will programmatically set the drawable on the shuffle
-             button according to the player's current repeat mode. The drawables used are <code>
-             exo_controls_shuffle_off</code> and <code>exo_controls_shuffle_on</code>. See the section above
-             for information on overriding these drawables.
-       </ul>
-   <li><b><code>exo_vr</code></b> - The VR mode button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_subtitle</code></b> - The subtitle button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>ImageView</code></a>
-       </ul>
-   <li><b><code>exo_fullscreen</code></b> - The fullscreen button.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>ImageView</code></a>
-       </ul>
-   <li><b><code>exo_minimal_fullscreen</code></b> - The fullscreen button in minimal mode.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>ImageView</code></a>
-       </ul>
-   <li><b><code>exo_position</code></b> - Text view displaying the current playback position.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/TextView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>TextView</code></a>
-       </ul>
-   <li><b><code>exo_duration</code></b> - Text view displaying the current media duration.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/widget/TextView.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>TextView</code></a>
-       </ul>
-   <li><b><code>exo_progress_placeholder</code></b> - A placeholder that's replaced with the inflated
-       <a href="DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a>. Ignored if an <code>exo_progress</code> view exists.
-       <ul>
-         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a>
-       </ul>
-   <li><b><code>exo_progress</code></b> - Time bar that's updated during playback and allows seeking.
-       <a href="DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui"><code>DefaultTimeBar</code></a> attributes set on the StyledPlayerControlView will not be
-       automatically propagated through to this instance. If a view exists with this id, any
-       <code>exo_progress_placeholder</code> view will be ignored.
-       <ul>
-         <li>Type: <a href="TimeBar.html" title="interface in com.google.android.exoplayer2.ui"><code>TimeBar</code></a>
-       </ul>
- </ul>
-
- <p>All child views are optional and so can be omitted if not required, however where defined they
- must be of the expected type.
-
- <h2 id="CustomLayout">Specifying a custom layout file</h2>
-
- Defining your own <code>exo_styled_player_control_view.xml</code> is useful to customize the layout of
- StyledPlayerControlView throughout your application. It's also possible to customize the layout
- for a single instance in a layout file. This is achieved by setting the <code>
- controller_layout_id</code> attribute on a StyledPlayerControlView. This will cause the specified
- layout to be inflated instead of <code>exo_styled_player_control_view.xml</code> for only the instance
- on which the attribute is set.
-
- <p>You need to be careful when you set the <code>controller_layout_id</code>, because the default
- animation implementation expects certain relative positions between children.</div>
+ </ul></div>
 </li>
 </ul>
 </div>
@@ -446,7 +329,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
+<td class="colFirst"><code>static @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_REPEAT_TOGGLE_MODES">DEFAULT_REPEAT_TOGGLE_MODES</a></span></code></th>
 <td class="colLast">
 <div class="block">The default repeat toggle modes.</div>
@@ -572,7 +455,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRepeatToggleModes()">getRepeatToggleModes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns which repeat toggle modes are enabled.</div>
@@ -706,7 +589,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(int)">setRepeatToggleModes</a></span>&#8203;(int&nbsp;repeatToggleModes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">setRepeatToggleModes</a></span>&#8203;(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
@@ -868,7 +751,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>DEFAULT_REPEAT_TOGGLE_MODES</h4>
 <pre><a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-public static final&nbsp;int DEFAULT_REPEAT_TOGGLE_MODES</pre>
+public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES</pre>
 <div class="block">The default repeat toggle modes.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1175,7 +1058,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getRepeatToggleModes</h4>
 <pre class="methodSignature"><a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
+public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;getRepeatToggleModes()</pre>
 <div class="block">Returns which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1183,14 +1066,14 @@ public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
 </dl>
 </li>
 </ul>
-<a id="setRepeatToggleModes(int)">
+<a id="setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatToggleModes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setRepeatToggleModes&#8203;(<a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-                                 int&nbsp;repeatToggleModes)</pre>
+                                 @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</pre>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

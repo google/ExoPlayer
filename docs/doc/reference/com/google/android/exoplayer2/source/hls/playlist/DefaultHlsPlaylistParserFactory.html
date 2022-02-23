@@ -187,10 +187,10 @@ implements <a href="HlsPlaylistParserFactory.html" title="interface in com.googl
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">createPlaylistParser</a></span>&#8203;(<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">createPlaylistParser</a></span>&#8203;(<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;multivariantPlaylist,
                     <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</code></th>
 <td class="colLast">
-<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>.</div>
+<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMultivariantPlaylist</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -252,23 +252,24 @@ implements <a href="HlsPlaylistParserFactory.html" title="interface in com.googl
 </dl>
 </li>
 </ul>
-<a id="createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">
+<a id="createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createPlaylistParser</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser&#8203;(<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;masterPlaylist,
+<pre class="methodSignature">public&nbsp;<a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser&#8203;(<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;multivariantPlaylist,
                                                                 @Nullable
                                                                 <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistParserFactory.html#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">HlsPlaylistParserFactory</a></code></span></div>
-<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>. Returned <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMediaPlaylist</code></a> instances may inherit attributes from
- <code>masterPlaylist</code>.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistParserFactory.html#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">HlsPlaylistParserFactory</a></code></span></div>
+<div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMultivariantPlaylist</code></a>. Returned <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMediaPlaylist</code></a> instances may inherit attributes
+ from <code>multivariantPlaylist</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="HlsPlaylistParserFactory.html#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">createPlaylistParser</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
+<dd><code><a href="HlsPlaylistParserFactory.html#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">createPlaylistParser</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>masterPlaylist</code> - The master playlist that referenced any parsed media playlists.</dd>
+<dd><code>multivariantPlaylist</code> - The multivariant playlist that referenced any parsed media
+     playlists.</dd>
 <dd><code>previousMediaPlaylist</code> - The previous media playlist or null if there is no previous media
      playlist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

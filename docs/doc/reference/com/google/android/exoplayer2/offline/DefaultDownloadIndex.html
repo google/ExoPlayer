@@ -198,7 +198,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloads(int...)">getDownloads</a></span>&#8203;(int...&nbsp;states)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloads(@com.google.android.exoplayer2.offline.Download.Stateint...)">getDownloads</a></span>&#8203;(@com.google.android.exoplayer2.offline.Download.State int...&nbsp;states)</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</div>
 </td>
@@ -347,22 +347,22 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 </dl>
 </li>
 </ul>
-<a id="getDownloads(int...)">
+<a id="getDownloads(@com.google.android.exoplayer2.offline.Download.Stateint...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDownloads</h4>
 <pre class="methodSignature">public&nbsp;<a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a>&nbsp;getDownloads&#8203;(<a href="Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
-                                   int...&nbsp;states)
+                                   @com.google.android.exoplayer2.offline.Download.State int...&nbsp;states)
                             throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DownloadIndex.html#getDownloads(int...)">DownloadIndex</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DownloadIndex.html#getDownloads(@com.google.android.exoplayer2.offline.Download.Stateint...)">DownloadIndex</a></code></span></div>
 <div class="block">Returns a <a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="DownloadIndex.html#getDownloads(int...)">getDownloads</a></code>&nbsp;in interface&nbsp;<code><a href="DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></code></dd>
+<dd><code><a href="DownloadIndex.html#getDownloads(@com.google.android.exoplayer2.offline.Download.Stateint...)">getDownloads</a></code>&nbsp;in interface&nbsp;<code><a href="DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>states</code> - Returns only the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with this states. If empty, returns all.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

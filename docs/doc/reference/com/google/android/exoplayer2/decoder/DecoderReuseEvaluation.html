@@ -297,7 +297,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardReasons">discardReasons</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="DecoderReuseEvaluation.DecoderDiscardReasons.html" title="annotation in com.google.android.exoplayer2.decoder"><code>Reasons</code></a> why the decoder cannot be reused.</div>
@@ -318,7 +318,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderReuseResult int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#result">result</a></span></code></th>
 <td class="colLast">
 <div class="block">The <a href="DecoderReuseEvaluation.DecoderReuseResult.html" title="annotation in com.google.android.exoplayer2.decoder"><code>result</code></a> of the evaluation.</div>
@@ -370,11 +370,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,int,int)">DecoderReuseEvaluation</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderReuseResultint,@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasonsint)">DecoderReuseEvaluation</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat,
-                      int&nbsp;result,
-                      int&nbsp;discardReasons)</code></th>
+                      @com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderReuseResult int&nbsp;result,
+                      @com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons int&nbsp;discardReasons)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -732,8 +732,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>result</h4>
-<pre><a href="DecoderReuseEvaluation.DecoderReuseResult.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderReuseResult</a>
-public final&nbsp;int result</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderReuseResult int result</pre>
 <div class="block">The <a href="DecoderReuseEvaluation.DecoderReuseResult.html" title="annotation in com.google.android.exoplayer2.decoder"><code>result</code></a> of the evaluation.</div>
 </li>
 </ul>
@@ -743,8 +742,7 @@ public final&nbsp;int result</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>discardReasons</h4>
-<pre><a href="DecoderReuseEvaluation.DecoderDiscardReasons.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderDiscardReasons</a>
-public final&nbsp;int discardReasons</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons int discardReasons</pre>
 <div class="block"><a href="DecoderReuseEvaluation.DecoderDiscardReasons.html" title="annotation in com.google.android.exoplayer2.decoder"><code>Reasons</code></a> why the decoder cannot be reused. Always <code>0</code> if
  reuse is possible. May also be {code 0} if reuse is not possible for an unspecified reason.</div>
 </li>
@@ -759,7 +757,7 @@ public final&nbsp;int discardReasons</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,int,int)">
+<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderReuseResultint,@com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasonsint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -768,10 +766,8 @@ public final&nbsp;int discardReasons</pre>
 <pre>public&nbsp;DecoderReuseEvaluation&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
                               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat,
-                              <a href="DecoderReuseEvaluation.DecoderReuseResult.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderReuseResult</a>
-                              int&nbsp;result,
-                              <a href="DecoderReuseEvaluation.DecoderDiscardReasons.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderDiscardReasons</a>
-                              int&nbsp;discardReasons)</pre>
+                              @com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderReuseResult int&nbsp;result,
+                              @com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons int&nbsp;discardReasons)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>decoderName</code> - The name of the decoder.</dd>

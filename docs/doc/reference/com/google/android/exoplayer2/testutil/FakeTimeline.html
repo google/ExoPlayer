@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var data = {"i0":9,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -287,6 +287,23 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMultiPeriodAdTimeline(java.lang.Object,int,boolean...)">createMultiPeriodAdTimeline</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowId,
+                           int&nbsp;numberOfPlayedAds,
+                           boolean...&nbsp;isAdPeriodFlags)</code></th>
+<td class="colLast">
+<div class="block">Creates a multi-period timeline with ad and content periods specified by the flags passed as
+ var-arg arguments.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>,&#8203;<a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdPlaybackStates(int)">getAdPlaybackStates</a></span>&#8203;(int&nbsp;windowIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns a map of ad playback states keyed by the period UID.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstWindowIndex(boolean)">getFirstWindowIndex</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
@@ -294,14 +311,14 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
  enabled.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIndexOfPeriod(java.lang.Object)">getIndexOfPeriod</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</code></th>
 <td class="colLast">
 <div class="block">Returns the index of the period identified by its unique <a href="../Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLastWindowIndex(boolean)">getLastWindowIndex</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
@@ -309,7 +326,7 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
  enabled.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">getNextWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
                   @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
@@ -319,7 +336,7 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
  <code>repeatMode</code> and whether shuffling is enabled.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriod(int,com.google.android.exoplayer2.Timeline.Period,boolean)">getPeriod</a></span>&#8203;(int&nbsp;periodIndex,
          <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
@@ -328,14 +345,14 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <div class="block">Populates a <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodCount()">getPeriodCount</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the number of periods in the timeline.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreviousWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">getPreviousWindowIndex</a></span>&#8203;(int&nbsp;windowIndex,
                       @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
@@ -345,14 +362,14 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
  <code>repeatMode</code> and whether shuffling is enabled.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUidOfPeriod(int)">getUidOfPeriod</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
 <td class="colLast">
 <div class="block">Returns the unique id of the period identified by its index in the timeline.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">getWindow</a></span>&#8203;(int&nbsp;windowIndex,
          <a href="../Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
@@ -361,7 +378,7 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <div class="block">Populates a <a href="../Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWindowCount()">getWindowCount</a></span>()</code></th>
 <td class="colLast">
@@ -502,6 +519,30 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <dd><code>adGroupTimesUs</code> - The times of ad groups, in microseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The ad playback state.</dd>
+</dl>
+</li>
+</ul>
+<a id="createMultiPeriodAdTimeline(java.lang.Object,int,boolean...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createMultiPeriodAdTimeline</h4>
+<pre class="methodSignature">public static&nbsp;<a href="FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeTimeline</a>&nbsp;createMultiPeriodAdTimeline&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;windowId,
+                                                       int&nbsp;numberOfPlayedAds,
+                                                       boolean...&nbsp;isAdPeriodFlags)</pre>
+<div class="block">Creates a multi-period timeline with ad and content periods specified by the flags passed as
+ var-arg arguments.
+
+ <p>Period uid end up being a <code>new Pair&lt;&gt;(windowId, periodIndex)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowId</code> - The window ID.</dd>
+<dd><code>numberOfPlayedAds</code> - The number of ads that should be marked as played.</dd>
+<dd><code>isAdPeriodFlags</code> - A value of true indicates an ad period. A value of false indicated a
+     content period.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A timeline with a single window with as many periods as var-arg arguments.</dd>
 </dl>
 </li>
 </ul>
@@ -698,7 +739,7 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <a id="getUidOfPeriod(int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getUidOfPeriod</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getUidOfPeriod&#8203;(int&nbsp;periodIndex)</pre>
@@ -711,6 +752,22 @@ extends <a href="../Timeline.html" title="class in com.google.android.exoplayer2
 <dd><code>periodIndex</code> - The index of the period.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The unique id of the period.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAdPlaybackStates(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getAdPlaybackStates</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>,&#8203;<a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt;&nbsp;getAdPlaybackStates&#8203;(int&nbsp;windowIndex)</pre>
+<div class="block">Returns a map of ad playback states keyed by the period UID.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - The window index of the window to get the map of ad playback states from.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The map of <a href="../source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>ad playback states</code></a>.</dd>
 </dl>
 </li>
 </ul>

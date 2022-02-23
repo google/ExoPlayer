@@ -179,7 +179,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addFlag(int)">addFlag</a></span>&#8203;(int&nbsp;flag)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">addFlag</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</code></th>
 <td class="colLast">
 <div class="block">Adds the <code>flag</code> to this buffer's flags.</div>
 </td>
@@ -193,14 +193,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearFlag(int)">clearFlag</a></span>&#8203;(int&nbsp;flag)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">clearFlag</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</code></th>
 <td class="colLast">
 <div class="block">Removes the <code>flag</code> from this buffer's flags, if it is set.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFlag(int)">getFlag</a></span>&#8203;(int&nbsp;flag)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">getFlag</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the specified flag has been set on this buffer.</div>
 </td>
@@ -235,7 +235,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlags(int)">setFlags</a></span>&#8203;(int&nbsp;flags)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlags(@com.google.android.exoplayer2.C.BufferFlagsint)">setFlags</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Replaces this buffer's flags with <code>flags</code>.</div>
 </td>
@@ -333,14 +333,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA"><code>C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA</code></a> flag is set.</div>
 </li>
 </ul>
-<a id="setFlags(int)">
+<a id="setFlags(@com.google.android.exoplayer2.C.BufferFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFlags</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;setFlags&#8203;(<a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@BufferFlags</a>
-                           int&nbsp;flags)</pre>
+<pre class="methodSignature">public final&nbsp;void&nbsp;setFlags&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)</pre>
 <div class="block">Replaces this buffer's flags with <code>flags</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -349,14 +348,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="addFlag(int)">
+<a id="addFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addFlag</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;addFlag&#8203;(<a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@BufferFlags</a>
-                          int&nbsp;flag)</pre>
+<pre class="methodSignature">public final&nbsp;void&nbsp;addFlag&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</pre>
 <div class="block">Adds the <code>flag</code> to this buffer's flags.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -365,14 +363,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="clearFlag(int)">
+<a id="clearFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>clearFlag</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;clearFlag&#8203;(<a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@BufferFlags</a>
-                            int&nbsp;flag)</pre>
+<pre class="methodSignature">public final&nbsp;void&nbsp;clearFlag&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</pre>
 <div class="block">Removes the <code>flag</code> from this buffer's flags, if it is set.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -380,14 +377,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="getFlag(int)">
+<a id="getFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getFlag</h4>
-<pre class="methodSignature">protected final&nbsp;boolean&nbsp;getFlag&#8203;(<a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@BufferFlags</a>
-                                int&nbsp;flag)</pre>
+<pre class="methodSignature">protected final&nbsp;boolean&nbsp;getFlag&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</pre>
 <div class="block">Returns whether the specified flag has been set on this buffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
