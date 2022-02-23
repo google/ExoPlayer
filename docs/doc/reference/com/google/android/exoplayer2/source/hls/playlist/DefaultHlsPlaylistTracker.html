@@ -265,10 +265,10 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMasterPlaylist()">getMasterPlaylist</a></span>()</code></th>
+<td class="colFirst"><code><a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMultivariantPlaylist()">getMultivariantPlaylist</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the master playlist.</div>
+<div class="block">Returns the multivariant playlist.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -306,8 +306,8 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPrimaryPlaylistRefreshError()">maybeThrowPrimaryPlaylistRefreshError</a></span>()</code></th>
 <td class="colLast">
-<div class="block">If the tracker is having trouble refreshing the master playlist or the primary playlist, this
- method throws the underlying error.</div>
+<div class="block">If the tracker is having trouble refreshing the multivariant playlist or the primary playlist,
+ this method throws the underlying error.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -497,8 +497,8 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="HlsPlaylistTracker.html#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)">start</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initialPlaylistUri</code> - Uri of the HLS stream. Can point to a media playlist or a master
-     playlist.</dd>
+<dd><code>initialPlaylistUri</code> - Uri of the HLS stream. Can point to a media playlist or a
+     multivariant playlist.</dd>
 <dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
 <dd><code>primaryPlaylistListener</code> - A callback for the primary playlist change events.</dd>
 </dl>
@@ -555,24 +555,23 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 </dl>
 </li>
 </ul>
-<a id="getMasterPlaylist()">
+<a id="getMultivariantPlaylist()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getMasterPlaylist</h4>
+<h4>getMultivariantPlaylist</h4>
 <pre class="methodSignature">@Nullable
-public&nbsp;<a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a>&nbsp;getMasterPlaylist()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#getMasterPlaylist()">HlsPlaylistTracker</a></code></span></div>
-<div class="block">Returns the master playlist.
+public&nbsp;<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;getMultivariantPlaylist()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#getMultivariantPlaylist()">HlsPlaylistTracker</a></code></span></div>
+<div class="block">Returns the multivariant playlist.
 
- <p>If the uri passed to <a href="HlsPlaylistTracker.html#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)"><code>HlsPlaylistTracker.start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> points to a media playlist, an <a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist</code></a>
- with a single variant for said media playlist is returned.</div>
+ <p>If the uri passed to <a href="HlsPlaylistTracker.html#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)"><code>HlsPlaylistTracker.start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> points to a media playlist, an <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMultivariantPlaylist</code></a> with a single variant for said media playlist is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="HlsPlaylistTracker.html#getMasterPlaylist()">getMasterPlaylist</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
+<dd><code><a href="HlsPlaylistTracker.html#getMultivariantPlaylist()">getMultivariantPlaylist</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The master playlist. Null if the initial playlist has yet to be loaded.</dd>
+<dd>The multivariant playlist. Null if the initial playlist has yet to be loaded.</dd>
 </dl>
 </li>
 </ul>
@@ -646,8 +645,8 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowPrimaryPlaylistRefreshError()
                                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#maybeThrowPrimaryPlaylistRefreshError()">HlsPlaylistTracker</a></code></span></div>
-<div class="block">If the tracker is having trouble refreshing the master playlist or the primary playlist, this
- method throws the underlying error. Otherwise, does nothing.</div>
+<div class="block">If the tracker is having trouble refreshing the multivariant playlist or the primary playlist,
+ this method throws the underlying error. Otherwise, does nothing.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="HlsPlaylistTracker.html#maybeThrowPrimaryPlaylistRefreshError()">maybeThrowPrimaryPlaylistRefreshError</a></code>&nbsp;in interface&nbsp;<code><a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>

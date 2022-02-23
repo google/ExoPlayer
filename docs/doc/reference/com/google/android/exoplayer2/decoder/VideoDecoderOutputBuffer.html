@@ -231,7 +231,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.VideoOutputMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mode">mode</a></span></code></th>
 <td class="colLast">
 <div class="block">Output mode.</div>
@@ -311,8 +311,8 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(long,int,java.nio.ByteBuffer)">init</a></span>&#8203;(long&nbsp;timeUs,
-    int&nbsp;mode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(long,@com.google.android.exoplayer2.C.VideoOutputModeint,java.nio.ByteBuffer)">init</a></span>&#8203;(long&nbsp;timeUs,
+    @com.google.android.exoplayer2.C.VideoOutputMode int&nbsp;mode,
     <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;supplementalData)</code></th>
 <td class="colLast">
 <div class="block">Initializes the buffer.</div>
@@ -350,7 +350,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="Buffer.html" title="class in com.google.android.exoplayer2.decoder">Buffer</a></h3>
-<code><a href="Buffer.html#addFlag(int)">addFlag</a>, <a href="Buffer.html#clear()">clear</a>, <a href="Buffer.html#clearFlag(int)">clearFlag</a>, <a href="Buffer.html#getFlag(int)">getFlag</a>, <a href="Buffer.html#hasSupplementalData()">hasSupplementalData</a>, <a href="Buffer.html#isDecodeOnly()">isDecodeOnly</a>, <a href="Buffer.html#isEndOfStream()">isEndOfStream</a>, <a href="Buffer.html#isKeyFrame()">isKeyFrame</a>, <a href="Buffer.html#setFlags(int)">setFlags</a></code></li>
+<code><a href="Buffer.html#addFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">addFlag</a>, <a href="Buffer.html#clear()">clear</a>, <a href="Buffer.html#clearFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">clearFlag</a>, <a href="Buffer.html#getFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">getFlag</a>, <a href="Buffer.html#hasSupplementalData()">hasSupplementalData</a>, <a href="Buffer.html#isDecodeOnly()">isDecodeOnly</a>, <a href="Buffer.html#isEndOfStream()">isEndOfStream</a>, <a href="Buffer.html#isKeyFrame()">isKeyFrame</a>, <a href="Buffer.html#setFlags(@com.google.android.exoplayer2.C.BufferFlagsint)">setFlags</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -443,8 +443,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <ul class="blockList">
 <li class="blockList">
 <h4>mode</h4>
-<pre><a href="../C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2">@VideoOutputMode</a>
-public&nbsp;int mode</pre>
+<pre>public&nbsp;@com.google.android.exoplayer2.C.VideoOutputMode int mode</pre>
 <div class="block">Output mode.</div>
 </li>
 </ul>
@@ -579,15 +578,14 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 </dl>
 </li>
 </ul>
-<a id="init(long,int,java.nio.ByteBuffer)">
+<a id="init(long,@com.google.android.exoplayer2.C.VideoOutputModeint,java.nio.ByteBuffer)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(long&nbsp;timeUs,
-                 <a href="../C.VideoOutputMode.html" title="annotation in com.google.android.exoplayer2">@VideoOutputMode</a>
-                 int&nbsp;mode,
+                 @com.google.android.exoplayer2.C.VideoOutputMode int&nbsp;mode,
                  @Nullable
                  <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;supplementalData)</pre>
 <div class="block">Initializes the buffer.</div>

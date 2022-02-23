@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -218,10 +218,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputSurface()">getInputSurface</a></span>()</code></th>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMetrics()">getMetrics</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>, or null if the input is not a surface.</div>
+<div class="block">Returns metrics data about the current codec instance.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -315,16 +315,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(int)">setVideoScalingMode</a></span>&#8203;(int&nbsp;scalingMode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)">setVideoScalingMode</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;scalingMode)</code></th>
 <td class="colLast">
 <div class="block">Specifies the scaling mode to use, if a surface was specified when the codec was created.</div>
-</td>
-</tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#signalEndOfInputStream()">signalEndOfInputStream</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Signals the encoder of end-of-stream on input.</div>
 </td>
 </tr>
 </table>
@@ -398,21 +391,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#getInputBuffer(int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.getInputBuffer(int)</code></a></dd>
-</dl>
-</li>
-</ul>
-<a id="getInputSurface()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getInputSurface</h4>
-<pre class="methodSignature">@Nullable
-<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getInputSurface()</pre>
-<div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>, or null if the input is not a surface.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#createInputSurface()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.createInputSurface()</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -578,14 +556,14 @@ void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/
 </dl>
 </li>
 </ul>
-<a id="setVideoScalingMode(int)">
+<a id="setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoScalingMode</h4>
 <pre class="methodSignature">void&nbsp;setVideoScalingMode&#8203;(<a href="../C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
-                         int&nbsp;scalingMode)</pre>
+                         @com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;scalingMode)</pre>
 <div class="block">Specifies the scaling mode to use, if a surface was specified when the codec was created.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -603,19 +581,18 @@ void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/
 <div class="block">Whether the adapter needs to be reconfigured before it is used.</div>
 </li>
 </ul>
-<a id="signalEndOfInputStream()">
+<a id="getMetrics()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>signalEndOfInputStream</h4>
-<pre class="methodSignature">@RequiresApi(18)
-void&nbsp;signalEndOfInputStream()</pre>
-<div class="block">Signals the encoder of end-of-stream on input. The call can only be used when the encoder
- receives its input from a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>surface</code></a>.</div>
+<h4>getMetrics</h4>
+<pre class="methodSignature">@RequiresApi(26)
+<a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a>&nbsp;getMetrics()</pre>
+<div class="block">Returns metrics data about the current codec instance.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#signalEndOfInputStream()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.signalEndOfInputStream()</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#getMetrics()" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.getMetrics()</code></a></dd>
 </dl>
 </li>
 </ul>

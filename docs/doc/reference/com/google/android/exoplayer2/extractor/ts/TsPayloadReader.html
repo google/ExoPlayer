@@ -241,8 +241,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray,int)">consume</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-       int&nbsp;flags)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)">consume</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+       @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
 <div class="block">Consumes the payload of a TS packet.</div>
 </td>
@@ -360,20 +360,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;seek()</pre>
 <div class="block">Notifies the reader that a seek has occurred.
 
- <p>Following a call to this method, the data passed to the next invocation of <a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray,int)"><code>consume(com.google.android.exoplayer2.util.ParsableByteArray, int)</code></a>
+ <p>Following a call to this method, the data passed to the next invocation of <a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)"><code>consume(com.google.android.exoplayer2.util.ParsableByteArray, @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int)</code></a>
  will not be a continuation of the data that was previously passed. Hence the reader should
  reset any internal state.</div>
 </li>
 </ul>
-<a id="consume(com.google.android.exoplayer2.util.ParsableByteArray,int)">
+<a id="consume(com.google.android.exoplayer2.util.ParsableByteArray,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>consume</h4>
 <pre class="methodSignature">void&nbsp;consume&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-             <a href="TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@Flags</a>
-             int&nbsp;flags)
+             @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)
       throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
 <div class="block">Consumes the payload of a TS packet.</div>
 <dl>

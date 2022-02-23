@@ -239,25 +239,6 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">DefaultRenderersFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,int)">DefaultRenderersFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                       int&nbsp;extensionRendererMode)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context)"><code>DefaultRenderersFactory(Context)</code></a> and <a href="#setExtensionRendererMode(int)"><code>setExtensionRendererMode(int)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,int,long)">DefaultRenderersFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                       int&nbsp;extensionRendererMode,
-                       long&nbsp;allowedVideoJoiningTimeMs)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context)"><code>DefaultRenderersFactory(Context)</code></a>, <a href="#setExtensionRendererMode(int)"><code>setExtensionRendererMode(int)</code></a> and <a href="#setAllowedVideoJoiningTimeMs(long)"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</div>
-</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -278,8 +259,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAudioRenderers(android.content.Context,int,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,com.google.android.exoplayer2.audio.AudioSink,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,java.util.ArrayList)">buildAudioRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                   int&nbsp;extensionRendererMode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildAudioRenderers(android.content.Context,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,com.google.android.exoplayer2.audio.AudioSink,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,java.util.ArrayList)">buildAudioRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                   @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                    <a href="mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    boolean&nbsp;enableDecoderFallback,
                    <a href="audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink,
@@ -302,8 +283,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildCameraMotionRenderers(android.content.Context,int,java.util.ArrayList)">buildCameraMotionRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                          int&nbsp;extensionRendererMode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildCameraMotionRenderers(android.content.Context,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">buildCameraMotionRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                          @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
 <td class="colLast">
 <div class="block">Builds camera motion renderers for use by the player.</div>
@@ -311,10 +292,10 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildMetadataRenderers(android.content.Context,com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,int,java.util.ArrayList)">buildMetadataRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildMetadataRenderers(android.content.Context,com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">buildMetadataRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                       <a href="metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
                       <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
-                      int&nbsp;extensionRendererMode,
+                      @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                       <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
 <td class="colLast">
 <div class="block">Builds metadata renderers for use by the player.</div>
@@ -322,9 +303,9 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildMiscellaneousRenderers(android.content.Context,android.os.Handler,int,java.util.ArrayList)">buildMiscellaneousRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildMiscellaneousRenderers(android.content.Context,android.os.Handler,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">buildMiscellaneousRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                            <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
-                           int&nbsp;extensionRendererMode,
+                           @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                            <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
 <td class="colLast">
 <div class="block">Builds any miscellaneous renderers used by the player.</div>
@@ -332,10 +313,10 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTextRenderers(android.content.Context,com.google.android.exoplayer2.text.TextOutput,android.os.Looper,int,java.util.ArrayList)">buildTextRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTextRenderers(android.content.Context,com.google.android.exoplayer2.text.TextOutput,android.os.Looper,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">buildTextRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                   <a href="text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output,
                   <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
-                  int&nbsp;extensionRendererMode,
+                  @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
 <td class="colLast">
 <div class="block">Builds text renderers for use by the player.</div>
@@ -343,8 +324,8 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildVideoRenderers(android.content.Context,int,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,long,java.util.ArrayList)">buildVideoRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                   int&nbsp;extensionRendererMode,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildVideoRenderers(android.content.Context,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,long,java.util.ArrayList)">buildVideoRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                   @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                    <a href="mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    boolean&nbsp;enableDecoderFallback,
                    <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
@@ -443,7 +424,7 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExtensionRendererMode(int)">setExtensionRendererMode</a></span>&#8203;(int&nbsp;extensionRendererMode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExtensionRendererMode(@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint)">setExtensionRendererMode</a></span>&#8203;(@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode)</code></th>
 <td class="colLast">
 <div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
  used.</div>
@@ -570,7 +551,7 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <a id="&lt;init&gt;(android.content.Context)">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultRenderersFactory</h4>
 <pre>public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
@@ -578,37 +559,6 @@ implements <a href="RenderersFactory.html" title="interface in com.google.androi
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 </dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(android.content.Context,int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultRenderersFactory</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                               <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                               int&nbsp;extensionRendererMode)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context)"><code>DefaultRenderersFactory(Context)</code></a> and <a href="#setExtensionRendererMode(int)"><code>setExtensionRendererMode(int)</code></a>.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(android.content.Context,int,long)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>DefaultRenderersFactory</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                               <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                               int&nbsp;extensionRendererMode,
-                               long&nbsp;allowedVideoJoiningTimeMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context)"><code>DefaultRenderersFactory(Context)</code></a>, <a href="#setExtensionRendererMode(int)"><code>setExtensionRendererMode(int)</code></a> and <a href="#setAllowedVideoJoiningTimeMs(long)"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</div>
-</div>
 </li>
 </ul>
 </li>
@@ -621,14 +571,13 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setExtensionRendererMode(int)">
+<a id="setExtensionRendererMode(@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setExtensionRendererMode</h4>
-<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setExtensionRendererMode&#8203;(<a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                                                        int&nbsp;extensionRendererMode)</pre>
+<pre class="methodSignature">public&nbsp;<a href="DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setExtensionRendererMode&#8203;(@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode)</pre>
 <div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
  used. Note that extensions must be included in the application build for them to be considered
  available.
@@ -873,15 +822,14 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 </dl>
 </li>
 </ul>
-<a id="buildVideoRenderers(android.content.Context,int,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,long,java.util.ArrayList)">
+<a id="buildVideoRenderers(android.content.Context,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,long,java.util.ArrayList)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildVideoRenderers</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;buildVideoRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                                   <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                                   int&nbsp;extensionRendererMode,
+                                   @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                                    <a href="mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                    boolean&nbsp;enableDecoderFallback,
                                    <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
@@ -905,15 +853,14 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 </dl>
 </li>
 </ul>
-<a id="buildAudioRenderers(android.content.Context,int,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,com.google.android.exoplayer2.audio.AudioSink,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,java.util.ArrayList)">
+<a id="buildAudioRenderers(android.content.Context,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,com.google.android.exoplayer2.audio.AudioSink,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,java.util.ArrayList)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildAudioRenderers</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;buildAudioRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                                   <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                                   int&nbsp;extensionRendererMode,
+                                   @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                                    <a href="mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                    boolean&nbsp;enableDecoderFallback,
                                    <a href="audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink,
@@ -936,7 +883,7 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 </dl>
 </li>
 </ul>
-<a id="buildTextRenderers(android.content.Context,com.google.android.exoplayer2.text.TextOutput,android.os.Looper,int,java.util.ArrayList)">
+<a id="buildTextRenderers(android.content.Context,com.google.android.exoplayer2.text.TextOutput,android.os.Looper,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -945,8 +892,7 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 <pre class="methodSignature">protected&nbsp;void&nbsp;buildTextRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                   <a href="text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output,
                                   <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
-                                  <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                                  int&nbsp;extensionRendererMode,
+                                  @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds text renderers for use by the player.</div>
 <dl>
@@ -959,7 +905,7 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 </dl>
 </li>
 </ul>
-<a id="buildMetadataRenderers(android.content.Context,com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,int,java.util.ArrayList)">
+<a id="buildMetadataRenderers(android.content.Context,com.google.android.exoplayer2.metadata.MetadataOutput,android.os.Looper,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -968,8 +914,7 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 <pre class="methodSignature">protected&nbsp;void&nbsp;buildMetadataRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                       <a href="metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
                                       <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
-                                      <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                                      int&nbsp;extensionRendererMode,
+                                      @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                                       <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds metadata renderers for use by the player.</div>
 <dl>
@@ -982,15 +927,14 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 </dl>
 </li>
 </ul>
-<a id="buildCameraMotionRenderers(android.content.Context,int,java.util.ArrayList)">
+<a id="buildCameraMotionRenderers(android.content.Context,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildCameraMotionRenderers</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;buildCameraMotionRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                                          <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                                          int&nbsp;extensionRendererMode,
+                                          @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds camera motion renderers for use by the player.</div>
 <dl>
@@ -1001,7 +945,7 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 </dl>
 </li>
 </ul>
-<a id="buildMiscellaneousRenderers(android.content.Context,android.os.Handler,int,java.util.ArrayList)">
+<a id="buildMiscellaneousRenderers(android.content.Context,android.os.Handler,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,java.util.ArrayList)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1009,8 +953,7 @@ public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.co
 <h4>buildMiscellaneousRenderers</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;buildMiscellaneousRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                            <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
-                                           <a href="DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
-                                           int&nbsp;extensionRendererMode,
+                                           @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int&nbsp;extensionRendererMode,
                                            <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds any miscellaneous renderers used by the player.</div>
 <dl>
@@ -1043,7 +986,7 @@ protected&nbsp;<a href="audio/AudioSink.html" title="interface in com.google.and
      available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> to which the audio renderers will output. May be <code>null</code> if
-     no audio renderers are required. If <code>null</code> is returned then <a href="#buildAudioRenderers(android.content.Context,int,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,com.google.android.exoplayer2.audio.AudioSink,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,java.util.ArrayList)"><code>buildAudioRenderers(android.content.Context, int, com.google.android.exoplayer2.mediacodec.MediaCodecSelector, boolean, com.google.android.exoplayer2.audio.AudioSink, android.os.Handler, com.google.android.exoplayer2.audio.AudioRendererEventListener, java.util.ArrayList&lt;com.google.android.exoplayer2.Renderer&gt;)</code></a> will not be called.</dd>
+     no audio renderers are required. If <code>null</code> is returned then <a href="#buildAudioRenderers(android.content.Context,@com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererModeint,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,com.google.android.exoplayer2.audio.AudioSink,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,java.util.ArrayList)"><code>buildAudioRenderers(android.content.Context, @com.google.android.exoplayer2.DefaultRenderersFactory.ExtensionRendererMode int, com.google.android.exoplayer2.mediacodec.MediaCodecSelector, boolean, com.google.android.exoplayer2.audio.AudioSink, android.os.Handler, com.google.android.exoplayer2.audio.AudioRendererEventListener, java.util.ArrayList&lt;com.google.android.exoplayer2.Renderer&gt;)</code></a> will not be called.</dd>
 </dl>
 </li>
 </ul>

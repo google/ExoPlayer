@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":33,"i3":18,"i4":18,"i5":18};
+var data = {"i0":6,"i1":6,"i2":33,"i3":18,"i4":18,"i5":18,"i6":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -209,8 +209,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">acquireSession</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
-              <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">acquireSession</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, with an incremented reference
@@ -235,8 +234,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>default <a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager.DrmSessionReference</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preacquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">preacquireSession</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
-                 <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preacquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">preacquireSession</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
 <div class="block">Pre-acquires a DRM session for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
@@ -254,6 +252,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases any acquired resources.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(android.os.Looper,com.google.android.exoplayer2.analytics.PlayerId)">setPlayer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
+         <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
+<td class="colLast">
+<div class="block">Sets information about the player using this DRM session manager.</div>
 </td>
 </tr>
 </table>
@@ -344,34 +350,49 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <div class="block">Releases any acquired resources.</div>
 </li>
 </ul>
-<a id="preacquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">
+<a id="setPlayer(android.os.Looper,com.google.android.exoplayer2.analytics.PlayerId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayer</h4>
+<pre class="methodSignature">void&nbsp;setPlayer&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
+               <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="block">Sets information about the player using this DRM session manager.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackLooper</code> - The <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> associated with the player's playback thread.</dd>
+<dd><code>playerId</code> - The <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player.</dd>
+</dl>
+</li>
+</ul>
+<a id="preacquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>preacquireSession</h4>
-<pre class="methodSignature">default&nbsp;<a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager.DrmSessionReference</a>&nbsp;preacquireSession&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
-                                                                @Nullable
+<pre class="methodSignature">default&nbsp;<a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager.DrmSessionReference</a>&nbsp;preacquireSession&#8203;(@Nullable
                                                                 <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                                                                 <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block">Pre-acquires a DRM session for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.
 
- <p>This notifies the manager that a subsequent call to <a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(Looper,
+ <p>This notifies the manager that a subsequent call to <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(
  DrmSessionEventListener.EventDispatcher, Format)</code></a> with the same <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is likely,
  allowing a manager that supports pre-acquisition to get the required <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> ready
  in the background.
 
  <p>The caller must call <a href="DrmSessionManager.DrmSessionReference.html#release()"><code>DrmSessionManager.DrmSessionReference.release()</code></a> on the returned instance when
  they no longer require the pre-acquisition (i.e. they know they won't be making a matching call
- to <a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)</code></a> in the near
+ to <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(DrmSessionEventListener.EventDispatcher, Format)</code></a> in the near
  future).
 
  <p>This manager may silently release the underlying session in order to allow another operation
- to complete. This will result in a subsequent call to <a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(Looper,
+ to complete. This will result in a subsequent call to <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(
  DrmSessionEventListener.EventDispatcher, Format)</code></a> re-initializing a new session, including
  repeating key loads and other async initialization steps.
 
- <p>The caller must separately call <a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(Looper,
+ <p>The caller must separately call <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(
  DrmSessionEventListener.EventDispatcher, Format)</code></a> in order to obtain a session suitable for
  playback. The pre-acquired <a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager.DrmSessionReference</code></a> and full <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> instances
  are distinct. The caller must release both, and can release the <a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager.DrmSessionReference</code></a>
@@ -382,26 +403,23 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
  <p>Implementations that do not support pre-acquisition always return an empty <a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager.DrmSessionReference</code></a> instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackLooper</code> - The looper associated with the media playback thread.</dd>
 <dd><code>eventDispatcher</code> - The <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> used to distribute
      events, and passed on to <a href="DrmSession.html#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>DrmSession.acquire(DrmSessionEventListener.EventDispatcher)</code></a>.</dd>
 <dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for which to pre-acquire a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A releaser for the pre-acquired session. Guaranteed to be non-null even if the matching
-     <a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)</code></a> would
-     return null.</dd>
+     <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(DrmSessionEventListener.EventDispatcher, Format)</code></a> would return null.</dd>
 </dl>
 </li>
 </ul>
-<a id="acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">
+<a id="acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>acquireSession</h4>
 <pre class="methodSignature">@Nullable
-<a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;acquireSession&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
-                          @Nullable
+<a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;acquireSession&#8203;(@Nullable
                           <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                           <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block">Returns a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, with an incremented reference
@@ -416,7 +434,6 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
  cost of transitioning between clear and encrypted content.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackLooper</code> - The looper associated with the media playback thread.</dd>
 <dd><code>eventDispatcher</code> - The <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> used to distribute
      events, and passed on to <a href="DrmSession.html#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>DrmSession.acquire(DrmSessionEventListener.EventDispatcher)</code></a>.</dd>
 <dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for which to acquire a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>.</dd>
@@ -433,7 +450,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <h4>getCryptoType</h4>
 <pre class="methodSignature">@com.google.android.exoplayer2.C.CryptoType int&nbsp;getCryptoType&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the DRM session manager will use for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_UNSUPPORTED"><code>C.CRYPTO_TYPE_UNSUPPORTED</code></a> if the manager does not support any of the
- DRM schemes defined in the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return <code>null</code> for the given
+ DRM schemes defined in the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return <code>null</code> for the given
  <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -441,7 +458,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the manager will use, or @link C#CRYPTO_TYPE_UNSUPPORTED}
      if the manager does not support any of the DRM schemes defined in the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Will
-     be <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="#acquireSession(android.os.Looper,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return null for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
+     be <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return null for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
 </dl>
 </li>
 </ul>

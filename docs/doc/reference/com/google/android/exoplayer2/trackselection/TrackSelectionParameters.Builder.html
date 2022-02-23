@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -407,6 +407,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredVideoRoleFlags(@com.google.android.exoplayer2.C.RoleFlagsint)">setPreferredVideoRoleFlags</a></span>&#8203;(@com.google.android.exoplayer2.C.RoleFlags int&nbsp;preferredVideoRoleFlags)</code></th>
+<td class="colLast">
+<div class="block">Sets the preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for video tracks.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSelectUndeterminedTextLanguage(boolean)">setSelectUndeterminedTextLanguage</a></span>&#8203;(boolean&nbsp;selectUndeterminedTextLanguage)</code></th>
 <td class="colLast">
 <div class="block">Sets whether a text track with undetermined language should be selected if no track with
@@ -414,14 +421,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  preferred language is unset.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackSelectionOverrides(com.google.android.exoplayer2.trackselection.TrackSelectionOverrides)">setTrackSelectionOverrides</a></span>&#8203;(<a href="TrackSelectionOverrides.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverrides</a>&nbsp;trackSelectionOverrides)</code></th>
 <td class="colLast">
 <div class="block">Sets the selection overrides.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setViewportSize(int,int,boolean)">setViewportSize</a></span>&#8203;(int&nbsp;viewportWidth,
                int&nbsp;viewportHeight,
@@ -431,7 +438,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  for the viewport are selected.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code><a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setViewportSizeToPhysicalDisplaySize(android.content.Context,boolean)">setViewportSizeToPhysicalDisplaySize</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                     boolean&nbsp;viewportOrientationMayChange)</code></th>
@@ -746,6 +753,23 @@ public&nbsp;Builder()</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeTypes</code> - The preferred MIME types for video tracks in order of preference, or an
      empty list for no preference.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a id="setPreferredVideoRoleFlags(@com.google.android.exoplayer2.C.RoleFlagsint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPreferredVideoRoleFlags</h4>
+<pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.Builder.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters.Builder</a>&nbsp;setPreferredVideoRoleFlags&#8203;(<a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
+                                                                   @com.google.android.exoplayer2.C.RoleFlags int&nbsp;preferredVideoRoleFlags)</pre>
+<div class="block">Sets the preferred <a href="../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.RoleFlags</code></a> for video tracks.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>preferredVideoRoleFlags</code> - Preferred video role flags.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>

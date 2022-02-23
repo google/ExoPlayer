@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>ServerSideInsertedAdsMediaSource (ExoPlayer library)</title>
+<title>ServerSideAdInsertionMediaSource (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,7 +19,7 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="ServerSideInsertedAdsMediaSource (ExoPlayer library)";
+            parent.document.title="ServerSideAdInsertionMediaSource (ExoPlayer library)";
         }
     }
     catch(err) {
@@ -114,7 +114,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source.ads</a></div>
-<h2 title="Class ServerSideInsertedAdsMediaSource" class="title">Class ServerSideInsertedAdsMediaSource</h2>
+<h2 title="Class ServerSideAdInsertionMediaSource" class="title">Class ServerSideAdInsertionMediaSource</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -124,7 +124,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="../BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.BaseMediaSource</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.source.ads.ServerSideInsertedAdsMediaSource</li>
+<li>com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource</li>
 </ul>
 </li>
 </ul>
@@ -138,7 +138,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a></code>, <code><a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code>, <code><a href="../MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a></code>, <code><a href="../MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">ServerSideInsertedAdsMediaSource</span>
+<pre>public final class <span class="typeNameLabel">ServerSideAdInsertionMediaSource</span>
 extends <a href="../BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a>
 implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>, <a href="../MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>, <a href="../../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a></pre>
 <div class="block">A <a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> for server-side inserted ad breaks.
@@ -147,8 +147,8 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
  server-side inserted ad breaks and ensures that playback continues seamlessly with the wrapped
  media across all transitions.
 
- <p>The ad breaks need to be specified using <a href="#setAdPlaybackState(com.google.android.exoplayer2.source.ads.AdPlaybackState)"><code>setAdPlaybackState(com.google.android.exoplayer2.source.ads.AdPlaybackState)</code></a> and can be updated during
- playback.</div>
+ <p>The ad breaks need to be specified using <a href="#setAdPlaybackStates(com.google.common.collect.ImmutableMap)"><code>setAdPlaybackStates(com.google.common.collect.ImmutableMap&lt;java.lang.Object, com.google.android.exoplayer2.source.ads.AdPlaybackState&gt;)</code></a> and can be updated
+ during playback.</div>
 </li>
 </ul>
 </div>
@@ -162,6 +162,22 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater.html" title="interface in com.google.android.exoplayer2.source.ads">ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater</a></span></code></th>
+<td class="colLast">
+<div class="block">Receives ad playback state update requests when the <a href="../../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the content media
+ source has changed.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.drm.DrmSessionEventListener">
 <!--   -->
@@ -174,7 +190,7 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
-<code><a href="../MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>, <a href="../MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a></code></li>
+<code><a href="../MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>, <a href="../MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>, <a href="../MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.MediaSourceEventListener">
@@ -200,7 +216,8 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.MediaSource)">ServerSideInsertedAdsMediaSource</a></span>&#8203;(<a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.MediaSource,com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater)">ServerSideAdInsertionMediaSource</a></span>&#8203;(<a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                                <a href="ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater.html" title="interface in com.google.android.exoplayer2.source.ads">ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater</a>&nbsp;adPlaybackStateUpdater)</code></th>
 <td class="colLast">
 <div class="block">Creates the media source.</div>
 </td>
@@ -295,9 +312,9 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)">onDrmSessionAcquired</a></span>&#8203;(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">onDrmSessionAcquired</a></span>&#8203;(int&nbsp;windowIndex,
                     <a href="../MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
-                    int&nbsp;state)</code></th>
+                    @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</code></th>
 <td class="colLast">
 <div class="block">Called each time a drm session is acquired.</div>
 </td>
@@ -383,8 +400,8 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">prepareSourceInternal</a></span>&#8203;(<a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code></th>
 <td class="colLast">
-<div class="block">Starts source preparation and enables the source, see <a href="../BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)"><code>BaseMediaSource.prepareSource(MediaSourceCaller,
- TransferListener)</code></a>.</div>
+<div class="block">Starts source preparation and enables the source, see <a href="../BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>BaseMediaSource.prepareSource(MediaSourceCaller,
+ TransferListener, PlayerId)</code></a>.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
@@ -403,9 +420,9 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdPlaybackState(com.google.android.exoplayer2.source.ads.AdPlaybackState)">setAdPlaybackState</a></span>&#8203;(<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdPlaybackStates(com.google.common.collect.ImmutableMap)">setAdPlaybackStates</a></span>&#8203;(<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>,&#8203;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt;&nbsp;adPlaybackStates)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> published by this source.</div>
+<div class="block">Sets the map of <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>ad playback states</code></a> published by this source.</div>
 </td>
 </tr>
 </table>
@@ -414,7 +431,7 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../BaseMediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a>, <a href="../BaseMediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a>, <a href="../BaseMediaSource.html#createDrmEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../BaseMediaSource.html#createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="../BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../BaseMediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a>, <a href="../BaseMediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a>, <a href="../BaseMediaSource.html#isEnabled()">isEnabled</a>, <a href="../BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a>, <a href="../BaseMediaSource.html#refreshSourceInfo(com.google.android.exoplayer2.Timeline)">refreshSourceInfo</a>, <a href="../BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a>, <a href="../BaseMediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a>, <a href="../BaseMediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></code></li>
+<code><a href="../BaseMediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a>, <a href="../BaseMediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a>, <a href="../BaseMediaSource.html#createDrmEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../BaseMediaSource.html#createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="../BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../BaseMediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a>, <a href="../BaseMediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a>, <a href="../BaseMediaSource.html#getPlayerId()">getPlayerId</a>, <a href="../BaseMediaSource.html#isEnabled()">isEnabled</a>, <a href="../BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">prepareSource</a>, <a href="../BaseMediaSource.html#refreshSourceInfo(com.google.android.exoplayer2.Timeline)">refreshSourceInfo</a>, <a href="../BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a>, <a href="../BaseMediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a>, <a href="../BaseMediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -435,7 +452,7 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
-<code><a href="../MediaSource.html#getInitialTimeline()">getInitialTimeline</a>, <a href="../MediaSource.html#isSingleWindow()">isSingleWindow</a></code></li>
+<code><a href="../MediaSource.html#getInitialTimeline()">getInitialTimeline</a>, <a href="../MediaSource.html#isSingleWindow()">isSingleWindow</a>, <a href="../MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a></code></li>
 </ul>
 </li>
 </ul>
@@ -453,17 +470,21 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.MediaSource)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.MediaSource,com.google.android.exoplayer2.source.ads.ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>ServerSideInsertedAdsMediaSource</h4>
-<pre>public&nbsp;ServerSideInsertedAdsMediaSource&#8203;(<a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
+<h4>ServerSideAdInsertionMediaSource</h4>
+<pre>public&nbsp;ServerSideAdInsertionMediaSource&#8203;(<a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                                        @Nullable
+                                        <a href="ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater.html" title="interface in com.google.android.exoplayer2.source.ads">ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater</a>&nbsp;adPlaybackStateUpdater)</pre>
 <div class="block">Creates the media source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSource</code> - The <a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to wrap.</dd>
+<dd><code>adPlaybackStateUpdater</code> - The optional <a href="ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater.html" title="interface in com.google.android.exoplayer2.source.ads"><code>ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater</code></a> to be called before a
+     source refresh is published.</dd>
 </dl>
 </li>
 </ul>
@@ -477,24 +498,26 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setAdPlaybackState(com.google.android.exoplayer2.source.ads.AdPlaybackState)">
+<a id="setAdPlaybackStates(com.google.common.collect.ImmutableMap)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setAdPlaybackState</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setAdPlaybackState&#8203;(<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
-<div class="block">Sets the <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> published by this source.
+<h4>setAdPlaybackStates</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setAdPlaybackStates&#8203;(<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>,&#8203;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdPlaybackState</a>&gt;&nbsp;adPlaybackStates)</pre>
+<div class="block">Sets the map of <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>ad playback states</code></a> published by this source. The key is
+ the period UID of a period in the <a href="ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater.html#onAdPlaybackStateUpdateRequested(com.google.android.exoplayer2.Timeline)"><code>ServerSideAdInsertionMediaSource.AdPlaybackStateUpdater.onAdPlaybackStateUpdateRequested(Timeline)</code></a> content timeline}.
 
- <p>May be called from any thread.
+ <p>Each period has an <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> that tells where in the period the ad groups
+ start and end. Must only contain server-side inserted ad groups. The number of ad groups and
+ the number of ads within an ad group may only increase. The durations of ads may change and the
+ positions of future ad groups may change. Post-roll ad groups with <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>
+ must be empty and can be used as a placeholder for a future ad group.
 
- <p>Must only contain server-side inserted ad groups. The number of ad groups and the number of
- ads within an ad group may only increase. The durations of ads may change and the positions of
- future ad groups may change. Post-roll ad groups with <a href="../../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> must be
- empty and can be used as a placeholder for a future ad group.</div>
+ <p>May be called from any thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>adPlaybackState</code> - The new <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a>.</dd>
+<dd><code>adPlaybackStates</code> - The map of <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> keyed by their period UID.</dd>
 </dl>
 </li>
 </ul>
@@ -522,8 +545,8 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 <pre class="methodSignature">protected&nbsp;void&nbsp;prepareSourceInternal&#8203;(@Nullable
                                      <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseMediaSource.html#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">BaseMediaSource</a></code></span></div>
-<div class="block">Starts source preparation and enables the source, see <a href="../BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)"><code>BaseMediaSource.prepareSource(MediaSourceCaller,
- TransferListener)</code></a>. This method is called at most once until the next call to <a href="../BaseMediaSource.html#releaseSourceInternal()"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
+<div class="block">Starts source preparation and enables the source, see <a href="../BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>BaseMediaSource.prepareSource(MediaSourceCaller,
+ TransferListener, PlayerId)</code></a>. This method is called at most once until the next call to <a href="../BaseMediaSource.html#releaseSourceInternal()"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../BaseMediaSource.html#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
@@ -548,7 +571,8 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called after <a href="../MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener)</code></a>.</div>
+ <p>Must only be called after <a href="../MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener,
+ PlayerId)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSource.html#maybeThrowSourceInfoRefreshError()">maybeThrowSourceInfoRefreshError</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -670,7 +694,7 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
 </dl>
 </li>
 </ul>
-<a id="onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)">
+<a id="onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -680,12 +704,12 @@ implements <a href="../MediaSource.MediaSourceCaller.html" title="interface in c
                                  @Nullable
                                  <a href="../MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                  <a href="../../drm/DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">@State</a>
-                                 int&nbsp;state)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../drm/DrmSessionEventListener.html#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)">DrmSessionEventListener</a></code></span></div>
+                                 @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../drm/DrmSessionEventListener.html#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">DrmSessionEventListener</a></code></span></div>
 <div class="block">Called each time a drm session is acquired.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../drm/DrmSessionEventListener.html#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,int)">onDrmSessionAcquired</a></code>&nbsp;in interface&nbsp;<code><a href="../../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a></code></dd>
+<dd><code><a href="../../drm/DrmSessionEventListener.html#onDrmSessionAcquired(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">onDrmSessionAcquired</a></code>&nbsp;in interface&nbsp;<code><a href="../../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The window index in the timeline this media period belongs to.</dd>
 <dd><code>mediaPeriodId</code> - The <a href="../MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> associated with the drm session.</dd>

@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
-<title>DefaultTrackSelector.AudioTrackScore (ExoPlayer library)</title>
+<title>PlayerId (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
@@ -19,7 +19,7 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="DefaultTrackSelector.AudioTrackScore (ExoPlayer library)";
+            parent.document.title="PlayerId (ExoPlayer library)";
         }
     }
     catch(err) {
@@ -113,34 +113,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.trackselection</a></div>
-<h2 title="Class DefaultTrackSelector.AudioTrackScore" class="title">Class DefaultTrackSelector.AudioTrackScore</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.analytics</a></div>
+<h2 title="Class PlayerId" class="title">Class PlayerId</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.trackselection.DefaultTrackSelector.AudioTrackScore</li>
+<li>com.google.android.exoplayer2.analytics.PlayerId</li>
 </ul>
 </li>
 </ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
-<dl>
-<dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;<a href="DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.AudioTrackScore</a>&gt;</code></dd>
-</dl>
-<dl>
-<dt>Enclosing class:</dt>
-<dd><a href="DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a></dd>
-</dl>
 <hr>
-<pre>protected static final class <span class="typeNameLabel">DefaultTrackSelector.AudioTrackScore</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
-implements <a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;<a href="DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.AudioTrackScore</a>&gt;</pre>
-<div class="block">Represents how well an audio track matches the selection <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+<pre>public final class <span class="typeNameLabel">PlayerId</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Identifier for a player instance.</div>
 </li>
 </ul>
 </div>
@@ -162,10 +153,10 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isWithinConstraints">isWithinConstraints</a></span></code></th>
+<td class="colFirst"><code>static <a href="PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNSET">UNSET</a></span></code></th>
 <td class="colLast">
-<div class="block">Whether the provided format is within the parameter constraints.</div>
+<div class="block">A player identifier with unset default values that can be used as a placeholder or for testing.</div>
 </td>
 </tr>
 </table>
@@ -186,10 +177,16 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,int)">AudioTrackScore</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-               <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;parameters,
-               int&nbsp;formatSupport)</code></th>
-<td class="colLast">&nbsp;</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">PlayerId</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates an instance for API &lt; 31.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.media.metrics.LogSessionId)">PlayerId</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/metrics/LogSessionId.html" title="class or interface in android.media.metrics" class="externalLink" target="_top">LogSessionId</a>&nbsp;logSessionId)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance for API &ge; 31.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -210,10 +207,10 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#compareTo(com.google.android.exoplayer2.trackselection.DefaultTrackSelector.AudioTrackScore)">compareTo</a></span>&#8203;(<a href="DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.AudioTrackScore</a>&nbsp;other)</code></th>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/metrics/LogSessionId.html" title="class or interface in android.media.metrics" class="externalLink" target="_top">LogSessionId</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLogSessionId()">getLogSessionId</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Compares this score with another.</div>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/media/metrics/LogSessionId.html" title="class or interface in android.media.metrics" class="externalLink" target="_top"><code>LogSessionId</code></a> for this player instance.</div>
 </td>
 </tr>
 </table>
@@ -240,15 +237,14 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a id="isWithinConstraints">
+<a id="UNSET">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>isWithinConstraints</h4>
-<pre>public final&nbsp;boolean isWithinConstraints</pre>
-<div class="block">Whether the provided format is within the parameter constraints. If <code>false</code>, the format
- should not be selected.</div>
+<h4>UNSET</h4>
+<pre>public static final&nbsp;<a href="PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a> UNSET</pre>
+<div class="block">A player identifier with unset default values that can be used as a placeholder or for testing.</div>
 </li>
 </ul>
 </li>
@@ -261,16 +257,29 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters,int)">
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlayerId</h4>
+<pre>public&nbsp;PlayerId()</pre>
+<div class="block">Creates an instance for API &lt; 31.</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.media.metrics.LogSessionId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>AudioTrackScore</h4>
-<pre>public&nbsp;AudioTrackScore&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                       <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;parameters,
-                       <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">@Capabilities</a>
-                       int&nbsp;formatSupport)</pre>
+<h4>PlayerId</h4>
+<pre>@RequiresApi(31)
+public&nbsp;PlayerId&#8203;(<a href="https://developer.android.com/reference/android/media/metrics/LogSessionId.html" title="class or interface in android.media.metrics" class="externalLink" target="_top">LogSessionId</a>&nbsp;logSessionId)</pre>
+<div class="block">Creates an instance for API &ge; 31.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>logSessionId</code> - The <a href="https://developer.android.com/reference/android/media/metrics/LogSessionId.html" title="class or interface in android.media.metrics" class="externalLink" target="_top"><code>LogSessionId</code></a> used for this player.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -283,23 +292,15 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="compareTo(com.google.android.exoplayer2.trackselection.DefaultTrackSelector.AudioTrackScore)">
+<a id="getLogSessionId()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>compareTo</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;compareTo&#8203;(<a href="DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.AudioTrackScore</a>&nbsp;other)</pre>
-<div class="block">Compares this score with another.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Comparable.html#compareTo(T)" title="class or interface in java.lang" class="externalLink">compareTo</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;<a href="DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">DefaultTrackSelector.AudioTrackScore</a>&gt;</code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>other</code> - The other score to compare to.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>A positive integer if this score is better than the other. Zero if they are equal. A
-     negative integer if this score is worse than the other.</dd>
-</dl>
+<h4>getLogSessionId</h4>
+<pre class="methodSignature">@RequiresApi(31)
+public&nbsp;<a href="https://developer.android.com/reference/android/media/metrics/LogSessionId.html" title="class or interface in android.media.metrics" class="externalLink" target="_top">LogSessionId</a>&nbsp;getLogSessionId()</pre>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/media/metrics/LogSessionId.html" title="class or interface in android.media.metrics" class="externalLink" target="_top"><code>LogSessionId</code></a> for this player instance.</div>
 </li>
 </ul>
 </li>

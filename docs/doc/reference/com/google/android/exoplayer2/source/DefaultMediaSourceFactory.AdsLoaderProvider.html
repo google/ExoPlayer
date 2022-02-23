@@ -25,12 +25,6 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
-var altColor = "altColor";
-var rowColor = "rowColor";
-var tableTab = "tableTab";
-var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../../";
 var useModuleDirectories = false;
 loadScripts(document, 'script');</script>
@@ -95,7 +89,7 @@ loadScripts(document, 'script');</script>
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a id="skip.navbar.top">
@@ -121,12 +115,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt>All Superinterfaces:</dt>
+<dd><code><a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a></code></dd>
+</dl>
+<dl>
 <dt>Enclosing class:</dt>
 <dd><a href="DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceFactory</a></dd>
 </dl>
 <hr>
-<pre>public static interface <span class="typeNameLabel">DefaultMediaSourceFactory.AdsLoaderProvider</span></pre>
-<div class="block">Provides <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items that have <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ad tag URIs</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static interface <span class="typeNameLabel">DefaultMediaSourceFactory.AdsLoaderProvider</span>
+extends <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.Provider</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -140,52 +142,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Method</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdsLoader(com.google.android.exoplayer2.MediaItem.AdsConfiguration)">getAdsLoader</a></span>&#8203;(<a href="../MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.AdsConfiguration</a>&nbsp;adsConfiguration)</code></th>
-<td class="colLast">
-<div class="block">Returns an <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> for the given <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ads configuration</code></a>, or <code>null</code> if no ads
- loader is available for the given ads configuration.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
-</li>
-</ul>
-</div>
-<div class="details">
 <ul class="blockList">
-<li class="blockList">
-<!-- ============ METHOD DETAIL ========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="method.detail">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.source.ads.AdsLoader.Provider">
 <!--   -->
 </a>
-<h3>Method Detail</h3>
-<a id="getAdsLoader(com.google.android.exoplayer2.MediaItem.AdsConfiguration)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getAdsLoader</h4>
-<pre class="methodSignature">@Nullable
-<a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;getAdsLoader&#8203;(<a href="../MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.AdsConfiguration</a>&nbsp;adsConfiguration)</pre>
-<div class="block">Returns an <a href="ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> for the given <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ads configuration</code></a>, or <code>null</code> if no ads
- loader is available for the given ads configuration.
-
- <p>This method is called each time a <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> is created from a <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>
- that defines an <a href="../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ads configuration</code></a>.</div>
-</li>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.ads.<a href="ads/AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a></h3>
+<code><a href="ads/AdsLoader.Provider.html#getAdsLoader(com.google.android.exoplayer2.MediaItem.AdsConfiguration)">getAdsLoader</a></code></li>
 </ul>
 </li>
 </ul>
@@ -247,7 +209,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a id="skip.navbar.bottom">

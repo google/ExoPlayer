@@ -182,20 +182,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(int)">contains</a></span>&#8203;(int&nbsp;event)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlagsint)">contains</a></span>&#8203;(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int&nbsp;event)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given event occurred.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAny(int...)">containsAny</a></span>&#8203;(int...&nbsp;events)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#containsAny(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlagsint...)">containsAny</a></span>&#8203;(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int...&nbsp;events)</code></th>
 <td class="colLast">
 <div class="block">Returns whether any of the given events occurred.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics"><code>event</code></a> at the given index.</div>
@@ -203,7 +203,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEventTime(int)">getEventTime</a></span>&#8203;(int&nbsp;event)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEventTime(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlagsint)">getEventTime</a></span>&#8203;(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int&nbsp;event)</code></th>
 <td class="colLast">
 <div class="block">Returns the <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> for the specified event.</div>
 </td>
@@ -267,14 +267,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getEventTime(int)">
+<a id="getEventTime(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getEventTime</h4>
 <pre class="methodSignature">public&nbsp;<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;getEventTime&#8203;(<a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics">@EventFlags</a>
-                                                int&nbsp;event)</pre>
+                                                @com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int&nbsp;event)</pre>
 <div class="block">Returns the <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> for the specified event.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -284,14 +284,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="contains(int)">
+<a id="contains(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>contains</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;contains&#8203;(<a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics">@EventFlags</a>
-                        int&nbsp;event)</pre>
+                        @com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int&nbsp;event)</pre>
 <div class="block">Returns whether the given event occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -301,14 +301,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a id="containsAny(int...)">
+<a id="containsAny(@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlagsint...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>containsAny</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;containsAny&#8203;(<a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics">@EventFlags</a>
-                           int...&nbsp;events)</pre>
+                           @com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int...&nbsp;events)</pre>
 <div class="block">Returns whether any of the given events occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -335,7 +335,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>get</h4>
 <pre class="methodSignature"><a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics">@EventFlags</a>
-public&nbsp;int&nbsp;get&#8203;(int&nbsp;index)</pre>
+public&nbsp;@com.google.android.exoplayer2.analytics.AnalyticsListener.EventFlags int&nbsp;get&#8203;(int&nbsp;index)</pre>
 <div class="block">Returns the <a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics"><code>event</code></a> at the given index.
 
  <p>Although index-based access is possible, it doesn't imply a particular order of these

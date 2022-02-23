@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42,"i31":42,"i32":42,"i33":42,"i34":42,"i35":42,"i36":42,"i37":42,"i38":42,"i39":42,"i40":42,"i41":42,"i42":42,"i43":42,"i44":42,"i45":42,"i46":42,"i47":42,"i48":42,"i49":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,9 +148,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewManager.html?is-external=true" title="class or interface in android.view" class="externalLink">ViewManager</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewParent.html?is-external=true" title="class or interface in android.view" class="externalLink">ViewParent</a></code>, <code><a href="AdViewProvider.html" title="interface in com.google.android.exoplayer2.ui" target="_top">AdViewProvider</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">PlayerView</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">PlayerView</span>
 extends <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a>
 implements <a href="AdViewProvider.html" title="interface in com.google.android.exoplayer2.ui">AdViewProvider</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="StyledPlayerView.html" title="class in com.google.android.exoplayer2.ui"><code>StyledPlayerView</code></a> instead.</div>
+</div>
 <div class="block">A high level view for <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> media playbacks. It displays video, subtitles and album art
  during playback, and displays playback controls using a <a href="PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>.
 
@@ -200,14 +204,14 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
    <li><b><code>show_buffering</code></b> - Whether the buffering spinner is displayed when the player
        is buffering. Valid values are <code>never</code>, <code>when_playing</code> and <code>always</code>.
        <ul>
-         <li>Corresponding method: <a href="#setShowBuffering(int)"><code>setShowBuffering(int)</code></a>
+         <li>Corresponding method: <a href="#setShowBuffering(@com.google.android.exoplayer2.ui.PlayerView.ShowBufferingint)"><code>setShowBuffering(int)</code></a>
          <li>Default: <code>never</code>
        </ul>
    <li><b><code>resize_mode</code></b> - Controls how video and album art is resized within the view.
        Valid values are <code>fit</code>, <code>fixed_width</code>, <code>fixed_height</code>, <code>fill</code> and
        <code>zoom</code>.
        <ul>
-         <li>Corresponding method: <a href="#setResizeMode(int)"><code>setResizeMode(int)</code></a>
+         <li>Corresponding method: <a href="#setResizeMode(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeModeint)"><code>setResizeMode(int)</code></a>
          <li>Default: <code>fit</code>
        </ul>
    <li><b><code>surface_type</code></b> - The type of surface view used for video playbacks. Valid
@@ -352,6 +356,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerView.ShowBuffering.html" title="annotation in com.google.android.exoplayer2.ui">PlayerView.ShowBuffering</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Determines when the buffering view is shown.</div>
 </td>
 </tr>
@@ -398,6 +403,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SHOW_BUFFERING_ALWAYS">SHOW_BUFFERING_ALWAYS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffering view is always shown when the player is in the <a href="../Player.html#STATE_BUFFERING"><code>buffering</code></a> state.</div>
 </td>
 </tr>
@@ -405,6 +411,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SHOW_BUFFERING_NEVER">SHOW_BUFFERING_NEVER</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffering view is never shown.</div>
 </td>
 </tr>
@@ -412,6 +419,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SHOW_BUFFERING_WHEN_PLAYING">SHOW_BUFFERING_WHEN_PLAYING</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffering view is shown when the player is in the <a href="../Player.html#STATE_BUFFERING"><code>buffering</code></a>
  state and <a href="../Player.html#getPlayWhenReady()"><code>playWhenReady</code></a> is <code>true</code>.</div>
 </td>
@@ -449,18 +457,24 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">PlayerView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">PlayerView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
           <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet,int)">PlayerView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
           <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
           int&nbsp;defStyleAttr)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -474,7 +488,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -483,12 +497,15 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchKeyEvent(android.view.KeyEvent)">dispatchKeyEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchMediaKeyEvent(android.view.KeyEvent)">dispatchMediaKeyEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to process media key events.</div>
 </td>
 </tr>
@@ -496,6 +513,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui" target="_top">AdOverlayInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdOverlayInfos()">getAdOverlayInfos</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a list of <a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui"><code>AdOverlayInfo</code></a> instances describing views that are on top of the ad
  view group, but that are essential for controlling playback and should be excluded from ad
  viewability measurements.</div>
@@ -505,6 +523,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdViewGroup()">getAdViewGroup</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code> if
  playing audio-only ads.</div>
 </td>
@@ -513,6 +532,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getControllerAutoShow()">getControllerAutoShow</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the playback controls are automatically shown when playback starts, pauses,
  ends, or fails.</div>
 </td>
@@ -521,6 +541,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getControllerHideOnTouch()">getControllerHideOnTouch</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the playback controls are hidden by touch events.</div>
 </td>
 </tr>
@@ -528,6 +549,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getControllerShowTimeoutMs()">getControllerShowTimeoutMs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the playback controls timeout.</div>
 </td>
 </tr>
@@ -535,6 +557,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.html" title="class or interface in android.graphics.drawable" class="externalLink" target="_top">Drawable</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultArtwork()">getDefaultArtwork</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the default artwork to display.</div>
 </td>
 </tr>
@@ -542,6 +565,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOverlayFrameLayout()">getOverlayFrameLayout</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the overlay <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a>, which can be populated with UI elements to show on top of
  the player.</div>
 </td>
@@ -550,13 +574,15 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlayer()">getPlayer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the player currently set on this view, or null if no player is set.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResizeMode()">getResizeMode</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </td>
 </tr>
@@ -564,6 +590,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="SubtitleView.html" title="class in com.google.android.exoplayer2.ui">SubtitleView</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSubtitleView()">getSubtitleView</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the <a href="SubtitleView.html" title="class in com.google.android.exoplayer2.ui"><code>SubtitleView</code></a>.</div>
 </td>
 </tr>
@@ -571,6 +598,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUseArtwork()">getUseArtwork</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether artwork is displayed if present in the media.</div>
 </td>
 </tr>
@@ -578,6 +606,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUseController()">getUseController</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the playback controls can be shown.</div>
 </td>
 </tr>
@@ -585,6 +614,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoSurfaceView()">getVideoSurfaceView</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the view onto which video is rendered.</div>
 </td>
 </tr>
@@ -592,6 +622,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hideController()">hideController</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the playback controls.</div>
 </td>
 </tr>
@@ -599,6 +630,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isControllerVisible()">isControllerVisible</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the controller is currently visible.</div>
 </td>
 </tr>
@@ -607,6 +639,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onContentAspectRatioChanged(com.google.android.exoplayer2.ui.AspectRatioFrameLayout,float)">onContentAspectRatioChanged</a></span>&#8203;(<a href="AspectRatioFrameLayout.html" title="class in com.google.android.exoplayer2.ui">AspectRatioFrameLayout</a>&nbsp;contentFrame,
                            float&nbsp;aspectRatio)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there's a change in the desired aspect ratio of the content frame.</div>
 </td>
 </tr>
@@ -614,6 +647,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPause()">onPause</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Should be called when the player is no longer visible to the user, if the <code>surface_type</code>
  extends <a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html" title="class or interface in android.opengl" class="externalLink" target="_top"><code>GLSurfaceView</code></a>.</div>
 </td>
@@ -622,6 +656,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onResume()">onResume</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Should be called when the player is visible to the user, if the <code>surface_type</code> extends
  <a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html" title="class or interface in android.opengl" class="externalLink" target="_top"><code>GLSurfaceView</code></a>.</div>
 </td>
@@ -629,22 +664,29 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTouchEvent(android.view.MotionEvent)">onTouchEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;event)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackballEvent(android.view.MotionEvent)">onTrackballEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;ev)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#performClick()">performClick</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAspectRatioListener(com.google.android.exoplayer2.ui.AspectRatioFrameLayout.AspectRatioListener)">setAspectRatioListener</a></span>&#8203;(<a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.AspectRatioListener</code></a>.</div>
 </td>
 </tr>
@@ -652,6 +694,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControllerAutoShow(boolean)">setControllerAutoShow</a></span>&#8203;(boolean&nbsp;controllerAutoShow)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls are automatically shown when playback starts, pauses, ends,
  or fails.</div>
 </td>
@@ -660,6 +703,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControllerHideDuringAds(boolean)">setControllerHideDuringAds</a></span>&#8203;(boolean&nbsp;controllerHideDuringAds)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls are hidden when ads are playing.</div>
 </td>
 </tr>
@@ -667,6 +711,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControllerHideOnTouch(boolean)">setControllerHideOnTouch</a></span>&#8203;(boolean&nbsp;controllerHideOnTouch)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls are hidden by touch events.</div>
 </td>
 </tr>
@@ -674,6 +719,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControllerShowTimeoutMs(int)">setControllerShowTimeoutMs</a></span>&#8203;(int&nbsp;controllerShowTimeoutMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the playback controls timeout.</div>
 </td>
 </tr>
@@ -681,6 +727,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setControllerVisibilityListener(com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener)">setControllerVisibilityListener</a></span>&#8203;(<a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 </td>
 </tr>
@@ -688,6 +735,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCustomErrorMessage(java.lang.CharSequence)">setCustomErrorMessage</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error message to be displayed by the view.</div>
 </td>
 </tr>
@@ -695,6 +743,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaultArtwork(android.graphics.drawable.Drawable)">setDefaultArtwork</a></span>&#8203;(<a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.html" title="class or interface in android.graphics.drawable" class="externalLink" target="_top">Drawable</a>&nbsp;defaultArtwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the default artwork to display if <code>useArtwork</code> is <code>true</code> and no artwork is
  present in the media.</div>
 </td>
@@ -703,6 +752,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">setErrorMessageProvider</a></span>&#8203;(<a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the optional <a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 </td>
 </tr>
@@ -711,6 +761,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExtraAdGroupMarkers(long%5B%5D,boolean%5B%5D)">setExtraAdGroupMarkers</a></span>&#8203;(long[]&nbsp;extraAdGroupTimesMs,
                       boolean[]&nbsp;extraPlayedAdGroups)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
  timeline, if in multi-window mode) and whether each extra ad has been played or not.</div>
 </td>
@@ -719,6 +770,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeepContentOnPlayerReset(boolean)">setKeepContentOnPlayerReset</a></span>&#8203;(boolean&nbsp;keepContentOnPlayerReset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the currently displayed video frame or media artwork is kept visible when the
  player is reset.</div>
 </td>
@@ -727,27 +779,31 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use.</div>
 </td>
 </tr>
 <tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(int)">setRepeatToggleModes</a></span>&#8203;(int&nbsp;repeatToggleModes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">setRepeatToggleModes</a></span>&#8203;(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
 <tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResizeMode(int)">setResizeMode</a></span>&#8203;(int&nbsp;resizeMode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResizeMode(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeModeint)">setResizeMode</a></span>&#8203;(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;resizeMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </td>
 </tr>
 <tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowBuffering(int)">setShowBuffering</a></span>&#8203;(int&nbsp;showBuffering)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowBuffering(@com.google.android.exoplayer2.ui.PlayerView.ShowBufferingint)">setShowBuffering</a></span>&#8203;(@com.google.android.exoplayer2.ui.PlayerView.ShowBuffering int&nbsp;showBuffering)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state.</div>
 </td>
 </tr>
@@ -755,6 +811,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowFastForwardButton(boolean)">setShowFastForwardButton</a></span>&#8203;(boolean&nbsp;showFastForwardButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the fast forward button is shown.</div>
 </td>
 </tr>
@@ -762,6 +819,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowMultiWindowTimeBar(boolean)">setShowMultiWindowTimeBar</a></span>&#8203;(boolean&nbsp;showMultiWindowTimeBar)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
@@ -769,6 +827,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowNextButton(boolean)">setShowNextButton</a></span>&#8203;(boolean&nbsp;showNextButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the next button is shown.</div>
 </td>
 </tr>
@@ -776,6 +835,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowPreviousButton(boolean)">setShowPreviousButton</a></span>&#8203;(boolean&nbsp;showPreviousButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the previous button is shown.</div>
 </td>
 </tr>
@@ -783,6 +843,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowRewindButton(boolean)">setShowRewindButton</a></span>&#8203;(boolean&nbsp;showRewindButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the rewind button is shown.</div>
 </td>
 </tr>
@@ -790,6 +851,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowShuffleButton(boolean)">setShowShuffleButton</a></span>&#8203;(boolean&nbsp;showShuffleButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
@@ -797,6 +859,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShutterBackgroundColor(int)">setShutterBackgroundColor</a></span>&#8203;(int&nbsp;color)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the background color of the <code>exo_shutter</code> view.</div>
 </td>
 </tr>
@@ -804,6 +867,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseArtwork(boolean)">setUseArtwork</a></span>&#8203;(boolean&nbsp;useArtwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether artwork is displayed if present in the media.</div>
 </td>
 </tr>
@@ -811,18 +875,22 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseController(boolean)">setUseController</a></span>&#8203;(boolean&nbsp;useController)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls can be shown.</div>
 </td>
 </tr>
 <tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVisibility(int)">setVisibility</a></span>&#8203;(int&nbsp;visibility)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#showController()">showController</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the playback controls.</div>
 </td>
 </tr>
@@ -832,6 +900,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
                 <a href="PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;oldPlayerView,
                 <a href="PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;newPlayerView)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Switches the view targeted by a given <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </td>
 </tr>
@@ -894,6 +963,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>SHOW_BUFFERING_NEVER</h4>
 <pre>public static final&nbsp;int SHOW_BUFFERING_NEVER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffering view is never shown.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -908,6 +978,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>SHOW_BUFFERING_WHEN_PLAYING</h4>
 <pre>public static final&nbsp;int SHOW_BUFFERING_WHEN_PLAYING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffering view is shown when the player is in the <a href="../Player.html#STATE_BUFFERING"><code>buffering</code></a>
  state and <a href="../Player.html#getPlayWhenReady()"><code>playWhenReady</code></a> is <code>true</code>.</div>
 <dl>
@@ -923,6 +994,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>SHOW_BUFFERING_ALWAYS</h4>
 <pre>public static final&nbsp;int SHOW_BUFFERING_ALWAYS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffering view is always shown when the player is in the <a href="../Player.html#STATE_BUFFERING"><code>buffering</code></a> state.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -947,6 +1019,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>PlayerView</h4>
 <pre>public&nbsp;PlayerView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet)">
@@ -958,6 +1031,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <pre>public&nbsp;PlayerView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                   @Nullable
                   <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet,int)">
@@ -970,6 +1044,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
                   @Nullable
                   <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
                   int&nbsp;defStyleAttr)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -993,6 +1068,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
                                     <a href="PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;oldPlayerView,
                                     @Nullable
                                     <a href="PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;newPlayerView)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Switches the view targeted by a given <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1010,6 +1086,7 @@ implements <a href="AdViewProvider.html" title="interface in com.google.android.
 <h4>getPlayer</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;getPlayer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the player currently set on this view, or null if no player is set.</div>
 </li>
 </ul>
@@ -1021,6 +1098,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <h4>setPlayer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlayer&#8203;(@Nullable
                       <a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use.
 
  <p>To transition a <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> from targeting one view to another, it's recommended to use
@@ -1043,20 +1121,21 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setVisibility</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setVisibility&#8203;(int&nbsp;visibility)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#setVisibility(int)" title="class or interface in android.view" class="externalLink">setVisibility</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
 </dl>
 </li>
 </ul>
-<a id="setResizeMode(int)">
+<a id="setResizeMode(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeModeint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setResizeMode</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setResizeMode&#8203;(<a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui">@ResizeMode</a>
-                          int&nbsp;resizeMode)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setResizeMode&#8203;(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;resizeMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1070,8 +1149,8 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>getResizeMode</h4>
-<pre class="methodSignature"><a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui">@ResizeMode</a>
-public&nbsp;int&nbsp;getResizeMode()</pre>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;getResizeMode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </li>
 </ul>
@@ -1082,6 +1161,7 @@ public&nbsp;int&nbsp;getResizeMode()</pre>
 <li class="blockList">
 <h4>getUseArtwork</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;getUseArtwork()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether artwork is displayed if present in the media.</div>
 </li>
 </ul>
@@ -1092,6 +1172,7 @@ public&nbsp;int&nbsp;getResizeMode()</pre>
 <li class="blockList">
 <h4>setUseArtwork</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setUseArtwork&#8203;(boolean&nbsp;useArtwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether artwork is displayed if present in the media.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1107,6 +1188,7 @@ public&nbsp;int&nbsp;getResizeMode()</pre>
 <h4>getDefaultArtwork</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.html" title="class or interface in android.graphics.drawable" class="externalLink" target="_top">Drawable</a>&nbsp;getDefaultArtwork()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the default artwork to display.</div>
 </li>
 </ul>
@@ -1118,6 +1200,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <h4>setDefaultArtwork</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setDefaultArtwork&#8203;(@Nullable
                               <a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.html" title="class or interface in android.graphics.drawable" class="externalLink" target="_top">Drawable</a>&nbsp;defaultArtwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the default artwork to display if <code>useArtwork</code> is <code>true</code> and no artwork is
  present in the media.</div>
 <dl>
@@ -1133,6 +1216,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>getUseController</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;getUseController()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the playback controls can be shown.</div>
 </li>
 </ul>
@@ -1143,6 +1227,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setUseController</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setUseController&#8203;(boolean&nbsp;useController)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls can be shown. If set to <code>false</code> the playback controls
  are never visible and are disconnected from the player.</div>
 <dl>
@@ -1158,6 +1243,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setShutterBackgroundColor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShutterBackgroundColor&#8203;(int&nbsp;color)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the background color of the <code>exo_shutter</code> view.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1172,6 +1258,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setKeepContentOnPlayerReset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setKeepContentOnPlayerReset&#8203;(boolean&nbsp;keepContentOnPlayerReset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the currently displayed video frame or media artwork is kept visible when the
  player is reset. A player reset is defined to mean the player being re-prepared with different
  media, the player transitioning to unprepared media or an empty list of media items, or the
@@ -1193,14 +1280,14 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 </dl>
 </li>
 </ul>
-<a id="setShowBuffering(int)">
+<a id="setShowBuffering(@com.google.android.exoplayer2.ui.PlayerView.ShowBufferingint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setShowBuffering</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setShowBuffering&#8203;(<a href="PlayerView.ShowBuffering.html" title="annotation in com.google.android.exoplayer2.ui">@ShowBuffering</a>
-                             int&nbsp;showBuffering)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setShowBuffering&#8203;(@com.google.android.exoplayer2.ui.PlayerView.ShowBuffering int&nbsp;showBuffering)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state. The
  buffering spinner is not displayed by default.</div>
 <dl>
@@ -1218,6 +1305,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <h4>setErrorMessageProvider</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setErrorMessageProvider&#8203;(@Nullable
                                     <a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the optional <a href="../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1233,6 +1321,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <h4>setCustomErrorMessage</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setCustomErrorMessage&#8203;(@Nullable
                                   <a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error message to be displayed by the view. The error message will be displayed
  permanently, unless it is cleared by passing <code>null</code> to this method.</div>
 <dl>
@@ -1248,6 +1337,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>dispatchKeyEvent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchKeyEvent&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html#dispatchKeyEvent(android.view.KeyEvent)" title="class or interface in android.view" class="externalLink">dispatchKeyEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/ViewGroup.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a></code></dd>
@@ -1261,6 +1351,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>dispatchMediaKeyEvent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchMediaKeyEvent&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to process media key events. Any <a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top"><code>KeyEvent</code></a> can be passed but only media key
  events will be handled. Does nothing if playback controls are disabled.</div>
 <dl>
@@ -1278,6 +1369,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>isControllerVisible</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isControllerVisible()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the controller is currently visible.</div>
 </li>
 </ul>
@@ -1288,6 +1380,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>showController</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;showController()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the playback controls. Does nothing if playback controls are disabled.
 
  <p>The playback controls are automatically hidden during playback after {<a href="#getControllerShowTimeoutMs()"><code>getControllerShowTimeoutMs()</code></a>}. They are shown indefinitely when playback has not started yet,
@@ -1301,6 +1394,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>hideController</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;hideController()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the playback controls. Does nothing if playback controls are disabled.</div>
 </li>
 </ul>
@@ -1311,6 +1405,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>getControllerShowTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getControllerShowTimeoutMs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the playback controls timeout. The playback controls are automatically hidden after
  this duration of time has elapsed without user input and with playback or buffering in
  progress.</div>
@@ -1328,6 +1423,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setControllerShowTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setControllerShowTimeoutMs&#8203;(int&nbsp;controllerShowTimeoutMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the playback controls timeout. The playback controls are automatically hidden after this
  duration of time has elapsed without user input and with playback or buffering in progress.</div>
 <dl>
@@ -1344,6 +1440,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>getControllerHideOnTouch</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;getControllerHideOnTouch()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the playback controls are hidden by touch events.</div>
 </li>
 </ul>
@@ -1354,6 +1451,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setControllerHideOnTouch</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setControllerHideOnTouch&#8203;(boolean&nbsp;controllerHideOnTouch)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls are hidden by touch events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1368,6 +1466,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>getControllerAutoShow</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;getControllerAutoShow()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the playback controls are automatically shown when playback starts, pauses,
  ends, or fails. If set to false, the playback controls can be manually operated with <a href="#showController()"><code>showController()</code></a> and <a href="#hideController()"><code>hideController()</code></a>.</div>
 </li>
@@ -1379,6 +1478,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setControllerAutoShow</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setControllerAutoShow&#8203;(boolean&nbsp;controllerAutoShow)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls are automatically shown when playback starts, pauses, ends,
  or fails. If set to false, the playback controls can be manually operated with <a href="#showController()"><code>showController()</code></a> and <a href="#hideController()"><code>hideController()</code></a>.</div>
 <dl>
@@ -1394,6 +1494,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setControllerHideDuringAds</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setControllerHideDuringAds&#8203;(boolean&nbsp;controllerHideDuringAds)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the playback controls are hidden when ads are playing. Controls are always shown
  during ads if they are enabled and the player is paused.</div>
 <dl>
@@ -1410,6 +1511,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <h4>setControllerVisibilityListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setControllerVisibilityListener&#8203;(@Nullable
                                             <a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1425,6 +1527,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setShowRewindButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowRewindButton&#8203;(boolean&nbsp;showRewindButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the rewind button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1439,6 +1542,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setShowFastForwardButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowFastForwardButton&#8203;(boolean&nbsp;showFastForwardButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the fast forward button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1453,6 +1557,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setShowPreviousButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowPreviousButton&#8203;(boolean&nbsp;showPreviousButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the previous button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1467,6 +1572,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setShowNextButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowNextButton&#8203;(boolean&nbsp;showNextButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the next button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1474,14 +1580,15 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 </dl>
 </li>
 </ul>
-<a id="setRepeatToggleModes(int)">
+<a id="setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatToggleModes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setRepeatToggleModes&#8203;(<a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
-                                 int&nbsp;repeatToggleModes)</pre>
+                                 @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1496,6 +1603,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setShowShuffleButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowShuffleButton&#8203;(boolean&nbsp;showShuffleButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the shuffle button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1510,6 +1618,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <li class="blockList">
 <h4>setShowMultiWindowTimeBar</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowMultiWindowTimeBar&#8203;(boolean&nbsp;showMultiWindowTimeBar)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1527,6 +1636,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
                                    long[]&nbsp;extraAdGroupTimesMs,
                                    @Nullable
                                    boolean[]&nbsp;extraPlayedAdGroups)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
  timeline, if in multi-window mode) and whether each extra ad has been played or not. The
  markers are shown in addition to any ad markers for ads in the player's timeline.</div>
@@ -1547,6 +1657,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <h4>setAspectRatioListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setAspectRatioListener&#8203;(@Nullable
                                    <a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.AspectRatioListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1563,6 +1674,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/dr
 <h4>getVideoSurfaceView</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top">View</a>&nbsp;getVideoSurfaceView()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the view onto which video is rendered. This is a:
 
  <ul>
@@ -1590,6 +1702,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/View.h
 <h4>getOverlayFrameLayout</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a>&nbsp;getOverlayFrameLayout()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the overlay <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a>, which can be populated with UI elements to show on top of
  the player.</div>
 <dl>
@@ -1607,6 +1720,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/widget/Fram
 <h4>getSubtitleView</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exoplayer2.ui">SubtitleView</a>&nbsp;getSubtitleView()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the <a href="SubtitleView.html" title="class in com.google.android.exoplayer2.ui"><code>SubtitleView</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1622,6 +1736,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>onTouchEvent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onTouchEvent&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onTouchEvent(android.view.MotionEvent)" title="class or interface in android.view" class="externalLink">onTouchEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1635,6 +1750,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>performClick</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;performClick()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#performClick()" title="class or interface in android.view" class="externalLink">performClick</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1648,6 +1764,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>onTrackballEvent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onTrackballEvent&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;ev)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onTrackballEvent(android.view.MotionEvent)" title="class or interface in android.view" class="externalLink">onTrackballEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1661,6 +1778,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>onResume</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onResume()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Should be called when the player is visible to the user, if the <code>surface_type</code> extends
  <a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html" title="class or interface in android.opengl" class="externalLink"><code>GLSurfaceView</code></a>. It is the counterpart to <a href="#onPause()" target="_top"><code>onPause()</code></a>.
 
@@ -1675,6 +1793,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>onPause</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPause()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Should be called when the player is no longer visible to the user, if the <code>surface_type</code>
  extends <a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html" title="class or interface in android.opengl" class="externalLink"><code>GLSurfaceView</code></a>. It is the counterpart to <a href="#onResume()" target="_top"><code>onResume()</code></a>.
 
@@ -1691,6 +1810,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <pre class="methodSignature">protected&nbsp;void&nbsp;onContentAspectRatioChanged&#8203;(@Nullable
                                            <a href="AspectRatioFrameLayout.html" title="class in com.google.android.exoplayer2.ui">AspectRatioFrameLayout</a>&nbsp;contentFrame,
                                            float&nbsp;aspectRatio)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there's a change in the desired aspect ratio of the content frame. The default
  implementation sets the aspect ratio of the content frame to the specified value.</div>
 <dl>
@@ -1707,6 +1827,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>getAdViewGroup</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a>&nbsp;getAdViewGroup()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AdViewProvider.html#getAdViewGroup()">AdViewProvider</a></code></span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code> if
  playing audio-only ads. Any views on top of the returned view group must be described by <a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui"><code>AdOverlayInfos</code></a> returned by <a href="AdViewProvider.html#getAdOverlayInfos()"><code>AdViewProvider.getAdOverlayInfos()</code></a>, for accurate
@@ -1724,6 +1845,7 @@ public&nbsp;<a href="SubtitleView.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>getAdOverlayInfos</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui" target="_top">AdOverlayInfo</a>&gt;&nbsp;getAdOverlayInfos()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AdViewProvider.html#getAdOverlayInfos()">AdViewProvider</a></code></span></div>
 <div class="block">Returns a list of <a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui"><code>AdOverlayInfo</code></a> instances describing views that are on top of the ad
  view group, but that are essential for controlling playback and should be excluded from ad

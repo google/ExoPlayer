@@ -245,45 +245,6 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>&nbsp;</code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>&nbsp;</code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                int&nbsp;connectTimeoutMs,
-                int&nbsp;readTimeoutMs,
-                boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>&nbsp;</code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                int&nbsp;connectTimeoutMs,
-                int&nbsp;readTimeoutMs,
-                boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
-                boolean&nbsp;handleSetCookieRequests)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,int,boolean,boolean,java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,com.google.common.base.Predicate,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
@@ -294,51 +255,9 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
                 boolean&nbsp;handleSetCookieRequests,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
                 <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
-                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                 boolean&nbsp;keepPostFor302Redirects)</code></th>
 <td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>&nbsp;</code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>&nbsp;</code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
-                int&nbsp;connectTimeoutMs,
-                int&nbsp;readTimeoutMs,
-                boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>&nbsp;</code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">CronetDataSource</a></span>&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
-                int&nbsp;connectTimeoutMs,
-                int&nbsp;readTimeoutMs,
-                boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
-                boolean&nbsp;handleSetCookieRequests)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</td>
 </tr>
 </table>
 </li>
@@ -446,7 +365,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 </td>
@@ -535,118 +454,6 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CronetDataSource</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CronetDataSource</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                        int&nbsp;connectTimeoutMs,
-                        int&nbsp;readTimeoutMs,
-                        boolean&nbsp;resetTimeoutOnRedirects,
-                        @Nullable
-                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CronetDataSource</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                        int&nbsp;connectTimeoutMs,
-                        int&nbsp;readTimeoutMs,
-                        boolean&nbsp;resetTimeoutOnRedirects,
-                        @Nullable
-                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
-                        boolean&nbsp;handleSetCookieRequests)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CronetDataSource</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                        @Nullable
-                        <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CronetDataSource</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                        @Nullable
-                        <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
-                        int&nbsp;connectTimeoutMs,
-                        int&nbsp;readTimeoutMs,
-                        boolean&nbsp;resetTimeoutOnRedirects,
-                        @Nullable
-                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,com.google.common.base.Predicate,int,int,boolean,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CronetDataSource</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor,
-                        @Nullable
-                        <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
-                        int&nbsp;connectTimeoutMs,
-                        int&nbsp;readTimeoutMs,
-                        boolean&nbsp;resetTimeoutOnRedirects,
-                        @Nullable
-                        <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
-                        boolean&nbsp;handleSetCookieRequests)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource.Factory</code></a> instead.</div>
-</div>
-</li>
-</ul>
 <a id="&lt;init&gt;(org.chromium.net.CronetEngine,java.util.concurrent.Executor,int,int,int,boolean,boolean,java.lang.String,com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties,com.google.common.base.Predicate,boolean)">
 <!--   -->
 </a>
@@ -665,7 +472,7 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
                            @Nullable
                            <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                            @Nullable
-                           <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                           <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                            boolean&nbsp;keepPostFor302Redirects)</pre>
 </li>
 </ul>
@@ -687,13 +494,13 @@ public&nbsp;CronetDataSource&#8203;(org.chromium.net.CronetEngine&nbsp;cronetEng
 <h4>setContentTypePredicate</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
-                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+                                    <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets a content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
+<div class="block">Sets a content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
  <a href="../../upstream/HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>open(DataSpec)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>, or <code>null</code> to clear a
+<dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>, or <code>null</code> to clear a
      predicate that was previously set.</dd>
 </dl>
 </li>

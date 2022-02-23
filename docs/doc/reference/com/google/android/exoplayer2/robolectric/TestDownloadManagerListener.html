@@ -188,8 +188,8 @@ implements <a href="../offline/DownloadManager.Listener.html" title="interface i
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertState(java.lang.String,int)">assertState</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
-           int&nbsp;state)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assertState(java.lang.String,@com.google.android.exoplayer2.offline.Download.Stateint)">assertState</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+           @com.google.android.exoplayer2.offline.Download.State int&nbsp;state)</code></th>
 <td class="colLast">
 <div class="block">Asserts that the specified download transitions to the specified state.</div>
 </td>
@@ -259,7 +259,7 @@ implements <a href="../offline/DownloadManager.Listener.html" title="interface i
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.offline.<a href="../offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></h3>
-<code><a href="../offline/DownloadManager.Listener.html#onDownloadsPausedChanged(com.google.android.exoplayer2.offline.DownloadManager,boolean)">onDownloadsPausedChanged</a>, <a href="../offline/DownloadManager.Listener.html#onRequirementsStateChanged(com.google.android.exoplayer2.offline.DownloadManager,com.google.android.exoplayer2.scheduler.Requirements,int)">onRequirementsStateChanged</a>, <a href="../offline/DownloadManager.Listener.html#onWaitingForRequirementsChanged(com.google.android.exoplayer2.offline.DownloadManager,boolean)">onWaitingForRequirementsChanged</a></code></li>
+<code><a href="../offline/DownloadManager.Listener.html#onDownloadsPausedChanged(com.google.android.exoplayer2.offline.DownloadManager,boolean)">onDownloadsPausedChanged</a>, <a href="../offline/DownloadManager.Listener.html#onRequirementsStateChanged(com.google.android.exoplayer2.offline.DownloadManager,com.google.android.exoplayer2.scheduler.Requirements,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)">onRequirementsStateChanged</a>, <a href="../offline/DownloadManager.Listener.html#onWaitingForRequirementsChanged(com.google.android.exoplayer2.offline.DownloadManager,boolean)">onWaitingForRequirementsChanged</a></code></li>
 </ul>
 </li>
 </ul>
@@ -341,7 +341,7 @@ implements <a href="../offline/DownloadManager.Listener.html" title="interface i
 </dl>
 </li>
 </ul>
-<a id="assertState(java.lang.String,int)">
+<a id="assertState(java.lang.String,@com.google.android.exoplayer2.offline.Download.Stateint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -349,7 +349,7 @@ implements <a href="../offline/DownloadManager.Listener.html" title="interface i
 <h4>assertState</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;assertState&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                         <a href="../offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
-                        int&nbsp;state)</pre>
+                        @com.google.android.exoplayer2.offline.Download.State int&nbsp;state)</pre>
 <div class="block">Asserts that the specified download transitions to the specified state.</div>
 </li>
 </ul>

@@ -212,14 +212,14 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionReason">trackSelectionReason</a></span></code></th>
 <td class="colLast">
 <div class="block">One of the <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the chunk belongs to a track.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.DataType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#type">type</a></span></code></th>
 <td class="colLast">
 <div class="block">The <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a> of the chunk.</div>
@@ -243,11 +243,11 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">Chunk</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,@com.google.android.exoplayer2.C.DataTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,long)">Chunk</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
      <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
-     int&nbsp;type,
+     @com.google.android.exoplayer2.C.DataType int&nbsp;type,
      <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-     int&nbsp;trackSelectionReason,
+     @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
      long&nbsp;startTimeUs,
      long&nbsp;endTimeUs)</code></th>
@@ -356,8 +356,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <ul class="blockList">
 <li class="blockList">
 <h4>type</h4>
-<pre><a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
-public final&nbsp;int type</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.DataType int type</pre>
 <div class="block">The <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a> of the chunk. For reporting only.</div>
 </li>
 </ul>
@@ -377,8 +376,7 @@ public final&nbsp;int type</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>trackSelectionReason</h4>
-<pre><a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
-public final&nbsp;int trackSelectionReason</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.SelectionReason int trackSelectionReason</pre>
 <div class="block">One of the <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the chunk belongs to a track. <a href="../../C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> if the chunk does not belong to a track, or if the selection reason
  is unknown.</div>
 </li>
@@ -436,7 +434,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,int,java.lang.Object,long,long)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,@com.google.android.exoplayer2.C.DataTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,long)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -444,11 +442,9 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>Chunk</h4>
 <pre>public&nbsp;Chunk&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
              <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
-             <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2">@DataType</a>
-             int&nbsp;type,
+             @com.google.android.exoplayer2.C.DataType int&nbsp;type,
              <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-             <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2">@SelectionReason</a>
-             int&nbsp;trackSelectionReason,
+             @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
              @Nullable
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
              long&nbsp;startTimeUs,

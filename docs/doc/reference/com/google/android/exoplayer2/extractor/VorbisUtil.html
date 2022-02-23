@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -199,13 +199,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseVorbisComments(java.util.List)">parseVorbisComments</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;vorbisComments)</code></th>
+<td class="colLast">
+<div class="block">Builds a <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> instance from a list of Vorbis Comments.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="VorbisUtil.CommentHeader.html" title="class in com.google.android.exoplayer2.extractor">VorbisUtil.CommentHeader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readVorbisCommentHeader(com.google.android.exoplayer2.util.ParsableByteArray)">readVorbisCommentHeader</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;headerData)</code></th>
 <td class="colLast">
 <div class="block">Reads a Vorbis comment header.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="VorbisUtil.CommentHeader.html" title="class in com.google.android.exoplayer2.extractor">VorbisUtil.CommentHeader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readVorbisCommentHeader(com.google.android.exoplayer2.util.ParsableByteArray,boolean,boolean)">readVorbisCommentHeader</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;headerData,
                        boolean&nbsp;hasMetadataHeader,
@@ -214,14 +221,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Reads a Vorbis comment header.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="VorbisUtil.VorbisIdHeader.html" title="class in com.google.android.exoplayer2.extractor">VorbisUtil.VorbisIdHeader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readVorbisIdentificationHeader(com.google.android.exoplayer2.util.ParsableByteArray)">readVorbisIdentificationHeader</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;headerData)</code></th>
 <td class="colLast">
 <div class="block">Reads a Vorbis identification header from <code>headerData</code>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="VorbisUtil.Mode.html" title="class in com.google.android.exoplayer2.extractor">VorbisUtil.Mode</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readVorbisModes(com.google.android.exoplayer2.util.ParsableByteArray,int)">readVorbisModes</a></span>&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;headerData,
                int&nbsp;channels)</code></th>
@@ -229,7 +236,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">This method reads the modes which are located at the very end of the Vorbis setup header.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#verifyVorbisHeaderCapturePattern(int,com.google.android.exoplayer2.util.ParsableByteArray,boolean)">verifyVorbisHeaderCapturePattern</a></span>&#8203;(int&nbsp;headerType,
                                 <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;header,
@@ -352,6 +359,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
      spec/Comment header</a></dd>
+</dl>
+</li>
+</ul>
+<a id="parseVorbisComments(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseVorbisComments</h4>
+<pre class="methodSignature">@Nullable
+public static&nbsp;<a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;parseVorbisComments&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;vorbisComments)</pre>
+<div class="block">Builds a <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> instance from a list of Vorbis Comments.
+
+ <p>METADATA_BLOCK_PICTURE comments will be transformed into <a href="../metadata/flac/PictureFrame.html" title="class in com.google.android.exoplayer2.metadata.flac"><code>PictureFrame</code></a> entries. All
+ others will be transformed into <a href="../metadata/vorbis/VorbisComment.html" title="class in com.google.android.exoplayer2.metadata.vorbis"><code>VorbisComment</code></a> entries.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>vorbisComments</code> - The raw input of comments, as a key-value pair KEY=VAL.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The fully parsed Metadata instance. Null if no vorbis comments could be parsed.</dd>
 </dl>
 </li>
 </ul>

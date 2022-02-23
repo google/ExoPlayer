@@ -104,24 +104,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="AnalyticsCollector.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></th>
+<td class="colLast">
+<div class="block">Interface for data collectors that forward analytics events to <a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListeners</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></th>
 <td class="colLast">
 <div class="block">A listener for analytics events.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager</a></th>
 <td class="colLast">
 <div class="block">Manager for active playback sessions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a></th>
 <td class="colLast">
 <div class="block">A listener for session updates.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="PlaybackStatsListener.Callback.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackStatsListener.Callback</a></th>
 <td class="colLast">
 <div class="block">A listener for <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a> updates.</div>
@@ -139,21 +145,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></th>
-<td class="colLast">
-<div class="block">Data collector that forwards analytics events to <a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListeners</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="AnalyticsListener.Events.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.Events</a></th>
 <td class="colLast">
 <div class="block">A set of <a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventFlags</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a></th>
 <td class="colLast">
 <div class="block">Time information of an event.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="DefaultAnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">DefaultAnalyticsCollector</a></th>
+<td class="colLast">
+<div class="block">Data collector that forwards analytics events to <a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListeners</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -164,34 +170,46 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="MediaMetricsListener.html" title="class in com.google.android.exoplayer2.analytics">MediaMetricsListener</a></th>
+<td class="colLast">
+<div class="block">An <a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a> that interacts with the Android <a href="https://developer.android.com/reference/android/media/metrics/MediaMetricsManager.html" title="class or interface in android.media.metrics" class="externalLink" target="_top"><code>MediaMetricsManager</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats</a></th>
 <td class="colLast">
 <div class="block">Statistics about playbacks.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="PlaybackStats.EventTimeAndException.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats.EventTimeAndException</a></th>
 <td class="colLast">
 <div class="block">Stores an exception with the event time at which it occurred.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="PlaybackStats.EventTimeAndFormat.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats.EventTimeAndFormat</a></th>
 <td class="colLast">
 <div class="block">Stores a format with the event time at which it started being used, or <code>null</code> to indicate
  that no format was used.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="PlaybackStats.EventTimeAndPlaybackState.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStats.EventTimeAndPlaybackState</a></th>
 <td class="colLast">
 <div class="block">Stores a playback state with the event time at which it became active.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="PlaybackStatsListener.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStatsListener</a></th>
 <td class="colLast">
 <div class="block"><a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a> to gather <a href="PlaybackStats.html" title="class in com.google.android.exoplayer2.analytics"><code>PlaybackStats</code></a> from the player.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a></th>
+<td class="colLast">
+<div class="block">Identifier for a player instance.</div>
 </td>
 </tr>
 </tbody>

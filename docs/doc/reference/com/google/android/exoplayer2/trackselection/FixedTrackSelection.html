@@ -220,10 +220,10 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,int,java.lang.Object)">FixedTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object)">FixedTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                    int&nbsp;track,
                    @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
-                   int&nbsp;reason,
+                   @com.google.android.exoplayer2.C.SelectionReason int&nbsp;reason,
                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;data)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -260,7 +260,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionReason()">getSelectionReason</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the reason for the current track selection.</div>
@@ -347,7 +347,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,int,java.lang.Object)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.TrackGroup,int,@com.google.android.exoplayer2.trackselection.TrackSelection.Typeint,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -356,7 +356,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <pre>public&nbsp;FixedTrackSelection&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                            int&nbsp;track,
                            @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
-                           int&nbsp;reason,
+                           @com.google.android.exoplayer2.C.SelectionReason int&nbsp;reason,
                            @Nullable
                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;data)</pre>
 <dl>
@@ -434,7 +434,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <ul class="blockList">
 <li class="blockList">
 <h4>getSelectionReason</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getSelectionReason()</pre>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.C.SelectionReason int&nbsp;getSelectionReason()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getSelectionReason()">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns the reason for the current track selection.</div>
 </li>

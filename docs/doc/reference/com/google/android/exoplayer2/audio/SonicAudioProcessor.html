@@ -284,7 +284,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInput(java.nio.ByteBuffer)">queueInput</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
-<div class="block">Queues audio data between the position and limit of the input <code>buffer</code> for processing.</div>
+<div class="block">Queues audio data between the position and limit of the <code>inputBuffer</code> for processing.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -505,16 +505,17 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <h4>queueInput</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;queueInput&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#queueInput(java.nio.ByteBuffer)">AudioProcessor</a></code></span></div>
-<div class="block">Queues audio data between the position and limit of the input <code>buffer</code> for processing.
- <code>buffer</code> must be a direct byte buffer with native byte order. Its contents are treated as
- read-only. Its position will be advanced by the number of bytes consumed (which may be zero).
- The caller retains ownership of the provided buffer. Calling this method invalidates any
- previous buffer returned by <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a>.</div>
+<div class="block">Queues audio data between the position and limit of the <code>inputBuffer</code> for processing.
+ After calling this method, processed output may be available via <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a>. Calling
+ <code>queueInput(ByteBuffer)</code> again invalidates any pending output.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="AudioProcessor.html#queueInput(java.nio.ByteBuffer)">queueInput</a></code>&nbsp;in interface&nbsp;<code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputBuffer</code> - The input buffer to process.</dd>
+<dd><code>inputBuffer</code> - The input buffer to process. It must be a direct byte buffer with native
+     byte order. Its contents are treated as read-only. Its position will be advanced by the
+     number of bytes consumed (which may be zero). The caller retains ownership of the provided
+     buffer.</dd>
 </dl>
 </li>
 </ul>

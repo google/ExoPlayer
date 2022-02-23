@@ -125,7 +125,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public final class <span class="typeNameLabel">HlsManifest</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Holds a master playlist along with a snapshot of one of its media playlists.</div>
+<div class="block">Holds a multivariant playlist along with a snapshot of one of its media playlists.</div>
 </li>
 </ul>
 </div>
@@ -150,14 +150,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#masterPlaylist">masterPlaylist</a></span></code></th>
 <td class="colLast">
-<div class="block">The master playlist of an HLS stream.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#multivariantPlaylist"><code>multivariantPlaylist</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaPlaylist">mediaPlaylist</a></span></code></th>
 <td class="colLast">
-<div class="block">A snapshot of a media playlist referred to by <a href="#masterPlaylist"><code>masterPlaylist</code></a>.</div>
+<div class="block">A snapshot of a media playlist referred to by <a href="#multivariantPlaylist"><code>multivariantPlaylist</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="playlist/HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#multivariantPlaylist">multivariantPlaylist</a></span></code></th>
+<td class="colLast">
+<div class="block">The multivariant playlist of an HLS stream.</div>
 </td>
 </tr>
 </table>
@@ -200,8 +209,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>masterPlaylist</h4>
-<pre>public final&nbsp;<a href="playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a> masterPlaylist</pre>
-<div class="block">The master playlist of an HLS stream.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;<a href="playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a> masterPlaylist</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#multivariantPlaylist"><code>multivariantPlaylist</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="multivariantPlaylist">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>multivariantPlaylist</h4>
+<pre>public final&nbsp;<a href="playlist/HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a> multivariantPlaylist</pre>
+<div class="block">The multivariant playlist of an HLS stream.</div>
 </li>
 </ul>
 <a id="mediaPlaylist">
@@ -211,7 +233,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>mediaPlaylist</h4>
 <pre>public final&nbsp;<a href="playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a> mediaPlaylist</pre>
-<div class="block">A snapshot of a media playlist referred to by <a href="#masterPlaylist"><code>masterPlaylist</code></a>.</div>
+<div class="block">A snapshot of a media playlist referred to by <a href="#multivariantPlaylist"><code>multivariantPlaylist</code></a>.</div>
 </li>
 </ul>
 </li>

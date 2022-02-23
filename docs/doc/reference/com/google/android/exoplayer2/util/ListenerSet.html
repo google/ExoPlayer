@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -228,6 +228,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Removes all listeners from the set.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="ListenerSet.html" title="class in com.google.android.exoplayer2.util">ListenerSet</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(android.os.Looper,com.google.android.exoplayer2.util.Clock,com.google.android.exoplayer2.util.ListenerSet.IterationFinishedEvent)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
+    <a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock,
+    <a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.IterationFinishedEvent</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;iterationFinishedEvent)</code></th>
+<td class="colLast">
+<div class="block">Copies the listener set.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="ListenerSet.html" title="class in com.google.android.exoplayer2.util">ListenerSet</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(android.os.Looper,com.google.android.exoplayer2.util.ListenerSet.IterationFinishedEvent)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
     <a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.IterationFinishedEvent</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;iterationFinishedEvent)</code></th>
@@ -235,14 +251,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Copies the listener set.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flushEvents()">flushEvents</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Notifies listeners of events previously enqueued with <a href="#queueEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)"><code>queueEvent(int, Event)</code></a>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)">queueEvent</a></span>&#8203;(int&nbsp;eventFlag,
           <a href="ListenerSet.Event.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.Event</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;event)</code></th>
@@ -250,21 +266,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Adds an event that is sent to the listeners when <a href="#flushEvents()"><code>flushEvents()</code></a> is called.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the set of listeners immediately.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(T)">remove</a></span>&#8203;(<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Removes a listener from the set.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)">sendEvent</a></span>&#8203;(int&nbsp;eventFlag,
          <a href="ListenerSet.Event.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.Event</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;event)</code></th>
@@ -272,7 +288,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block"><a href="#queueEvent(int,com.google.android.exoplayer2.util.ListenerSet.Event)"><code>Queues</code></a> a single event and immediately <a href="#flushEvents()"><code>flushes</code></a> the event queue to notify all listeners.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
 <td class="colLast">
@@ -353,6 +369,28 @@ public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exopla
 </dl>
 </li>
 </ul>
+<a id="copy(android.os.Looper,com.google.android.exoplayer2.util.Clock,com.google.android.exoplayer2.util.ListenerSet.IterationFinishedEvent)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copy</h4>
+<pre class="methodSignature">@CheckResult
+public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exoplayer2.util">ListenerSet</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
+                           <a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock,
+                           <a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util">ListenerSet.IterationFinishedEvent</a>&lt;<a href="ListenerSet.html" title="type parameter in ListenerSet">T</a>&gt;&nbsp;iterationFinishedEvent)</pre>
+<div class="block">Copies the listener set.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>looper</code> - The new <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> for the copied listener set.</dd>
+<dd><code>clock</code> - The new <a href="Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> for the copied listener set.</dd>
+<dd><code>iterationFinishedEvent</code> - The new <a href="ListenerSet.IterationFinishedEvent.html" title="interface in com.google.android.exoplayer2.util"><code>ListenerSet.IterationFinishedEvent</code></a> sent when all other events
+     sent during one <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration were handled by the listeners.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The copied listener set.</dd>
+</dl>
+</li>
+</ul>
 <a id="add(java.lang.Object)">
 <!--   -->
 </a><a id="add(T)">
@@ -387,6 +425,16 @@ public&nbsp;<a href="ListenerSet.html" title="class in com.google.android.exopla
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - The listener to be removed.</dd>
 </dl>
+</li>
+</ul>
+<a id="clear()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clear</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;clear()</pre>
+<div class="block">Removes all listeners from the set.</div>
 </li>
 </ul>
 <a id="size()">

@@ -228,9 +228,9 @@ implements <a href="SampleStream.html" title="interface in com.google.android.ex
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readData</a></span>&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">readData</a></span>&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
         <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
-        int&nbsp;readFlags)</code></th>
+        @com.google.android.exoplayer2.source.SampleStream.ReadFlags int&nbsp;readFlags)</code></th>
 <td class="colLast">
 <div class="block">Attempts to read from the stream.</div>
 </td>
@@ -297,7 +297,7 @@ implements <a href="SampleStream.html" title="interface in com.google.android.ex
 <div class="block">Returns whether data is available to be read.
 
  <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
- from <a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, int)</code></a>. Hence an ended stream is always ready.</div>
+ from <a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)"><code>SampleStream.readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, @com.google.android.exoplayer2.source.SampleStream.ReadFlags int)</code></a>. Hence an ended stream is always ready.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="SampleStream.html#isReady()">isReady</a></code>&nbsp;in interface&nbsp;<code><a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
@@ -321,7 +321,7 @@ implements <a href="SampleStream.html" title="interface in com.google.android.ex
 </dl>
 </li>
 </ul>
-<a id="readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">
+<a id="readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -329,9 +329,8 @@ implements <a href="SampleStream.html" title="interface in com.google.android.ex
 <h4>readData</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;readData&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
                     <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
-                    <a href="SampleStream.ReadFlags.html" title="annotation in com.google.android.exoplayer2.source">@ReadFlags</a>
-                    int&nbsp;readFlags)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">SampleStream</a></code></span></div>
+                    @com.google.android.exoplayer2.source.SampleStream.ReadFlags int&nbsp;readFlags)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">SampleStream</a></code></span></div>
 <div class="block">Attempts to read from the stream.
 
  <p>If the stream has ended then <a href="../C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set on <code>
@@ -340,7 +339,7 @@ implements <a href="SampleStream.html" title="interface in com.google.android.ex
  is returned. Else <code>buffer</code> is populated and <a href="../C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,int)">readData</a></code>&nbsp;in interface&nbsp;<code><a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
+<dd><code><a href="SampleStream.html#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">readData</a></code>&nbsp;in interface&nbsp;<code><a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>formatHolder</code> - A <a href="../FormatHolder.html" title="class in com.google.android.exoplayer2"><code>FormatHolder</code></a> to populate in the case of reading a format.</dd>
 <dd><code>buffer</code> - A <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffer</code></a> to populate in the case of reading a sample or the

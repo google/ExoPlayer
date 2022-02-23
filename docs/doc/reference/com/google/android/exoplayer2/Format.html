@@ -417,7 +417,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.PcmEncoding int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pcmEncoding">pcmEncoding</a></span></code></th>
 <td class="colLast">
 <div class="block">The <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for PCM audio.</div>
@@ -481,7 +481,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.StereoMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stereoMode">stereoMode</a></span></code></th>
 <td class="colLast">
 <div class="block">The stereo layout for 360/3D/VR video, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not applicable.</div>
@@ -628,14 +628,14 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>static <a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,@com.google.android.exoplayer2.C.PcmEncodingint,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">createAudioSampleFormat</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sampleMimeType,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                        int&nbsp;bitrate,
                        int&nbsp;maxInputSize,
                        int&nbsp;channelCount,
                        int&nbsp;sampleRate,
-                       int&nbsp;pcmEncoding,
+                       @com.google.android.exoplayer2.C.PcmEncoding int&nbsp;pcmEncoding,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                        <a href="drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                        @com.google.android.exoplayer2.C.SelectionFlags int&nbsp;selectionFlags,
@@ -902,7 +902,8 @@ public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int roleFlags</pre>
  <ul>
    <li>DASH representations: Always <a href="#NO_VALUE"><code>NO_VALUE</code></a>.
    <li>HLS variants: The <code>AVERAGE-BANDWIDTH</code> attribute defined on the corresponding <code>
-       EXT-X-STREAM-INF</code> tag in the master playlist, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not present.
+       EXT-X-STREAM-INF</code> tag in the multivariant playlist, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not
+       present.
    <li>SmoothStreaming track elements: The <code>Bitrate</code> attribute defined on the
        corresponding <code>TrackElement</code> in the manifest, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not
        present.
@@ -1108,8 +1109,7 @@ public final&nbsp;byte[] projectionData</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>stereoMode</h4>
-<pre><a href="C.StereoMode.html" title="annotation in com.google.android.exoplayer2">@StereoMode</a>
-public final&nbsp;int stereoMode</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.StereoMode int stereoMode</pre>
 <div class="block">The stereo layout for 360/3D/VR video, or <a href="#NO_VALUE"><code>NO_VALUE</code></a> if not applicable. Valid stereo
  modes are <a href="C.html#STEREO_MODE_MONO"><code>C.STEREO_MODE_MONO</code></a>, <a href="C.html#STEREO_MODE_TOP_BOTTOM"><code>C.STEREO_MODE_TOP_BOTTOM</code></a>, <a href="C.html#STEREO_MODE_LEFT_RIGHT"><code>C.STEREO_MODE_LEFT_RIGHT</code></a>, <a href="C.html#STEREO_MODE_STEREO_MESH"><code>C.STEREO_MODE_STEREO_MESH</code></a>.</div>
 </li>
@@ -1151,8 +1151,7 @@ public final&nbsp;<a href="video/ColorInfo.html" title="class in com.google.andr
 <ul class="blockList">
 <li class="blockList">
 <h4>pcmEncoding</h4>
-<pre><a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
-public final&nbsp;int pcmEncoding</pre>
+<pre>public final&nbsp;@com.google.android.exoplayer2.C.PcmEncoding int pcmEncoding</pre>
 <div class="block">The <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for PCM audio. Set to <a href="#NO_VALUE"><code>NO_VALUE</code></a> for other media types.</div>
 </li>
 </ul>
@@ -1305,7 +1304,7 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
 </div>
 </li>
 </ul>
-<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">
+<a id="createAudioSampleFormat(java.lang.String,java.lang.String,java.lang.String,int,int,int,int,@com.google.android.exoplayer2.C.PcmEncodingint,java.util.List,com.google.android.exoplayer2.drm.DrmInitData,@com.google.android.exoplayer2.C.SelectionFlagsint,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1322,8 +1321,7 @@ public static&nbsp;<a href="Format.html" title="class in com.google.android.exop
                                              int&nbsp;maxInputSize,
                                              int&nbsp;channelCount,
                                              int&nbsp;sampleRate,
-                                             <a href="C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2">@PcmEncoding</a>
-                                             int&nbsp;pcmEncoding,
+                                             @com.google.android.exoplayer2.C.PcmEncoding int&nbsp;pcmEncoding,
                                              @Nullable
                                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                                              @Nullable

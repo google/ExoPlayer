@@ -187,40 +187,47 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
+<td class="colLast">
+<div class="block">The ID of the subtitles.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#label">label</a></span></code></th>
 <td class="colLast">
 <div class="block">The label.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#language">language</a></span></code></th>
 <td class="colLast">
 <div class="block">The language.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mimeType">mimeType</a></span></code></th>
 <td class="colLast">
 <div class="block">The optional MIME type of the subtitle file, or <code>null</code> if unspecified.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#roleFlags">roleFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">The role flags.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectionFlags">selectionFlags</a></span></code></th>
 <td class="colLast">
 <div class="block">The selection flags.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uri">uri</a></span></code></th>
 <td class="colLast">
@@ -343,12 +350,24 @@ public final&nbsp;@com.google.android.exoplayer2.C.RoleFlags int roleFlags</pre>
 <a id="label">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>label</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> label</pre>
 <div class="block">The label.</div>
+</li>
+</ul>
+<a id="id">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>id</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> id</pre>
+<div class="block">The ID of the subtitles. This will be propagated to the <a href="Format.html#id"><code>Format.id</code></a> of the subtitle
+ track created from this configuration.</div>
 </li>
 </ul>
 </li>

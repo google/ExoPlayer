@@ -316,7 +316,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setChannelImportance(int)">setChannelImportance</a></span>&#8203;(int&nbsp;channelImportance)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setChannelImportance(@com.google.android.exoplayer2.util.NotificationUtil.Importanceint)">setChannelImportance</a></span>&#8203;(@com.google.android.exoplayer2.util.NotificationUtil.Importance int&nbsp;channelImportance)</code></th>
 <td class="colLast">
 <div class="block">The importance of the channel.</div>
 </td>
@@ -642,7 +642,8 @@ public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/andr
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 <dd><code>notificationId</code> - The id of the notification to be posted. Must be greater than 0.</dd>
-<dd><code>channelId</code> - The id of the notification channel.</dd>
+<dd><code>channelId</code> - The id of the notification channel of an existing notification channel or of
+     the channel that should be automatically created. In the latter case, <a href="#setChannelNameResourceId(int)"><code>setChannelNameResourceId(int)</code></a> needs to be called as well.</dd>
 </dl>
 </li>
 </ul>
@@ -692,14 +693,13 @@ public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/andr
 </dl>
 </li>
 </ul>
-<a id="setChannelImportance(int)">
+<a id="setChannelImportance(@com.google.android.exoplayer2.util.NotificationUtil.Importanceint)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setChannelImportance</h4>
-<pre class="methodSignature">public&nbsp;<a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a>&nbsp;setChannelImportance&#8203;(<a href="../util/NotificationUtil.Importance.html" title="annotation in com.google.android.exoplayer2.util">@Importance</a>
-                                                              int&nbsp;channelImportance)</pre>
+<pre class="methodSignature">public&nbsp;<a href="PlayerNotificationManager.Builder.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.Builder</a>&nbsp;setChannelImportance&#8203;(@com.google.android.exoplayer2.util.NotificationUtil.Importance int&nbsp;channelImportance)</pre>
 <div class="block">The importance of the channel. Ignored if <a href="#setChannelNameResourceId(int)"><code>setChannelNameResourceId(int)</code></a> is not
  called with a value other than <code>0</code>. If the application has already created the
  notification channel, then this method should not be called.

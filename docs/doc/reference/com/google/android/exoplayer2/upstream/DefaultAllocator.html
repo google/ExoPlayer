@@ -86,7 +86,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -143,6 +143,23 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.Allocator">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></h3>
+<code><a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -219,9 +236,9 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocation%5B%5D)">release</a></span>&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>[]&nbsp;allocations)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">release</a></span>&#8203;(<a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a>&nbsp;allocationNode)</code></th>
 <td class="colLast">
-<div class="block">Releases an array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s back to the allocator.</div>
+<div class="block">Releases all <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a> in the chain starting at the given <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator.AllocationNode</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -238,7 +255,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trim()">trim</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -368,20 +385,21 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 </dl>
 </li>
 </ul>
-<a id="release(com.google.android.exoplayer2.upstream.Allocation[])">
+<a id="release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>[]&nbsp;allocations)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation%5B%5D)">Allocator</a></code></span></div>
-<div class="block">Releases an array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s back to the allocator.</div>
+<pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(@Nullable
+                    <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a>&nbsp;allocationNode)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">Allocator</a></code></span></div>
+<div class="block">Releases all <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a> in the chain starting at the given <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator.AllocationNode</code></a>.
+
+ <p>Implementations must not make memory allocations.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation%5B%5D)">release</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>allocations</code> - The array of <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s being released.</dd>
+<dd><code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">release</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -393,7 +411,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <h4>trim</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;trim()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#trim()">Allocator</a></code></span></div>
-<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s.</div>
+<div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Allocator.html#trim()">trim</a></code>&nbsp;in interface&nbsp;<code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
@@ -481,7 +499,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

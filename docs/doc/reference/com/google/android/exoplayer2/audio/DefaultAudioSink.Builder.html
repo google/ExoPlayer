@@ -1,0 +1,462 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DefaultAudioSink.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DefaultAudioSink.Builder (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.audio</a></div>
+<h2 title="Class DefaultAudioSink.Builder" class="title">Class DefaultAudioSink.Builder</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.audio.DefaultAudioSink.Builder</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></dd>
+</dl>
+<hr>
+<pre>public static final class <span class="typeNameLabel">DefaultAudioSink.Builder</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">A builder to create <a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink</code></a> instances.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Creates a new builder.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Builds the <a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioCapabilities(com.google.android.exoplayer2.audio.AudioCapabilities)">setAudioCapabilities</a></span>&#8203;(<a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities)</code></th>
+<td class="colLast">
+<div class="block">Sets audio capabilities for playback on this device.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioProcessorChain(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain)">setAudioProcessorChain</a></span>&#8203;(<a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioProcessorChain</code></a> to process audio before playback.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioProcessors(com.google.android.exoplayer2.audio.AudioProcessor%5B%5D)">setAudioProcessors</a></span>&#8203;(<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</code></th>
+<td class="colLast">
+<div class="block">Sets an array of <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessors</code></a>s that will process PCM audio before
+ output.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioTrackBufferSizeProvider(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider)">setAudioTrackBufferSizeProvider</a></span>&#8203;(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider&nbsp;audioTrackBufferSizeProvider)</code></th>
+<td class="colLast">
+<div class="block">Sets an <code>DefaultAudioSink.AudioTrackBufferSizeProvider</code> to compute the buffer size when <a href="DefaultAudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>DefaultAudioSink.configure(com.google.android.exoplayer2.Format, int, int[])</code></a> is called with <code>specifiedBufferSize == 0</code>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnableAudioTrackPlaybackParams(boolean)">setEnableAudioTrackPlaybackParams</a></span>&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to control the playback speed using the platform implementation (see <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams(android.media.PlaybackParams)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>), if supported.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnableFloatOutput(boolean)">setEnableFloatOutput</a></span>&#8203;(boolean&nbsp;enableFloatOutput)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to enable 32-bit float output or integer output.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOffloadMode(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadModeint)">setOffloadMode</a></span>&#8203;(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadMode int&nbsp;offloadMode)</code></th>
+<td class="colLast">
+<div class="block">Sets the offload mode.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Builder</h4>
+<pre>public&nbsp;Builder()</pre>
+<div class="block">Creates a new builder.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setAudioCapabilities(com.google.android.exoplayer2.audio.AudioCapabilities)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioCapabilities</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioCapabilities&#8203;(<a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities)</pre>
+<div class="block">Sets audio capabilities for playback on this device. May be <code>null</code> if the default
+ capabilities (no encoded audio passthrough support) should be assumed.
+
+ <p>Default is <a href="AudioCapabilities.html#DEFAULT_AUDIO_CAPABILITIES"><code>AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES</code></a>.</div>
+</li>
+</ul>
+<a id="setAudioProcessors(com.google.android.exoplayer2.audio.AudioProcessor[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioProcessors</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioProcessors&#8203;(<a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</pre>
+<div class="block">Sets an array of <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessors</code></a>s that will process PCM audio before
+ output. May be empty. Equivalent of <code>setAudioProcessorChain(new
+ DefaultAudioProcessorChain(audioProcessors)</code>.
+
+ <p>The default value is an empty array.</div>
+</li>
+</ul>
+<a id="setAudioProcessorChain(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioProcessorChain</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioProcessorChain&#8203;(<a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain)</pre>
+<div class="block">Sets the <a href="DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioProcessorChain</code></a> to process audio before playback. The instance passed in
+ must not be reused in other sinks. Processing chains are only supported for PCM playback (not
+ passthrough or offload).
+
+ <p>By default, no processing will be applied.</div>
+</li>
+</ul>
+<a id="setEnableFloatOutput(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEnableFloatOutput</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setEnableFloatOutput&#8203;(boolean&nbsp;enableFloatOutput)</pre>
+<div class="block">Sets whether to enable 32-bit float output or integer output. Where possible, 32-bit float
+ output will be used if the input is 32-bit float, and also if the input is high resolution
+ (24-bit or 32-bit) integer PCM. Float output is supported from API level 21. Audio processing
+ (for example, speed adjustment) will not be available when float output is in use.
+
+ <p>The default value is <code>false</code>.</div>
+</li>
+</ul>
+<a id="setEnableAudioTrackPlaybackParams(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEnableAudioTrackPlaybackParams</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setEnableAudioTrackPlaybackParams&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</pre>
+<div class="block">Sets whether to control the playback speed using the platform implementation (see <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams(android.media.PlaybackParams)" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>), if supported. If set to <code>false</code>, speed
+ up/down of the audio will be done by ExoPlayer (see <a href="SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>). Platform
+ speed adjustment is lower latency, but less reliable.
+
+ <p>The default value is <code>false</code>.</div>
+</li>
+</ul>
+<a id="setOffloadMode(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadModeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOffloadMode</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setOffloadMode&#8203;(@com.google.android.exoplayer2.audio.DefaultAudioSink.OffloadMode int&nbsp;offloadMode)</pre>
+<div class="block">Sets the offload mode. If an audio format can be both played with offload and encoded audio
+ passthrough, it will be played in offload. Audio offload is supported from API level 29. Most
+ Android devices can only support one offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> at a time and can invalidate
+ it at any time. Thus an app can never be guaranteed that it will be able to play in offload.
+ Audio processing (for example, speed adjustment) will not be available when offload is in
+ use.
+
+ <p>The default value is <a href="DefaultAudioSink.html#OFFLOAD_MODE_DISABLED"><code>DefaultAudioSink.OFFLOAD_MODE_DISABLED</code></a>.</div>
+</li>
+</ul>
+<a id="setAudioTrackBufferSizeProvider(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioTrackBufferSizeProvider</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioTrackBufferSizeProvider&#8203;(com.google.android.exoplayer2.audio.DefaultAudioSink.AudioTrackBufferSizeProvider&nbsp;audioTrackBufferSizeProvider)</pre>
+<div class="block">Sets an <code>DefaultAudioSink.AudioTrackBufferSizeProvider</code> to compute the buffer size when <a href="DefaultAudioSink.html#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>DefaultAudioSink.configure(com.google.android.exoplayer2.Format, int, int[])</code></a> is called with <code>specifiedBufferSize == 0</code>.
+
+ <p>The default value is <code>DefaultAudioSink.AudioTrackBufferSizeProvider.DEFAULT</code>.</div>
+</li>
+</ul>
+<a id="build()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre class="methodSignature">public&nbsp;<a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a>&nbsp;build()</pre>
+<div class="block">Builds the <a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink</code></a>. Must only be called once per Builder instance.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

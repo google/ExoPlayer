@@ -195,71 +195,62 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></span></code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="Player.Listener.html" title="interface in com.google.android.exoplayer2"><code>Player.Listener</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.Events.html" title="class in com.google.android.exoplayer2">Player.Events</a></span></code></th>
 <td class="colLast">
 <div class="block">A set of <a href="Player.Event.html" title="annotation in com.google.android.exoplayer2"><code>events</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></span></code></th>
 <td class="colLast">
 <div class="block">Listener of all changes in the Player.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.MediaItemTransitionReason.html" title="annotation in com.google.android.exoplayer2">Player.MediaItemTransitionReason</a></span></code></th>
 <td class="colLast">
 <div class="block">Reasons for media item transitions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">Player.PlaybackSuppressionReason</a></span></code></th>
 <td class="colLast">
 <div class="block">Reason why playback is suppressed even though <a href="#getPlayWhenReady()"><code>getPlayWhenReady()</code></a> is <code>true</code>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.PlayWhenReadyChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.PlayWhenReadyChangeReason</a></span></code></th>
 <td class="colLast">
 <div class="block">Reasons for <a href="#getPlayWhenReady()"><code>playWhenReady</code></a> changes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a></span></code></th>
 <td class="colLast">
 <div class="block">Position info describing a playback position involved in a discontinuity.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">Player.RepeatMode</a></span></code></th>
 <td class="colLast">
 <div class="block">Repeat modes for playback.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.State.html" title="annotation in com.google.android.exoplayer2">Player.State</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback state.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.TimelineChangeReason</a></span></code></th>
 <td class="colLast">
@@ -582,6 +573,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_ATTRIBUTES_CHANGED">EVENT_AUDIO_ATTRIBUTES_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="#getAudioAttributes()"><code>getAudioAttributes()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_SESSION_ID">EVENT_AUDIO_SESSION_ID</a></span></code></th>
+<td class="colLast">
+<div class="block">The audio session id was set.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AVAILABLE_COMMANDS_CHANGED">EVENT_AVAILABLE_COMMANDS_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#isCommandAvailable(@com.google.android.exoplayer2.Player.Commandint)"><code>isCommandAvailable(int)</code></a> changed for at least one <a href="Player.Command.html" title="annotation in com.google.android.exoplayer2"><code>Player.Command</code></a>.</div>
@@ -589,37 +594,65 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_CUES">EVENT_CUES</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="#getCurrentCues()"><code>getCurrentCues()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DEVICE_INFO_CHANGED">EVENT_DEVICE_INFO_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="#getDeviceInfo()"><code>getDeviceInfo()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DEVICE_VOLUME_CHANGED">EVENT_DEVICE_VOLUME_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="#getDeviceVolume()"><code>getDeviceVolume()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_IS_LOADING_CHANGED">EVENT_IS_LOADING_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#isLoading()"><code>isLoading()</code></a> ()} changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_IS_PLAYING_CHANGED">EVENT_IS_PLAYING_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#isPlaying()"><code>isPlaying()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED">EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getMaxSeekToPreviousPosition()"><code>getMaxSeekToPreviousPosition()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MEDIA_ITEM_TRANSITION">EVENT_MEDIA_ITEM_TRANSITION</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getCurrentMediaItem()"><code>getCurrentMediaItem()</code></a> changed or the player started repeating the current item.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MEDIA_METADATA_CHANGED">EVENT_MEDIA_METADATA_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getMediaMetadata()"><code>getMediaMetadata()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_METADATA">EVENT_METADATA</a></span></code></th>
+<td class="colLast">
+<div class="block">Metadata associated with the current playback time changed.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -673,152 +706,188 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_RENDERED_FIRST_FRAME">EVENT_RENDERED_FIRST_FRAME</a></span></code></th>
+<td class="colLast">
+<div class="block">A frame is rendered for the first time since setting the surface, or since the renderer was
+ reset, or since the stream being rendered was changed.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_REPEAT_MODE_CHANGED">EVENT_REPEAT_MODE_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getRepeatMode()"><code>getRepeatMode()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SEEK_BACK_INCREMENT_CHANGED">EVENT_SEEK_BACK_INCREMENT_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getSeekBackIncrement()"><code>getSeekBackIncrement()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SEEK_FORWARD_INCREMENT_CHANGED">EVENT_SEEK_FORWARD_INCREMENT_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getSeekForwardIncrement()"><code>getSeekForwardIncrement()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SHUFFLE_MODE_ENABLED_CHANGED">EVENT_SHUFFLE_MODE_ENABLED_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getShuffleModeEnabled()"><code>getShuffleModeEnabled()</code></a> changed.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SKIP_SILENCE_ENABLED_CHANGED">EVENT_SKIP_SILENCE_ENABLED_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block">Skipping silences in the audio stream is enabled or disabled.</div>
+</td>
+</tr>
 <tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SURFACE_SIZE_CHANGED">EVENT_SURFACE_SIZE_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block">The size of the surface onto which the video is being rendered changed.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TIMELINE_CHANGED">EVENT_TIMELINE_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getCurrentTimeline()"><code>getCurrentTimeline()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TRACK_SELECTION_PARAMETERS_CHANGED">EVENT_TRACK_SELECTION_PARAMETERS_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getTrackSelectionParameters()"><code>getTrackSelectionParameters()</code></a> changed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TRACKS_CHANGED">EVENT_TRACKS_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block"><a href="#getCurrentTracksInfo()"><code>getCurrentTracksInfo()</code></a> changed.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_SIZE_CHANGED">EVENT_VIDEO_SIZE_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="#getVideoSize()"><code>getVideoSize()</code></a> changed.</div>
+</td>
+</tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VOLUME_CHANGED">EVENT_VOLUME_CHANGED</a></span></code></th>
+<td class="colLast">
+<div class="block"><a href="#getVolume()"><code>getVolume()</code></a> changed.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_ITEM_TRANSITION_REASON_AUTO">MEDIA_ITEM_TRANSITION_REASON_AUTO</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback has automatically transitioned to the next media item.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED">MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block">The current media item has changed because of a change in the playlist.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_ITEM_TRANSITION_REASON_REPEAT">MEDIA_ITEM_TRANSITION_REASON_REPEAT</a></span></code></th>
 <td class="colLast">
 <div class="block">The media item has been repeated.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_ITEM_TRANSITION_REASON_SEEK">MEDIA_ITEM_TRANSITION_REASON_SEEK</a></span></code></th>
 <td class="colLast">
 <div class="block">A seek to another media item has occurred.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY">PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback has been paused to avoid becoming noisy.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS">PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback has been paused because of a loss of audio focus.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM">PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback has been paused at the end of a media item.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAY_WHEN_READY_CHANGE_REASON_REMOTE">PLAY_WHEN_READY_CHANGE_REASON_REMOTE</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback has been started or paused because of a remote change.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST">PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback has been started or paused by a call to <a href="#setPlayWhenReady(boolean)"><code>setPlayWhenReady(boolean)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_SUPPRESSION_REASON_NONE">PLAYBACK_SUPPRESSION_REASON_NONE</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback is not suppressed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS">PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS</a></span></code></th>
 <td class="colLast">
 <div class="block">Playback is suppressed due to transient audio focus loss.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#REPEAT_MODE_ALL">REPEAT_MODE_ALL</a></span></code></th>
 <td class="colLast">
 <div class="block">Repeats the entire timeline infinitely.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#REPEAT_MODE_OFF">REPEAT_MODE_OFF</a></span></code></th>
 <td class="colLast">
 <div class="block">Normal playback without repetition.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#REPEAT_MODE_ONE">REPEAT_MODE_ONE</a></span></code></th>
 <td class="colLast">
 <div class="block">Repeats the currently playing <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> infinitely during ongoing playback.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_BUFFERING">STATE_BUFFERING</a></span></code></th>
 <td class="colLast">
@@ -826,35 +895,35 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  so.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_ENDED">STATE_ENDED</a></span></code></th>
 <td class="colLast">
 <div class="block">The player has finished playing the media.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_IDLE">STATE_IDLE</a></span></code></th>
 <td class="colLast">
 <div class="block">The player is idle, meaning it holds only limited resources.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_READY">STATE_READY</a></span></code></th>
 <td class="colLast">
 <div class="block">The player is able to immediately play from its current position.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED">TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED</a></span></code></th>
 <td class="colLast">
 <div class="block">Timeline changed as a result of a change of the playlist items or the order of the items.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TIMELINE_CHANGE_REASON_SOURCE_UPDATE">TIMELINE_CHANGE_REASON_SOURCE_UPDATE</a></span></code></th>
 <td class="colLast">
@@ -2502,6 +2571,161 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 </li>
 </ul>
+<a id="EVENT_AUDIO_ATTRIBUTES_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_AUDIO_ATTRIBUTES_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_AUDIO_ATTRIBUTES_CHANGED</pre>
+<div class="block"><a href="#getAudioAttributes()"><code>getAudioAttributes()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_AUDIO_ATTRIBUTES_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_AUDIO_SESSION_ID">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_AUDIO_SESSION_ID</h4>
+<pre>static final&nbsp;int EVENT_AUDIO_SESSION_ID</pre>
+<div class="block">The audio session id was set.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_AUDIO_SESSION_ID">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_VOLUME_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_VOLUME_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_VOLUME_CHANGED</pre>
+<div class="block"><a href="#getVolume()"><code>getVolume()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_VOLUME_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_SKIP_SILENCE_ENABLED_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_SKIP_SILENCE_ENABLED_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_SKIP_SILENCE_ENABLED_CHANGED</pre>
+<div class="block">Skipping silences in the audio stream is enabled or disabled.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_SKIP_SILENCE_ENABLED_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_SURFACE_SIZE_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_SURFACE_SIZE_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_SURFACE_SIZE_CHANGED</pre>
+<div class="block">The size of the surface onto which the video is being rendered changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_SURFACE_SIZE_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_VIDEO_SIZE_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_VIDEO_SIZE_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_VIDEO_SIZE_CHANGED</pre>
+<div class="block"><a href="#getVideoSize()"><code>getVideoSize()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_VIDEO_SIZE_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_RENDERED_FIRST_FRAME">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_RENDERED_FIRST_FRAME</h4>
+<pre>static final&nbsp;int EVENT_RENDERED_FIRST_FRAME</pre>
+<div class="block">A frame is rendered for the first time since setting the surface, or since the renderer was
+ reset, or since the stream being rendered was changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_RENDERED_FIRST_FRAME">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_CUES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_CUES</h4>
+<pre>static final&nbsp;int EVENT_CUES</pre>
+<div class="block"><a href="#getCurrentCues()"><code>getCurrentCues()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_CUES">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_METADATA">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_METADATA</h4>
+<pre>static final&nbsp;int EVENT_METADATA</pre>
+<div class="block">Metadata associated with the current playback time changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_METADATA">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_DEVICE_INFO_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_DEVICE_INFO_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_DEVICE_INFO_CHANGED</pre>
+<div class="block"><a href="#getDeviceInfo()"><code>getDeviceInfo()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_DEVICE_INFO_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a id="EVENT_DEVICE_VOLUME_CHANGED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENT_DEVICE_VOLUME_CHANGED</h4>
+<pre>static final&nbsp;int EVENT_DEVICE_VOLUME_CHANGED</pre>
+<div class="block"><a href="#getDeviceVolume()"><code>getDeviceVolume()</code></a> changed.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.Player.EVENT_DEVICE_VOLUME_CHANGED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a id="COMMAND_PLAY_PAUSE">
 <!--   -->
 </a>
@@ -3801,7 +4025,7 @@ void&nbsp;seekToPreviousWindow()</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The maximum seek to previous position, in milliseconds.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="Player.EventListener.html#onMaxSeekToPreviousPositionChanged(long)"><code>Player.EventListener.onMaxSeekToPreviousPositionChanged(long)</code></a></dd>
+<dd><a href="Player.Listener.html#onMaxSeekToPreviousPositionChanged(long)"><code>Player.Listener.onMaxSeekToPreviousPositionChanged(long)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -4042,7 +4266,7 @@ void&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
 <div class="block">Returns the available track groups.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
+<dd><a href="Player.Listener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.Listener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -4064,7 +4288,7 @@ void&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
  components that is not assigned any selected tracks.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
+<dd><a href="Player.Listener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.Listener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -4078,7 +4302,7 @@ void&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
 <div class="block">Returns the available tracks, as well as the tracks' support, type, and selection status.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="Player.EventListener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
+<dd><a href="Player.Listener.html#onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.TrackSelectionArray)"><code>Player.Listener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -4092,7 +4316,7 @@ void&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
 <div class="block">Returns the parameters constraining the track selection.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="Player.EventListener.html#onTrackSelectionParametersChanged(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)"><code>}</code></a></dd>
+<dd><a href="Player.Listener.html#onTrackSelectionParametersChanged(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)"><code>}</code></a></dd>
 </dl>
 </li>
 </ul>
