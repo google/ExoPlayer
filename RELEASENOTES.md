@@ -1,5 +1,12 @@
 # Release notes
 
+### dev-v2 (not yet released)
+
+*   Extractors:
+    *   FMP4: Fix issue where emsg sample metadata could be output in the wrong
+        order for streams containing both v0 and v1 emsg atoms
+        ([#9996](https://github.com/google/ExoPlayer/issues/9996)).
+
 ### 2.17.0 (2022-02-24)
 
 *   Core library:
